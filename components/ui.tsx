@@ -11,10 +11,10 @@ const navigation: Record<Workspace, NavItem[]> = {
     { id: "dashboard", label: "Dashboard", href: "/candidate", glyph: "▦" },
     { id: "jobs", label: "Jobs", href: "/candidate/jobs", glyph: "⌕" },
     { id: "applications", label: "Applications", href: "/candidate", glyph: "◫" },
-    { id: "profile", label: "Profile", href: "/candidate/profile", glyph: "♙" },
     { id: "resume", label: "Resume review", href: "/candidate/review", glyph: "▤" },
     { id: "notifications", label: "Notifications", href: "/candidate/notifications", glyph: "◌" },
     { id: "messages", label: "Messages", href: "/candidate/messages", glyph: "✉" },
+    { id: "profile", label: "Profile", href: "/candidate/profile", glyph: "♙" },
   ],
   recruiter: [
     { id: "dashboard", label: "Overview", href: "/recruiter", glyph: "▦" },
@@ -84,7 +84,7 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
           {navigation[workspace].map((item) => <a className={item.id === active ? "nav-item nav-item-active" : "nav-item"} href={item.href} key={item.id}><span aria-hidden="true">{item.glyph}</span>{item.label}</a>)}
         </nav>
         <div className="sidebar-bottom">
-          <a className="nav-item" href="#settings"><span aria-hidden="true">⚙</span>Settings</a>
+          <a className={active === "settings" ? "nav-item nav-item-active" : "nav-item"} href={workspace === "candidate" ? "/candidate/settings" : "#settings"}><span aria-hidden="true">⚙</span>Settings</a>
           <a className="switch-workspace" href={workspace === "candidate" ? "/recruiter" : workspace === "recruiter" ? "/admin" : "/candidate"}>Switch workspace <span>→</span></a>
         </div>
       </aside>
