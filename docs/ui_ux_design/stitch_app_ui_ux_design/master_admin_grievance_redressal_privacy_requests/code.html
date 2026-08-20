@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - Grievance Redressal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "inverse-on-surface": "#eaf1ff",
+                "slate-50": "#F8FAFC",
+                "tertiary-fixed": "#6ffbbe",
+                "on-secondary-container": "#fefcff",
+                "tertiary-container": "#002113",
+                "on-tertiary-container": "#009668",
+                "blue-600": "#2563EB",
+                "primary-fixed-dim": "#bec6e0",
+                "surface-container-highest": "#d3e4fe",
+                "primary-fixed": "#dae2fd",
+                "rose-600": "#E11D48",
+                "tertiary-fixed-dim": "#4edea3",
+                "on-tertiary-fixed": "#002113",
+                "inverse-primary": "#bec6e0",
+                "secondary-fixed-dim": "#b4c5ff",
+                "on-secondary-fixed": "#00174b",
+                "tertiary": "#000000",
+                "secondary-fixed": "#dbe1ff",
+                "on-primary-fixed": "#131b2e",
+                "secondary-container": "#316bf3",
+                "on-error": "#ffffff",
+                "surface": "#f8f9ff",
+                "surface-bright": "#f8f9ff",
+                "indigo-600": "#4F46E5",
+                "error": "#ba1a1a",
+                "on-primary": "#ffffff",
+                "secondary": "#0051d5",
+                "on-tertiary": "#ffffff",
+                "on-surface-variant": "#45464d",
+                "slate-200": "#E2E8F0",
+                "amber-500": "#F59E0B",
+                "on-error-container": "#93000a",
+                "on-primary-fixed-variant": "#3f465c",
+                "green-600": "#10B981",
+                "primary-container": "#131b2e",
+                "surface-dim": "#cbdbf5",
+                "surface-container-high": "#dce9ff",
+                "outline": "#76777d",
+                "primary": "#000000",
+                "error-container": "#ffdad6",
+                "on-secondary-fixed-variant": "#003ea8",
+                "inverse-surface": "#213145",
+                "surface-container": "#e5eeff",
+                "on-tertiary-fixed-variant": "#005236",
+                "on-secondary": "#ffffff",
+                "on-primary-container": "#7c839b",
+                "outline-variant": "#c6c6cd",
+                "surface-container-low": "#eff4ff",
+                "surface-container-lowest": "#ffffff",
+                "surface-tint": "#565e74",
+                "navy-900": "#0F172A",
+                "background": "#f8f9ff",
+                "on-background": "#0b1c30",
+                "surface-variant": "#d3e4fe",
+                "on-surface": "#0b1c30"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "gutter-xs": "8px",
+                "gutter-sm": "16px",
+                "container-max": "1440px",
+                "base": "4px",
+                "margin-page": "32px",
+                "gutter-md": "24px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Geist"
+                ],
+                "headline-md": [
+                        "Geist"
+                ],
+                "headline-lg": [
+                        "Geist"
+                ],
+                "headline-sm": [
+                        "Geist"
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "display-lg": [
+                        "Geist"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "code-sm": [
+                        "JetBrains Mono"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "code-sm": [
+                        "13px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+</head>
+<body class="bg-slate-50 text-on-surface font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="h-screen w-64 flex flex-col fixed left-0 top-0 border-r border-slate-200 dark:border-outline-variant bg-slate-50 dark:bg-navy-900 hidden md:flex z-40">
+<div class="p-gutter-md">
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed mb-1">Sapienworx</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">System</p>
+</div>
+<div class="px-gutter-md pb-gutter-md flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Master Admin Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a master administrator in a corporate setting. High-key lighting, modern office background. Minimalist, clean aesthetic focusing on the face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEQKVVP60TSIBouWasEPmg7mNswkCbeNq7lfqiXKj0Z-q13jSdEYVeUyVip_4Ei26HMHzCya2GPVZpei35fsE4E5WGh0HZWVBnCp5SM0KkzMSq1CRD5A3_cvy5tz9sSyjSq6Xk4sEvIA_RvzXxyXz8UWTXDIA5TcpPpouq3QOiUwLjWPhQSGx3j6K8j5JKAY0TjGNYNfG4BAH5uQnmXEwLgMKCrc9LTNbzzbzts8motuaifBDJrj9d"/>
+</div>
+<div>
+<p class="text-label-md font-label-md text-on-surface font-semibold">Master Admin</p>
+</div>
+</div>
+<ul class="flex-1 px-base overflow-y-auto space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">group</span>
+                    Users
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">business</span>
+                    Organizations
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">work</span>
+                    Jobs
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">description</span>
+                    Applications
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">folder_shared</span>
+                    Documents
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">monitoring</span>
+                    Parser Monitoring
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">payments</span>
+                    Plans
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+                    Billing
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-secondary-container text-on-secondary-container font-semibold hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">report_problem</span>
+                    Grievance Redressal
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+                    Platform Settings
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">verified_user</span>
+                    Audit Logs
+                </a>
+</li>
+</ul>
+<div class="px-base py-4 border-t border-slate-200">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">help</span>
+                        Help Center
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:bg-slate-200 dark:hover:bg-primary-container transition-all text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">logout</span>
+                        Logout
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 h-full flex flex-col relative overflow-hidden bg-slate-50">
+<!-- TopNavBar Mobile (Optional based on rules, but keeping for responsive integrity if needed, hiding on md) -->
+<header class="w-full h-16 flex justify-between items-center px-gutter-md sticky top-0 z-50 bg-surface-container-lowest dark:bg-navy-900 md:hidden shadow-sm">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-secondary dark:text-secondary-fixed">menu</button>
+<span class="text-headline-md font-headline-md text-primary dark:text-primary-fixed">Sapienworx</span>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-margin-page">
+<div class="max-w-container-max mx-auto space-y-8">
+<!-- Page Header -->
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Grievance Redressal Dashboard</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-2">Manage privacy complaints, data requests, and legal compliance workflows.</p>
+</div>
+<!-- KPI Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter-md">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-secondary">report</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant mb-2 uppercase tracking-wider">Open Grievances</p>
+<p class="text-display-lg font-display-lg text-primary">24</p>
+<p class="text-label-sm font-label-sm text-rose-600 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> +3 since last week
+                        </p>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-secondary">timer</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant mb-2 uppercase tracking-wider">Avg. Resolution Time</p>
+<p class="text-display-lg font-display-lg text-primary">4.2<span class="text-headline-md font-headline-md text-on-surface-variant ml-1">days</span></p>
+<p class="text-label-sm font-label-sm text-green-600 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_down</span> -1.1 days improvement
+                        </p>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-secondary">delete_sweep</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant mb-2 uppercase tracking-wider">Privacy Requests</p>
+<p class="text-display-lg font-display-lg text-primary">12</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-2 flex items-center gap-1">
+                            Data Portability &amp; Erasure
+                        </p>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-rose-600">gavel</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant mb-2 uppercase tracking-wider">Pending Legal Reviews</p>
+<p class="text-display-lg font-display-lg text-rose-600">7</p>
+<p class="text-label-sm font-label-sm text-rose-600 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">warning</span> Action required within 48h
+                        </p>
+</div>
+</div>
+<!-- Main Content Split -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter-md">
+<!-- Left: Data Table (Spans 2 columns) -->
+<div class="lg:col-span-2 bg-surface-container-lowest border border-slate-200 rounded-xl shadow-sm flex flex-col h-[600px]">
+<!-- Toolbar -->
+<div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface-container-lowest rounded-t-xl">
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-body-sm focus:ring-secondary focus:border-secondary" placeholder="Search ID, User, or Org..." type="text"/>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<select class="border border-slate-200 rounded-lg text-body-sm py-2 pl-3 pr-8 focus:ring-secondary focus:border-secondary bg-surface-container-lowest">
+<option>All Request Types</option>
+<option>Right to Erasure</option>
+<option>Data Correction</option>
+<option>Privacy Violation</option>
+</select>
+<button class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-body-sm font-label-md text-on-surface hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span> Filters
+                                </button>
+</div>
+</div>
+<!-- Table Wrapper -->
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-lowest sticky top-0 z-10 border-b border-slate-200">
+<tr>
+<th class="py-3 px-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">ID</th>
+<th class="py-3 px-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Subject</th>
+<th class="py-3 px-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">User / Org</th>
+<th class="py-3 px-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Priority</th>
+<th class="py-3 px-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="py-3 px-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-3 px-4 text-body-sm font-code-sm text-on-surface">GRV-1042</td>
+<td class="py-3 px-4 text-body-sm font-label-md text-on-surface">Right to Erasure</td>
+<td class="py-3 px-4">
+<div class="text-body-sm font-label-md text-on-surface">Jane Doe</div>
+<div class="text-label-sm text-on-surface-variant">Acme Corp</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-full text-label-sm font-label-sm bg-error-container text-on-error-container">
+<div class="w-1.5 h-1.5 rounded-full bg-rose-600"></div> Urgent
+                                            </span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center py-1 px-2 rounded-md text-label-sm font-label-sm border border-amber-200 bg-amber-50 text-amber-700">Investigating</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-secondary p-1">more_vert</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 text-body-sm font-code-sm text-on-surface">GRV-1043</td>
+<td class="py-3 px-4 text-body-sm font-label-md text-on-surface">Data Correction</td>
+<td class="py-3 px-4">
+<div class="text-body-sm font-label-md text-on-surface">John Smith</div>
+<div class="text-label-sm text-on-surface-variant">Globex Inc</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-full text-label-sm font-label-sm bg-surface-container-high text-on-surface">
+<div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Medium
+                                            </span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center py-1 px-2 rounded-md text-label-sm font-label-sm border border-slate-200 bg-surface text-on-surface-variant">New</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-secondary p-1">more_vert</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 text-body-sm font-code-sm text-on-surface">GRV-1044</td>
+<td class="py-3 px-4 text-body-sm font-label-md text-on-surface">Privacy Violation</td>
+<td class="py-3 px-4">
+<div class="text-body-sm font-label-md text-on-surface">Alice Cooper</div>
+<div class="text-label-sm text-on-surface-variant">Initech</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-full text-label-sm font-label-sm bg-error-container text-on-error-container">
+<div class="w-1.5 h-1.5 rounded-full bg-rose-600"></div> Urgent
+                                            </span>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center py-1 px-2 rounded-md text-label-sm font-label-sm border border-amber-200 bg-amber-50 text-amber-700">Investigating</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-secondary p-1">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-4 border-t border-slate-200 flex justify-between items-center bg-surface-container-lowest rounded-b-xl">
+<span class="text-label-sm text-on-surface-variant">Showing 1 to 10 of 24 entries</span>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-surface-container-low text-on-surface-variant"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="px-2 py-1 rounded bg-secondary-container text-on-secondary-container text-label-sm font-label-md">1</button>
+<button class="px-2 py-1 rounded hover:bg-surface-container-low text-on-surface-variant text-label-sm font-label-md">2</button>
+<button class="px-2 py-1 rounded hover:bg-surface-container-low text-on-surface-variant text-label-sm font-label-md">3</button>
+<button class="p-1 rounded hover:bg-surface-container-low text-on-surface-variant"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Right: Assignment & Detail Preview -->
+<div class="flex flex-col gap-gutter-md">
+<!-- Grievance Officer Assignment -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-sm">
+<h3 class="text-headline-sm font-headline-sm text-on-surface mb-4">Officer Assignment</h3>
+<p class="text-body-sm text-on-surface-variant mb-4">Assign a Data Protection Officer (DPO) to selected grievances.</p>
+<div class="space-y-4">
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface mb-1">Select DPO</label>
+<select class="w-full border border-slate-200 rounded-lg text-body-sm py-2 px-3 focus:ring-secondary focus:border-secondary bg-surface-container-lowest">
+<option>Sarah Jenkins (Lead DPO)</option>
+<option>Michael Chang (Legal)</option>
+<option>Elena Rossi (EU Compliance)</option>
+</select>
+</div>
+<button class="w-full py-2 bg-secondary text-on-secondary rounded-lg text-label-md font-label-md hover:bg-secondary-fixed-dim transition-colors">
+                                    Assign to Selected
+                                </button>
+</div>
+</div>
+<!-- Quick Detail View (Simulating an active selection) -->
+<div class="bg-surface-container-lowest border-t-4 border-t-secondary border border-slate-200 rounded-xl p-6 shadow-sm flex-1">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="text-label-sm font-code-sm text-secondary mb-1 block">GRV-1042</span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Right to Erasure</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 py-1 px-2 rounded-full text-label-sm font-label-sm bg-error-container text-on-error-container">
+                                    Urgent
+                                </span>
+</div>
+<div class="space-y-3 mb-6">
+<div class="grid grid-cols-3 gap-2">
+<span class="text-label-sm text-on-surface-variant col-span-1">Submitted:</span>
+<span class="text-body-sm text-on-surface col-span-2">Oct 24, 2023 (2 days ago)</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<span class="text-label-sm text-on-surface-variant col-span-1">Deadline:</span>
+<span class="text-body-sm font-label-md text-rose-600 col-span-2">Oct 31, 2023</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<span class="text-label-sm text-on-surface-variant col-span-1">User:</span>
+<span class="text-body-sm text-on-surface col-span-2">Jane Doe (jane.doe@email.com)</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<span class="text-label-sm text-on-surface-variant col-span-1">Assigned:</span>
+<span class="text-body-sm text-on-surface col-span-2 flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-slate-200 overflow-hidden">
+<img alt="DPO Avatar" class="w-full h-full object-cover" data-alt="Small headshot of a professional woman, representing a Data Protection Officer." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWPuIZPl9XUBcUg-nqjwHhiQsIqPRqkWiVv_l0-IKhKpuY_DwQuljd0cOAtUqu20nODO4pKjF0raRmz1-l7ziuJCs40P_va1eIAcfjyuC0P0T-VacPuJx7xqKzHDQ8laaZpXWKiecJK1Gld6OFGWt-uth63e1d2ERMWn9Nm84rVEepk8xVnK5g3hqnmavT_UrtdVaLzk71YyoXEwX7cf0oxIeOoRsY3DK6V8NkwJnkj2CgkWyDgIJ3"/>
+</div>
+                                        Sarah J.
+                                    </span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="w-full py-2 border border-slate-200 text-primary rounded-lg text-label-md font-label-md hover:bg-surface-container-low transition-colors">
+                                    View Full Details
+                                </button>
+<button class="w-full py-2 border border-slate-200 text-primary rounded-lg text-label-md font-label-md hover:bg-surface-container-low transition-colors">
+                                    Update Status
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

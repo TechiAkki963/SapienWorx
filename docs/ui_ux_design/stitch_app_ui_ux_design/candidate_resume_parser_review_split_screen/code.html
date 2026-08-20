@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - Parser Review</title>
+<!-- Google Fonts & Material Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#002113",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-dim": "#cbdbf5",
+                        "secondary": "#0051d5",
+                        "surface-container-lowest": "#ffffff",
+                        "indigo-600": "#4F46E5",
+                        "slate-50": "#F8FAFC",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-container": "#fefcff",
+                        "blue-600": "#2563EB",
+                        "on-primary": "#ffffff",
+                        "slate-200": "#E2E8F0",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary-fixed": "#dbe1ff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "primary-fixed-dim": "#bec6e0",
+                        "inverse-surface": "#213145",
+                        "navy-900": "#0F172A",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary-container": "#7c839b",
+                        "amber-500": "#F59E0B",
+                        "tertiary": "#000000",
+                        "inverse-on-surface": "#eaf1ff",
+                        "inverse-primary": "#bec6e0",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#d3e4fe",
+                        "on-secondary-fixed": "#00174b",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-container": "#009668",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "surface-container": "#e5eeff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#dce9ff",
+                        "primary": "#000000",
+                        "on-surface": "#0b1c30",
+                        "background": "#f8f9ff",
+                        "secondary-container": "#316bf3",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#002113",
+                        "primary-container": "#131b2e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-surface-variant": "#45464d",
+                        "outline": "#76777d",
+                        "rose-600": "#E11D48",
+                        "error": "#ba1a1a",
+                        "surface": "#f8f9ff",
+                        "surface-tint": "#565e74",
+                        "primary-fixed": "#dae2fd",
+                        "green-600": "#10B981",
+                        "surface-bright": "#f8f9ff",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "gutter-sm": "16px",
+                        "container-max": "1440px",
+                        "gutter-md": "24px",
+                        "gutter-xs": "8px",
+                        "margin-page": "32px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Geist"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Geist"],
+                        "label-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "display-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom Scrollbar for sleekness */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Confidence Highlight */
+        .parsed-field-high {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-left: 3px solid #10B981;
+        }
+        .parsed-field-med {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-left: 3px solid #F59E0B;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md h-screen overflow-hidden flex flex-col">
+<!-- Header (Standalone, transactional intent, no primary nav) -->
+<header class="bg-surface border-b border-outline-variant shadow-sm h-16 flex items-center justify-between px-margin-page flex-shrink-0 z-20">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Sapienworx</span>
+<span class="text-on-surface-variant px-3 py-1 bg-surface-container rounded-full font-label-sm text-label-sm">Portal Intelligence</span>
+</div>
+<!-- Stepper -->
+<div class="hidden md:flex items-center gap-2">
+<div class="flex items-center">
+<span class="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center font-label-sm text-label-sm mr-2"><span class="material-symbols-outlined text-[14px]">check</span></span>
+<span class="font-label-md text-label-md text-on-surface">Upload</span>
+</div>
+<div class="w-8 h-[2px] bg-green-600"></div>
+<div class="flex items-center">
+<span class="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center font-label-sm text-label-sm mr-2"><span class="material-symbols-outlined text-[14px]">check</span></span>
+<span class="font-label-md text-label-md text-on-surface">Parse</span>
+</div>
+<div class="w-8 h-[2px] bg-secondary"></div>
+<div class="flex items-center">
+<span class="w-6 h-6 rounded-full bg-secondary text-white flex items-center justify-center font-label-sm text-label-sm mr-2">3</span>
+<span class="font-label-md text-label-md font-bold text-secondary">Review &amp; Confirm</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="Help" class="text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button aria-label="Close" class="text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</header>
+<!-- Main Content: Split View -->
+<main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+<!-- Left Panel: Document Viewer -->
+<section class="w-full md:w-1/2 h-1/3 md:h-full bg-slate-50 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col relative">
+<!-- Toolbar -->
+<div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 flex-shrink-0 z-10">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">description</span>
+<span class="font-label-md text-label-md">Alex_Rivera_Resume_2024.pdf</span>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Zoom Out" class="p-1.5 rounded hover:bg-slate-100 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">zoom_out</span>
+</button>
+<span class="font-label-sm text-label-sm text-on-surface-variant w-10 text-center">100%</span>
+<button aria-label="Zoom In" class="p-1.5 rounded hover:bg-slate-100 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+</div>
+</div>
+<!-- Document Canvas -->
+<div class="flex-1 overflow-auto p-4 md:p-8 flex justify-center bg-slate-100 relative">
+<!-- Mock PDF Page -->
+<div class="bg-white shadow-sm border border-slate-200 w-full max-w-[800px] min-h-[1000px] p-10 relative">
+<!-- Overlay highlights mapping to parser fields -->
+<div class="absolute top-[80px] left-[40px] right-[40px] h-[60px] bg-blue-600/10 border border-blue-600/30 rounded cursor-pointer hover:bg-blue-600/20 transition-colors"></div>
+<div class="absolute top-[160px] left-[40px] right-[40px] h-[100px] bg-blue-600/10 border border-blue-600/30 rounded cursor-pointer hover:bg-blue-600/20 transition-colors"></div>
+<img class="w-full h-auto object-cover opacity-80 mix-blend-multiply" data-alt="A clean, professional mockup of a standard corporate resume document page, featuring a bold header for the name, a summary paragraph, and detailed bullet points for work experience and education. The typography is modern and legible, black ink on white paper, presented flat with a very subtle drop shadow indicating a digital document viewer context. The overall lighting is bright and even, reinforcing a professional HR tech software aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJiaNCJNl2HkFwGJrD6vtP9JUxDRyGvb_Q2St-SvOsWDKB5xy8wJAO8S9pI9J7q_o8L-jqX7qxKy6qHibR1YY1weSbaDWMPTJqw_YDcZpVLoJYaJ8mQfuVP5jznON2M2XglEvifQhds7XvMrs2VRptgQB1cinNkQU32gVHHx0sW_KoiivAHTC1aGmxn7To6H7o34xKWhJe8A8yE5XtioRr0lUFjj4LKko7XI8GLVZ3qXU9fn6nkrp6"/>
+</div>
+</div>
+</section>
+<!-- Right Panel: Data Form -->
+<section class="w-full md:w-1/2 h-2/3 md:h-full bg-surface-container-lowest flex flex-col relative z-10 shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)]">
+<!-- Form Header -->
+<div class="px-gutter-md py-6 border-b border-slate-200 flex-shrink-0 bg-white sticky top-0 z-20">
+<h1 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Review Parsed Data</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Please verify the extracted information below. Accuracy is critical for matching algorithms.</p>
+<div class="mt-4 flex items-center gap-3">
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-green-600 block"></span> High Confidence
+                    </span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-amber-500 block"></span> Needs Review
+                    </span>
+</div>
+</div>
+<!-- Scrollable Form Content -->
+<div class="flex-1 overflow-y-auto p-gutter-md pb-32">
+<!-- Section: Personal Info -->
+<div class="bg-white border border-slate-200 rounded-lg shadow-sm mb-6 overflow-hidden">
+<div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+<h2 class="font-label-md text-label-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">person</span> Personal Information
+                        </h2>
+<button class="text-secondary font-label-sm text-label-sm hover:underline">Confirm Section</button>
+</div>
+<div class="p-4 space-y-4">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="parsed-field-high p-3 rounded border border-slate-200 relative group">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Full Name</label>
+<input class="w-full bg-transparent border-0 border-b border-slate-300 focus:ring-0 focus:border-secondary p-0 font-body-md text-body-md text-on-surface" type="text" value="Alex Rivera"/>
+<div class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+<button class="p-1 text-green-600 hover:bg-green-50 rounded" title="Accept"><span class="material-symbols-outlined text-[16px]">check</span></button>
+</div>
+</div>
+<div class="parsed-field-high p-3 rounded border border-slate-200 relative group">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Email</label>
+<input class="w-full bg-transparent border-0 border-b border-slate-300 focus:ring-0 focus:border-secondary p-0 font-body-md text-body-md text-on-surface" type="email" value="alex.rivera@example.com"/>
+</div>
+<div class="parsed-field-med p-3 rounded border border-slate-200 relative group">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 flex items-center gap-1">Phone <span class="w-2 h-2 rounded-full bg-amber-500 inline-block" title="Medium confidence"></span></label>
+<input class="w-full bg-transparent border-0 border-b border-slate-300 focus:ring-0 focus:border-secondary p-0 font-body-md text-body-md text-on-surface" type="tel" value="+1 (555) 019-2834"/>
+</div>
+<div class="parsed-field-high p-3 rounded border border-slate-200 relative group">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Location</label>
+<input class="w-full bg-transparent border-0 border-b border-slate-300 focus:ring-0 focus:border-secondary p-0 font-body-md text-body-md text-on-surface" type="text" value="San Francisco, CA"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Professional Summary -->
+<div class="bg-white border border-slate-200 rounded-lg shadow-sm mb-6 overflow-hidden">
+<div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+<h2 class="font-label-md text-label-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">badge</span> Professional Summary
+                        </h2>
+</div>
+<div class="p-4 space-y-4">
+<div class="parsed-field-high p-3 rounded border border-slate-200">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Headline</label>
+<input class="w-full bg-transparent border-0 border-b border-slate-300 focus:ring-0 focus:border-secondary p-0 font-body-md text-body-md text-on-surface font-semibold" type="text" value="Senior Product Designer"/>
+</div>
+<div class="parsed-field-high p-3 rounded border border-slate-200">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Summary</label>
+<textarea class="w-full bg-transparent border-0 border-b border-slate-300 focus:ring-0 focus:border-secondary p-0 font-body-sm text-body-sm text-on-surface resize-none" rows="3">Detail-oriented Product Designer with 7+ years of experience creating enterprise SaaS solutions. Proven track record of improving user engagement and streamlining complex workflows.</textarea>
+</div>
+</div>
+</div>
+<!-- Section: Experience -->
+<div class="mb-6">
+<h2 class="font-label-md text-label-md font-semibold text-on-surface mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">work</span> Experience
+                     </h2>
+<div class="space-y-4">
+<!-- Exp Card 1 -->
+<div class="bg-white border border-slate-200 rounded-lg shadow-sm p-4 relative group hover:border-secondary transition-colors cursor-text">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-l-lg"></div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<input class="block bg-transparent border-0 p-0 font-label-md text-label-md font-semibold text-on-surface focus:ring-0 mb-1 w-full" type="text" value="Lead UX Designer"/>
+<input class="block bg-transparent border-0 p-0 font-body-sm text-body-sm text-on-surface-variant focus:ring-0 w-full" type="text" value="TechFlow Solutions"/>
+</div>
+<input class="text-right bg-transparent border-0 p-0 font-label-sm text-label-sm text-on-surface-variant focus:ring-0 w-32" type="text" value="Mar 2020 - Present"/>
+</div>
+<textarea class="w-full bg-transparent border-0 p-0 font-body-sm text-body-sm text-on-surface mt-2 resize-none focus:ring-0 focus:bg-slate-50 transition-colors" rows="2">- Spearheaded the redesign of the core analytics dashboard, increasing daily active usage by 24%.
+- Managed a team of 3 junior designers.</textarea>
+</div>
+</div>
+</div>
+<!-- Section: Skills -->
+<div class="bg-white border border-slate-200 rounded-lg shadow-sm mb-6 overflow-hidden">
+<div class="bg-slate-50 px-4 py-3 border-b border-slate-200">
+<h2 class="font-label-md text-label-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">bolt</span> Skills
+                        </h2>
+</div>
+<div class="p-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">Figma <button class="text-on-secondary-container hover:text-white"><span class="material-symbols-outlined text-[14px]">close</span></button></span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">Prototyping <button class="text-on-secondary-container hover:text-white"><span class="material-symbols-outlined text-[14px]">close</span></button></span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">User Research <button class="text-on-secondary-container hover:text-white"><span class="material-symbols-outlined text-[14px]">close</span></button></span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-dashed border-slate-300 text-on-surface-variant font-label-sm text-label-sm cursor-pointer hover:bg-slate-50"><span class="material-symbols-outlined text-[14px]">add</span> Add Skill</span>
+</div>
+</div>
+</div>
+<!-- Sticky Action Bar -->
+<div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 px-gutter-md flex justify-between items-center z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<button class="px-6 py-2 border border-slate-200 rounded font-label-md text-label-md text-primary hover:bg-slate-50 transition-colors">
+                    Back
+                </button>
+<div class="flex items-center gap-4">
+<span class="font-body-sm text-body-sm text-on-surface-variant">3/4 Sections Confirmed</span>
+<button class="px-6 py-2 bg-secondary text-white rounded font-label-md text-label-md shadow-sm hover:bg-blue-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary">
+                        Confirm &amp; Finalize Profile
+                    </button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

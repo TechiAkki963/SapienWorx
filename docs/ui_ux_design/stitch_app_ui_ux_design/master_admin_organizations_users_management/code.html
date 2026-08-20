@@ -1,0 +1,520 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Master Admin - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#000000",
+                      "on-surface": "#0b1c30",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-background": "#0b1c30",
+                      "tertiary-fixed": "#6ffbbe",
+                      "slate-200": "#E2E8F0",
+                      "amber-500": "#F59E0B",
+                      "surface-container-highest": "#d3e4fe",
+                      "green-600": "#10B981",
+                      "outline-variant": "#c6c6cd",
+                      "slate-50": "#F8FAFC",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-primary": "#bec6e0",
+                      "on-tertiary-fixed": "#002113",
+                      "indigo-600": "#4F46E5",
+                      "error": "#ba1a1a",
+                      "primary": "#000000",
+                      "primary-container": "#131b2e",
+                      "secondary-fixed": "#dbe1ff",
+                      "secondary": "#0051d5",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "surface-container-high": "#dce9ff",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-variant": "#d3e4fe",
+                      "on-secondary-fixed": "#00174b",
+                      "surface": "#f8f9ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-secondary-container": "#fefcff",
+                      "background": "#f8f9ff",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "blue-600": "#2563EB",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "rose-600": "#E11D48",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container": "#e5eeff",
+                      "on-primary-container": "#7c839b",
+                      "inverse-surface": "#213145",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "navy-900": "#0F172A",
+                      "secondary-container": "#316bf3",
+                      "on-error": "#ffffff",
+                      "surface-container-low": "#eff4ff",
+                      "on-tertiary-container": "#009668",
+                      "outline": "#76777d",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "tertiary-container": "#002113",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#b4c5ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter-xs": "8px",
+                      "container-max": "1440px",
+                      "margin-page": "32px",
+                      "gutter-sm": "16px",
+                      "base": "4px",
+                      "gutter-md": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-slate-50 text-on-surface font-body-md antialiased min-h-screen">
+<!-- TopNavBar Component -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-gutter-md h-16 bg-surface dark:bg-navy-900 border-b border-outline-variant dark:border-outline">
+<div class="flex items-center">
+<div class="flex items-center gap-2"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1t6aIp2CSl9itYGrhqV7Q08osrWLgLeWVeqFBHtJBk7mUgoUZhgQcvLiucM_wHBXJuIGJu0w6KDycnUwq6BPoYDjrQ4UknS_EW0O2BsdvjqA9I8lKgKmM44sQIAHTKNo5FrIfLZQd_jwfWSZIPAkTUM16TpPqsXNclPQunLKv__L1Jeq5m1uI_0eZlqznoV9h3IT_DgRAoNpRzn6GJlGSL_4RwEuC1UdjEBG-0QwS4Wt64dMUPxSyBWQDTORTCyJL7w" alt="Sapienworx Logo" class="h-8 w-auto"><span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-secondary-fixed">Sapienworx</span></div>
+</div>
+<div class="flex items-center gap-gutter-sm">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-slate-200 rounded-full focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary text-body-sm w-64 transition-all" placeholder="Global Search..." type="text">
+</div>
+<div class="flex items-center gap-2">
+<button aria-label="notifications" class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button aria-label="help" class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button aria-label="settings" class="p-2 text-secondary font-bold border-b-2 border-secondary hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<img alt="User profile photo" class="w-8 h-8 rounded-full ml-2 object-cover border border-slate-200" data-alt="A small circular avatar placeholder image for a user profile photo, neutral background, simple lighting, corporate style, minimalist, clear, professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhL7lBv_8VIKADWDqqy9PM31gvvKjVkDy_V0KfPo05-BzdHit33nEcLJ560Asy8VCkMN15eN_UBfadVrB-bPKqNNQvzFPta6Fv-bwNqpXHEnzyjKG2fGxzQn-kpTNF6nzj4bkWGfa-r9ODsxeqjsk3B71OiVBZj1aBaG2pCNJ20hJ2Vz8V3hzWXBYCyhcQYG-MIRbdbOktkMsNHQUJjk6WQVsVPN2ityNg_TRWLK5wObpZq9iLsMaQ">
+</div>
+</div>
+</nav>
+<!-- SideNavBar Component -->
+<aside class="fixed left-0 top-16 bottom-0 w-64 flex flex-col py-4 z-40 bg-surface-container-lowest dark:bg-navy-900 border-r border-outline-variant dark:border-outline">
+<div class="px-4 mb-6">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-headline-sm">
+<span class="material-symbols-outlined">business</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface leading-tight">Sapienworx</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Enterprise Edition</p>
+</div>
+</div>
+<button class="w-full bg-secondary text-on-secondary font-label-md py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">Post New Job</button>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-secondary transition-colors" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-secondary transition-colors" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Candidates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-secondary transition-colors" data-icon="work">work</span>
+<span class="font-label-md text-label-md">Jobs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-secondary transition-colors" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Interviews</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-secondary transition-colors" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</nav>
+<div class="px-2 mt-auto space-y-1 border-t border-slate-200 pt-4 mx-2">
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-secondary transition-colors" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-secondary transition-colors" data-icon="contact_support">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-margin-page">
+<div class="max-w-container-max mx-auto space-y-8">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Master Admin</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage all tenant organizations and platform users.</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-surface-container-lowest border border-slate-200 text-primary px-4 py-2 rounded-lg font-label-md flex items-center gap-2 hover:bg-slate-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+<span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                        Export Data
+                    </button>
+<button class="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-label-md flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                        New Organization
+                    </button>
+</div>
+</div>
+<!-- Tabbed Interface -->
+<div class="bg-surface-container-lowest rounded-xl border border-slate-200 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+<!-- Tabs Header -->
+<div class="border-b border-slate-200 px-6 pt-4 flex gap-8">
+<button class="font-label-md pb-4 border-b-2 border-secondary text-secondary font-semibold transition-colors" id="tab-orgs">Organizations</button>
+<button class="font-label-md pb-4 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface transition-colors" id="tab-users">Users</button>
+</div>
+<!-- Filters Bar -->
+<div class="px-6 py-4 bg-surface flex justify-between items-center border-b border-slate-200">
+<div class="flex gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 18px;">search</span>
+<input class="pl-9 pr-4 py-1.5 bg-surface-container-lowest border border-slate-200 rounded-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary text-body-sm w-64 shadow-[0_1px_2px_rgba(0,0,0,0.02)]" placeholder="Search records..." type="text">
+</div>
+<select class="py-1.5 pl-3 pr-8 bg-surface-container-lowest border border-slate-200 rounded-md text-body-sm focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary shadow-[0_1px_2px_rgba(0,0,0,0.02)] appearance-none">
+<option>All Statuses</option>
+<option>Active</option>
+<option>Suspended</option>
+</select>
+<select class="py-1.5 pl-3 pr-8 bg-surface-container-lowest border border-slate-200 rounded-md text-body-sm focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary shadow-[0_1px_2px_rgba(0,0,0,0.02)] appearance-none">
+<option>All Plans</option>
+<option>Enterprise</option>
+<option>Pro</option>
+<option>Starter</option>
+</select>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-body-sm text-on-surface-variant">Showing 1-10 of 42</span>
+<div class="flex gap-1">
+<button class="p-1 rounded text-on-surface-variant hover:bg-slate-200 transition-colors disabled:opacity-50"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-slate-200 transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Organizations Table View -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface border-b border-slate-200">
+<th class="font-label-sm text-label-sm text-on-surface-variant py-3 px-6 uppercase tracking-wider">Org Name</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-3 px-6 uppercase tracking-wider">Admin User</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-3 px-6 uppercase tracking-wider">Plan</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-3 px-6 uppercase tracking-wider">Status</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-3 px-6 uppercase tracking-wider text-right">Metrics</th>
+<th class="font-label-sm text-label-sm text-on-surface-variant py-3 px-6 uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 bg-surface-container-lowest">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm">AC</div>
+<span class="font-label-md text-on-surface">Acme Corp</span>
+</div>
+</td>
+<td class="py-4 px-6 font-body-sm text-on-surface-variant">sarah@acmecorp.com</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-secondary-fixed text-on-secondary-fixed">Enterprise</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-green-600"></div>
+<span class="font-body-sm text-on-surface">Active</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right font-code-sm text-on-surface-variant">
+<div class="flex flex-col items-end">
+<span class="">42 Jobs</span>
+<span class="text-xs text-outline">1,204 Apps</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-on-surface-variant hover:text-secondary rounded hover:bg-surface-container-low transition-colors" title="Edit">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-rose-600 rounded hover:bg-error-container transition-colors" title="Suspend">
+<span class="material-symbols-outlined" style="font-size: 20px;">block</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-amber-500 bg-opacity-20 text-amber-600 flex items-center justify-center font-bold text-sm">GL</div>
+<span class="font-label-md text-on-surface">Global Logistics</span>
+</div>
+</td>
+<td class="py-4 px-6 font-body-sm text-on-surface-variant">admin@globallog.net</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-200 text-on-surface-variant">Pro</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-green-600"></div>
+<span class="font-body-sm text-on-surface">Active</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right font-code-sm text-on-surface-variant">
+<div class="flex flex-col items-end">
+<span class="">15 Jobs</span>
+<span class="text-xs text-outline">342 Apps</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-on-surface-variant hover:text-secondary rounded hover:bg-surface-container-low transition-colors" title="Edit">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-rose-600 rounded hover:bg-error-container transition-colors" title="Suspend">
+<span class="material-symbols-outlined" style="font-size: 20px;">block</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 (Suspended) -->
+<tr class="hover:bg-slate-50 transition-colors group bg-slate-50/50">
+<td class="py-4 px-6">
+<div class="flex items-center gap-3 opacity-60">
+<div class="w-8 h-8 rounded bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm">TS</div>
+<span class="font-label-md text-on-surface line-through decoration-slate-400">TechStart Inc</span>
+</div>
+</td>
+<td class="py-4 px-6 font-body-sm text-on-surface-variant opacity-60">founder@techstart.io</td>
+<td class="py-4 px-6 opacity-60">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-slate-300 text-on-surface-variant">Starter</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-rose-600"></div>
+<span class="font-body-sm text-rose-600 font-medium">Suspended</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right font-code-sm text-on-surface-variant opacity-60">
+<div class="flex flex-col items-end">
+<span class="">3 Jobs</span>
+<span class="text-xs text-outline">12 Apps</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-on-surface-variant hover:text-secondary rounded hover:bg-surface-container-low transition-colors" title="Edit">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-green-600 rounded hover:bg-green-50 transition-colors" title="Reactivate">
+<span class="material-symbols-outlined" style="font-size: 20px;">play_arrow</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Bento Grid Section for Platform Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)] relative overflow-hidden group">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-surface-container-high rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+<h3 class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Total Organizations</h3>
+<div class="flex items-end gap-3">
+<span class="font-display-lg text-display-lg text-on-surface leading-none">142</span>
+<span class="font-label-sm text-green-600 flex items-center mb-1 bg-green-50 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined" style="font-size: 14px;">arrow_upward</span> 12%
+                        </span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)] relative overflow-hidden group">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-secondary-container rounded-full opacity-20 group-hover:scale-110 transition-transform duration-500"></div>
+<h3 class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Active Users</h3>
+<div class="flex items-end gap-3">
+<span class="font-display-lg text-display-lg text-on-surface leading-none">8,405</span>
+<span class="font-label-sm text-green-600 flex items-center mb-1 bg-green-50 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined" style="font-size: 14px;">arrow_upward</span> 4%
+                        </span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)] relative overflow-hidden group col-span-1 md:col-span-1">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-500 rounded-full opacity-10 group-hover:scale-110 transition-transform duration-500"></div>
+<h3 class="font-label-sm text-on-surface-variant uppercase tracking-wider mb-2">System Health</h3>
+<div class="flex items-center gap-4 mt-2">
+<div class="w-12 h-12 rounded-full border-4 border-green-600 flex items-center justify-center font-bold text-green-600">99%</div>
+<div>
+<p class="font-label-md text-on-surface">All Systems Operational</p>
+<p class="font-body-sm text-on-surface-variant text-xs">Last check: 2 mins ago</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple tab switching logic for demonstration
+        document.getElementById('tab-users').addEventListener('click', function() {
+            // In a real implementation, this would switch the table content
+            // For now, just toggling styles
+            this.classList.replace('border-transparent', 'border-secondary');
+            this.classList.replace('text-on-surface-variant', 'text-secondary');
+            this.classList.add('font-semibold');
+            
+            let orgTab = document.getElementById('tab-orgs');
+            orgTab.classList.replace('border-secondary', 'border-transparent');
+            orgTab.classList.replace('text-secondary', 'text-on-surface-variant');
+            orgTab.classList.remove('font-semibold');
+        });
+
+        document.getElementById('tab-orgs').addEventListener('click', function() {
+            this.classList.replace('border-transparent', 'border-secondary');
+            this.classList.replace('text-on-surface-variant', 'text-secondary');
+            this.classList.add('font-semibold');
+            
+            let userTab = document.getElementById('tab-users');
+            userTab.classList.replace('border-secondary', 'border-transparent');
+            userTab.classList.replace('text-secondary', 'text-on-surface-variant');
+            userTab.classList.remove('font-semibold');
+        });
+    </script>
+
+
+</body></html>

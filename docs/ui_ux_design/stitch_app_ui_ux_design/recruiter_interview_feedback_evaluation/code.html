@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Interview Feedback - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "slate-200": "#E2E8F0",
+                        "on-tertiary-container": "#009668",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "indigo-600": "#4F46E5",
+                        "rose-600": "#E11D48",
+                        "background": "#f8f9ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-primary": "#ffffff",
+                        "outline": "#76777d",
+                        "on-background": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "inverse-surface": "#213145",
+                        "amber-500": "#F59E0B",
+                        "green-600": "#10B981",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-primary": "#bec6e0",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "slate-50": "#F8FAFC",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "primary-container": "#131b2e",
+                        "secondary-fixed": "#dbe1ff",
+                        "secondary-container": "#316bf3",
+                        "blue-600": "#2563EB",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#dae2fd",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "navy-900": "#0F172A",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary": "#0051d5",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-tint": "#565e74",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "tertiary": "#000000",
+                        "primary": "#000000",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed": "#00174b",
+                        "tertiary-container": "#002113"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "container-max": "1440px",
+                        "gutter-xs": "8px",
+                        "gutter-sm": "16px",
+                        "gutter-md": "24px",
+                        "margin-page": "32px",
+                        "base": "4px"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Geist"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden lg:flex flex-col h-screen fixed left-0 top-0 p-gutter-md border-r border-outline-variant dark:border-outline bg-surface-container-low dark:bg-surface-container-lowest docked left-0 h-full w-64 z-50">
+<div class="mb-8">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">work</span>
+<span class="font-headline-sm text-headline-sm font-black text-secondary dark:text-secondary-fixed-dim">Portal Intelligence</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Recruitment Portal</p>
+</div>
+<button class="w-full bg-secondary text-on-secondary rounded-lg py-2 mb-8 font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> New Interview
+        </button>
+<ul class="flex flex-col gap-2 flex-grow">
+<li>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">account_tree</span> Pipeline
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full active:scale-95 transition-transform duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">rate_review</span> Feedback
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">chat</span> Messages
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">groups</span> Team
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+                </a>
+</li>
+</ul>
+<div class="mt-auto">
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">help</span> Help Center
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow lg:ml-64 w-full bg-slate-50">
+<!-- TopNavBar (Desktop) -->
+<header class="sticky top-0 w-full z-40 hidden md:flex justify-between items-center px-margin-page py-4 bg-surface dark:bg-surface-container-high border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-6">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface md:hidden">Sapienworx</span>
+<nav class="hidden md:flex gap-4">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors font-body-md text-body-md py-1" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors font-body-md text-body-md py-1" href="#">Candidates</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors font-body-md text-body-md py-1" href="#">Jobs</a>
+<a class="text-secondary dark:text-secondary-fixed-dim font-bold border-b-2 border-secondary font-body-md text-body-md py-1" href="#">Interviews</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors font-body-md text-body-md py-1" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface hover:text-secondary transition-colors cursor-pointer active:opacity-70 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface hover:text-secondary transition-colors cursor-pointer active:opacity-70 transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant cursor-pointer active:opacity-70 transition-all">
+<img alt="Recruiter Profile Avatar" class="w-full h-full object-cover" data-alt="A small, professional headshot of a corporate recruiter smiling slightly. Bright, even lighting. White background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmWb2AWQ7VNMGYijr9-Azbl914v1-1nwXX1Mk_SJQ3aH_EagI6IEGimGvmyER-BQ-Ct54HZ1qf8TbN_VzvPiENIA-XL9GSR1eTnS9U4BEvr-3OId2KzDDr-D6h1xc8xY4Tpk1x1JiUpK8pgrIb6aa1CIYOjEk8n9oBHn8JVaNWpHM632pGL4MEagbsg9A3OAbBFwXQKwXM_3eWHn1jE_5adv8nIK2kn6yprg_5mU0772evi917YRn5"/>
+</div>
+</div>
+</header>
+<div class="p-margin-page max-w-container-max mx-auto">
+<div class="mb-gutter-md">
+<h1 class="font-headline-lg text-headline-lg md:text-headline-lg text-on-surface mb-2">Interview Feedback</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Evaluate candidate performance and provide recommendations.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md">
+<!-- Candidate Context (Sidebar) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter-md">
+<div class="bg-surface rounded-xl border border-slate-200 p-gutter-md shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-16 h-16 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a female software engineer named Sarah Jenkins. She is smiling, wearing business casual attire, against a soft, bright office background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjcdlWdgfZDb2dPFcvuU7GNa5JEp7_iFqThlq-xk_orAKtZpZlTDsdkR24vbtkSlH94rg8nHl6-XSOuvxzHxpiKyMiBgEMXlRYHvrAQ8OASdQ71_QWiZPhEdn65isJZi0LVGfWac69bC1XIoO3BZXofJ2lNN01BoqrhMHnew0afTxgHZ3u25kDRj0k_AnKeJFAQLFLAJaNQdhqn5vMm6Tpup18-8Zb6cbdutZ-N1d2ILuIWWEtHr9z"/>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Sarah Jenkins</h2>
+<p class="font-label-md text-label-md text-secondary">Frontend Engineering Lead</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-on-surface-variant mt-0.5" style="font-size: 20px;">event</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Interview Date</p>
+<p class="font-body-md text-body-md text-on-surface">October 24, 2023 • 10:00 AM</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-on-surface-variant mt-0.5" style="font-size: 20px;">videocam</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Interview Type</p>
+<p class="font-body-md text-body-md text-on-surface">Technical Final Round (Video)</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-on-surface-variant mt-0.5" style="font-size: 20px;">group</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Interviewers</p>
+<p class="font-body-md text-body-md text-on-surface">Mark D., CTO &amp; Elena R., VP Eng</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sync Status Widget -->
+<div class="bg-surface-container-low rounded-xl border border-secondary-fixed p-gutter-sm flex gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">sync</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface mb-1">Status Sync Enabled</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Submitting this feedback will automatically update Sarah's pipeline stage and notify the hiring team via the Message Center.</p>
+</div>
+</div>
+</div>
+<!-- Form Area -->
+<div class="lg:col-span-8 flex flex-col gap-gutter-md">
+<form class="space-y-gutter-md">
+<!-- Scoring Matrix -->
+<div class="bg-surface rounded-xl border border-slate-200 p-gutter-md shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Scoring Matrix</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Rate the candidate from 1 (Poor) to 5 (Excellent) across key competencies.</p>
+<div class="space-y-6">
+<!-- Tech Skills -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="font-label-md text-label-md text-on-surface">Technical Skills &amp; Architecture</label>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Required</span>
+</div>
+<div class="flex gap-2">
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="tech_score" type="radio" value="1"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">1</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="tech_score" type="radio" value="2"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">2</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="tech_score" type="radio" value="3"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">3</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="tech_score" type="radio" value="4"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">4</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="tech_score" type="radio" value="5"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">5</div>
+</label>
+</div>
+</div>
+<!-- Communication -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="font-label-md text-label-md text-on-surface">Communication &amp; Leadership</label>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Required</span>
+</div>
+<div class="flex gap-2">
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="comm_score" type="radio" value="1"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">1</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="comm_score" type="radio" value="2"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">2</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="comm_score" type="radio" value="3"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">3</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="comm_score" type="radio" value="4"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">4</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="comm_score" type="radio" value="5"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">5</div>
+</label>
+</div>
+</div>
+<!-- Culture Fit -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="font-label-md text-label-md text-on-surface">Culture &amp; Values Alignment</label>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Required</span>
+</div>
+<div class="flex gap-2">
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="cult_score" type="radio" value="1"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">1</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="cult_score" type="radio" value="2"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">2</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="cult_score" type="radio" value="3"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">3</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="cult_score" type="radio" value="4"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">4</div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="cult_score" type="radio" value="5"/>
+<div class="py-2 text-center rounded border border-outline-variant peer-checked:bg-secondary-container peer-checked:border-secondary peer-checked:text-on-secondary-container hover:bg-surface-container transition-colors">5</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Overall Evaluation -->
+<div class="bg-surface rounded-xl border border-slate-200 p-gutter-md shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Overall Evaluation</h3>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface" for="feedback_notes">Detailed Notes</label>
+<textarea class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring-secondary text-on-surface font-body-md placeholder-on-surface-variant/50" id="feedback_notes" placeholder="Provide specific examples from the interview regarding technical answers, problem-solving approach, and soft skills..." rows="6"></textarea>
+</div>
+</div>
+<!-- Recommendation -->
+<div class="bg-surface rounded-xl border border-slate-200 p-gutter-md shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4">Final Recommendation</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<label class="cursor-pointer">
+<input class="peer sr-only" name="recommendation" type="radio" value="hire"/>
+<div class="h-full p-4 rounded-lg border-2 border-outline-variant peer-checked:border-green-600 peer-checked:bg-green-50 flex flex-col items-center justify-center text-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-green-600" style="font-size: 28px;">thumb_up</span>
+<span class="font-label-md text-label-md text-on-surface">Strong Hire</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="recommendation" type="radio" value="next_round"/>
+<div class="h-full p-4 rounded-lg border-2 border-outline-variant peer-checked:border-secondary peer-checked:bg-surface-container flex flex-col items-center justify-center text-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-secondary" style="font-size: 28px;">arrow_forward</span>
+<span class="font-label-md text-label-md text-on-surface">Next Round</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="recommendation" type="radio" value="hold"/>
+<div class="h-full p-4 rounded-lg border-2 border-outline-variant peer-checked:border-amber-500 peer-checked:bg-amber-50 flex flex-col items-center justify-center text-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-amber-500" style="font-size: 28px;">pause</span>
+<span class="font-label-md text-label-md text-on-surface">Hold</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="recommendation" type="radio" value="no_hire"/>
+<div class="h-full p-4 rounded-lg border-2 border-outline-variant peer-checked:border-rose-600 peer-checked:bg-rose-50 flex flex-col items-center justify-center text-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-rose-600" style="font-size: 28px;">thumb_down</span>
+<span class="font-label-md text-label-md text-on-surface">No Hire</span>
+</div>
+</label>
+</div>
+</div>
+<div class="flex justify-end gap-4 pt-4">
+<button class="px-6 py-2.5 rounded-lg border border-slate-200 text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors" type="button">Save Draft</button>
+<button class="px-6 py-2.5 rounded-lg bg-[#0051d5] text-white font-label-md text-label-md hover:bg-[#316bf3] transition-colors shadow-sm flex items-center gap-2" type="submit">
+                                Submit Feedback <span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface dark:bg-surface-container-highest shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm-mobile">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">mail</span>
+<span class="font-label-sm text-label-sm-mobile">Messages</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 active:bg-surface-container-high active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-sm text-label-sm-mobile">Feedback</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm-mobile">Profile</span>
+</a>
+</nav>
+</body></html>

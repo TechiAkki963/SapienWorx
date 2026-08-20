@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Post New Job - Portal Recruitment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed": "#6ffbbe",
+                      "secondary-fixed": "#dbe1ff",
+                      "surface-container-high": "#dce9ff",
+                      "surface-dim": "#cbdbf5",
+                      "on-tertiary-container": "#009668",
+                      "navy-900": "#0F172A",
+                      "secondary-container": "#316bf3",
+                      "primary-container": "#131b2e",
+                      "tertiary": "#000000",
+                      "primary": "#000000",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-primary": "#bec6e0",
+                      "primary-fixed-dim": "#bec6e0",
+                      "slate-200": "#E2E8F0",
+                      "slate-50": "#F8FAFC",
+                      "surface": "#f8f9ff",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-secondary-container": "#fefcff",
+                      "outline-variant": "#c6c6cd",
+                      "blue-600": "#2563EB",
+                      "on-error-container": "#93000a",
+                      "surface-variant": "#d3e4fe",
+                      "on-primary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-background": "#0b1c30",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-primary-container": "#7c839b",
+                      "on-primary-fixed": "#131b2e",
+                      "secondary": "#0051d5",
+                      "outline": "#76777d",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "background": "#f8f9ff",
+                      "rose-600": "#E11D48",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "green-600": "#10B981",
+                      "surface-tint": "#565e74",
+                      "amber-500": "#F59E0B",
+                      "tertiary-container": "#002113",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "inverse-surface": "#213145",
+                      "surface-container": "#e5eeff",
+                      "on-secondary-fixed": "#00174b",
+                      "indigo-600": "#4F46E5",
+                      "on-surface": "#0b1c30",
+                      "error-container": "#ffdad6",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#002113",
+                      "primary-fixed": "#dae2fd"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max": "1440px",
+                      "gutter-sm": "16px",
+                      "gutter-md": "24px",
+                      "margin-page": "32px",
+                      "base": "4px",
+                      "gutter-xs": "8px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-sm": ["Geist"],
+                      "display-lg": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "code-sm": ["JetBrains Mono"],
+                      "label-sm": ["Inter"],
+                      "headline-lg-mobile": ["Geist"]
+              },
+              "fontSize": {
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "code-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md h-screen overflow-hidden flex flex-col">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-gutter-md h-16 bg-surface dark:bg-navy-900 border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-6">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-secondary-fixed">Portal</span>
+<div class="hidden md:flex items-center gap-2 bg-surface-container-low dark:bg-primary-container px-3 py-1.5 rounded-full border border-slate-200">
+<span class="material-symbols-outlined text-outline text-[20px]">search</span>
+<input class="bg-transparent border-none outline-none text-body-sm w-48 focus:ring-0 placeholder:text-outline p-0" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant dark:text-on-primary-container hover:text-secondary hover:bg-surface-container-low dark:hover:bg-primary-container transition-colors rounded-full cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant dark:text-on-primary-container hover:text-secondary hover:bg-surface-container-low dark:hover:bg-primary-container transition-colors rounded-full cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 text-on-surface-variant dark:text-on-primary-container hover:text-secondary hover:bg-surface-container-low dark:hover:bg-primary-container transition-colors rounded-full cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<img alt="User profile photo" class="w-8 h-8 rounded-full border border-slate-200 object-cover" data-alt="A small, professional headshot of a corporate recruiter in a bright office environment, used as a user profile avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW9zebhwhjgxxOcNqGbAsOx8TcnGx9bhbaWV9ecgodiW0sOIOENe2kWlWYmANxk90Uq57wl8sA0ZG4e9YAgy8NzJIBkTT1ovnE0WC7KrmuZ190t3zyMoKJ9_jOPOimOd-LuwOvmqUSP3W2ANPM5DYFZG3WQ-zbZclF-gvT8s6xCaU3zZXV_yzNQuy_uiv71fY3APIseW-2Om0PobWcc5cHmUBEF9QTVIV3i9gZXxxw4F7iz9pcUvRd"/>
+</div>
+</header>
+<div class="flex flex-1 pt-16 overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex fixed left-0 top-16 bottom-0 w-64 flex-col py-4 z-40 bg-surface-container-lowest dark:bg-navy-900 border-r border-outline-variant dark:border-outline overflow-y-auto custom-scrollbar">
+<div class="px-6 mb-6 flex items-center gap-3">
+<div class="w-10 h-10 bg-secondary rounded flex items-center justify-center text-white font-bold">R</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface">Recruitment Portal</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Enterprise Edition</p>
+</div>
+</div>
+<div class="px-4 mb-4">
+<button class="w-full bg-secondary text-white font-label-md py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Post New Job
+                </button>
+</div>
+<div class="flex-1 px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Candidates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="work" data-weight="fill" style='font-variation-settings: "FILL" 1;'>work</span>
+<span class="font-label-md text-label-md font-bold">Jobs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Interviews</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</div>
+<div class="mt-auto px-2 pt-4 border-t border-slate-200">
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-64 bg-slate-50 overflow-hidden flex flex-col h-full">
+<!-- Page Header -->
+<div class="px-8 pt-8 pb-4 shrink-0 bg-slate-50 z-10 border-b border-slate-200 flex justify-between items-end">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Create New Job</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Define the requirements and details for the new open position.</p>
+</div>
+<div class="flex items-center gap-3"><button class="px-4 py-2 font-label-md text-label-md text-on-surface-variant border border-slate-200 bg-white rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm" type="button"><span class="material-symbols-outlined text-[20px]">share</span> Share</button></div>
+</div>
+<div class="flex-1 overflow-hidden flex">
+<!-- Form Container (Left Side) -->
+<div class="w-full lg:w-[60%] overflow-y-auto custom-scrollbar p-8">
+<div class="max-w-3xl mx-auto">
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-8">
+<form class="space-y-10">
+<!-- 1. Job Basics -->
+<section>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 pb-2 border-b border-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">info</span>
+                                            Job Basics
+                                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-1">Job Title *</label>
+<input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-shadow bg-white" placeholder="e.g. Senior Frontend Developer" type="text" value="Senior Frontend Developer"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Department</label>
+<select class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white text-on-surface">
+<option disabled="" value="">Select Department...</option>
+<option selected="">Engineering</option>
+<option>Design</option>
+<option>Product</option>
+<option>Marketing</option>
+<option>Sales</option>
+</select>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Location</label>
+<input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" placeholder="City, State, Country" type="text" value="San Francisco, CA, USA"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Work Mode</label>
+<div class="flex gap-4 mt-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="text-secondary focus:ring-secondary" name="work_mode" type="radio"/>
+<span class="font-body-sm text-on-surface">Remote</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-secondary focus:ring-secondary" name="work_mode" type="radio"/>
+<span class="font-body-sm text-on-surface">Hybrid</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-secondary focus:ring-secondary" name="work_mode" type="radio"/>
+<span class="font-body-sm text-on-surface">On-site</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Employment Type</label>
+<select class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white text-on-surface">
+<option selected="">Full-time</option>
+<option>Part-time</option>
+<option>Contract</option>
+<option>Internship</option>
+</select>
+</div>
+</div>
+</section>
+<!-- 2. Job Description -->
+<section>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 pb-2 border-b border-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">payments</span>
+                                            Experience &amp; Compensation
+                                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-1">Experience Range</label>
+<div class="flex items-center gap-4">
+<div class="flex-1">
+<input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" placeholder="Min Years (e.g. 3)" type="number" value="3"/>
+</div>
+<span class="text-on-surface-variant">to</span>
+<div class="flex-1">
+<input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" placeholder="Max Years (e.g. 5)" type="number" value="5"/>
+</div>
+</div>
+</div>
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-1">Salary Range (Optional)</label>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="relative">
+<span class="absolute left-3 top-3 text-on-surface-variant font-body-md">$</span>
+<input class="w-full border border-slate-200 rounded-lg p-3 pl-8 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" placeholder="Min Salary" type="number" value="120000"/>
+</div>
+<div class="relative">
+<span class="absolute left-3 top-3 text-on-surface-variant font-body-md">$</span>
+<input class="w-full border border-slate-200 rounded-lg p-3 pl-8 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" placeholder="Max Salary" type="number" value="160000"/>
+</div>
+<div>
+<select class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white text-on-surface">
+<option selected="">USD</option>
+<option>EUR</option>
+<option>GBP</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+</section><section>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 pb-2 border-b border-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">description</span>
+                                            Job Description
+                                        </h3>
+<div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+<div class="bg-slate-50 border-b border-slate-200 p-2 flex gap-2">
+<button class="p-1.5 hover:bg-slate-200 rounded text-on-surface-variant" type="button"><span class="material-symbols-outlined text-[18px]">format_bold</span></button>
+<button class="p-1.5 hover:bg-slate-200 rounded text-on-surface-variant" type="button"><span class="material-symbols-outlined text-[18px]">format_italic</span></button>
+<button class="p-1.5 hover:bg-slate-200 rounded text-on-surface-variant" type="button"><span class="material-symbols-outlined text-[18px]">format_list_bulleted</span></button>
+<button class="p-1.5 hover:bg-slate-200 rounded text-on-surface-variant" type="button"><span class="material-symbols-outlined text-[18px]">link</span></button>
+</div>
+<textarea class="w-full min-h-[250px] p-4 border-none outline-none font-body-md resize-y bg-transparent" placeholder="Describe the role, responsibilities, and team...">We are looking for an experienced Senior Frontend Developer to join our core engineering team. You will be responsible for architecting and building complex, highly interactive web applications using React and TypeScript. 
+
+Key Responsibilities:
+- Lead the technical design and implementation of new frontend features
+- Mentor junior developers and establish best practices
+- Collaborate with design and product teams to deliver exceptional user experiences</textarea>
+</div>
+</section>
+<!-- 3. Requirements -->
+<section>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 pb-2 border-b border-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">school</span>
+                                            Candidate Requirements
+                                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class=""><label class="block font-label-md text-label-md text-on-surface mb-1">Min Experience (Years)</label><input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" min="0" placeholder="e.g. 1" type="number" value="3"/></div><div class=""><label class="block font-label-md text-label-md text-on-surface mb-1">Max Experience (Years)</label><input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" min="0" placeholder="e.g. 5" type="number" value="5"/></div><div class=""><label class="block font-label-md text-label-md text-on-surface mb-1">Minimum Education</label><select class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white text-on-surface"><option>High School</option><option>Associate Degree</option><option selected="">Bachelor's Degree</option><option>Master's Degree</option><option>Ph.D.</option></select></div><div class="col-span-1 md:col-span-2"><label class="block font-label-md text-label-md text-on-surface mb-1">Required Skills</label><div class="border border-slate-200 rounded-lg p-2 bg-white flex flex-wrap gap-2 items-center min-h-[50px] focus-within:ring-2 focus-within:ring-secondary focus-within:border-secondary"><span class="bg-surface-container-low text-secondary border border-slate-200 px-2 py-1 rounded flex items-center gap-1 font-body-sm">React <button class="" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button></span><span class="bg-surface-container-low text-secondary border border-slate-200 px-2 py-1 rounded flex items-center gap-1 font-body-sm">TypeScript <button class="" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button></span><input class="border-none outline-none flex-1 min-w-[150px] text-body-sm p-1" placeholder="Type a skill and press Enter..." type="text"/></div></div></div>
+</section>
+<!-- 4. Compensation -->
+<section>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 pb-2 border-b border-slate-200 flex items-center gap-2"><span class="material-symbols-outlined text-secondary">payments</span><span class="">Compensation &amp; Details <span class="text-body-sm font-normal text-on-surface-variant ml-1">(Optional)</span></span></h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Min Salary</label>
+<div class="relative">
+<span class="absolute left-3 top-3 text-on-surface-variant font-body-md">$</span>
+<input class="w-full border border-slate-200 rounded-lg p-3 pl-8 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" placeholder="80,000" type="number" value="120000"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Max Salary</label>
+<div class="relative">
+<span class="absolute left-3 top-3 text-on-surface-variant font-body-md">$</span>
+<input class="w-full border border-slate-200 rounded-lg p-3 pl-8 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" placeholder="120,000" type="number" value="160000"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Currency</label>
+<select class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white text-on-surface">
+<option selected="">USD</option>
+<option>EUR</option>
+<option>GBP</option>
+</select>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Openings</label>
+<input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white" min="1" type="number" value="1"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Closing Date</label>
+<input class="w-full border border-slate-200 rounded-lg p-3 font-body-md focus:ring-2 focus:ring-secondary focus:border-secondary outline-none bg-white text-on-surface-variant" type="date"/>
+</div>
+</div>
+</section>
+</form>
+</div>
+</div>
+</div>
+<!-- Live Preview Panel (Right Side) -->
+<div class="hidden lg:flex w-[40%] bg-surface-container-highest border-l border-slate-200 flex-col overflow-hidden">
+<div class="p-4 border-b border-slate-200 bg-surface-container-lowest flex items-center justify-between shadow-sm z-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">visibility</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Live Preview</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-low text-secondary px-2 py-1 rounded">Candidate View</span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50">
+<!-- Simulated Candidate View Card -->
+<div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+<!-- Header Banner -->
+<div class="h-24 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+<div class="p-6 relative">
+<!-- Company Logo Placeholder -->
+<div class="w-16 h-16 bg-white rounded-lg shadow-sm border border-slate-200 absolute -top-8 flex items-center justify-center">
+<span class="font-headline-lg text-primary">C</span>
+</div>
+<div class="mt-8">
+<div class="flex justify-between items-start mb-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Senior Frontend Developer</h2>
+<span class="bg-green-100 text-green-700 font-label-sm px-3 py-1 rounded-full">Active</span>
+</div>
+<p class="font-body-md text-on-surface-variant mb-6">Engineering Dept • Portal Inc.</p>
+<!-- Key Details Grid -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline mt-0.5">location_on</span>
+<div>
+<p class="font-label-md text-on-surface">Location</p>
+<p class="font-body-sm text-on-surface-variant">San Francisco, CA, USA</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline mt-0.5">work</span>
+<div>
+<p class="font-label-md text-on-surface">Work Mode</p>
+<p class="font-body-sm text-on-surface-variant">Remote • Full-time</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline mt-0.5">payments</span>
+<div>
+<p class="font-label-md text-on-surface">Salary Range</p>
+<p class="font-body-sm text-on-surface-variant">$120,000 - $160,000 USD</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline mt-0.5">hourglass_empty</span>
+<div>
+<p class="font-label-md text-on-surface">Experience</p>
+<p class="font-body-sm text-on-surface-variant">3 - 5 Years</p>
+</div>
+</div>
+</div>
+<!-- Description Summary -->
+<div>
+<h3 class="font-headline-sm text-on-surface mb-3">About the Role</h3>
+<div class="font-body-md text-on-surface-variant space-y-4">
+<p>We are looking for an experienced Senior Frontend Developer to join our core engineering team. You will be responsible for architecting and building complex, highly interactive web applications using React and TypeScript.</p>
+<p class="font-label-md text-on-surface mt-4 mb-2">Key Responsibilities:</p>
+<ul class="list-disc pl-5 space-y-1">
+<li>Lead the technical design and implementation of new frontend features</li>
+<li>Mentor junior developers and establish best practices</li>
+<li>Collaborate with design and product teams to deliver exceptional user experiences</li>
+</ul>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-200">
+<button class="w-full bg-secondary text-white font-label-md py-3 rounded-lg hover:bg-blue-700 transition-colors">Apply Now</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action Bar (Fixed) -->
+<div class="border-t border-slate-200 bg-surface-container-lowest p-4 px-8 flex justify-between items-center shadow-[0_-2px_10px_rgba(0,0,0,0.02)] shrink-0 z-20 relative">
+<div></div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2.5 font-label-md text-label-md text-primary border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors" type="button">Save Draft</button>
+<button class="px-4 py-2.5 font-label-md text-label-md text-secondary border border-secondary rounded-lg hover:bg-surface-container-low transition-colors lg:hidden" type="button">Preview Full Screen</button>
+<button class="px-6 py-2.5 font-label-md text-label-md text-white bg-secondary rounded-lg hover:bg-blue-600 transition-colors shadow-sm" type="submit">Publish Job</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

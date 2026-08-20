@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - Database Search</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#131b2e",
+                      "indigo-600": "#4F46E5",
+                      "tertiary-fixed": "#6ffbbe",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container": "#e5eeff",
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#131b2e",
+                      "rose-600": "#E11D48",
+                      "surface-variant": "#d3e4fe",
+                      "on-primary-container": "#7c839b",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "outline": "#76777d",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "surface-container-highest": "#d3e4fe",
+                      "secondary-fixed": "#dbe1ff",
+                      "primary-fixed": "#dae2fd",
+                      "surface-dim": "#cbdbf5",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-tertiary-container": "#009668",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "background": "#f8f9ff",
+                      "on-surface-variant": "#45464d",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "outline-variant": "#c6c6cd",
+                      "amber-500": "#F59E0B",
+                      "surface-container-low": "#eff4ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-container": "#002113",
+                      "inverse-surface": "#213145",
+                      "primary": "#000000",
+                      "blue-600": "#2563EB",
+                      "on-background": "#0b1c30",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed": "#002113",
+                      "on-secondary": "#ffffff",
+                      "green-600": "#10B981",
+                      "tertiary": "#000000",
+                      "on-error": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "slate-200": "#E2E8F0",
+                      "secondary-container": "#316bf3",
+                      "secondary": "#0051d5",
+                      "on-secondary-fixed": "#00174b",
+                      "surface-bright": "#f8f9ff",
+                      "navy-900": "#0F172A",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#bec6e0",
+                      "slate-50": "#F8FAFC",
+                      "on-secondary-container": "#fefcff",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-surface": "#0b1c30"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter-md": "24px",
+                      "margin-page": "32px",
+                      "gutter-sm": "16px",
+                      "gutter-xs": "8px",
+                      "container-max": "1440px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface h-full flex overflow-hidden font-body-md text-body-md">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-gutter-md h-16 bg-surface border-b border-outline-variant flat no shadows font-headline-md text-headline-md font-bold text-on-surface">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Portal</span>
+<!-- Search bar mapped from search_bar: "on_left" -->
+<div class="ml-8 relative hidden md:block w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-label-md text-label-md">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-colors" placeholder="Job Title, Keywords, or Boolean" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:scale-95 transition-transform"><span class="material-symbols-outlined font-label-md text-label-md">notifications</span></button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:scale-95 transition-transform"><span class="material-symbols-outlined font-label-md text-label-md">help</span></button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:scale-95 transition-transform"><span class="material-symbols-outlined font-label-md text-label-md">settings</span></button>
+<img alt="User profile photo" class="w-8 h-8 rounded-full border border-outline-variant ml-2 object-cover" data-alt="A highly detailed close-up portrait of a professional corporate user in a modern office setting, bright light-mode aesthetic with clean white backgrounds, high resolution, realistic textures, conveying a sense of authority and approachability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAROXYbvq3Omvx-LZRtJJy_PKQbVt57ccgf5K0kEzMQgO_5liZFcFy4bvraB_tI5YfcBPYlLq_BzolIZG4bsjK0r2ItFabrveU-pgHxZ6zqOd1G7xVbPld16I55rStoz5Avx8kLiBMC1HLQYUgfH5kFV6wc7ZswiipcmeSM2PuqRtZPs-x8X5iXdNo94ZYjwKGel4VmLnEKdDCOWr3lgTRlXPG9uxur6AUbsTn8Yfpqg14rWIMCjMJm"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-16 bottom-0 w-64 flex flex-col py-4 z-40 bg-surface-container-lowest border-r border-outline-variant flat no shadows">
+<div class="px-4 mb-6">
+<div class="flex items-center gap-3">
+<img alt="Organization Logo" class="w-10 h-10 rounded" data-alt="A pristine, minimalist geometric organization logo on a clean white background, modern corporate identity, sharp lines, light-mode aesthetic, highly detailed rendering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9PSRLvVgHQ_A_-37nnTK_KlDWC3R5bmt-uuNrC9tktwybjeg39LoVLCuveikdWiOZ4ObpN3KiX-mFuCJbmcyVbkJ5lR2h-UEHkxj_xguxab7OP7jgZ3tbGxB-luF49wKO9dxUxk8zYMDkMJ2CLCjeSODCEy6sWLPVA1fB1EfjiqdVw5kc0bHMQDXKSJ6GN9J0YrsTgdDclEjFyKCqUho0vze0IG4s4APDhLruGcYb719SrSgNhk7o"/>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface leading-tight">Recruitment Portal</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Enterprise Edition</p>
+</div>
+</div>
+</div>
+<div class="flex-1 px-3 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg cursor-pointer font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container transition-all duration-200 rounded-lg cursor-pointer font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span> Candidates
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg cursor-pointer font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">work</span> Jobs
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg cursor-pointer font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">calendar_today</span> Interviews
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg cursor-pointer font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">analytics</span> Analytics
+            </a>
+</div>
+<div class="px-4 mt-auto mb-4">
+<button class="w-full bg-secondary text-white font-label-md text-label-md py-2 rounded-lg hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm">Post New Job</button>
+</div>
+<div class="px-3 border-t border-outline-variant pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg cursor-pointer font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">payments</span> Billing
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg cursor-pointer font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">contact_support</span> Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 mt-16 flex-1 flex overflow-hidden bg-background">
+<!-- Filters Sidebar -->
+<aside class="w-80 border-r border-slate-200 bg-surface-container-lowest flex flex-col h-full overflow-y-auto hidden lg:flex">
+<div class="p-gutter-sm border-b border-slate-200 flex justify-between items-center bg-surface sticky top-0 z-10">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Filters</h3>
+<button class="text-secondary font-label-md text-label-md hover:underline">Clear all</button>
+</div>
+<div class="p-gutter-sm space-y-6">
+<!-- Location Filter -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface block">Location</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline font-label-md text-label-md">location_on</span>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-container-low border border-slate-200 rounded-lg font-body-sm text-body-sm focus:border-secondary focus:ring-1 focus:ring-secondary outline-none" placeholder="e.g. New York, NY" type="text"/>
+</div>
+</div>
+<!-- Preferred Location -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface block">Preferred Location</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline font-label-md text-label-md">map</span>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-container-low border border-slate-200 rounded-lg font-body-sm text-body-sm focus:border-secondary focus:ring-1 focus:ring-secondary outline-none" placeholder="Add preferred cities" type="text"/>
+</div>
+</div>
+<!-- Experience Range -->
+<div class="space-y-4">
+<label class="font-label-md text-label-md text-on-surface block flex justify-between">
+                        Experience Range
+                        <span class="text-on-surface-variant font-body-sm text-body-sm">2 - 10 yrs</span>
+</label>
+<div class="px-2">
+<!-- Simulated range slider for UI purposes -->
+<div class="h-1 bg-slate-200 rounded-full relative w-full mt-4">
+<div class="absolute h-full bg-secondary rounded-full left-[20%] right-[40%]"></div>
+<div class="absolute w-4 h-4 bg-white border-2 border-secondary rounded-full -top-1.5 left-[20%] -ml-2 cursor-pointer shadow-sm"></div>
+<div class="absolute w-4 h-4 bg-white border-2 border-secondary rounded-full -top-1.5 right-[40%] -mr-2 cursor-pointer shadow-sm"></div>
+</div>
+</div>
+</div>
+<!-- Salary Range -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface block">Expected Salary (USD)</label>
+<div class="flex items-center gap-2">
+<input class="w-full px-3 py-2 bg-surface-container-low border border-slate-200 rounded-lg font-body-sm text-body-sm focus:border-secondary focus:ring-1 focus:ring-secondary outline-none" placeholder="Min" type="number"/>
+<span class="text-outline">-</span>
+<input class="w-full px-3 py-2 bg-surface-container-low border border-slate-200 rounded-lg font-body-sm text-body-sm focus:border-secondary focus:ring-1 focus:ring-secondary outline-none" placeholder="Max" type="number"/>
+</div>
+</div>
+<!-- Notice Period -->
+<div class="space-y-3">
+<label class="font-label-md text-label-md text-on-surface block">Notice Period</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded text-secondary border-slate-200 focus:ring-secondary bg-surface-container-lowest" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Immediate</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded text-secondary border-slate-200 focus:ring-secondary bg-surface-container-lowest" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">15 Days</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded text-secondary border-slate-200 focus:ring-secondary bg-surface-container-lowest" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">30 Days</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded text-secondary border-slate-200 focus:ring-secondary bg-surface-container-lowest" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">60 Days</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded text-secondary border-slate-200 focus:ring-secondary bg-surface-container-lowest" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">90+ Days</span>
+</label>
+</div>
+</div>
+<!-- Last Active -->
+<div class="space-y-2 pb-6">
+<label class="font-label-md text-label-md text-on-surface block">Last Active</label>
+<select class="w-full px-3 py-2 bg-surface-container-low border border-slate-200 rounded-lg font-body-sm text-body-sm focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-on-surface-variant">
+<option>Last 1 day</option>
+<option>Last 3 days</option>
+<option>Last 7 days</option>
+<option selected="">Last 15 days</option>
+<option>Last 30 days</option>
+<option>Last 60 days</option>
+<option>Last 90 days</option>
+<option>All time</option>
+</select>
+</div>
+</div>
+</aside>
+<!-- Results Canvas -->
+<section class="flex-1 overflow-y-auto p-margin-page bg-slate-50">
+<div class="max-w-container-max mx-auto space-y-6">
+<!-- Results Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Search Results</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Found <span class="font-semibold text-on-surface">1,245</span> candidates matching your criteria</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Sort by:</span>
+<select class="px-3 py-1.5 bg-surface-container-lowest border border-slate-200 rounded-lg font-body-sm text-body-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary outline-none shadow-sm">
+<option>Relevance</option>
+<option>Experience (High to Low)</option>
+<option>Last Active</option>
+</select>
+</div>
+</div>
+<!-- Candidate List (High Density Cards) -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:border-secondary-fixed transition-all group flex flex-col md:flex-row gap-6 items-start relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex-shrink-0 relative">
+<img alt="Candidate avatar" class="w-16 h-16 rounded-full border border-slate-200 object-cover" data-alt="A highly detailed close-up portrait of a professional female software engineer in a modern office setting, bright light-mode aesthetic with clean white backgrounds, high resolution, realistic textures, conveying a sense of authority and approachability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH0NgfixnHUzpImuw8Qw4cEpiGdZfLFotYYGF-GFS31jrA4xj-sGcqiXE8K8f8Elr7zgYfAHUlNghCzV75hIcXKoa_gl2WAD41VbHPo0CmTqMrUzPSz_pMCmetqrCi7LGi-iVJ8kQsNcYGDe7QpAvXz3LXt-lL62W7q1RYiVv42EikipytL-VyBxH3b931578ymMKlViklrwGG03FE0gw7y0IoEMpUdVceLNerIFQmtg8Yfcpz13Ny"/>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-green-600 border-2 border-white rounded-full" title="Active recently"></div>
+</div>
+<div class="flex-1 w-full">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface hover:text-secondary cursor-pointer">Sarah Jenkins</h3>
+<p class="font-body-md text-body-md text-on-surface-variant font-medium mt-0.5">Senior Full Stack Engineer at TechNova</p>
+</div>
+<button class="px-4 py-2 border border-slate-200 text-secondary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors hidden md:block">View Profile</button>
+</div>
+<div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Experience</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-on-surface-variant">work_history</span> 8 Years
+                                    </span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Location</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-on-surface-variant">location_on</span> Austin, TX
+                                    </span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Notice Period</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-amber-500">event_available</span> 30 Days
+                                    </span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Current Salary</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary opacity-20"></span> Confirmed Match
+                                    </span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-100">
+<div class="flex flex-wrap gap-2">
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">React</span>
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">Node.js</span>
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">TypeScript</span>
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">AWS</span>
+<span class="px-2.5 py-1 bg-surface-container-lowest text-outline font-code-sm text-code-sm border border-dashed border-slate-300 rounded">+4 more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:border-secondary-fixed transition-all group flex flex-col md:flex-row gap-6 items-start relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex-shrink-0 relative">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center font-headline-md text-headline-md text-on-primary-fixed border border-slate-200">
+                                MJ
+                            </div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-slate-300 border-2 border-white rounded-full" title="Offline"></div>
+</div>
+<div class="flex-1 w-full">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface hover:text-secondary cursor-pointer flex items-center gap-2">
+                                        Marcus Johnson 
+                                        <span class="material-symbols-outlined text-sm text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</h3>
+<p class="font-body-md text-body-md text-on-surface-variant font-medium mt-0.5">Product Manager at FinServe</p>
+</div>
+<button class="px-4 py-2 border border-slate-200 text-secondary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors hidden md:block">View Profile</button>
+</div>
+<div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Experience</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-on-surface-variant">work_history</span> 5 Years
+                                    </span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Location</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-on-surface-variant">location_on</span> New York, NY
+                                    </span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Notice Period</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-green-600">event_available</span> Immediate
+                                    </span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Current Salary</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary opacity-20"></span> Confirmed Match
+                                    </span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-100">
+<div class="flex flex-wrap gap-2">
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">Agile</span>
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">Scrum</span>
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">Jira</span>
+<span class="px-2.5 py-1 bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm rounded border border-slate-200">Figma</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-8 flex justify-center items-center gap-2">
+<button class="p-2 border border-slate-200 rounded-lg text-outline hover:text-on-surface hover:border-outline-variant transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-secondary text-white font-label-md text-label-md">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-on-surface-variant hover:bg-surface-container-low font-label-md text-label-md transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-on-surface-variant hover:bg-surface-container-low font-label-md text-label-md transition-colors">3</button>
+<span class="text-outline mx-1">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-200 text-on-surface-variant hover:bg-surface-container-low font-label-md text-label-md transition-colors">124</button>
+<button class="p-2 border border-slate-200 rounded-lg text-outline hover:text-on-surface hover:border-outline-variant transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

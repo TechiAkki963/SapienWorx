@@ -1,0 +1,350 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Sapienworx - Resume Parser Review</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#0051d5",
+                      "outline": "#76777d",
+                      "on-background": "#0b1c30",
+                      "secondary-container": "#316bf3",
+                      "on-secondary-container": "#fefcff",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-primary-container": "#7c839b",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "surface-container-high": "#dce9ff",
+                      "background": "#f8f9ff",
+                      "tertiary-container": "#002113",
+                      "surface-variant": "#d3e4fe",
+                      "tertiary-fixed": "#6ffbbe",
+                      "slate-200": "#E2E8F0",
+                      "on-surface-variant": "#45464d",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#d3e4fe",
+                      "rose-600": "#E11D48",
+                      "surface-dim": "#cbdbf5",
+                      "outline-variant": "#c6c6cd",
+                      "inverse-surface": "#213145",
+                      "indigo-600": "#4F46E5",
+                      "amber-500": "#F59E0B",
+                      "primary-fixed": "#dae2fd",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary-container": "#009668",
+                      "on-tertiary-fixed": "#002113",
+                      "primary-container": "#131b2e",
+                      "slate-50": "#F8FAFC",
+                      "on-secondary": "#ffffff",
+                      "tertiary": "#000000",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "surface": "#f8f9ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-secondary-fixed": "#00174b",
+                      "blue-600": "#2563EB",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "surface-tint": "#565e74",
+                      "primary-fixed-dim": "#bec6e0",
+                      "navy-900": "#0F172A",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface-container": "#e5eeff",
+                      "inverse-primary": "#bec6e0",
+                      "error": "#ba1a1a",
+                      "primary": "#000000",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "green-600": "#10B981",
+                      "secondary-fixed": "#dbe1ff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "surface-container-low": "#eff4ff",
+                      "on-primary-fixed": "#131b2e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-page": "32px",
+                      "base": "4px",
+                      "gutter-xs": "8px",
+                      "container-max": "1440px",
+                      "gutter-md": "24px",
+                      "gutter-sm": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface text-on-surface h-full flex flex-col antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-gutter-md h-16 bg-surface dark:bg-navy-900 border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhLrduKeZ7Wo3q_8YwpHbhLfw_DhzrivR24IrhWtm7ewtyFRUWFYva4Mb6AMWqZEb9kjOJ1xHRf7MRZxAgWhD-yvU220MieWwYMZJZn7b5SeKxWGIfQAik-W0cBRov5ixRP34c77acURRxsENIQanMXW0FjiHpLZC_obhnWt-2ln-idcRvQiM_anfrHlB2oZJHZVII7np4NU17ZixSVi3LDLgAaDJvy1Catx0_2ou8SqUQSpOViMeqtlr4tcVxWwfzHw" alt="Sapienworx Logo" class="h-8 w-8 object-contain"><span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-secondary-fixed">Sapienworx</span></div>
+<div class="hidden md:flex gap-4 h-16">
+<!-- Tabs omitted for focus view -->
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full"><span class="material-symbols-outlined" data-icon="help">help</span></button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+</div>
+<img class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A small circular profile picture of a professional individual in a corporate setting. High key lighting, clean modern aesthetic, soft light blue background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHHV3zr9z3nyiMbl6pzqK-JZ4WtOtBUBRaypUqGqlKPsGGhdVKi12f-SO1vEYlRXDRuXdoDew2M5rVFKWXkdfKZnDSnqDfbdibKdcpD8yJ5BVYPP-vt_NT4EfrK4-SRANXgcDJGMQByz2PXtgOV-MiIcmbYeOidU0lEUMjNas_q-EaUAuBePW7QN3u5PkD845vPmUdG7vDZwBigLESBhpdkktzqPjrxswC-X3BCUW1e75th-nbMFXh">
+</div>
+</nav>
+<!-- Main Content Split -->
+<main class="flex-1 flex flex-col md:flex-row pt-16 h-full overflow-hidden">
+<!-- Left Pane: PDF Viewer -->
+<section class="w-full md:w-1/2 flex flex-col bg-surface-container-lowest border-r border-outline-variant relative">
+<header class="h-12 border-b border-outline-variant flex items-center justify-between px-4 bg-surface-bright shadow-[0_1px_2px_rgba(0,0,0,0.02)] z-10">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="">sarah_connor_resume.pdf</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-1 hover:bg-surface-container-low rounded text-on-surface-variant"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="font-label-sm text-label-sm w-12 text-center text-on-surface-variant">100%</span>
+<button class="p-1 hover:bg-surface-container-low rounded text-on-surface-variant"><span class="material-symbols-outlined text-sm">add</span></button>
+<div class="w-px h-4 bg-outline-variant mx-1"></div>
+<button class="p-1 hover:bg-surface-container-low rounded text-on-surface-variant"><span class="material-symbols-outlined text-sm">download</span></button>
+</div>
+</header>
+<div class="flex-1 overflow-auto bg-surface-container-low p-margin-page flex justify-center items-start">
+<!-- Mock PDF Document -->
+<div class="bg-surface-container-lowest shadow-sm border border-slate-200 w-full max-w-[800px] aspect-[1/1.414] p-12 relative">
+<!-- Highlighted Extracted Data Simulation -->
+<div class="absolute top-12 left-12 w-64 h-8 bg-tertiary/5 border border-tertiary/10 rounded pointer-events-none"></div>
+<div class="absolute top-28 left-12 w-full max-w-[90%] h-32 bg-tertiary/5 border border-tertiary/10 rounded pointer-events-none"></div>
+<div class="absolute top-64 left-12 w-full max-w-[90%] h-24 bg-tertiary/5 border border-tertiary/10 rounded pointer-events-none"></div>
+<!-- Faded content for visual structure -->
+<img class="w-full h-full object-cover opacity-50 grayscale" data-alt="A stylized, generic resume layout. Text is blurred out to resemble a placeholder document. There are blocks of text for a header, summary, and experience section. The overall tone is corporate and highly structured, fitting a modern ATS parser context. High key, bright." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyqFcm8Ys4APHNbj-vf44uc4kXKBTvH2jFmOUn3t3Cuo71ZPzKSGkvZ4iCa9s-XA4lwH5Z6SaYTpaxrKD8mDVG-nIKY7P-h9MVTJA6f93XKZcnF3R_Se1ALn1m8uKEgE_ezs8oWu2WoGFourrQdCkUlKJQ7iUXNcrLS080hp0u0yhexZBa7-56rtwvXIPakUuXpRW5hvnMFN9CooB5dlVoBcVjKejvbSmSEcMBA9d-4NqQZKxOfHGE">
+</div>
+</div>
+</section>
+<!-- Right Pane: Data Review -->
+<section class="w-full md:w-1/2 flex flex-col bg-surface-bright relative z-10">
+<header class="h-16 border-b border-outline-variant flex items-center justify-between px-gutter-md bg-surface-bright shadow-[0_1px_2px_rgba(0,0,0,0.02)] sticky top-0 z-20">
+<h1 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Review Extracted Data</h1>
+<div class="flex items-center gap-2 px-3 py-1 bg-green-600/10 text-green-600 rounded-full border border-green-600/20">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle" data-weight="fill">check_circle</span>
+<span class="font-label-sm text-label-sm">98% Accuracy Match</span>
+</div>
+</header>
+<div class="flex-1 overflow-auto p-gutter-md pb-32">
+<form class="flex flex-col gap-8 max-w-3xl mx-auto">
+<!-- Personal Info Section -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Personal Information</h2>
+<button class="text-secondary font-label-md text-label-md hover:underline" type="button">Confirm Section</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-sm">
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Full Name</label>
+<div class="relative flex items-center">
+<input class="w-full border-slate-200 rounded bg-tertiary/5 focus:ring-secondary focus:border-secondary font-body-md text-body-md py-2 px-3 pl-8" type="text" value="Sarah Connor">
+<div class="absolute left-3 w-2 h-2 rounded-full bg-green-600 shadow-[0_0_4px_rgba(16,185,129,0.5)]"></div>
+</div>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Email</label>
+<div class="relative flex items-center">
+<input class="w-full border-slate-200 rounded bg-tertiary/5 focus:ring-secondary focus:border-secondary font-body-md text-body-md py-2 px-3 pl-8" type="email" value="s.connor@sky.net">
+<div class="absolute left-3 w-2 h-2 rounded-full bg-green-600 shadow-[0_0_4px_rgba(16,185,129,0.5)]"></div>
+</div>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Phone</label>
+<div class="relative flex items-center">
+<input class="w-full border-slate-200 rounded bg-tertiary/5 focus:ring-secondary focus:border-secondary font-body-md text-body-md py-2 px-3 pl-8" type="tel" value="+1 (555) 019-8472">
+<div class="absolute left-3 w-2 h-2 rounded-full bg-green-600 shadow-[0_0_4px_rgba(16,185,129,0.5)]"></div>
+</div>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Location</label>
+<div class="relative flex items-center">
+<input class="w-full border-slate-200 rounded bg-tertiary/5 focus:ring-secondary focus:border-secondary font-body-md text-body-md py-2 px-3 pl-8" type="text" value="Los Angeles, CA">
+<div class="absolute left-3 w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_4px_rgba(245,158,11,0.5)]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="h-px bg-slate-200 w-full"></div>
+<!-- Experience Section -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Experience</h2>
+<button class="text-secondary font-label-md text-label-md hover:underline" type="button">Confirm Section</button>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Exp Card 1 -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-lg p-4 shadow-[0_2px_4px_rgba(0,0,0,0.02)] relative group hover:shadow-md transition-shadow">
+<div class="absolute top-4 right-4 flex opacity-0 group-hover:opacity-100 transition-opacity gap-2">
+<button class="p-1 text-on-surface-variant hover:text-secondary bg-surface-container-low rounded"><span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span></button>
+<button class="p-1 text-on-surface-variant hover:text-rose-600 bg-surface-container-low rounded"><span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span></button>
+</div>
+<div class="flex items-center gap-2 mb-1">
+<div class="w-2 h-2 rounded-full bg-green-600"></div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Director of Security Operations</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2">Cyberdyne Systems • Oct 2020 - Present</p>
+<p class="font-body-sm text-body-sm text-on-surface bg-tertiary/5 p-2 rounded border border-transparent">Lead a team of 45 security professionals managing physical and digital asset protection across global facilities. Implemented new predictive threat modeling...</p>
+</div>
+<button class="border border-dashed border-slate-200 rounded-lg p-3 text-center text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined" data-icon="add">add</span> Add Experience
+                            </button>
+</div>
+</div>
+</form>
+</div>
+<!-- Footer Actions -->
+<footer class="absolute bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant p-4 px-gutter-md flex justify-between items-center z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<button class="px-4 py-2 border border-slate-200 text-on-surface font-label-md text-label-md rounded hover:bg-surface-container-low transition-colors" type="button">Discard &amp; Re-upload</button>
+<button class="px-6 py-2 bg-secondary text-on-secondary font-label-md text-label-md rounded shadow-sm hover:bg-secondary-container transition-colors" type="button">Confirm &amp; Save to Profile</button>
+</footer>
+</section>
+</main>
+
+
+</body></html>

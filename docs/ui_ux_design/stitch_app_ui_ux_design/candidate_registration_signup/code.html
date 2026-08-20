@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-slate-50" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - Candidate Registration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700;900&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#213145",
+                      "secondary": "#0051d5",
+                      "error-container": "#ffdad6",
+                      "blue-600": "#2563EB",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-primary-container": "#7c839b",
+                      "surface-dim": "#cbdbf5",
+                      "green-600": "#10B981",
+                      "surface-variant": "#d3e4fe",
+                      "slate-50": "#F8FAFC",
+                      "on-secondary-container": "#fefcff",
+                      "on-error-container": "#93000a",
+                      "slate-200": "#E2E8F0",
+                      "indigo-600": "#4F46E5",
+                      "outline-variant": "#c6c6cd",
+                      "on-primary": "#ffffff",
+                      "surface-container-highest": "#d3e4fe",
+                      "amber-500": "#F59E0B",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#45464d",
+                      "secondary-container": "#316bf3",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-tint": "#565e74",
+                      "primary-fixed": "#dae2fd",
+                      "on-tertiary-fixed": "#002113",
+                      "on-error": "#ffffff",
+                      "rose-600": "#E11D48",
+                      "outline": "#76777d",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary": "#ffffff",
+                      "primary": "#000000",
+                      "tertiary": "#000000",
+                      "on-background": "#0b1c30",
+                      "inverse-primary": "#bec6e0",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-container": "#009668",
+                      "on-primary-fixed": "#131b2e",
+                      "tertiary-fixed": "#6ffbbe",
+                      "primary-container": "#131b2e",
+                      "on-surface": "#0b1c30",
+                      "background": "#f8f9ff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "secondary-fixed": "#dbe1ff",
+                      "tertiary-container": "#002113",
+                      "on-secondary-fixed": "#00174b",
+                      "navy-900": "#0F172A",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "surface": "#f8f9ff",
+                      "surface-container": "#e5eeff",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "surface-bright": "#f8f9ff",
+                      "error": "#ba1a1a",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter-xs": "8px",
+                      "gutter-sm": "16px",
+                      "container-max": "1440px",
+                      "margin-page": "32px",
+                      "gutter-md": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="h-full bg-slate-50 flex items-center justify-center p-gutter-sm md:p-margin-page">
+<div class="w-full max-w-container-max h-full min-h-[600px] flex flex-col md:flex-row bg-surface-container-lowest rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-slate-200 overflow-hidden relative z-10">
+<div class="hidden md:flex md:w-1/2 bg-surface-variant relative items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="object-cover w-full h-full opacity-40 mix-blend-multiply" data-alt="A sophisticated and bright modern office environment designed for a corporate recruitment platform. The scene features clean lines, ample natural light streaming through large windows, and subtle hints of vibrant blue secondary branding colors. The mood is professional, efficient, and welcoming, embodying a high-end 'warm efficiency' aesthetic suitable for an enterprise tool." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYMTqrBrZ84yV6zd2ucDLv8nww0Oud-8ULAmCaaaIMWnIj_8hJFxp1yWO4QzkwDyhPNNaBDbNSWpoQ7KjV-D4xmsmKUxLONtAfkfi12U2EnadszC2nhkR0gp2KVRyyV4QUhYvyntIdocWyDvCfAHHXAUlAXrC8k-DiER6jVQ23IZs_auDxTEYtAt2FaCtvfMoPrSeg78XzL1ahXTh4ivfzpg2rY-b_dqEQCCQX0nmMb32efHhxBgdx"/>
+<div class="absolute inset-0 bg-gradient-to-br from-secondary/10 to-surface-variant/80"></div>
+</div>
+<div class="relative z-10 p-12 flex flex-col justify-between h-full w-full max-w-lg mx-auto">
+<div>
+<img alt="Sapienworx Logo" class="h-16 w-auto mb-12 mix-blend-multiply drop-shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfU4rbOu_2J4zCDxW1r0QhQkIiHFmfhJ5RfXIIfJDxjYW5TNrnah3HJqkY4SiUPncjULxjCywXV4qR6ACYTN53Voy5EGM8LLMCHoGtlIk3XK-vYl6yUCYHDEOEttAPdWHgQeMemUQG3NHzYxR3jWwn5a66GItlfMiOGjzSdXMSLfE-UlvT83OMxWB7wflaGAwSrppSfpBGtyBoxtEVGR1gFOj1innAh1uytk80yB89UOUKq5mpb9V2htTNY4H4bzBPIQ"/>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-6 leading-tight">Find your next<br/>career move with <span class="text-secondary">Sapienworx</span>.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">Join our platform to connect with top enterprise organizations. Experience a streamlined, transparent recruitment process designed for professionals.</p>
+</div>
+<div class="mt-auto">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-label-md text-label-md">Enterprise-grade data protection</span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-16 lg:p-24 overflow-y-auto bg-surface-container-lowest relative z-10">
+<div class="max-w-md w-full mx-auto">
+<div class="md:hidden mb-8">
+<img alt="Sapienworx Logo" class="h-12 w-auto mx-auto mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG-fLtTwgbtrcupxsEF5CL7538FJ-4aLtS9-UIIpe_-I6IV2Uv1LJ8o6n6jkoZRupBriJap01sJ-H8ntBETcT2sFSGV-ehAZaG1AEysjPN8xG0z7lt8CP6CiyudX-DYQev5WLO7krPIZKFy8Jtc17rhni_CwsTAVUgCKi0Ti4QRrnzMQwl9mJ6t1FRz-HxyjLtHmgM-4Tx7CLwL_1A-LnicLh08IQmYPVWI-NIIX3FR9D97fdlhsvohsgLGapg8kIXNg"/>
+</div>
+<div class="text-center md:text-left mb-10">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Create an account</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Already have an account? <a class="font-label-md text-label-md text-secondary hover:text-secondary-container transition-colors underline-offset-4 hover:underline" href="#">Sign In</a></p>
+</div>
+<form action="#" class="space-y-6" method="POST">
+<div class="space-y-4">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface mb-1" for="name">Full Name</label>
+<input autocomplete="name" class="block w-full rounded-lg border-slate-200 py-3 px-4 text-on-surface shadow-sm focus:border-secondary focus:ring-secondary font-body-md text-body-md bg-surface placeholder:text-outline-variant transition-colors" id="name" name="name" placeholder="Jane Doe" required="" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface mb-1" for="email">Email address</label>
+<input autocomplete="email" class="block w-full rounded-lg border-slate-200 py-3 px-4 text-on-surface shadow-sm focus:border-secondary focus:ring-secondary font-body-md text-body-md bg-surface placeholder:text-outline-variant transition-colors" id="email" name="email" placeholder="jane@example.com" required="" type="email"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface mb-1" for="password">Password</label>
+<div class="relative">
+<input autocomplete="new-password" class="block w-full rounded-lg border-slate-200 py-3 px-4 text-on-surface shadow-sm focus:border-secondary focus:ring-secondary font-body-md text-body-md bg-surface placeholder:text-outline-variant transition-colors" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 flex items-center pr-3 text-outline-variant hover:text-on-surface transition-colors focus:outline-none" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility_off</span>
+</button>
+</div>
+<p class="mt-1.5 font-label-sm text-label-sm text-outline">Must be at least 8 characters.</p>
+</div>
+</div>
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-slate-200 text-secondary focus:ring-secondary focus:ring-offset-surface-container-lowest" id="terms" name="terms" required="" type="checkbox"/>
+<label class="ml-2 block font-body-sm text-body-sm text-on-surface-variant" for="terms">
+                            I agree to the <a class="text-secondary hover:underline" href="#">Terms of Service</a> and <a class="text-secondary hover:underline" href="#">Privacy Policy</a>.
+                        </label>
+</div>
+<div>
+<button class="flex w-full justify-center rounded-lg bg-secondary px-4 py-3.5 font-label-md text-label-md text-on-secondary shadow-sm hover:bg-secondary-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary transition-all active:scale-[0.98]" type="submit">
+                            Create Account
+                        </button>
+</div>
+</form>
+<div class="mt-8">
+<div class="relative">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-slate-200"></div>
+</div>
+<div class="relative flex justify-center text-sm">
+<span class="bg-surface-container-lowest px-4 font-label-sm text-label-sm text-outline">Or continue with</span>
+</div>
+</div>
+<div class="mt-6 grid grid-cols-2 gap-4">
+<button class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-surface-container-lowest px-4 py-2.5 font-label-md text-label-md text-on-surface shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:bg-surface transition-all focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1" type="button">
+<svg aria-hidden="true" class="h-5 w-5" viewbox="0 0 24 24">
+<path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36 16.6053 6.54998L20.0303 3.125C17.9503 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21528 6.86 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"></path>
+<path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4"></path>
+<path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05"></path>
+<path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21538 17.135 5.26538 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853"></path>
+</svg>
+<span class="sr-only sm:not-sr-only">Google</span>
+</button>
+<button class="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-surface-container-lowest px-4 py-2.5 font-label-md text-label-md text-on-surface shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:bg-surface transition-all focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1" type="button">
+<svg aria-hidden="true" class="h-5 w-5 text-[#0A66C2]" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" fill-rule="evenodd"></path>
+</svg>
+<span class="sr-only sm:not-sr-only">LinkedIn</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

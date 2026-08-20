@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit Profile - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "green-600": "#10B981",
+                        "tertiary-container": "#002113",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary": "#000000",
+                        "surface-tint": "#565e74",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7c839b",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "rose-600": "#E11D48",
+                        "secondary-container": "#316bf3",
+                        "blue-600": "#2563EB",
+                        "on-secondary-fixed": "#00174b",
+                        "amber-500": "#F59E0B",
+                        "on-secondary-container": "#fefcff",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "inverse-primary": "#bec6e0",
+                        "secondary": "#0051d5",
+                        "primary-fixed-dim": "#bec6e0",
+                        "primary": "#000000",
+                        "primary-container": "#131b2e",
+                        "slate-50": "#F8FAFC",
+                        "outline-variant": "#c6c6cd",
+                        "outline": "#76777d",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-primary-fixed": "#131b2e",
+                        "indigo-600": "#4F46E5",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface-variant": "#45464d",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "navy-900": "#0F172A",
+                        "on-background": "#0b1c30",
+                        "slate-200": "#E2E8F0",
+                        "surface-variant": "#d3e4fe",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#009668",
+                        "on-surface": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-container": "#e5eeff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#dbe1ff",
+                        "inverse-surface": "#213145",
+                        "primary-fixed": "#dae2fd",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "tertiary-fixed": "#6ffbbe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "gutter-md": "24px",
+                        "margin-page": "32px",
+                        "gutter-sm": "16px",
+                        "base": "4px",
+                        "gutter-xs": "8px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "label-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md h-screen flex overflow-hidden">
+<!-- Sidebar Layout Container (Web Only) -->
+<div class="hidden md:flex flex-col h-full py-margin-page px-gutter-sm bg-surface-container-low dark:bg-surface-container-lowest h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline">
+<div class="flex items-center gap-3 mb-8 px-4">
+<img alt="Sapienworx Logo" class="h-8 w-8 rounded-lg object-contain bg-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8kyghcw550ilD_9BrKtUMDQStx31Sao1Zz8_rKdtQR40JENy3KrFuO1OJhwHGHp5KhTEysvERTIV6Z__FrBSjLOmTbjrQHYEw76vKapv3BWWnD-GoGOj9m-eVw0uoaUwJNVb1o9DQbB88PP4SWdEE4B2I5Zb0QbMqQYFL_YkOjHOBh8MAPVxouFqbOzrrm1x5RGwEkMfuvBdqBjFoVkKeKpeXQnK84NfHWIflCLLdTXUMqazTKS3Q0i2WZsQ7tnEv0Q"/>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-black text-secondary dark:text-secondary-fixed">Sapienworx</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Candidate Portal</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Resume</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+<span class="font-label-md text-label-md">Jobs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-label-md text-label-md">Applications</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</div>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 bg-slate-50 overflow-y-auto w-full h-full p-margin-page md:p-12">
+<div class="max-w-[1200px] mx-auto">
+<header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Edit Profile</h2>
+<p class="text-on-surface-variant mt-1">Keep your information up to date to find the best opportunities.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 rounded-lg border border-slate-200 text-primary font-label-md hover:bg-surface-container-low transition-colors">Cancel</button>
+<button class="px-6 py-2.5 rounded-lg bg-secondary text-white font-label-md hover:bg-opacity-90 transition-opacity shadow-sm">Save All Changes</button>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column (Nav/Overview) -->
+<div class="lg:col-span-3 space-y-6">
+<!-- Profile Picture Card -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-sm text-center">
+<div class="relative w-32 h-32 mx-auto mb-4 group cursor-pointer">
+<img class="w-full h-full rounded-full object-cover border-4 border-white shadow-sm" data-alt="A professional headshot of a candidate in a modern, well-lit office setting. The lighting is bright and soft, creating a high-key light-mode aesthetic. The subject is smiling confidently. The background is slightly blurred with subtle hints of indoor plants and glass partitions, conveying a clean, modern corporate vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3VW9EZbf7jSq7Y6nGrECBFRnujX3sEC94ti2cPStLsQYFQlNtK1RlQVFHrcA2R2v4kQ93lLmWxlM0yE_pjxTs8VGhsjOXgfqBKwX_tBZAjV6xVHnHmNWRUBS8Kx6DYFc6ZyHRCxkRrBCQwtUtm0_2b8_undgOTCgm3M6AoER2A8ksawbeNgpc7bKsSNTtH_I7ELbR0nbRQ0EF6_3Z2tJe4Y0YZ9_IX8OlOzamOrg54hmf0JtG1GMH"/>
+<div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white" data-icon="photo_camera">photo_camera</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Alex Mercer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Senior Frontend Engineer</p>
+</div>
+<!-- Quick Navigation -->
+<nav class="bg-surface-container-lowest border border-slate-200 rounded-xl p-2 shadow-sm sticky top-8 hidden lg:block">
+<a class="block px-4 py-3 rounded-lg text-secondary font-label-md bg-secondary-container bg-opacity-20" href="#personal">Personal Info</a>
+<a class="block px-4 py-3 rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-low transition-colors" href="#technical">Technical Profiles</a>
+<a class="block px-4 py-3 rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-low transition-colors" href="#experience">Experience</a>
+<a class="block px-4 py-3 rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-low transition-colors" href="#projects">Projects</a>
+</nav>
+</div>
+<!-- Right Column (Forms) -->
+<div class="lg:col-span-9 space-y-8">
+<!-- Personal Info Section -->
+<section class="bg-surface-container-lowest border border-slate-200 rounded-xl shadow-sm overflow-hidden" id="personal">
+<div class="px-8 py-6 border-b border-slate-200 bg-surface flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Personal Information</h3>
+</div>
+<div class="p-8 space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">First Name</label>
+<input class="w-full rounded-lg border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary text-body-md px-4 py-2.5" type="text" value="Alex"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Last Name</label>
+<input class="w-full rounded-lg border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary text-body-md px-4 py-2.5" type="text" value="Mercer"/>
+</div>
+<div class="md:col-span-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Professional Headline</label>
+<input class="w-full rounded-lg border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary text-body-md px-4 py-2.5" type="text" value="Senior Frontend Engineer specializing in React and Design Systems"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Location</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline" data-icon="location_on">location_on</span>
+<input class="w-full rounded-lg border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary text-body-md pl-10 pr-4 py-2.5" type="text" value="San Francisco, CA"/>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Email Address</label>
+<input class="w-full rounded-lg border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary text-body-md px-4 py-2.5 bg-slate-50" readonly="" type="email" value="alex.mercer@example.com"/>
+</div>
+<div class="md:col-span-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Bio</label>
+<textarea class="w-full rounded-lg border-slate-200 focus:border-secondary focus:ring-1 focus:ring-secondary text-body-md px-4 py-2.5" rows="4">Passionate UI developer with 5+ years of experience building scalable web applications. Strong focus on accessibility, web performance, and bridging the gap between design and engineering.</textarea>
+</div>
+</div>
+<div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+<button class="px-4 py-2 rounded-lg text-primary font-label-md hover:bg-surface-container-low transition-colors">Discard</button>
+<button class="px-4 py-2 rounded-lg bg-surface-variant text-secondary font-label-md hover:bg-surface-container-high transition-colors">Save Section</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>

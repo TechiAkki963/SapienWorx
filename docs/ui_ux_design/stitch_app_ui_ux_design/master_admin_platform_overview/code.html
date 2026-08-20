@@ -1,0 +1,412 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Master Admin Dashboard - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "rose-600": "#E11D48",
+                        "error": "#ba1a1a",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary-fixed": "#00174b",
+                        "on-error-container": "#93000a",
+                        "amber-500": "#F59E0B",
+                        "blue-600": "#2563EB",
+                        "tertiary-container": "#002113",
+                        "green-600": "#10B981",
+                        "outline-variant": "#c6c6cd",
+                        "surface-container-high": "#dce9ff",
+                        "secondary": "#0051d5",
+                        "primary": "#000000",
+                        "on-surface-variant": "#45464d",
+                        "on-surface": "#0b1c30",
+                        "surface-bright": "#f8f9ff",
+                        "navy-900": "#0F172A",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-secondary-container": "#fefcff",
+                        "primary-fixed": "#dae2fd",
+                        "surface-container-highest": "#d3e4fe",
+                        "indigo-600": "#4F46E5",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#316bf3",
+                        "on-error": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "background": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-tint": "#565e74",
+                        "slate-200": "#E2E8F0",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "inverse-surface": "#213145",
+                        "outline": "#76777d",
+                        "on-tertiary-container": "#009668",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-container": "#e5eeff",
+                        "surface-variant": "#d3e4fe",
+                        "slate-50": "#F8FAFC",
+                        "inverse-on-surface": "#eaf1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "gutter-md": "24px",
+                        "margin-page": "32px",
+                        "gutter-sm": "16px",
+                        "gutter-xs": "8px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Geist"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-on-surface font-body-md antialiased min-h-screen">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-navy-900 font-headline-md text-headline-md font-body-md text-body-md font-label-md text-label-md docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-gutter-md h-16">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRLhd_v-EPbqQe3R0stKlSUxvFm25tznQURNcS1sx7Svdsy5Tr22fa0YkJ7B1k46mT_guZOay1tEYSz9jv4s6ZIWIgs_9dnFH-xdu0JPuHIDCx8wQf_SyFhtvhm7qQYpV6BynByJ5rPJ_B4tdg3TR09h0_x3XzSPQjgoRgzg9p1K9YuASX_PrNtkkSP6sssnEKFwuzzMGUXHkQfFAAsyZJwOdrMANIBdS4NDQBwEjZn6yIsP5_E7Ltml44oN5GmfAa5w" alt="Sapienworx Logo" class="h-8 w-auto"><span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-secondary-fixed">Sapienworx</span></div>
+<span class="font-label-sm text-label-sm bg-error text-on-error px-2 py-1 rounded-full uppercase tracking-wider">Super Admin</span>
+</div>
+<div class="flex-1 max-w-xl mx-8 relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-outline-variant rounded-full pl-10 pr-4 py-2 font-body-sm text-body-sm focus:ring-secondary focus:border-secondary transition-all" placeholder="Global search..." type="text">
+</div>
+<div class="flex items-center gap-4 text-primary dark:text-inverse-primary">
+<button class="p-2 rounded-full hover:bg-surface-container-low dark:hover:bg-primary-container transition-colors cursor-pointer active:scale-95 transition-transform relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-low dark:hover:bg-primary-container transition-colors cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-low dark:hover:bg-primary-container transition-colors cursor-pointer active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer ml-2">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A professional headshot of a female executive with glasses, wearing a dark blazer over a white blouse. The background is a clean, bright, out-of-focus corporate office environment with a light mode aesthetic. The lighting is soft and flattering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzD5tnCsYVBiGjdoAUam4IcVS7lmfreC_lImVesR-C5-1e2hKTNap_CmPL04ZWcrBm9ohtDGex7R9207KbtuQP1rV2VB1grdE1L1rFdX-_qpi-L9wGnPE-YijO0GSo_MY7SucSVfEomqCwmtpIcYuBxQ2Rxf-VJ-x4YT9oWRpCf_PNBY8tmUtCcZ--YcAb4KzlGUzz9lO3G24XoOv6XhXTjGkq3VXfVnGIxCwVPz1nDQJF_mubJZ_w">
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="bg-surface-container-lowest dark:bg-navy-900 font-label-md text-label-md font-body-sm text-body-sm docked full-height left-0 w-64 border-r border-outline-variant dark:border-outline flat no shadows fixed left-0 top-16 bottom-0 flex flex-col py-4 z-40 hidden md:flex">
+<div class="px-4 mb-6">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold font-headline-sm">P</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface leading-none">Sapienworx Admin</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Master Control</span>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-2 space-y-1 overflow-y-auto">
+<a class="bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-lg flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container transition-all flex items-center gap-3 px-4 py-3 cursor-pointer duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Users
+            </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container transition-all flex items-center gap-3 px-4 py-3 cursor-pointer duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+                Organizations
+            </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container transition-all flex items-center gap-3 px-4 py-3 cursor-pointer duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="document_scanner">document_scanner</span>
+                Parser Engine
+            </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container transition-all flex items-center gap-3 px-4 py-3 cursor-pointer duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Billing
+            </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:bg-surface-container-high dark:hover:bg-primary-container transition-all flex items-center gap-3 px-4 py-3 cursor-pointer duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                Audit Logs
+            </a>
+</nav>
+<div class="px-4 mt-auto pt-4 border-t border-outline-variant">
+<button class="w-full bg-secondary text-on-secondary font-label-md text-label-md py-2 rounded-lg hover:bg-secondary-container hover:text-on-secondary-container transition-colors flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Organization
+            </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="pt-16 md:pl-64 min-h-screen">
+<div class="p-margin-page max-w-container-max mx-auto space-y-8">
+<!-- Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-1">System Overview</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Live metrics for Sapienworx Multi-Tenant Environment</p>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant">
+<span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>
+                    System Operational
+                </div>
+</div>
+<!-- KPI Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter-md">
+<!-- Users -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.02)] hover:shadow-lg hover:border-secondary transition-all relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">group</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md mb-4">
+<span class="material-symbols-outlined text-sm">group</span>
+                        Total Users
+                    </div>
+<div class="font-headline-lg text-headline-lg text-on-surface mb-2">124,592</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant pt-2 border-t border-slate-100">
+<div class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-600 rounded-full"></span> 82k Cands</div>
+<div class="flex items-center gap-1"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> 42k Recs</div>
+</div>
+</div>
+<!-- Orgs -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.02)] hover:shadow-lg hover:border-secondary transition-all relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">domain</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md mb-4">
+<span class="material-symbols-outlined text-sm">domain</span>
+                        Active Orgs
+                    </div>
+<div class="font-headline-lg text-headline-lg text-on-surface mb-2">3,491</div>
+<div class="flex items-center gap-1 text-label-sm font-label-sm text-green-600 bg-green-50 px-2 py-1 rounded w-fit">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+                        +12% MRR
+                    </div>
+</div>
+<!-- Parser -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.02)] hover:shadow-lg hover:border-secondary transition-all relative overflow-hidden group col-span-1 md:col-span-2 lg:col-span-1">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">document_scanner</span>
+</div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-sm">document_scanner</span>
+                            Parser Success Rate
+                        </div>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface mb-2">98.4%</div>
+<div class="w-full bg-slate-100 rounded-full h-1.5 mb-2 overflow-hidden">
+<div class="bg-indigo-600 h-1.5 rounded-full" style="width: 98.4%"></div>
+</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant text-right">Last 24 hours</div>
+</div>
+<!-- Revenue -->
+<div class="bg-primary text-on-primary border border-primary rounded-xl p-6 shadow-md hover:shadow-lg transition-all relative overflow-hidden group lg:col-span-1">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-20 rounded-full blur-2xl -mr-10 -mt-10"></div>
+<div class="flex items-center gap-2 font-label-md text-label-md mb-4 text-inverse-primary">
+<span class="material-symbols-outlined text-sm">payments</span>
+                        Monthly Revenue
+                    </div>
+<div class="font-headline-lg text-headline-lg mb-2">$842.5K</div>
+<div class="text-body-sm font-body-sm text-inverse-primary pt-2 border-t border-slate-700/50 flex justify-between">
+<span class="">Projected: $900K</span>
+</div>
+</div>
+</div>
+<!-- Lower Grid: Activity & Health -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter-md">
+<!-- System Health (Left Col) -->
+<div class="lg:col-span-1 bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">monitor_heart</span>
+                        System Health
+                    </h3>
+<div class="space-y-4">
+<!-- API -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">api</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">API Gateway</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">42ms latency</div>
+</div>
+</div>
+<span class="text-green-600 font-label-sm text-label-sm bg-green-50 px-2 py-1 rounded">Healthy</span>
+</div>
+<!-- Database -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">database</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Primary DB</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">32% Load</div>
+</div>
+</div>
+<span class="text-green-600 font-label-sm text-label-sm bg-green-50 px-2 py-1 rounded">Healthy</span>
+</div>
+<!-- Workers -->
+<div class="flex items-center justify-between p-3 rounded-lg border border-amber-200 bg-amber-50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">memory</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface">Parser Workers</div>
+<div class="font-body-sm text-body-sm text-amber-700">89% Capacity</div>
+</div>
+</div>
+<span class="text-amber-600 font-label-sm text-label-sm bg-amber-100 px-2 py-1 rounded border border-amber-200">Scaling</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity (Right Col) -->
+<div class="lg:col-span-2 bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.02)]">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">list_alt</span>
+                            Recent Platform Activity
+                        </h3>
+<button class="text-secondary font-label-md text-label-md hover:underline">View All Logs</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-slate-200 text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-3 px-4">Event</th>
+<th class="py-3 px-4">Entity</th>
+<th class="py-3 px-4">Time</th>
+<th class="py-3 px-4 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm">
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                            New Organization Provisioned
+                                        </div>
+</td>
+<td class="py-3 px-4 font-label-md text-on-surface">Acme Corp Ltd.</td>
+<td class="py-3 px-4 text-on-surface-variant">2 mins ago</td>
+<td class="py-3 px-4 text-right">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-50 text-green-700 font-code-sm text-code-sm border border-green-200">
+<span class="material-symbols-outlined text-[14px]">check</span> SUCCESS
+                                        </span>
+</td>
+</tr>
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                            Parser Engine Timeout
+                                        </div>
+</td>
+<td class="py-3 px-4 font-code-sm text-on-surface-variant">Job_ID_89214</td>
+<td class="py-3 px-4 text-on-surface-variant">15 mins ago</td>
+<td class="py-3 px-4 text-right">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-error-container text-on-error-container font-code-sm text-code-sm border border-rose-200">
+<span class="material-symbols-outlined text-[14px]">warning</span> RETRYING
+                                        </span>
+</td>
+</tr>
+<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                            Billing Cycle Complete
+                                        </div>
+</td>
+<td class="py-3 px-4 font-label-md text-on-surface">Global Tech Inc.</td>
+<td class="py-3 px-4 text-on-surface-variant">1 hour ago</td>
+<td class="py-3 px-4 text-right">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-50 text-green-700 font-code-sm text-code-sm border border-green-200">
+<span class="material-symbols-outlined text-[14px]">check</span> SUCCESS
+                                        </span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                            Admin Login
+                                        </div>
+</td>
+<td class="py-3 px-4 font-label-md text-on-surface">s.admin@portal.com</td>
+<td class="py-3 px-4 text-on-surface-variant">2 hours ago</td>
+<td class="py-3 px-4 text-right">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-50 text-green-700 font-code-sm text-code-sm border border-green-200">
+<span class="material-symbols-outlined text-[14px]">check</span> SUCCESS
+                                        </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>

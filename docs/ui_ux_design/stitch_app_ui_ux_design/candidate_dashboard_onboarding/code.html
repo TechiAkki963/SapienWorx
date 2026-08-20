@@ -1,0 +1,255 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Candidate Dashboard - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "rose-600": "#E11D48",
+                        "error": "#ba1a1a",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary-fixed": "#00174b",
+                        "on-error-container": "#93000a",
+                        "amber-500": "#F59E0B",
+                        "blue-600": "#2563EB",
+                        "tertiary-container": "#002113",
+                        "green-600": "#10B981",
+                        "outline-variant": "#c6c6cd",
+                        "surface-container-high": "#dce9ff",
+                        "secondary": "#0051d5",
+                        "primary": "#000000",
+                        "on-surface-variant": "#45464d",
+                        "on-surface": "#0b1c30",
+                        "surface-bright": "#f8f9ff",
+                        "navy-900": "#0F172A",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-secondary-container": "#fefcff",
+                        "primary-fixed": "#dae2fd",
+                        "surface-container-highest": "#d3e4fe",
+                        "indigo-600": "#4F46E5",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#316bf3",
+                        "on-error": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "background": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-tint": "#565e74",
+                        "slate-200": "#E2E8F0",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "inverse-surface": "#213145",
+                        "outline": "#76777d",
+                        "on-tertiary-container": "#009668",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-container": "#e5eeff",
+                        "surface-variant": "#d3e4fe",
+                        "slate-50": "#F8FAFC",
+                        "inverse-on-surface": "#eaf1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "gutter-md": "24px",
+                        "margin-page": "32px",
+                        "gutter-sm": "16px",
+                        "gutter-xs": "8px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Geist"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-on-surface font-body-md min-h-screen">
+<!-- TopNavBar -->
+<nav class="bg-surface fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-gutter-md h-16 border-b border-outline-variant flat no shadows w-full">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Sapienworx</span>
+</div>
+<div class="flex-1 max-w-md mx-8 hidden md:block">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-slate-200 rounded-lg focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary text-body-sm transition-colors" placeholder="Search..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors active:scale-95 hidden md:block">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors active:scale-95 hidden md:block">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-slate-200 cursor-pointer">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A professional headshot of a young woman smiling warmly, well-lit in a modern office environment. High resolution, bright corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ6Y-MZSkOvAz_HwifN5o61zjQcWxkBMW3X8mM3CrGREMA1c_yDhJYdxl3oWVbJDjIzWZb770N8Negf2zS3Uf0Rej18JTu_rrHoKYOmDN8-CgwyQ_syk5ubUZmkw90mAmg0D7W9l5RzUeW2gyiqB7uZlXCvBe9930846roT3mX36Eb9Ots8k6-mrxRPesKWhkQEa_yk-WAF5fmxYPTFQA2RJZ9NTbmvAUk60QbBCnN_FYiOgj3r1vW">
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="hidden md:flex bg-surface-container-lowest fixed left-0 top-16 bottom-0 w-64 flex-col py-4 z-40 border-r border-outline-variant">
+<div class="px-6 mb-6">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Organization Logo" class="w-full h-full object-cover" data-alt="A stylized logo icon representing a recruitment agency, minimal geometric shapes in blue and black." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsaYx-4CWBdRodWx9-rWse3eecDMV-BgBResjPJ75uo5wbOh5RaZKkGvqz2iHKHugVJYuQsdrAK0jsusk7chHSHFhIqx3sqC1IkV82Rwp5acJA89tNGXD0X_0Kz7AVI0SeBrdx_Vq7FEaDz0_KTiriNY9jkwXh95GqHD9e-FCJJaaO-l_52PRXmMGY-SBfyU8OMVIukXmALmmgOK2rWXHqfsYX3dV8I4YXn6qYmW_dSb21SEqf9Xdv7ErlWuIrhorq8Q">
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface">Sapienworx</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Enterprise Edition</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 bg-secondary-container text-on-secondary-container rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Candidates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+<span class="font-label-md text-label-md">Jobs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Interviews</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-2 bg-secondary text-white rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity mb-4">Post New Job</button>
+<div class="border-t border-slate-200 pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="payments">payments</span>
+<span class="font-body-sm text-body-sm">Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="contact_support">contact_support</span>
+<span class="font-body-sm text-body-sm">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="pt-24 pb-16 md:pl-72 md:pr-margin-page px-gutter-sm max-w-[1440px] mx-auto min-h-screen">
+<header class="mb-8">
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface mb-2">Welcome Back, Sarah</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Let's get your profile ready to stand out to employers.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md">
+<!-- Profile Completion Bento -->
+<section class="lg:col-span-8 bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative overflow-hidden group hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition-all">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-secondary to-tertiary-fixed"></div>
+<div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+<!-- Radial Chart Simulation -->
+<div class="relative w-32 h-32 flex-shrink-0">
+<svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#E2E8F0" stroke-width="8"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#0051d5" stroke-dasharray="283" stroke-dashoffset="113" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md font-bold text-secondary">60%</span>
+</div>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h2 class="font-headline-sm text-headline-sm font-semibold mb-2">Almost There!</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 max-w-lg">
+                            Candidates with complete profiles are 3x more likely to be contacted by recruiters. Add your recent experience to boost your visibility.
+                        </p>
+<div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+<button class="bg-secondary text-white px-6 py-2.5 rounded-lg font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm">
+                                Complete Your Profile
+                            </button>
+<button class="border border-slate-200 text-primary bg-surface px-6 py-2.5 rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="upload_file">upload_file</span>
+                                Upload &amp; Parse Resume
+                            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Resume Status -->
+<section class="lg:col-span-4 bg-surface-container-lowest border border-slate-200 rounded-xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-label-md text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">Resume Status</h3>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="description">description</span>
+</div>
+<div class="bg-surface-container p-4 rounded-lg border border-slate-200 flex items-start gap-3 mb-4">
+<div class="w-10 h-10 rounded bg-white flex items-center justify-center border border-slate-200 flex-shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div class="overflow-hidden">
+<p class="font-label-md text-label-md truncate">Sarah_Connor_Resume_2024.pdf</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Parsed on Oct 12 • 98% Confidence</p>
+</div>
+</div>
+<button class="w-full py-2 border border-slate-200 rounded-lg font-label-md text-label-md text-primary hover:bg-surface-container-low transition-colors">
+                    Review Extracted Data
+                </button>
+</section>
+</div>
+</main>
+
+
+</body></html>

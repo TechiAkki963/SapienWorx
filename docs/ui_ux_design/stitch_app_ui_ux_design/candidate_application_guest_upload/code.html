@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Apply for Job - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "rose-600": "#E11D48",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container-high": "#dce9ff",
+                      "slate-200": "#E2E8F0",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed": "#dbe1ff",
+                      "navy-900": "#0F172A",
+                      "tertiary-fixed": "#6ffbbe",
+                      "on-secondary-fixed": "#00174b",
+                      "on-tertiary-container": "#009668",
+                      "outline-variant": "#c6c6cd",
+                      "background": "#f8f9ff",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#213145",
+                      "on-tertiary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "primary-container": "#131b2e",
+                      "primary": "#000000",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "amber-500": "#F59E0B",
+                      "on-background": "#0b1c30",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-dim": "#cbdbf5",
+                      "error": "#ba1a1a",
+                      "indigo-600": "#4F46E5",
+                      "blue-600": "#2563EB",
+                      "primary-fixed-dim": "#bec6e0",
+                      "green-600": "#10B981",
+                      "surface-variant": "#d3e4fe",
+                      "inverse-on-surface": "#eaf1ff",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary-container": "#7c839b",
+                      "on-tertiary-fixed": "#002113",
+                      "inverse-primary": "#bec6e0",
+                      "slate-50": "#F8FAFC",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#f8f9ff",
+                      "outline": "#76777d",
+                      "on-secondary": "#ffffff",
+                      "on-surface": "#0b1c30",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "on-secondary-container": "#fefcff",
+                      "tertiary": "#000000",
+                      "tertiary-container": "#002113",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "secondary-container": "#316bf3",
+                      "surface": "#f8f9ff",
+                      "on-surface-variant": "#45464d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e5eeff",
+                      "surface-container-low": "#eff4ff",
+                      "secondary": "#0051d5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter-xs": "8px",
+                      "gutter-md": "24px",
+                      "margin-page": "32px",
+                      "gutter-sm": "16px",
+                      "base": "4px",
+                      "container-max": "1440px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .drag-active {
+            border-color: #0051d5 !important;
+            background-color: #eff4ff !important;
+        }
+        .progress-bar-fill {
+            transition: width 2s ease-in-out;
+        }
+      </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col font-body-md text-on-surface">
+<!-- TopNavBar (Transactional - Suppressed Navigation Links) -->
+<header class="bg-surface-container-lowest fixed top-0 w-full z-50 border-b border-outline-variant shadow-sm h-16 flex justify-between items-center px-margin-page max-w-container-max mx-auto left-0 right-0">
+<div class="font-headline-md text-headline-md font-bold text-navy-900">
+            Sapienworx
+        </div>
+<div class="flex items-center gap-gutter-sm">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Already have an account?</span>
+<a class="font-label-md text-label-md text-secondary hover:underline" href="#">Sign In</a>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-margin-page px-margin-page max-w-3xl mx-auto w-full flex flex-col gap-gutter-md">
+<div class="text-center mb-8">
+<h1 class="font-headline-lg text-headline-lg text-navy-900 mb-2">Apply for Senior Frontend Engineer</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Let's start with your resume. We'll automatically fill in your details.</p>
+</div>
+<!-- Card: Upload Zone -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] p-8">
+<!-- Step Indicator -->
+<div class="flex items-center gap-4 mb-8">
+<div class="flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-on-secondary font-label-md text-label-md">1</div>
+<div class="font-headline-sm text-headline-sm text-navy-900">CV Upload</div>
+</div>
+<!-- Upload Area -->
+<div class="border-2 border-dashed border-slate-200 rounded-lg p-12 flex flex-col items-center justify-center text-center transition-colors duration-200 cursor-pointer hover:bg-surface-container-low group" id="drop-zone">
+<div class="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center mb-4 group-hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-secondary text-[32px]" style="font-variation-settings: 'FILL' 0;">cloud_upload</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-navy-900 mb-2">Drag &amp; Drop your Resume</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Supports PDF, DOCX, or TXT up to 5MB</p>
+<button class="bg-secondary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-navy-900 transition-colors shadow-sm">
+                    Browse Files
+                </button>
+<input accept=".pdf,.doc,.docx,.txt" class="hidden" id="file-input" type="file"/>
+</div>
+<!-- Processing State (Hidden by default) -->
+<div class="hidden flex-col items-center justify-center p-12 text-center" id="processing-state">
+<div class="relative w-16 h-16 mb-6">
+<svg class="animate-spin w-full h-full text-secondary" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+</svg>
+<span class="material-symbols-outlined absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-secondary" style="font-variation-settings: 'FILL' 1;">document_scanner</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-navy-900 mb-2">Fetching Details...</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Our AI is securely parsing your experience and skills.</p>
+<div class="w-full max-w-md bg-surface-container-highest rounded-full h-2 mb-2">
+<div class="bg-secondary h-2 rounded-full progress-bar-fill w-0" id="progress-bar"></div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Analyzing Context</p>
+</div>
+</div>
+<!-- Compliance & Consent -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] p-8">
+<h3 class="font-headline-sm text-headline-sm text-navy-900 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">shield_locked</span>
+                Data Privacy &amp; Consent
+            </h3>
+<div class="bg-surface-container-low p-4 rounded-lg mb-6 flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary mt-0.5" style="font-variation-settings: 'FILL' 0;">info</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-1"><strong>Data Residency:</strong> Your data is stored securely in the EU region (Frankfurt) in accordance with GDPR requirements.</p>
+<a class="font-label-sm text-label-sm text-secondary hover:underline" href="#">Read our full Privacy Policy</a>
+</div>
+</div>
+<div class="space-y-4">
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="mt-1 rounded border-slate-200 text-secondary focus:ring-secondary focus:ring-offset-0 w-5 h-5 transition-colors cursor-pointer" required="" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-navy-900 transition-colors">
+                        I agree to the <a class="text-secondary hover:underline" href="#">Terms of Service</a> and acknowledge the processing of my personal data as described in the Privacy Policy. *
+                    </span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer group">
+<input class="mt-1 rounded border-slate-200 text-secondary focus:ring-secondary focus:ring-offset-0 w-5 h-5 transition-colors cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-navy-900 transition-colors">
+                        I consent to the use of my anonymized resume data to help train Sapienworx's recruitment AI models to improve job matching accuracy. (Optional)
+                    </span>
+</label>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-200 flex justify-end">
+<button class="bg-secondary text-on-primary font-label-md text-label-md px-8 py-3 rounded-lg hover:bg-navy-900 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2" disabled="" id="next-btn">
+                    Continue
+                    <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low w-full py-8 mt-auto border-t border-outline-variant flex flex-col md:flex-row justify-between items-center px-margin-page max-w-container-max mx-auto gap-gutter-sm">
+<div class="font-label-md text-label-md font-bold text-navy-900">
+            Sapienworx
+        </div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+            © 2024 Sapienworx Portal Intelligence. All rights reserved.
+        </div>
+<div class="flex gap-gutter-md">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Security</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Contact Support</a>
+</div>
+</footer>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const processingState = document.getElementById('processing-state');
+            const progressBar = document.getElementById('progress-bar');
+            const nextBtn = document.getElementById('next-btn');
+            const requiredCheckbox = document.querySelector('input[required]');
+
+            // Drag and Drop Handlers
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('drag-active');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('drag-active');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', handleDrop, false);
+            dropZone.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', function() {
+                if(this.files.length > 0) simulateUpload();
+            });
+
+            function handleDrop(e) {
+                let dt = e.dataTransfer;
+                let files = dt.files;
+                if(files.length > 0) simulateUpload();
+            }
+
+            function simulateUpload() {
+                dropZone.classList.add('hidden');
+                processingState.classList.remove('hidden');
+                processingState.classList.add('flex');
+                
+                // Simulate progress
+                setTimeout(() => {
+                    progressBar.style.width = '100%';
+                }, 100);
+
+                // Simulate completion
+                setTimeout(() => {
+                    processingState.innerHTML = `
+                        <div class="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center mb-4 text-on-tertiary-container">
+                            <span class="material-symbols-outlined text-[32px]">check_circle</span>
+                        </div>
+                        <h3 class="font-headline-sm text-headline-sm text-navy-900 mb-2">Resume Processed Successfully</h3>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant mb-6">JohnDoe_Resume_2024.pdf</p>
+                        <button onclick="location.reload()" class="font-label-md text-label-md text-secondary hover:underline">Upload a different file</button>
+                    `;
+                    checkFormState();
+                }, 2500);
+            }
+
+            // Form Validation
+            requiredCheckbox.addEventListener('change', checkFormState);
+
+            function checkFormState() {
+                const isProcessed = processingState.innerHTML.includes('Processed Successfully');
+                const isAgreed = requiredCheckbox.checked;
+                
+                if (isProcessed && isAgreed) {
+                    nextBtn.removeAttribute('disabled');
+                } else {
+                    nextBtn.setAttribute('disabled', 'true');
+                }
+            }
+        });
+    </script>
+</body></html>

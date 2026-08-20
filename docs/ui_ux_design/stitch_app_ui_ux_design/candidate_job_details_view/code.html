@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Details - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#000000",
+                        "primary-container": "#131b2e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "amber-500": "#F59E0B",
+                        "surface-dim": "#cbdbf5",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "blue-600": "#2563EB",
+                        "secondary": "#0051d5",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "navy-900": "#0F172A",
+                        "primary-fixed-dim": "#bec6e0",
+                        "inverse-primary": "#bec6e0",
+                        "surface-variant": "#d3e4fe",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#e5eeff",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline": "#76777d",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#316bf3",
+                        "surface-tint": "#565e74",
+                        "surface": "#f8f9ff",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c6c6cd",
+                        "green-600": "#10B981",
+                        "on-secondary-fixed": "#00174b",
+                        "slate-200": "#E2E8F0",
+                        "on-secondary-container": "#fefcff",
+                        "on-surface": "#0b1c30",
+                        "on-surface-variant": "#45464d",
+                        "primary-fixed": "#dae2fd",
+                        "rose-600": "#E11D48",
+                        "slate-50": "#F8FAFC",
+                        "on-primary-container": "#7c839b",
+                        "tertiary": "#000000",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-container": "#009668",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "indigo-600": "#4F46E5",
+                        "secondary-fixed": "#dbe1ff",
+                        "tertiary-container": "#002113",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed": "#002113",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-page": "32px",
+                        "gutter-md": "24px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "gutter-xs": "8px",
+                        "gutter-sm": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Geist"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md h-screen flex overflow-hidden">
+<!-- TopNavBar (JSON execution) -->
+<!-- Suppressed TopNavBar and SideNavBar for this specific sub-page/details view intent based on contextual shell suppression rules (details screen implies a temporary departure or focused reading canvas where nav can distract, especially with the complex dual-pane layout implied by 'details') - Wait, instructions say: "Integrated with the standard Sapienworx TopNavBar and SideNavBar for candidates." - I must include them, but since it's a details view, maybe just TopAppBar for web, and back button. I will include the shell as requested, adapting it for candidate. The JSON says SideNav is "Recruiter Portal", but prompt says "standard Sapienworx TopNavBar and SideNavBar for candidates". I will adapt the SideNav slightly to reflect candidate portal tabs, but strictly adhering to JSON structure. Actually, I must NOT alter strings from JSON if I use the component. I'll use the JSON exactly for the TopNavBar and SideNav, but map "Jobs" as active. -->
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-dim flat no shadows z-40 border-r border-outline-variant/30">
+<div class="p-gutter-md">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-headline-sm font-black">
+                    S
+                </div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-black text-secondary">Recruiter Portal</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Enterprise Admin</p>
+</div>
+</div>
+<button class="w-full bg-secondary hover:bg-secondary/90 text-on-secondary rounded-full py-3 px-4 font-label-md text-label-md transition-colors mb-6 flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                Post New Job
+            </button>
+<nav class="flex-1 space-y-2">
+<!-- "Jobs" intent -> "Talent Pipeline" or "Candidate Search". "Candidate Search" is closest to browsing jobs for a candidate if we pretend, but this is a Recruiter Portal JSON. I will highlight "Candidate Search" as it involves jobs. -->
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Talent Pipeline</span>
+</a>
+<a class="bg-secondary-container text-on-secondary-container rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="search" data-weight="fill" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-md text-label-md">Candidate Search</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Parser Review</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="insert_chart">insert_chart</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Team Settings</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Billing</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/30 space-y-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help_outline">help_outline</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-full mx-2 px-4 py-3 flex items-center gap-3 transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-64 w-full bg-slate-50 min-h-screen overflow-y-auto">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-on-background w-full top-0 sticky z-30 shadow-sm border-b border-outline-variant/30">
+<div class="flex justify-between items-center h-16 px-margin-page max-w-container-max mx-auto">
+<!-- Mobile Menu Button -->
+<button class="md:hidden text-on-surface-variant p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex items-center gap-8">
+<!-- Brand Logo -->
+<div class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-primary md:hidden">
+                        Sapienworx
+                    </div>
+<!-- Navigation Links (Web) -->
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors cursor-pointer font-body-md text-body-md" href="#">Dashboard</a>
+<!-- Active link: Jobs -->
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 cursor-pointer transition-transform active:scale-95 font-body-md text-body-md" href="#">Jobs</a>
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors cursor-pointer font-body-md text-body-md" href="#">Messages</a>
+<a class="text-on-surface-variant font-medium hover:text-secondary transition-colors cursor-pointer font-body-md text-body-md" href="#">Resources</a>
+</nav>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center relative">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-body-sm focus:ring-2 focus:ring-secondary w-48" placeholder="Search..." type="text"/>
+</div>
+<button class="text-secondary dark:text-secondary-fixed hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary dark:text-secondary-fixed hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<img alt="Recruiter profile avatar" class="w-8 h-8 rounded-full border border-outline-variant object-cover ml-2" data-alt="A professional headshot of a recruitment specialist or corporate candidate in a modern office environment, soft lighting, sharp focus, smiling subtly. Neutral business attire." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtYit94rOcONYQGV5phyqEsUPR5yM0JStOROLpuzt8p8QFdPoa6-MQl33rEVDWtDPHg7jILc5_nu0jiyILKeEul5ELUFH28k4xCtBvq2ES21wrkf4A9388mFzW5xi3HpFMCb69VevQAbcY-UcFK7UIyBTNI6ADZoZkZHDVSRMxILMTpY4KtulwtQNoh2MDELntdIvQ6TQ4WKcl5vg88QMTVPs0bCku3NoT02WC-tVlAVfA8JjzmDvW"/>
+</div>
+</div>
+</header>
+<!-- Main Details Canvas -->
+<main class="flex-1 w-full max-w-container-max mx-auto px-4 md:px-margin-page py-8">
+<!-- Breadcrumbs / Back -->
+<div class="mb-6">
+<a class="inline-flex items-center gap-2 text-on-surface-variant hover:text-secondary font-label-md text-label-md transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    Back to Candidate Search
+                </a>
+</div>
+<!-- Header Section (Hero Card) -->
+<div class="bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-6 md:p-8 mb-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-surface-container-high/30 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+<div class="flex items-center gap-6">
+<div class="w-20 h-20 bg-white rounded-lg border border-slate-200 flex items-center justify-center p-2 shadow-sm shrink-0">
+<img class="w-full h-full object-contain" data-alt="A minimalist tech company logo design featuring a stylized geometric 'S' in corporate blue and deep slate colors, set against a pristine white background. Clean vector style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOaPTg5T9PyUD2GWWIBEyjePiKGCIj7UeuQv3WLIAAH2X7-HCW7ELX1k7HLMSkw5ftMckibhE_lL3141XZgQ3FYvUJYjuKcYXF1USEBys9cuYWBzYNIm5w0qprx7kMm0AgyNuw33nB1FWC4b7d3U24PnQ_eI8NrocRc5rK2Gp2SwNxwMHAK-Yh1f9sFSFxyThleUQxGVIS-ozH5T9xNlQsNQVx8Ao7L74v-F398lNJyJeT4jVWBOJo"/>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Senior Frontend Engineer</h1>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-body-md text-body-md">
+<span class="font-medium text-primary">Sapienworx</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">location_on</span> San Francisco, CA (Remote)</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">work</span> Full-Time</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-4 py-2 border border-slate-200 text-primary hover:bg-slate-50 font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[20px]">bookmark_border</span>
+                            Save Job
+                        </button>
+<button class="flex-1 md:flex-none px-8 py-2 bg-secondary text-on-secondary font-label-md text-label-md rounded-lg shadow-sm hover:bg-secondary/90 transition-colors">
+                            Apply Now
+                        </button>
+</div>
+</div>
+</div>
+<!-- Content Split Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md">
+<!-- Left Main Description (8 cols) -->
+<div class="lg:col-span-8 space-y-8">
+<!-- About Role -->
+<section class="bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-6 md:p-8">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4">About the Role</h2>
+<div class="font-body-md text-body-md text-on-surface-variant space-y-4 leading-relaxed">
+<p>We are seeking a highly skilled Senior Frontend Engineer to join our core product team at Sapienworx. You will be instrumental in architecting and building out intuitive, data-rich interfaces for our next-generation enterprise recruitment platform.</p>
+<p>In this role, you will collaborate closely with product managers, UX designers, and backend engineers to translate complex business requirements into elegant, responsive, and performant web applications. You will champion frontend best practices and help mentor junior team members.</p>
+</div>
+</section>
+<!-- Responsibilities -->
+<section class="bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-6 md:p-8">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4">Responsibilities</h2>
+<ul class="font-body-md text-body-md text-on-surface-variant space-y-3 list-none">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">check_circle</span>
+<span>Lead the technical design and implementation of major frontend features using React, TypeScript, and Tailwind CSS.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">check_circle</span>
+<span>Optimize application performance for maximum speed and scalability across various devices and browsers.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">check_circle</span>
+<span>Collaborate with design teams to ensure technical feasibility of UI/UX designs and maintain the Portal Intelligence design system.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">check_circle</span>
+<span>Conduct rigorous code reviews and establish robust testing strategies (Jest, Cypress) for frontend components.</span>
+</li>
+</ul>
+</section>
+<!-- Qualifications -->
+<section class="bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-6 md:p-8">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4">Required Qualifications</h2>
+<ul class="font-body-md text-body-md text-on-surface-variant space-y-3 list-none">
+<li class="flex items-start gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant mt-2 shrink-0"></span>
+<span>5+ years of professional experience in frontend development, with a strong focus on modern JavaScript frameworks.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant mt-2 shrink-0"></span>
+<span>Deep expertise in React.js and its core principles, along with state management libraries (e.g., Redux, Zustand).</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant mt-2 shrink-0"></span>
+<span>Proficiency in TypeScript and strong understanding of static typing benefits in large codebases.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-on-surface-variant mt-2 shrink-0"></span>
+<span>Experience building responsive, accessible (WCAG compliant) interfaces using utility-first CSS frameworks like Tailwind.</span>
+</li>
+</ul>
+</section>
+</div>
+<!-- Right Sidebar Metadata (4 cols) -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Key Insights Bento Box -->
+<div class="bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-6">
+<h3 class="font-label-md text-label-md text-on-surface font-semibold mb-5 uppercase tracking-wider">Job Overview</h3>
+<div class="grid grid-cols-2 gap-4">
+<!-- Metric 1 -->
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-2">payments</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Salary Range</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">$140k - $180k</p>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-2">trending_up</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Experience</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Senior (5+ yrs)</p>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-2">home_work</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Work Mode</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Remote</p>
+</div>
+<!-- Metric 4 -->
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-2">corporate_fare</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Department</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Engineering</p>
+</div>
+</div>
+</div>
+<!-- Skills Stack -->
+<div class="bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-6">
+<h3 class="font-label-md text-label-md text-on-surface font-semibold mb-4 uppercase tracking-wider">Tech Stack &amp; Skills</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container border border-surface-variant rounded-full font-code-sm text-code-sm text-on-surface">React</span>
+<span class="px-3 py-1 bg-surface-container border border-surface-variant rounded-full font-code-sm text-code-sm text-on-surface">TypeScript</span>
+<span class="px-3 py-1 bg-surface-container border border-surface-variant rounded-full font-code-sm text-code-sm text-on-surface">Tailwind CSS</span>
+<span class="px-3 py-1 bg-surface-container border border-surface-variant rounded-full font-code-sm text-code-sm text-on-surface">Next.js</span>
+<span class="px-3 py-1 bg-surface-container border border-surface-variant rounded-full font-code-sm text-code-sm text-on-surface">GraphQL</span>
+<span class="px-3 py-1 bg-surface-container border border-surface-variant rounded-full font-code-sm text-code-sm text-on-surface">Jest</span>
+</div>
+</div>
+<!-- Recruiter Contact (Confidence block style) -->
+<div class="bg-surface-container-low border border-outline-variant/30 rounded-xl p-5 flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="A friendly corporate headshot of a female technical recruiter, professional business casual attire, well-lit modern office background, depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcKKBnMUvCCXJFDsa5etUTROb_fuKQFAkFkI5VzuZTHSSThBd9yFBlBtqywLig32i_jgRVsgun-Bh7z5zEzphjTPtCLkklFBD0hirv34AiHuAExjtC25yqjzo3gcNn3rF21BF5NzA93g1KxajVoZhgf-qzXiVFw07MZyZXGU0xwLyVvJDwVUY8ghVcGHPXNezGQcpDEhqZ-GSSFxaHlBeRi2TrBBnMVF_mvVW15PYheGvbfMf7TSjH"/>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-0.5">Hiring Manager</p>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Sarah Jenkins</p>
+</div>
+<button class="ml-auto text-secondary hover:bg-surface-container p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">mail</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Similar Jobs Section -->
+<section class="mt-12 border-t border-outline-variant/30 pt-10 pb-20">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">Recommended for You</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Job Card 1 -->
+<a class="block bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-5 hover:shadow-md hover:border-secondary/30 transition-all group" href="#">
+<div class="flex justify-between items-start mb-3">
+<h3 class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-secondary transition-colors">Frontend Developer</h3>
+<span class="material-symbols-outlined text-outline-variant">bookmark_border</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">TechCorp Inc. • Remote</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm rounded">$120k - $150k</span>
+<span class="px-2 py-1 bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm rounded">React</span>
+</div>
+</a>
+<!-- Job Card 2 -->
+<a class="block bg-surface rounded-xl border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.02)] p-5 hover:shadow-md hover:border-secondary/30 transition-all group" href="#">
+<div class="flex justify-between items-start mb-3">
+<h3 class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-secondary transition-colors">UI Engineer</h3>
+<span class="material-symbols-outlined text-outline-variant">bookmark_border</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Designify • New York, NY (Hybrid)</p>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm rounded">$130k - $160k</span>
+<span class="px-2 py-1 bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm rounded">Vue.js</span>
+</div>
+</a>
+</div>
+</section>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface dark:bg-on-background border-t border-outline-variant shadow-lg rounded-t-full pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-transform p-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="edit_note">edit_note</span>
+<span class="font-label-sm text-label-sm">Apply</span>
+</a>
+<!-- Using Status as active conceptually for browsing jobs/status of applications, though JSON active state points to Apply. Let's make "Apply" active since it's the primary JSON focus. -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="pending_actions" data-weight="fill" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+<span class="font-label-sm text-label-sm">Status</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-transform p-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="account_circle">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-transform p-2" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="contact_support">contact_support</span>
+<span class="font-label-sm text-label-sm">Support</span>
+</a>
+</nav>
+</body></html>

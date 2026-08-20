@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - Candidate Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "on-surface": "#0b1c30",
+                        "surface-dim": "#cbdbf5",
+                        "secondary-fixed": "#dbe1ff",
+                        "surface-tint": "#565e74",
+                        "tertiary-container": "#002113",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-variant": "#d3e4fe",
+                        "navy-900": "#0F172A",
+                        "amber-500": "#F59E0B",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#000000",
+                        "on-primary-container": "#7c839b",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container": "#e5eeff",
+                        "on-primary-fixed": "#131b2e",
+                        "primary": "#000000",
+                        "inverse-primary": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "indigo-600": "#4F46E5",
+                        "on-secondary-fixed": "#00174b",
+                        "green-600": "#10B981",
+                        "secondary-container": "#316bf3",
+                        "on-error-container": "#93000a",
+                        "rose-600": "#E11D48",
+                        "outline": "#76777d",
+                        "on-background": "#0b1c30",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "blue-600": "#2563EB",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "primary-fixed": "#dae2fd",
+                        "tertiary-fixed": "#6ffbbe",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-bright": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "slate-200": "#E2E8F0",
+                        "slate-50": "#F8FAFC",
+                        "inverse-surface": "#213145",
+                        "surface-container-high": "#dce9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-container": "#009668",
+                        "primary-container": "#131b2e",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary": "#0051d5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter-xs": "8px",
+                        "container-max": "1440px",
+                        "margin-page": "32px",
+                        "base": "4px",
+                        "gutter-sm": "16px",
+                        "gutter-md": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "label-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Geist"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-hidden flex h-screen">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-64 right-0 z-40 bg-surface text-primary border-b border-outline-variant flex justify-between items-center px-margin-page py-gutter-xs h-16">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Sapienworx</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-body-sm focus:ring-2 focus:ring-secondary focus:outline-none w-64 placeholder-on-surface-variant" placeholder="Search candidates..." type="text"/>
+</div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors cursor-pointer active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors cursor-pointer active:opacity-80 transition-opacity relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer ml-2">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate recruiter in a modern office setting. Bright, natural lighting, high resolution, photorealistic corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG8rQAdfr97A_pKzvZvFwuXPqGA3MZddS5xEcq7xI_qcWD00CAi1afzLvZjlVwMt0QinZ19GZNICZZbqHrKnmtyCLRYUFuybzeISYPQrADh633BsCRuZJWhIeI8dTJdRHfAG6mbdzQWqTz9dnfyzUYSmRQTydQV53YX9mw6PbyUfjrc-o34nDG0G2EDSwGAKY8ukgYaf9zqBnktqAAL8j9Ds9dLGaJxiJzhzAWbXVpQtjWgqElbl2F"/>
+</div>
+</div>
+</header>
+<!-- Side Navigation Bar -->
+<nav class="bg-surface-container-low h-screen w-64 fixed left-0 top-0 border-r border-outline-variant flex flex-col py-margin-page px-gutter-sm z-50">
+<div class="mb-8 px-4 flex items-center gap-3">
+<img alt="Sapienworx Logo" class="h-8 w-8 rounded-lg object-contain bg-white p-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVQjurihyYQiOgoVJ6aolHjreU8hpqrv6oxPxy6LgFQRVtlChn4hJQkWaeE2rESfwZTZxwhdo73rhVBrGaRCjwjGmzq5G78XwSWnwnObB-GPV0eDqx_HZVHKiAWmM-DnGFW5aTjujLL8LdaVJdV3BU-1H4VvN0V7XTQcLUDc5p3edwZ1ESvKW8LFIg9ffbl6V4Ej4yGgi3-pxmENiCQ5yXn_BYOlxbynDKWS0SJYX8YjaipledHUnAGCKMLDVF1aDjLQ"/>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-black text-secondary">Sapienworx</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Recruitment Portal</p>
+</div>
+</div>
+<ul class="flex flex-col gap-2 flex-grow">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+<span class="font-label-md text-label-md">Jobs</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group" data-weight="fill">group</span>
+<span class="font-label-md text-label-md">Candidates</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+<span class="font-label-md text-label-md">Interviews</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto pt-6 border-t border-outline-variant">
+<ul class="flex flex-col gap-2">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 mt-16 flex-1 overflow-y-auto bg-surface-bright h-[calc(100vh-64px)] p-margin-page">
+<div class="max-w-container-max mx-auto">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm mb-6">
+<a class="hover:text-secondary transition-colors" href="#">Candidates</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-on-surface font-medium">Alexander Chen</span>
+</div>
+<!-- Profile Header -->
+<div class="bg-surface border border-slate-200 rounded-xl p-6 mb-gutter-md shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+<div class="flex items-center gap-6">
+<div class="w-24 h-24 rounded-full overflow-hidden border-2 border-surface-container shadow-sm relative">
+<img alt="Alexander Chen" class="w-full h-full object-cover" data-alt="A professional headshot of a confident Asian male in his early 30s. He is wearing a dark, stylish turtleneck sweater against a clean, light gray studio background. Professional corporate portrait lighting, high resolution, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCc5JUMQghO-vWioL69n93tFLD6D1HNciGQAcugwNvjCIaK6YztCFOuiaqrp6CgDXgRJXOHqeJssHJzSO33ZHV4BY47cfGKkZzaYN0PyZmUWTp8T4mEMUpapHDimYInxhJP8BauLmfLBX4t6mIWAYcAljlN1ScCeOLpplEgc1CNy6LU8u81xbGlF1ua4Tx-PYK42IvhLwz1VvUXLi53cCQu8R7RsITwaDeCb4WHTL1iW94uyzy0XczH"/>
+<div class="absolute bottom-0 right-0 w-6 h-6 bg-green-600 rounded-full border-2 border-surface flex items-center justify-center" title="Online"></div>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Alexander Chen</h2>
+<span class="bg-surface-container-high text-secondary-container px-2.5 py-0.5 rounded-full font-label-sm text-label-sm border border-secondary-fixed-dim">Shortlisted</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-2">Senior Product Designer at DesignWorks Inc.</p>
+<div class="flex items-center gap-4 text-on-surface-variant font-label-md text-label-md">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-lg">location_on</span> San Francisco, CA</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-lg">work</span> 7+ Yrs Exp.</span>
+<span class="flex items-center gap-1.5 text-secondary cursor-pointer hover:underline"><span class="material-symbols-outlined text-lg">link</span> Portfolio</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+<button class="bg-surface border border-slate-200 text-on-surface p-2.5 rounded-lg hover:bg-surface-container-low transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">more_vert</span>
+</button>
+<button class="bg-surface border border-slate-200 text-on-surface p-2.5 rounded-lg hover:bg-surface-container-low transition-colors flex items-center justify-center" title="Download Resume">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+<button class="bg-surface border border-slate-200 text-primary px-4 py-2.5 rounded-lg hover:bg-surface-container-low transition-colors font-label-md text-label-md flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">chat</span> Message
+                        </button>
+<div class="relative group">
+<button class="bg-secondary text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-label-md text-label-md font-medium flex items-center gap-2 shadow-sm">
+                                Move Stage <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter-md">
+<!-- Left Column (Main Data) -->
+<div class="lg:col-span-2 space-y-gutter-md">
+<!-- Summary -->
+<section class="bg-surface border border-slate-200 rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">subject</span> Professional Summary
+                        </h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                            Detail-oriented Product Designer with 7+ years of experience specializing in complex enterprise software and data-dense user interfaces. Proven track record of leading design systems and bridging the gap between engineering and UX. Passionate about creating accessible, scalable, and intuitive digital experiences that drive measurable business value.
+                        </p>
+</section>
+<!-- Experience Timeline -->
+<section class="bg-surface border border-slate-200 rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">work_history</span> Experience
+                        </h3>
+<div class="relative border-l-2 border-surface-container-high ml-4 space-y-8 pb-4">
+<!-- Job 1 -->
+<div class="relative pl-8">
+<div class="absolute -left-3 top-0 w-6 h-6 bg-surface border-2 border-secondary rounded-full"></div>
+<div class="flex items-start justify-between mb-2">
+<div>
+<h4 class="font-headline-md text-body-lg font-semibold text-on-surface">Senior Product Designer</h4>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md mt-1">
+<span class="font-medium text-primary">DesignWorks Inc.</span>
+<span>•</span>
+<span>San Francisco, CA</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded">2020 - Present</span>
+</div>
+<ul class="list-disc list-outside ml-4 mt-3 space-y-1.5 font-body-sm text-body-sm text-on-surface-variant">
+<li>Spearheaded the redesign of the core analytics dashboard, resulting in a 40% increase in daily active user engagement.</li>
+<li>Established and maintained the 'Nova' design system across 4 product lines, improving design-to-development velocity by 25%.</li>
+<li>Mentored a team of 3 junior designers and facilitated cross-functional design thinking workshops.</li>
+</ul>
+</div>
+<!-- Job 2 -->
+<div class="relative pl-8">
+<div class="absolute -left-3 top-0 w-6 h-6 bg-surface-container-high border-2 border-outline-variant rounded-full"></div>
+<div class="flex items-start justify-between mb-2">
+<div>
+<h4 class="font-headline-md text-body-lg font-semibold text-on-surface">UX/UI Designer</h4>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md mt-1">
+<span class="font-medium text-primary">TechFlow Solutions</span>
+<span>•</span>
+<span>Austin, TX</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded">2017 - 2020</span>
+</div>
+<ul class="list-disc list-outside ml-4 mt-3 space-y-1.5 font-body-sm text-body-sm text-on-surface-variant">
+<li>Collaborated closely with product managers to define requirements for mobile SaaS applications.</li>
+<li>Conducted comprehensive user research and usability testing sessions with 50+ enterprise clients.</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="bg-surface border border-slate-200 rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">rocket_launch</span> Featured Projects
+</h3>
+<div class="space-y-6">
+<div class="border-b border-outline-variant pb-6 last:border-0 last:pb-0">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-headline-md text-body-lg font-semibold text-on-surface">Nova Design System</h4>
+<p class="text-label-md text-secondary font-medium">Lead Designer &amp; Architect</p>
+</div>
+<a class="flex items-center gap-1 text-secondary font-label-md hover:underline" href="#">
+<span class="material-symbols-outlined text-lg">link</span> Live Demo
+</a>
+</div>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="bg-surface-container px-2 py-0.5 rounded text-code-sm text-on-surface-variant">React</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-code-sm text-on-surface-variant">Tailwind CSS</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-code-sm text-on-surface-variant">Storybook</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-code-sm text-on-surface-variant">Figma</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+An enterprise-grade design system powering 4+ product lines. Reduced design-to-dev handoff time by 25% and ensured visual consistency across the entire ecosystem.
+</p>
+</div>
+<div class="border-b border-outline-variant pb-6 last:border-0 last:pb-0">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-headline-md text-body-lg font-semibold text-on-surface">Analytics Dashboard 2.0</h4>
+<p class="text-label-md text-secondary font-medium">UX Researcher &amp; UI Designer</p>
+</div>
+<a class="flex items-center gap-1 text-secondary font-label-md hover:underline" href="#">
+<span class="material-symbols-outlined text-lg">code</span> Repository
+</a>
+</div>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="bg-surface-container px-2 py-0.5 rounded text-code-sm text-on-surface-variant">D3.js</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-code-sm text-on-surface-variant">TypeScript</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-code-sm text-on-surface-variant">Next.js</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+Redesigned the core data visualization engine for DesignWorks Inc., focusing on accessibility and real-time data processing. Resulted in a 40% increase in DAU engagement.
+</p>
+</div>
+</div>
+</section></div>
+<!-- Right Column (Context & Sidebar) -->
+<div class="space-y-gutter-md">
+<!-- Quick Info -->
+<section class="bg-surface border border-slate-200 rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-4 uppercase tracking-wider">Contact Information</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">mail</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Email</p>
+<a class="font-body-sm text-body-sm text-secondary hover:underline" href="mailto:alex.chen@example.com">alex.chen@example.com</a>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">call</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Phone</p>
+<p class="font-body-sm text-body-sm text-on-surface">+1 (415) 555-0198</p>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-surface border border-slate-200 rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-4 uppercase tracking-wider">Technical Profiles</h3>
+<div class="space-y-4">
+<a class="flex items-center gap-3 group" href="#">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+<span class="material-symbols-outlined text-sm">code</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">GitHub</p>
+<p class="font-body-sm text-body-sm text-secondary group-hover:underline">github.com/alexchen</p>
+</div>
+</a>
+<a class="flex items-center gap-3 group" href="#">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+<span class="material-symbols-outlined text-sm">terminal</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">LeetCode</p>
+<p class="font-body-sm text-body-sm text-secondary group-hover:underline">leetcode.com/alex_c</p>
+</div>
+</a>
+<a class="flex items-center gap-3 group" href="#">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+<span class="material-symbols-outlined text-sm">data_object</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Codeforces</p>
+<p class="font-body-sm text-body-sm text-secondary group-hover:underline">codeforces.com/alex_chen</p>
+</div>
+</a>
+<a class="flex items-center gap-3 group" href="#">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant group-hover:bg-secondary-container group-hover:text-on-secondary-container transition-colors">
+<span class="material-symbols-outlined text-sm">restaurant_menu</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">CodeChef</p>
+<p class="font-body-sm text-body-sm text-secondary group-hover:underline">codechef.com/users/alex_c</p>
+</div>
+</a>
+</div>
+</section></div>
+</div>
+</div>
+</main>
+</body></html>

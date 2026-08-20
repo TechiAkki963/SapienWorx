@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Candidate Management - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#005236",
+                      "on-secondary-container": "#fefcff",
+                      "secondary-fixed": "#dbe1ff",
+                      "tertiary-container": "#002113",
+                      "inverse-primary": "#bec6e0",
+                      "on-tertiary-container": "#009668",
+                      "indigo-600": "#4F46E5",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary-fixed": "#131b2e",
+                      "primary-container": "#131b2e",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "surface-dim": "#cbdbf5",
+                      "blue-600": "#2563EB",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface": "#f8f9ff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "outline-variant": "#c6c6cd",
+                      "on-background": "#0b1c30",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed": "#00174b",
+                      "error-container": "#ffdad6",
+                      "on-primary-container": "#7c839b",
+                      "surface-bright": "#f8f9ff",
+                      "surface-container": "#e5eeff",
+                      "tertiary-fixed": "#6ffbbe",
+                      "background": "#f8f9ff",
+                      "on-surface-variant": "#45464d",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container-low": "#eff4ff",
+                      "navy-900": "#0F172A",
+                      "inverse-surface": "#213145",
+                      "on-error-container": "#93000a",
+                      "primary-fixed-dim": "#bec6e0",
+                      "rose-600": "#E11D48",
+                      "on-secondary": "#ffffff",
+                      "amber-500": "#F59E0B",
+                      "slate-200": "#E2E8F0",
+                      "secondary-container": "#316bf3",
+                      "outline": "#76777d",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "on-tertiary-fixed": "#002113",
+                      "slate-50": "#F8FAFC",
+                      "on-tertiary": "#ffffff",
+                      "primary": "#000000",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "secondary": "#0051d5",
+                      "on-surface": "#0b1c30",
+                      "green-600": "#10B981",
+                      "tertiary": "#000000",
+                      "surface-container-high": "#dce9ff",
+                      "on-primary-fixed-variant": "#3f465c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter-md": "24px",
+                      "gutter-sm": "16px",
+                      "base": "4px",
+                      "container-max": "1440px",
+                      "gutter-xs": "8px",
+                      "margin-page": "32px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style type="text/tailwindcss">
+          @layer utilities {
+              .material-symbols-outlined {
+                  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+              }
+              .icon-fill {
+                  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+              }
+              
+              /* Scrollbar styling for data tables */
+              .table-scroll::-webkit-scrollbar {
+                  height: 6px;
+                  width: 6px;
+              }
+              .table-scroll::-webkit-scrollbar-track {
+                  background: transparent;
+              }
+              .table-scroll::-webkit-scrollbar-thumb {
+                  background-color: #cbd5e1;
+                  border-radius: 20px;
+              }
+          }
+      </style>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased overflow-hidden flex h-screen w-full">
+<!-- SideNavBar -->
+<nav class="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant bg-surface-container-low flex flex-col py-margin-page px-gutter-sm z-20 hidden md:flex">
+<div class="flex items-center gap-3 mb-8 px-4">
+<img alt="Sapienworx Logo" class="h-8 w-auto rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD--wvxCuOCfLSHWxhZVIMPB-TPW20J1L3TzMWdoLkg0hBscxIkGbkghXrK6LnKE2ZJ60kttX2iBU9h93e5nQ5Ami81yk4m_hdg8vX0_3wl4-S_zhE6EMfP0aEw7rZQ3J06xUADnsTHl-NNI5Ph6haa1p1EtiqrJ8Q2Xp1dHfU6dW0UFds3LysvR5yCxdKMwHCK-p2FPmKQGyi6zMO7G6QUBv9zho-QfEWmyBeKffsibzTkHnQCfpG0R53-J5v2YbUDHQ"/>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-black text-secondary">Sapienworx</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Recruitment Portal</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<!-- Jobs -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+                Jobs
+            </a>
+<!-- Candidates (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold font-label-md text-label-md transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="group">group</span>
+                Candidates
+            </a>
+<!-- Interviews -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+                Interviews
+            </a>
+<!-- Analytics -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Analytics
+            </a>
+</div>
+<div class="flex flex-col gap-2 mt-auto border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-xl transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Logout
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col ml-0 md:ml-64 h-screen bg-slate-50 relative">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-page py-gutter-xs h-16 bg-surface text-primary border-b border-outline-variant z-10 sticky top-0">
+<!-- Mobile Menu Toggle & Brand (Visible only on mobile) -->
+<div class="flex items-center gap-4 md:hidden">
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Sapienworx</span>
+</div>
+<!-- Search Bar -->
+<div class="hidden md:flex flex-1 max-w-md relative items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-label-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all" placeholder="Search across portal..." type="text"/>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors cursor-pointer active:opacity-80 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-600 rounded-full border border-surface"></span>
+</button>
+<button class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant hover:bg-surface-container-low transition-colors ml-2 cursor-pointer active:opacity-80">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a recruitment manager in a modern corporate setting, smiling subtly. High quality, soft lighting, sharp focus on the face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx1_LSvGv4XsiGIiCjHhjTYCm5XwC2FWQdQYjKLR1C3A6BN2kVPO7qNiE7lQw1_PfAosfGukGAVuPeDm2qoFiROsEe5MbIjZwRXtvIp4vYaYMSptZaQSnn4DAVYokkBFACDc-uaTXWBLKMlRHESDaNibweKtD7fEPR0v4YwsOkv82qqXdyCto6EdGyFREhhzIOIXpd7BiiG_qo4zR7-IHJS_WjRytDCGBCDjhba1ewrR0Nu-Srw8XX"/>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-y-auto p-4 md:p-margin-page">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-1">Candidate Management</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage and filter candidates received through job postings.</p>
+</div>
+<button class="bg-secondary text-white px-6 py-2.5 rounded-lg font-label-md text-label-md hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 whitespace-nowrap active:scale-95 w-full md:w-auto justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                    Add Candidate
+                </button>
+</div>
+<!-- Main Workspace Container -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
+<!-- Toolbar -->
+<div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white rounded-t-xl z-10">
+<!-- Search & Filter Controls -->
+<div class="flex-1 w-full flex items-center gap-3">
+<div class="relative flex-1 max-w-lg">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-label-md focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all" placeholder="Search candidates by name, role, or skills..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-label-md text-on-surface hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="tune">tune</span>
+                            Filters
+                            <span class="bg-surface-container text-on-surface px-2 py-0.5 rounded-full text-[10px] ml-1">3</span>
+</button>
+</div>
+<!-- Pagination / View Toggle -->
+<div class="flex items-center gap-3 text-label-md text-on-surface-variant w-full sm:w-auto justify-between sm:justify-end">
+<span>1-50 of 2,491</span>
+<div class="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+<button class="p-1.5 bg-slate-50 text-secondary hover:bg-slate-100 transition-colors border-r border-slate-200" title="Table View">
+<span class="material-symbols-outlined text-[20px]" data-icon="table_rows">table_rows</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-slate-50 transition-colors" title="Grid View">
+<span class="material-symbols-outlined text-[20px]" data-icon="grid_view">grid_view</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bulk Actions Bar (Hidden by default, shown for demo purposes) -->
+<div class="bg-secondary-fixed py-2 px-4 flex items-center justify-between border-b border-secondary-fixed-dim text-on-secondary-fixed" id="bulk-actions" style="display: none;">
+<div class="flex items-center gap-3 text-label-md font-semibold">
+<span class="material-symbols-outlined" data-icon="check_box">check_box</span>
+                        3 candidates selected
+                    </div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 bg-white text-secondary text-label-sm rounded border border-secondary-fixed-dim hover:bg-slate-50 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="swap_horiz">swap_horiz</span> Change Status
+                        </button>
+<button class="px-3 py-1.5 bg-white text-secondary text-label-sm rounded border border-secondary-fixed-dim hover:bg-slate-50 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="mail">mail</span> Message
+                        </button>
+<button class="px-3 py-1.5 text-on-secondary-fixed text-label-sm hover:bg-secondary-fixed-dim rounded transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="download">download</span> Export
+                        </button>
+<button class="p-1.5 text-on-secondary-fixed hover:text-error hover:bg-error-container rounded transition-colors ml-2" title="Archive">
+<span class="material-symbols-outlined text-[18px]" data-icon="archive">archive</span>
+</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="flex-1 overflow-auto table-scroll bg-white rounded-b-xl">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead class="sticky top-0 bg-slate-50 z-10 border-b border-slate-200">
+<tr>
+<th class="py-3 px-4 w-12 text-center">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 cursor-pointer" onclick="toggleBulkActions()" type="checkbox"/>
+</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Candidate Profile</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Experience</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Location</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Notice Period</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status / Activity</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="py-3 px-4 text-center border-l-4 border-blue-500">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 cursor-pointer row-checkbox" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-200 flex-shrink-0 border border-slate-200">
+<img alt="Sarah Jenkins" class="w-full h-full object-cover" data-alt="Professional headshot of a female software engineer, mid-30s, casual corporate attire, light modern background, high quality portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFxftw3E6XQcLbllZLHQQS939JWcx_m0OxwWMvwC6ZNENfGaEkD8lrDjMbfoMrtSdtzBdQ5JyVCKFW5Wf7hpZkIyGR8Yldvvisb-E3ooXM21MxLIC1mksJnZRWiKP4Og0lmhcOvwSD9UQb5qqpaB-02VuktyZeKn5UoCc9E3u-q1TbEUhaz9nRikQIOzqd1VMHUo0kNPfhEzbmbQYP9TrbXbAcK4z4vFfPiFNyAsiP0BikrhcbuW6H"/>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Sarah Jenkins</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Senior Frontend Developer</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<p class="font-body-sm text-body-sm text-on-surface">8.5 Years</p>
+<p class="text-[11px] text-on-surface-variant">React, TypeScript</p>
+</td>
+<td class="py-3 px-4">
+<p class="font-body-sm text-body-sm text-on-surface">San Francisco, CA</p>
+<p class="text-[11px] text-on-surface-variant">Prefers: Remote</p>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[12px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                        30 Days
+                                    </span>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="font-label-sm text-[12px] text-on-surface">Screening</span>
+</div>
+<p class="text-[11px] text-on-surface-variant">Active 2 hrs ago</p>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 bg-white border border-slate-200 rounded text-label-sm text-secondary hover:bg-slate-50 transition-colors">Review</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-slate-200 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="py-3 px-4 text-center border-l-4 border-green-500">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 cursor-pointer row-checkbox" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-200 flex-shrink-0 border border-slate-200">
+<img alt="Michael Chang" class="w-full h-full object-cover" data-alt="Professional headshot of a male product manager, late 20s, wearing a smart shirt, bright office environment, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQNzMdC9sDgY_UdmUWAur_vl9tfbyksiN66i31vwvlICBsyITGziyz0oBWqT1J64G-XOEF-8NuwcLBg_dVRGqZmQM42e92XGpUhVoQHdbMvANPreaxUNkWeLz6jUW6VfSeOKeHhx-W21KMYG8CTyf2xGy-0vtxXRMbBWWDCrIadNpYquEOn88dofBbS9etI2CjcHmAdBbqjBWdNrXGMQcW3WyHAFmBlQJKNg2mPsBfIzRLN9mYH8HO"/>
+</div>
+<div>
+<div class="flex items-center gap-1">
+<p class="font-label-md text-label-md text-on-surface font-semibold">Michael Chang</p>
+<span class="material-symbols-outlined text-green-600 text-[14px]" data-icon="verified" title="High Parser Confidence">verified</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Product Manager</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<p class="font-body-sm text-body-sm text-on-surface">5 Years</p>
+<p class="text-[11px] text-on-surface-variant">B2B SaaS, Agile</p>
+</td>
+<td class="py-3 px-4">
+<p class="font-body-sm text-body-sm text-on-surface">New York, NY</p>
+<p class="text-[11px] text-on-surface-variant">Prefers: Hybrid</p>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[12px] font-medium bg-green-50 text-green-700 border border-green-200">
+                                        Immediate
+                                    </span>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="font-label-sm text-[12px] text-on-surface">Interview</span>
+</div>
+<p class="text-[11px] text-on-surface-variant">Active 1 day ago</p>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 bg-white border border-slate-200 rounded text-label-sm text-secondary hover:bg-slate-50 transition-colors">Review</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-slate-200 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="py-3 px-4 text-center border-l-4 border-slate-300">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary w-4 h-4 cursor-pointer row-checkbox" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-200 flex-shrink-0 flex items-center justify-center text-slate-500 font-bold border border-slate-200">
+                                            EP
+                                        </div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Elena Petrova</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">UX Designer</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<p class="font-body-sm text-body-sm text-on-surface bg-tertiary/5 inline-block px-1 rounded" title="Auto-extracted by parser">4.2 Years</p>
+<p class="text-[11px] text-on-surface-variant">Figma, Prototyping</p>
+</td>
+<td class="py-3 px-4">
+<p class="font-body-sm text-body-sm text-on-surface">Berlin, DE</p>
+<p class="text-[11px] text-on-surface-variant">Prefers: Relocation</p>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[12px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                        60 Days
+                                    </span>
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="w-2 h-2 rounded-full bg-slate-400"></span>
+<span class="font-label-sm text-[12px] text-on-surface">New</span>
+</div>
+<p class="text-[11px] text-on-surface-variant">Active 5 days ago</p>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1.5 bg-white border border-slate-200 rounded text-label-sm text-secondary hover:bg-slate-50 transition-colors">Review</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-slate-200 rounded transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between rounded-b-xl">
+<div class="flex items-center gap-2 text-label-sm text-on-surface-variant">
+<span>Rows per page:</span>
+<select class="bg-transparent border-none text-on-surface font-medium focus:ring-0 cursor-pointer">
+<option>50</option>
+<option>100</option>
+</select>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 text-on-surface-variant hover:bg-slate-200 rounded transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-1 text-on-surface hover:bg-slate-200 rounded transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        function toggleBulkActions() {
+            const masterCheckbox = document.querySelector('thead input[type="checkbox"]');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            const bulkActionsBar = document.getElementById('bulk-actions');
+            
+            // Basic demo logic for UI visualization
+            const isChecked = masterCheckbox.checked;
+            rowCheckboxes.forEach(cb => cb.checked = isChecked);
+            
+            if (isChecked) {
+                bulkActionsBar.style.display = 'flex';
+                bulkActionsBar.querySelector('span:last-child').textContent = `${rowCheckboxes.length} candidates selected`;
+            } else {
+                bulkActionsBar.style.display = 'none';
+            }
+        }
+    </script>
+</body></html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - All Jobs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "slate-50": "#F8FAFC",
+                    "outline-variant": "#c6c6cd",
+                    "on-background": "#0b1c30",
+                    "surface": "#f8f9ff",
+                    "blue-600": "#2563EB",
+                    "surface-dim": "#cbdbf5",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-fixed": "#00174b",
+                    "outline": "#76777d",
+                    "on-primary-container": "#7c839b",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "on-surface-variant": "#45464d",
+                    "slate-200": "#E2E8F0",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#bec6e0",
+                    "background": "#f8f9ff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "on-surface": "#0b1c30",
+                    "surface-container": "#e5eeff",
+                    "indigo-600": "#4F46E5",
+                    "green-600": "#10B981",
+                    "primary-container": "#131b2e",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "tertiary-fixed": "#6ffbbe",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "inverse-surface": "#213145",
+                    "secondary-fixed": "#dbe1ff",
+                    "navy-900": "#0F172A",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "secondary-container": "#316bf3",
+                    "tertiary-container": "#002113",
+                    "on-secondary-container": "#fefcff",
+                    "primary-fixed": "#dae2fd",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-variant": "#d3e4fe",
+                    "rose-600": "#E11D48",
+                    "on-tertiary-fixed": "#002113",
+                    "surface-bright": "#f8f9ff",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#565e74",
+                    "secondary": "#0051d5",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "amber-500": "#F59E0B",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "on-tertiary-container": "#009668",
+                    "error-container": "#ffdad6",
+                    "on-error": "#ffffff",
+                    "primary": "#000000",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#000000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "container-max": "1440px",
+                    "gutter-xs": "8px",
+                    "gutter-md": "24px",
+                    "margin-page": "32px",
+                    "gutter-sm": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Geist"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Geist"],
+                    "display-lg": ["Geist"],
+                    "headline-sm": ["Geist"],
+                    "label-sm": ["Inter"],
+                    "code-sm": ["JetBrains Mono"],
+                    "headline-lg-mobile": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "code-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky border-b border-slate-200 dark:border-outline-variant shadow-sm z-50 bg-surface dark:bg-navy-900 font-body-md text-body-md text-secondary dark:text-secondary-fixed">
+<div class="flex items-center justify-between px-margin-page max-w-container-max mx-auto h-16">
+<!-- Brand -->
+<div class="flex items-center gap-gutter-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary cursor-pointer">Sapienworx</span>
+</div>
+<!-- Persistent Search Bar -->
+<div class="hidden md:flex flex-1 max-w-md mx-gutter-md">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">search</span>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-full py-2 pl-10 pr-4 font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent" placeholder="Search jobs, skills, or companies..." type="text"/>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-gutter-md">
+<a class="text-secondary dark:text-secondary-fixed-dim font-bold border-b-2 border-secondary pb-1 cursor-pointer hover:text-secondary dark:hover:text-secondary-fixed transition-colors" href="#">Find Jobs</a>
+<a class="text-on-surface-variant dark:text-on-primary-container cursor-pointer hover:text-secondary dark:hover:text-secondary-fixed transition-colors" href="#">Companies</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-gutter-xs">
+<button class="font-label-md text-label-md text-primary px-4 py-2 border border-slate-200 rounded hover:bg-slate-50 transition-colors cursor-pointer active:opacity-80">Sign In</button>
+<button class="font-label-md text-label-md bg-secondary text-on-secondary px-4 py-2 rounded hover:opacity-90 transition-opacity cursor-pointer active:opacity-80">Register</button>
+</div>
+</div>
+</header>
+<!-- Main Content Grid -->
+<main class="flex-1 w-full max-w-container-max mx-auto px-margin-page py-margin-page grid grid-cols-12 gap-gutter-md">
+<!-- Sidebar Filters -->
+<aside class="col-span-12 lg:col-span-3 bg-slate-50 border border-slate-200 shadow-[0_2px_4px_rgba(0,0,0,0.02)] rounded-lg p-gutter-sm h-fit sticky top-24">
+<div class="flex items-center justify-between border-b border-slate-200 pb-gutter-xs mb-gutter-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Filters</h2>
+<button class="font-label-sm text-label-sm text-secondary hover:underline cursor-pointer">Clear All</button>
+</div>
+<!-- Department Filter -->
+<div class="mb-gutter-sm">
+<h3 class="font-label-md text-label-md text-on-surface mb-2">Department</h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Engineering (412)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Design (128)</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Product (89)</span>
+</label>
+</div>
+</div>
+<!-- Work Mode Filter -->
+<div class="mb-gutter-sm">
+<h3 class="font-label-md text-label-md text-on-surface mb-2">Work Mode</h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Remote</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Hybrid</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">On-site</span>
+</label>
+</div>
+</div>
+<!-- Salary Filter -->
+<div>
+<h3 class="font-label-md text-label-md text-on-surface mb-2">Salary Range</h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">$50k - $100k</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">$100k - $150k</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded border-outline-variant text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant">$150k+</span>
+</label>
+</div>
+</div>
+</aside>
+<!-- Job Results Area -->
+<section class="col-span-12 lg:col-span-9 flex flex-col gap-gutter-sm">
+<!-- Results Header -->
+<div class="flex items-center justify-between mb-2">
+<h1 class="font-headline-md text-headline-md text-on-surface">Showing 2,143 Jobs</h1>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sort by:</span>
+<select class="bg-surface border border-slate-200 rounded font-body-sm text-body-sm text-on-surface py-1 pl-2 pr-8 focus:ring-secondary focus:border-secondary">
+<option>Most Relevant</option>
+<option>Date Posted</option>
+<option>Salary (High to Low)</option>
+</select>
+</div>
+</div>
+<!-- Job List (High Density) -->
+<div class="flex flex-col gap-base">
+<!-- Card 1 -->
+<article class="bg-surface border border-slate-200 hover:shadow-md hover:border-b-2 hover:border-b-secondary transition-all rounded-lg p-gutter-sm flex flex-col sm:flex-row justify-between sm:items-center gap-base group cursor-pointer">
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors">Senior Frontend Engineer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Acme Corp · Remote (US) · $140k - $180k</p>
+<div class="flex gap-2 mt-1">
+<span class="bg-surface-container-high text-on-surface px-2 py-0.5 rounded font-label-sm text-label-sm">React</span>
+<span class="bg-surface-container-high text-on-surface px-2 py-0.5 rounded font-label-sm text-label-sm">TypeScript</span>
+</div>
+</div>
+<div class="flex sm:flex-col items-end justify-between mt-2 sm:mt-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Posted 2h ago</span>
+<button class="font-label-md text-label-md text-secondary border border-secondary px-3 py-1 rounded hover:bg-surface-container transition-colors mt-2">Quick Apply</button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface border border-slate-200 hover:shadow-md hover:border-b-2 hover:border-b-secondary transition-all rounded-lg p-gutter-sm flex flex-col sm:flex-row justify-between sm:items-center gap-base group cursor-pointer">
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors">Product Designer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">GlobalTech · Hybrid (London) · £70k - £90k</p>
+<div class="flex gap-2 mt-1">
+<span class="bg-surface-container-high text-on-surface px-2 py-0.5 rounded font-label-sm text-label-sm">Figma</span>
+<span class="bg-surface-container-high text-on-surface px-2 py-0.5 rounded font-label-sm text-label-sm">UX/UI</span>
+</div>
+</div>
+<div class="flex sm:flex-col items-end justify-between mt-2 sm:mt-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Posted 5h ago</span>
+<button class="font-label-md text-label-md text-secondary border border-secondary px-3 py-1 rounded hover:bg-surface-container transition-colors mt-2">Quick Apply</button>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface border border-slate-200 hover:shadow-md hover:border-b-2 hover:border-b-secondary transition-all rounded-lg p-gutter-sm flex flex-col sm:flex-row justify-between sm:items-center gap-base group cursor-pointer">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors">Data Scientist</h3>
+<span class="flex items-center justify-center w-2 h-2 rounded-full bg-green-600" title="High Match Confidence"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">DataSynergy · On-site (NY) · $130k - $160k</p>
+<div class="flex gap-2 mt-1">
+<span class="bg-surface-container-high text-on-surface px-2 py-0.5 rounded font-label-sm text-label-sm">Python</span>
+<span class="bg-surface-container-high text-on-surface px-2 py-0.5 rounded font-label-sm text-label-sm">Machine Learning</span>
+</div>
+</div>
+<div class="flex sm:flex-col items-end justify-between mt-2 sm:mt-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Posted 1d ago</span>
+<button class="font-label-md text-label-md text-secondary border border-secondary px-3 py-1 rounded hover:bg-surface-container transition-colors mt-2">Quick Apply</button>
+</div>
+</article>
+<!-- Repeat for density (simulating 10) -->
+<!-- Card 4 -->
+<article class="bg-surface border border-slate-200 hover:shadow-md hover:border-b-2 hover:border-b-secondary transition-all rounded-lg p-gutter-sm flex flex-col sm:flex-row justify-between sm:items-center gap-base group cursor-pointer">
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors">DevOps Engineer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">CloudScale · Remote · $150k - $200k</p>
+</div>
+<div class="flex sm:flex-col items-end justify-between mt-2 sm:mt-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Posted 1d ago</span>
+</div>
+</article>
+<!-- Card 5 -->
+<article class="bg-surface border border-slate-200 hover:shadow-md hover:border-b-2 hover:border-b-secondary transition-all rounded-lg p-gutter-sm flex flex-col sm:flex-row justify-between sm:items-center gap-base group cursor-pointer">
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors">Marketing Manager</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">BrandBoost · Hybrid (SF) · $90k - $120k</p>
+</div>
+<div class="flex sm:flex-col items-end justify-between mt-2 sm:mt-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Posted 2d ago</span>
+</div>
+</article>
+<!-- Card 6 -->
+<article class="bg-surface border border-slate-200 hover:shadow-md hover:border-b-2 hover:border-b-secondary transition-all rounded-lg p-gutter-sm flex flex-col sm:flex-row justify-between sm:items-center gap-base group cursor-pointer">
+<div class="flex flex-col gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors">Backend Engineer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">FinTech Co · Remote (EU) · €80k - €110k</p>
+</div>
+<div class="flex sm:flex-col items-end justify-between mt-2 sm:mt-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Posted 2d ago</span>
+</div>
+</article>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center items-center gap-2 mt-gutter-md">
+<button class="flex items-center justify-center w-8 h-8 rounded border border-slate-200 text-on-surface-variant hover:bg-slate-50 cursor-pointer disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" style="font-size: 18px;">chevron_left</span>
+</button>
+<button class="flex items-center justify-center w-8 h-8 rounded bg-secondary text-on-secondary font-label-md text-label-md cursor-pointer">1</button>
+<button class="flex items-center justify-center w-8 h-8 rounded border border-slate-200 text-on-surface hover:bg-slate-50 font-label-md text-label-md cursor-pointer">2</button>
+<button class="flex items-center justify-center w-8 h-8 rounded border border-slate-200 text-on-surface hover:bg-slate-50 font-label-md text-label-md cursor-pointer">3</button>
+<span class="text-on-surface-variant font-label-md text-label-md">...</span>
+<button class="flex items-center justify-center w-8 h-8 rounded border border-slate-200 text-on-surface hover:bg-slate-50 font-label-md text-label-md cursor-pointer">12</button>
+<button class="flex items-center justify-center w-8 h-8 rounded border border-slate-200 text-on-surface-variant hover:bg-slate-50 cursor-pointer">
+<span class="material-symbols-outlined" style="font-size: 18px;">chevron_right</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Knowledge Section (Bottom) -->
+<section class="w-full bg-primary-container dark:bg-navy-900 mt-margin-page">
+<div class="max-w-container-max mx-auto px-margin-page py-margin-page">
+<div class="bg-surface-container-low rounded-xl p-gutter-md border border-slate-200 flex flex-col md:flex-row items-center gap-gutter-md">
+<div class="flex-1">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Smarter Recruitment with Sapienworx</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+                        Experience candidate-first recruitment driven by automated parsing and intelligent matching. Our platform ensures your profile is accurately understood and presented to top employers, reducing friction in your career journey.
+                    </p>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface rounded-lg p-4 border border-slate-200 flex flex-col items-center text-center w-32 shadow-sm">
+<span class="material-symbols-outlined text-secondary mb-2" style="font-size: 32px;">auto_awesome</span>
+<span class="font-label-sm text-label-sm text-on-surface">Smart Parsing</span>
+</div>
+<div class="bg-surface rounded-lg p-4 border border-slate-200 flex flex-col items-center text-center w-32 shadow-sm">
+<span class="material-symbols-outlined text-green-600 mb-2" style="font-size: 32px;">verified_user</span>
+<span class="font-label-sm text-label-sm text-on-surface">Data Privacy</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-primary-container dark:bg-navy-900 font-label-sm text-label-sm w-full mt-auto text-on-primary-container dark:text-secondary-fixed">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-page py-gutter-md max-w-container-max mx-auto">
+<div class="font-headline-sm text-headline-sm font-black text-on-primary mb-4 md:mb-0">
+                Sapienworx
+            </div>
+<div class="flex flex-wrap gap-gutter-sm justify-center mb-4 md:mb-0">
+<a class="cursor-pointer hover:text-on-primary transition-colors text-on-primary-container" href="#">Privacy Policy</a>
+<a class="cursor-pointer hover:text-on-primary transition-colors text-on-primary-container" href="#">Terms of Service</a>
+<a class="cursor-pointer hover:text-on-primary transition-colors text-on-primary-container" href="#">Contact Us</a>
+<a class="cursor-pointer hover:text-on-primary transition-colors text-on-primary-container" href="#">About Sapienworx</a>
+</div>
+<div class="text-on-primary-container">
+                © 2024 Sapienworx Recruitment. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

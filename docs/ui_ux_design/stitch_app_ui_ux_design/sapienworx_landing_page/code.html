@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - Find Your Next Career Move</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "slate-50": "#F8FAFC",
+                      "outline-variant": "#c6c6cd",
+                      "on-background": "#0b1c30",
+                      "surface": "#f8f9ff",
+                      "blue-600": "#2563EB",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-high": "#dce9ff",
+                      "on-secondary-fixed": "#00174b",
+                      "outline": "#76777d",
+                      "on-primary-container": "#7c839b",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "on-surface-variant": "#45464d",
+                      "slate-200": "#E2E8F0",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#bec6e0",
+                      "background": "#f8f9ff",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed": "#131b2e",
+                      "on-surface": "#0b1c30",
+                      "surface-container": "#e5eeff",
+                      "indigo-600": "#4F46E5",
+                      "green-600": "#10B981",
+                      "primary-container": "#131b2e",
+                      "inverse-on-surface": "#eaf1ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "tertiary-fixed": "#6ffbbe",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "inverse-surface": "#213145",
+                      "secondary-fixed": "#dbe1ff",
+                      "navy-900": "#0F172A",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "secondary-container": "#316bf3",
+                      "tertiary-container": "#002113",
+                      "on-secondary-container": "#fefcff",
+                      "primary-fixed": "#dae2fd",
+                      "on-secondary": "#ffffff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-variant": "#d3e4fe",
+                      "rose-600": "#E11D48",
+                      "on-tertiary-fixed": "#002113",
+                      "surface-bright": "#f8f9ff",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#565e74",
+                      "secondary": "#0051d5",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#eff4ff",
+                      "amber-500": "#F59E0B",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-tertiary-container": "#009668",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "primary": "#000000",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#000000"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "container-max": "1440px",
+                      "gutter-xs": "8px",
+                      "gutter-md": "24px",
+                      "margin-page": "32px",
+                      "gutter-sm": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+      </style>
+</head>
+<body class="bg-slate-50 text-on-surface font-body-md flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<nav class="w-full top-0 sticky bg-surface border-b border-slate-200 shadow-sm z-50">
+<div class="flex items-center justify-between px-margin-page max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-gutter-md">
+<a class="font-headline-md text-headline-md font-bold text-primary" href="#">Sapienworx</a>
+<div class="hidden md:flex gap-gutter-sm">
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 font-body-md text-body-md cursor-pointer hover:text-secondary transition-colors" href="#">Find Jobs</a>
+<a class="text-on-surface-variant font-body-md text-body-md cursor-pointer hover:text-secondary transition-colors" href="#">Companies</a>
+</div>
+</div>
+<div class="flex items-center gap-gutter-sm">
+<button class="font-label-md text-label-md text-primary border border-slate-200 rounded px-4 py-2 hover:bg-slate-50 transition-colors">Sign In</button>
+<button class="font-label-md text-label-md bg-secondary text-white rounded px-4 py-2 hover:opacity-90 transition-opacity">Register</button>
+</div>
+</div>
+</nav>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="relative pt-24 pb-32 px-margin-page overflow-hidden">
+<div class="absolute inset-0 bg-surface-container-low -z-10"></div>
+<div class="max-w-container-max mx-auto text-center">
+<h1 class="font-display-lg text-display-lg md:text-display-lg text-headline-lg-mobile text-on-surface mb-6">Find your next career move</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl mx-auto">Discover opportunities at the world's most innovative companies. Connect directly with hiring managers and advance your career today.</p>
+<div class="max-w-3xl mx-auto glass-card rounded-xl p-4 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+<div class="flex-1 flex items-center bg-white rounded border border-slate-200 px-4 py-3 w-full">
+<span aria-hidden="true" class="material-symbols-outlined text-outline mr-2">search</span>
+<input aria-label="Search jobs" class="w-full border-none focus:ring-0 p-0 text-body-md bg-transparent" placeholder="Job title, keywords, or company" type="text"/>
+</div>
+<div class="flex-1 flex items-center bg-white rounded border border-slate-200 px-4 py-3 w-full">
+<span aria-hidden="true" class="material-symbols-outlined text-outline mr-2">location_on</span>
+<input aria-label="Location" class="w-full border-none focus:ring-0 p-0 text-body-md bg-transparent" placeholder="City, state, or remote" type="text"/>
+</div>
+<button class="w-full md:w-auto bg-secondary text-white font-label-md text-label-md rounded px-8 py-3 hover:opacity-90 transition-opacity flex-shrink-0">Search Jobs</button>
+</div>
+</div>
+</section>
+<!-- Stats Bar -->
+<section class="bg-white border-y border-slate-200 py-12 px-margin-page">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-around items-center gap-8 text-center">
+<div>
+<div class="font-headline-lg text-headline-lg text-secondary mb-2">5,000+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Active Jobs</div>
+</div>
+<div class="hidden md:block w-px h-16 bg-slate-200"></div>
+<div>
+<div class="font-headline-lg text-headline-lg text-secondary mb-2">10k+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Companies</div>
+</div>
+<div class="hidden md:block w-px h-16 bg-slate-200"></div>
+<div>
+<div class="font-headline-lg text-headline-lg text-secondary mb-2">50k+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Hires</div>
+</div>
+</div>
+</section>
+<!-- Client Showcase -->
+<section class="py-16 bg-surface-container-lowest border-b border-slate-200 overflow-hidden">
+<div class="text-center mb-8">
+<h2 class="font-headline-sm text-headline-sm text-on-surface-variant">Trusted by Industry Leaders</h2>
+</div>
+<div class="marquee-container w-full max-w-container-max mx-auto px-margin-page">
+<div class="marquee-content flex gap-16 items-center opacity-60">
+<!-- Repeated for continuous effect -->
+<span class="font-headline-md text-headline-md text-outline font-bold">Acme Corp</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Globex</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Soylent</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Initech</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Umbrella Corp</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Stark Ind</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Acme Corp</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Globex</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Soylent</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Initech</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Umbrella Corp</span>
+<span class="font-headline-md text-headline-md text-outline font-bold">Stark Ind</span>
+</div>
+</div>
+</section>
+<!-- Featured Jobs -->
+<section class="py-24 px-margin-page bg-slate-50">
+<div class="max-w-container-max mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-4">Featured Opportunities</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Hand-picked roles from top employers.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-md mb-12">
+<!-- Job Card 1 -->
+<div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-secondary transition-all cursor-pointer group flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-secondary font-bold text-lg">A</div>
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded">New</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1 group-hover:text-secondary transition-colors">Senior Frontend Engineer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Acme Corp</p>
+<div class="flex flex-wrap gap-2 mb-6 mt-auto">
+<span class="flex items-center text-label-sm font-label-sm text-on-surface-variant bg-slate-50 px-2 py-1 rounded border border-slate-200">
+<span class="material-symbols-outlined text-[16px] mr-1">location_on</span> Remote
+                            </span>
+<span class="flex items-center text-label-sm font-label-sm text-on-surface-variant bg-slate-50 px-2 py-1 rounded border border-slate-200">
+<span class="material-symbols-outlined text-[16px] mr-1">schedule</span> Full-time
+                            </span>
+</div>
+<div class="flex justify-between items-center border-t border-slate-200 pt-4">
+<span class="font-label-md text-label-md text-on-surface">$120k - $160k</span>
+<button class="font-label-sm text-label-sm text-secondary hover:underline">Apply Now</button>
+</div>
+</div>
+<!-- Job Card 2 -->
+<div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-secondary transition-all cursor-pointer group flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-secondary font-bold text-lg">G</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1 group-hover:text-secondary transition-colors">Product Designer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Globex Inc.</p>
+<div class="flex flex-wrap gap-2 mb-6 mt-auto">
+<span class="flex items-center text-label-sm font-label-sm text-on-surface-variant bg-slate-50 px-2 py-1 rounded border border-slate-200">
+<span class="material-symbols-outlined text-[16px] mr-1">location_on</span> New York, NY
+                            </span>
+<span class="flex items-center text-label-sm font-label-sm text-on-surface-variant bg-slate-50 px-2 py-1 rounded border border-slate-200">
+<span class="material-symbols-outlined text-[16px] mr-1">schedule</span> Contract
+                            </span>
+</div>
+<div class="flex justify-between items-center border-t border-slate-200 pt-4">
+<span class="font-label-md text-label-md text-on-surface">$80 - $110 / hr</span>
+<button class="font-label-sm text-label-sm text-secondary hover:underline">Apply Now</button>
+</div>
+</div>
+<!-- Job Card 3 -->
+<div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-secondary transition-all cursor-pointer group flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-secondary font-bold text-lg">S</div>
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded">Hot</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1 group-hover:text-secondary transition-colors">Data Scientist</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Soylent</p>
+<div class="flex flex-wrap gap-2 mb-6 mt-auto">
+<span class="flex items-center text-label-sm font-label-sm text-on-surface-variant bg-slate-50 px-2 py-1 rounded border border-slate-200">
+<span class="material-symbols-outlined text-[16px] mr-1">location_on</span> San Francisco, CA
+                            </span>
+<span class="flex items-center text-label-sm font-label-sm text-on-surface-variant bg-slate-50 px-2 py-1 rounded border border-slate-200">
+<span class="material-symbols-outlined text-[16px] mr-1">schedule</span> Full-time
+                            </span>
+</div>
+<div class="flex justify-between items-center border-t border-slate-200 pt-4">
+<span class="font-label-md text-label-md text-on-surface">$140k - $190k</span>
+<button class="font-label-sm text-label-sm text-secondary hover:underline">Apply Now</button>
+</div>
+</div>
+</div>
+<div class="text-center">
+<button class="bg-secondary text-white font-label-md text-label-md rounded px-8 py-3 hover:opacity-90 transition-opacity inline-flex items-center">
+                        View All Jobs <span class="material-symbols-outlined ml-2 text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Knowledge Hub -->
+<section class="py-24 px-margin-page bg-surface">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-4">Recruitment Insights</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">Expert advice, industry trends, and practical tips to help you navigate your career journey.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-md">
+<!-- Blog Card 1 -->
+<article class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="h-48 bg-surface-container flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A modern, abstract digital illustration representing coding and technology interviews. High-key lighting, bright colors with dominant blues and whites. Clean lines, flat design aesthetic typical of corporate tech blogs." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRN5F0BOktU1eo9rKoCpXDsb4hMMrJK7jor2d1j44ZJIhe62DOcWOgzgxlwXU9ylnzpWVuq5QHaCAYfBmy-LqComhhjlYrH4e1X5WD5AFCGAODFFcxefPam7UkDFgFstw5mBRsWWqoUqP_aCaUa6f3YSq7fyuauxCFWe9wnYXtR8oacuNF6shttmRwKrt8ezOlVMNxj141c2CRuJb3Pcs1Sf114YKU_qnk4AweachVU_16Fomu-lk0"/>
+</div>
+<div class="p-6">
+<span class="font-label-sm text-label-sm text-secondary mb-2 block">Interview Prep</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 leading-tight">Mastering the Tech Interview: A Comprehensive Guide</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 line-clamp-2">Learn the essential strategies to ace your next technical interview, from algorithms to system design.</p>
+<span class="font-label-sm text-label-sm text-primary flex items-center group-hover:text-secondary">Read Article <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span></span>
+</div>
+</article>
+<!-- Blog Card 2 -->
+<article class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="h-48 bg-surface-container flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A conceptual illustration of remote work setup. A sleek laptop on a clean desk with a small plant, soft morning light coming from a window. Professional, bright, modern aesthetic with soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIeQzOTu3YJZ0wm8dHOjkWQVqgqlGEsKjocAt4UNEhw2SZykxV1XRH5-bYCjbMIfra0pevgjapH-dPKNJXDce1CMU17xQZixi-rRh9mu5CgJ0tXwM8oMG79Ge7MPisROxeCD4723EcEONw491XrfP5bpjlwAVucR0Wtz2D22F8vJtOwGur2UCWn35Z-KuEX0Q7ZiAP5FB8wWm_NYhaqfnSEXO1_9UOlm0B5HhBnPRkql5GBNh-MYoV"/>
+</div>
+<div class="p-6">
+<span class="font-label-sm text-label-sm text-secondary mb-2 block">Industry Trends</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 leading-tight">The Future of Remote Work in 2024 and Beyond</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 line-clamp-2">Discover how top companies are adapting their work policies and what it means for job seekers.</p>
+<span class="font-label-sm text-label-sm text-primary flex items-center">Read Article <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span></span>
+</div>
+</article>
+<!-- Blog Card 3 -->
+<article class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="h-48 bg-surface-container flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="An abstract graphic representing salary negotiation or financial growth. Upward trending arrows, simple charts on a clean, light background. Professional, corporate, trustworthy aesthetic using blues and soft greens." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwExa9RcfT_ACWfx0rrj_FEBQzjG5wHhFhRXrPxzDyf10ERHi8pVsI4cmzaysnb9hCCxFYUanchA_-wIYL0cOZPjka4RGpZ1jJWjSwpm2SQmRMJWXejxATlKd0L3yQL98GCONiLS9t52CwXsKRYWV8ckrYNGdC4zDNzfHkihI960nUYoSePUcax84YlJuMjB5dvl7VBGyHlJ2yXTLa2HGopT77doMCjp4UD5WTxetCAOer0rR4i-JQ"/>
+</div>
+<div class="p-6">
+<span class="font-label-sm text-label-sm text-secondary mb-2 block">Career Growth</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 leading-tight">Negotiating Your Salary Like a Pro</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 line-clamp-2">Actionable tips and scripts to help you get the compensation package you deserve.</p>
+<span class="font-label-sm text-label-sm text-primary flex items-center">Read Article <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span></span>
+</div>
+</article>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary-container w-full mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-page py-gutter-md max-w-container-max mx-auto">
+<div class="font-headline-sm text-headline-sm font-black text-on-primary mb-4 md:mb-0">Sapienworx</div>
+<div class="flex flex-wrap justify-center gap-6 mb-4 md:mb-0">
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">Contact Us</a>
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">About Sapienworx</a>
+</div>
+<div class="font-label-sm text-label-sm text-on-primary-container">© 2024 Sapienworx Recruitment. All rights reserved.</div>
+</div>
+</footer>
+</body></html>

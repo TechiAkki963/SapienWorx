@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx Recruitment Job Board</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from system -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#131b2e",
+                    "secondary-fixed": "#dbe1ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "outline": "#76777d",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#7c839b",
+                    "green-600": "#10B981",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-error-container": "#93000a",
+                    "surface": "#f8f9ff",
+                    "secondary-container": "#316bf3",
+                    "tertiary-fixed": "#6ffbbe",
+                    "inverse-primary": "#bec6e0",
+                    "slate-200": "#E2E8F0",
+                    "on-background": "#0b1c30",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#e5eeff",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#002113",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "slate-50": "#F8FAFC",
+                    "on-error": "#ffffff",
+                    "amber-500": "#F59E0B",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "surface-tint": "#565e74",
+                    "inverse-surface": "#213145",
+                    "surface-container-low": "#eff4ff",
+                    "on-secondary-fixed": "#00174b",
+                    "background": "#f8f9ff",
+                    "surface-bright": "#f8f9ff",
+                    "primary": "#000000",
+                    "outline-variant": "#c6c6cd",
+                    "on-surface-variant": "#45464d",
+                    "surface-dim": "#cbdbf5",
+                    "tertiary": "#000000",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "secondary": "#0051d5",
+                    "surface-variant": "#d3e4fe",
+                    "blue-600": "#2563EB",
+                    "on-secondary-container": "#fefcff",
+                    "on-surface": "#0b1c30",
+                    "surface-container-high": "#dce9ff",
+                    "on-primary-fixed": "#131b2e",
+                    "indigo-600": "#4F46E5",
+                    "on-tertiary-container": "#009668",
+                    "primary-fixed-dim": "#bec6e0",
+                    "tertiary-container": "#002113",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#dae2fd",
+                    "rose-600": "#E11D48",
+                    "navy-900": "#0F172A",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-max": "1440px",
+                    "gutter-sm": "16px",
+                    "gutter-md": "24px",
+                    "margin-page": "32px",
+                    "gutter-xs": "8px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-lg": [
+                            "Geist"
+                    ],
+                    "headline-lg-mobile": [
+                            "Geist"
+                    ],
+                    "headline-sm": [
+                            "Geist"
+                    ],
+                    "code-sm": [
+                            "JetBrains Mono"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Geist"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Geist"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "code-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-on-surface font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-navy-900 w-full top-0 sticky shadow-sm z-50">
+<div class="flex items-center justify-between px-margin-page max-w-container-max mx-auto h-16 border-b border-slate-200 dark:border-outline-variant">
+<!-- Brand -->
+<div class="flex items-center gap-gutter-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary tracking-tight">Sapienworx</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden md:flex items-center gap-gutter-md">
+<a class="text-secondary dark:text-secondary-fixed-dim font-bold border-b-2 border-secondary pb-1 hover:text-secondary dark:hover:text-secondary-fixed transition-colors font-body-md text-body-md cursor-pointer active:opacity-80" href="#">Find Jobs</a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed transition-colors font-body-md text-body-md cursor-pointer active:opacity-80" href="#">Companies</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-gutter-sm">
+<button class="hidden md:block font-label-md text-label-md text-primary dark:text-secondary-fixed border border-slate-200 dark:border-outline px-4 py-2 rounded-DEFAULT hover:bg-slate-50 transition-colors cursor-pointer">Sign In</button>
+<button class="font-label-md text-label-md bg-secondary text-on-primary px-4 py-2 rounded-DEFAULT hover:bg-opacity-90 transition-colors cursor-pointer shadow-sm">Register</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-page py-gutter-md flex flex-col gap-gutter-md">
+<!-- Hero Section / Search -->
+<section class="bg-surface border border-slate-200 rounded-xl p-margin-page shadow-sm relative overflow-hidden flex flex-col items-center justify-center min-h-[300px]">
+<!-- Subtle decorative gradient background for hero -->
+<div class="absolute inset-0 bg-gradient-to-br from-surface-container-low to-surface opacity-50 z-0 pointer-events-none"></div>
+<div class="relative z-10 w-full max-w-4xl text-center flex flex-col gap-gutter-sm items-center">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Find your next career move.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6 max-w-2xl">Discover opportunities tailored for you in tech, finance, and engineering.</p>
+<div class="w-full flex flex-col md:flex-row gap-gutter-xs bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
+<div class="flex-1 flex items-center bg-surface-container-low rounded-DEFAULT px-3 border border-transparent focus-within:border-secondary transition-colors">
+<span class="material-symbols-outlined text-outline mr-2" data-icon="search">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md py-3 placeholder-on-surface-variant" placeholder="Job Title, Keywords, or Company" type="text"/>
+</div>
+<div class="flex-1 flex items-center bg-surface-container-low rounded-DEFAULT px-3 border border-transparent focus-within:border-secondary transition-colors">
+<span class="material-symbols-outlined text-outline mr-2" data-icon="location_on">location_on</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md py-3 placeholder-on-surface-variant" placeholder="Location" type="text"/>
+</div>
+<button class="bg-secondary text-on-primary font-label-md text-label-md px-6 py-3 rounded-DEFAULT hover:bg-opacity-90 transition-colors shadow-sm whitespace-nowrap">Search Jobs</button>
+</div>
+</div>
+</section>
+<!-- Two Column Layout: Filters & Job List -->
+<div class="flex flex-col md:flex-row gap-gutter-md items-start mt-gutter-md">
+<!-- Left Column: Filters (Sidebar) -->
+<aside class="w-full md:w-1/4 bg-surface border border-slate-200 rounded-lg p-gutter-sm shadow-sm flex flex-col gap-gutter-md shrink-0">
+<div class="flex items-center justify-between border-b border-slate-200 pb-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Filters</h2>
+<button class="text-secondary font-label-sm text-label-sm hover:underline">Clear all</button>
+</div>
+<!-- Filter Group: Department -->
+<div class="flex flex-col gap-base">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-1">Department</h3>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">Engineering</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">Design</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">Product</span>
+</label>
+</div>
+<!-- Filter Group: Work Mode -->
+<div class="flex flex-col gap-base">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-1">Work Mode</h3>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">Remote</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">Hybrid</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">On-site</span>
+</label>
+</div>
+<!-- Filter Group: Employment Type -->
+<div class="flex flex-col gap-base">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-1">Employment Type</h3>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">Full-time</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-secondary transition-colors">Contract</span>
+</label>
+</div>
+<!-- Filter Group: Salary Range -->
+<div class="flex flex-col gap-base">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-1">Salary Range</h3>
+<select class="block w-full rounded-DEFAULT border-slate-300 text-on-surface font-body-sm text-body-sm focus:border-secondary focus:ring-secondary">
+<option>Any</option>
+<option>$50k - $100k</option>
+<option>$100k - $150k</option>
+<option>$150k+</option>
+</select>
+</div>
+</aside>
+<!-- Right Column: Job List -->
+<div class="w-full md:w-3/4 flex flex-col gap-gutter-sm">
+<!-- Sorting/Results info -->
+<div class="flex items-center justify-between bg-surface border border-slate-200 p-2 px-4 rounded-lg shadow-sm">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing <strong class="text-on-surface">1-5</strong> of <strong class="text-on-surface">24</strong> jobs</span>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sort by:</span>
+<select class="border-none bg-transparent font-label-sm text-label-sm text-on-surface focus:ring-0 p-0 pr-6 cursor-pointer">
+<option>Relevance</option>
+<option>Newest</option>
+</select>
+</div>
+</div>
+<!-- Job Card 1 -->
+<div class="bg-surface border border-slate-200 rounded-lg p-gutter-sm shadow-sm hover:shadow-md hover:border-secondary transition-all group flex flex-col sm:flex-row gap-gutter-sm items-start sm:items-center relative">
+<!-- Left stage indicator line -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-green-600 rounded-l-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-12 h-12 rounded-DEFAULT overflow-hidden bg-white border border-slate-100 flex-shrink-0 flex items-center justify-center">
+<img alt="Company Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAktDUlRR8bBEZ6UljfJAO-JBe9fBg9fbeGNHRW0f8-DH70ahgCfNfMW3TQsbV2y_H8Z3S0QhJQQ_8qrIOKA9d4-kNXzSnAAAPTo_8Q6SDp3Ry7pVmYLOOKLlSAb6243MWDeZcqZt2kw3eSxqSPvb__xV4DXspRKKTqywoJ9-CnAj5MCKUFsd0XWhgknzaf8mp1rup9bryVtp_ZAvxes9n-850lW-wdLFXSnsX1Fcu4s2qwF91-VLZTxm7CWLqiHOVKEA"/>
+</div>
+<div class="flex-grow flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors cursor-pointer">Senior Frontend Engineer</h3>
+<!-- Confidence Dot / Tag -->
+<span class="inline-flex items-center bg-surface-container-low text-on-surface-variant font-code-sm text-code-sm px-2 py-0.5 rounded-full border border-slate-200">
+<span class="w-1.5 h-1.5 bg-green-600 rounded-full mr-1.5"></span> New
+                            </span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm flex-wrap">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="business">business</span> Sapienworx</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span> San Francisco, CA (Remote)</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="payments">payments</span> $140k - $180k</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span> Full-time</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2 line-clamp-2">
+                            We are looking for an experienced Frontend Engineer to lead the development of our core recruitment platform. You will work closely with design and product teams to build highly interactive, accessible, and performant web applications using React and Tailwind CSS.
+                        </p>
+</div>
+<div class="flex-shrink-0 flex flex-row sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+<button class="flex-1 sm:flex-none border border-slate-200 text-primary font-label-sm text-label-sm px-4 py-2 rounded-DEFAULT hover:bg-slate-50 transition-colors">View Details</button>
+<button class="flex-1 sm:flex-none bg-secondary text-on-primary font-label-sm text-label-sm px-4 py-2 rounded-DEFAULT hover:bg-opacity-90 transition-colors shadow-sm">Apply Now</button>
+</div>
+</div>
+<!-- Job Card 2 -->
+<div class="bg-surface border border-slate-200 rounded-lg p-gutter-sm shadow-sm hover:shadow-md hover:border-secondary transition-all group flex flex-col sm:flex-row gap-gutter-sm items-start sm:items-center relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-green-600 rounded-l-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-12 h-12 rounded-DEFAULT overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-2xl" data-icon="corporate_fare">corporate_fare</span>
+</div>
+<div class="flex-grow flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-secondary transition-colors cursor-pointer">Product Designer (UI/UX)</h3>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-sm text-body-sm flex-wrap">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="business">business</span> Acme Corp</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span> New York, NY (Hybrid)</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="payments">payments</span> $110k - $140k</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span> Full-time</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2 line-clamp-2">
+                            Join our design team to craft intuitive user experiences for enterprise software. Must have a strong portfolio demonstrating complex problem solving and a solid grasp of design systems.
+                        </p>
+</div>
+<div class="flex-shrink-0 flex flex-row sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+<button class="flex-1 sm:flex-none border border-slate-200 text-primary font-label-sm text-label-sm px-4 py-2 rounded-DEFAULT hover:bg-slate-50 transition-colors">View Details</button>
+<button class="flex-1 sm:flex-none bg-secondary text-on-primary font-label-sm text-label-sm px-4 py-2 rounded-DEFAULT hover:bg-opacity-90 transition-colors shadow-sm">Apply Now</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-primary-container dark:bg-navy-900 w-full mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-page py-gutter-md max-w-container-max mx-auto">
+<!-- Brand / Copyright -->
+<div class="flex flex-col items-center md:items-start gap-1 mb-4 md:mb-0">
+<span class="font-headline-sm text-headline-sm font-black text-on-primary tracking-tight">Sapienworx</span>
+<span class="font-label-sm text-label-sm text-on-primary-container">© 2024 Sapienworx Recruitment. All rights reserved.</span>
+</div>
+<!-- Links -->
+<nav class="flex flex-wrap items-center justify-center gap-gutter-sm md:gap-gutter-md">
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">Contact Us</a>
+<a class="font-label-sm text-label-sm text-on-primary-container hover:text-on-primary transition-colors cursor-pointer" href="#">About Sapienworx</a>
+</nav>
+</div>
+</footer>
+</body></html>

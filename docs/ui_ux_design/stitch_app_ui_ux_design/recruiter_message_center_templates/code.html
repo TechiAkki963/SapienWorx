@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx Message Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#131b2e",
+                      "indigo-600": "#4F46E5",
+                      "tertiary-fixed": "#6ffbbe",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container": "#e5eeff",
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#131b2e",
+                      "rose-600": "#E11D48",
+                      "surface-variant": "#d3e4fe",
+                      "on-primary-container": "#7c839b",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "outline": "#76777d",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "surface-container-highest": "#d3e4fe",
+                      "secondary-fixed": "#dbe1ff",
+                      "primary-fixed": "#dae2fd",
+                      "surface-dim": "#cbdbf5",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed-variant": "#003ea8",
+                      "on-tertiary-container": "#009668",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "background": "#f8f9ff",
+                      "on-surface-variant": "#45464d",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "outline-variant": "#c6c6cd",
+                      "amber-500": "#F59E0B",
+                      "surface-container-low": "#eff4ff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-container": "#002113",
+                      "inverse-surface": "#213145",
+                      "primary": "#000000",
+                      "blue-600": "#2563EB",
+                      "on-background": "#0b1c30",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed": "#002113",
+                      "on-secondary": "#ffffff",
+                      "green-600": "#10B981",
+                      "tertiary": "#000000",
+                      "on-error": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "slate-200": "#E2E8F0",
+                      "secondary-container": "#316bf3",
+                      "secondary": "#0051d5",
+                      "on-secondary-fixed": "#00174b",
+                      "surface-bright": "#f8f9ff",
+                      "navy-900": "#0F172A",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#bec6e0",
+                      "slate-50": "#F8FAFC",
+                      "on-secondary-container": "#fefcff",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "on-surface": "#0b1c30"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter-md": "24px",
+                      "margin-page": "32px",
+                      "gutter-sm": "16px",
+                      "gutter-xs": "8px",
+                      "container-max": "1440px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "code-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar (Portal) -->
+<header class="bg-surface text-primary font-headline-md text-headline-md border-b border-outline-variant fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-gutter-md h-16">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Portal</span>
+<div class="relative ml-8">
+<span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-on-surface-variant text-label-md">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-body-sm font-body-sm focus:ring-2 focus:ring-secondary outline-none w-64 text-on-surface" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-secondary cursor-pointer active:scale-95 transition-transform" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-secondary cursor-pointer active:scale-95 transition-transform" data-icon="help">help</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-secondary cursor-pointer active:scale-95 transition-transform" data-icon="settings">settings</span>
+<img alt="User profile photo" class="w-8 h-8 rounded-full cursor-pointer active:scale-95 transition-transform border border-outline-variant" data-alt="A professional headshot of a person looking at the camera, well-lit, corporate setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5aqBjZJ45SCut5a-r0ne8xEB1jRoNX3Db0Pv-7W_24h6jKlAsK0q8pupgdzMND_GcT0eLSDDEYC6lLTOBHxSTPCqot4mhpND-ExV2Ree0F_IgD23ZXym8A5mB_oYls9nxHLlbiDe-Ecu2oD45xZww5flCdO87u0zNi4PxAfzVcxa50kEhennKYs7Ai6OE9CD1PG0HUXoSe91p3fYt8txe2LWXPcWpJaMdAEku88h-39KlzPmUdVbB"/>
+</div>
+</header>
+<div class="flex flex-1 pt-16">
+<!-- SideNavBar (Recruitment Portal) -->
+<nav class="bg-surface-container-lowest text-secondary font-label-md text-label-md border-r border-outline-variant fixed left-0 top-16 bottom-0 w-64 flex flex-col py-4 z-40 hidden md:flex">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary font-bold">RP</div>
+<div>
+<div class="font-headline-sm text-headline-sm font-black text-on-surface leading-tight">Recruitment Portal</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Enterprise Edition</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-secondary text-on-secondary py-2 rounded-lg font-label-md text-label-md font-bold hover:opacity-90 transition-opacity">Post New Job</button>
+</div>
+<div class="flex flex-col flex-1 px-4 gap-1">
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="group">group</span>
+<span>Candidates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="work">work</span>
+<span>Jobs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="calendar_today">calendar_today</span>
+<span>Interviews</span>
+</a>
+<!-- Assume this represents a communication/messaging context though not explicit in tabs -->
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 bg-secondary-container text-on-secondary-container rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="analytics">analytics</span>
+<span>Analytics</span> <!-- Highlighted as closest to functional context despite name -->
+</a>
+</div>
+<div class="mt-auto px-4 flex flex-col gap-1 border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="payments">payments</span>
+<span>Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-64 bg-slate-50 flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+<!-- Page Header -->
+<div class="px-margin-page py-6 border-b border-slate-200 bg-surface flex justify-between items-center shrink-0">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Message Center</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Manage communications, templates, and active threads.</p>
+</div>
+<div class="flex bg-surface-container-low rounded-lg p-1 border border-slate-200">
+<button class="px-4 py-2 rounded-md font-label-md text-label-md bg-secondary text-white shadow-sm">Messages</button>
+<button class="px-4 py-2 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Email Management</button>
+<button class="px-4 py-2 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Templates</button>
+</div>
+</div>
+<!-- Split View Container -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Pane: Inbox List -->
+<div class="w-1/3 border-r border-slate-200 bg-surface flex flex-col overflow-y-auto">
+<!-- Filters/Search -->
+<div class="p-4 border-b border-slate-200 bg-surface-container-lowest sticky top-0 z-10">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-surface focus:ring-2 focus:ring-secondary focus:border-secondary font-body-sm text-body-sm outline-none" placeholder="Search conversations..." type="text"/>
+</div>
+<div class="flex gap-2 mt-3">
+<span class="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm cursor-pointer">All</span>
+<span class="px-3 py-1 rounded-full border border-slate-200 text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container-low cursor-pointer transition-colors">Unread</span>
+<span class="px-3 py-1 rounded-full border border-slate-200 text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container-low cursor-pointer transition-colors">Candidates</span>
+</div>
+</div>
+<!-- Conversation Items -->
+<div class="flex flex-col">
+<!-- Active Item -->
+<div class="p-4 border-b border-slate-200 border-l-4 border-l-secondary bg-surface-container-low cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-label-md text-label-md text-on-surface font-bold">Sarah Jenkins</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">10:42 AM</span>
+</div>
+<div class="font-label-sm text-label-sm text-secondary font-semibold mb-1">Senior Frontend Developer - Interview</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Thanks for the update. I'll be available for the technical round next Tuesday.</p>
+</div>
+<!-- Inactive Items -->
+<div class="p-4 border-b border-slate-200 border-l-4 border-l-transparent hover:bg-surface-container-lowest cursor-pointer transition-colors">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-label-md text-label-md text-on-surface">Michael Chen</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Yesterday</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-1">Product Manager Role</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">I have attached my updated portfolio as requested.</p>
+</div>
+<div class="p-4 border-b border-slate-200 border-l-4 border-l-transparent hover:bg-surface-container-lowest cursor-pointer transition-colors">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-label-md text-label-md text-on-surface">Emily Rodriguez</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Oct 24</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-1">Offer Letter - UX Designer</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Could we clarify section 3.2 regarding remote work days?</p>
+</div>
+</div>
+</div>
+<!-- Right Pane: Active Thread -->
+<div class="flex-1 flex flex-col bg-slate-50">
+<!-- Thread Header -->
+<div class="p-6 border-b border-slate-200 bg-surface flex justify-between items-center shrink-0">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-headline-sm text-headline-sm font-bold">SJ</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Sarah Jenkins</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Re: Senior Frontend Developer - Interview</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded border border-slate-200 text-on-surface-variant hover:bg-surface-container-low transition-colors" title="View Profile">
+<span class="material-symbols-outlined">person</span>
+</button>
+<button class="p-2 rounded border border-slate-200 text-on-surface-variant hover:bg-surface-container-low transition-colors" title="More Options">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+<!-- Incoming Message -->
+<div class="flex gap-4 max-w-3xl">
+<div class="w-8 h-8 rounded-full bg-primary-fixed shrink-0 mt-1 flex items-center justify-center text-xs font-bold text-on-primary-fixed">SJ</div>
+<div>
+<div class="bg-surface border border-slate-200 rounded-lg p-4 shadow-sm relative">
+<p class="font-body-md text-body-md text-on-surface">Hello team,</p>
+<p class="font-body-md text-body-md text-on-surface mt-2">I received the invitation for the technical interview. Thanks for the update. I'll be available for the technical round next Tuesday at 10 AM EST.</p>
+<p class="font-body-md text-body-md text-on-surface mt-2">Could you confirm if there's any specific preparation required for the live coding segment?</p>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-2 block ml-1">Today, 10:42 AM</span>
+</div>
+</div>
+<!-- System Note (Internal) -->
+<div class="flex justify-center my-2">
+<div class="bg-surface-container-low text-on-surface-variant px-4 py-2 rounded-full font-label-sm text-label-sm border border-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">info</span>
+                                Interview scheduled for Oct 31, 10:00 AM EST by Recruiter Admin
+                            </div>
+</div>
+</div>
+<!-- Compose Area -->
+<div class="p-4 border-t border-slate-200 bg-surface shrink-0">
+<div class="border border-slate-200 rounded-lg bg-surface focus-within:ring-2 focus-within:ring-secondary focus-within:border-secondary transition-all">
+<!-- Format Toolbar -->
+<div class="px-3 py-2 border-b border-slate-200 bg-surface-container-lowest flex gap-2 items-center rounded-t-lg">
+<button class="p-1 hover:bg-surface-container rounded text-on-surface-variant" title="Insert Template">
+<span class="material-symbols-outlined text-sm">article</span>
+</button>
+<div class="w-px h-4 bg-slate-200 mx-1"></div>
+<button class="p-1 hover:bg-surface-container rounded text-on-surface-variant"><span class="material-symbols-outlined text-sm">format_bold</span></button>
+<button class="p-1 hover:bg-surface-container rounded text-on-surface-variant"><span class="material-symbols-outlined text-sm">format_italic</span></button>
+<button class="p-1 hover:bg-surface-container rounded text-on-surface-variant"><span class="material-symbols-outlined text-sm">link</span></button>
+</div>
+<textarea class="w-full p-4 bg-transparent border-none font-body-md text-body-md outline-none resize-none min-h-[100px]" placeholder="Type your reply here..."></textarea>
+<div class="p-3 flex justify-between items-center bg-surface-container-lowest rounded-b-lg">
+<button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<button class="bg-secondary text-white px-6 py-2 rounded-md font-label-md text-label-md hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                                    Send <span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Application Submitted - Sapienworx</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#c6c6cd",
+                    "on-background": "#0b1c30",
+                    "surface-bright": "#f8f9ff",
+                    "blue-600": "#2563EB",
+                    "surface-variant": "#d3e4fe",
+                    "navy-900": "#0F172A",
+                    "on-error": "#ffffff",
+                    "amber-500": "#F59E0B",
+                    "primary-fixed": "#dae2fd",
+                    "secondary-fixed": "#dbe1ff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "outline": "#76777d",
+                    "tertiary-container": "#002113",
+                    "green-600": "#10B981",
+                    "secondary-container": "#316bf3",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "on-surface-variant": "#45464d",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-secondary-fixed": "#00174b",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#0b1c30",
+                    "error": "#ba1a1a",
+                    "rose-600": "#E11D48",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#000000",
+                    "secondary": "#0051d5",
+                    "on-tertiary-fixed": "#002113",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "surface-tint": "#565e74",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "tertiary-fixed": "#6ffbbe",
+                    "surface": "#f8f9ff",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "inverse-primary": "#bec6e0",
+                    "slate-200": "#E2E8F0",
+                    "slate-50": "#F8FAFC",
+                    "inverse-surface": "#213145",
+                    "surface-container": "#e5eeff",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "primary-container": "#131b2e",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#7c839b",
+                    "indigo-600": "#4F46E5",
+                    "on-secondary-container": "#fefcff",
+                    "primary": "#000000",
+                    "on-primary-fixed": "#131b2e",
+                    "background": "#f8f9ff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-tertiary-container": "#009668"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter-md": "24px",
+                    "margin-page": "32px",
+                    "container-max": "1440px",
+                    "gutter-xs": "8px",
+                    "gutter-sm": "16px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Geist"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Geist"
+                    ],
+                    "code-sm": [
+                            "JetBrains Mono"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Geist"
+                    ],
+                    "headline-md": [
+                            "Geist"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Geist"
+                    ]
+            },
+            "fontSize": {
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "code-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Subtle particle animation for celebration background */
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+        }
+        
+        .particle {
+            position: fixed;
+            bottom: -50px;
+            width: 10px;
+            height: 10px;
+            background-color: #0051d5;
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- Note: Top Navigation is suppressed because this is a linear/transactional success screen -->
+<main class="flex-grow flex items-center justify-center p-margin-page relative overflow-hidden z-10">
+<!-- Celebration Particles Container -->
+<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none" id="particles-container"></div>
+<div class="max-w-2xl w-full bg-surface-container-lowest border border-slate-200 rounded-xl shadow-sm z-10 p-12 text-center relative overflow-hidden">
+<!-- Confetti subtle background pattern -->
+<div class="absolute inset-0 bg-[radial-gradient(#e5eeff_1px,transparent_1px)] [background-size:16px_16px] opacity-30 z-0"></div>
+<div class="relative z-10">
+<!-- Success Icon -->
+<div class="mx-auto w-24 h-24 bg-green-600/10 text-green-600 rounded-full flex items-center justify-center mb-8 animate-bounce" style="animation-duration: 2s; animation-iteration-count: 3;">
+<span class="material-symbols-outlined" data-icon="check_circle" data-weight="fill" style="font-size: 64px; font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Hero Text -->
+<h1 class="font-headline-lg text-headline-lg text-navy-900 mb-4">Application Successfully Submitted!</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8">
+                    You've successfully applied for the <strong class="text-navy-900 font-semibold">Senior Full Stack Engineer</strong> position at <strong class="text-navy-900 font-semibold">Acme Corp</strong>.
+                </p>
+<!-- Reference Number -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-4 mb-10 inline-block">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Application Reference ID</span>
+<span class="font-code-sm text-code-sm text-navy-900 font-medium">APP-2024-8F392K</span>
+</div>
+<!-- Next Steps Grid -->
+<div class="text-left mb-10">
+<h3 class="font-headline-sm text-headline-sm text-navy-900 mb-6 border-b border-outline-variant pb-2">What happens next?</h3>
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary mt-1">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-navy-900 mb-1">Recruiter Review</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">The talent acquisition team will review your profile, experience, and parser extraction results.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary mt-1">
+<span class="material-symbols-outlined" data-icon="mark_email_unread">mark_email_unread</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-navy-900 mb-1">Status Updates</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">You'll receive email notifications automatically as your application moves through the pipeline stages.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary mt-1">
+<span class="material-symbols-outlined" data-icon="handshake">handshake</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-navy-900 mb-1">Interview Invitation</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">If there's a strong match, a recruiter will reach out directly via the Sapienworx Message Center to schedule.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+<button class="w-full sm:w-auto px-8 py-3 bg-secondary text-white font-label-md text-label-md rounded-lg hover:bg-secondary/90 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
+                        Go to Dashboard
+                    </button>
+<button class="w-full sm:w-auto px-8 py-3 bg-transparent border border-slate-200 text-primary font-label-md text-label-md rounded-lg hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
+                        Browse More Jobs
+                    </button>
+</div>
+<!-- Support Note -->
+<p class="font-body-sm text-body-sm text-outline">
+                    Have questions? Contact <a class="text-secondary hover:underline" href="#">support@sapienworx.com</a>
+</p>
+</div>
+</div>
+</main>
+<script>
+        // Simple particle effect for celebration
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById('particles-container');
+            const colors = ['#0051d5', '#10B981', '#F59E0B', '#E11D48'];
+            
+            for (let i = 0; i < 40; i++) {
+                createParticle();
+            }
+
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Randomize properties
+                const size = Math.random() * 8 + 4;
+                const left = Math.random() * 100;
+                const animDuration = Math.random() * 3 + 2;
+                const delay = Math.random() * 2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}vw`;
+                particle.style.backgroundColor = color;
+                particle.style.animation = `float-up ${animDuration}s ease-in-out ${delay}s infinite`;
+                
+                container.appendChild(particle);
+            }
+        });
+    </script>
+</body></html>

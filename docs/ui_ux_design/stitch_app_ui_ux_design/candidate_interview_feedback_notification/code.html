@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sapienworx - Candidate Message Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "slate-200": "#E2E8F0",
+                        "on-tertiary-container": "#009668",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "indigo-600": "#4F46E5",
+                        "rose-600": "#E11D48",
+                        "background": "#f8f9ff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-primary": "#ffffff",
+                        "outline": "#76777d",
+                        "on-background": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "inverse-surface": "#213145",
+                        "amber-500": "#F59E0B",
+                        "green-600": "#10B981",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-primary": "#bec6e0",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "slate-50": "#F8FAFC",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "primary-container": "#131b2e",
+                        "secondary-fixed": "#dbe1ff",
+                        "secondary-container": "#316bf3",
+                        "blue-600": "#2563EB",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#dae2fd",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "navy-900": "#0F172A",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary": "#0051d5",
+                        "surface": "#f8f9ff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-tint": "#565e74",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "tertiary": "#000000",
+                        "primary": "#000000",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed": "#00174b",
+                        "tertiary-container": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "gutter-xs": "8px",
+                        "gutter-sm": "16px",
+                        "gutter-md": "24px",
+                        "margin-page": "32px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Geist"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "headline-sm": ["Geist"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background h-full flex flex-col font-body-md text-body-md text-on-surface">
+<!-- TopNavBar -->
+<nav class="sticky top-0 w-full z-50 flex justify-between items-center px-margin-page py-4 bg-surface dark:bg-surface-container-high border-b border-outline-variant dark:border-outline flat no shadows docked full-width top-0">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">Sapienworx</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors cursor-pointer active:opacity-70 transition-all font-body-md text-body-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors cursor-pointer active:opacity-70 transition-all font-body-md text-body-md" href="#">Candidates</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors cursor-pointer active:opacity-70 transition-all font-body-md text-body-md" href="#">Jobs</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors cursor-pointer active:opacity-70 transition-all font-body-md text-body-md" href="#">Interviews</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors cursor-pointer active:opacity-70 transition-all font-body-md text-body-md" href="#">Analytics</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-64 mr-4 hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-high rounded-full border-none focus:ring-1 focus:ring-secondary text-body-sm" placeholder="Search..." type="text"/>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors cursor-pointer active:opacity-70 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors cursor-pointer active:opacity-70 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<img alt="Recruiter Profile Avatar" class="w-8 h-8 rounded-full ml-2 border border-outline-variant" data-alt="A small, circular avatar image showing a professional headshot of a recruiter on a clean, light background. The lighting is soft and flattering, suitable for a corporate enterprise platform UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdgZV1Of-4u2KhKE5ahngf7U0Mo8h6X2lBKIW-HfB0itLhRta2pd1SXRhmNW3Kwl9X8NOPTn4FMG-dEBo1DaB8Q8k2sMwFt4sWUjZ-Z8143AB6gLiLp0d6kXz7ileOuEloKSpMbYVRRvqCkIbUotyyM2WfS6_C6rzq-QR1LHkujmVR0sr7-p8S41jKrF8-KSBYzGC24VULGFMK6QEEWKdqfdVLnqIaURYQVpj1oX-TPxQR0rsBcLwW"/>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col h-screen fixed left-0 top-0 p-gutter-md border-r border-outline-variant dark:border-outline bg-surface-container-low dark:bg-surface-container-lowest docked left-0 h-full w-64 pt-24 z-40 flat no shadows">
+<div class="mb-8 flex flex-col gap-1 items-center">
+<div class="w-16 h-16 rounded-lg bg-surface flex items-center justify-center border border-outline-variant shadow-sm mb-2">
+<img alt="Organization Logo" class="w-10 h-10 object-contain" data-alt="A modern, abstract geometric logo for 'Portal Intelligence' inside a rounded square container. The logo uses clean lines and a professional blue and dark slate color palette, reflecting a sophisticated enterprise recruitment platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNTFw9gNzUnwmvAXIUpmWimf8EBSfoRay3FZSMf3cncZWifGOsfmaPCqOnEvuDJ2IdvBhG0fY4ZCrOYwRJ-BijOrWvhZ6GkRsSDdRysKm1n-A2D57DJNo7qwc3aApZcIYisznIRDxSsn5fcuy1MBrmF1OiDge9mOGplof1kw9kRkPWvnAWruzPWbm4ZsNMNniujUkhrGWBWmLWvaNiyrsDwFKW7ss2CMHEpr8IFeeIFPVRu1Hmtwbr"/>
+</div>
+<h2 class="font-headline-sm text-headline-sm font-black text-secondary dark:text-secondary-fixed-dim text-center leading-tight">Portal Intelligence</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Recruitment Portal</span>
+</div>
+<button class="mb-6 w-full py-3 px-4 bg-secondary text-on-secondary rounded-lg font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                New Interview
+            </button>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">account_tree</span>
+                    Pipeline
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">rate_review</span>
+                    Feedback
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full font-label-md text-label-md active:scale-95 transition-transform duration-150 group shadow-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat</span>
+                    Messages
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">groups</span>
+                    Team
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">settings</span>
+                    Settings
+                </a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors active:scale-95 transition-transform duration-150 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" style="font-variation-settings: 'FILL' 0;">help</span>
+                    Help Center
+                </a>
+</div>
+</aside>
+<!-- Main Workspace Area -->
+<main class="flex-1 flex lg:ml-64 bg-background">
+<!-- Message List (Inbox) -->
+<div class="w-1/3 min-w-[320px] max-w-[400px] border-r border-outline-variant bg-surface flex flex-col h-[calc(100vh-73px)]">
+<div class="p-gutter-md border-b border-outline-variant bg-surface-container-lowest">
+<h1 class="font-headline-md text-headline-md text-on-surface mb-4">Messages</h1>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" style="font-variation-settings: 'FILL' 0;">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant focus:border-secondary focus:ring-1 focus:ring-secondary text-body-sm transition-all" placeholder="Search messages..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-gutter-sm space-y-2">
+<!-- Active Thread -->
+<button class="w-full text-left p-4 rounded-xl bg-surface-container-high border-l-4 border-secondary shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] transition-all flex gap-4">
+<div class="relative mt-1">
+<div class="w-12 h-12 rounded-full bg-surface-container border border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="Sapienworx Logo" class="w-full h-full object-cover" data-alt="A professional corporate logo for 'Sapienworx Recruitment' acting as an avatar. The logo is modern, abstract, and fits within a circular crop on a clean, light background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYhrU32xuxpfW11s4oGEVFy8_EChl9Xovg3Ee9wORjCDl7GnrMJq5qWkys_3QL_c3HxgxwS-SBe78NQtYbwsLRESFJqx_E1D---rZ1ucTls8mrjCSPTx1KDB4wf4A-JTTG5qbbx8Kl6lm691WKlltAnecHVadnli3M-vefBSp1Kg5KLYDRpRw-j1ZuSu0UgtLcQbIv2yy4r-MRMAKtrgKoNnqFz2_fjeWKC0nstD1F2KT882hK6LCK"/>
+</div>
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full border-2 border-surface-container-high"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md font-bold text-on-surface truncate pr-2">Sapienworx Recruitment</span>
+<span class="font-label-sm text-label-sm text-secondary whitespace-nowrap">10:42 AM</span>
+</div>
+<p class="font-body-sm text-body-sm font-semibold text-on-surface truncate">Interview Feedback: Senior Frontend Engineer</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-1">Hi Alex, we've processed the feedback from your technical round...</p>
+</div>
+</button>
+<!-- Inactive Thread -->
+<button class="w-full text-left p-4 rounded-xl hover:bg-surface-container-low border border-transparent transition-all flex gap-4">
+<div class="mt-1">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-on-surface-variant font-label-md">
+                                SD
+                            </div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md text-on-surface truncate pr-2">Sarah Davis (Coordinator)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">Yesterday</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface truncate">Scheduling Confirmation</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate mt-1">Thanks! I've sent over the calendar invite.</p>
+</div>
+</button>
+</div>
+</div>
+<!-- Active Conversation Window -->
+<div class="flex-1 flex flex-col bg-surface-container-lowest h-[calc(100vh-73px)]">
+<!-- Chat Header -->
+<div class="h-20 px-gutter-md border-b border-outline-variant flex justify-between items-center bg-surface flex-shrink-0">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container border border-outline-variant overflow-hidden">
+<img alt="Sapienworx Logo" class="w-full h-full object-cover" data-alt="A professional corporate logo for 'Sapienworx Recruitment' acting as an avatar, small circular format." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSqYJruU4EfQiTfYK2h5VqM9diJxitAQ1nBiTibvsFfhvl9r_pf-UD_lk6s5x6kXMnZMUYdatYLw4HhcnHbiHwWnMKiumlV950fCzRtXLmpNurFYxeBTqmaA8bLW1GJx7AfvL3bhoDNsYd5hnZzNu3sFKdi7DxN6VZ2Lij2QHiJc82zIG6ay-JanT_gECS1kETClFvSjj62DNDC-bWs_FBnCr1zyF9njC160krnwsi_vmwHXe_n3cB"/>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Sapienworx Recruitment Team</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Regarding: Senior Frontend Engineer</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">videocam</span>
+</button>
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Chat Messages Area -->
+<div class="flex-1 overflow-y-auto p-gutter-md space-y-6 flex flex-col">
+<div class="text-center my-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-3 py-1 rounded-full">Today</span>
+</div>
+<!-- Recruiter Message -->
+<div class="flex gap-4 max-w-[80%]">
+<div class="w-8 h-8 rounded-full bg-surface-container border border-outline-variant overflow-hidden flex-shrink-0 mt-1">
+<img alt="Sapienworx Logo" class="w-full h-full object-cover" data-alt="A professional corporate logo for 'Sapienworx Recruitment' acting as an avatar, very small circular format." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVmtwhUdFqd-t4GY0Dt9H7ocgYe62MuL4iFsJltFkJm9mF4s92AV9dZVakbjYhyZxQLN4fAd2uU74d9p-STJa5TEjOGkv4PBIDGYN0-YrPhKVsOrjYN3ZcNaQrycKyHQjtqmdm8SpXbF4AMDtFF-mNn9ZmK6GNJCO4i2Ixybyr4CRCXdUKBtmDBSC9WDXbPODASG2TARMeEf_LuMR9TTnNcL2qYAz3cj_WYTgbkItMhQ6uNTDxeajh"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant ml-1">Sapienworx Team <span class="mx-1">•</span> 10:42 AM</span>
+<div class="bg-surface border border-outline-variant rounded-2xl rounded-tl-sm p-4 text-on-surface shadow-[0_2px_4px_-1px_rgba(0,0,0,0.05)]">
+<p class="mb-4">Hi Alex,</p>
+<p class="mb-4">Thank you for taking the time to complete the technical assessment with our engineering team yesterday. We enjoyed discussing your approach to state management.</p>
+<p class="mb-4">I've received the feedback from the panel, and I'm pleased to share the outcome below. We'd love to proceed to the final round.</p>
+<!-- Feedback Summary Card (Embedded in Chat) -->
+<div class="mt-6 mb-2 border border-outline-variant rounded-xl overflow-hidden bg-surface-container-lowest">
+<div class="bg-secondary-container px-4 py-3 flex items-center justify-between border-b border-outline-variant">
+<div class="flex items-center gap-2 text-on-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md text-label-md font-bold">Feedback Processed</span>
+</div>
+<span class="bg-surface text-secondary font-label-sm text-label-sm px-2 py-1 rounded-md border border-outline-variant">Moving Forward</span>
+</div>
+<div class="p-4 space-y-4">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Decision Summary</span>
+<p class="font-body-md text-body-md text-on-surface">Strong technical fundamentals demonstrated. The team was particularly impressed with your architectural decisions in the React portion of the assessment.</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block mb-2">Next Step: Final Cultural Fit</span>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">calendar_month</span>
+</div>
+<div class="flex-1">
+<p class="font-body-sm text-body-sm text-on-surface">Please select a time for a 45-minute chat with our VP of Engineering.</p>
+</div>
+<button class="px-4 py-2 bg-secondary text-on-secondary rounded-lg font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm whitespace-nowrap">
+                                                    Schedule Now
+                                                </button>
+</div>
+</div>
+</div>
+</div>
+<p>Let me know if you have any questions before scheduling!</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Compose Area -->
+<div class="p-gutter-md border-t border-outline-variant bg-surface-container-lowest">
+<div class="border border-outline-variant rounded-xl bg-surface focus-within:border-secondary focus-within:ring-1 focus-within:ring-secondary transition-all overflow-hidden flex flex-col">
+<textarea class="w-full p-4 bg-transparent border-none focus:ring-0 resize-none text-body-md text-on-surface outline-none" placeholder="Reply to Sapienworx Team..." rows="3"></textarea>
+<div class="px-4 py-3 bg-surface-container-low border-t border-outline-variant flex justify-between items-center">
+<div class="flex gap-2">
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" title="Attach file">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">attach_file</span>
+</button>
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" title="Formatting">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">format_bold</span>
+</button>
+</div>
+<button class="px-6 py-2 bg-secondary text-on-secondary rounded-lg font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm flex items-center gap-2">
+                                Send
+                                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Application Context Sidebar (Right) -->
+<aside class="w-80 border-l border-outline-variant bg-surface flex flex-col h-[calc(100vh-73px)] hidden xl:flex">
+<div class="p-gutter-md border-b border-outline-variant bg-surface-container-lowest">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Application Context</h3>
+</div>
+<div class="flex-1 overflow-y-auto p-gutter-md space-y-8">
+<!-- Role Details -->
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block mb-3">Role</span>
+<div class="flex items-start gap-3">
+<div class="w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0 mt-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">work</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface leading-tight">Senior Frontend Engineer</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Remote • Full-time</p>
+<a class="font-label-sm text-label-sm text-secondary hover:underline mt-2 inline-block" href="#">View Job Description</a>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant"/>
+<!-- Pipeline Status Tracker -->
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block mb-4">Pipeline Status</span>
+<div class="relative pl-4 space-y-6">
+<!-- Vertical Line connecting steps -->
+<div class="absolute left-[23px] top-4 bottom-8 w-px bg-outline-variant z-0"></div>
+<!-- Step 1: Applied (Completed) -->
+<div class="relative z-10 flex gap-4">
+<div class="w-6 h-6 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center flex-shrink-0 border-2 border-surface shadow-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Applied</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Oct 12, 2023</p>
+</div>
+</div>
+<!-- Step 2: Screening (Completed) -->
+<div class="relative z-10 flex gap-4">
+<div class="w-6 h-6 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center flex-shrink-0 border-2 border-surface shadow-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Recruiter Screen</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Oct 15, 2023</p>
+</div>
+</div>
+<!-- Step 3: Technical Assessment (Just Completed - Highlighted) -->
+<div class="relative z-10 flex gap-4 bg-surface-container-low p-2 -ml-2 rounded-lg border border-outline-variant">
+<div class="w-6 h-6 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center flex-shrink-0 border-2 border-surface shadow-sm mt-1 ml-2">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold text-on-surface">Technical Assessment</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Completed (Feedback Sent)</p>
+</div>
+</div>
+<!-- Step 4: Final Round (Next/Active) -->
+<div class="relative z-10 flex gap-4">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center flex-shrink-0 border-2 border-surface shadow-sm ring-2 ring-secondary ring-offset-2 ring-offset-surface">
+<span class="w-2 h-2 rounded-full bg-on-secondary-container"></span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold text-secondary">Final Round (Action Required)</p>
+<p class="font-body-sm text-body-sm text-secondary">Pending Scheduling</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface dark:bg-surface-container-highest shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] docked full-width bottom-0 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm-mobile mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mail</span>
+<span class="font-label-sm text-label-sm-mobile mt-1">Messages</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">assignment</span>
+<span class="font-label-sm text-label-sm-mobile mt-1">Feedback</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-sm text-label-sm-mobile mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

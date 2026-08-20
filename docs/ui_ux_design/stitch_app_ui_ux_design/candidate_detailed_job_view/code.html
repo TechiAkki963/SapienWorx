@@ -1,0 +1,354 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Job Details - Sapienworx</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#bec6e0",
+                        "on-surface": "#0b1c30",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "navy-900": "#0F172A",
+                        "secondary": "#0051d5",
+                        "primary-container": "#131b2e",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed": "#00174b",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#c6c6cd",
+                        "on-surface-variant": "#45464d",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "green-600": "#10B981",
+                        "outline": "#76777d",
+                        "on-secondary-container": "#fefcff",
+                        "on-primary-container": "#7c839b",
+                        "on-tertiary-container": "#009668",
+                        "blue-600": "#2563EB",
+                        "surface-tint": "#565e74",
+                        "inverse-surface": "#213145",
+                        "surface-container": "#e5eeff",
+                        "surface-container-low": "#eff4ff",
+                        "slate-200": "#E2E8F0",
+                        "tertiary-container": "#002113",
+                        "indigo-600": "#4F46E5",
+                        "primary": "#000000",
+                        "on-tertiary-fixed": "#002113",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "amber-500": "#F59E0B",
+                        "tertiary-fixed": "#6ffbbe",
+                        "error-container": "#ffdad6",
+                        "slate-50": "#F8FAFC",
+                        "surface-dim": "#cbdbf5",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "secondary-container": "#316bf3",
+                        "primary-fixed": "#dae2fd",
+                        "secondary-fixed": "#dbe1ff",
+                        "rose-600": "#E11D48",
+                        "background": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter-sm": "16px",
+                        "container-max": "1440px",
+                        "gutter-md": "24px",
+                        "base": "4px",
+                        "margin-page": "32px",
+                        "gutter-xs": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Geist"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Geist"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "code-sm": ["JetBrains Mono"],
+                        "headline-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-sm": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "code-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top Navigation -->
+<nav class="bg-surface dark:bg-navy-900 text-secondary dark:text-secondary-fixed font-body-md text-body-md fixed top-0 w-full z-50 border-b border-outline-variant dark:border-navy-700 shadow-sm flex justify-between items-center px-margin-page h-16">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<img alt="Sapienworx Logo" class="w-8 h-8 rounded object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApHuuJNRtLkGWC6ZaXkcz32aJkzvsu17bTPhPZocgGZQrFkQloqCAYAmgkhPLvjtFU-12WGiyTfXthQVT3Cr84vEpSEVa21ADyvU-cc2GfHvIx7rGNwyZPQp-oekdWXq1HuoMEJGz9v92U0DIo2r5JRN7M8EpfcnHp0O08LlDGJtIe2s1u09fdlSgzmTlG5LGY-i2l9R7sYzUtT1XkVvaurB9Ugc8oLUEVAbIGEKCvtQHUZrO-62ifXUpAPi1okATiYQ">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">Sapienworx</span>
+</div>
+<div class="hidden md:flex gap-6 items-center h-full pt-1">
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed transition-colors cursor-pointer active:opacity-80 py-4" href="#">Dashboard</a>
+<a class="text-secondary dark:text-secondary-fixed font-semibold border-b-2 border-secondary hover:text-secondary dark:hover:text-secondary-fixed transition-colors cursor-pointer active:opacity-80 py-4" href="#">Jobs</a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed transition-colors cursor-pointer active:opacity-80 py-4" href="#">Messages</a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-secondary dark:hover:text-secondary-fixed transition-colors cursor-pointer active:opacity-80 py-4" href="#">Settings</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-low text-body-sm focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary w-64 transition-all placeholder:text-outline" placeholder="Search jobs..." type="text">
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant cursor-pointer active:opacity-80 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant cursor-pointer active:opacity-80 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</nav>
+<!-- Main Layout -->
+<main class="pt-24 pb-12 px-margin-page max-w-container-max mx-auto">
+<!-- Breadcrumbs & Back -->
+<div class="mb-6">
+<a class="inline-flex items-center gap-1 text-label-md text-on-surface-variant hover:text-secondary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform" data-icon="arrow_back">arrow_back</span>
+                Back to search results
+            </a>
+</div>
+<!-- Job Header Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md mb-gutter-md">
+<!-- Main Content Area (Left) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter-md">
+<!-- Hero Header Card -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-gutter-md shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2.5 py-1 rounded bg-surface-container-high text-on-surface-variant text-label-sm border border-outline-variant">Engineering</span>
+<span class="px-2.5 py-1 rounded bg-green-600/10 text-green-600 text-label-sm border border-green-600/20 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-green-600"></span> Actively Hiring
+                                </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Senior Full Stack Engineer</h1>
+<div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-body-md text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="business">business</span>
+<span class="font-medium text-on-surface">Acme Corp</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="location_on">location_on</span>
+<span class="">San Francisco, CA (Hybrid)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[20px]" data-icon="schedule">schedule</span>
+<span class="">Posted 2 days ago</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-3 md:min-w-[200px]"><button class="flex-1 bg-surface-container-lowest border border-slate-200 text-on-surface font-label-md py-2.5 px-4 rounded-lg hover:bg-surface-container transition-colors flex justify-center items-center gap-2 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+    <span class="material-symbols-outlined text-[20px]" data-icon="share">share</span>
+    Share
+</button>
+<button class="flex-1 bg-surface-container-lowest border border-slate-200 text-on-surface font-label-md py-2.5 px-4 rounded-lg hover:bg-surface-container transition-colors flex justify-center items-center gap-2 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+<span class="material-symbols-outlined text-[20px]" data-icon="bookmark_border">bookmark_border</span>
+                                Save
+                            </button>
+<button class="flex-1 bg-secondary text-white font-label-md py-2.5 px-6 rounded-lg hover:bg-secondary-container transition-colors flex justify-center items-center shadow-sm">
+                                Apply Now
+                            </button>
+</div>
+</div>
+</div>
+<!-- Job Details Bento -->
+<div class="grid grid-cols-1 gap-gutter-md">
+<!-- About Role -->
+<section class="bg-surface-container-lowest border border-slate-200 rounded-xl p-gutter-md shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="info">info</span>
+                            About the Role
+                        </h2>
+<div class="text-body-md text-on-surface-variant space-y-4">
+<p class="">We are seeking a highly skilled and motivated Senior Full Stack Engineer to join our core product team. You will be instrumental in architecting and building scalable web applications that serve millions of users globally.</p>
+<p class="">In this role, you will collaborate closely with product managers, designers, and other engineers to deliver high-quality software in a fast-paced, agile environment. You should have a deep understanding of modern web technologies, a passion for clean code, and a drive to continuously improve our technical foundation.</p>
+</div>
+</section>
+<!-- Responsibilities & Requirements Split -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+<section class="bg-surface-container-lowest border border-slate-200 rounded-xl p-gutter-md shadow-[0_2px_4px_rgba(0,0,0,0.02)] h-full">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="task_alt">task_alt</span>
+                                Responsibilities
+                            </h2>
+<ul class="space-y-3 text-body-md text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">Design, develop, and maintain robust, scalable full-stack applications.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">Lead technical discussions and architecture decisions for new features.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">Mentor junior engineers and promote engineering best practices through code reviews.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">Optimize applications for maximum speed, reliability, and scalability.</span>
+</li>
+</ul>
+</section>
+<section class="bg-surface-container-lowest border border-slate-200 rounded-xl p-gutter-md shadow-[0_2px_4px_rgba(0,0,0,0.02)] h-full">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="verified">verified</span>
+                                Requirements
+                            </h2>
+<ul class="space-y-3 text-body-md text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">5+ years of professional software engineering experience.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">Strong proficiency in React, Node.js, and TypeScript.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">Experience designing and consuming RESTful APIs and GraphQL.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-slate-400 mt-0.5" data-icon="check_circle">check_circle</span>
+<span class="">Familiarity with cloud platforms (AWS/GCP) and containerization (Docker).</span>
+</li>
+</ul>
+</section>
+</div>
+<!-- Tech Stack -->
+<section class="bg-surface-container-lowest border border-slate-200 rounded-xl p-gutter-md shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="code">code</span>
+                            Tech Stack &amp; Skills
+                        </h2>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">React</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">TypeScript</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">Node.js</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">PostgreSQL</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">AWS</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">Docker</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">GraphQL</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm border border-outline-variant/50">Redis</span>
+</div>
+</section>
+</div>
+</div>
+<!-- Sidebar (Right) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter-md">
+<!-- Job Overview Card -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-gutter-md shadow-[0_2px_4px_rgba(0,0,0,0.02)] sticky top-24">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4 border-b border-slate-200 pb-3">Job Overview</h3>
+<div class="space-y-4">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-0.5">Salary Range</p>
+<p class="font-label-md text-on-surface">$140,000 - $180,000 <span class="text-body-sm text-on-surface-variant font-normal">/ yr</span></p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-0.5">Experience</p>
+<p class="font-label-md text-on-surface">Senior <span class="text-body-sm text-on-surface-variant font-normal">(5+ years)</span></p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-0.5">Work Mode</p>
+<p class="font-label-md text-on-surface">Hybrid <span class="text-body-sm text-on-surface-variant font-normal">(3 days on-site)</span></p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined" data-icon="corporate_fare">corporate_fare</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-0.5">Department</p>
+<p class="font-label-md text-on-surface">Core Platform Engineering</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Hiring Manager Card -->
+<div class="bg-surface-container-lowest border border-slate-200 rounded-xl p-gutter-md shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-4 border-b border-slate-200 pb-3">Hiring Manager</h3>
+<div class="flex items-center gap-4">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-high" data-alt="A professional headshot of a female engineering manager in her mid-30s. She is smiling warmly, wearing a smart casual dark blazer over a light blouse. The background is a slightly blurred, bright modern office setting with glass walls and subtle indoor plants. The lighting is soft, natural, and flattering, creating an approachable yet authoritative corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYoGziiBoJsjbDQ3SHLlbau5Rxa_Ynfrshj_QNxCg6cu8TW7vWyISotdVga0rmxGPp-FwWCcEvTzgERITbdE4fWDa7aurpj9un6o-EEEWHP5Bhrp8HynfV1EfhQZF81X6IBv_SzjMrEX5dXIXlqXasCLITdDOouTHYHYjvU0ocVB189_OpQLleESgt0KfIMyfoiOf3Gz552m3NVcgz4fo3ZW90T241Uqeo44XkGpytbuUULIatVAF_">
+<div>
+<p class="font-label-md text-on-surface text-[16px]">Sarah Jenkins</p>
+<p class="text-body-sm text-on-surface-variant">Director of Engineering</p>
+</div>
+</div>
+<button class="mt-4 w-full bg-surface-container border border-slate-200 text-on-surface font-label-md py-2 px-4 rounded-lg hover:bg-surface-container-high transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="mail">mail</span>
+                        Contact Manager
+                    </button>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>
