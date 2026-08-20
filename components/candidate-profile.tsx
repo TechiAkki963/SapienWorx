@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Badge, Button, Meter, SectionTitle, WorkspaceShell } from "./ui";
+import { downloadCandidateProfilePdf } from "../lib/profile-pdf";
 
 type WorkLink = { label: string; value: string; icon: string };
 type Skill = { name: string; rating: number };
@@ -32,8 +33,9 @@ export function CandidateProfile() {
   function addSkill() { if (!newSkill.name.trim()) return; setSkills([...skills, { ...newSkill }]); setNewSkill({ name: "", rating: 3 }); setShowSkillForm(false); }
   function changeRating(name: string, rating: number) { setSkills(skills.map((skill) => skill.name === name ? { ...skill, rating } : skill)); }
   function addProfileImage(file?: File) { if (!file) return; setProfileImage(URL.createObjectURL(file)); }
+  function downloadProfile() { downloadCandidateProfilePdf({ name: "Amara Mensah", headline: "Senior Product Designer", location: "London, United Kingdom", email: "amara.mensah@email.com", phone: "+44 7700 900 112", noticePeriod, overallExperience: "6 years", relevantExperience: "5 years", skills, links }); }
 
-  return <WorkspaceShell workspace="candidate" active="profile" title="Your professional profile" description="The details recruiters see only when you choose to apply or share your profile." actions={<Button onClick={() => setSaved(true)}>{saved ? "Changes saved" : "Save changes"}</Button>}>
+  return <WorkspaceShell workspace="candidate" active="profile" title="Your professional profile" description="The details recruiters see only when you choose to apply or share your profile." actions={<div className="profile-heading-actions"><Button onClick={() => setSaved(true)}>{saved ? "Changes saved" : "Save changes"}</Button><button className="profile-download-button" type="button" onClick={downloadProfile} aria-label="Download profile as PDF" title="Download profile as PDF">⇩</button></div>}>
     {saved && <div className="creation-success">Your profile has been updated. Recruiters only see the information available on a role you apply to.</div>}
     <section className="profile-hero panel"><label className="profile-image-upload">{profileImage ? <img src={profileImage} alt="Your profile"/> : <span>AM</span>}<input type="file" accept="image/*" onChange={(event) => addProfileImage(event.target.files?.[0])}/><b>Change</b></label><div><h2>Amara Mensah <Badge tone="green">Profile visible</Badge></h2><p>Senior Product Designer · London, United Kingdom</p><div className="profile-hero-meta"><span>6 years overall experience</span><span>5 years relevant experience</span><span>Open to hybrid roles</span></div></div><div className="profile-completion"><strong>82%</strong><span>Profile complete</span><Meter value={82}/></div></section>
     <div className="profile-layout profile-layout-expanded"><div className="stack">
