@@ -13,7 +13,8 @@ const navigation: Record<Workspace, NavItem[]> = {
     { id: "applications", label: "Applications", href: "/candidate", glyph: "◫" },
     { id: "profile", label: "Profile", href: "/candidate/profile", glyph: "♙" },
     { id: "resume", label: "Resume review", href: "/candidate/review", glyph: "▤" },
-    { id: "messages", label: "Messages", href: "/candidate", glyph: "✉" },
+    { id: "notifications", label: "Notifications", href: "/candidate/notifications", glyph: "◌" },
+    { id: "messages", label: "Messages", href: "/candidate/messages", glyph: "✉" },
   ],
   recruiter: [
     { id: "dashboard", label: "Overview", href: "/recruiter", glyph: "▦" },
@@ -73,7 +74,7 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
         <label className="global-search"><span>⌕</span><input aria-label="Search" placeholder={workspace === "candidate" ? "Search jobs, companies, skills" : "Search"} /></label>
         <div className="topbar-actions">
           <button className="icon-button" aria-label="Help">?</button>
-          <button className="icon-button notification-dot" aria-label="Notifications">♧</button>
+          <a className="icon-button notification-dot" aria-label="Notifications" href={workspace === "candidate" ? "/candidate/notifications" : "#notifications"}>♧</a>
           <span className={`avatar avatar-${workspace}`}>{initials}</span>
         </div>
       </header>
