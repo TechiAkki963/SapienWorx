@@ -18,7 +18,8 @@ const navigation: Record<Workspace, NavItem[]> = {
   ],
   recruiter: [
     { id: "dashboard", label: "Overview", href: "/recruiter", glyph: "▦" },
-    { id: "jobs", label: "Jobs", href: "/recruiter/jobs", glyph: "▤" },
+    { id: "jobs", label: "Post Jobs", href: "/recruiter/jobs", glyph: "▤" },
+    { id: "my-jobs", label: "My Jobs", href: "/recruiter/jobs/manage", glyph: "◫" },
     { id: "candidates", label: "Candidates", href: "/recruiter/pipeline", glyph: "♙" },
     { id: "sourcing", label: "Source candidates", href: "/recruiter/sourcing", glyph: "⌕" },
     { id: "pipeline", label: "Pipeline", href: "/recruiter/pipeline", glyph: "⇄" },

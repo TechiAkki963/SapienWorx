@@ -85,9 +85,10 @@ export function RecruiterAnalyticsControls() {
   return <div className="analytics-control"><Button variant="secondary" onClick={download}>↓ Download analytics</Button>{downloaded && <small className="positive">CSV prepared</small>}</div>;
 }
 
-export function SocialJobCard() {
+export function SocialJobCard({ company, title, skills, experience, location }: { company: string; title: string; skills: string[]; experience: string; location: string }) {
   const [shared, setShared] = useState("");
-  return <section className="social-card-panel"><div><span className="eyebrow">Social distribution</span><h3>Share this role as a branded card</h3><p>The public card pulls the role details candidates need before they open the job link.</p><div className="social-actions"><button onClick={() => setShared("LinkedIn")}>in LinkedIn</button><button onClick={() => setShared("X")}>𝕏 Share</button><button onClick={() => setShared("link")}>⌁ Copy link</button></div>{shared && <small className="positive">{shared === "link" ? "Public link copied for sharing." : `Ready to share on ${shared}.`}</small>}</div><article className="social-preview"><span className="social-brand">N</span><small>Nexora Technologies is hiring</small><h4>Senior Product Designer</h4><p>6+ years · Figma · Design systems</p><footer>London, UK · Hybrid</footer></article></section>;
+  const topSkills = skills.slice(0, 3).join(" · ");
+  return <section className="social-card-panel"><div><span className="eyebrow">Social distribution</span><h3>Share this role as a branded card</h3><p>The card uses the published title, experience, key skills, and location, then sends candidates to the Sapienworx job page.</p><div className="social-actions"><button onClick={() => setShared("LinkedIn")}>in LinkedIn</button><button onClick={() => setShared("X")}>𝕏 Share</button><button onClick={() => setShared("link")}>⌁ Copy link</button></div>{shared && <small className="positive">{shared === "link" ? "Public link copied for sharing." : `Ready to share on ${shared}.`}</small>}</div><article className="social-preview"><span className="social-brand">S</span><small>{company} is hiring</small><h4>{title}</h4><p>{experience} · {topSkills}</p><footer>{location}</footer></article></section>;
 }
 
 export function MiniRecruiterAnalytics() { return <section className="analytics-mini"><div><span>Pipeline health</span><strong>82%</strong><Meter value={82} color="green"/></div><div><span>Candidate response rate</span><strong>46%</strong><Meter value={46} color="blue"/></div></section>; }
