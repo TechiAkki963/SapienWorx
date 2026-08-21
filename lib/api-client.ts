@@ -7,14 +7,30 @@ function csrfToken() {
   return document.cookie.split("; ").find((value) => value.startsWith("XSRF-TOKEN="))?.split("=")[1];
 }
 
+let csrfBootstrap: Promise<void> | undefined;
+
+async function ensureCsrfToken() {
+  if (csrfToken() || typeof document === "undefined") return csrfToken();
+  csrfBootstrap ??= fetch(`${apiBaseUrl}/api/auth/csrf`, { credentials: "include", cache: "no-store" })
+    .then((response) => {
+      if (!response.ok) throw new Error("Unable to prepare the secure request.");
+    })
+    .finally(() => { csrfBootstrap = undefined; });
+  await csrfBootstrap;
+  return csrfToken();
+}
+
 export async function apiClient<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = csrfToken();
+  const method = (init.method ?? "GET").toUpperCase();
+  const isStateChanging = !["GET", "HEAD", "OPTIONS"].includes(method);
+  const requiresCsrf = isStateChanging && !path.startsWith("/api/auth/request-otp") && !path.startsWith("/api/auth/verify-otp");
+  const token = requiresCsrf ? await ensureCsrfToken() : csrfToken();
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: "include",
     headers: {
       ...(init.body ? { "Content-Type": "application/json" } : {}),
-      ...(token && !["GET", "HEAD"].includes(init.method ?? "GET") ? { "X-XSRF-TOKEN": decodeURIComponent(token) } : {}),
+      ...(token && isStateChanging ? { "X-XSRF-TOKEN": decodeURIComponent(token) } : {}),
       ...init.headers,
     },
   });
