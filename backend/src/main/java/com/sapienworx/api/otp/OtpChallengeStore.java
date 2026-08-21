@@ -1,0 +1,45 @@
+package com.sapienworx.api.otp;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
+import java.time.Duration;
+
+/**
+ * Redis-backed OTP store. Keys contain a random registration transaction ID,
+ * not email addresses or mobile numbers, and values contain only bcrypt hashes.
+ */
+@Service
+@RequiredArgsConstructor
+public class OtpChallengeStore {
+
+    static final Duration OTP_TTL = Duration.ofMinutes(10);
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    private final StringRedisTemplate redisTemplate;
+    private final PasswordEncoder passwordEncoder;
+
+    public String issue(String transactionId, OtpPurpose purpose, OtpChannel channel) {
+        String code = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
+        redisTemplate.opsForValue().set(key(transactionId, purpose, channel), passwordEncoder.encode(code), OTP_TTL);
+        return code;
+    }
+
+    /** OTPs are single-use: successful verification deletes the matching Redis key. */
+    public boolean verify(String transactionId, OtpPurpose purpose, OtpChannel channel, String submittedCode) {
+        String key = key(transactionId, purpose, channel);
+        String encodedCode = redisTemplate.opsForValue().get(key);
+        if (encodedCode == null || !passwordEncoder.matches(submittedCode, encodedCode)) {
+            return false;
+        }
+        redisTemplate.delete(key);
+        return true;
+    }
+
+    private String key(String transactionId, OtpPurpose purpose, OtpChannel channel) {
+        return "sapienworx:otp:" + purpose.name().toLowerCase() + ":" + transactionId + ":" + channel.name().toLowerCase();
+    }
+}

@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: sapienworx-api
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  data:
+    redis:
+      url: ${REDIS_URL}
+  rabbitmq:
+    addresses: ${RABBITMQ_ADDRESSES:amqp://localhost:5672}
+
+app:
+  security:
+    # Generate a 32-byte-or-longer random key and Base64 encode it. Do not commit it.
+    jwt:
+      base64-secret: ${JWT_BASE64_SECRET}
+      ttl: PT8H
+    cookie:
+      # Override to false only for local HTTP development.
+      secure: ${AUTH_COOKIE_SECURE:true}
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
