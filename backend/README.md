@@ -77,6 +77,14 @@ The candidate parser uses Apache PDFBox for PDF files and Apache POI for DOCX fi
 
 To activate processing, configure an application bean implementing `CvDocumentStorage` for the chosen private S3-compatible object store. The worker accepts a trusted upload MIME type on `ParserPayload` and otherwise safely falls back to the opaque key's extension. It then writes an immutable `CandidateParseResult` with structured JSON, warnings, parser/schema versions, source file key, and processing duration. It never stores raw CV text and never overwrites the candidate profile: every result begins in `REVIEW_REQUIRED` for the candidate's confirmation flow. A terminal failure event is emitted only after all three parser attempts fail and RabbitMQ routes the request to its DLQ. Set `CV_PARSER_MAXIMUM_DOCUMENT_BYTES` to adjust the 20 MiB default limit.
 
+## Domain taxonomy and deterministic categorisation
+
+Flyway migration `V4__domain_taxonomy.sql` adds the `domain_category` field to candidates and jobs, plus the admin-managed `taxonomy_keywords` dictionary. A keyword belongs to either `TECH` or `NON_TECH` and has a positive scoring weight; candidate and job categories may additionally be `MIXED_AMBIGUOUS` or `UNASSIGNED`.
+
+`DomainScoringService` uses only exact, case-insensitive dictionary matches from extracted CV text. It assigns a domain when the combined score meets the configured minimum (15 by default) and one category reaches the configured dominance threshold (70% by default); otherwise it returns `MIXED_AMBIGUOUS` or `UNASSIGNED`. The parser stores the category and score summary with the review proposal, but never stores raw CV text. Override `DOMAIN_SCORING_MINIMUM_TOTAL_SCORE` and `DOMAIN_SCORING_DOMINANCE_THRESHOLD` only with approved taxonomy policy changes.
+
+Candidates retrieve their own state through `GET /api/candidate/domain` and resolve only `UNASSIGNED` or `MIXED_AMBIGUOUS` profiles through `PATCH /api/candidate/domain` with `{ "domainCategory": "TECH" }` or `{ "domainCategory": "NON_TECH" }`. The endpoint takes no candidate ID, requires the authenticated `CANDIDATE` role, is CSRF-protected, and records the successful resolution in the append-only audit log.
+
 ## Recruiter communications and DPDP audit
 
 Recruiter email is queued through `communication.email.exchange` and the durable `email.bulk.queue`; it is never sent on an API request thread. The worker sends from `COMMUNICATION_EMAIL_FROM` using Spring Mail, retries three times, and puts terminal failures in `email.bulk.dlq`. RabbitMQ must be treated as an in-scope processor: use TLS, restricted credentials, message TTL/retention controls, and never log queue payloads because they include the delivery address and rendered email.

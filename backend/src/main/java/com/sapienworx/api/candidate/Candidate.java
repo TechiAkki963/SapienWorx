@@ -2,6 +2,7 @@ package com.sapienworx.api.candidate;
 
 import com.sapienworx.api.audit.AuditLog;
 import com.sapienworx.api.cvparser.CandidateParseResult;
+import com.sapienworx.api.taxonomy.DomainCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -80,6 +81,11 @@ public class Candidate {
 
     @Column(name = "last_active_at")
     private Instant lastActiveAt;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "domain_category", nullable = false, length = 20)
+    private DomainCategory domainCategory = DomainCategory.UNASSIGNED;
 
     @Builder.Default
     @Column(name = "email_verified", nullable = false)

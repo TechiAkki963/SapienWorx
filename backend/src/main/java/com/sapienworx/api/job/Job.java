@@ -1,6 +1,7 @@
 package com.sapienworx.api.job;
 
 import com.sapienworx.api.organisation.Organisation;
+import com.sapienworx.api.taxonomy.DomainCategory;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -64,6 +65,11 @@ public class Job {
 
     @Column(name = "maximum_salary_lakhs")
     private Integer maximumSalaryLakhs;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "domain_category", nullable = false, length = 20)
+    private DomainCategory domainCategory = DomainCategory.UNASSIGNED;
 
     @Builder.Default
     @Column(name = "salary_visible", nullable = false)
