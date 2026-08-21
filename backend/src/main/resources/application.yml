@@ -35,3 +35,7 @@ app:
   cv-parser:
     maximum-document-bytes: ${CV_PARSER_MAXIMUM_DOCUMENT_BYTES:20971520}
     parser-version: v1.0.0-deterministic
+  communication:
+    email:
+      from: ${COMMUNICATION_EMAIL_FROM:notifications@sapienworx.com}
+      worker-concurrency: ${COMMUNICATION_EMAIL_WORKER_CONCURRENCY:3-10}
