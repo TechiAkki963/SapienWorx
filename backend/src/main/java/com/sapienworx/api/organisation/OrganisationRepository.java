@@ -11,6 +11,8 @@ import java.util.UUID;
 
 public interface OrganisationRepository extends JpaRepository<Organisation, UUID> {
 
+    Optional<Organisation> findByNameIgnoreCase(String name);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select organisation from Organisation organisation where organisation.id = :id")
     Optional<Organisation> findByIdForJobSequenceUpdate(@Param("id") UUID id);

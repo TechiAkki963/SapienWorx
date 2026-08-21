@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Image from "next/image";
+import { WorkspaceLiveEvents } from "./workspace-live-events";
 
 export type Workspace = "candidate" | "recruiter" | "admin";
 
@@ -46,7 +48,7 @@ const workspaceLabels: Record<Workspace, string> = {
 export function Logo({ light = false }: { light?: boolean }) {
   return (
     <a className={`logo ${light ? "logo-light" : ""}`} href="/" aria-label="Sapienworx home">
-      <span className="logo-mark" aria-hidden="true"><i /> <i /> <i /></span>
+      <Image className="logo-mark" src="/brand/sapienworx-mark.jpeg" alt="" width={36} height={36} priority />
       <span>Sapien<span>worx</span></span>
     </a>
   );
@@ -70,6 +72,7 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
   const initials = workspace === "candidate" ? "AM" : workspace === "recruiter" ? "JR" : "SA";
   return (
     <div className="workspace-shell">
+      <WorkspaceLiveEvents />
       <header className="topbar">
         <Logo />
         <label className="global-search"><span>⌕</span><input aria-label="Search" placeholder={workspace === "candidate" ? "Search jobs, companies, skills" : "Search"} /></label>

@@ -34,9 +34,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            @Value("${app.security.cookie.secure:true}") boolean secureCookie
+    ) throws Exception {
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        csrfTokenRepository.setCookieCustomizer(cookie -> cookie.sameSite("Strict").secure(true));
+        csrfTokenRepository.setCookieCustomizer(cookie -> cookie.sameSite("Strict").secure(secureCookie));
 
         http
                 .cors(Customizer.withDefaults())

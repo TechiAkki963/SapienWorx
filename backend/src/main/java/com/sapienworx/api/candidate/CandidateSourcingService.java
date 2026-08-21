@@ -39,6 +39,10 @@ public class CandidateSourcingService {
                 blankToEmpty(criteria.qualification()),
                 criteria.maximumNoticePeriodDays(),
                 (criteria.activeStatus() == null ? ActiveStatusInterval.ALL : criteria.activeStatus()).lowerBound(clock),
+                criteria.domainCategory() == null ? "" : criteria.domainCategory().name(),
+                criteria.requireGithub(),
+                criteria.requireLeetcode(),
+                criteria.requirePortfolio(),
                 PageRequest.of(criteria.page(), PAGE_SIZE)
         );
     }

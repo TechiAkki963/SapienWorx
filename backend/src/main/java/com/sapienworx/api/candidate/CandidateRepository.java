@@ -68,6 +68,10 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
               ))
               and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
               and (:activeSince is null or c.last_active_at >= :activeSince)
+              and (cast(:domainCategory as text) = '' or c.domain_category = cast(:domainCategory as text))
+              and (cast(:requireGithub as boolean) = false or c.work_links::text ilike '%github%')
+              and (cast(:requireLeetcode as boolean) = false or c.work_links::text ilike '%leetcode%')
+              and (cast(:requirePortfolio as boolean) = false or c.work_links::text ~* '(behance|dribbble|portfolio|personal)')
             order by relevanceScore desc, c.updated_at desc
             """,
             countQuery = """
@@ -105,6 +109,10 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                       ))
                       and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
                       and (:activeSince is null or c.last_active_at >= :activeSince)
+                      and (cast(:domainCategory as text) = '' or c.domain_category = cast(:domainCategory as text))
+                      and (cast(:requireGithub as boolean) = false or c.work_links::text ilike '%github%')
+                      and (cast(:requireLeetcode as boolean) = false or c.work_links::text ilike '%leetcode%')
+                      and (cast(:requirePortfolio as boolean) = false or c.work_links::text ~* '(behance|dribbble|portfolio|personal)')
                     """,
             nativeQuery = true)
     Page<CandidateSourcingResult> searchVisibleCandidates(
@@ -121,6 +129,10 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
             @Param("qualification") String qualification,
             @Param("maximumNoticePeriodDays") Integer maximumNoticePeriodDays,
             @Param("activeSince") Instant activeSince,
+            @Param("domainCategory") String domainCategory,
+            @Param("requireGithub") boolean requireGithub,
+            @Param("requireLeetcode") boolean requireLeetcode,
+            @Param("requirePortfolio") boolean requirePortfolio,
             Pageable pageable
     );
 }

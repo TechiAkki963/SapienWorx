@@ -1,2 +1,6 @@
 import { RecruiterDashboard } from "../../components/recruiter";
-export default function RecruiterPage() { return <RecruiterDashboard />; }
+import { getRecruiterDashboardSnapshot } from "../../lib/backend";
+
+export const dynamic = "force-dynamic";
+
+export default async function RecruiterPage() { return <RecruiterDashboard initialData={await getRecruiterDashboardSnapshot()} />; }

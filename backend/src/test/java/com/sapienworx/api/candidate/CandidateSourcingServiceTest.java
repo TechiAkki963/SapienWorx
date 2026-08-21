@@ -11,6 +11,7 @@ import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -27,7 +28,7 @@ class CandidateSourcingServiceTest {
 
         when(candidateRepository.searchVisibleCandidates(
                 anyString(), anyString(), anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(),
-                anyString(), any(), any(), any(Pageable.class)
+                anyString(), any(), any(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
         )).thenReturn(Page.empty());
 
         service.search(new CandidateSourcingCriteria(
@@ -39,7 +40,7 @@ class CandidateSourcingServiceTest {
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(candidateRepository).searchVisibleCandidates(
                 anyString(), anyString(), anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(),
-                anyString(), any(), activeSince.capture(), pageable.capture()
+                anyString(), any(), activeSince.capture(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(), pageable.capture()
         );
 
         assertThat(activeSince.getValue()).isEqualTo(Instant.parse("2026-08-14T10:00:00Z"));

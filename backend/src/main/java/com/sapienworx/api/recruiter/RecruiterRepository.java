@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface RecruiterRepository extends JpaRepository<Recruiter, UUID> {
     Optional<Recruiter> findByOfficialEmail(String officialEmail);
+    java.util.List<Recruiter> findByOrganisation_Id(UUID organisationId);
 }

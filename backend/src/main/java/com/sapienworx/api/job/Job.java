@@ -102,6 +102,12 @@ public class Job {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "published_at")
+    private Instant publishedAt;
+
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
     /**
      * The ID is allocated in a transaction before persistence. A lifecycle hook
      * validates this invariant without attempting unsafe repository access.

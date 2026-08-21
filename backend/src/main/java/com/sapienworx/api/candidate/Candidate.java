@@ -13,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +28,7 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
 
 /**
  * Stores the minimum identity and DPDP-consent record for a candidate.
@@ -56,6 +59,10 @@ public class Candidate {
     @Column(nullable = false, length = 320)
     private String email;
 
+    /** BCrypt hash only. The raw password is never persisted or returned. */
+    @Column(name = "password_hash", length = 100)
+    private String passwordHash;
+
     /** Stored in E.164 form, for example +919873721034. */
     @Column(nullable = false, length = 20)
     private String mobile;
@@ -74,6 +81,15 @@ public class Candidate {
 
     @Column(name = "notice_period_days")
     private Integer noticePeriodDays;
+
+    @Column(name = "profile_summary", columnDefinition = "text")
+    private String profileSummary;
+
+    /** Explicit portfolio/coding links supplied by the candidate. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "work_links", nullable = false, columnDefinition = "jsonb")
+    @Builder.Default
+    private List<String> workLinks = List.of();
 
     @Builder.Default
     @Column(name = "profile_searchable", nullable = false)

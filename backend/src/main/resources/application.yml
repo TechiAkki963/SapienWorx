@@ -14,8 +14,12 @@ spring:
   data:
     redis:
       url: ${REDIS_URL}
+      repositories:
+        enabled: false
   rabbitmq:
-    addresses: ${RABBITMQ_ADDRESSES:amqp://localhost:5672}
+    addresses: ${RABBITMQ_ADDRESSES:localhost:5672}
+    username: ${RABBITMQ_USERNAME:sapienworx}
+    password: ${RABBITMQ_PASSWORD}
 
 app:
   security:
@@ -35,6 +39,9 @@ app:
   cv-parser:
     maximum-document-bytes: ${CV_PARSER_MAXIMUM_DOCUMENT_BYTES:20971520}
     parser-version: v1.0.0-deterministic
+  cv-storage:
+    type: ${CV_STORAGE_TYPE:filesystem}
+    root: ${CV_STORAGE_ROOT:./private-cv}
   communication:
     email:
       from: ${COMMUNICATION_EMAIL_FROM:notifications@sapienworx.com}

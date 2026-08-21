@@ -1,9 +1,7 @@
 import { PublicJobDetail } from "../../../../components/recruiter";
-import { knownJobRoutes } from "../../../../lib/jobs/routes";
+import { getPublicJob } from "../../../../lib/backend";
 
-export function generateStaticParams() {
-  return knownJobRoutes;
-}
+export const dynamic = "force-dynamic";
 
 export default async function PublicJobDetailPage({
   params,
@@ -14,5 +12,5 @@ export default async function PublicJobDetailPage({
 }) {
   const { jobId, slug } = await params;
   const { from } = await searchParams;
-  return <PublicJobDetail jobId={jobId} slug={slug} fromSearch={from === "search" || (Array.isArray(from) && from.includes("search"))} />;
+  return <PublicJobDetail jobId={jobId} slug={slug} initialJob={await getPublicJob(jobId)} fromSearch={from === "search" || (Array.isArray(from) && from.includes("search"))} />;
 }

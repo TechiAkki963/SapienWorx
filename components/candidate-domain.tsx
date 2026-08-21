@@ -14,6 +14,17 @@ type GateState =
   | { status: "ready"; domainCategory: CandidateDomainCategory; message?: string };
 
 const CandidateDomainContext = createContext<CandidateDomainContextValue>({ domainCategory: null });
+const LOCAL_DOMAIN_STORAGE_KEY = "sapienworx.local-candidate-domain";
+
+function isLocalDemo() {
+  if (typeof window === "undefined" || process.env.NEXT_PUBLIC_DISABLE_LOCAL_DEMO === "true") return false;
+  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+}
+
+function localDomainCategory(): ResolvedDomain | null {
+  const stored = window.localStorage.getItem(LOCAL_DOMAIN_STORAGE_KEY);
+  return stored === "TECH" || stored === "NON_TECH" ? stored : null;
+}
 
 export function useCandidateDomain() {
   return useContext(CandidateDomainContext);
@@ -29,6 +40,10 @@ export function CandidateDomainGate({ children }: { children: ReactNode }) {
 
   const loadDomain = useCallback(async (signal?: AbortSignal) => {
     setState({ status: "loading" });
+    if (isLocalDemo()) {
+      setState({ status: "ready", domainCategory: localDomainCategory() ?? "UNASSIGNED" });
+      return;
+    }
     try {
       const response = await getCandidateDomain(signal);
       if (!["TECH", "NON_TECH", "MIXED_AMBIGUOUS", "UNASSIGNED"].includes(response.domainCategory)) {
@@ -53,6 +68,13 @@ export function CandidateDomainGate({ children }: { children: ReactNode }) {
   const confirmDomain = useCallback((selection: ResolvedDomain) => {
     if (state.status !== "ready") return;
     const previousDomain = state.domainCategory;
+
+    if (isLocalDemo()) {
+      window.localStorage.setItem(LOCAL_DOMAIN_STORAGE_KEY, selection);
+      setState({ status: "ready", domainCategory: selection });
+      if (previousDomain === "UNASSIGNED") router.replace("/candidate/profile");
+      return;
+    }
 
     // Optimistically unlock the requested route. If the request fails, the
     // original mandatory state is restored immediately and remains blocking.
