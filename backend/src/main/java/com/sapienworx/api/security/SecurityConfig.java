@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .logout(logout -> logout.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health", "/api/auth/**", "/api/public/jobs/**").permitAll()
+                        .requestMatchers("/api/events/**").authenticated()
                         .requestMatchers("/api/recruiter/**").hasAnyRole("RECRUITER", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/candidate/**").hasRole("CANDIDATE")
                         .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")

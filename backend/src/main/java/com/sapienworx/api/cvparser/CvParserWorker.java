@@ -49,11 +49,10 @@ public class CvParserWorker {
             if (parsingService == null) {
                 throw new IllegalStateException("No deterministic CV parsing service is configured.");
             }
-            parsingService.parseAndPersist(payload);
-            eventPublisherProvider.ifAvailable(eventPublisher -> eventPublisher.publishCompleted(payload));
+            CvParsingOutcome outcome = parsingService.parseAndPersist(payload);
+            eventPublisherProvider.ifAvailable(eventPublisher -> eventPublisher.publishCompleted(payload, outcome));
         } catch (RuntimeException exception) {
             log.warn("CV parse request {} failed; listener retry/DLQ policy will handle it", payload.requestId(), exception);
-            eventPublisherProvider.ifAvailable(eventPublisher -> eventPublisher.publishFailed(payload, "CV_PARSING_FAILED"));
             throw exception;
         }
     }

@@ -1,12 +1,16 @@
 package com.sapienworx.api.candidate;
 
+import com.sapienworx.api.audit.AuditLog;
+import com.sapienworx.api.cvparser.CandidateParseResult;
 import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -18,6 +22,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -53,6 +59,28 @@ public class Candidate {
     @Column(nullable = false, length = 20)
     private String mobile;
 
+    @Column(length = 180)
+    private String headline;
+
+    @Column(length = 160)
+    private String location;
+
+    @Column(name = "overall_experience_years")
+    private Integer overallExperienceYears;
+
+    @Column(name = "expected_salary_lakhs")
+    private Integer expectedSalaryLakhs;
+
+    @Column(name = "notice_period_days")
+    private Integer noticePeriodDays;
+
+    @Builder.Default
+    @Column(name = "profile_searchable", nullable = false)
+    private boolean profileSearchable = false;
+
+    @Column(name = "last_active_at")
+    private Instant lastActiveAt;
+
     @Builder.Default
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = false;
@@ -85,6 +113,24 @@ public class Candidate {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CandidateSkill> skills = new LinkedHashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CandidateEducation> education = new LinkedHashSet<>();
+
+    /** Read-only relationship: audit rows cannot be changed or deleted through a candidate. */
+    @Builder.Default
+    @OneToMany(mappedBy = "candidate")
+    private Set<AuditLog> auditLogs = new LinkedHashSet<>();
+
+    /** Parser results are immutable proposals and require explicit candidate confirmation. */
+    @Builder.Default
+    @OneToMany(mappedBy = "candidate")
+    private Set<CandidateParseResult> parseResults = new LinkedHashSet<>();
 
     public boolean hasCompletedDualVerification() {
         return emailVerified && mobileVerified;

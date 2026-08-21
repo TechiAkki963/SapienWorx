@@ -5,5 +5,5 @@ package com.sapienworx.api.cvparser;
  * plus deterministic PDFBox/Apache POI text extraction and JPA profile updates.
  */
 public interface DeterministicCvParsingService {
-    void parseAndPersist(ParserPayload payload);
+    CvParsingOutcome parseAndPersist(ParserPayload payload);
 }

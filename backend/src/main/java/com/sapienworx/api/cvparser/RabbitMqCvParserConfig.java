@@ -9,7 +9,6 @@ import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.retry.RejectAndDontRequeueRecoverer;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -82,13 +81,14 @@ public class RabbitMqCvParserConfig {
     @Bean
     SimpleRabbitListenerContainerFactory cvParserRabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,
-            Jackson2JsonMessageConverter rabbitMessageConverter
+            Jackson2JsonMessageConverter rabbitMessageConverter,
+            CvParserTerminalFailureRecoverer cvParserTerminalFailureRecoverer
     ) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(rabbitMessageConverter);
         factory.setDefaultRequeueRejected(false);
-        factory.setAdviceChain(retryAdvice());
+        factory.setAdviceChain(retryAdvice(cvParserTerminalFailureRecoverer));
         return factory;
     }
 
@@ -100,6 +100,14 @@ public class RabbitMqCvParserConfig {
         return rabbitTemplate;
     }
 
+    @Bean
+    CvParserTerminalFailureRecoverer cvParserTerminalFailureRecoverer(
+            ObjectMapper objectMapper,
+            org.springframework.beans.factory.ObjectProvider<CvParsingEventPublisher> eventPublisherProvider
+    ) {
+        return new CvParserTerminalFailureRecoverer(objectMapper, eventPublisherProvider);
+    }
+
     private Queue primaryQueue(String name) {
         return QueueBuilder.durable(name)
                 .withArgument("x-dead-letter-exchange", EXCHANGE_NAME)
@@ -107,10 +115,10 @@ public class RabbitMqCvParserConfig {
                 .build();
     }
 
-    private Advice retryAdvice() {
+    private Advice retryAdvice(CvParserTerminalFailureRecoverer cvParserTerminalFailureRecoverer) {
         return RetryInterceptorBuilder.stateless()
                 .maxAttempts(3)
-                .recoverer(new RejectAndDontRequeueRecoverer())
+                .recoverer(cvParserTerminalFailureRecoverer)
                 .build();
     }
 }

@@ -1,10 +1,15 @@
 package com.sapienworx.api.organisation;
 
+import com.sapienworx.api.audit.AuditLog;
+import com.sapienworx.api.job.Job;
+import com.sapienworx.api.recruiter.Recruiter;
 import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +17,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -40,6 +49,19 @@ public class Organisation {
     @Builder.Default
     @Column(name = "job_sequence", nullable = false)
     private long jobSequence = 0L;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Job> jobs = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Recruiter> recruiters = new ArrayList<>();
+
+    /** Audit evidence is append-only and must never cascade from the tenant. */
+    @Builder.Default
+    @OneToMany(mappedBy = "organisation")
+    private Set<AuditLog> auditLogs = new LinkedHashSet<>();
 
     public long claimNextJobSequence() {
         jobSequence += 1;

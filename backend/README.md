@@ -32,7 +32,7 @@ CORS_ALLOWED_ORIGINS=https://app.sapienworx.com
 AUTH_COOKIE_SECURE=true
 ```
 
-The workspace has Java 17 available, but Maven is not currently installed. Once Maven is available, validate with:
+The workspace has Java 17 and Maven configured. Validate the API with:
 
 ```text
 cd backend
@@ -54,3 +54,25 @@ Both processing queues dead-letter to `cv.parser.exchange` with the `parse.dlq` 
 Add `RABBITMQ_ADDRESSES=amqps://user:password@host:5671/vhost` to the deployed environment. Use AMQPS and least-privilege RabbitMQ credentials outside local development.
 
 To verify the live broker topology without publishing any CV data, set `RUN_RABBITMQ_INTEGRATION_TEST=true` and run `mvn test`. The opt-in test uses `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USERNAME`, and `RABBITMQ_PASSWORD` when set; its local defaults are `localhost:5672` with the standard local `guest` account.
+
+## Live event stream
+
+`GET /api/events/stream` is an authenticated Server-Sent Events endpoint. It accepts the existing `SWX_AUTH` HttpOnly JWT cookie and supports multiple browser connections per user, so a recruiter can safely have several tabs open. A connection receives `CONNECTED` followed by a `HEARTBEAT` every 25 seconds; the browser's native EventSource reconnect behaviour is requested after five seconds.
+
+The RabbitMQ CV parser worker now emits `CV_PARSING_COMPLETE` to the relevant candidate with `status`, `candidateId`, `parserVersion`, `warnings`, and `timestamp`. A future pipeline workflow can call `SseNotificationService.publishPipelineUpdate(recruiterUserId, event)` to send the documented `PIPELINE_UPDATE` payload to the responsible recruiter. Internal failure details are not sent to the browser.
+
+The companion frontend hook is [`hooks/use-server-events.ts`](../hooks/use-server-events.ts). It accepts callbacks for parser completion and pipeline changes, preserves EventSource reconnection, and sends credentials. For a separate API origin during development, set `NEXT_PUBLIC_API_BASE_URL=http://localhost:8080`; leave it unset when the frontend proxies `/api` to the same origin.
+
+## Recruiter sourcing database layer
+
+Flyway migration `V2__recruiter_audit_and_candidate_sourcing.sql` adds tenant-scoped `Recruiter` membership, append-only `AuditLog` evidence, candidate skills/education, and a maintained PostgreSQL `tsvector` index. The database trigger refreshes that index whenever a candidate's searchable profile fields, skills, or education change; its GIN index is queried through the native Spring Data query in `CandidateRepository`.
+
+`CandidateSourcingService` deliberately returns ten records per page and accepts Boolean web queries such as `React AND "Node.js"`, additional mandatory terms, excluded terms, experience, salary, location, Bachelors/Masters institution, qualification, notice-period, and the exact active-status windows required by the recruiter workspace. Its result projection excludes email and mobile so the separate audited contact-reveal flow remains the only source of those details.
+
+`AuditLog` is immutable in JPA and protected by a PostgreSQL trigger that rejects any update or delete. When a candidate is erased, PostgreSQL preserves the audit event but clears the candidate foreign key rather than retaining a relational link to personal data.
+
+## Deterministic CV parsing
+
+The candidate parser uses Apache PDFBox for PDF files and Apache POI for DOCX files, with UTF-8 TXT support. `DocumentExtractionService` enforces a configurable size limit before extraction, and `DeterministicProfileMappingService` only maps explicit emails, mobiles, labelled location/headline fields, a fixed skills taxonomy, date-bearing experience lines, and recognised education records. Missing evidence results in a review warning rather than a guessed value.
+
+To activate processing, configure an application bean implementing `CvDocumentStorage` for the chosen private S3-compatible object store. The worker accepts a trusted upload MIME type on `ParserPayload` and otherwise safely falls back to the opaque key's extension. It then writes an immutable `CandidateParseResult` with structured JSON, warnings, parser/schema versions, source file key, and processing duration. It never stores raw CV text and never overwrites the candidate profile: every result begins in `REVIEW_REQUIRED` for the candidate's confirmation flow. A terminal failure event is emitted only after all three parser attempts fail and RabbitMQ routes the request to its DLQ. Set `CV_PARSER_MAXIMUM_DOCUMENT_BYTES` to adjust the 20 MiB default limit.

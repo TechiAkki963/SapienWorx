@@ -1,7 +1,12 @@
 package com.sapienworx.api.candidate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,4 +14,113 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
     Optional<Candidate> findByEmail(String email);
     Optional<Candidate> findByMobile(String mobile);
     boolean existsByEmailOrMobile(String email, String mobile);
+
+    /**
+     * PostgreSQL-only full-text retrieval backed by the indexed tsvector in
+     * candidate_sourcing_index. All text is bound as a parameter, never
+     * concatenated into SQL, before PostgreSQL compiles the tsquery.
+     */
+    @Query(value = """
+            select c.id as candidateId,
+                   c.full_name as fullName,
+                   c.headline as headline,
+                   c.location as location,
+                   c.overall_experience_years as overallExperienceYears,
+                   c.expected_salary_lakhs as expectedSalaryLakhs,
+                   c.notice_period_days as noticePeriodDays,
+                   coalesce((select string_agg(candidate_skill.skill, ', ' order by candidate_skill.skill)
+                             from candidate_skills candidate_skill
+                             where candidate_skill.candidate_id = c.id), '') as skills,
+                   c.last_active_at as lastActiveAt,
+                   c.updated_at as profileLastUpdatedAt,
+                   ts_rank_cd(sourcing_index.search_vector,
+                       websearch_to_tsquery('simple', cast(:searchQuery as text))) as relevanceScore
+            from candidates c
+            join candidate_sourcing_index sourcing_index on sourcing_index.candidate_id = c.id
+            where c.profile_searchable = true
+              and (cast(:searchQuery as text) = ''
+                   or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:searchQuery as text)))
+              and (cast(:mandatoryKeywords as text) = ''
+                   or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:mandatoryKeywords as text)))
+              and (cast(:excludedKeywords as text) = ''
+                   or not sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:excludedKeywords as text)))
+              and (:minimumExperienceYears is null or c.overall_experience_years >= :minimumExperienceYears)
+              and (:maximumExperienceYears is null or c.overall_experience_years <= :maximumExperienceYears)
+              and (:minimumSalaryLakhs is null or c.expected_salary_lakhs >= :minimumSalaryLakhs)
+              and (:maximumSalaryLakhs is null or c.expected_salary_lakhs <= :maximumSalaryLakhs)
+              and (cast(:location as text) = '' or c.location ilike concat('%', cast(:location as text), '%'))
+              and (cast(:bachelorsInstitution as text) = '' or exists (
+                    select 1 from candidate_educations education
+                    where education.candidate_id = c.id
+                      and education.level = 'BACHELORS'
+                      and education.institution_name ilike concat('%', cast(:bachelorsInstitution as text), '%')
+              ))
+              and (cast(:mastersInstitution as text) = '' or exists (
+                    select 1 from candidate_educations education
+                    where education.candidate_id = c.id
+                      and education.level = 'MASTERS'
+                      and education.institution_name ilike concat('%', cast(:mastersInstitution as text), '%')
+              ))
+              and (cast(:qualification as text) = '' or exists (
+                    select 1 from candidate_educations education
+                    where education.candidate_id = c.id
+                      and education.degree_name ilike concat('%', cast(:qualification as text), '%')
+              ))
+              and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
+              and (:activeSince is null or c.last_active_at >= :activeSince)
+            order by relevanceScore desc, c.updated_at desc
+            """,
+            countQuery = """
+                    select count(*)
+                    from candidates c
+                    join candidate_sourcing_index sourcing_index on sourcing_index.candidate_id = c.id
+                    where c.profile_searchable = true
+                      and (cast(:searchQuery as text) = ''
+                           or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:searchQuery as text)))
+                      and (cast(:mandatoryKeywords as text) = ''
+                           or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:mandatoryKeywords as text)))
+                      and (cast(:excludedKeywords as text) = ''
+                           or not sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:excludedKeywords as text)))
+                      and (:minimumExperienceYears is null or c.overall_experience_years >= :minimumExperienceYears)
+                      and (:maximumExperienceYears is null or c.overall_experience_years <= :maximumExperienceYears)
+                      and (:minimumSalaryLakhs is null or c.expected_salary_lakhs >= :minimumSalaryLakhs)
+                      and (:maximumSalaryLakhs is null or c.expected_salary_lakhs <= :maximumSalaryLakhs)
+                      and (cast(:location as text) = '' or c.location ilike concat('%', cast(:location as text), '%'))
+                      and (cast(:bachelorsInstitution as text) = '' or exists (
+                            select 1 from candidate_educations education
+                            where education.candidate_id = c.id
+                              and education.level = 'BACHELORS'
+                              and education.institution_name ilike concat('%', cast(:bachelorsInstitution as text), '%')
+                      ))
+                      and (cast(:mastersInstitution as text) = '' or exists (
+                            select 1 from candidate_educations education
+                            where education.candidate_id = c.id
+                              and education.level = 'MASTERS'
+                              and education.institution_name ilike concat('%', cast(:mastersInstitution as text), '%')
+                      ))
+                      and (cast(:qualification as text) = '' or exists (
+                            select 1 from candidate_educations education
+                            where education.candidate_id = c.id
+                              and education.degree_name ilike concat('%', cast(:qualification as text), '%')
+                      ))
+                      and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
+                      and (:activeSince is null or c.last_active_at >= :activeSince)
+                    """,
+            nativeQuery = true)
+    Page<CandidateSourcingResult> searchVisibleCandidates(
+            @Param("searchQuery") String searchQuery,
+            @Param("mandatoryKeywords") String mandatoryKeywords,
+            @Param("excludedKeywords") String excludedKeywords,
+            @Param("minimumExperienceYears") Integer minimumExperienceYears,
+            @Param("maximumExperienceYears") Integer maximumExperienceYears,
+            @Param("minimumSalaryLakhs") Integer minimumSalaryLakhs,
+            @Param("maximumSalaryLakhs") Integer maximumSalaryLakhs,
+            @Param("location") String location,
+            @Param("bachelorsInstitution") String bachelorsInstitution,
+            @Param("mastersInstitution") String mastersInstitution,
+            @Param("qualification") String qualification,
+            @Param("maximumNoticePeriodDays") Integer maximumNoticePeriodDays,
+            @Param("activeSince") Instant activeSince,
+            Pageable pageable
+    );
 }

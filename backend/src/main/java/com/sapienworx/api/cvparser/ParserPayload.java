@@ -13,13 +13,22 @@ public record ParserPayload(
         UUID candidateId,
         String jobId,
         String fileKey,
+        String documentContentType,
         Instant requestedAt
 ) {
     public static ParserPayload candidate(UUID candidateId, String fileKey) {
-        return new ParserPayload(UUID.randomUUID(), CvParserMessageType.CANDIDATE_ONBOARDING, candidateId, null, fileKey, Instant.now());
+        return candidate(candidateId, fileKey, null);
+    }
+
+    public static ParserPayload candidate(UUID candidateId, String fileKey, String documentContentType) {
+        return new ParserPayload(UUID.randomUUID(), CvParserMessageType.CANDIDATE_ONBOARDING, candidateId, null, fileKey, documentContentType, Instant.now());
     }
 
     public static ParserPayload bulk(UUID candidateId, String jobId, String fileKey) {
-        return new ParserPayload(UUID.randomUUID(), CvParserMessageType.RECRUITER_BULK_UPLOAD, candidateId, jobId, fileKey, Instant.now());
+        return bulk(candidateId, jobId, fileKey, null);
+    }
+
+    public static ParserPayload bulk(UUID candidateId, String jobId, String fileKey, String documentContentType) {
+        return new ParserPayload(UUID.randomUUID(), CvParserMessageType.RECRUITER_BULK_UPLOAD, candidateId, jobId, fileKey, documentContentType, Instant.now());
     }
 }
