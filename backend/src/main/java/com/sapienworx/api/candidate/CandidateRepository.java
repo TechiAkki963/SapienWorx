@@ -24,6 +24,12 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
             select c.id as candidateId,
                    c.full_name as fullName,
                    c.headline as headline,
+                   c.current_company as currentCompany,
+                   coalesce((select education.degree_name || ' · ' || education.institution_name
+                             from candidate_educations education
+                             where education.candidate_id = c.id
+                             order by education.graduation_year desc nulls last
+                             limit 1), 'Not provided') as highestEducation,
                    c.location as location,
                    c.overall_experience_years as overallExperienceYears,
                    c.expected_salary_lakhs as expectedSalaryLakhs,
@@ -33,22 +39,24 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                              where candidate_skill.candidate_id = c.id), '') as skills,
                    c.last_active_at as lastActiveAt,
                    c.updated_at as profileLastUpdatedAt,
+                   (select count(*) from candidate_profile_engagements engagement
+                    where engagement.candidate_id = c.id) as profileViewCount,
+                   (select count(*) from candidate_profile_engagements engagement
+                    where engagement.candidate_id = c.id and engagement.first_downloaded_at is not null) as profileDownloadCount,
                    ts_rank_cd(sourcing_index.search_vector,
-                       websearch_to_tsquery('simple', cast(:searchQuery as text))) as relevanceScore
+                       to_tsquery('english', cast(:tsQuery as text))) as relevanceScore
             from candidates c
             join candidate_sourcing_index sourcing_index on sourcing_index.candidate_id = c.id
             where c.profile_searchable = true
-              and (cast(:searchQuery as text) = ''
-                   or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:searchQuery as text)))
-              and (cast(:mandatoryKeywords as text) = ''
-                   or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:mandatoryKeywords as text)))
-              and (cast(:excludedKeywords as text) = ''
-                   or not sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:excludedKeywords as text)))
+              and (cast(:tsQuery as text) = ''
+                   or sourcing_index.search_vector @@ to_tsquery('english', cast(:tsQuery as text)))
               and (:minimumExperienceYears is null or c.overall_experience_years >= :minimumExperienceYears)
               and (:maximumExperienceYears is null or c.overall_experience_years <= :maximumExperienceYears)
               and (:minimumSalaryLakhs is null or c.expected_salary_lakhs >= :minimumSalaryLakhs)
               and (:maximumSalaryLakhs is null or c.expected_salary_lakhs <= :maximumSalaryLakhs)
               and (cast(:location as text) = '' or c.location ilike concat('%', cast(:location as text), '%'))
+              and (cast(:company as text) = '' or c.current_company ilike concat('%', cast(:company as text), '%'))
+              and (cast(:designation as text) = '' or c.headline ilike concat('%', cast(:designation as text), '%'))
               and (cast(:bachelorsInstitution as text) = '' or exists (
                     select 1 from candidate_educations education
                     where education.candidate_id = c.id
@@ -66,6 +74,12 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                     where education.candidate_id = c.id
                       and education.degree_name ilike concat('%', cast(:qualification as text), '%')
               ))
+              and (cast(:educationTypes as text[]) is null or exists (
+                    select 1 from candidate_educations education
+                    where education.candidate_id = c.id
+                      and education.study_type = any(cast(:educationTypes as text[]))
+              ))
+              and (cast(:gender as text) = '' or lower(c.gender) = lower(cast(:gender as text)))
               and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
               and (:activeSince is null or c.last_active_at >= :activeSince)
               and (cast(:domainCategory as text) = '' or c.domain_category = cast(:domainCategory as text))
@@ -79,17 +93,15 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                     from candidates c
                     join candidate_sourcing_index sourcing_index on sourcing_index.candidate_id = c.id
                     where c.profile_searchable = true
-                      and (cast(:searchQuery as text) = ''
-                           or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:searchQuery as text)))
-                      and (cast(:mandatoryKeywords as text) = ''
-                           or sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:mandatoryKeywords as text)))
-                      and (cast(:excludedKeywords as text) = ''
-                           or not sourcing_index.search_vector @@ websearch_to_tsquery('simple', cast(:excludedKeywords as text)))
+                      and (cast(:tsQuery as text) = ''
+                           or sourcing_index.search_vector @@ to_tsquery('english', cast(:tsQuery as text)))
                       and (:minimumExperienceYears is null or c.overall_experience_years >= :minimumExperienceYears)
                       and (:maximumExperienceYears is null or c.overall_experience_years <= :maximumExperienceYears)
                       and (:minimumSalaryLakhs is null or c.expected_salary_lakhs >= :minimumSalaryLakhs)
                       and (:maximumSalaryLakhs is null or c.expected_salary_lakhs <= :maximumSalaryLakhs)
                       and (cast(:location as text) = '' or c.location ilike concat('%', cast(:location as text), '%'))
+                      and (cast(:company as text) = '' or c.current_company ilike concat('%', cast(:company as text), '%'))
+                      and (cast(:designation as text) = '' or c.headline ilike concat('%', cast(:designation as text), '%'))
                       and (cast(:bachelorsInstitution as text) = '' or exists (
                             select 1 from candidate_educations education
                             where education.candidate_id = c.id
@@ -107,6 +119,12 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                             where education.candidate_id = c.id
                               and education.degree_name ilike concat('%', cast(:qualification as text), '%')
                       ))
+                      and (cast(:educationTypes as text[]) is null or exists (
+                            select 1 from candidate_educations education
+                            where education.candidate_id = c.id
+                              and education.study_type = any(cast(:educationTypes as text[]))
+                      ))
+                      and (cast(:gender as text) = '' or lower(c.gender) = lower(cast(:gender as text)))
                       and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
                       and (:activeSince is null or c.last_active_at >= :activeSince)
                       and (cast(:domainCategory as text) = '' or c.domain_category = cast(:domainCategory as text))
@@ -116,17 +134,19 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                     """,
             nativeQuery = true)
     Page<CandidateSourcingResult> searchVisibleCandidates(
-            @Param("searchQuery") String searchQuery,
-            @Param("mandatoryKeywords") String mandatoryKeywords,
-            @Param("excludedKeywords") String excludedKeywords,
+            @Param("tsQuery") String tsQuery,
             @Param("minimumExperienceYears") Integer minimumExperienceYears,
             @Param("maximumExperienceYears") Integer maximumExperienceYears,
             @Param("minimumSalaryLakhs") Integer minimumSalaryLakhs,
             @Param("maximumSalaryLakhs") Integer maximumSalaryLakhs,
             @Param("location") String location,
+            @Param("company") String company,
+            @Param("designation") String designation,
             @Param("bachelorsInstitution") String bachelorsInstitution,
             @Param("mastersInstitution") String mastersInstitution,
             @Param("qualification") String qualification,
+            @Param("educationTypes") String[] educationTypes,
+            @Param("gender") String gender,
             @Param("maximumNoticePeriodDays") Integer maximumNoticePeriodDays,
             @Param("activeSince") Instant activeSince,
             @Param("domainCategory") String domainCategory,

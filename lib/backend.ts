@@ -1,6 +1,7 @@
 import "server-only";
 
 import { headers } from "next/headers";
+import { cache } from "react";
 
 const apiOrigin = (process.env.SAPIENWORX_API_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080").replace(/\/$/, "");
 
@@ -40,9 +41,9 @@ export async function getPublicJobs(keywords = "") {
   return serverFetch<ApiPage<ApiJob>>(`/api/public/jobs${keywords ? `?keywords=${encodeURIComponent(keywords)}` : ""}`);
 }
 
-export async function getPublicJob(jobId: string) {
+export const getPublicJob = cache(async (jobId: string) => {
   return serverFetch<ApiJob>(`/api/public/jobs/${encodeURIComponent(jobId)}`);
-}
+});
 
 export async function getCandidateDashboardSnapshot(): Promise<CandidateDashboardSnapshot | null> {
   const [profile, applications] = await Promise.all([

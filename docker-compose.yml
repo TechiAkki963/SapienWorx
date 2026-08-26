@@ -54,6 +54,11 @@ services:
       JWT_BASE64_SECRET: ${JWT_BASE64_SECRET:-c2FwaWVud29yeC1sb2NhbC1kZXZlbG9wbWVudC1qd3Qtc2VjcmV0LTMyaXRz}
       AUTH_COOKIE_SECURE: "false"
       CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
+      # Local Compose is an isolated QA environment. Override this in any
+      # shared deployment; the seeded accounts and static OTP require `qa`.
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-qa}
+      QA_TEST_ACCOUNT_PASSWORD: ${QA_TEST_ACCOUNT_PASSWORD:-SapienworxQA!2026}
+      QA_STATIC_OTP: ${QA_STATIC_OTP:-999999}
     ports:
       - "8080:8080"
     depends_on:

@@ -10,6 +10,13 @@ export type CvParsingCompleteEvent = {
   timestamp: string;
 };
 
+export type CvParsingFailedEvent = {
+  status: "FAILED";
+  candidateId: string;
+  message: string;
+  timestamp: string;
+};
+
 export type PipelineUpdateEvent = {
   jobId: string;
   candidateId: string;
@@ -23,9 +30,11 @@ export type MessageReceivedEvent = { id: string; senderId: string; recipientId: 
 
 type ServerEventHandlers = {
   onCvParsingComplete?: (event: CvParsingCompleteEvent) => void;
+  onCvParsingFailed?: (event: CvParsingFailedEvent) => void;
   onPipelineUpdate?: (event: PipelineUpdateEvent) => void;
   onNotificationCreated?: (event: NotificationCreatedEvent) => void;
   onMessageReceived?: (event: MessageReceivedEvent) => void;
+  onConnected?: () => void;
   onConnectionError?: (event: Event) => void;
 };
 
@@ -44,9 +53,19 @@ export function useServerEvents(handlers: ServerEventHandlers = {}) {
       withCredentials: true,
     });
 
+    eventSource.addEventListener("CONNECTED", () => {
+      handlersRef.current.onConnected?.();
+    });
+
     eventSource.addEventListener("CV_PARSING_COMPLETE", (event) => {
       handlersRef.current.onCvParsingComplete?.(
         JSON.parse((event as MessageEvent<string>).data) as CvParsingCompleteEvent,
+      );
+    });
+
+    eventSource.addEventListener("CV_PARSING_FAILED", (event) => {
+      handlersRef.current.onCvParsingFailed?.(
+        JSON.parse((event as MessageEvent<string>).data) as CvParsingFailedEvent,
       );
     });
 

@@ -70,6 +70,9 @@ public class Candidate {
     @Column(length = 180)
     private String headline;
 
+    @Column(name = "current_company", length = 180)
+    private String currentCompany;
+
     @Column(length = 160)
     private String location;
 
@@ -97,6 +100,9 @@ public class Candidate {
 
     @Column(name = "last_active_at")
     private Instant lastActiveAt;
+
+    @Column(length = 20)
+    private String gender;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

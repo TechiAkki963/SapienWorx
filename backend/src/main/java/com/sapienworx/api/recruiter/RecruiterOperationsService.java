@@ -40,8 +40,9 @@ public class RecruiterOperationsService {
     private final JobRepository jobRepository;
     private final JobApplicationRepository applicationRepository;
     private final RecruiterNoteRepository recruiterNoteRepository;
-    private final CandidateRepository candidateRepository;
     private final CandidateSourcingService candidateSourcingService;
+    private final CandidateRepository candidateRepository;
+    private final CandidateProfileEngagementRepository candidateProfileEngagementRepository;
     private final InterviewRepository interviewRepository;
     private final NotificationService notificationService;
     private final SseNotificationService sseNotificationService;
@@ -92,23 +93,42 @@ public class RecruiterOperationsService {
     }
 
     @Transactional(readOnly = true)
-    @AuditAction(action = "CANDIDATE_CONTACT_REVEALED", resourceType = "CANDIDATE", resourceIdArgumentIndex = 1, candidateIdArgumentIndex = 1)
-    public CandidateContactResponse revealContact(UUID recruiterId, UUID candidateId, ContactChannel channel) {
+    @AuditAction(action = "CANDIDATE_CONTACT_REVEALED", resourceType = "CANDIDATE", resourceIdArgumentIndex = 1, candidateIdArgumentIndex = 1, jobIdArgumentIndex = 3)
+    public CandidateContactResponse revealContact(UUID recruiterId, UUID candidateId, ContactChannel channel, String jobId) {
         Recruiter recruiter = recruiter(recruiterId);
-        Candidate candidate = candidateRepository.findById(candidateId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate was not found."));
-        boolean eligible = applicationRepository.findByJob_Organisation_Id(recruiter.getOrganisation().getId(), Pageable.unpaged())
-                .stream().anyMatch(application -> application.getCandidate().getId().equals(candidateId));
-        if (!eligible) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Contact details are available only for candidates in your pipeline.");
+        JobApplication application = applicationRepository.findByCandidate_IdAndJob_Organisation_IdAndJob_PublicJobId(candidateId, recruiter.getOrganisation().getId(), jobId.trim())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Contact details are available only for candidates in the selected job pipeline."));
+        Candidate candidate = application.getCandidate();
         return new CandidateContactResponse(candidateId, channel, channel == ContactChannel.EMAIL ? candidate.getEmail() : candidate.getMobile());
     }
 
     @Transactional(readOnly = true)
     public Page<CandidateSourcingResult> source(UUID recruiterId, RecruiterSourcingRequest request) {
         recruiter(recruiterId);
-        return candidateSourcingService.search(new CandidateSourcingCriteria(request.booleanQuery(), request.mandatoryKeywords(), request.excludedKeywords(),
-                request.minimumExperienceYears(), request.maximumExperienceYears(), request.minimumSalaryLakhs(), request.maximumSalaryLakhs(), request.location(),
-                request.bachelorsInstitution(), request.mastersInstitution(), request.qualification(), request.maximumNoticePeriodDays(), request.activeStatus(),
-                request.page() == null ? 0 : request.page(), request.domainCategory(), request.requireGithub(), request.requireLeetcode(), request.requirePortfolio()));
+        try {
+            return candidateSourcingService.search(new CandidateSourcingCriteria(request.anyKeywords(), request.allKeywords(), request.excludedKeywords(), request.booleanQuery(),
+                    request.minimumExperienceYears(), request.maximumExperienceYears(), request.minimumSalaryLakhs(), request.maximumSalaryLakhs(), request.location(), request.company(), request.designation(),
+                    request.bachelorsInstitution(), request.mastersInstitution(), request.qualification(), request.educationTypes(), request.gender(), request.maximumNoticePeriodDays(), request.activeStatus(),
+                    request.page() == null ? 0 : request.page(), request.pageSize() == null ? 40 : request.pageSize(), request.domainCategory(), request.requireGithub(), request.requireLeetcode(), request.requirePortfolio()));
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage(), exception);
+        }
+    }
+
+    @Transactional
+    @AuditAction(action = "CANDIDATE_PROFILE_VIEWED", resourceType = "CANDIDATE", resourceIdArgumentIndex = 1, candidateIdArgumentIndex = 1)
+    public void recordSourcedProfileView(UUID recruiterId, UUID candidateId) {
+        recruiter(recruiterId);
+        candidate(candidateId);
+        candidateProfileEngagementRepository.recordView(candidateId, recruiterId);
+    }
+
+    @Transactional
+    @AuditAction(action = "CANDIDATE_PROFILE_DOWNLOADED", resourceType = "CANDIDATE", resourceIdArgumentIndex = 1, candidateIdArgumentIndex = 1)
+    public void recordSourcedProfileDownload(UUID recruiterId, UUID candidateId) {
+        recruiter(recruiterId);
+        candidate(candidateId);
+        candidateProfileEngagementRepository.recordDownload(candidateId, recruiterId);
     }
 
     @Transactional
@@ -124,6 +144,7 @@ public class RecruiterOperationsService {
     }
 
     private Recruiter recruiter(UUID recruiterId) { return recruiterRepository.findById(recruiterId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter profile was not found.")); }
+    private Candidate candidate(UUID candidateId) { return candidateRepository.findById(candidateId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate profile was not found.")); }
     private JobApplication applicationForRecruiter(UUID applicationId, Recruiter recruiter) { return applicationRepository.findByIdAndJob_Organisation_Id(applicationId, recruiter.getOrganisation().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate application was not found.")); }
     private PipelineCandidateResponse pipelineResponse(JobApplication application) {
         Candidate candidate = application.getCandidate();

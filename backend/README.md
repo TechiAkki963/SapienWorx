@@ -39,6 +39,15 @@ cd backend
 mvn test
 ```
 
+## Local QA access
+
+The isolated Docker Compose environment starts with the `qa` Spring profile.
+It seeds two recruiters and two candidates, and exposes a QA-only OTP bypass
+without changing normal authentication rules. See
+[QA_ACCESS.md](../docs/QA_ACCESS.md) for the test login credentials, signup
+workflow, RabbitMQ Management UI address, and queue names. Never activate this
+profile against real accounts or production data.
+
 ## CV parser queue
 
 `RabbitMqCvParserConfig` declares the durable `cv.parser.exchange` direct exchange and the following topology:

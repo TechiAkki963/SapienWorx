@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface JobApplicationRepository extends JpaRepository<JobApplication, UUID> {
     boolean existsByCandidate_IdAndJob_InternalId(UUID candidateId, UUID jobId);
     Optional<JobApplication> findByIdAndJob_Organisation_Id(UUID id, UUID organisationId);
+    Optional<JobApplication> findByCandidate_IdAndJob_Organisation_IdAndJob_PublicJobId(UUID candidateId, UUID organisationId, String publicJobId);
     Page<JobApplication> findByCandidate_Id(UUID candidateId, Pageable pageable);
     Page<JobApplication> findByJob_Organisation_Id(UUID organisationId, Pageable pageable);
     Page<JobApplication> findByJob_Organisation_IdAndPipelineStage(UUID organisationId, PipelineStage stage, Pageable pageable);

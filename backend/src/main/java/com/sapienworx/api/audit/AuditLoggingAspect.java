@@ -37,7 +37,8 @@ public class AuditLoggingAspect {
                     auditAction.resourceType(),
                     uuidArgument(arguments, auditAction.resourceIdArgumentIndex()),
                     uuidArgument(arguments, auditAction.candidateIdArgumentIndex()),
-                    null
+                    null,
+                    stringArgument(arguments, auditAction.jobIdArgumentIndex())
             ));
         } catch (RuntimeException exception) {
             // Compliance capture must never turn a successful candidate/recruiter action into an API failure.
@@ -69,5 +70,13 @@ public class AuditLoggingAspect {
             }
         }
         return null;
+    }
+
+    private String stringArgument(Object[] arguments, int argumentIndex) {
+        if (argumentIndex < 0 || arguments == null || argumentIndex >= arguments.length || !(arguments[argumentIndex] instanceof String value)) {
+            return null;
+        }
+        String normalized = value.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 }

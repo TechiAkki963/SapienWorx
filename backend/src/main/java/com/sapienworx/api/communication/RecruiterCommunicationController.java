@@ -24,9 +24,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RecruiterCommunicationController {
     private final CommunicationService communicationService;
+    private final RecruiterEmailDispatchService recruiterEmailDispatchService;
     @PostMapping("/messages") public MessageResponse send(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody MessageRequest request) { return communicationService.send(recruiterId(user), PlatformRole.RECRUITER, request); }
     @GetMapping("/messages") public Page<MessageResponse> conversation(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam UUID with, @RequestParam(defaultValue = "0") int page) { return communicationService.conversation(recruiterId(user), with, PageRequest.of(Math.max(0, page), 50)); }
     @PostMapping("/templates") public InmailTemplateResponse saveTemplate(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody InmailTemplateRequest request) { return communicationService.saveTemplate(recruiterId(user), request); }
     @GetMapping("/templates") public List<InmailTemplateResponse> templates(@AuthenticationPrincipal AuthenticatedUser user) { return communicationService.templates(recruiterId(user)); }
+    @PostMapping("/bulk-email") public List<UUID> bulkEmail(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody BulkEmailRequest request) {
+        recruiterId(user);
+        return request.candidateIds().stream().distinct()
+                .map(candidateId -> recruiterEmailDispatchService.queueForCandidate(candidateId, new RecruiterEmailCommand(candidateId, request.jobId(), request.subject(), request.htmlContent())))
+                .toList();
+    }
     private UUID recruiterId(AuthenticatedUser user) { if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication is required."); return user.userId(); }
 }

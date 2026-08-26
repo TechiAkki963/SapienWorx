@@ -18,6 +18,10 @@ public record OtpRequest(
         Boolean automationConsent,
         String organisationName,
         String designation,
-        String location
+        String location,
+        String firstName,
+        String lastName,
+        String city,
+        String state
 ) {
 }

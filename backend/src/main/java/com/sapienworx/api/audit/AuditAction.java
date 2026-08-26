@@ -19,4 +19,7 @@ public @interface AuditAction {
 
     /** Zero-based UUID candidate argument index, or -1 when no candidate is involved. */
     int candidateIdArgumentIndex() default -1;
+
+    /** Zero-based public job-ID argument index, or -1 when the action is not job scoped. */
+    int jobIdArgumentIndex() default -1;
 }

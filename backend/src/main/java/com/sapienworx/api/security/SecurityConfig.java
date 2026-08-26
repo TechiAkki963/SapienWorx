@@ -1,6 +1,7 @@
 package com.sapienworx.api.security;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,12 +10,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,7 +34,24 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
+    /**
+     * OTP exchange is deliberately public and has no authentication cookie to
+     * protect. Keeping it in a dedicated chain makes the CSRF boundary explicit
+     * and leaves CSRF enabled for every authenticated API route below.
+     */
     @Bean
+    @Order(1)
+    SecurityFilterChain otpAuthenticationFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/auth/request-otp", "/api/auth/verify-otp")
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             @Value("${app.security.cookie.secure:true}") boolean secureCookie
@@ -46,16 +64,13 @@ public class SecurityConfig {
                 // JWT lives in an automatically attached cookie; protect all authenticated writes with XSRF-TOKEN.
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository)
-                        .ignoringRequestMatchers(
-                                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/api/auth/request-otp"),
-                                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/api/auth/verify-otp")
-                        ))
+                        .ignoringRequestMatchers("/api/auth/request-otp", "/api/auth/verify-otp", "/error"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable())
                 .logout(logout -> logout.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/actuator/health", "/api/auth/**", "/api/public/jobs/**").permitAll()
+                        .requestMatchers("/actuator/health", "/error", "/api/auth/**", "/api/public/jobs/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/events/**").authenticated()
                         .requestMatchers("/api/recruiter/**").hasAnyRole("RECRUITER", "ADMIN", "SUPER_ADMIN")

@@ -33,13 +33,14 @@ class AuditLoggingAspectTest {
                 new AuthenticatedUser(recruiterId, PlatformRole.RECRUITER), null
         ));
 
-        operation.complete(candidateId);
+        operation.complete(candidateId, "SWX_NT_003");
 
         var command = forClass(AuditLogCommand.class);
         verify(auditLogWriter).record(command.capture());
         assertThat(command.getValue().actorId()).isEqualTo(recruiterId);
         assertThat(command.getValue().candidateId()).isEqualTo(candidateId);
         assertThat(command.getValue().resourceId()).isEqualTo(candidateId);
+        assertThat(command.getValue().jobId()).isEqualTo("SWX_NT_003");
         assertThat(command.getValue().action()).isEqualTo("CONTACT_DETAILS_UNMASKED");
     }
 
@@ -72,9 +73,10 @@ class AuditLoggingAspectTest {
                 action = "CONTACT_DETAILS_UNMASKED",
                 resourceType = "CANDIDATE",
                 resourceIdArgumentIndex = 0,
-                candidateIdArgumentIndex = 0
+                candidateIdArgumentIndex = 0,
+                jobIdArgumentIndex = 1
         )
-        public void complete(UUID candidateId) {
+        public void complete(UUID candidateId, String jobId) {
         }
 
         @AuditAction(action = "CONTACT_DETAILS_UNMASKED", resourceType = "CANDIDATE")

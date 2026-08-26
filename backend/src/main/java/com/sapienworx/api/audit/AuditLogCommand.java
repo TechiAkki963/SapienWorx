@@ -9,6 +9,7 @@ public record AuditLogCommand(
         String resourceType,
         UUID resourceId,
         UUID candidateId,
-        UUID requestId
+        UUID requestId,
+        String jobId
 ) {
 }

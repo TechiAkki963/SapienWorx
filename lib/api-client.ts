@@ -35,8 +35,13 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
     },
   });
   if (!response.ok) {
-    const body = await response.json().catch(() => null) as { detail?: string; message?: string } | null;
-    throw new Error(body?.detail ?? body?.message ?? "The request could not be completed.");
+    const rawBody = await response.text();
+    let body: { detail?: string; message?: string } | null = null;
+    try { body = rawBody ? JSON.parse(rawBody) as { detail?: string; message?: string } : null; } catch { /* Empty or non-JSON error response. */ }
+    const fallback = response.status === 403
+      ? "Your secure request could not be verified. Refresh the page and try again."
+      : "The request could not be completed.";
+    throw new Error(body?.detail ?? body?.message ?? fallback);
   }
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;

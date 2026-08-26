@@ -21,9 +21,9 @@ function isLocalDemo() {
   return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 }
 
-function localDomainCategory(): ResolvedDomain | null {
+function localDomainCategory(): CandidateDomainCategory | null {
   const stored = window.localStorage.getItem(LOCAL_DOMAIN_STORAGE_KEY);
-  return stored === "TECH" || stored === "NON_TECH" ? stored : null;
+  return stored === "TECH" || stored === "NON_TECH" || stored === "MIXED_AMBIGUOUS" || stored === "UNASSIGNED" ? stored : null;
 }
 
 export function useCandidateDomain() {

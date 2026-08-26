@@ -35,6 +35,7 @@ public class AuditLogWriter {
                 .resourceType(command.resourceType())
                 .resourceId(command.resourceId())
                 .requestId(command.requestId())
+                .jobId(command.jobId())
                 .build());
     }
 }

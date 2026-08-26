@@ -1,0 +1,9 @@
+# This profile is for an isolated QA database only. Do not activate it in a
+# shared development, staging, or production environment with real accounts.
+app:
+  qa:
+    enabled: true
+    test-account-password: ${QA_TEST_ACCOUNT_PASSWORD:SapienworxQA!2026}
+    otp-bypass:
+      enabled: true
+      code: ${QA_STATIC_OTP:999999}

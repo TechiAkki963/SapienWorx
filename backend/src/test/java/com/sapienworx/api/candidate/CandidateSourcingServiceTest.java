@@ -8,12 +8,13 @@ import org.springframework.data.domain.Pageable;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,14 +22,30 @@ import static org.mockito.Mockito.when;
 class CandidateSourcingServiceTest {
 
     @Test
+    void forwardsCurrentCompanyAndDesignationFiltersToTheCandidateQuery() {
+        CandidateRepository candidateRepository = mock(CandidateRepository.class);
+        CandidateSourcingService service = new CandidateSourcingService(candidateRepository, Clock.systemUTC(), new TsQueryBuilderService());
+
+        service.search(new CandidateSourcingCriteria(
+                List.of("TypeScript"), List.of(), List.of(), "", 5, 8, 20, 25, "Bengaluru", "StatusNeo", "Senior Consultant",
+                "", "", "", List.of(), "", null, ActiveStatusInterval.SEVEN_DAYS, 0, 40, null, false, false, false
+        ));
+
+        verify(candidateRepository).searchVisibleCandidates(
+                anyString(), any(), any(), any(), any(), anyString(), eq("StatusNeo"), eq("Senior Consultant"), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
+                anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
+        );
+    }
+
+    @Test
     void locksSourcingPagesToTenAndCalculatesTheConfiguredActivityWindow() {
         CandidateRepository candidateRepository = mock(CandidateRepository.class);
         Clock clock = Clock.fixed(Instant.parse("2026-08-21T10:00:00Z"), ZoneOffset.UTC);
-        CandidateSourcingService service = new CandidateSourcingService(candidateRepository, clock);
+        CandidateSourcingService service = new CandidateSourcingService(candidateRepository, clock, new TsQueryBuilderService());
 
         when(candidateRepository.searchVisibleCandidates(
-                anyString(), anyString(), anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(),
-                anyString(), any(), any(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
+                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
+                anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
         )).thenReturn(Page.empty());
 
         service.search(new CandidateSourcingCriteria(
@@ -39,8 +56,8 @@ class CandidateSourcingServiceTest {
         ArgumentCaptor<Instant> activeSince = ArgumentCaptor.forClass(Instant.class);
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(candidateRepository).searchVisibleCandidates(
-                anyString(), anyString(), anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(),
-                anyString(), any(), activeSince.capture(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(), pageable.capture()
+                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(),
+                activeSince.capture(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(), pageable.capture()
         );
 
         assertThat(activeSince.getValue()).isEqualTo(Instant.parse("2026-08-14T10:00:00Z"));

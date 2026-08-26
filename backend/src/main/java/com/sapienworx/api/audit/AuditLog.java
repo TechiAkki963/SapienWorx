@@ -64,6 +64,10 @@ public class AuditLog {
     @Column(name = "request_id", updatable = false)
     private UUID requestId;
 
+    /** Non-PII public job reference for job-scoped recruiter actions. */
+    @Column(name = "job_id", updatable = false, length = 80)
+    private String jobId;
+
     @CreationTimestamp
     @Column(name = "occurred_at", nullable = false, updatable = false)
     private Instant occurredAt;

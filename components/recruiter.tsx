@@ -7,6 +7,10 @@ import { publicJobPath } from "../lib/jobs/routes";
 
 type Candidate = { id: number; name: string; initials: string; role: string; stage: "Screening" | "Interviewing" | "Final stage" | "Offer" | "Onboarded"; score: number; email: string; phone: string; profileUpdated: string; lastActive: string; note: string };
 
+function pipelineJobIdForCandidate(candidate: Candidate) {
+  return candidate.role.includes("Engineer") ? "SWX_NT_004" : "SWX_NT_003";
+}
+
 const startingCandidates: Candidate[] = [
   { id: 1, name: "Amara Mensah", initials: "AM", role: "Senior Product Designer", stage: "Screening", score: 94, email: "amara.mensah@email.com", phone: "+91 98765 40123", profileUpdated: "Today, 10:42", lastActive: "18 min ago", note: "Strong design-systems background. Confirm stakeholder management experience." },
   { id: 2, name: "Nia Okafor", initials: "NO", role: "Senior Product Designer", stage: "Screening", score: 89, email: "nia.okafor@email.com", phone: "+91 98124 55621", profileUpdated: "Today, 09:18", lastActive: "1 hr ago", note: "Portfolio is a strong match for B2B product work." },
@@ -311,10 +315,11 @@ function RecruiterPipelineContent() {
     setRevealingContacts((current) => ({ ...current, [candidate.id]: { ...current[candidate.id], [method]: true } }));
     setActionNotice((current) => ({ ...current, [candidate.id]: `Recording ${method === "email" ? "email" : "phone number"} access…` }));
     try {
-      const response = await fetch("/api/audit-logs/contact-reveal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ candidateId: candidate.id, contactMethod: method, purpose: "recruitment_pipeline" }) });
+      const jobId = pipelineJobIdForCandidate(candidate);
+      const response = await fetch("/api/audit-logs/contact-reveal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ candidateId: candidate.id, jobId, contactMethod: method, purpose: "recruitment_pipeline" }) });
       if (!response.ok) throw new Error("Audit request was rejected");
       setRevealedContacts((current) => ({ ...current, [candidate.id]: { ...current[candidate.id], [method]: true } }));
-      setActionNotice((current) => ({ ...current, [candidate.id]: `${method === "email" ? "Email" : "Phone number"} reveal recorded in the privacy audit trail.` }));
+      setActionNotice((current) => ({ ...current, [candidate.id]: `${method === "email" ? "Email" : "Phone number"} reveal recorded for ${jobId} in the privacy audit trail.` }));
     } catch {
       setActionNotice((current) => ({ ...current, [candidate.id]: "We could not record this access. Contact details remain masked." }));
     } finally {

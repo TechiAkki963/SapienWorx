@@ -25,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -35,7 +38,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private static final Duration TRANSACTION_TTL = Duration.ofMinutes(10);
+    private static final Duration OTP_REQUEST_COOLDOWN = Duration.ofSeconds(30);
     private static final String TRANSACTION_PREFIX = "sapienworx:auth:transaction:";
+    private static final String OTP_COOLDOWN_PREFIX = "sapienworx:auth:otp-cooldown:";
 
     private final OtpChallengeStore otpChallengeStore;
     private final OtpDeliveryGateway otpDeliveryGateway;
@@ -48,6 +53,7 @@ public class AuthenticationService {
 
     public OtpRequestResponse requestOtp(OtpRequest request) {
         PendingAuthentication pending = preparePending(request);
+        enforceOtpRequestCooldown(pending);
         String transactionId = UUID.randomUUID().toString();
         save(transactionId, pending);
 
@@ -101,11 +107,11 @@ public class AuthenticationService {
             return signInPending(request);
         }
 
-        String name = required(request.fullName(), "Full name is required.");
         String email = normalizeEmail(request.email());
         String mobile = normalizeMobile(request.mobile());
         String password = required(request.password(), "A password of at least eight characters is required.");
         if (request.flow() == AuthFlow.CANDIDATE_REGISTRATION) {
+            String name = required(request.fullName(), "Full name is required.");
             if (!Boolean.TRUE.equals(request.termsAccepted())) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Accept the Terms and Data Processing Agreement before registration.");
             }
@@ -125,13 +131,15 @@ public class AuthenticationService {
         if (flow != AuthFlow.RECRUITER_REGISTRATION && flow != AuthFlow.CONSULTANT_REGISTRATION) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported authentication flow.");
         }
+        String name = recruiterName(request.firstName(), request.lastName());
+        String location = recruiterLocation(request.city(), request.state(), request.location());
         Set<OtpChannel> channels = flow == AuthFlow.CONSULTANT_REGISTRATION
                 ? Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE) : Set.of(OtpChannel.EMAIL);
         return new PendingAuthentication(flow, PlatformRole.RECRUITER, null, name, email, mobile,
                 passwordEncoder.encode(password), false, false,
                 required(request.organisationName(), "Organisation is required."),
                 required(request.designation(), "Designation is required."),
-                required(request.location(), "Location is required."), channels, Set.of());
+                location, channels, Set.of());
     }
 
     private PendingAuthentication signInPending(OtpRequest request) {
@@ -234,6 +242,21 @@ public class AuthenticationService {
 
     private String redirectFor(PlatformRole role) { return role == PlatformRole.CANDIDATE ? "/candidate" : "/recruiter"; }
     private String transactionKey(String transactionId) { return TRANSACTION_PREFIX + transactionId; }
+    private void enforceOtpRequestCooldown(PendingAuthentication pending) {
+        Boolean acquired = redisTemplate.opsForValue().setIfAbsent(
+                OTP_COOLDOWN_PREFIX + fingerprint(pending.flow().name() + ":" + pending.email() + ":" + pending.mobile()),
+                "1", OTP_REQUEST_COOLDOWN);
+        if (!Boolean.TRUE.equals(acquired)) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "A verification code was recently requested. Please wait 30 seconds before requesting another.");
+        }
+    }
+    private String fingerprint(String value) {
+        try {
+            return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 must be available for OTP rate limiting.", exception);
+        }
+    }
     private ResponseStatusException invalidCredentials() { return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email or password is incorrect."); }
 
     private String required(String value, String message) {
@@ -243,8 +266,20 @@ public class AuthenticationService {
     private String normalizeEmail(String value) { return required(value, "Email is required.").toLowerCase(Locale.ROOT); }
     private String normalizeMobile(String value) {
         String normalized = required(value, "Mobile number is required.").replaceAll("[\\s()-]", "");
+        // Accept the common Indian local-number format (0XXXXXXXXXX) and
+        // persist the canonical E.164 form used by OTP delivery.
+        if (normalized.matches("0[6-9]\\d{9}")) normalized = normalized.substring(1);
         if (!normalized.matches("\\+?[1-9]\\d{7,14}")) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Enter a valid mobile number including country code.");
         return normalized.startsWith("+") ? normalized : "+91" + normalized;
+    }
+    private String recruiterName(String firstName, String lastName) {
+        return required(firstName, "First name is required.") + " " + required(lastName, "Last name is required.");
+    }
+    private String recruiterLocation(String city, String state, String legacyLocation) {
+        if (city != null || state != null) {
+            return required(city, "City is required.") + ", " + required(state, "State is required.");
+        }
+        return required(legacyLocation, "City and state are required.");
     }
     private void validateOfficialEmail(String email) {
         String domain = email.substring(email.indexOf('@') + 1);

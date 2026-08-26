@@ -1,6 +1,7 @@
 package com.sapienworx.api.otp;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class OtpChallengeStore {
 
     private final StringRedisTemplate redisTemplate;
     private final PasswordEncoder passwordEncoder;
+    private final ObjectProvider<QaOtpBypass> qaOtpBypass;
 
     public String issue(String transactionId, OtpPurpose purpose, OtpChannel channel) {
         String code = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
@@ -31,6 +33,13 @@ public class OtpChallengeStore {
     /** OTPs are single-use: successful verification deletes the matching Redis key. */
     public boolean verify(String transactionId, OtpPurpose purpose, OtpChannel channel, String submittedCode) {
         String key = key(transactionId, purpose, channel);
+        QaOtpBypass bypass = qaOtpBypass.getIfAvailable();
+        if (bypass != null && bypass.matches(submittedCode)) {
+            // The authentication transaction and required channel are still
+            // validated by AuthenticationService before this shortcut runs.
+            redisTemplate.delete(key);
+            return true;
+        }
         String encodedCode = redisTemplate.opsForValue().get(key);
         if (encodedCode == null || !passwordEncoder.matches(submittedCode, encodedCode)) {
             return false;
