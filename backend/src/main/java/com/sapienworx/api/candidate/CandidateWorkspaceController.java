@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,10 +31,18 @@ public class CandidateWorkspaceController {
     public CandidateProfileResponse profile(@AuthenticationPrincipal AuthenticatedUser user) { return candidateWorkspaceService.profile(candidateId(user)); }
     @PatchMapping("/profile")
     public CandidateProfileResponse updateProfile(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody CandidateProfileRequest request) { return candidateWorkspaceService.updateProfile(candidateId(user), request); }
+    @GetMapping("/dashboard")
+    public CandidateDashboardResponse dashboard(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "90") int rangeDays) { return candidateWorkspaceService.dashboard(candidateId(user), rangeDays); }
     @PostMapping("/jobs/{publicJobId}/applications")
     public CandidateApplicationResponse apply(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String publicJobId, @Valid @RequestBody CandidateApplicationRequest request) { return candidateWorkspaceService.apply(candidateId(user), publicJobId, request); }
     @GetMapping("/applications")
-    public Page<CandidateApplicationResponse> applications(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "0") int page) { return candidateWorkspaceService.applications(candidateId(user), PageRequest.of(Math.max(0, page), 10)); }
+    public Page<CandidateApplicationResponse> applications(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "0") int page) {
+        return candidateWorkspaceService.applications(candidateId(user), PageRequest.of(Math.max(0, page), 20, Sort.by(Sort.Direction.DESC, "updatedAt")));
+    }
+    @GetMapping("/applications/summary")
+    public CandidateApplicationSummaryResponse applicationSummary(@AuthenticationPrincipal AuthenticatedUser user) {
+        return candidateWorkspaceService.applicationSummary(candidateId(user));
+    }
     @DeleteMapping("/account")
     public void eraseAccount(@AuthenticationPrincipal AuthenticatedUser user) { candidateWorkspaceService.erase(candidateId(user)); }
 

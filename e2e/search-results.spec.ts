@@ -13,6 +13,10 @@ test("shows dense candidate results and preserves the search in Modify", async (
   await expect(page.getByRole("heading", { name: "Avish Bansal" })).toBeVisible();
   await expect(page.getByRole("checkbox", { name: "Select Avish Bansal" })).toBeVisible();
   await expect(page.locator("mark").filter({ hasText: "TypeScript" }).first()).toBeVisible();
+  const avishCard = page.locator(".talent-profile-card").filter({ has: page.getByRole("heading", { name: "Avish Bansal" }) });
+  await expect(avishCard.getByText("459 similar profiles")).toBeVisible();
+  await expect(avishCard.getByText("Verified phone & email")).toBeVisible();
+  await expect(avishCard.getByRole("button", { name: "⇩ CV" })).toBeVisible();
 
   await page.getByRole("checkbox", { name: "Select Avish Bansal" }).check();
   await page.getByRole("button", { name: "Switch to NVite" }).click();

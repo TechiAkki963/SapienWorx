@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./logout.css";
 import "./recruiter-search-redesign.css";
+import "./ui-spec.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SAPIENWORX_PUBLIC_SITE_URL ?? "http://localhost:3000"),

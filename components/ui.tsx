@@ -14,9 +14,7 @@ const navigation: Record<Workspace, NavItem[]> = {
   candidate: [
     { id: "dashboard", label: "Dashboard", href: "/candidate", glyph: "▦" },
     { id: "jobs", label: "Jobs", href: "/candidate/jobs", glyph: "⌕" },
-    { id: "applications", label: "Applications", href: "/candidate", glyph: "◫" },
-    { id: "resume", label: "Resume review", href: "/candidate/review", glyph: "▤" },
-    { id: "notifications", label: "Notifications", href: "/candidate/notifications", glyph: "◌" },
+    { id: "applications", label: "Applications", href: "/candidate/applications", glyph: "◫" },
     { id: "messages", label: "Messages", href: "/candidate/messages", glyph: "✉" },
     { id: "profile", label: "Profile", href: "/candidate/profile", glyph: "♙" },
   ],

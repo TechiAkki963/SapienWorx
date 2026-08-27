@@ -17,6 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -47,6 +52,39 @@ public class CommunicationService {
         return messages.map(MessageResponse::from);
     }
 
+    /**
+     * A candidate can only see a recruiter in the inbox when they share an application.
+     * Grouping by recruiter avoids duplicate threads when a candidate has applied to several roles.
+     */
+    @Transactional(readOnly = true)
+    public List<CandidateConversationResponse> candidateConversations(UUID candidateId) {
+        Map<UUID, JobApplication> applicationByRecruiter = new HashMap<>();
+        for (JobApplication application : applicationRepository.findByCandidate_Id(candidateId, Pageable.unpaged())) {
+            Recruiter recruiter = application.getRecipientRecruiter();
+            if (recruiter == null) continue;
+            JobApplication existing = applicationByRecruiter.get(recruiter.getId());
+            if (existing == null || application.getUpdatedAt().isAfter(existing.getUpdatedAt())) {
+                applicationByRecruiter.put(recruiter.getId(), application);
+            }
+        }
+
+        List<CandidateConversationResponse> conversations = new ArrayList<>();
+        for (JobApplication application : applicationByRecruiter.values()) {
+            Recruiter recruiter = application.getRecipientRecruiter();
+            DirectMessage latest = messageRepository.recentConversation(candidateId, recruiter.getId(), org.springframework.data.domain.PageRequest.of(0, 1))
+                    .stream().findFirst().orElse(null);
+            Instant activityAt = latest == null ? application.getUpdatedAt() : latest.getSentAt();
+            conversations.add(new CandidateConversationResponse(
+                    recruiter.getId(), recruiter.getFullName(), recruiter.getDesignation(), recruiter.getOrganisation().getName(),
+                    application.getId(), application.getJob().getTitle(), application.getPipelineStage(),
+                    latest == null ? null : latest.getBody(), latest == null ? null : latest.getSentAt(), activityAt,
+                    messageRepository.countBySenderIdAndRecipientIdAndReadAtIsNull(recruiter.getId(), candidateId)
+            ));
+        }
+        conversations.sort(Comparator.comparing(CandidateConversationResponse::activityAt).reversed());
+        return conversations;
+    }
+
     @Transactional
     public InmailTemplateResponse saveTemplate(UUID recruiterId, InmailTemplateRequest request) {
         Recruiter recruiter = recruiterRepository.findById(recruiterId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter was not found."));
@@ -60,15 +98,15 @@ public class CommunicationService {
         if (senderRole == PlatformRole.RECRUITER) {
             Recruiter recruiter = recruiterRepository.findById(senderId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter was not found."));
             boolean allowed = application != null
-                    ? application.getJob().getOrganisation().getId().equals(recruiter.getOrganisation().getId()) && application.getCandidate().getId().equals(recipientId)
-                    : applicationRepository.findByJob_Organisation_Id(recruiter.getOrganisation().getId(), Pageable.unpaged()).stream().anyMatch(item -> item.getCandidate().getId().equals(recipientId));
+                    ? application.getRecipientRecruiter() != null && application.getRecipientRecruiter().getId().equals(recruiter.getId()) && application.getCandidate().getId().equals(recipientId)
+                    : applicationRepository.findByRecipientRecruiter_Id(recruiter.getId(), Pageable.unpaged()).stream().anyMatch(item -> item.getCandidate().getId().equals(recipientId));
             if (!allowed) throw denied();
             return;
         }
         if (senderRole == PlatformRole.CANDIDATE) {
             boolean allowed = application != null
-                    ? application.getCandidate().getId().equals(senderId) && application.getJob().getOrganisation().getRecruiters().stream().anyMatch(recruiter -> recruiter.getId().equals(recipientId))
-                    : applicationRepository.findByCandidate_Id(senderId, Pageable.unpaged()).stream().anyMatch(item -> item.getJob().getOrganisation().getRecruiters().stream().anyMatch(recruiter -> recruiter.getId().equals(recipientId)));
+                    ? application.getCandidate().getId().equals(senderId) && application.getRecipientRecruiter() != null && application.getRecipientRecruiter().getId().equals(recipientId)
+                    : applicationRepository.findByCandidate_Id(senderId, Pageable.unpaged()).stream().anyMatch(item -> item.getRecipientRecruiter() != null && item.getRecipientRecruiter().getId().equals(recipientId));
             if (!allowed) throw denied();
             return;
         }

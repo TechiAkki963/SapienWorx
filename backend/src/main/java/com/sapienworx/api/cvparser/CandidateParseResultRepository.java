@@ -6,4 +6,5 @@ import java.util.UUID;
 
 public interface CandidateParseResultRepository extends JpaRepository<CandidateParseResult, UUID> {
     boolean existsByRequestId(UUID requestId);
+    boolean existsByCandidate_Id(UUID candidateId);
 }

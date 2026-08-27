@@ -1,176 +1,312 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { apiClient } from "../lib/api-client";
 import { Badge, Button, Meter, SectionTitle, WorkspaceShell } from "./ui";
-import { downloadCandidateProfilePdf } from "../lib/profile-pdf";
-import { useCandidateDomain } from "./candidate-domain";
 
-type WorkLink = { label: string; value: string; icon: string };
-type Skill = { name: string; rating: number };
-type Contribution = { title: string; detail: string };
+type EducationLevel = "SECONDARY" | "SENIOR_SECONDARY" | "DIPLOMA" | "BACHELORS" | "MASTERS" | "POST_GRADUATION" | "DOCTORATE" | "OTHER";
+type StudyType = "FULL_TIME" | "PART_TIME" | "CORRESPONDENCE";
+type SkillDraft = { skill: string; rating: number; yearsOfExperience: string; experienceMonths: string; softwareVersion: string; lastUsedYear: string };
+type EducationDraft = { level: EducationLevel; degreeName: string; institutionName: string; graduationYear: string; courseStartYear: string; specialization: string; studyType: StudyType; grade: string };
+type EmploymentDraft = { currentCompany: boolean; employmentType: string; companyName: string; jobTitle: string; joiningYear: string; joiningMonth: string; currency: string; currentSalary: string; skillsUsed: string; jobDescription: string; noticePeriodDays: string };
+type ProjectDraft = { title: string; description: string; projectUrl: string; skills: string };
+type AccomplishmentDraft = { type: string; title: string; issuer: string; url: string; description: string };
+type LanguageDraft = { language: string; proficiency: string; read: boolean; write: boolean; speak: boolean };
+type PersonalDraft = { maritalStatus: string; birthDay: string; birthMonth: string; birthYear: string; category: string; usaWorkPermit: string; otherCountryWorkPermits: string; permanentAddress: string; hometown: string; pincode: string };
+type InclusionDraft = { disabilityStatus: string; disabilityDetails: string; militaryExperience: boolean; militaryDetails: string; careerBreak: boolean; careerBreakDetails: string; diversityTags: string[] };
+type ProfileDetailsDraft = { resumeHeadline: string; employmentHighlights: string[]; employment: EmploymentDraft[]; projects: ProjectDraft[]; accomplishments: AccomplishmentDraft[]; personalDetails: PersonalDraft; inclusionDetails: InclusionDraft; languages: LanguageDraft[] };
 
-const techLinks: WorkLink[] = [
-  { label: "GitHub", value: "github.com/jordan-patel", icon: "⌘" },
-  { label: "LeetCode", value: "leetcode.com/jordan-patel", icon: "⌁" },
-  { label: "HackerRank", value: "hackerrank.com/jordan-patel", icon: "H" },
-  { label: "CodeChef", value: "codechef.com/users/jordan_p", icon: "◈" },
-];
+type CandidateProfile = {
+  fullName: string; emailMasked: string; mobileMasked: string; headline: string | null; currentCompany: string | null;
+  departmentRole: string | null; industry: string | null; previousRole: string | null; previousCompany: string | null;
+  location: string | null; preferredLocations: string[]; overallExperienceYears: number | null; expectedSalaryLakhs: number | null;
+  noticePeriodDays: number | null; gender: string | null; profileSummary: string | null; profileSearchable: boolean;
+  emailVerified: boolean; mobileVerified: boolean; cvAvailable: boolean; domainCategory: string; interestedDomains: string[]; workLinks: string[];
+  skills: Array<{ skill: string; rating: number; yearsOfExperience: number | null; experienceMonths: number | null; softwareVersion: string | null; lastUsedYear: number | null }>;
+  education: Array<{ level: EducationLevel; degreeName: string; institutionName: string; graduationYear: number | null; courseStartYear: number | null; specialization: string | null; studyType: StudyType; grade: string | null }>;
+  profileDetails: Record<string, unknown> | null; profileLastUpdatedAt: string | null;
+};
 
-const businessLinks: WorkLink[] = [
-  { label: "Behance", value: "behance.net/amara-mensah", icon: "B" },
-  { label: "Dribbble", value: "dribbble.com/amara-mensah", icon: "◌" },
-  { label: "Portfolio", value: "amaramensah.design", icon: "↗" },
-  { label: "Substack", value: "amara-mensah.substack.com", icon: "S" },
-];
+type ProfileForm = {
+  headline: string; currentCompany: string; departmentRole: string; industry: string; previousRole: string; previousCompany: string;
+  location: string; preferredLocations: string; overallExperienceYears: string; expectedSalaryLakhs: string; noticePeriodDays: string;
+  gender: string; profileSummary: string; profileSearchable: boolean; interestedDomains: string[]; workLinks: string; skills: SkillDraft[]; education: EducationDraft[]; details: ProfileDetailsDraft;
+};
 
-const techSkills: Skill[] = [
-  { name: "Java", rating: 5 }, { name: "TypeScript", rating: 4 }, { name: "SQL", rating: 4 },
-  { name: "Spring Boot", rating: 5 }, { name: "Next.js", rating: 4 }, { name: "React", rating: 4 },
-  { name: "AWS", rating: 4 }, { name: "Docker", rating: 5 }, { name: "Kubernetes", rating: 3 },
-];
+const emptySkill = (): SkillDraft => ({ skill: "", rating: 3, yearsOfExperience: "", experienceMonths: "", softwareVersion: "", lastUsedYear: "" });
+const emptyEducation = (): EducationDraft => ({ level: "BACHELORS", degreeName: "", institutionName: "", graduationYear: "", courseStartYear: "", specialization: "", studyType: "FULL_TIME", grade: "" });
+const emptyEmployment = (): EmploymentDraft => ({ currentCompany: false, employmentType: "Full time", companyName: "", jobTitle: "", joiningYear: "", joiningMonth: "", currency: "INR", currentSalary: "", skillsUsed: "", jobDescription: "", noticePeriodDays: "" });
+const emptyProject = (): ProjectDraft => ({ title: "", description: "", projectUrl: "", skills: "" });
+const emptyAccomplishment = (): AccomplishmentDraft => ({ type: "Website", title: "", issuer: "", url: "", description: "" });
+const emptyLanguage = (): LanguageDraft => ({ language: "English", proficiency: "Proficient", read: true, write: true, speak: true });
+const emptyPersonal = (): PersonalDraft => ({ maritalStatus: "", birthDay: "", birthMonth: "", birthYear: "", category: "", usaWorkPermit: "", otherCountryWorkPermits: "", permanentAddress: "", hometown: "", pincode: "" });
+const emptyInclusion = (): InclusionDraft => ({ disabilityStatus: "", disabilityDetails: "", militaryExperience: false, militaryDetails: "", careerBreak: false, careerBreakDetails: "", diversityTags: [] });
+const emptyDetails = (): ProfileDetailsDraft => ({ resumeHeadline: "", employmentHighlights: [], employment: [emptyEmployment()], projects: [], accomplishments: [], personalDetails: emptyPersonal(), inclusionDetails: emptyInclusion(), languages: [emptyLanguage()] });
+const emptyForm = (): ProfileForm => ({ headline: "", currentCompany: "", departmentRole: "", industry: "", previousRole: "", previousCompany: "", location: "", preferredLocations: "", overallExperienceYears: "", expectedSalaryLakhs: "", noticePeriodDays: "", gender: "", profileSummary: "", profileSearchable: false, interestedDomains: [], workLinks: "", skills: [emptySkill()], education: [emptyEducation()], details: emptyDetails() });
 
-const businessSkills: Skill[] = [
-  { name: "Product strategy", rating: 5 }, { name: "Figma", rating: 5 }, { name: "User research", rating: 4 },
-  { name: "Design systems", rating: 4 }, { name: "Go-to-market", rating: 4 }, { name: "Accessibility", rating: 3 },
-];
+const asRecord = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+const asString = (value: unknown) => typeof value === "string" ? value : "";
+const asNumberString = (value: unknown) => typeof value === "number" ? String(value) : "";
+const asStrings = (value: unknown) => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+const asBoolean = (value: unknown) => value === true;
+const optionalNumber = (value: string) => value.trim() === "" ? null : Number(value);
+const valuesFromText = (value: string) => value.split(",").map((entry) => entry.trim()).filter(Boolean);
 
-const techStackGroups = [
-  { label: "Languages", names: ["Java", "TypeScript", "SQL"] },
-  { label: "Frameworks", names: ["Spring Boot", "Next.js", "React"] },
-  { label: "Infrastructure", names: ["AWS", "Docker", "Kubernetes"] },
-];
+function detailsFromProfile(profile: CandidateProfile): ProfileDetailsDraft {
+  const raw = asRecord(profile.profileDetails);
+  const personal = asRecord(raw.personalDetails);
+  const inclusion = asRecord(raw.inclusionDetails);
+  const employment = Array.isArray(raw.employment) ? raw.employment.map((item) => {
+    const entry = asRecord(item);
+    return { currentCompany: asBoolean(entry.currentCompany), employmentType: asString(entry.employmentType) || "Full time", companyName: asString(entry.companyName), jobTitle: asString(entry.jobTitle), joiningYear: asNumberString(entry.joiningYear), joiningMonth: asNumberString(entry.joiningMonth), currency: asString(entry.currency) || "INR", currentSalary: asNumberString(entry.currentSalary), skillsUsed: asStrings(entry.skillsUsed).join(", "), jobDescription: asString(entry.jobDescription), noticePeriodDays: asNumberString(entry.noticePeriodDays) };
+  }) : [];
+  const projects = Array.isArray(raw.projects) ? raw.projects.map((item) => { const entry = asRecord(item); return { title: asString(entry.title), description: asString(entry.description), projectUrl: asString(entry.projectUrl), skills: asStrings(entry.skills).join(", ") }; }) : [];
+  const accomplishments = Array.isArray(raw.accomplishments) ? raw.accomplishments.map((item) => { const entry = asRecord(item); return { type: asString(entry.type) || "Website", title: asString(entry.title), issuer: asString(entry.issuer), url: asString(entry.url), description: asString(entry.description) }; }) : [];
+  const languages = Array.isArray(raw.languages) ? raw.languages.map((item) => { const entry = asRecord(item); return { language: asString(entry.language), proficiency: asString(entry.proficiency) || "Proficient", read: asBoolean(entry.read), write: asBoolean(entry.write), speak: asBoolean(entry.speak) }; }) : [];
+  return {
+    resumeHeadline: asString(raw.resumeHeadline) || profile.headline || "", employmentHighlights: asStrings(raw.employmentHighlights),
+    employment: employment.length ? employment : [emptyEmployment()], projects, accomplishments,
+    personalDetails: { maritalStatus: asString(personal.maritalStatus), birthDay: asNumberString(personal.birthDay), birthMonth: asString(personal.birthMonth), birthYear: asNumberString(personal.birthYear), category: asString(personal.category), usaWorkPermit: asString(personal.usaWorkPermit), otherCountryWorkPermits: asStrings(personal.otherCountryWorkPermits).join(", "), permanentAddress: asString(personal.permanentAddress), hometown: asString(personal.hometown), pincode: asString(personal.pincode) },
+    inclusionDetails: { disabilityStatus: asString(inclusion.disabilityStatus), disabilityDetails: asString(inclusion.disabilityDetails), militaryExperience: asBoolean(inclusion.militaryExperience), militaryDetails: asString(inclusion.militaryDetails), careerBreak: asBoolean(inclusion.careerBreak), careerBreakDetails: asString(inclusion.careerBreakDetails), diversityTags: asStrings(inclusion.diversityTags) },
+    languages: languages.length ? languages : [emptyLanguage()],
+  };
+}
 
-const techContributions: Contribution[] = [
-  { title: "Architecture & scale", detail: "Designed an event-driven hiring workflow that supports 50k candidate updates per day with 99.95% availability." },
-  { title: "Open-source contribution", detail: "Maintainer of an internal design-system migration toolkit, adopted by 12 product squads." },
-];
+function formFromProfile(profile: CandidateProfile): ProfileForm {
+  return {
+    headline: profile.headline ?? "", currentCompany: profile.currentCompany ?? "", departmentRole: profile.departmentRole ?? "", industry: profile.industry ?? "", previousRole: profile.previousRole ?? "", previousCompany: profile.previousCompany ?? "", location: profile.location ?? "", preferredLocations: profile.preferredLocations.join(", "), overallExperienceYears: profile.overallExperienceYears?.toString() ?? "", expectedSalaryLakhs: profile.expectedSalaryLakhs?.toString() ?? "", noticePeriodDays: profile.noticePeriodDays?.toString() ?? "", gender: profile.gender ?? "", profileSummary: profile.profileSummary ?? "", profileSearchable: profile.profileSearchable, interestedDomains: profile.interestedDomains ?? [], workLinks: profile.workLinks.join("\n"),
+    skills: profile.skills.length ? profile.skills.map((skill) => ({ skill: skill.skill, rating: skill.rating, yearsOfExperience: skill.yearsOfExperience?.toString() ?? "", experienceMonths: skill.experienceMonths?.toString() ?? "", softwareVersion: skill.softwareVersion ?? "", lastUsedYear: skill.lastUsedYear?.toString() ?? "" })) : [emptySkill()],
+    education: profile.education.length ? profile.education.map((education) => ({ level: education.level, degreeName: education.degreeName, institutionName: education.institutionName, graduationYear: education.graduationYear?.toString() ?? "", courseStartYear: education.courseStartYear?.toString() ?? "", specialization: education.specialization ?? "", studyType: education.studyType ?? "FULL_TIME", grade: education.grade ?? "" })) : [emptyEducation()], details: detailsFromProfile(profile),
+  };
+}
 
-const businessContributions: Contribution[] = [
-  { title: "Revenue impact", detail: "Improved self-serve conversion by 32% through a new onboarding and pricing experiment." },
-  { title: "Team leadership", detail: "Built and mentored a cross-functional product design practice across three delivery squads." },
-];
-
-const techCertificates = [
-  ["AWS", "AWS Certified Solutions Architect", "Amazon Web Services · Issued 2024", "Credential ID: AWS-89274"],
-  ["SB", "Spring Professional", "VMware · Issued 2023", "Credential ID: SPR-41389"],
-];
-
-const businessCertificates = [
-  ["GA", "Google Analytics Certification", "Google · Issued 2024", "Expires May 2027"],
-  ["PMP", "Project Management Professional", "PMI · Issued 2023", "Credential ID: PMP-23918"],
-  ["HS", "HubSpot Content Marketing", "HubSpot Academy · Issued 2024", "Credential ID: HSB-60271"],
-];
+function readableDate(value: string | null | undefined) {
+  if (!value) return "Not saved yet";
+  return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value));
+}
 
 export function CandidateProfile() {
-  const { domainCategory } = useCandidateDomain();
-  const isTech = domainCategory === "TECH";
-  const profile = isTech
-    ? { initials: "JP", name: "Jordan Patel", headline: "Senior Backend Engineer", location: "Bengaluru, India", overallExperience: "7 years", relevantExperience: "6 years", completion: 86 }
-    : { initials: "AM", name: "Amara Mensah", headline: "Senior Product Designer", location: "London, United Kingdom", overallExperience: "6 years", relevantExperience: "5 years", completion: 82 };
-  const initialLinks = isTech ? techLinks : businessLinks;
-  const initialSkills = isTech ? techSkills : businessSkills;
-  const [profileImage, setProfileImage] = useState("");
-  const [saved, setSaved] = useState(false);
-  const [links, setLinks] = useState<WorkLink[]>(initialLinks);
-  const [skills, setSkills] = useState<Skill[]>(initialSkills);
-  const [contributions, setContributions] = useState<Contribution[]>(isTech ? techContributions : businessContributions);
-  const [newLink, setNewLink] = useState({ label: "", value: "" });
-  const [newSkill, setNewSkill] = useState({ name: "", rating: 3 });
-  const [newContribution, setNewContribution] = useState({ title: "", detail: "" });
-  const [showLinkForm, setShowLinkForm] = useState(false);
-  const [showSkillForm, setShowSkillForm] = useState(false);
-  const [showContributionForm, setShowContributionForm] = useState(false);
-  const [noticePeriod, setNoticePeriod] = useState("30 days");
-  const [profileVisible, setProfileVisible] = useState(true);
+  const [profile, setProfile] = useState<CandidateProfile | null>(null);
+  const [form, setForm] = useState<ProfileForm>(emptyForm);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [viewMode, setViewMode] = useState<"edit" | "confirmed">("edit");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const cvInput = useRef<HTMLInputElement>(null);
 
-  const stackGroups = useMemo(() => techStackGroups.map((group) => ({
-    ...group,
-    skills: group.names.map((name) => skills.find((skill) => skill.name === name)).filter((skill): skill is Skill => Boolean(skill)),
-  })), [skills]);
-  const additionalTechSkills = skills.filter((skill) => !techStackGroups.some((group) => group.names.includes(skill.name)));
+  useEffect(() => {
+    let active = true;
+    void apiClient<CandidateProfile>("/api/candidate/profile").then((response) => {
+      if (active) { setProfile(response); setForm(formFromProfile(response)); }
+    }).catch((reason: unknown) => {
+      if (active) setError(reason instanceof Error ? reason.message : "Sign in as a candidate to load your saved profile.");
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
-  function addLink() {
-    if (!newLink.label.trim() || !newLink.value.trim()) return;
-    setLinks([...links, { ...newLink, icon: "↗" }]);
-    setNewLink({ label: "", value: "" });
-    setShowLinkForm(false);
-  }
-  function addSkill() {
-    if (!newSkill.name.trim()) return;
-    setSkills([...skills, { ...newSkill }]);
-    setNewSkill({ name: "", rating: 3 });
-    setShowSkillForm(false);
-  }
-  function addContribution() {
-    if (!newContribution.title.trim() || !newContribution.detail.trim()) return;
-    setContributions([...contributions, newContribution]);
-    setNewContribution({ title: "", detail: "" });
-    setShowContributionForm(false);
-  }
-  function changeRating(name: string, rating: number) {
-    setSkills(skills.map((skill) => skill.name === name ? { ...skill, rating } : skill));
-  }
-  function addProfileImage(file?: File) {
-    if (file) setProfileImage(URL.createObjectURL(file));
-  }
-  function downloadProfile() {
-    downloadCandidateProfilePdf({
-      name: profile.name,
-      headline: profile.headline,
-      location: profile.location,
-      email: isTech ? "jo••••@email.com" : "am••••@email.com",
-      phone: isTech ? "+91 •••• 214 902" : "+44 •••• 900 112",
-      noticePeriod,
-      overallExperience: profile.overallExperience,
-      relevantExperience: profile.relevantExperience,
-      skills,
-      links,
-    });
+  const completion = useMemo(() => {
+    const details = form.details;
+    const signals = [form.headline, form.location, form.overallExperienceYears, form.profileSummary, details.resumeHeadline, details.personalDetails.hometown, details.personalDetails.permanentAddress, form.noticePeriodDays];
+    const filled = signals.filter((value) => value.trim()).length + (form.skills.some((skill) => skill.skill.trim()) ? 1 : 0) + (form.education.some((education) => education.degreeName.trim() && education.institutionName.trim()) ? 1 : 0) + (details.employment.some((item) => item.companyName.trim() && item.jobTitle.trim()) ? 1 : 0) + (details.projects.some((item) => item.title.trim()) ? 1 : 0);
+    return Math.min(100, Math.round((filled / 13) * 100));
+  }, [form]);
+  const missingSignals = [!form.headline.trim() && "a current designation", !form.location.trim() && "a current location", !form.skills.some((skill) => skill.skill.trim()) && "at least one key skill", !form.education.some((education) => education.degreeName.trim() && education.institutionName.trim()) && "your education"].filter(Boolean) as string[];
+  const domainLabel = profile?.domainCategory === "TECH" ? "Engineering & tech" : profile?.domainCategory === "NON_TECH" ? "Business & non-tech" : "Profile category pending";
+
+  const setField = <K extends keyof ProfileForm>(key: K, value: ProfileForm[K]) => setForm((current) => ({ ...current, [key]: value }));
+  const updateDetail = <K extends keyof ProfileDetailsDraft>(key: K, value: ProfileDetailsDraft[K]) => setForm((current) => ({ ...current, details: { ...current.details, [key]: value } }));
+  const updateSkill = (index: number, update: Partial<SkillDraft>) => setField("skills", form.skills.map((item, position) => position === index ? { ...item, ...update } : item));
+  const updateEducation = (index: number, update: Partial<EducationDraft>) => setField("education", form.education.map((item, position) => position === index ? { ...item, ...update } : item));
+  const updateEmployment = (index: number, update: Partial<EmploymentDraft>) => updateDetail("employment", form.details.employment.map((item, position) => position === index ? { ...item, ...update } : item));
+  const updateProject = (index: number, update: Partial<ProjectDraft>) => updateDetail("projects", form.details.projects.map((item, position) => position === index ? { ...item, ...update } : item));
+  const updateAccomplishment = (index: number, update: Partial<AccomplishmentDraft>) => updateDetail("accomplishments", form.details.accomplishments.map((item, position) => position === index ? { ...item, ...update } : item));
+  const updatePersonal = (update: Partial<PersonalDraft>) => updateDetail("personalDetails", { ...form.details.personalDetails, ...update });
+  const updateInclusion = (update: Partial<InclusionDraft>) => updateDetail("inclusionDetails", { ...form.details.inclusionDetails, ...update });
+  const updateLanguage = (index: number, update: Partial<LanguageDraft>) => updateDetail("languages", form.details.languages.map((item, position) => position === index ? { ...item, ...update } : item));
+
+  async function saveProfile() {
+    setError(""); setMessage("");
+    if (form.profileSearchable && missingSignals.length) { setError(`Add ${missingSignals.join(", ")} before making your profile searchable.`); return; }
+    setSaving(true);
+    try {
+      const details = form.details;
+      const primaryEmployment = details.employment.find((item) => item.currentCompany) ?? details.employment[0];
+      const response = await apiClient<CandidateProfile>("/api/candidate/profile", { method: "PATCH", body: JSON.stringify({
+        headline: form.headline.trim() || null, currentCompany: primaryEmployment?.companyName.trim() || form.currentCompany.trim() || null, departmentRole: form.departmentRole.trim() || null, industry: form.industry.trim() || null, previousRole: form.previousRole.trim() || null, previousCompany: form.previousCompany.trim() || null, location: form.location.trim() || null, preferredLocations: valuesFromText(form.preferredLocations), overallExperienceYears: optionalNumber(form.overallExperienceYears), expectedSalaryLakhs: optionalNumber(form.expectedSalaryLakhs), noticePeriodDays: optionalNumber(form.noticePeriodDays) ?? optionalNumber(primaryEmployment?.noticePeriodDays ?? ""), gender: form.gender || null, profileSummary: form.profileSummary.trim() || null, profileSearchable: form.profileSearchable, interestedDomains: form.interestedDomains, workLinks: form.workLinks.split(/\n|,/).map((value) => value.trim()).filter(Boolean),
+        skills: form.skills.filter((skill) => skill.skill.trim()).map((skill) => ({ skill: skill.skill.trim(), rating: skill.rating, yearsOfExperience: optionalNumber(skill.yearsOfExperience), experienceMonths: optionalNumber(skill.experienceMonths), softwareVersion: skill.softwareVersion.trim() || null, lastUsedYear: optionalNumber(skill.lastUsedYear) })),
+        education: form.education.filter((item) => item.degreeName.trim() && item.institutionName.trim()).map((item) => ({ level: item.level, degreeName: item.degreeName.trim(), institutionName: item.institutionName.trim(), graduationYear: optionalNumber(item.graduationYear), courseStartYear: optionalNumber(item.courseStartYear), specialization: item.specialization.trim() || null, studyType: item.studyType, grade: item.grade.trim() || null })),
+        profileDetails: { resumeHeadline: details.resumeHeadline.trim() || null, employmentHighlights: details.employmentHighlights, employment: details.employment.filter((item) => item.companyName.trim() || item.jobTitle.trim()).map((item) => ({ ...item, companyName: item.companyName.trim() || null, jobTitle: item.jobTitle.trim() || null, joiningYear: optionalNumber(item.joiningYear), joiningMonth: optionalNumber(item.joiningMonth), currentSalary: optionalNumber(item.currentSalary), skillsUsed: valuesFromText(item.skillsUsed), jobDescription: item.jobDescription.trim() || null, noticePeriodDays: optionalNumber(item.noticePeriodDays) })), projects: details.projects.filter((item) => item.title.trim()).map((item) => ({ title: item.title.trim(), description: item.description.trim() || null, projectUrl: item.projectUrl.trim() || null, skills: valuesFromText(item.skills) })), accomplishments: details.accomplishments.filter((item) => item.title.trim() || item.url.trim()).map((item) => ({ type: item.type, title: item.title.trim() || null, issuer: item.issuer.trim() || null, url: item.url.trim() || null, description: item.description.trim() || null })), personalDetails: { ...details.personalDetails, birthDay: optionalNumber(details.personalDetails.birthDay), birthYear: optionalNumber(details.personalDetails.birthYear), otherCountryWorkPermits: valuesFromText(details.personalDetails.otherCountryWorkPermits).slice(0, 3) }, inclusionDetails: details.inclusionDetails, languages: details.languages.filter((item) => item.language.trim()).map((item) => ({ ...item, language: item.language.trim() })) },
+      }) });
+      setProfile(response); setForm(formFromProfile(response)); setMessage("Your full candidate profile has been saved."); setViewMode("confirmed");
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "We could not save your profile. Please try again."); }
+    finally { setSaving(false); }
   }
 
-  const contributionTitle = isTech ? "Architecture & code contributions" : "Impact metrics & KPIs";
-  const contributionCopy = isTech
-    ? "Show recruiters the systems you designed, meaningful open-source work, and measurable scale outcomes."
-    : "Make your strategic impact easy to scan with business outcomes, managed budgets, and team scope.";
+  async function uploadCv(file: File) {
+    setError(""); setMessage(""); setUploading(true);
+    try {
+      const body = new FormData(); body.set("file", file);
+      await apiClient<{ requestId: string }>("/api/candidate/cv", { method: "POST", body });
+      setMessage("Your CV is uploaded and is being read. Review the extracted details here when it is ready.");
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "We could not upload that CV."); }
+    finally { setUploading(false); if (cvInput.current) cvInput.current.value = ""; }
+  }
 
-  return <WorkspaceShell workspace="candidate" active="profile" title="Your professional profile" description="The details recruiters see only when you choose to apply or share your profile." actions={<div className="profile-heading-actions"><Button onClick={() => setSaved(true)}>{saved ? "Changes saved" : "Save changes"}</Button><button className="profile-download-button" type="button" onClick={downloadProfile} aria-label="Download profile as PDF" title="Download profile as PDF">⇩</button></div>}>
-    {saved && <div className="creation-success">Your profile has been updated. Recruiters only see the information available on a role you apply to.</div>}
-    <section className="profile-hero panel"><label className="profile-image-upload">{profileImage ? <img src={profileImage} alt="Your profile" /> : <span>{profile.initials}</span>}<input type="file" accept="image/*" onChange={(event) => addProfileImage(event.target.files?.[0])} /><b>Change</b></label><div><h2>{profile.name} <Badge tone={isTech ? "blue" : "purple"}>{isTech ? "Engineering & Tech" : "Business & Non-Tech"}</Badge></h2><p>{profile.headline} · {profile.location}</p><div className="profile-hero-meta"><span>{profile.overallExperience} overall experience</span><span>{profile.relevantExperience} relevant experience</span><span>Open to hybrid roles</span></div></div><div className="profile-completion"><strong>{profile.completion}%</strong><span>Profile complete</span><Meter value={profile.completion} /></div></section>
-    <div className="profile-layout profile-layout-expanded"><div className="stack">
-      <section className="panel"><SectionTitle eyebrow="Personal information" title="How recruiters identify you" action={<Button variant="quiet">Edit</Button>} /><div className="profile-detail-grid"><Detail label="Full name" value={profile.name} /><Detail label="Professional headline" value={profile.headline} /><Detail label="Email address" value={isTech ? "jo••••@email.com" : "am••••@email.com"} privateDetail /><Detail label="Contact number" value={isTech ? "+91 •••• 214 902" : "+44 •••• 900 112"} privateDetail /><Detail label="Current location" value={profile.location} /><label className="profile-select"><span>Notice period</span><select value={noticePeriod} onChange={(event) => setNoticePeriod(event.target.value)}><option>Immediately available</option><option>15 days</option><option>30 days</option><option>60 days</option><option>90 days</option></select></label></div><div className="profile-privacy-controls"><label className="profile-visibility-control"><input type="checkbox" checked={profileVisible} onChange={(event) => setProfileVisible(event.target.checked)} /><span><b>Profile visibility</b><small>{profileVisible ? "Available to recruiters only for roles you apply to or explicitly share." : "Hidden from recruiter searches until you choose to share it."}</small></span></label><p className="profile-private-note">Email and mobile stay masked and are never displayed publicly.</p></div></section>
-      {!isTech && <CertificateSection certificates={businessCertificates} eyebrow="Industry credentials" title="Business certifications" prominent />}
-      <section className="panel"><SectionTitle eyebrow="Experience" title="Work history" action={<Button variant="quiet">+ Add experience</Button>} /><div className="experience-summary"><div><strong>{profile.overallExperience}</strong><span>Overall experience</span></div><div><strong>{profile.relevantExperience}</strong><span>Relevant experience</span></div><div><strong>{noticePeriod}</strong><span>Notice period</span></div></div><div className="profile-timeline">{isTech ? <><Timeline role="Senior Backend Engineer" company="Nexora Cloud" start="March 2022" end="Present" copy="Leading services for a high-volume recruitment platform, owning API performance, observability, and infrastructure reliability." /><Timeline role="Software Engineer" company="Vertex Systems" start="July 2019" end="February 2022" copy="Built Java and TypeScript workflows for enterprise teams, collaborating across product, data, and security." /></> : <><Timeline role="Senior Product Designer" company="Northstar Labs" start="January 2022" end="Present" copy="Leading end-to-end design for an analytics platform used by more than 20,000 customers. Own research, product strategy and the core design system." /><Timeline role="Product Designer" company="Halcyon Studio" start="June 2019" end="December 2021" copy="Designed B2B workflows and a scalable interface library for enterprise teams, partnering with product managers and engineers." /></>}</div></section>
-      <section className="panel domain-impact-panel"><SectionTitle eyebrow={isTech ? "Technical impact" : "Business impact"} title={contributionTitle} action={<Button variant="quiet" onClick={() => setShowContributionForm(!showContributionForm)}>{showContributionForm ? "Cancel" : isTech ? "+ Add contribution" : "+ Add impact"}</Button>} /><p className="section-helper">{contributionCopy}</p>{!isTech && <div className="impact-metric-grid"><Metric value="+32%" label="Conversion lift" /><Metric value="£1.8m" label="Budget influenced" /><Metric value="3 squads" label="Team scope" /></div>}{showContributionForm && <div className="inline-add-form contribution-add"><input value={newContribution.title} onChange={(event) => setNewContribution({ ...newContribution, title: event.target.value })} placeholder={isTech ? "e.g. Platform architecture" : "e.g. Revenue growth"} /><input value={newContribution.detail} onChange={(event) => setNewContribution({ ...newContribution, detail: event.target.value })} placeholder="Describe the measurable outcome" /><Button onClick={addContribution}>Add</Button></div>}<div className="contribution-list">{contributions.map((contribution) => <article key={`${contribution.title}-${contribution.detail}`}><span>{isTech ? "</>" : "↗"}</span><div><strong>{contribution.title}</strong><p>{contribution.detail}</p></div></article>)}</div></section>
-      <section className="panel"><SectionTitle eyebrow="Education" title="Academic background" action={<Button variant="quiet">+ Add education</Button>} /><div className="education-table"><div className="education-head"><span>College / University</span><span>Course</span><span>Year</span><span>Grade</span></div>{isTech ? <><div><strong>Indian Institute of Technology Delhi</strong><span>B.Tech, Computer Science</span><span>2015 – 2019</span><span>8.7 CGPA</span></div><div><strong>Delhi Public School</strong><span>Senior secondary</span><span>2013 – 2015</span><span>92%</span></div></> : <><div><strong>University of the Arts London</strong><span>BA Interaction Design</span><span>2016 – 2019</span><span>First class</span></div><div><strong>Harris Academy</strong><span>A-levels, Art &amp; Design</span><span>2014 – 2016</span><span>AAB</span></div></>}</div></section>
-      {isTech && <CertificateSection certificates={techCertificates} eyebrow="Credentials" title="Technical certifications" />}
-    </div>
-    <aside className="stack">
-      <section className="panel domain-work-links"><SectionTitle eyebrow={isTech ? "Coding footprint" : "Visual portfolio"} title={isTech ? "Coding work links" : "Portfolio & work links"} action={<Button variant="quiet" onClick={() => setShowLinkForm(!showLinkForm)}>+ Add link</Button>} /><p className="section-helper">{isTech ? "Share verified coding profiles that help recruiters understand your engineering practice." : "Put your visual work, writing, and personal portfolio at the top of your profile."}</p>{showLinkForm && <div className="inline-add-form"><input value={newLink.label} onChange={(event) => setNewLink({ ...newLink, label: event.target.value })} placeholder={isTech ? "e.g. GitHub" : "e.g. Behance"} /><input value={newLink.value} onChange={(event) => setNewLink({ ...newLink, value: event.target.value })} placeholder="Paste the link" /><Button onClick={addLink}>Add</Button></div>}<div className="link-list">{links.map((link) => <a href={`https://${link.value.replace(/^https?:\/\//, "")}`} target="_blank" rel="noreferrer" key={`${link.label}-${link.value}`}><span>{link.icon}</span><div><strong>{link.label}</strong><small>{link.value}</small></div><b>↗</b></a>)}</div></section>
-      {isTech ? <section className="panel"><SectionTitle eyebrow="Technical expertise" title="Tech stack matrix" action={<Button variant="quiet" onClick={() => setShowSkillForm(!showSkillForm)}>+ Add skill</Button>} /><p className="section-helper">Rate the languages, frameworks, and infrastructure tools you use in production.</p>{showSkillForm && <SkillAddForm newSkill={newSkill} setNewSkill={setNewSkill} onAdd={addSkill} tech />}<div className="tech-stack-matrix">{stackGroups.map((group) => <section className="tech-stack-group" key={group.label}><h3>{group.label}</h3><div>{group.skills.map((skill) => <SkillRating skill={skill} onChange={changeRating} key={skill.name} />)}</div></section>)}{additionalTechSkills.length > 0 && <section className="tech-stack-group"><h3>Additional tools</h3><div>{additionalTechSkills.map((skill) => <SkillRating skill={skill} onChange={changeRating} key={skill.name} />)}</div></section>}</div></section> : <section className="panel"><SectionTitle eyebrow="Strategic expertise" title="Skills &amp; ratings" action={<Button variant="quiet" onClick={() => setShowSkillForm(!showSkillForm)}>+ Add skill</Button>} /><p className="section-helper">Rate the competencies that define your strategic and creative practice.</p>{showSkillForm && <SkillAddForm newSkill={newSkill} setNewSkill={setNewSkill} onAdd={addSkill} />}<div className="skill-ratings">{skills.map((skill) => <SkillRating skill={skill} onChange={changeRating} key={skill.name} />)}</div></section>}
-    </aside></div>
+  if (!loading && !profile) {
+    return <WorkspaceShell workspace="candidate" active="profile" title="Your professional profile" description="Your name and verified contact details are added during sign-up, then you complete the rest of your career profile here.">
+      <section className="panel candidate-profile-access"><span aria-hidden="true">↗</span><div><p>Candidate sign-in required</p><h2>Sign in to continue your profile</h2><p>{error || "Your profile is available once you sign in with your candidate account."}</p><div><Button href="/login">Sign in as a candidate</Button><Button variant="secondary" onClick={() => window.location.reload()}>Try again</Button></div></div></section>
+    </WorkspaceShell>;
+  }
+
+  if (viewMode === "confirmed" && profile) {
+    return <ConfirmedCandidateProfile profile={profile} form={form} completion={completion} domainLabel={domainLabel} onEdit={() => { setMessage(""); setError(""); setViewMode("edit"); }} />;
+  }
+
+  return <WorkspaceShell workspace="candidate" active="profile" title="Your professional profile" description="Keep your complete candidate record accurate. Recruiters only see your protected, searchable profile.">
+    <form className="candidate-complete-profile" onSubmit={(event) => { event.preventDefault(); void saveProfile(); }}>
+      {message && <p className="candidate-profile-status candidate-profile-status-success" role="status">✓ {message}</p>}
+      {error && <p className="candidate-profile-status candidate-profile-status-error" role="alert">{error}</p>}
+      <section className="profile-hero panel candidate-complete-hero"><div className="candidate-hero-identity"><span className="candidate-profile-avatar">{profile?.fullName?.split(" ").map((part) => part[0]).join("").slice(0, 2) || "You"}</span><div><p>Candidate profile <Badge tone="blue">{domainLabel}</Badge></p><h2>{profile?.fullName ?? "Your profile"}</h2><span>{form.headline || "Add your current designation"} · {form.location || "Add your location"}</span><small>Last updated {readableDate(profile?.profileLastUpdatedAt)}</small></div></div><div className="candidate-hero-facts"><div><b>{form.overallExperienceYears || "—"}</b><span>years experience</span></div><div><b>{form.expectedSalaryLakhs ? `₹ ${form.expectedSalaryLakhs} L` : "—"}</b><span>current expectation</span></div><div><b>{form.noticePeriodDays || "—"}</b><span>notice days</span></div></div><div className="candidate-hero-actions"><button className="candidate-profile-upload" type="button" onClick={() => cvInput.current?.click()} disabled={uploading}>{uploading ? "Uploading…" : profile?.cvAvailable ? "Replace CV" : "Upload CV"}</button><input ref={cvInput} className="sr-only" type="file" accept=".pdf,.doc,.docx,.txt" onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadCv(file); }}/><label className="candidate-profile-visibility"><input type="checkbox" checked={form.profileSearchable} onChange={(event) => setField("profileSearchable", event.target.checked)}/><span><b>Visible in sourcing</b><small>Contact details stay protected</small></span></label></div></section>
+
+      <div className="candidate-profile-grid candidate-complete-layout"><div className="candidate-profile-content">
+        <ProfileSection eyebrow="Profile overview" title="Professional summary" helper="This is the first information recruiters see. Your email and phone number remain masked until an eligible pipeline action.">
+          <div className="candidate-profile-fields candidate-profile-fields-two"><Field label="Resume headline" required><input value={form.details.resumeHeadline} onChange={(event) => updateDetail("resumeHeadline", event.target.value)} placeholder="e.g. Full stack engineer with 5 years of experience" maxLength={220}/></Field><Field label="Current designation" required><input value={form.headline} onChange={(event) => setField("headline", event.target.value)} placeholder="e.g. Senior Backend Engineer" maxLength={180}/></Field></div>
+          <Field label="Professional summary" hint="Summarise the work, outcomes and strengths you want recruiters to understand."><textarea value={form.profileSummary} onChange={(event) => setField("profileSummary", event.target.value)} rows={4} maxLength={10000} placeholder="Describe your professional strengths and impact."/></Field>
+          <TagEditor label="Employment highlights" hint="Add up to three areas of expertise shown as quick profile tags." values={form.details.employmentHighlights} onChange={(values) => updateDetail("employmentHighlights", values.slice(0, 3))} placeholder="e.g. Distributed systems" max={3}/>
+          <div className="candidate-choice-group"><span>Interested domains</span><div>{candidateInterestOptions.map((domain) => <button type="button" className={form.interestedDomains.includes(domain) ? "selected" : ""} key={domain} onClick={() => setField("interestedDomains", form.interestedDomains.includes(domain) ? form.interestedDomains.filter((item) => item !== domain) : [...form.interestedDomains, domain])}>{domain}</button>)}</div></div>
+        </ProfileSection>
+
+        <ProfileSection eyebrow="Contact, availability and location" title="Searchable essentials" helper="These values map directly to recruiter sourcing filters and candidate cards.">
+          <div className="candidate-profile-fields candidate-profile-fields-three"><Field label="Total experience" required suffix="years"><input type="number" min="0" max="60" value={form.overallExperienceYears} onChange={(event) => setField("overallExperienceYears", event.target.value)} placeholder="0"/></Field><Field label="Current / expected salary" suffix="INR lacs"><input type="number" min="0" max="1000" value={form.expectedSalaryLakhs} onChange={(event) => setField("expectedSalaryLakhs", event.target.value)} placeholder="Optional"/></Field><Field label="Notice period" suffix="days"><input type="number" min="0" max="365" value={form.noticePeriodDays} onChange={(event) => setField("noticePeriodDays", event.target.value)} placeholder="e.g. 30"/></Field></div>
+          <div className="candidate-profile-fields candidate-profile-fields-two"><Field label="Current location" required><input value={form.location} onChange={(event) => setField("location", event.target.value)} placeholder="e.g. Bengaluru" maxLength={160}/></Field><Field label="Preferred locations" hint="Separate locations with commas"><input value={form.preferredLocations} onChange={(event) => setField("preferredLocations", event.target.value)} placeholder="e.g. Bengaluru, Pune, Remote" maxLength={800}/></Field><Field label="Department and role"><input value={form.departmentRole} onChange={(event) => setField("departmentRole", event.target.value)} placeholder="e.g. Engineering / Platform" maxLength={180}/></Field><Field label="Industry"><input value={form.industry} onChange={(event) => setField("industry", event.target.value)} placeholder="e.g. Software product" maxLength={180}/></Field></div>
+          <div className="candidate-contact-protected"><span>▣</span><div><b>Private contact information</b><small>{profile?.emailMasked ?? "Email protected"} · {profile?.mobileMasked ?? "Mobile protected"} · Verified {profile?.emailVerified ? "email" : "email pending"} and {profile?.mobileVerified ? "mobile" : "mobile pending"}</small></div></div>
+        </ProfileSection>
+
+        <ProfileSection eyebrow="Employment" title="Work history" helper="Add roles in reverse chronological order. Mark your current company so your sourcing card stays accurate." action={<AddButton label="Add employment" onClick={() => updateDetail("employment", [...form.details.employment, emptyEmployment()])}/>}>{form.details.employment.map((employment, index) => <div className="candidate-complete-repeater" key={`employment-${index}`}><RepeaterHead title={employment.jobTitle || employment.companyName || `Employment ${index + 1}`} removeLabel="Remove employment" disabled={form.details.employment.length === 1} onRemove={() => updateDetail("employment", form.details.employment.filter((_, position) => position !== index))}/><div className="candidate-profile-fields candidate-profile-fields-three"><Field label="Company name"><input value={employment.companyName} onChange={(event) => updateEmployment(index, { companyName: event.target.value, currentCompany: employment.currentCompany })} placeholder="Current company"/></Field><Field label="Job title"><input value={employment.jobTitle} onChange={(event) => updateEmployment(index, { jobTitle: event.target.value })} placeholder="Your role"/></Field><Field label="Employment type"><select value={employment.employmentType} onChange={(event) => updateEmployment(index, { employmentType: event.target.value })}><option>Full time</option><option>Part time</option><option>Contract</option><option>Internship</option><option>Freelance</option></select></Field><Field label="Joining year"><input type="number" min="1900" max="2200" value={employment.joiningYear} onChange={(event) => updateEmployment(index, { joiningYear: event.target.value })} placeholder="Year"/></Field><Field label="Joining month"><select value={employment.joiningMonth} onChange={(event) => updateEmployment(index, { joiningMonth: event.target.value })}><option value="">Month</option>{monthOptions.map((month, position) => <option key={month} value={position + 1}>{month}</option>)}</select></Field><Field label="Notice period" suffix="days"><input type="number" min="0" max="365" value={employment.noticePeriodDays} onChange={(event) => updateEmployment(index, { noticePeriodDays: event.target.value })} placeholder="e.g. 30"/></Field><Field label="Current salary"><div className="candidate-inline-fields"><select value={employment.currency} onChange={(event) => updateEmployment(index, { currency: event.target.value })}><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option></select><input type="number" min="0" value={employment.currentSalary} onChange={(event) => updateEmployment(index, { currentSalary: event.target.value })} placeholder="Amount"/></div></Field><Field label="Current company?"><label className="candidate-checkbox-line"><input type="checkbox" checked={employment.currentCompany} onChange={(event) => updateEmployment(index, { currentCompany: event.target.checked })}/><span>Yes, I work here now</span></label></Field></div><TagEditor label="Skills used" values={valuesFromText(employment.skillsUsed)} onChange={(values) => updateEmployment(index, { skillsUsed: values.join(", ") })} placeholder="e.g. Java, AWS"/><Field label="Job profile, description and role"><textarea rows={3} value={employment.jobDescription} onChange={(event) => updateEmployment(index, { jobDescription: event.target.value })} placeholder="Describe responsibilities, outcomes and scope."/></Field></div>)}</ProfileSection>
+
+        <ProfileSection eyebrow="IT skills" title="Software skills and expertise" helper="Each entry becomes a searchable key skill. Add the version, last-used year and experience for a more accurate match." action={<AddButton label="Add IT skill" onClick={() => setField("skills", [...form.skills, emptySkill()])}/>}>{form.skills.map((skill, index) => <div className="candidate-complete-repeater candidate-skill-complete-row" key={`skill-${index}`}><RepeaterHead title={skill.skill || `IT skill ${index + 1}`} removeLabel="Remove skill" disabled={form.skills.length === 1} onRemove={() => setField("skills", form.skills.filter((_, position) => position !== index))}/><div className="candidate-profile-fields candidate-profile-fields-three"><Field label="Skill / software name"><input value={skill.skill} onChange={(event) => updateSkill(index, { skill: event.target.value })} placeholder="e.g. TypeScript"/></Field><Field label="Software version"><input value={skill.softwareVersion} onChange={(event) => updateSkill(index, { softwareVersion: event.target.value })} placeholder="e.g. 5.x"/></Field><Field label="Last used"><input type="number" min="1900" max="2200" value={skill.lastUsedYear} onChange={(event) => updateSkill(index, { lastUsedYear: event.target.value })} placeholder="Year"/></Field><Field label="Experience" suffix="years"><input type="number" min="0" max="60" value={skill.yearsOfExperience} onChange={(event) => updateSkill(index, { yearsOfExperience: event.target.value })} placeholder="0"/></Field><Field label="Experience" suffix="months"><input type="number" min="0" max="11" value={skill.experienceMonths} onChange={(event) => updateSkill(index, { experienceMonths: event.target.value })} placeholder="0"/></Field><Field label="Proficiency"><select value={skill.rating} onChange={(event) => updateSkill(index, { rating: Number(event.target.value) })}>{[1, 2, 3, 4, 5].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}</select></Field></div></div>)}</ProfileSection>
+
+        <ProfileSection eyebrow="Education" title="Academic details" helper="Record school, diploma and higher-education entries that support recruiter qualification filters." action={<AddButton label="Add education" onClick={() => setField("education", [...form.education, emptyEducation()])}/>}>{form.education.map((education, index) => <div className="candidate-complete-repeater" key={`education-${index}`}><RepeaterHead title={education.degreeName || `Education ${index + 1}`} removeLabel="Remove education" disabled={form.education.length === 1} onRemove={() => setField("education", form.education.filter((_, position) => position !== index))}/><div className="candidate-profile-fields candidate-profile-fields-three"><Field label="Select degree"><select value={education.level} onChange={(event) => updateEducation(index, { level: event.target.value as EducationLevel })}>{educationLevels.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></Field><Field label="Course"><input value={education.degreeName} onChange={(event) => updateEducation(index, { degreeName: event.target.value })} placeholder="e.g. B.Tech"/></Field><Field label="University / Institute"><input value={education.institutionName} onChange={(event) => updateEducation(index, { institutionName: event.target.value })} placeholder="University or institute"/></Field><Field label="Specialization"><input value={education.specialization} onChange={(event) => updateEducation(index, { specialization: event.target.value })} placeholder="e.g. Computer Science"/></Field><Field label="Course type"><select value={education.studyType} onChange={(event) => updateEducation(index, { studyType: event.target.value as StudyType })}><option value="FULL_TIME">Full time</option><option value="PART_TIME">Part time</option><option value="CORRESPONDENCE">Correspondence</option></select></Field><Field label="Grade"><input value={education.grade} onChange={(event) => updateEducation(index, { grade: event.target.value })} placeholder="CGPA, percentage or grade"/></Field><Field label="Start year"><input type="number" min="1900" max="2200" value={education.courseStartYear} onChange={(event) => updateEducation(index, { courseStartYear: event.target.value })} placeholder="Year"/></Field><Field label="End year"><input type="number" min="1900" max="2200" value={education.graduationYear} onChange={(event) => updateEducation(index, { graduationYear: event.target.value })} placeholder="Year"/></Field></div></div>)}</ProfileSection>
+
+        <ProfileSection eyebrow="Projects and accomplishments" title="Work beyond the role" helper="Add projects, portfolio links, publications, patents and credentials that demonstrate your work.">
+          <div className="candidate-subsection"><div className="candidate-subsection-heading"><h3>Projects</h3><AddButton label="Add project" onClick={() => updateDetail("projects", [...form.details.projects, emptyProject()])}/></div>{form.details.projects.map((project, index) => <div className="candidate-complete-repeater" key={`project-${index}`}><RepeaterHead title={project.title || `Project ${index + 1}`} removeLabel="Remove project" onRemove={() => updateDetail("projects", form.details.projects.filter((_, position) => position !== index))}/><div className="candidate-profile-fields candidate-profile-fields-two"><Field label="Project title"><input value={project.title} onChange={(event) => updateProject(index, { title: event.target.value })} placeholder="Project name"/></Field><Field label="Project URL"><input type="url" value={project.projectUrl} onChange={(event) => updateProject(index, { projectUrl: event.target.value })} placeholder="https://"/></Field></div><TagEditor label="Skills used" values={valuesFromText(project.skills)} onChange={(values) => updateProject(index, { skills: values.join(", ") })} placeholder="e.g. React, AWS"/><Field label="Project description"><textarea rows={3} value={project.description} onChange={(event) => updateProject(index, { description: event.target.value })} placeholder="What did you build and what was the outcome?"/></Field></div>)}</div>
+          <div className="candidate-subsection"><div className="candidate-subsection-heading"><h3>Accomplishments and links</h3><AddButton label="Add accomplishment" onClick={() => updateDetail("accomplishments", [...form.details.accomplishments, emptyAccomplishment()])}/></div>{form.details.accomplishments.map((item, index) => <div className="candidate-complete-repeater" key={`accomplishment-${index}`}><RepeaterHead title={item.title || item.type || `Accomplishment ${index + 1}`} removeLabel="Remove accomplishment" onRemove={() => updateDetail("accomplishments", form.details.accomplishments.filter((_, position) => position !== index))}/><div className="candidate-profile-fields candidate-profile-fields-three"><Field label="Type"><select value={item.type} onChange={(event) => updateAccomplishment(index, { type: event.target.value })}>{accomplishmentTypes.map((type) => <option key={type}>{type}</option>)}</select></Field><Field label="Title"><input value={item.title} onChange={(event) => updateAccomplishment(index, { title: event.target.value })} placeholder="Title or credential"/></Field><Field label="Issuer"><input value={item.issuer} onChange={(event) => updateAccomplishment(index, { issuer: event.target.value })} placeholder="Issuer or publisher"/></Field><Field label="URL"><input type="url" value={item.url} onChange={(event) => updateAccomplishment(index, { url: event.target.value })} placeholder="https://"/></Field></div><Field label="Description"><textarea rows={2} value={item.description} onChange={(event) => updateAccomplishment(index, { description: event.target.value })} placeholder="Optional context"/></Field></div>)}</div>
+          <Field label="Additional professional links" hint="GitHub, portfolio, LeetCode, work samples or other URLs — one per line."><textarea rows={3} value={form.workLinks} onChange={(event) => setField("workLinks", event.target.value)} placeholder={"https://github.com/you\nhttps://portfolio.example"}/></Field>
+        </ProfileSection>
+
+        <ProfileSection eyebrow="Personal details" title="Your personal preferences" helper="Optional information helps us support inclusive matching. It is not shown as direct contact information.">
+          <ChoiceGroup label="Gender" value={form.gender} options={["male", "female", "transgender", "non-binary", "prefer-not-to-say"]} onChange={(value) => setField("gender", value)} format={(value) => value === "prefer-not-to-say" ? "Prefer not to say" : value[0].toUpperCase() + value.slice(1)}/>
+          <ChoiceGroup label="More information" value={form.details.inclusionDetails.diversityTags[0] ?? ""} options={["Single parent", "Working mother", "Retired (60+)", "LGBTQ+"]} onChange={(value) => updateInclusion({ diversityTags: value ? [value] : [] })} allowClear/>
+          <ChoiceGroup label="Marital status" value={form.details.personalDetails.maritalStatus} options={["Single/unmarried", "Married", "Widowed", "Divorced", "Separated", "Other"]} onChange={(value) => updatePersonal({ maritalStatus: value })} allowClear/>
+          <div className="candidate-profile-fields candidate-profile-fields-three"><Field label="Date of birth — day"><select value={form.details.personalDetails.birthDay} onChange={(event) => updatePersonal({ birthDay: event.target.value })}><option value="">Day</option>{Array.from({ length: 31 }, (_, index) => <option key={index + 1}>{index + 1}</option>)}</select></Field><Field label="Month"><select value={form.details.personalDetails.birthMonth} onChange={(event) => updatePersonal({ birthMonth: event.target.value })}><option value="">Month</option>{monthOptions.map((month) => <option key={month}>{month}</option>)}</select></Field><Field label="Year"><input type="number" min="1900" max="2200" value={form.details.personalDetails.birthYear} onChange={(event) => updatePersonal({ birthYear: event.target.value })} placeholder="Year"/></Field></div>
+          <ChoiceGroup label="Category" value={form.details.personalDetails.category} options={["General", "Scheduled Caste (SC)", "Scheduled Tribe (ST)", "OBC - Creamy", "OBC - Non creamy", "Other"]} onChange={(value) => updatePersonal({ category: value })} allowClear/>
+          <ChoiceGroup label="Work permit for USA" value={form.details.personalDetails.usaWorkPermit} options={["Have US H1 Visa", "Need US H1 Visa", "US TN Permit Holder", "US Green Card Holder", "US Citizen", "Authorized to work in US"]} onChange={(value) => updatePersonal({ usaWorkPermit: value })} allowClear/>
+          <div className="candidate-profile-fields candidate-profile-fields-two"><Field label="Work permit for other countries" hint="Separate countries with commas; choose up to three"><input value={form.details.personalDetails.otherCountryWorkPermits} onChange={(event) => updatePersonal({ otherCountryWorkPermits: valuesFromText(event.target.value).slice(0, 3).join(", ") })} placeholder="e.g. Canada, Germany"/></Field><Field label="Permanent address"><input value={form.details.personalDetails.permanentAddress} onChange={(event) => updatePersonal({ permanentAddress: event.target.value })} placeholder="Your permanent address"/></Field><Field label="Hometown"><input value={form.details.personalDetails.hometown} onChange={(event) => updatePersonal({ hometown: event.target.value })} placeholder="Enter your hometown"/></Field><Field label="Pincode"><input value={form.details.personalDetails.pincode} onChange={(event) => updatePersonal({ pincode: event.target.value })} placeholder="Pincode"/></Field></div>
+        </ProfileSection>
+
+        <ProfileSection eyebrow="Language proficiency" title="How you communicate" helper="Let recruiters know the languages you can use confidently." action={<AddButton label="Add language" onClick={() => updateDetail("languages", [...form.details.languages, emptyLanguage()])}/>}>{form.details.languages.map((language, index) => <div className="candidate-complete-repeater candidate-language-row" key={`language-${index}`}><RepeaterHead title={language.language || `Language ${index + 1}`} removeLabel="Remove language" disabled={form.details.languages.length === 1} onRemove={() => updateDetail("languages", form.details.languages.filter((_, position) => position !== index))}/><div className="candidate-profile-fields candidate-profile-fields-two"><Field label="Language"><input value={language.language} onChange={(event) => updateLanguage(index, { language: event.target.value })} placeholder="e.g. English"/></Field><Field label="Proficiency"><select value={language.proficiency} onChange={(event) => updateLanguage(index, { proficiency: event.target.value })}><option>Beginner</option><option>Intermediate</option><option>Proficient</option><option>Native / bilingual</option></select></Field></div><div className="candidate-checklist">{(["read", "write", "speak"] as const).map((ability) => <label key={ability}><input type="checkbox" checked={language[ability]} onChange={(event) => updateLanguage(index, { [ability]: event.target.checked })}/>{ability[0].toUpperCase() + ability.slice(1)}</label>)}</div></div>)}</ProfileSection>
+
+        <ProfileSection eyebrow="Diversity and inclusion" title="Additional information" helper="Optional information for inclusive employment opportunities. You decide what to share.">
+          <div className="candidate-profile-fields candidate-profile-fields-two"><Field label="Disability status"><select value={form.details.inclusionDetails.disabilityStatus} onChange={(event) => updateInclusion({ disabilityStatus: event.target.value })}><option value="">Prefer not to say</option><option>Not applicable</option><option>Person with disability</option></select></Field><Field label="Disability details"><input value={form.details.inclusionDetails.disabilityDetails} onChange={(event) => updateInclusion({ disabilityDetails: event.target.value })} placeholder="Optional details"/></Field></div>
+          <div className="candidate-inclusion-toggles"><label className="candidate-checkbox-line"><input type="checkbox" checked={form.details.inclusionDetails.militaryExperience} onChange={(event) => updateInclusion({ militaryExperience: event.target.checked })}/><span>Add military experience</span></label><label className="candidate-checkbox-line"><input type="checkbox" checked={form.details.inclusionDetails.careerBreak} onChange={(event) => updateInclusion({ careerBreak: event.target.checked })}/><span>Add career break</span></label></div>
+          {(form.details.inclusionDetails.militaryExperience || form.details.inclusionDetails.careerBreak) && <div className="candidate-profile-fields candidate-profile-fields-two">{form.details.inclusionDetails.militaryExperience && <Field label="Military experience"><textarea rows={2} value={form.details.inclusionDetails.militaryDetails} onChange={(event) => updateInclusion({ militaryDetails: event.target.value })} placeholder="Share service or relevant experience"/></Field>}{form.details.inclusionDetails.careerBreak && <Field label="Career break"><textarea rows={2} value={form.details.inclusionDetails.careerBreakDetails} onChange={(event) => updateInclusion({ careerBreakDetails: event.target.value })} placeholder="Share dates or context if you wish"/></Field>}</div>}
+        </ProfileSection>
+      </div><aside className="candidate-profile-aside"><section className="panel candidate-profile-readiness"><p>Profile readiness</p><h2>{form.profileSearchable && !missingSignals.length ? "Ready to be discovered" : "Complete the essentials"}</h2><Meter value={completion}/><strong>{completion}% complete</strong>{missingSignals.length ? <><span>Add these before becoming searchable:</span><ul>{missingSignals.map((item) => <li key={item}>{item}</li>)}</ul></> : <p>Your profile now maps to active recruiter search filters.</p>}</section><section className="panel candidate-profile-protection"><span>◈</span><div><h2>Your privacy</h2><p>Recruiters can view your professional profile, but your phone number and email remain protected until authorised by the hiring workflow.</p></div></section></aside></div>
+      <footer className="candidate-profile-savebar"><span>{loading ? "Loading your saved profile…" : profile?.cvAvailable ? "CV attached · review your details, then save" : "Upload a CV to prefill details, or complete the profile yourself."}</span><Button type="submit" disabled={saving || loading}>{saving ? "Saving profile…" : "Save full profile"}</Button></footer>
+    </form>
   </WorkspaceShell>;
 }
 
-function CertificateSection({ certificates, eyebrow, title, prominent = false }: { certificates: string[][]; eyebrow: string; title: string; prominent?: boolean }) {
-  return <section className={prominent ? "panel industry-credentials" : "panel"}><SectionTitle eyebrow={eyebrow} title={title} action={<Button variant="quiet">+ Add certificate</Button>} /><div className={prominent ? "certificate-grid certificate-grid-prominent" : "certificate-grid"}>{certificates.map(([mark, certificate, issuer, detail]) => <article key={certificate}><span>{mark}</span><div><strong>{certificate}</strong><p>{issuer}</p><small>{detail}</small></div><b>✓</b></article>)}</div></section>;
+function ConfirmedCandidateProfile({ profile, form, completion, domainLabel, onEdit }: { profile: CandidateProfile; form: ProfileForm; completion: number; domainLabel: string; onEdit: () => void }) {
+  const details = form.details;
+  const employment = details.employment.filter((item) => item.companyName.trim() || item.jobTitle.trim());
+  const skills = form.skills.filter((item) => item.skill.trim());
+  const education = form.education.filter((item) => item.degreeName.trim() || item.institutionName.trim());
+  const projects = details.projects.filter((item) => item.title.trim());
+  const accomplishments = details.accomplishments.filter((item) => item.title.trim() || item.url.trim());
+  const professionalLinks = form.workLinks.split(/\n|,/).map((item) => item.trim()).filter(Boolean);
+  const personal = details.personalDetails;
+  const inclusion = details.inclusionDetails;
+  const personalFacts = [
+    ["Gender", displayValue(form.gender)], ["Marital status", personal.maritalStatus], ["Date of birth", [personal.birthDay, personal.birthMonth, personal.birthYear].filter(Boolean).join(" ")], ["Category", personal.category], ["US work permit", personal.usaWorkPermit], ["Other work permits", personal.otherCountryWorkPermits], ["Permanent address", personal.permanentAddress], ["Hometown", personal.hometown], ["Pincode", personal.pincode],
+  ].filter(([, value]) => value) as Array<[string, string]>;
+  const inclusionFacts = [
+    ["Disability status", inclusion.disabilityStatus], ["Military experience", inclusion.militaryExperience ? inclusion.militaryDetails || "Added" : ""], ["Career break", inclusion.careerBreak ? inclusion.careerBreakDetails || "Added" : ""],
+  ].filter(([, value]) => value) as Array<[string, string]>;
+
+  return <WorkspaceShell workspace="candidate" active="profile" title="Your professional profile" description="Your saved details are shown below. You can return to edit mode whenever something changes.">
+    <main className="candidate-confirmed-profile">
+      <p className="candidate-profile-status candidate-profile-status-success" role="status">✓ Profile saved — these are your confirmed details.</p>
+      <section className="profile-hero panel candidate-complete-hero candidate-confirmed-hero">
+        <div className="candidate-hero-identity"><span className="candidate-profile-avatar">{profile.fullName.split(" ").map((part) => part[0]).join("").slice(0, 2) || "You"}</span><div><p>Confirmed candidate profile <Badge tone="blue">{domainLabel}</Badge></p><h2>{profile.fullName}</h2><span>{form.headline || "Designation not added"} · {form.location || "Location not added"}</span><small>Last saved {readableDate(profile.profileLastUpdatedAt)}</small></div></div>
+        <div className="candidate-hero-facts"><div><b>{form.overallExperienceYears || "—"}</b><span>years experience</span></div><div><b>{form.expectedSalaryLakhs ? `₹ ${form.expectedSalaryLakhs} L` : "—"}</b><span>salary expectation</span></div><div><b>{form.noticePeriodDays || "—"}</b><span>notice days</span></div></div>
+        <div className="candidate-hero-actions"><Button onClick={onEdit}>Edit profile</Button><span className="candidate-confirmed-edit-note">Need to update a detail? Open the editor and save again.</span></div>
+      </section>
+
+      <div className="candidate-confirmed-layout">
+        <div className="candidate-confirmed-content">
+          <ConfirmedSection eyebrow="Profile overview" title="Professional summary">
+            {details.resumeHeadline && <p className="candidate-confirmed-headline">{details.resumeHeadline}</p>}
+            <p className="candidate-confirmed-copy">{form.profileSummary || "A professional summary has not been added yet."}</p>
+            <ConfirmedTags label="Employment highlights" values={details.employmentHighlights}/>
+            <ConfirmedTags label="Interested domains" values={form.interestedDomains}/>
+          </ConfirmedSection>
+
+          <ConfirmedSection eyebrow="Contact, availability and location" title="Searchable essentials">
+            <ConfirmedFacts items={[["Current location", form.location], ["Preferred locations", form.preferredLocations], ["Department and role", form.departmentRole], ["Industry", form.industry], ["Experience", form.overallExperienceYears ? `${form.overallExperienceYears} years` : ""], ["Expected salary", form.expectedSalaryLakhs ? `₹ ${form.expectedSalaryLakhs} lacs` : ""], ["Notice period", form.noticePeriodDays ? `${form.noticePeriodDays} days` : ""]]}/>
+            <div className="candidate-contact-protected"><span>▣</span><div><b>Verified contact information</b><small>{profile.emailMasked} · {profile.mobileMasked} · {profile.emailVerified && profile.mobileVerified ? "Email and mobile verified" : "Verification pending"}</small></div></div>
+          </ConfirmedSection>
+
+          <ConfirmedSection eyebrow="Employment" title="Work history">
+            {employment.length ? <div className="candidate-confirmed-list">{employment.map((item, index) => <article className="candidate-confirmed-entry" key={`saved-employment-${index}`}><div className="candidate-confirmed-entry-heading"><div><h3>{item.jobTitle || "Role not added"}</h3><p>{item.companyName || "Company not added"}{item.currentCompany ? " · Current company" : ""}</p></div><span>{item.employmentType}</span></div><ConfirmedFacts compact items={[["Joined", joinDate(item.joiningMonth, item.joiningYear)], ["Salary", item.currentSalary ? `${item.currency} ${item.currentSalary}` : ""], ["Notice period", item.noticePeriodDays ? `${item.noticePeriodDays} days` : ""]]}/>{item.skillsUsed && <ConfirmedTags label="Skills used" values={valuesFromText(item.skillsUsed)}/>} {item.jobDescription && <p className="candidate-confirmed-copy">{item.jobDescription}</p>}</article>)}</div> : <EmptyConfirmedContent label="No employment history added yet."/>}
+          </ConfirmedSection>
+
+          <ConfirmedSection eyebrow="IT skills" title="Software skills and expertise">
+            {skills.length ? <div className="candidate-confirmed-skill-grid">{skills.map((item, index) => <article className="candidate-confirmed-skill" key={`saved-skill-${index}`}><h3>{item.skill}</h3><p>{item.rating} / 5 proficiency</p><span>{skillExperience(item)}{item.softwareVersion ? ` · v${item.softwareVersion}` : ""}{item.lastUsedYear ? ` · last used ${item.lastUsedYear}` : ""}</span></article>)}</div> : <EmptyConfirmedContent label="No skills added yet."/>}
+          </ConfirmedSection>
+
+          <ConfirmedSection eyebrow="Education" title="Academic details">
+            {education.length ? <div className="candidate-confirmed-list">{education.map((item, index) => <article className="candidate-confirmed-entry" key={`saved-education-${index}`}><div className="candidate-confirmed-entry-heading"><div><h3>{item.degreeName || educationLevelLabel(item.level)}</h3><p>{item.institutionName || "Institute not added"}</p></div><span>{educationLevelLabel(item.level)}</span></div><ConfirmedFacts compact items={[["Specialization", item.specialization], ["Course type", studyTypeLabel(item.studyType)], ["Duration", educationDuration(item)], ["Grade", item.grade]]}/></article>)}</div> : <EmptyConfirmedContent label="No education added yet."/>}
+          </ConfirmedSection>
+
+          {(projects.length > 0 || accomplishments.length > 0 || professionalLinks.length > 0) && <ConfirmedSection eyebrow="Projects and accomplishments" title="Work beyond the role">
+            {projects.length > 0 && <div className="candidate-confirmed-list">{projects.map((item, index) => <article className="candidate-confirmed-entry" key={`saved-project-${index}`}><div className="candidate-confirmed-entry-heading"><div><h3>{item.title}</h3>{item.description && <p>{item.description}</p>}</div>{item.projectUrl && <a href={item.projectUrl} target="_blank" rel="noreferrer">Open project</a>}</div>{item.skills && <ConfirmedTags label="Skills used" values={valuesFromText(item.skills)}/>}</article>)}</div>}
+            {accomplishments.length > 0 && <div className="candidate-confirmed-list">{accomplishments.map((item, index) => <article className="candidate-confirmed-entry" key={`saved-accomplishment-${index}`}><div className="candidate-confirmed-entry-heading"><div><h3>{item.title || item.type}</h3><p>{item.type}{item.issuer ? ` · ${item.issuer}` : ""}</p></div>{item.url && <a href={item.url} target="_blank" rel="noreferrer">Open link</a>}</div>{item.description && <p className="candidate-confirmed-copy">{item.description}</p>}</article>)}</div>}
+            {professionalLinks.length > 0 && <div className="candidate-confirmed-links">{professionalLinks.map((link) => <a href={link} target="_blank" rel="noreferrer" key={link}>{link}</a>)}</div>}
+          </ConfirmedSection>}
+
+          {(personalFacts.length > 0 || inclusionFacts.length > 0 || details.languages.some((item) => item.language.trim())) && <ConfirmedSection eyebrow="Personal details" title="Personal preferences and inclusion">
+            {personalFacts.length > 0 && <ConfirmedFacts items={personalFacts}/>} {inclusion.diversityTags.length > 0 && <ConfirmedTags label="More information" values={inclusion.diversityTags}/>} {inclusionFacts.length > 0 && <ConfirmedFacts items={inclusionFacts}/>} {details.languages.some((item) => item.language.trim()) && <div className="candidate-confirmed-language-list">{details.languages.filter((item) => item.language.trim()).map((item, index) => <span key={`saved-language-${index}`}><b>{item.language}</b> · {item.proficiency} · {[item.read && "Read", item.write && "Write", item.speak && "Speak"].filter(Boolean).join(", ")}</span>)}</div>}
+          </ConfirmedSection>}
+        </div>
+
+        <aside className="candidate-profile-aside candidate-confirmed-aside"><section className="panel candidate-profile-readiness"><p>Profile status</p><h2>{form.profileSearchable ? "Visible in sourcing" : "Private profile"}</h2><Meter value={completion}/><strong>{completion}% complete</strong><span>{form.profileSearchable ? "Recruiters can discover your protected professional profile." : "Turn on sourcing visibility from Edit profile when you are ready."}</span></section><section className="panel candidate-profile-protection"><span>◈</span><div><h2>Your privacy</h2><p>Your email and phone remain protected. Recruiters only see them after an eligible hiring workflow action.</p></div></section></aside>
+      </div>
+    </main>
+  </WorkspaceShell>;
 }
 
-function SkillAddForm({ newSkill, setNewSkill, onAdd, tech = false }: { newSkill: { name: string; rating: number }; setNewSkill: (value: { name: string; rating: number }) => void; onAdd: () => void; tech?: boolean }) {
-  return <div className="inline-add-form skill-add"><input list={tech ? "tech-skill-options" : "business-skill-options"} value={newSkill.name} onChange={(event) => setNewSkill({ ...newSkill, name: event.target.value })} placeholder="Select or add a skill" /><datalist id={tech ? "tech-skill-options" : "business-skill-options"}>{(tech ? ["Python", "Go", "Terraform", "Azure", "GCP"] : ["P&L management", "B2B SaaS", "Stakeholder management", "Agile Scrum"]).map((option) => <option value={option} key={option} />)}</datalist><select value={newSkill.rating} onChange={(event) => setNewSkill({ ...newSkill, rating: Number(event.target.value) })}>{[1, 2, 3, 4, 5].map((rating) => <option value={rating} key={rating}>{rating} / 5</option>)}</select><Button onClick={onAdd}>Add</Button></div>;
-}
+function ConfirmedSection({ eyebrow, title, children }: { eyebrow: string; title: string; children: ReactNode }) { return <section className="panel candidate-confirmed-section"><SectionTitle eyebrow={eyebrow} title={title}/>{children}</section>; }
+function ConfirmedFacts({ items, compact = false }: { items: Array<[string, string | null | undefined]>; compact?: boolean }) { const present = items.filter(([, value]) => Boolean(value)); return present.length ? <dl className={`candidate-confirmed-facts${compact ? " compact" : ""}`}>{present.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl> : null; }
+function ConfirmedTags({ label, values }: { label: string; values: string[] }) { return values.length ? <div className="candidate-confirmed-tags"><span>{label}</span><div>{values.map((item) => <b key={item}>{item}</b>)}</div></div> : null; }
+function EmptyConfirmedContent({ label }: { label: string }) { return <p className="candidate-confirmed-empty">{label} Use Edit profile to add it.</p>; }
+function displayValue(value: string) { return value ? value === "prefer-not-to-say" ? "Prefer not to say" : value[0].toUpperCase() + value.slice(1) : ""; }
+function joinDate(month: string, year: string) { const monthName = monthOptions[Number(month) - 1]; return [monthName, year].filter(Boolean).join(" "); }
+function skillExperience(skill: SkillDraft) { const values = [skill.yearsOfExperience && `${skill.yearsOfExperience} years`, skill.experienceMonths && `${skill.experienceMonths} months`].filter(Boolean); return values.join(" ") || "Experience not added"; }
+function educationLevelLabel(level: EducationLevel) { return educationLevels.find(([value]) => value === level)?.[1] ?? "Education"; }
+function studyTypeLabel(type: StudyType) { return type === "FULL_TIME" ? "Full time" : type === "PART_TIME" ? "Part time" : "Correspondence"; }
+function educationDuration(item: EducationDraft) { return [item.courseStartYear, item.graduationYear].filter(Boolean).join(" – "); }
 
-function SkillRating({ skill, onChange }: { skill: Skill; onChange: (name: string, rating: number) => void }) {
-  return <div className="skill-rating"><span>{skill.name}</span><div role="group" aria-label={`${skill.name} rating`}>{[1, 2, 3, 4, 5].map((rating) => <button type="button" className={rating <= skill.rating ? "active" : ""} onClick={() => onChange(skill.name, rating)} key={rating} aria-label={`Set ${skill.name} to ${rating} out of 5`}>★</button>)}</div><small>{skill.rating}/5</small></div>;
-}
+function ProfileSection({ eyebrow, title, helper, action, children }: { eyebrow: string; title: string; helper: string; action?: ReactNode; children: ReactNode }) { return <section className="panel candidate-profile-section candidate-complete-section"><SectionTitle eyebrow={eyebrow} title={title} action={action}/><p className="candidate-profile-helper">{helper}</p>{children}</section>; }
+function Field({ label, hint, suffix, required = false, children }: { label: string; hint?: string; suffix?: string; required?: boolean; children: ReactNode }) { return <label className="candidate-profile-field"><span>{label}{required && <b aria-hidden="true"> *</b>}{suffix && <em>{suffix}</em>}</span>{children}{hint && <small>{hint}</small>}</label>; }
+function AddButton({ label, onClick }: { label: string; onClick: () => void }) { return <button className="candidate-profile-add" type="button" onClick={onClick}>+ {label.replace(/^Add\s/, "")}</button>; }
+function RepeaterHead({ title, removeLabel, disabled = false, onRemove }: { title: string; removeLabel: string; disabled?: boolean; onRemove: () => void }) { return <div className="candidate-repeater-head"><h3>{title}</h3><button className="candidate-profile-remove-text" type="button" disabled={disabled} onClick={onRemove}>{removeLabel}</button></div>; }
+function TagEditor({ label, hint, values, onChange, placeholder, max = 12 }: { label: string; hint?: string; values: string[]; onChange: (values: string[]) => void; placeholder: string; max?: number }) { const [entry, setEntry] = useState(""); const add = () => { const value = entry.trim(); if (value && values.length < max && !values.some((item) => item.toLowerCase() === value.toLowerCase())) onChange([...values, value]); setEntry(""); }; return <div className="candidate-tag-editor"><span>{label}</span><div className="candidate-tag-list">{values.map((value) => <button type="button" key={value} onClick={() => onChange(values.filter((item) => item !== value))}>{value} <b>×</b></button>)}</div><div className="candidate-tag-input"><input value={entry} onChange={(event) => setEntry(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); add(); } }} placeholder={placeholder}/><button type="button" onClick={add} disabled={!entry.trim() || values.length >= max}>Add</button></div>{hint && <small>{hint}</small>}</div>; }
+function ChoiceGroup({ label, value, options, onChange, allowClear = false, format = (item: string) => item }: { label: string; value: string; options: string[]; onChange: (value: string) => void; allowClear?: boolean; format?: (value: string) => string }) { return <div className="candidate-choice-group"><span>{label}</span><div>{options.map((option) => <button type="button" className={value === option ? "selected" : ""} key={option} onClick={() => onChange(value === option && allowClear ? "" : option)}>{format(option)}</button>)}</div></div>; }
 
-function Detail({ label, value, privateDetail = false }: { label: string; value: string; privateDetail?: boolean }) {
-  return <div className="profile-detail"><span>{label} {privateDetail && <em>Private</em>}</span><strong>{value}</strong></div>;
-}
-
-function Timeline({ role, company, start, end, copy }: { role: string; company: string; start: string; end: string; copy: string }) {
-  return <article><span className="timeline-dot" /><div><strong>{role}</strong><p>{company} · {start} – {end}</p><small>{copy}</small></div></article>;
-}
-
-function Metric({ value, label }: { value: string; label: string }) {
-  return <div><strong>{value}</strong><span>{label}</span></div>;
-}
+const monthOptions = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const educationLevels: Array<[EducationLevel, string]> = [["SECONDARY", "10th"], ["SENIOR_SECONDARY", "12th"], ["DIPLOMA", "Diploma"], ["BACHELORS", "Graduation"], ["MASTERS", "Masters"], ["POST_GRADUATION", "Post graduation"], ["DOCTORATE", "Doctorate / PhD"], ["OTHER", "Other"]];
+const accomplishmentTypes = ["Website", "GitHub", "LeetCode", "Project URL", "White paper / Research publication / Journal entry", "Patent", "Work sample URL", "Certification"];
+const candidateInterestOptions = ["Technology", "IT Services", "Manufacturing & Production", "Healthcare & Life Sciences", "Infrastructure, Transport & Real Estate", "BFSI", "BPM", "Consumer, Retail & Hospitality", "Media, Entertainment & Telecom", "Education"];

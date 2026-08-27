@@ -29,7 +29,7 @@ public class RecruiterJobService {
     public JobResponse createDraft(UUID recruiterId, JobUpsertRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         Job job = apply(Job.builder().status(JobStatus.DRAFT).build(), request);
-        return JobResponse.from(jobService.create(job, recruiter.getOrganisation().getId()));
+        return JobResponse.from(jobService.create(job, recruiter));
     }
 
     @Transactional
@@ -66,7 +66,7 @@ public class RecruiterJobService {
                 .domainCategory(source.getDomainCategory())
                 .status(JobStatus.DRAFT)
                 .build();
-        return JobResponse.from(jobService.create(copy, source.getOrganisation().getId()));
+        return JobResponse.from(jobService.create(copy, recruiter(recruiterId)));
     }
 
     @Transactional

@@ -22,17 +22,17 @@ import static org.mockito.Mockito.when;
 class CandidateSourcingServiceTest {
 
     @Test
-    void forwardsCurrentCompanyAndDesignationFiltersToTheCandidateQuery() {
+    void forwardsEmploymentClassificationFiltersToTheCandidateQuery() {
         CandidateRepository candidateRepository = mock(CandidateRepository.class);
         CandidateSourcingService service = new CandidateSourcingService(candidateRepository, Clock.systemUTC(), new TsQueryBuilderService());
 
         service.search(new CandidateSourcingCriteria(
-                List.of("TypeScript"), List.of(), List.of(), "", 5, 8, 20, 25, "Bengaluru", "StatusNeo", "Senior Consultant",
+                List.of("TypeScript"), List.of(), List.of(), "", 5, 8, 20, 25, "Bengaluru", "StatusNeo", "Senior Consultant", "Engineering / Platform", "Software product",
                 "", "", "", List.of(), "", null, ActiveStatusInterval.SEVEN_DAYS, 0, 40, null, false, false, false
         ));
 
         verify(candidateRepository).searchVisibleCandidates(
-                anyString(), any(), any(), any(), any(), anyString(), eq("StatusNeo"), eq("Senior Consultant"), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
+                anyString(), any(), any(), any(), any(), anyString(), eq("StatusNeo"), eq("Senior Consultant"), eq("Engineering / Platform"), eq("Software product"), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
                 anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
         );
     }
@@ -44,7 +44,7 @@ class CandidateSourcingServiceTest {
         CandidateSourcingService service = new CandidateSourcingService(candidateRepository, clock, new TsQueryBuilderService());
 
         when(candidateRepository.searchVisibleCandidates(
-                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
+                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
                 anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -56,7 +56,7 @@ class CandidateSourcingServiceTest {
         ArgumentCaptor<Instant> activeSince = ArgumentCaptor.forClass(Instant.class);
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(candidateRepository).searchVisibleCandidates(
-                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(),
+                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(),
                 activeSince.capture(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(), pageable.capture()
         );
 

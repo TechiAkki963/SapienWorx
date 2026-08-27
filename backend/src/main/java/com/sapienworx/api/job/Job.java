@@ -1,6 +1,7 @@
 package com.sapienworx.api.job;
 
 import com.sapienworx.api.organisation.Organisation;
+import com.sapienworx.api.recruiter.Recruiter;
 import com.sapienworx.api.taxonomy.DomainCategory;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -93,6 +94,13 @@ public class Job {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organisation_id", nullable = false, updatable = false)
     private Organisation organisation;
+
+    /** The recruiter accountable for applications received through this job. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    // Legacy seeded jobs receive their accountable recruiter during QA startup.
+    // Recruiter-facing services never expose a way to change this ownership.
+    @JoinColumn(name = "created_by_recruiter_id")
+    private Recruiter createdByRecruiter;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -2,6 +2,7 @@ package com.sapienworx.api.application;
 
 import com.sapienworx.api.candidate.Candidate;
 import com.sapienworx.api.job.Job;
+import com.sapienworx.api.recruiter.Recruiter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,6 +48,11 @@ public class JobApplication {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "candidate_id", nullable = false)
     private Candidate candidate;
+
+    /** Snapshot of the job owner so shared-link applications stay correctly routed. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipient_recruiter_id", updatable = false)
+    private Recruiter recipientRecruiter;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

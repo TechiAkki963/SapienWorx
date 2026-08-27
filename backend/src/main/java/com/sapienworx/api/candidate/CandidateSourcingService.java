@@ -35,6 +35,8 @@ public class CandidateSourcingService {
                 blankToEmpty(criteria.location()),
                 blankToEmpty(criteria.company()),
                 blankToEmpty(criteria.designation()),
+                blankToEmpty(criteria.departmentRole()),
+                blankToEmpty(criteria.industry()),
                 blankToEmpty(criteria.bachelorsInstitution()),
                 blankToEmpty(criteria.mastersInstitution()),
                 blankToEmpty(criteria.qualification()),

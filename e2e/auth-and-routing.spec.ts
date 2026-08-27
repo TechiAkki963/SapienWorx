@@ -63,8 +63,8 @@ test.describe("Authentication and mandatory domain routing", () => {
     await page.getByRole("button", { name: "Verify both codes" }).click();
 
     await expect(page).toHaveURL(/\/candidate$/);
-    await expect(page.getByRole("heading", { name: "Good morning, Amara" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "You're closer than you think." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Profile performance" }).first()).toBeVisible();
+    await expect(page.getByText("Profile appearances", { exact: true })).toBeVisible();
   });
 
   test("forces the unassigned candidate domain resolution before the dashboard", async ({ page }) => {

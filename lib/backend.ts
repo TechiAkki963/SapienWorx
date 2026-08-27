@@ -12,8 +12,10 @@ export type ApiJob = {
   salaryVisible: boolean; descriptionHtml: string; skills: string[]; status: string; publicPath: string; publishedAt: string | null;
 };
 export type CandidateDashboardSnapshot = {
-  profile: { fullName: string; headline: string | null; domainCategory: string; profileLastUpdatedAt: string | null };
-  applications: ApiPage<{ applicationId: string; jobId: string; title: string; companyName: string; stage: string; appliedAt: string; updatedAt: string }>;
+  profile: { fullName: string; headline: string | null; domainCategory: string; profileSearchable: boolean; profileLastUpdatedAt: string | null; lastActiveAt: string | null };
+  performance: { rangeDays: number; profileAppearances: number; recruiterActions: number; profileViews: number; resumeDownloads: number; profileAppearancesInRange: number; recruiterActionsInRange: number; appearanceChangePercent: number; actionChangePercent: number; profileCompleteness: number; activityLevel: "HIGH" | "MEDIUM" | "BUILDING" };
+  recruiterActivity: Array<{ recruiterName: string; recruiterTitle: string | null; organisationName: string; action: "PROFILE_VIEWED" | "RESUME_DOWNLOADED"; occurredAt: string }>;
+  applications: Array<{ applicationId: string; title: string; companyName: string; stage: string; updatedAt: string }>;
 };
 export type RecruiterDashboardSnapshot = {
   openPositions: number; activeApplications: number; draftJobs: number;
@@ -46,11 +48,7 @@ export const getPublicJob = cache(async (jobId: string) => {
 });
 
 export async function getCandidateDashboardSnapshot(): Promise<CandidateDashboardSnapshot | null> {
-  const [profile, applications] = await Promise.all([
-    serverFetch<CandidateDashboardSnapshot["profile"]>("/api/candidate/profile", true),
-    serverFetch<CandidateDashboardSnapshot["applications"]>("/api/candidate/applications", true),
-  ]);
-  return profile && applications ? { profile, applications } : null;
+  return serverFetch<CandidateDashboardSnapshot>("/api/candidate/dashboard?rangeDays=90", true);
 }
 
 export async function getRecruiterDashboardSnapshot() {

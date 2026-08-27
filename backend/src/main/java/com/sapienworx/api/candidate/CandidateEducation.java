@@ -49,6 +49,16 @@ public class CandidateEducation {
     @Column(name = "graduation_year")
     private Integer graduationYear;
 
+    @Column(name = "course_start_year")
+    private Integer courseStartYear;
+
+    @Column(length = 180)
+    private String specialization;
+
+    @Column(name = "study_type", nullable = false, length = 32)
+    @Builder.Default
+    private String studyType = "FULL_TIME";
+
     @Column(length = 40)
     private String grade;
 }

@@ -10,10 +10,13 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.sapienworx.api.taxonomy.DomainCategory;
+
 public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
     Optional<Candidate> findByEmail(String email);
     Optional<Candidate> findByMobile(String mobile);
     boolean existsByEmailOrMobile(String email, String mobile);
+    long countByProfileSearchableTrueAndDomainCategoryAndIdNot(DomainCategory domainCategory, UUID candidateId);
 
     /**
      * PostgreSQL-only full-text retrieval backed by the indexed tsvector in
@@ -25,18 +28,30 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                    c.full_name as fullName,
                    c.headline as headline,
                    c.current_company as currentCompany,
-                   coalesce((select education.degree_name || ' · ' || education.institution_name
+                   c.previous_role as previousRole,
+                   c.previous_company as previousCompany,
+                   coalesce((select concat_ws(' ', education.degree_name || ' · ' || education.institution_name, education.graduation_year::text)
                              from candidate_educations education
                              where education.candidate_id = c.id
                              order by education.graduation_year desc nulls last
                              limit 1), 'Not provided') as highestEducation,
                    c.location as location,
+                   c.preferred_locations::text as preferredLocations,
                    c.overall_experience_years as overallExperienceYears,
                    c.expected_salary_lakhs as expectedSalaryLakhs,
                    c.notice_period_days as noticePeriodDays,
                    coalesce((select string_agg(candidate_skill.skill, ', ' order by candidate_skill.skill)
                              from candidate_skills candidate_skill
                              where candidate_skill.candidate_id = c.id), '') as skills,
+                   c.profile_summary as profileSummary,
+                   c.email_verified as emailVerified,
+                   c.mobile_verified as mobileVerified,
+                   exists (select 1 from candidate_parse_results parse_result
+                           where parse_result.candidate_id = c.id) as cvAvailable,
+                   (select count(*) from candidates similar_candidate
+                    where similar_candidate.profile_searchable = true
+                      and similar_candidate.id <> c.id
+                      and similar_candidate.domain_category = c.domain_category) as similarProfileCount,
                    c.last_active_at as lastActiveAt,
                    c.updated_at as profileLastUpdatedAt,
                    (select count(*) from candidate_profile_engagements engagement
@@ -57,6 +72,8 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
               and (cast(:location as text) = '' or c.location ilike concat('%', cast(:location as text), '%'))
               and (cast(:company as text) = '' or c.current_company ilike concat('%', cast(:company as text), '%'))
               and (cast(:designation as text) = '' or c.headline ilike concat('%', cast(:designation as text), '%'))
+              and (cast(:departmentRole as text) = '' or c.department_role ilike concat('%', cast(:departmentRole as text), '%'))
+              and (cast(:industry as text) = '' or c.industry ilike concat('%', cast(:industry as text), '%'))
               and (cast(:bachelorsInstitution as text) = '' or exists (
                     select 1 from candidate_educations education
                     where education.candidate_id = c.id
@@ -81,7 +98,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
               ))
               and (cast(:gender as text) = '' or lower(c.gender) = lower(cast(:gender as text)))
               and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
-              and (:activeSince is null or c.last_active_at >= :activeSince)
+              and (cast(:activeSince as timestamp with time zone) is null or c.last_active_at >= cast(:activeSince as timestamp with time zone))
               and (cast(:domainCategory as text) = '' or c.domain_category = cast(:domainCategory as text))
               and (cast(:requireGithub as boolean) = false or c.work_links::text ilike '%github%')
               and (cast(:requireLeetcode as boolean) = false or c.work_links::text ilike '%leetcode%')
@@ -102,6 +119,8 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                       and (cast(:location as text) = '' or c.location ilike concat('%', cast(:location as text), '%'))
                       and (cast(:company as text) = '' or c.current_company ilike concat('%', cast(:company as text), '%'))
                       and (cast(:designation as text) = '' or c.headline ilike concat('%', cast(:designation as text), '%'))
+                      and (cast(:departmentRole as text) = '' or c.department_role ilike concat('%', cast(:departmentRole as text), '%'))
+                      and (cast(:industry as text) = '' or c.industry ilike concat('%', cast(:industry as text), '%'))
                       and (cast(:bachelorsInstitution as text) = '' or exists (
                             select 1 from candidate_educations education
                             where education.candidate_id = c.id
@@ -126,7 +145,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                       ))
                       and (cast(:gender as text) = '' or lower(c.gender) = lower(cast(:gender as text)))
                       and (:maximumNoticePeriodDays is null or c.notice_period_days <= :maximumNoticePeriodDays)
-                      and (:activeSince is null or c.last_active_at >= :activeSince)
+                      and (cast(:activeSince as timestamp with time zone) is null or c.last_active_at >= cast(:activeSince as timestamp with time zone))
                       and (cast(:domainCategory as text) = '' or c.domain_category = cast(:domainCategory as text))
                       and (cast(:requireGithub as boolean) = false or c.work_links::text ilike '%github%')
                       and (cast(:requireLeetcode as boolean) = false or c.work_links::text ilike '%leetcode%')
@@ -142,6 +161,8 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
             @Param("location") String location,
             @Param("company") String company,
             @Param("designation") String designation,
+            @Param("departmentRole") String departmentRole,
+            @Param("industry") String industry,
             @Param("bachelorsInstitution") String bachelorsInstitution,
             @Param("mastersInstitution") String mastersInstitution,
             @Param("qualification") String qualification,

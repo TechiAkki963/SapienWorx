@@ -21,6 +21,8 @@ const sourcingSchema = z.object({
   maxSalary: z.string(),
   company: z.string().max(160),
   designation: z.string().max(160),
+  departmentRole: z.string().max(180),
+  industry: z.string().max(180),
   location: z.string().max(160),
   ugMode: z.enum(["any", "specific", "none"]),
   qualification: z.string().max(180),

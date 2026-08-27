@@ -2,7 +2,9 @@ package com.sapienworx.api.auth;
 
 import com.sapienworx.api.otp.OtpChannel;
 import com.sapienworx.api.security.PlatformRole;
+import com.sapienworx.api.taxonomy.DomainCategory;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,6 +22,13 @@ record PendingAuthentication(
         String organisationName,
         String designation,
         String location,
+        String headline,
+        String currentCompany,
+        Integer overallExperienceYears,
+        Integer expectedSalaryLakhs,
+        Integer noticePeriodDays,
+        DomainCategory domainCategory,
+        List<String> interestedDomains,
         Set<OtpChannel> requiredChannels,
         Set<OtpChannel> verifiedChannels
 ) {
@@ -27,7 +36,8 @@ record PendingAuthentication(
         java.util.Set<OtpChannel> next = new java.util.LinkedHashSet<>(verifiedChannels);
         next.add(channel);
         return new PendingAuthentication(flow, role, existingUserId, fullName, email, mobile, passwordHash,
-                termsAccepted, automationConsent, organisationName, designation, location, requiredChannels, Set.copyOf(next));
+                termsAccepted, automationConsent, organisationName, designation, location, headline, currentCompany,
+                overallExperienceYears, expectedSalaryLakhs, noticePeriodDays, domainCategory, interestedDomains, requiredChannels, Set.copyOf(next));
     }
 
     boolean verified() { return verifiedChannels.containsAll(requiredChannels); }

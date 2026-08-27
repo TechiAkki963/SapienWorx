@@ -20,6 +20,8 @@ public record RecruiterSourcingRequest(
         @Size(max = 160) String location,
         @Size(max = 180) String company,
         @Size(max = 180) String designation,
+        @Size(max = 180) String departmentRole,
+        @Size(max = 180) String industry,
         @Size(max = 200) String bachelorsInstitution,
         @Size(max = 200) String mastersInstitution,
         @Size(max = 180) String qualification,

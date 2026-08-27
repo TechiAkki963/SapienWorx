@@ -22,6 +22,7 @@ async function ensureCsrfToken() {
 
 export async function apiClient<T>(path: string, init: RequestInit = {}): Promise<T> {
   const method = (init.method ?? "GET").toUpperCase();
+  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
   const isStateChanging = !["GET", "HEAD", "OPTIONS"].includes(method);
   const requiresCsrf = isStateChanging && !path.startsWith("/api/auth/request-otp") && !path.startsWith("/api/auth/verify-otp");
   const token = requiresCsrf ? await ensureCsrfToken() : csrfToken();
@@ -29,7 +30,7 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
     ...init,
     credentials: "include",
     headers: {
-      ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...(init.body && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...(token && isStateChanging ? { "X-XSRF-TOKEN": decodeURIComponent(token) } : {}),
       ...init.headers,
     },
@@ -38,9 +39,13 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
     const rawBody = await response.text();
     let body: { detail?: string; message?: string } | null = null;
     try { body = rawBody ? JSON.parse(rawBody) as { detail?: string; message?: string } : null; } catch { /* Empty or non-JSON error response. */ }
-    const fallback = response.status === 403
-      ? "Your secure request could not be verified. Refresh the page and try again."
-      : "The request could not be completed.";
+    const fallback = response.status === 401
+      ? "Sign in to continue."
+      : response.status === 403 && !isStateChanging
+        ? "This page is available only to your signed-in account."
+        : response.status === 403
+          ? "Your secure request could not be verified. Refresh the page and try again."
+          : "The request could not be completed.";
     throw new Error(body?.detail ?? body?.message ?? fallback);
   }
   if (response.status === 204) return undefined as T;

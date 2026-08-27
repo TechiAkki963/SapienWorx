@@ -9,6 +9,8 @@ export type RecruiterSearchState = {
   maxSalary: string;
   company: string;
   designation: string;
+  departmentRole: string;
+  industry: string;
   location: string;
   ugMode: "any" | "specific" | "none";
   qualification: string;
@@ -23,7 +25,7 @@ export type RecruiterSearchState = {
 
 export const defaultRecruiterSearch: RecruiterSearchState = {
   anyKeywords: "", allKeywords: "Figma", excludeKeywords: "", booleanQuery: "", minExperience: "", maxExperience: "", minSalary: "", maxSalary: "",
-  company: "", designation: "", location: "", ugMode: "any", qualification: "", institution: "", educationTypes: [], gender: "",
+  company: "", designation: "", departmentRole: "", industry: "", location: "", ugMode: "any", qualification: "", institution: "", educationTypes: [], gender: "",
   requireGithub: false, requireLeetcode: false, requirePortfolio: false,
   activeStatus: "SEVEN_DAYS",
 };
@@ -42,7 +44,7 @@ export function stateFromSearchParams(params: Pick<URLSearchParams, "get">): Rec
     ...defaultRecruiterSearch,
     anyKeywords: string("anyKeywords"), allKeywords: string("allKeywords"), excludeKeywords: string("excludeKeywords"), booleanQuery: string("booleanQuery"),
     minExperience: string("minExperience"), maxExperience: string("maxExperience"), minSalary: string("minSalary"), maxSalary: string("maxSalary"),
-    company: string("company"), designation: string("designation"), location: string("location"), qualification: string("qualification"), institution: string("institution"),
+    company: string("company"), designation: string("designation"), departmentRole: string("departmentRole"), industry: string("industry"), location: string("location"), qualification: string("qualification"), institution: string("institution"),
     educationTypes: params.get("educationTypes")?.split(",").filter(Boolean) ?? [],
     ugMode: ugMode === "specific" || ugMode === "none" ? ugMode : "any",
     gender: gender === "female" || gender === "male" || gender === "non-binary" ? gender : "",
@@ -74,6 +76,8 @@ export function sourceRequest(state: RecruiterSearchState, page: number, pageSiz
     location: state.location || null,
     company: state.company || null,
     designation: state.designation || null,
+    departmentRole: state.departmentRole || null,
+    industry: state.industry || null,
     qualification: state.ugMode === "specific" ? state.qualification || null : null,
     bachelorsInstitution: state.institution || null,
     mastersInstitution: null,

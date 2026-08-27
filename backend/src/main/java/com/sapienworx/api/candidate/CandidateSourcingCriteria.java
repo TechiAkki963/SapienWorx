@@ -21,6 +21,8 @@ public record CandidateSourcingCriteria(
         String location,
         String company,
         String designation,
+        String departmentRole,
+        String industry,
         String bachelorsInstitution,
         String mastersInstitution,
         String qualification,
@@ -42,7 +44,7 @@ public record CandidateSourcingCriteria(
             String qualification, Integer maximumNoticePeriodDays, ActiveStatusInterval activeStatus, int page
     ) {
         this(terms(searchQuery), terms(mandatoryKeywords), terms(excludedKeywords), "", minimumExperienceYears, maximumExperienceYears,
-                minimumSalaryLakhs, maximumSalaryLakhs, location, "", "", bachelorsInstitution, mastersInstitution, qualification, List.of(), "",
+                minimumSalaryLakhs, maximumSalaryLakhs, location, "", "", "", "", bachelorsInstitution, mastersInstitution, qualification, List.of(), "",
                 maximumNoticePeriodDays, activeStatus, page, 20, null, false, false, false);
     }
 

@@ -1,5 +1,7 @@
 package com.sapienworx.api.candidate;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sapienworx.api.audit.AuditLog;
 import com.sapienworx.api.cvparser.CandidateParseResult;
 import com.sapienworx.api.taxonomy.DomainCategory;
@@ -73,6 +75,19 @@ public class Candidate {
     @Column(name = "current_company", length = 180)
     private String currentCompany;
 
+    /** Candidate-supplied employment classification used by recruiter sourcing. */
+    @Column(name = "department_role", length = 180)
+    private String departmentRole;
+
+    @Column(length = 180)
+    private String industry;
+
+    @Column(name = "previous_role", length = 180)
+    private String previousRole;
+
+    @Column(name = "previous_company", length = 180)
+    private String previousCompany;
+
     @Column(length = 160)
     private String location;
 
@@ -87,6 +102,18 @@ public class Candidate {
 
     @Column(name = "profile_summary", columnDefinition = "text")
     private String profileSummary;
+
+    /** Candidate-controlled details outside the recruiter-search scalars. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "profile_details", nullable = false, columnDefinition = "jsonb")
+    @Builder.Default
+    private JsonNode profileDetails = JsonNodeFactory.instance.objectNode();
+
+    /** Locations in which the candidate is open to opportunities. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "preferred_locations", nullable = false, columnDefinition = "jsonb")
+    @Builder.Default
+    private List<String> preferredLocations = List.of();
 
     /** Explicit portfolio/coding links supplied by the candidate. */
     @JdbcTypeCode(SqlTypes.JSON)
@@ -108,6 +135,12 @@ public class Candidate {
     @Builder.Default
     @Column(name = "domain_category", nullable = false, length = 20)
     private DomainCategory domainCategory = DomainCategory.UNASSIGNED;
+
+    /** Candidate-selected sectors used to tailor opportunities without exposing contact data. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "interested_domains", nullable = false, columnDefinition = "jsonb")
+    @Builder.Default
+    private List<String> interestedDomains = List.of();
 
     @Builder.Default
     @Column(name = "email_verified", nullable = false)

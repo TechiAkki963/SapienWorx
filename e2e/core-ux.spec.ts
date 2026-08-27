@@ -32,24 +32,10 @@ test("presents mixed parser evidence as a candidate-owned decision", async ({ pa
   await expect(page.getByRole("button", { name: "Confirm my primary domain" })).toBeDisabled();
 });
 
-test("previews a CV and records privacy-safe time-to-value telemetry", async ({ page }) => {
-  await page.addInitScript(() => {
-    (window as Window & { sapienworxEvents?: Array<{ name: string; properties: Record<string, unknown> }> }).sapienworxEvents = [];
-    window.addEventListener("sapienworx:analytics", (event) => {
-      (window as Window & { sapienworxEvents?: Array<{ name: string; properties: Record<string, unknown> }> }).sapienworxEvents?.push((event as CustomEvent<{ name: string; properties: Record<string, unknown> }>).detail);
-    });
-  });
+test("keeps CV parsing behind dual-contact verification", async ({ page }) => {
   await page.goto("/register");
-  const startedAt = Date.now();
 
-  await page.getByRole("button", { name: "Build from my CV" }).click();
-  await page.getByLabel("Paste CV text to preview extraction").fill("Amara Mensah\namara@example.com\n+91 9876540123\nSenior Product Designer\nSkills\nFigma, Research\nExperience\nSenior Product Designer at Northstar Studio\n2022 - Present");
-  await page.getByRole("button", { name: "Extract profile details" }).click();
-
-  await expect(page.getByRole("heading", { name: "Review extracted details" })).toBeVisible();
-  await expect(page.getByText(/Details extracted in \d+ms/)).toBeVisible();
-  expect(Date.now() - startedAt).toBeLessThan(30_000);
-  const event = await page.evaluate(() => (window as Window & { sapienworxEvents?: Array<{ name: string; properties: { durationMs?: number; warningCount?: number } }> }).sapienworxEvents?.find((item) => item.name === "candidate_cv_profile_previewed"));
-  expect(event?.properties.durationMs).toBeGreaterThanOrEqual(0);
-  expect(event?.properties.warningCount).toBeGreaterThanOrEqual(0);
+  await expect(page.getByLabel("Upload CV for parsing")).toHaveCount(0);
+  await expect(page.getByText("Current designation", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Interested domains", { exact: true })).toBeVisible();
 });

@@ -11,6 +11,9 @@ public record CandidateEducationRequest(
         @NotBlank @Size(max = 180) String degreeName,
         @NotBlank @Size(max = 200) String institutionName,
         @Min(1900) @Max(2200) Integer graduationYear,
+        @Min(1900) @Max(2200) Integer courseStartYear,
+        @Size(max = 180) String specialization,
+        @Size(max = 32) String studyType,
         @Size(max = 40) String grade
 ) {
 }

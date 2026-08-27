@@ -46,4 +46,13 @@ public class CandidateSkill {
 
     @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
+
+    @Column(name = "experience_months")
+    private Integer experienceMonths;
+
+    @Column(name = "software_version", length = 80)
+    private String softwareVersion;
+
+    @Column(name = "last_used_year")
+    private Integer lastUsedYear;
 }

@@ -16,6 +16,7 @@ import com.sapienworx.api.recruiter.RecruiterRepository;
 import com.sapienworx.api.recruiter.RecruiterType;
 import com.sapienworx.api.security.AuthenticatedUser;
 import com.sapienworx.api.security.PlatformRole;
+import com.sapienworx.api.taxonomy.DomainCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -41,6 +43,11 @@ public class AuthenticationService {
     private static final Duration OTP_REQUEST_COOLDOWN = Duration.ofSeconds(30);
     private static final String TRANSACTION_PREFIX = "sapienworx:auth:transaction:";
     private static final String OTP_COOLDOWN_PREFIX = "sapienworx:auth:otp-cooldown:";
+    private static final Set<String> SUPPORTED_INTERESTED_DOMAINS = Set.of(
+            "Technology", "IT Services", "Manufacturing & Production", "Healthcare & Life Sciences",
+            "Infrastructure, Transport & Real Estate", "BFSI", "BPM", "Consumer, Retail & Hospitality",
+            "Media, Entertainment & Telecom", "Education"
+    );
 
     private final OtpChallengeStore otpChallengeStore;
     private final OtpDeliveryGateway otpDeliveryGateway;
@@ -109,9 +116,11 @@ public class AuthenticationService {
 
         String email = normalizeEmail(request.email());
         String mobile = normalizeMobile(request.mobile());
-        String password = required(request.password(), "A password of at least eight characters is required.");
         if (request.flow() == AuthFlow.CANDIDATE_REGISTRATION) {
-            String name = required(request.fullName(), "Full name is required.");
+            String name = candidateName(request.firstName(), request.lastName());
+            String password = required(request.password(), "A password of at least eight characters is required.");
+            DomainCategory domainCategory = candidateDomain(request.domainCategory());
+            List<String> interestedDomains = candidateInterests(request.interestedDomains());
             if (!Boolean.TRUE.equals(request.termsAccepted())) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Accept the Terms and Data Processing Agreement before registration.");
             }
@@ -120,7 +129,8 @@ public class AuthenticationService {
             }
             return new PendingAuthentication(request.flow(), PlatformRole.CANDIDATE, null, name, email, mobile,
                     passwordEncoder.encode(password), true, Boolean.TRUE.equals(request.automationConsent()),
-                    null, null, null, Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
+                    null, null, null, null, null, null, null, null, domainCategory, interestedDomains,
+                    Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
         }
 
         validateOfficialEmail(email);
@@ -131,6 +141,7 @@ public class AuthenticationService {
         if (flow != AuthFlow.RECRUITER_REGISTRATION && flow != AuthFlow.CONSULTANT_REGISTRATION) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported authentication flow.");
         }
+        String password = required(request.password(), "A password of at least eight characters is required.");
         String name = recruiterName(request.firstName(), request.lastName());
         String location = recruiterLocation(request.city(), request.state(), request.location());
         Set<OtpChannel> channels = flow == AuthFlow.CONSULTANT_REGISTRATION
@@ -138,8 +149,8 @@ public class AuthenticationService {
         return new PendingAuthentication(flow, PlatformRole.RECRUITER, null, name, email, mobile,
                 passwordEncoder.encode(password), false, false,
                 required(request.organisationName(), "Organisation is required."),
-                required(request.designation(), "Designation is required."),
-                location, channels, Set.of());
+                required(request.designation(), "Designation is required."), location,
+                null, null, null, null, null, null, List.of(), channels, Set.of());
     }
 
     private PendingAuthentication signInPending(OtpRequest request) {
@@ -148,9 +159,9 @@ public class AuthenticationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Select a candidate or recruiter account.");
         }
         String email = normalizeEmail(request.email());
-        String password = required(request.password(), "Password is required.");
         if (role == PlatformRole.CANDIDATE) {
             Candidate candidate = candidateRepository.findByEmail(email).orElseThrow(() -> invalidCredentials());
+            String password = required(request.password(), "Password is required.");
             if (candidate.getPasswordHash() == null || !passwordEncoder.matches(password, candidate.getPasswordHash())) {
                 throw invalidCredentials();
             }
@@ -159,9 +170,10 @@ public class AuthenticationService {
             }
             return new PendingAuthentication(AuthFlow.SIGN_IN, role, candidate.getId(), candidate.getFullName(),
                     candidate.getEmail(), candidate.getMobile(), null, false, false, null, null, null,
-                    Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
+                    null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
         }
 
+        String password = required(request.password(), "Password is required.");
         Recruiter recruiter = recruiterRepository.findByOfficialEmail(email).orElseThrow(() -> invalidCredentials());
         if (recruiter.getPasswordHash() == null || !passwordEncoder.matches(password, recruiter.getPasswordHash())) {
             throw invalidCredentials();
@@ -169,7 +181,8 @@ public class AuthenticationService {
         Set<OtpChannel> channels = recruiter.getRecruiterType() == RecruiterType.CONSULTANT
                 ? Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE) : Set.of(OtpChannel.EMAIL);
         return new PendingAuthentication(AuthFlow.SIGN_IN, role, recruiter.getId(), recruiter.getFullName(),
-                recruiter.getOfficialEmail(), recruiter.getMobile(), null, false, false, null, null, null, channels, Set.of());
+                recruiter.getOfficialEmail(), recruiter.getMobile(), null, false, false, null, null, null,
+                null, null, null, null, null, null, List.of(), channels, Set.of());
     }
 
     private AuthenticatedUser registerCandidate(PendingAuthentication pending) {
@@ -178,6 +191,14 @@ public class AuthenticationService {
                 .email(pending.email())
                 .mobile(pending.mobile())
                 .passwordHash(pending.passwordHash())
+                .headline(pending.headline())
+                .currentCompany(pending.currentCompany())
+                .location(pending.location())
+                .overallExperienceYears(pending.overallExperienceYears())
+                .expectedSalaryLakhs(pending.expectedSalaryLakhs())
+                .noticePeriodDays(pending.noticePeriodDays())
+                .domainCategory(pending.domainCategory())
+                .interestedDomains(pending.interestedDomains())
                 .emailVerified(true)
                 .mobileVerified(true)
                 .termsAccepted(pending.termsAccepted())
@@ -263,6 +284,15 @@ public class AuthenticationService {
         if (value == null || value.isBlank()) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, message);
         return value.trim();
     }
+    private String optional(String value) { return value == null || value.isBlank() ? null : value.trim(); }
+    private Integer requiredNumber(Integer value, int min, int max, String message) {
+        if (value == null || value < min || value > max) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, message);
+        return value;
+    }
+    private Integer optionalNumber(Integer value, int min, int max) {
+        if (value == null) return null;
+        return requiredNumber(value, min, max, "Enter a valid value.");
+    }
     private String normalizeEmail(String value) { return required(value, "Email is required.").toLowerCase(Locale.ROOT); }
     private String normalizeMobile(String value) {
         String normalized = required(value, "Mobile number is required.").replaceAll("[\\s()-]", "");
@@ -274,6 +304,26 @@ public class AuthenticationService {
     }
     private String recruiterName(String firstName, String lastName) {
         return required(firstName, "First name is required.") + " " + required(lastName, "Last name is required.");
+    }
+    private String candidateName(String firstName, String lastName) {
+        return required(firstName, "First name is required.") + " " + required(lastName, "Last name is required.");
+    }
+    private DomainCategory candidateDomain(DomainCategory value) {
+        if (value != DomainCategory.TECH && value != DomainCategory.NON_TECH) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose Technology / IT or Non-technology before verification.");
+        }
+        return value;
+    }
+    private List<String> candidateInterests(List<String> values) {
+        List<String> selected = values == null ? List.of() : values.stream()
+                .filter(value -> value != null && !value.isBlank()).map(String::trim).distinct().toList();
+        if (selected.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Select at least one interested domain before verification.");
+        }
+        if (!SUPPORTED_INTERESTED_DOMAINS.containsAll(selected)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose interested domains from the supported list.");
+        }
+        return selected;
     }
     private String recruiterLocation(String city, String state, String legacyLocation) {
         if (city != null || state != null) {
