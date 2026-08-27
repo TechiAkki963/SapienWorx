@@ -6,6 +6,7 @@ async function mockSecureLogout(page: Page) {
   await page.route("**/api/auth/logout", (route) => {
     logoutRequests += 1;
     expect(route.request().method()).toBe("POST");
+    expect(route.request().headers()["x-xsrf-token"]).toBe("test-csrf");
     return route.fulfill({ status: 204 });
   });
   return () => logoutRequests;

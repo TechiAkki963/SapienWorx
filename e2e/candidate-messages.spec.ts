@@ -29,5 +29,5 @@ test("candidate sees application-linked recruiter conversations and can send a r
 
   await page.getByLabel("Message Jaya Rao").fill("Tuesday at 3 PM works well for me.");
   await page.getByRole("button", { name: "Send message" }).click();
-  await expect(page.getByText("Tuesday at 3 PM works well for me.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("article").getByText("Tuesday at 3 PM works well for me.", { exact: true })).toBeVisible();
 });

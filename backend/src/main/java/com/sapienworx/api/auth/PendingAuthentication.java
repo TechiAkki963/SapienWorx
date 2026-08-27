@@ -1,5 +1,6 @@
 package com.sapienworx.api.auth;
 
+import com.sapienworx.api.candidate.CandidateCareerStage;
 import com.sapienworx.api.otp.OtpChannel;
 import com.sapienworx.api.security.PlatformRole;
 import com.sapienworx.api.taxonomy.DomainCategory;
@@ -28,6 +29,7 @@ record PendingAuthentication(
         Integer expectedSalaryLakhs,
         Integer noticePeriodDays,
         DomainCategory domainCategory,
+        CandidateCareerStage careerStage,
         List<String> interestedDomains,
         Set<OtpChannel> requiredChannels,
         Set<OtpChannel> verifiedChannels
@@ -37,7 +39,7 @@ record PendingAuthentication(
         next.add(channel);
         return new PendingAuthentication(flow, role, existingUserId, fullName, email, mobile, passwordHash,
                 termsAccepted, automationConsent, organisationName, designation, location, headline, currentCompany,
-                overallExperienceYears, expectedSalaryLakhs, noticePeriodDays, domainCategory, interestedDomains, requiredChannels, Set.copyOf(next));
+                overallExperienceYears, expectedSalaryLakhs, noticePeriodDays, domainCategory, careerStage, interestedDomains, requiredChannels, Set.copyOf(next));
     }
 
     boolean verified() { return verifiedChannels.containsAll(requiredChannels); }

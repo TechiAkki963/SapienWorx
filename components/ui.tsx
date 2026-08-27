@@ -64,7 +64,7 @@ export function Meter({ value, color = "blue" }: { value: number; color?: "blue"
 
 export function Button({ children, href, variant = "primary", onClick, type = "button", disabled = false }: { children: ReactNode; href?: string; variant?: "primary" | "secondary" | "quiet" | "danger" | "dark"; onClick?: () => void; type?: "button" | "submit"; disabled?: boolean }) {
   const className = `button button-${variant}`;
-  if (href) return <a className={className} href={href}>{children}</a>;
+  if (href) return <a className={className} href={href} onClick={onClick}>{children}</a>;
   return <button className={className} onClick={onClick} type={type} disabled={disabled}>{children}</button>;
 }
 

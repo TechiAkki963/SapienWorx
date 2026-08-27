@@ -6,7 +6,7 @@ async function enterOtp(page: import("@playwright/test").Page, label: "Email" | 
   }
 }
 
-test("collects only verified contact details and domain preferences before sending OTPs", async ({ page }) => {
+test("guides a candidate through career direction, account details, and dual-contact verification", async ({ page }) => {
   let requestBody: Record<string, unknown> | undefined;
   await page.route("**/api/auth/request-otp", async (route) => {
     requestBody = route.request().postDataJSON() as Record<string, unknown>;
@@ -15,16 +15,19 @@ test("collects only verified contact details and domain preferences before sendi
 
   await page.goto("/register");
   await expect(page.getByText("Career essentials", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Career direction", { exact: true })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "All" })).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("radio", { name: /Fresher/ }).click();
+  await page.getByRole("radio", { name: /Technology \/ IT/ }).click();
+  await page.getByRole("button", { name: "Continue to account details →" }).click();
+  await expect(page.getByText("Account details", { exact: true })).toBeVisible();
   await page.getByLabel("First name").fill("Asha");
   await page.getByLabel("Last name").fill("Raman");
   await page.getByLabel("Email address").fill("asha@example.com");
   await page.getByLabel("Mobile number").fill("+91 9876543210");
-  await page.getByRole("radio", { name: /Technology \/ IT/ }).click();
-  await page.getByRole("checkbox", { name: "Technology" }).click();
-  await page.getByRole("checkbox", { name: "BFSI" }).click();
   await page.getByLabel("Create password").fill("TestPassword9!");
   await page.getByLabel("Confirm password").fill("TestPassword9!");
-  await page.getByRole("button", { name: "Send verification codes →" }).click();
+  await page.getByRole("button", { name: "Continue to verification →" }).click();
 
   await expect(page.getByText("Email code", { exact: true })).toBeVisible();
   expect(requestBody).toMatchObject({
@@ -33,8 +36,9 @@ test("collects only verified contact details and domain preferences before sendi
     lastName: "Raman",
     email: "asha@example.com",
     mobile: "+91 9876543210",
+    careerStage: "FRESHER",
     domainCategory: "TECH",
-    interestedDomains: ["Technology", "BFSI"],
+    interestedDomains: ["Technology", "IT Services", "Manufacturing & Production", "Healthcare & Life Sciences", "Infrastructure, Transport & Real Estate", "BFSI", "BPM", "Consumer, Retail & Hospitality", "Media, Entertainment & Telecom", "Education"],
     password: "TestPassword9!",
   });
   expect(requestBody).not.toHaveProperty("headline");
@@ -66,20 +70,20 @@ test("offers CV parsing only after candidate email and mobile OTP verification",
 
   await page.goto("/register");
   await expect(page.getByLabel("Upload CV for parsing")).toHaveCount(0);
+  await page.getByRole("radio", { name: /Experienced/ }).click();
+  await page.getByRole("radio", { name: /Technology \/ IT/ }).click();
+  await page.getByRole("button", { name: "Continue to account details →" }).click();
   await page.getByLabel("First name").fill("Asha");
   await page.getByLabel("Last name").fill("Raman");
   await page.getByLabel("Email address").fill("asha@example.com");
   await page.getByLabel("Mobile number").fill("+91 9876543210");
-  await page.getByRole("radio", { name: /Technology \/ IT/ }).click();
-  await page.getByRole("checkbox", { name: "IT Services" }).click();
   await page.getByLabel("Create password").fill("TestPassword9!");
   await page.getByLabel("Confirm password").fill("TestPassword9!");
-  await page.getByRole("button", { name: "Send verification codes →" }).click();
+  await page.getByRole("button", { name: "Continue to verification →" }).click();
   await enterOtp(page, "Email");
   await enterOtp(page, "Mobile");
-  await page.getByRole("button", { name: "Verify both codes" }).click();
-
   await expect(page.getByText("Build from your CV", { exact: true })).toBeVisible();
+  await expect(page.getByText("Finish later", { exact: true })).toBeVisible();
   await page.getByLabel("Upload CV for parsing").setInputFiles({ name: "asha-raman.pdf", mimeType: "application/pdf", buffer: Buffer.from("candidate cv") });
   expect(cvUploads).toBe(0);
   await page.getByRole("button", { name: "Upload and parse CV →" }).click();

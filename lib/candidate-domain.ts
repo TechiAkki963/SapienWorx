@@ -10,12 +10,14 @@ function endpoint(path: string) {
   return `${apiBaseUrl}${path}`;
 }
 
-function csrfToken() {
-  if (typeof document === "undefined") return undefined;
-  return document.cookie
-    .split("; ")
-    .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
-    ?.split("=")[1];
+type CsrfBootstrapResponse = { token?: string };
+
+async function csrfToken() {
+  const response = await fetch(endpoint("/api/auth/csrf"), { credentials: "include", cache: "no-store" });
+  if (!response.ok) throw new Error("Unable to prepare the secure request.");
+  const body = await response.json() as CsrfBootstrapResponse;
+  if (!body.token) throw new Error("Unable to prepare the secure request.");
+  return body.token;
 }
 
 async function responseError(response: Response) {
@@ -34,7 +36,7 @@ export async function getCandidateDomain(signal?: AbortSignal): Promise<Candidat
 }
 
 export async function resolveCandidateDomain(domainCategory: "TECH" | "NON_TECH"): Promise<CandidateDomainResponse> {
-  const token = csrfToken();
+  const token = await csrfToken();
   const response = await fetch(endpoint("/api/candidate/domain"), {
     method: "PATCH",
     credentials: "include",

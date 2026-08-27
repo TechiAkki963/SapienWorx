@@ -136,6 +136,12 @@ public class Candidate {
     @Column(name = "domain_category", nullable = false, length = 20)
     private DomainCategory domainCategory = DomainCategory.UNASSIGNED;
 
+    /** Candidate-selected stage used to tailor onboarding and entry-level matching. */
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "career_stage", nullable = false, length = 16)
+    private CandidateCareerStage careerStage = CandidateCareerStage.EXPERIENCED;
+
     /** Candidate-selected sectors used to tailor opportunities without exposing contact data. */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "interested_domains", nullable = false, columnDefinition = "jsonb")

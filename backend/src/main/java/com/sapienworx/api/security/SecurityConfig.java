@@ -1,5 +1,6 @@
 package com.sapienworx.api.security;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Bean;
@@ -70,6 +71,12 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .logout(logout -> logout.disable())
                 .authorizeHttpRequests(authorize -> authorize
+                        // An authenticated SSE request is redispatched by the
+                        // servlet container when it writes heartbeats/events.
+                        // Its initial REQUEST remains protected below; allowing
+                        // the continuation avoids a false access denial after
+                        // the response has already begun streaming.
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/actuator/health", "/error", "/api/auth/**", "/api/public/jobs/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/events/**").authenticated()

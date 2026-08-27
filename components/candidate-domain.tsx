@@ -17,8 +17,10 @@ const CandidateDomainContext = createContext<CandidateDomainContextValue>({ doma
 const LOCAL_DOMAIN_STORAGE_KEY = "sapienworx.local-candidate-domain";
 
 function isLocalDemo() {
-  if (typeof window === "undefined" || process.env.NEXT_PUBLIC_DISABLE_LOCAL_DEMO === "true") return false;
-  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  // The browser also runs on localhost in the Compose-backed QA environment.
+  // Only turn off API-backed domain checks when an explicit test/demo flag is
+  // supplied; otherwise an authenticated candidate's stored category must win.
+  return process.env.NEXT_PUBLIC_LOCAL_DEMO === "true";
 }
 
 function localDomainCategory(): CandidateDomainCategory | null {

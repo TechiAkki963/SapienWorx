@@ -3,6 +3,7 @@ package com.sapienworx.api.auth;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sapienworx.api.candidate.Candidate;
+import com.sapienworx.api.candidate.CandidateCareerStage;
 import com.sapienworx.api.candidate.CandidateRegistrationStatus;
 import com.sapienworx.api.candidate.CandidateRepository;
 import com.sapienworx.api.otp.OtpChallengeStore;
@@ -120,6 +121,7 @@ public class AuthenticationService {
             String name = candidateName(request.firstName(), request.lastName());
             String password = required(request.password(), "A password of at least eight characters is required.");
             DomainCategory domainCategory = candidateDomain(request.domainCategory());
+            CandidateCareerStage careerStage = candidateCareerStage(request.careerStage());
             List<String> interestedDomains = candidateInterests(request.interestedDomains());
             if (!Boolean.TRUE.equals(request.termsAccepted())) {
                 throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Accept the Terms and Data Processing Agreement before registration.");
@@ -129,7 +131,7 @@ public class AuthenticationService {
             }
             return new PendingAuthentication(request.flow(), PlatformRole.CANDIDATE, null, name, email, mobile,
                     passwordEncoder.encode(password), true, Boolean.TRUE.equals(request.automationConsent()),
-                    null, null, null, null, null, null, null, null, domainCategory, interestedDomains,
+                    null, null, null, null, null, null, null, null, domainCategory, careerStage, interestedDomains,
                     Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
         }
 
@@ -150,7 +152,7 @@ public class AuthenticationService {
                 passwordEncoder.encode(password), false, false,
                 required(request.organisationName(), "Organisation is required."),
                 required(request.designation(), "Designation is required."), location,
-                null, null, null, null, null, null, List.of(), channels, Set.of());
+                null, null, null, null, null, null, null, List.of(), channels, Set.of());
     }
 
     private PendingAuthentication signInPending(OtpRequest request) {
@@ -170,7 +172,7 @@ public class AuthenticationService {
             }
             return new PendingAuthentication(AuthFlow.SIGN_IN, role, candidate.getId(), candidate.getFullName(),
                     candidate.getEmail(), candidate.getMobile(), null, false, false, null, null, null,
-                    null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
+                    null, null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
         }
 
         String password = required(request.password(), "Password is required.");
@@ -182,7 +184,7 @@ public class AuthenticationService {
                 ? Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE) : Set.of(OtpChannel.EMAIL);
         return new PendingAuthentication(AuthFlow.SIGN_IN, role, recruiter.getId(), recruiter.getFullName(),
                 recruiter.getOfficialEmail(), recruiter.getMobile(), null, false, false, null, null, null,
-                null, null, null, null, null, null, List.of(), channels, Set.of());
+                null, null, null, null, null, null, null, List.of(), channels, Set.of());
     }
 
     private AuthenticatedUser registerCandidate(PendingAuthentication pending) {
@@ -198,6 +200,7 @@ public class AuthenticationService {
                 .expectedSalaryLakhs(pending.expectedSalaryLakhs())
                 .noticePeriodDays(pending.noticePeriodDays())
                 .domainCategory(pending.domainCategory())
+                .careerStage(pending.careerStage())
                 .interestedDomains(pending.interestedDomains())
                 .emailVerified(true)
                 .mobileVerified(true)
@@ -311,6 +314,12 @@ public class AuthenticationService {
     private DomainCategory candidateDomain(DomainCategory value) {
         if (value != DomainCategory.TECH && value != DomainCategory.NON_TECH) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose Technology / IT or Non-technology before verification.");
+        }
+        return value;
+    }
+    private CandidateCareerStage candidateCareerStage(CandidateCareerStage value) {
+        if (value == null) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose Fresher or Experienced before verification.");
         }
         return value;
     }

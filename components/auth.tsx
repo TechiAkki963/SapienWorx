@@ -11,6 +11,7 @@ type RegistrationMethod = "resume" | "manual";
 type Contact = { name: string; email: string; mobile: string };
 type CandidateIdentity = { firstName: string; lastName: string; email: string; mobile: string };
 type CandidateDomain = "TECH" | "NON_TECH";
+type CandidateCareerStage = "FRESHER" | "EXPERIENCED";
 type CandidateBasics = { headline: string; currentCompany: string; location: string; overallExperienceYears: string; expectedSalaryLakhs: string; noticePeriodDays: string };
 type OtpRequestResponse = { transactionId: string; requiredChannels: Array<"EMAIL" | "MOBILE"> };
 type AuthSessionResponse = { authenticated: boolean; redirectTo: string | null; remainingChannels: Array<"EMAIL" | "MOBILE"> };
@@ -165,42 +166,55 @@ function CandidateEssentials({ basics, onChange }: { basics: CandidateBasics; on
 }
 
 function CandidateRegistration({ jobId }: { jobId?: string }) {
-  const [step, setStep] = useState<"details" | "verify" | "profile">("details");
+  const [step, setStep] = useState<"direction" | "details" | "verify" | "profile">("direction");
   const [identity, setIdentity] = useState<CandidateIdentity>({ firstName: "", lastName: "", email: "", mobile: "" });
+  const [careerStage, setCareerStage] = useState<CandidateCareerStage | "">("");
   const [domainCategory, setDomainCategory] = useState<CandidateDomain | "">("");
-  const [interestedDomains, setInterestedDomains] = useState<string[]>([]);
+  const [interestedDomains, setInterestedDomains] = useState<string[]>([...interestedDomainOptions]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState("");
+  const [requestingCodes, setRequestingCodes] = useState(false);
   const [transactionId, setTransactionId] = useState("");
   const [applicationMessage, setApplicationMessage] = useState("");
   const journeyStartedAt = useRef<number | null>(performance.now());
   const contact = { name: `${identity.firstName} ${identity.lastName}`.trim(), email: identity.email, mobile: identity.mobile };
-  const canRequestOtp = Boolean(identity.firstName.trim() && identity.lastName.trim() && identity.email.trim() && identity.mobile.trim() && domainCategory && interestedDomains.length && password.length >= 8 && password === confirmPassword);
+  const directionComplete = Boolean(careerStage && domainCategory && interestedDomains.length);
+  const canRequestOtp = Boolean(directionComplete && identity.firstName.trim() && identity.lastName.trim() && identity.email.trim() && identity.mobile.trim() && password.length >= 8 && password === confirmPassword);
+  const passwordsMatch = Boolean(confirmPassword && password === confirmPassword);
 
   const updateIdentity = (key: keyof CandidateIdentity, value: string) => { setIdentity((current) => ({ ...current, [key]: value })); setNotice(""); };
   const toggleInterest = (value: string) => {
     setInterestedDomains((current) => {
-      if (value === "All") return current.length === interestedDomainOptions.length ? [] : [...interestedDomainOptions];
+      if (value === "All") return [...interestedDomainOptions];
       return current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
     });
   };
+  const continueToAccountDetails = () => {
+    if (!directionComplete) { setNotice("Choose Fresher or Experienced, select Tech or Non-tech, and keep at least one interested domain before continuing."); return; }
+    setNotice("");
+    setStep("details");
+  };
   async function startRegistration() {
     if (password !== confirmPassword) { setNotice("Your passwords do not match. Please check both password fields."); return; }
-    if (!canRequestOtp) { setNotice("Add your contact details, choose Tech or Non-tech, select an interested domain, and set an eight-character password before verification."); return; }
+    if (!canRequestOtp) { setNotice("Add your contact details, choose a strong password, and complete your career direction before verification."); return; }
+    setRequestingCodes(true);
     try {
+      trackProductEvent("candidate_signup_otp_requested", { careerStage, primaryDomain: domainCategory, selectedDomainCount: interestedDomains.length, sharedJob: Boolean(jobId) });
       const response = await apiClient<OtpRequestResponse>("/api/auth/request-otp", { method: "POST", body: JSON.stringify({
         flow: "CANDIDATE_REGISTRATION", firstName: identity.firstName, lastName: identity.lastName, email: identity.email, mobile: identity.mobile,
-        domainCategory, interestedDomains, password, termsAccepted: true,
+        careerStage, domainCategory, interestedDomains, password, termsAccepted: true,
       }) });
       setTransactionId(response.transactionId);
       setStep("verify");
     } catch (error) { setNotice(error instanceof Error ? error.message : "We could not start registration."); throw error; }
+    finally { setRequestingCodes(false); }
   }
   const verifyRegistration = async (codes: { emailCode: string; mobileCode: string }) => {
     const session = await verifyOtpTransaction(transactionId, codes, "both");
     if (!session.authenticated) throw new Error("Complete both verification codes before continuing.");
-    trackProductEvent("candidate_onboarding_verified", { primaryDomain: domainCategory, selectedDomainCount: interestedDomains.length, timeToValueMs: Math.round(performance.now() - (journeyStartedAt.current ?? performance.now())) });
+    trackProductEvent("candidate_onboarding_verified", { careerStage, primaryDomain: domainCategory, selectedDomainCount: interestedDomains.length, timeToValueMs: Math.round(performance.now() - (journeyStartedAt.current ?? performance.now())) });
     if (jobId) {
       try {
         await apiClient(`/api/candidate/jobs/${encodeURIComponent(jobId)}/applications`, { method: "POST", body: JSON.stringify({ coverLetter: null }) });
@@ -214,19 +228,31 @@ function CandidateRegistration({ jobId }: { jobId?: string }) {
     setStep("profile");
   };
 
-  return <AuthFrame eyebrow="Candidate registration" title={step === "details" ? jobId ? "Create an account to apply" : "Create your candidate account" : step === "verify" ? "Verify both contact methods" : "Create your profile your way"} copy={step === "details" ? jobId ? "Verify your email and mobile to apply securely through the recruiter who posted this role." : "Start with only your name and verified contact details. Choose the work direction and domains you are interested in before we send codes." : step === "verify" ? "One code was sent to your email and one to your mobile. Both must be confirmed to create your account." : "Your account is verified. Use CV parsing to create a first draft, or add every detail manually."}>
-    {step === "details" && <form className="auth-form" onSubmit={(event) => { event.preventDefault(); void startRegistration().catch(() => undefined); }}>
-      <div className="candidate-signup-stage"><span>1</span><div><strong>Identity and verified contact</strong><small>We only ask for the details needed to securely create your account.</small></div></div>
-      <div className="candidate-onboarding-grid"><AuthField label="First name" value={identity.firstName} onChange={(value) => updateIdentity("firstName", value)} placeholder="Your first name"/><AuthField label="Last name" value={identity.lastName} onChange={(value) => updateIdentity("lastName", value)} placeholder="Your last name"/><AuthField label="Email address" type="email" value={identity.email} onChange={(value) => updateIdentity("email", value)} placeholder="you@example.com"/><AuthField label="Mobile number" type="tel" value={identity.mobile} onChange={(value) => updateIdentity("mobile", value)} placeholder="+91 00000 00000"/><AuthField label="Create password" type="password" value={password} onChange={setPassword} placeholder="At least 8 characters"/><AuthField label="Confirm password" type="password" value={confirmPassword} onChange={setConfirmPassword} placeholder="Re-enter your password"/></div>
-      <div className="candidate-signup-stage"><span>2</span><div><strong>Choose your direction</strong><small>Confirm whether you are pursuing Technology / IT or Non-technology opportunities before verification.</small></div></div>
-      <div className="candidate-domain-options" role="radiogroup" aria-label="Primary candidate domain"><button type="button" role="radio" aria-checked={domainCategory === "TECH"} className={domainCategory === "TECH" ? "selected" : ""} onClick={() => setDomainCategory("TECH")}><strong>Technology / IT</strong><small>Engineering, data, product and technical roles</small></button><button type="button" role="radio" aria-checked={domainCategory === "NON_TECH"} className={domainCategory === "NON_TECH" ? "selected" : ""} onClick={() => setDomainCategory("NON_TECH")}><strong>Non-technology</strong><small>Business, operations, creative and service roles</small></button></div>
-      <fieldset className="candidate-interest-picker"><legend>Interested domains</legend><p>Select one or more domains. You can change these later from your profile.</p><div>{["All", ...interestedDomainOptions].map((domain) => <button type="button" key={domain} role="checkbox" aria-checked={domain === "All" ? interestedDomains.length === interestedDomainOptions.length : interestedDomains.includes(domain)} className={(domain === "All" ? interestedDomains.length === interestedDomainOptions.length : interestedDomains.includes(domain)) ? "selected" : ""} onClick={() => toggleInterest(domain)}>{domain}</button>)}</div></fieldset>
-      <p className="auth-microcopy">By sending verification codes, you agree to the required Terms and Data Processing Agreement. Profile details stay private until you choose to create and share them.</p>{notice && <p className="form-notice" role="alert">{notice}</p>}<Button type="submit" disabled={!canRequestOtp}>Send verification codes →</Button>
+  return <AuthFrame eyebrow="Candidate registration" title={step === "direction" ? jobId ? "Create an account to apply" : "Start your candidate account" : step === "details" ? jobId ? "Create an account to apply" : "Set up your account details" : step === "verify" ? "Verify both contact methods" : "Create your profile your way"} copy={step === "direction" ? jobId ? "Choose your career direction first, then add your details and verify both contact methods to apply securely to this role." : "Three short steps: tell us where you are in your career, add your account details, then verify your contact methods." : step === "details" ? jobId ? "Verify your email and mobile to apply securely through the recruiter who posted this role." : "Only your name, contact details and a password are needed here. Your detailed profile comes after verification." : step === "verify" ? "One code was sent to your email and one to your mobile. Both must be confirmed to create your account." : "Your account is verified. Use CV parsing to create a first draft, add details manually, or finish later."}>
+    <CandidateSignupProgress step={step}/>
+    {step === "direction" && <section className="auth-form candidate-signup-slide" aria-label="Career direction">
+      <div className="candidate-signup-stage"><span>1</span><div><strong>Where are you in your career?</strong><small>This helps us tailor your first profile and relevant job suggestions. You can change it later.</small></div></div>
+      <div className="candidate-career-stage-options" role="radiogroup" aria-label="Career stage"><button type="button" role="radio" aria-checked={careerStage === "FRESHER"} className={careerStage === "FRESHER" ? "selected" : ""} onClick={() => { setCareerStage("FRESHER"); setNotice(""); }}><span>✦</span><div><strong>Fresher</strong><small>I&apos;m starting my career, returning after education, or building early experience.</small></div></button><button type="button" role="radio" aria-checked={careerStage === "EXPERIENCED"} className={careerStage === "EXPERIENCED" ? "selected" : ""} onClick={() => { setCareerStage("EXPERIENCED"); setNotice(""); }}><span>↗</span><div><strong>Experienced</strong><small>I have professional work experience to add to my profile.</small></div></button></div>
+      <div className="candidate-signup-stage"><span>2</span><div><strong>Choose your direction</strong><small>Select your primary path and the sectors you want to explore.</small></div></div>
+      <div className="candidate-domain-options" role="radiogroup" aria-label="Primary candidate domain"><button type="button" role="radio" aria-checked={domainCategory === "TECH"} className={domainCategory === "TECH" ? "selected" : ""} onClick={() => { setDomainCategory("TECH"); setNotice(""); }}><strong>Technology / IT</strong><small>Engineering, data, product and technical roles</small></button><button type="button" role="radio" aria-checked={domainCategory === "NON_TECH"} className={domainCategory === "NON_TECH" ? "selected" : ""} onClick={() => { setDomainCategory("NON_TECH"); setNotice(""); }}><strong>Non-technology</strong><small>Business, operations, creative and service roles</small></button></div>
+      <fieldset className="candidate-interest-picker"><legend>Interested domains</legend><p><b>All domains</b> is selected to get you started quickly. Select or remove any preferences now, or change them later from your profile.</p><div>{["All", ...interestedDomainOptions].map((domain) => <button type="button" key={domain} role="checkbox" aria-checked={domain === "All" ? interestedDomains.length === interestedDomainOptions.length : interestedDomains.includes(domain)} className={(domain === "All" ? interestedDomains.length === interestedDomainOptions.length : interestedDomains.includes(domain)) ? "selected" : ""} onClick={() => { toggleInterest(domain); setNotice(""); }}>{domain}</button>)}</div></fieldset>
+      {notice && <p className="form-notice" role="alert">{notice}</p>}<Button onClick={continueToAccountDetails}>Continue to account details →</Button>
+    </section>}
+    {step === "details" && <form className="auth-form candidate-signup-slide" onSubmit={(event) => { event.preventDefault(); void startRegistration().catch(() => undefined); }}>
+      <button className="back-link" type="button" onClick={() => { setNotice(""); setStep("direction"); }}>← Back to career direction</button><div className="candidate-signup-stage"><span>2</span><div><strong>Your account details</strong><small>Use the email and mobile number you want to verify and use to sign in.</small></div></div>
+      <div className="candidate-onboarding-grid"><AuthField label="First name" value={identity.firstName} onChange={(value) => updateIdentity("firstName", value)} placeholder="Your first name"/><AuthField label="Last name" value={identity.lastName} onChange={(value) => updateIdentity("lastName", value)} placeholder="Your last name"/><AuthField label="Email address" type="email" value={identity.email} onChange={(value) => updateIdentity("email", value)} placeholder="you@example.com"/><AuthField label="Mobile number" type="tel" value={identity.mobile} onChange={(value) => updateIdentity("mobile", value)} placeholder="+91 00000 00000"/><AuthField label="Create password" type={showPassword ? "text" : "password"} value={password} onChange={setPassword} placeholder="At least 8 characters"/><AuthField label="Confirm password" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={setConfirmPassword} placeholder="Re-enter your password"/></div>
+      <div className="candidate-password-guidance"><div><strong>{password.length >= 8 ? "✓ Password length looks good" : "Use at least 8 characters"}</strong><small>{confirmPassword ? passwordsMatch ? "Passwords match." : "Passwords do not match yet." : "Use a password you can remember securely."}</small></div><button type="button" onClick={() => setShowPassword((current) => !current)}>{showPassword ? "Hide passwords" : "Show passwords"}</button></div>
+      <p className="candidate-verification-note"><span>⌁</span><span><strong>Step 3 is a quick verification.</strong> We&apos;ll send one code to your email and another to your mobile. Your profile stays private until you choose to share it.</span></p><p className="auth-microcopy">By sending verification codes, you agree to the required Terms and Data Processing Agreement.</p>{notice && <p className="form-notice" role="alert">{notice}</p>}<Button type="submit" disabled={!canRequestOtp || requestingCodes}>{requestingCodes ? "Sending secure codes…" : "Continue to verification →"}</Button>
     </form>}
-    {step === "verify" && <DualOtp contact={contact} onVerify={verifyRegistration} onResend={startRegistration}/>}
+    {step === "verify" && <DualOtp contact={contact} onVerify={verifyRegistration} onResend={startRegistration} onEditContact={() => { setNotice(""); setStep("details"); }} autoVerify/>}
     {step === "profile" && <ProfileCreationOptions applicationMessage={applicationMessage}/>}
     <p className="auth-footer">Already registered? <a href={`/login${jobId ? `?job=${encodeURIComponent(jobId)}` : ""}`}>Sign in</a></p>
   </AuthFrame>;
+}
+
+function CandidateSignupProgress({ step }: { step: "direction" | "details" | "verify" | "profile" }) {
+  const active = step === "direction" ? 0 : step === "details" ? 1 : step === "verify" ? 2 : 3;
+  return <ol className="candidate-signup-progress" aria-label="Candidate signup progress">{["Career direction", "Account details", "Verify contacts"].map((label, index) => <li className={index < active ? "complete" : index === active ? "current" : ""} key={label}><span>{index < active ? "✓" : index + 1}</span><strong>{label}</strong></li>)}</ol>;
 }
 
 function ProfileCreationOptions({ applicationMessage = "" }: { applicationMessage?: string }) {
@@ -246,7 +272,7 @@ function ProfileCreationOptions({ applicationMessage = "" }: { applicationMessag
     } catch (reason) { setError(reason instanceof Error ? reason.message : "We could not upload your CV. Try again or create your profile manually."); }
     finally { setUploading(false); }
   };
-  return <div className="profile-creation-options">{applicationMessage && <p className="form-notice" role="status">{applicationMessage}</p>}<section className="profile-creation-option"><span>⇧</span><div><h2>Build from your CV</h2><p>Upload a PDF, DOCX or TXT file. Sapienworx will extract a private draft for you to review and edit.</p></div><label className="upload-target"><input aria-label="Upload CV for parsing" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" onChange={(event) => { setResumeFile(event.target.files?.[0] ?? null); setMessage(""); setError(""); }}/><strong>{resumeFile?.name || "Choose your CV"}</strong><small>PDF, DOCX or TXT · uploaded only to your verified account</small></label>{resumeFile && <Button onClick={uploadCv} disabled={uploading}>{uploading ? "Uploading CV…" : "Upload and parse CV →"}</Button>}{message && <p className="form-notice">{message}</p>}{error && <p className="consent-error" role="alert">{error}</p>}{message && <Button href="/candidate/profile">Review parsed profile →</Button>}</section><section className="profile-creation-option"><span>✦</span><div><h2>Create it manually</h2><p>Add your experience, education, skills, projects and personal preferences one section at a time.</p></div><Button href="/candidate/profile">Build profile manually →</Button></section></div>;
+  return <div className="profile-creation-options">{applicationMessage && <p className="form-notice" role="status">{applicationMessage}</p>}<section className="profile-creation-option"><span>⇧</span><div><h2>Build from your CV</h2><p>Upload a PDF, DOCX or TXT file. Sapienworx will extract a private draft for you to review and edit.</p></div><label className="upload-target"><input aria-label="Upload CV for parsing" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" onChange={(event) => { setResumeFile(event.target.files?.[0] ?? null); setMessage(""); setError(""); }}/><strong>{resumeFile?.name || "Choose your CV"}</strong><small>PDF, DOCX or TXT · uploaded only to your verified account</small></label>{resumeFile && <Button onClick={uploadCv} disabled={uploading}>{uploading ? "Uploading CV…" : "Upload and parse CV →"}</Button>}{message && <p className="form-notice">{message}</p>}{error && <p className="consent-error" role="alert">{error}</p>}{message && <Button href="/candidate/profile">Review parsed profile →</Button>}</section><section className="profile-creation-option"><span>✦</span><div><h2>Create it manually</h2><p>Add experience, education, skills and projects one section at a time. Start with only the essentials.</p></div><Button onClick={() => trackProductEvent("candidate_profile_path_selected", { method: "manual" })} href="/candidate/profile">Build profile manually →</Button></section><section className="profile-creation-option profile-creation-later"><span>◷</span><div><h2>Finish later</h2><p>Your account is ready. Explore the workspace now and return whenever you are ready to complete your profile.</p></div><Button onClick={() => trackProductEvent("candidate_profile_path_selected", { method: "later" })} href="/candidate">Go to my dashboard →</Button></section></div>;
 }
 
 function Consent({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) { return <><section className="dpdp-notice"><strong>What we collect and why</strong><p>We use your contact details to secure your account and your CV only to create the profile you review. You can access, correct, export or request deletion of your data.</p></section><label className="consent-row"><input checked={checked} onChange={(event) => onChange(event.target.checked)} type="checkbox"/><span><b>I agree to the required Terms and Data Processing Agreement.</b><small>Required to create and secure your profile.</small></span></label></>; }
@@ -302,18 +328,20 @@ function friendlyOtpError(reason: unknown) {
   return /\b(invalid|expired)\b/i.test(message) ? "That code didn’t match. Check the latest six-digit code, or request a new one when the timer ends." : message || "We could not verify these codes.";
 }
 
-function DualOtp({ contact, onVerified, onVerify, onResend, methods = "both" }: { contact: Contact; onVerified?: () => void; onVerify?: (codes: { emailCode: string; mobileCode: string }) => Promise<void>; onResend?: () => Promise<void>; methods?: "email" | "both" }) {
+function DualOtp({ contact, onVerified, onVerify, onResend, onEditContact, autoVerify = false, methods = "both" }: { contact: Contact; onVerified?: () => void; onVerify?: (codes: { emailCode: string; mobileCode: string }) => Promise<void>; onResend?: () => Promise<void>; onEditContact?: () => void; autoVerify?: boolean; methods?: "email" | "both" }) {
   const [emailCode, setEmailCode] = useState("");
   const [mobileCode, setMobileCode] = useState("");
   const [error, setError] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(30);
+  const lastAttempt = useRef("");
   const ready = emailCode.length === 6 && (methods === "email" || mobileCode.length === 6);
   useEffect(() => { if (cooldownSeconds <= 0) return; const timer = window.setTimeout(() => setCooldownSeconds((value) => value - 1), 1000); return () => window.clearTimeout(timer); }, [cooldownSeconds]);
   const verify = async () => { setError(""); setVerifying(true); try { if (onVerify) await onVerify({ emailCode, mobileCode }); else onVerified?.(); } catch (reason) { setError(friendlyOtpError(reason)); } finally { setVerifying(false); } };
-  const resend = async () => { if (!onResend || cooldownSeconds > 0 || resending) return; setError(""); setResending(true); try { await onResend(); setCooldownSeconds(30); setEmailCode(""); setMobileCode(""); } catch (reason) { setError(reason instanceof Error ? reason.message : "We could not send another code."); } finally { setResending(false); } };
-  return <div className="dual-otp"><div className="otp-method"><div><strong>Email code</strong><small>Sent to {maskEmail(contact.email)}</small></div><OtpInputs label="Email verification code" onChange={setEmailCode}/></div>{methods === "both" && <div className="otp-method"><div><strong>Mobile code</strong><small>Sent to {maskMobile(contact.mobile)}</small></div><OtpInputs label="Mobile verification code" onChange={setMobileCode}/></div>}{error && <p className="consent-error" role="alert">{error}</p>}<Button onClick={() => { void verify(); }} disabled={!ready || verifying}>{verifying ? "Verifying…" : methods === "email" ? "Verify email code" : "Verify both codes"}</Button>{onResend && <button className="otp-resend" type="button" onClick={() => { void resend(); }} disabled={cooldownSeconds > 0 || resending}>{resending ? "Sending another code…" : cooldownSeconds > 0 ? `Resend code in 0:${String(cooldownSeconds).padStart(2, "0")}` : "Resend code"}</button>}<p className="auth-microcopy">Digits advance automatically as you type. Codes expire after 10 minutes and are never stored as plain text. To protect your account, a new code can be requested once every 30 seconds.</p></div>;
+  useEffect(() => { const signature = `${emailCode}:${mobileCode}:${methods}`; if (!autoVerify || !ready || verifying || lastAttempt.current === signature) return; lastAttempt.current = signature; void verify(); }, [autoVerify, emailCode, mobileCode, methods, ready, verifying]);
+  const resend = async () => { if (!onResend || cooldownSeconds > 0 || resending) return; setError(""); setResending(true); try { await onResend(); lastAttempt.current = ""; setCooldownSeconds(30); setEmailCode(""); setMobileCode(""); } catch (reason) { setError(reason instanceof Error ? reason.message : "We could not send another code."); } finally { setResending(false); } };
+  return <div className="dual-otp candidate-dual-otp"><div className="otp-overview"><span>2</span><div><strong>Securely verify your contact details</strong><small>{methods === "both" ? "Enter the two six-digit codes. We’ll continue automatically when both are complete." : "Enter your six-digit email code. We’ll continue automatically when it is complete."}</small></div></div><div className="otp-method"><div><strong>Email code</strong><small>Sent to {maskEmail(contact.email)}</small></div><OtpInputs label="Email verification code" onChange={setEmailCode}/></div>{methods === "both" && <div className="otp-method"><div><strong>Mobile code</strong><small>Sent to {maskMobile(contact.mobile)}</small></div><OtpInputs label="Mobile verification code" onChange={setMobileCode}/></div>}{error && <p className="consent-error" role="alert">{error}</p>}<Button onClick={() => { void verify(); }} disabled={!ready || verifying}>{verifying ? "Verifying…" : methods === "email" ? "Verify email code" : "Verify both codes"}</Button>{onResend && <button className="otp-resend" type="button" onClick={() => { void resend(); }} disabled={cooldownSeconds > 0 || resending}>{resending ? "Sending another code…" : cooldownSeconds > 0 ? `Resend code in 0:${String(cooldownSeconds).padStart(2, "0")}` : "Resend both codes"}</button>}<div className="otp-support"><span>Codes expire after 10 minutes. A new code can be requested every 30 seconds.</span>{onEditContact && <button type="button" onClick={onEditContact}>Change email or mobile</button>}</div></div>;
 }
 async function verifyOtpTransaction(transactionId: string, codes: { emailCode: string; mobileCode: string }, methods: "email" | "both") {
   if (!transactionId) throw new Error("Your verification session has expired. Start again.");

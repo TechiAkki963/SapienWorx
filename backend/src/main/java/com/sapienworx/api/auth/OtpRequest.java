@@ -1,5 +1,6 @@
 package com.sapienworx.api.auth;
 
+import com.sapienworx.api.candidate.CandidateCareerStage;
 import com.sapienworx.api.security.PlatformRole;
 import com.sapienworx.api.taxonomy.DomainCategory;
 import jakarta.validation.constraints.Email;
@@ -29,6 +30,7 @@ public record OtpRequest(
         String city,
         String state,
         DomainCategory domainCategory,
+        CandidateCareerStage careerStage,
         @Size(max = 10) List<@Size(max = 80) String> interestedDomains,
         @Size(max = 180) String headline,
         @Size(max = 180) String currentCompany,

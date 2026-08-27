@@ -28,5 +28,9 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    // Unit-style browser tests use deterministic route stubs instead of the
+    // Compose API. Keep the local-domain test fixture explicit so localhost
+    // itself never changes production/QA behaviour.
+    env: { ...process.env, NEXT_PUBLIC_LOCAL_DEMO: "true" },
   },
 });

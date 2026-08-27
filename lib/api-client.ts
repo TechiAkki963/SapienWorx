@@ -2,22 +2,22 @@
 // this to its HTTPS API origin at build time.
 const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080").replace(/\/$/, "");
 
-function csrfToken() {
-  if (typeof document === "undefined") return undefined;
-  return document.cookie.split("; ").find((value) => value.startsWith("XSRF-TOKEN="))?.split("=")[1];
-}
-
-let csrfBootstrap: Promise<void> | undefined;
+type CsrfBootstrapResponse = { token?: string };
+let csrfBootstrap: Promise<string | undefined> | undefined;
+let csrfRequestToken: string | undefined;
 
 async function ensureCsrfToken() {
-  if (csrfToken() || typeof document === "undefined") return csrfToken();
+  if (csrfRequestToken || typeof document === "undefined") return csrfRequestToken;
   csrfBootstrap ??= fetch(`${apiBaseUrl}/api/auth/csrf`, { credentials: "include", cache: "no-store" })
-    .then((response) => {
+    .then(async (response) => {
       if (!response.ok) throw new Error("Unable to prepare the secure request.");
+      const body = await response.json() as CsrfBootstrapResponse;
+      if (!body.token) throw new Error("Unable to prepare the secure request.");
+      csrfRequestToken = body.token;
+      return csrfRequestToken;
     })
     .finally(() => { csrfBootstrap = undefined; });
-  await csrfBootstrap;
-  return csrfToken();
+  return csrfBootstrap;
 }
 
 export async function apiClient<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -25,7 +25,7 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
   const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
   const isStateChanging = !["GET", "HEAD", "OPTIONS"].includes(method);
   const requiresCsrf = isStateChanging && !path.startsWith("/api/auth/request-otp") && !path.startsWith("/api/auth/verify-otp");
-  const token = requiresCsrf ? await ensureCsrfToken() : csrfToken();
+  const token = requiresCsrf ? await ensureCsrfToken() : undefined;
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: "include",

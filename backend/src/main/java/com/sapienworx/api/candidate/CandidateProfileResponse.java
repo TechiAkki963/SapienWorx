@@ -31,6 +31,7 @@ public record CandidateProfileResponse(
         boolean mobileVerified,
         boolean cvAvailable,
         DomainCategory domainCategory,
+        CandidateCareerStage careerStage,
         List<String> interestedDomains,
         List<String> workLinks,
         List<CandidateSkillView> skills,
