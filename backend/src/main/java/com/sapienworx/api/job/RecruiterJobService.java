@@ -3,6 +3,8 @@ package com.sapienworx.api.job;
 import com.sapienworx.api.recruiter.Recruiter;
 import com.sapienworx.api.recruiter.RecruiterRepository;
 import com.sapienworx.api.taxonomy.DomainCategory;
+import com.sapienworx.api.admin.PlatformAccessPolicy;
+import com.sapienworx.api.admin.OrganisationBillingPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +26,14 @@ public class RecruiterJobService {
     private final JobRepository jobRepository;
     private final RecruiterRepository recruiterRepository;
     private final JobDescriptionSanitizer descriptionSanitizer;
+    private final PlatformAccessPolicy platformAccessPolicy;
+    private final OrganisationBillingPolicy organisationBillingPolicy;
 
     @Transactional
     public JobResponse createDraft(UUID recruiterId, JobUpsertRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
+        platformAccessPolicy.requireJobCreationAllowed(recruiter.getOrganisation().getId());
+        organisationBillingPolicy.requireJobCredit(recruiter.getOrganisation().getId());
         Job job = apply(Job.builder().status(JobStatus.DRAFT).build(), request);
         return JobResponse.from(jobService.create(job, recruiter));
     }
@@ -52,6 +58,8 @@ public class RecruiterJobService {
     @Transactional
     public JobResponse duplicate(UUID recruiterId, String publicJobId) {
         Job source = jobForRecruiter(recruiterId, publicJobId);
+        platformAccessPolicy.requireJobCreationAllowed(source.getOrganisation().getId());
+        organisationBillingPolicy.requireJobCredit(source.getOrganisation().getId());
         Job copy = Job.builder()
                 .title(source.getTitle() + " (copy)")
                 .department(source.getDepartment())

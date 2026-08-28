@@ -3,6 +3,10 @@ package com.sapienworx.api.auth;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sapienworx.api.candidate.Candidate;
+import com.sapienworx.api.admin.PlatformAdministrator;
+import com.sapienworx.api.admin.PlatformAdministratorRepository;
+import com.sapienworx.api.admin.PlatformControlsRepository;
+import com.sapienworx.api.admin.PlatformAccessPolicy;
 import com.sapienworx.api.candidate.CandidateCareerStage;
 import com.sapienworx.api.candidate.CandidateRegistrationStatus;
 import com.sapienworx.api.candidate.CandidateRepository;
@@ -58,6 +62,9 @@ public class AuthenticationService {
     private final CandidateRepository candidateRepository;
     private final RecruiterRepository recruiterRepository;
     private final OrganisationRepository organisationRepository;
+    private final PlatformAdministratorRepository platformAdministratorRepository;
+    private final PlatformControlsRepository platformControlsRepository;
+    private final PlatformAccessPolicy platformAccessPolicy;
 
     public OtpRequestResponse requestOtp(OtpRequest request) {
         PendingAuthentication pending = preparePending(request);
@@ -111,8 +118,16 @@ public class AuthenticationService {
     }
 
     private PendingAuthentication preparePending(OtpRequest request) {
+        if (request.flow() != AuthFlow.SIGN_IN) platformAccessPolicy.requirePublicPlatformAvailable();
         if (request.flow() == AuthFlow.SIGN_IN) {
             return signInPending(request);
+        }
+        var platformControls = platformControlsRepository.findById(true).orElse(null);
+        if (request.flow() == AuthFlow.CANDIDATE_REGISTRATION && platformControls != null && !platformControls.isCandidateSignupEnabled()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Candidate registration is temporarily unavailable.");
+        }
+        if ((request.flow() == AuthFlow.RECRUITER_REGISTRATION || request.flow() == AuthFlow.CONSULTANT_REGISTRATION) && platformControls != null && !platformControls.isRecruiterSignupEnabled()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Recruiter registration is temporarily unavailable.");
         }
 
         String email = normalizeEmail(request.email());
@@ -157,29 +172,37 @@ public class AuthenticationService {
 
     private PendingAuthentication signInPending(OtpRequest request) {
         PlatformRole role = request.role();
-        if (role != PlatformRole.CANDIDATE && role != PlatformRole.RECRUITER) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Select a candidate or recruiter account.");
+        if (role != PlatformRole.CANDIDATE && role != PlatformRole.RECRUITER && role != PlatformRole.SUPER_ADMIN) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Select a valid account type.");
         }
         String email = normalizeEmail(request.email());
+        String password = required(request.password(), "Password is required.");
+        if (role == PlatformRole.SUPER_ADMIN) {
+            PlatformAdministrator administrator = platformAdministratorRepository.findByEmailIgnoreCase(email).orElseThrow(() -> invalidCredentials());
+            if (!administrator.isActive() || !passwordEncoder.matches(password, administrator.getPasswordHash())) throw invalidCredentials();
+            AuthenticatedUser user = new AuthenticatedUser(administrator.getId(), role);
+            platformAccessPolicy.requireSignInAllowed(user);
+            return new PendingAuthentication(AuthFlow.SIGN_IN, role, administrator.getId(), administrator.getDisplayName(), administrator.getEmail(), null, null, false, false, null, null, null, null, null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL), Set.of());
+        }
         if (role == PlatformRole.CANDIDATE) {
             Candidate candidate = candidateRepository.findByEmail(email).orElseThrow(() -> invalidCredentials());
-            String password = required(request.password(), "Password is required.");
             if (candidate.getPasswordHash() == null || !passwordEncoder.matches(password, candidate.getPasswordHash())) {
                 throw invalidCredentials();
             }
             if (candidate.getRegistrationStatus() != CandidateRegistrationStatus.ACTIVE) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Complete account verification before signing in.");
             }
+            platformAccessPolicy.requireSignInAllowed(new AuthenticatedUser(candidate.getId(), role));
             return new PendingAuthentication(AuthFlow.SIGN_IN, role, candidate.getId(), candidate.getFullName(),
                     candidate.getEmail(), candidate.getMobile(), null, false, false, null, null, null,
                     null, null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
         }
 
-        String password = required(request.password(), "Password is required.");
         Recruiter recruiter = recruiterRepository.findByOfficialEmail(email).orElseThrow(() -> invalidCredentials());
         if (recruiter.getPasswordHash() == null || !passwordEncoder.matches(password, recruiter.getPasswordHash())) {
             throw invalidCredentials();
         }
+        platformAccessPolicy.requireSignInAllowed(new AuthenticatedUser(recruiter.getId(), role));
         Set<OtpChannel> channels = recruiter.getRecruiterType() == RecruiterType.CONSULTANT
                 ? Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE) : Set.of(OtpChannel.EMAIL);
         return new PendingAuthentication(AuthFlow.SIGN_IN, role, recruiter.getId(), recruiter.getFullName(),
@@ -264,7 +287,7 @@ public class AuthenticationService {
         };
     }
 
-    private String redirectFor(PlatformRole role) { return role == PlatformRole.CANDIDATE ? "/candidate" : "/recruiter"; }
+    private String redirectFor(PlatformRole role) { return role == PlatformRole.CANDIDATE ? "/candidate" : role == PlatformRole.SUPER_ADMIN ? "/admin" : "/recruiter"; }
     private String transactionKey(String transactionId) { return TRANSACTION_PREFIX + transactionId; }
     private void enforceOtpRequestCooldown(PendingAuthentication pending) {
         Boolean acquired = redisTemplate.opsForValue().setIfAbsent(

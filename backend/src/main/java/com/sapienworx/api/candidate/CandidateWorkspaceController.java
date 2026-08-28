@@ -7,6 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +23,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
+import com.sapienworx.api.workflow.WorkflowRequests;
+import com.sapienworx.api.workflow.WorkflowResponses;
+import com.sapienworx.api.reporting.PortalReportService;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/candidate")
 @RequiredArgsConstructor
 public class CandidateWorkspaceController {
     private final CandidateWorkspaceService candidateWorkspaceService;
+    private final PortalReportService portalReportService;
 
     @GetMapping("/profile")
     public CandidateProfileResponse profile(@AuthenticationPrincipal AuthenticatedUser user) { return candidateWorkspaceService.profile(candidateId(user)); }
@@ -33,6 +41,15 @@ public class CandidateWorkspaceController {
     public CandidateProfileResponse updateProfile(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody CandidateProfileRequest request) { return candidateWorkspaceService.updateProfile(candidateId(user), request); }
     @GetMapping("/dashboard")
     public CandidateDashboardResponse dashboard(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "90") int rangeDays) { return candidateWorkspaceService.dashboard(candidateId(user), rangeDays); }
+    @GetMapping("/reports")
+    public Map<String, Object> reports(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "90") int rangeDays) {
+        return portalReportService.candidateReport(candidateId(user), rangeDays);
+    }
+    @GetMapping("/reports/export.csv")
+    public ResponseEntity<String> exportReport(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "90") int rangeDays) {
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sapienworx-candidate-report.csv")
+                .contentType(MediaType.parseMediaType("text/csv")).body(portalReportService.candidateCsv(candidateId(user), rangeDays));
+    }
     @PostMapping("/jobs/{publicJobId}/applications")
     public CandidateApplicationResponse apply(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String publicJobId, @Valid @RequestBody CandidateApplicationRequest request) { return candidateWorkspaceService.apply(candidateId(user), publicJobId, request); }
     @GetMapping("/applications")
@@ -43,6 +60,18 @@ public class CandidateWorkspaceController {
     public CandidateApplicationSummaryResponse applicationSummary(@AuthenticationPrincipal AuthenticatedUser user) {
         return candidateWorkspaceService.applicationSummary(candidateId(user));
     }
+    @GetMapping("/applications/{applicationId}/timeline")
+    public WorkflowResponses.ApplicationTimeline applicationTimeline(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID applicationId) {
+        return candidateWorkspaceService.applicationTimeline(candidateId(user), applicationId);
+    }
+    @PostMapping("/jobs/{publicJobId}/referral")
+    public WorkflowResponses.Referral createReferral(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String publicJobId) {
+        return candidateWorkspaceService.createReferral(candidateId(user), publicJobId);
+    }
+    @GetMapping("/privacy") public WorkflowResponses.CandidatePrivacy privacy(@AuthenticationPrincipal AuthenticatedUser user) { return candidateWorkspaceService.privacy(candidateId(user)); }
+    @PatchMapping("/privacy") public WorkflowResponses.CandidatePrivacy updatePrivacy(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody WorkflowRequests.CandidatePrivacyUpdateRequest request) { return candidateWorkspaceService.updatePrivacy(candidateId(user), request); }
+    @PostMapping("/privacy/data-export") public WorkflowResponses.CandidatePrivacy requestExport(@AuthenticationPrincipal AuthenticatedUser user) { return candidateWorkspaceService.requestDataExport(candidateId(user)); }
+    @PostMapping("/privacy/deletion-request") public WorkflowResponses.CandidatePrivacy requestDeletion(@AuthenticationPrincipal AuthenticatedUser user) { return candidateWorkspaceService.requestDeletion(candidateId(user)); }
     @DeleteMapping("/account")
     public void eraseAccount(@AuthenticationPrincipal AuthenticatedUser user) { candidateWorkspaceService.erase(candidateId(user)); }
 

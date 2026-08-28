@@ -124,7 +124,7 @@ function LegacyCandidateJobs() {
 function FilterControl({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder: string }) { return <label className="candidate-filter-control"><span>{label}</span><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder}/></label>; }
 function SelectControl({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: string[][] }) { return <label className="candidate-filter-control"><span>{label}</span><select value={value} onChange={(event) => onChange(event.target.value)}>{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>; }
 
-export function CandidateJobs() {
+export function CandidateJobs({ sharedJobId, sharedApplyOutcome }: { sharedJobId?: string; sharedApplyOutcome?: string } = {}) {
   const [filters, setFilters] = useState<JobFilters>(emptyFilters);
   const [jobs, setJobs] = useState<CandidateJob[]>(jobListings);
   const [saved, setSaved] = useState<string[]>([]);
@@ -135,7 +135,7 @@ export function CandidateJobs() {
   const [view, setView] = useState<JobView>("MATCHES");
   const [sort, setSort] = useState<JobSort>("RELEVANCE");
   const [loadingJobs, setLoadingJobs] = useState(true);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState(() => sharedApplyOutcome === "applied" ? `Your shared-link application${sharedJobId ? ` for ${sharedJobId}` : ""} is in the posting recruiter’s pipeline.` : sharedApplyOutcome === "already-applied" ? "You had already applied to this shared role." : sharedApplyOutcome === "unavailable" ? "This shared role is no longer accepting applications. Your account is still signed in." : sharedApplyOutcome === "owner-unavailable" ? "This role is temporarily unable to accept applications. No application was submitted." : sharedApplyOutcome === "failed" ? "We could not submit the shared-link application. You can retry from this page." : "");
   const [error, setError] = useState("");
   const setFilter = (key: keyof JobFilters, value: string) => setFilters((current) => ({ ...current, [key]: value }));
 
@@ -174,21 +174,31 @@ export function CandidateJobs() {
   }
 
   async function shareJob(job: CandidateJob) {
-    const url = new URL(job.publicPath, window.location.origin).toString();
+    let url = new URL(job.publicPath, window.location.origin).toString();
+    let referralEnabled = false;
     setSharingId(job.id); setError(""); setNotice("");
+    try {
+      const referral = await apiClient<{ code: string; shareUrl: string; applicationsAttributed: number }>(`/api/candidate/jobs/${encodeURIComponent(job.id)}/referral`, { method: "POST" });
+      url = new URL(referral.shareUrl, window.location.origin).toString();
+      referralEnabled = true;
+    } catch {
+      // A regular public job link remains useful when referral attribution is
+      // temporarily unavailable (for example, while an offline client comes
+      // back online). The application still belongs to the posting recruiter.
+    }
     try {
       if (navigator.share) {
         await navigator.share({ title: `${job.role} at ${job.company}`, text: `Take a look at this role: ${job.role} at ${job.company}.`, url });
-        setNotice(`The share sheet opened for ${job.role}. Applications from this link go directly to the recruiter who posted it.`);
+        setNotice(`The share sheet opened for ${job.role}.${referralEnabled ? " Applications from this link go directly to the posting recruiter and are tracked as your referral." : ""}`);
       } else {
         await navigator.clipboard.writeText(url);
-        setNotice(`Link copied. Applications from the shared ${job.role} link go directly to the posting recruiter.`);
+        setNotice(`${referralEnabled ? "Referral link" : "Link"} copied. Applications from the shared ${job.role} link go directly to the posting recruiter.${referralEnabled ? " It is tracked as your referral." : ""}`);
       }
     } catch (reason) {
       if (reason instanceof DOMException && reason.name === "AbortError") return;
       try {
         await navigator.clipboard.writeText(url);
-        setNotice(`Link copied. Applications from the shared ${job.role} link go directly to the posting recruiter.`);
+        setNotice(`${referralEnabled ? "Referral link" : "Link"} copied. Applications from the shared ${job.role} link go directly to the posting recruiter.${referralEnabled ? " It is tracked as your referral." : ""}`);
       } catch {
         setError("We could not open sharing or copy the job link. Please try again.");
       }

@@ -18,7 +18,23 @@ type AuthSessionResponse = { authenticated: boolean; redirectTo: string | null; 
 
 const interestedDomainOptions = ["Technology", "IT Services", "Manufacturing & Production", "Healthcare & Life Sciences", "Infrastructure, Transport & Real Estate", "BFSI", "BPM", "Consumer, Retail & Hospitality", "Media, Entertainment & Telecom", "Education"];
 
-export function LoginPortal({ defaultPortal = "candidate", jobId }: { defaultPortal?: Portal; jobId?: string }) {
+function sharedAuthPath(path: "/login" | "/register", jobId?: string, referralCode?: string, shareSource?: string) {
+  const query = new URLSearchParams();
+  if (jobId) query.set("job", jobId);
+  if (referralCode) query.set("ref", referralCode);
+  if (shareSource) query.set("source", shareSource);
+  return `${path}${query.size ? `?${query.toString()}` : ""}`;
+}
+
+function sharedApplicationOutcome(error: unknown) {
+  const message = error instanceof Error ? error.message : "";
+  if (/already applied/i.test(message)) return "already-applied";
+  if (/not found|no longer|closed|archived/i.test(message)) return "unavailable";
+  if (/not assigned|posting organisation|job owner/i.test(message)) return "owner-unavailable";
+  return "failed";
+}
+
+export function LoginPortal({ defaultPortal = "candidate", jobId, referralCode, shareSource }: { defaultPortal?: Portal; jobId?: string; referralCode?: string; shareSource?: string }) {
   const [portal, setPortal] = useState<Portal>(defaultPortal);
   const [step, setStep] = useState<"credentials" | "verify">("credentials");
   const [contact, setContact] = useState<Contact>({ name: "", email: portal === "candidate" ? "candidate@example.com" : "team@company.com", mobile: "+91 98765 43210" });
@@ -37,12 +53,13 @@ export function LoginPortal({ defaultPortal = "candidate", jobId }: { defaultPor
     const session = await verifyOtpTransaction(transactionId, codes, portal === "candidate" ? "both" : "email");
     if (!session.authenticated || !session.redirectTo) throw new Error("Complete each required verification before continuing.");
     if (portal === "candidate" && jobId) {
+      let outcome = "applied";
       try {
-        await apiClient(`/api/candidate/jobs/${encodeURIComponent(jobId)}/applications`, { method: "POST", body: JSON.stringify({ coverLetter: null }) });
+        await apiClient(`/api/candidate/jobs/${encodeURIComponent(jobId)}/applications`, { method: "POST", body: JSON.stringify({ coverLetter: null, referralCode: referralCode ?? null, source: shareSource ?? null }) });
       } catch (error) {
-        if (!(error instanceof Error) || !/already applied/i.test(error.message)) throw error;
+        outcome = sharedApplicationOutcome(error);
       }
-      window.location.assign(`/candidate/jobs?sharedJob=${encodeURIComponent(jobId)}`);
+      window.location.assign(`/candidate/jobs?sharedJob=${encodeURIComponent(jobId)}&apply=${encodeURIComponent(outcome)}`);
       return;
     }
     window.location.assign(session.redirectTo);
@@ -51,13 +68,13 @@ export function LoginPortal({ defaultPortal = "candidate", jobId }: { defaultPor
   return <AuthFrame eyebrow={portal === "candidate" ? "Candidate portal" : "Recruiter workspace"} title={step === "credentials" ? "Welcome back" : "Verify it’s you"} copy={step === "credentials" ? portal === "candidate" ? "Enter your email and password, then confirm both verified contact methods." : "Use the space built for your recruitment work." : "Enter both one-time codes before continuing."}>
     <div className="portal-switch" role="tablist" aria-label="Choose a portal"><button className={portal === "candidate" ? "active" : ""} onClick={() => { setPortal("candidate"); setStep("credentials"); setNotice(""); }} role="tab" aria-selected={portal === "candidate"}>Candidate</button><button className={portal === "recruiter" ? "active" : ""} onClick={() => { setPortal("recruiter"); setStep("credentials"); setNotice(""); }} role="tab" aria-selected={portal === "recruiter"}>Recruiter</button></div>
     {step === "credentials" ? <form className="auth-form" onSubmit={(event) => { event.preventDefault(); void requestSignIn().catch(() => undefined); }}><AuthField label="Email address" type="email" value={contact.email} onChange={(value) => setContact({ ...contact, email: value })} placeholder={portal === "candidate" ? "you@example.com" : "you@company.com"}/><AuthField label="Password" type="password" value={password} onChange={setPassword} placeholder="Enter your password"/>{portal === "recruiter" && <div className="auth-row"><label><input type="checkbox"/> Remember this device</label><a href="#forgot">Forgot password?</a></div>}{notice && <p className="consent-error" role="alert">{notice}</p>}<Button type="submit" disabled={!contact.email || !password}>Continue securely →</Button><p className="auth-microcopy">Candidate sign-in always confirms both email and mobile ownership.</p></form> : <DualOtp contact={contact} methods={portal === "candidate" ? "both" : "email"} onVerify={verifySignIn} onResend={requestSignIn}/>}
-    <p className="auth-footer">New to Sapienworx? <a href={portal === "candidate" ? `/register${jobId ? `?job=${encodeURIComponent(jobId)}` : ""}` : "/recruiter/register"}>Create an account</a></p>
+    <p className="auth-footer">New to Sapienworx? <a href={portal === "candidate" ? sharedAuthPath("/register", jobId, referralCode, shareSource) : "/recruiter/register"}>Create an account</a></p>
   </AuthFrame>;
 }
 
-export function RegistrationPortal({ portal = "candidate", jobId }: { portal?: Portal; jobId?: string }) {
+export function RegistrationPortal({ portal = "candidate", jobId, referralCode, shareSource }: { portal?: Portal; jobId?: string; referralCode?: string; shareSource?: string }) {
   if (portal === "recruiter") return <RecruiterRegistration />;
-  return <CandidateRegistration jobId={jobId} />;
+  return <CandidateRegistration jobId={jobId} referralCode={referralCode} shareSource={shareSource} />;
 }
 
 function LegacyCandidateRegistration() {
@@ -165,7 +182,7 @@ function CandidateEssentials({ basics, onChange }: { basics: CandidateBasics; on
   </div>;
 }
 
-function CandidateRegistration({ jobId }: { jobId?: string }) {
+function CandidateRegistration({ jobId, referralCode, shareSource }: { jobId?: string; referralCode?: string; shareSource?: string }) {
   const [step, setStep] = useState<"direction" | "details" | "verify" | "profile">("direction");
   const [identity, setIdentity] = useState<CandidateIdentity>({ firstName: "", lastName: "", email: "", mobile: "" });
   const [careerStage, setCareerStage] = useState<CandidateCareerStage | "">("");
@@ -217,12 +234,17 @@ function CandidateRegistration({ jobId }: { jobId?: string }) {
     trackProductEvent("candidate_onboarding_verified", { careerStage, primaryDomain: domainCategory, selectedDomainCount: interestedDomains.length, timeToValueMs: Math.round(performance.now() - (journeyStartedAt.current ?? performance.now())) });
     if (jobId) {
       try {
-        await apiClient(`/api/candidate/jobs/${encodeURIComponent(jobId)}/applications`, { method: "POST", body: JSON.stringify({ coverLetter: null }) });
+        await apiClient(`/api/candidate/jobs/${encodeURIComponent(jobId)}/applications`, { method: "POST", body: JSON.stringify({ coverLetter: null, referralCode: referralCode ?? null, source: shareSource ?? null }) });
         setApplicationMessage("Your application from this shared job link is now in the posting recruiter’s pipeline. You can complete your profile next.");
       } catch (error) {
-        setApplicationMessage(error instanceof Error && /already applied/i.test(error.message)
+        const outcome = sharedApplicationOutcome(error);
+        setApplicationMessage(outcome === "already-applied"
           ? "You had already applied to this shared role. You can complete your profile next."
-          : "Your account is verified. Complete your profile, then apply to this role from the Jobs page.");
+          : outcome === "unavailable"
+            ? "Your account is verified, but this role is no longer accepting applications. You can explore other jobs now."
+            : outcome === "owner-unavailable"
+              ? "Your account is verified. This role is temporarily unable to accept applications, so no application was submitted."
+              : "Your account is verified. We could not submit this application; you can retry from the Jobs page.");
       }
     }
     setStep("profile");
@@ -246,7 +268,7 @@ function CandidateRegistration({ jobId }: { jobId?: string }) {
     </form>}
     {step === "verify" && <DualOtp contact={contact} onVerify={verifyRegistration} onResend={startRegistration} onEditContact={() => { setNotice(""); setStep("details"); }} autoVerify/>}
     {step === "profile" && <ProfileCreationOptions applicationMessage={applicationMessage}/>}
-    <p className="auth-footer">Already registered? <a href={`/login${jobId ? `?job=${encodeURIComponent(jobId)}` : ""}`}>Sign in</a></p>
+    <p className="auth-footer">Already registered? <a href={sharedAuthPath("/login", jobId, referralCode, shareSource)}>Sign in</a></p>
   </AuthFrame>;
 }
 

@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { defaultRecruiterSearch, keywordList, searchParamsFor, stateFromSearchParams, type RecruiterSearchState } from "../lib/recruiter-search";
 import { WorkspaceShell } from "./ui";
+import { apiClient } from "../lib/api-client";
 
 type SearchRecord = { id: string; name: string; state: RecruiterSearchState };
 
@@ -54,6 +55,10 @@ function expressionFor(search: RecruiterSearchState) {
   return all && any ? `${all} AND (${any})` : all || any;
 }
 
+function isSearchState(value: unknown): value is RecruiterSearchState {
+  return Boolean(value && typeof value === "object" && "anyKeywords" in value && "allKeywords" in value && "activeStatus" in value);
+}
+
 function Chip({ children, selected = false, onClick }: { children: ReactNode; selected?: boolean; onClick?: () => void }) {
   return <button className={selected ? "resdex-chip resdex-chip-selected" : "resdex-chip"} type="button" onClick={onClick}>{children}</button>;
 }
@@ -89,6 +94,10 @@ export function RecruiterSourcingV2() {
   useEffect(() => {
     setRecent(readRecords(RECENT_SEARCHES_KEY));
     setSaved(readRecords(SAVED_SEARCHES_KEY));
+    void apiClient<Array<{ id: string; name: string; criteria: unknown }>>("/api/recruiter/workflow/saved-searches").then((records) => {
+      const remote = records.map((record) => ({ id: record.id, name: record.name, state: isSearchState(record.criteria) ? record.criteria : startingSearch() }));
+      if (remote.length) setSaved(remote);
+    }).catch(() => undefined);
   }, []);
   useEffect(() => {
     if (!params.size) return;
@@ -117,10 +126,13 @@ export function RecruiterSourcingV2() {
     setBooleanMode(Boolean(record.state.booleanQuery));
     setStatus("Search details filled. You can refine them before searching.");
   };
-  const saveCurrent = () => {
+  const saveCurrent = async () => {
     const name = search.booleanQuery || [...keywordList(search.allKeywords), ...keywordList(search.anyKeywords)].join(", ") || "Candidate search";
     saveRecord(SAVED_SEARCHES_KEY, { id: crypto.randomUUID(), name, state: search });
-    setStatus("Search saved.");
+    try {
+      await apiClient("/api/recruiter/workflow/saved-searches", { method: "POST", body: JSON.stringify({ name, criteria: search, alertFrequency: "DAILY" }) });
+      setStatus("Search saved to your workspace with daily matching-profile alerts.");
+    } catch (reason) { setStatus(reason instanceof Error ? reason.message : "Search saved in this browser, but the shared workspace could not be updated."); }
   };
 
   return <WorkspaceShell workspace="recruiter" active="sourcing" title="Search candidates" description="Build a precise candidate search using skills, experience and profile evidence.">
@@ -146,7 +158,7 @@ export function RecruiterSourcingV2() {
         <ResdexSection title="Diversity Hiring" badge="New Add-on"><div className="resdex-diversity"><h3>♟　 Gender</h3><div><Chip selected={search.gender === ""} onClick={() => update("gender", "")}>All candidates</Chip><Chip selected={search.gender === "male"} onClick={() => update("gender", "male")}>Male candidates</Chip><Chip selected={search.gender === "female"} onClick={() => update("gender", "female")}>Female candidates</Chip></div><h3>♟　 Candidates with career break</h3><Chip>Women returning to work</Chip><h3>♿　 Differently-abled</h3><input placeholder="Select differently abled type" /><div className="resdex-compact-pills"><Chip>Any　+</Chip><Chip>Blindness　+</Chip><Chip>Low Vision　+</Chip><Chip>Hearing Impairment　+</Chip><Chip>Speech and Language Disability　+</Chip><Chip>Locomotor Disability　+</Chip><button type="button">+17 more</button></div><h3>♟　 Defence background personnel</h3><div className="resdex-compact-pills"><Chip>Any　+</Chip><Chip>Army　+</Chip><Chip>Navy　+</Chip><Chip>Air Force　+</Chip><Chip>Other Paramilitary Forces　+</Chip></div></div></ResdexSection>
 
         <ResdexSection title="Additional Details"><h3 className="resdex-subheading">Candidate details</h3><Field label="Candidate Category"><input placeholder="Add candidate category" /></Field><Field label="Candidate Age"><span className="resdex-inline-fields"><input placeholder="Min age" /><i>to</i><input placeholder="Max age" /><em>Years</em></span></Field><h3 className="resdex-subheading">Work details</h3><Field label="Show candidates seeking"><span className="resdex-inline-fields resdex-work-selects"><select><option>Job type</option></select><select><option>Employment type</option></select></span></Field><Field label="Work permit for"><input placeholder="Choose category" /></Field><h3 className="resdex-subheading">Display details</h3><div className="resdex-pill-row"><span>Show</span><div><Chip selected>All candidates</Chip><Chip>New registrations</Chip><Chip>Modified candidates</Chip></div></div><div className="resdex-pill-row"><span>Show only candidates with</span><div><Chip>Verified mobile number　+</Chip><Chip>Verified email ID　+</Chip><Chip>Attached resume　+</Chip></div></div></ResdexSection>
-        <footer className="resdex-form-footer"><label className="resdex-active-status">Active in - <select aria-label="Candidate activity period" value={search.activeStatus} onChange={(event) => update("activeStatus", event.target.value as RecruiterSearchState["activeStatus"])}><option value="ONE_DAY">1 day</option><option value="THREE_DAYS">3 days</option><option value="SEVEN_DAYS">7 days</option><option value="FIFTEEN_DAYS">15 days</option><option value="THIRTY_DAYS">30 days</option><option value="SIXTY_DAYS">60 days</option><option value="NINETY_DAYS">90 days</option><option value="ONE_YEAR">1 year</option><option value="ALL">Any time</option></select></label><button type="submit">Search candidates</button></footer>
+        <footer className="resdex-form-footer"><label className="resdex-active-status">Active in - <select aria-label="Candidate activity period" value={search.activeStatus} onChange={(event) => update("activeStatus", event.target.value as RecruiterSearchState["activeStatus"])}><option value="ONE_DAY">1 day</option><option value="THREE_DAYS">3 days</option><option value="SEVEN_DAYS">7 days</option><option value="FIFTEEN_DAYS">15 days</option><option value="THIRTY_DAYS">30 days</option><option value="SIXTY_DAYS">60 days</option><option value="NINETY_DAYS">90 days</option><option value="ONE_YEAR">1 year</option><option value="ALL">Any time</option></select></label><button type="button" onClick={() => { void saveCurrent(); }}>Save search</button><button type="submit">Search candidates</button></footer>
       </form>
       <HistoryRail recent={recent} saved={saved} onFill={fill} onSearch={(record) => submit(record.state)} />
       </div>

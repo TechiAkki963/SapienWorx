@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
+import java.util.Collection;
 import java.util.UUID;
 
 public interface JobRepository extends JpaRepository<Job, UUID> {
@@ -14,4 +15,5 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
     Page<Job> findByOrganisation_IdAndStatusOrderByUpdatedAtDesc(UUID organisationId, JobStatus status, Pageable pageable);
     Page<Job> findByStatusAndTitleContainingIgnoreCaseOrderByPublishedAtDesc(JobStatus status, String title, Pageable pageable);
     long countByOrganisation_IdAndStatus(UUID organisationId, JobStatus status);
+    long countByOrganisation_IdAndStatusIn(UUID organisationId, Collection<JobStatus> statuses);
 }

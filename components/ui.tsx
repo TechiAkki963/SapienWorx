@@ -16,6 +16,7 @@ const navigation: Record<Workspace, NavItem[]> = {
     { id: "jobs", label: "Jobs", href: "/candidate/jobs", glyph: "⌕" },
     { id: "applications", label: "Applications", href: "/candidate/applications", glyph: "◫" },
     { id: "messages", label: "Messages", href: "/candidate/messages", glyph: "✉" },
+    { id: "reports", label: "Reports", href: "/candidate/reports", glyph: "◔" },
     { id: "profile", label: "Profile", href: "/candidate/profile", glyph: "♙" },
   ],
   recruiter: [
@@ -25,17 +26,19 @@ const navigation: Record<Workspace, NavItem[]> = {
     { id: "candidates", label: "Candidates", href: "/recruiter/pipeline", glyph: "♙" },
     { id: "sourcing", label: "Source candidates", href: "/recruiter/sourcing", glyph: "⌕" },
     { id: "pipeline", label: "Pipeline", href: "/recruiter/pipeline", glyph: "⇄" },
+    { id: "workbench", label: "Talent workspace", href: "/recruiter/workbench", glyph: "✦" },
     { id: "interviews", label: "Interviews", href: "/recruiter", glyph: "◷" },
     { id: "communications", label: "Communications", href: "/recruiter/communications", glyph: "✉" },
-    { id: "reports", label: "Reports", href: "/recruiter", glyph: "◔" },
+    { id: "reports", label: "Reports", href: "/recruiter/reports", glyph: "◔" },
   ],
   admin: [
     { id: "dashboard", label: "Platform overview", href: "/admin", glyph: "▦" },
-    { id: "organizations", label: "Organizations", href: "/admin", glyph: "▦" },
-    { id: "users", label: "Users & roles", href: "/admin", glyph: "♙" },
-    { id: "parser", label: "Parser operations", href: "/admin", glyph: "◌" },
-    { id: "billing", label: "Billing & plans", href: "/admin", glyph: "◇" },
-    { id: "audit", label: "Audit logs", href: "/admin", glyph: "▤" },
+    { id: "users", label: "Users & access", href: "/admin#users", glyph: "♙" },
+    { id: "organisations", label: "Organisations & jobs", href: "/admin#governance", glyph: "▦" },
+    { id: "operations", label: "Service operations", href: "/admin#operations", glyph: "◌" },
+    { id: "support", label: "Support & privacy", href: "/admin#support", glyph: "♡" },
+    { id: "assurance", label: "Security & reports", href: "/admin#assurance", glyph: "▤" },
+    { id: "advanced", label: "Advanced controls", href: "/admin#advanced", glyph: "✦" },
   ],
 };
 
@@ -79,7 +82,7 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
       await apiClient<void>("/api/auth/logout", { method: "POST" });
       window.localStorage.removeItem("sapienworx.local-candidate-domain");
       window.localStorage.removeItem("sapienworx-saved-candidates");
-      window.location.assign(workspace === "recruiter" ? "/recruiter/login" : "/login");
+      window.location.assign(workspace === "recruiter" ? "/recruiter/login" : workspace === "admin" ? "/admin/login" : "/login");
     } catch (error) {
       setLogoutError(error instanceof Error ? error.message : "We could not log you out securely. Please try again.");
       setLoggingOut(false);

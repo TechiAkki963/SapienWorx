@@ -1,6 +1,7 @@
 package com.sapienworx.api.cvparser;
 
 import com.sapienworx.api.security.AuthenticatedUser;
+import com.sapienworx.api.admin.PlatformAccessPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,21 +22,25 @@ public class CandidateCvController {
     private static final Set<String> ACCEPTED_TYPES = Set.of("application/pdf", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/msword");
     private final FileSystemCvDocumentStorage storage;
     private final CvParserMessagePublisher parserMessagePublisher;
+    private final PlatformAccessPolicy platformAccessPolicy;
     private final long maximumDocumentBytes;
 
     public CandidateCvController(
             FileSystemCvDocumentStorage storage,
             CvParserMessagePublisher parserMessagePublisher,
+            PlatformAccessPolicy platformAccessPolicy,
             @Value("${app.cv-parser.maximum-document-bytes:20971520}") long maximumDocumentBytes
     ) {
         this.storage = storage;
         this.parserMessagePublisher = parserMessagePublisher;
+        this.platformAccessPolicy = platformAccessPolicy;
         this.maximumDocumentBytes = maximumDocumentBytes;
     }
 
     @PostMapping
     public CvUploadResponse upload(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam("file") MultipartFile file) {
         if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication is required.");
+        platformAccessPolicy.requireCvParsingEnabled();
         if (file.isEmpty() || file.getSize() > maximumDocumentBytes || !accepted(file)) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Upload a PDF, DOCX or TXT CV smaller than the configured limit.");
         }

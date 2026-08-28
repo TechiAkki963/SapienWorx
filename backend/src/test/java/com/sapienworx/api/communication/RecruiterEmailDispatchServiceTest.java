@@ -2,6 +2,7 @@ package com.sapienworx.api.communication;
 
 import com.sapienworx.api.candidate.Candidate;
 import com.sapienworx.api.candidate.CandidateRepository;
+import com.sapienworx.api.admin.PlatformAccessPolicy;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -23,7 +24,7 @@ class RecruiterEmailDispatchServiceTest {
     void queuesOnlyTheVerifiedCandidateEmailWithNoApiExposure() {
         CandidateRepository candidateRepository = mock(CandidateRepository.class);
         RabbitTemplate rabbitTemplate = mock(RabbitTemplate.class);
-        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, rabbitTemplate);
+        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, rabbitTemplate, mock(PlatformAccessPolicy.class));
         UUID candidateId = UUID.randomUUID();
         Candidate candidate = Candidate.builder()
                 .id(candidateId)
@@ -50,7 +51,7 @@ class RecruiterEmailDispatchServiceTest {
     void refusesToQueueAnUnverifiedCandidateEmail() {
         CandidateRepository candidateRepository = mock(CandidateRepository.class);
         RabbitTemplate rabbitTemplate = mock(RabbitTemplate.class);
-        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, rabbitTemplate);
+        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, rabbitTemplate, mock(PlatformAccessPolicy.class));
         UUID candidateId = UUID.randomUUID();
         Candidate candidate = Candidate.builder().id(candidateId).email("candidate@example.com").build();
         when(candidateRepository.findById(candidateId)).thenReturn(Optional.of(candidate));

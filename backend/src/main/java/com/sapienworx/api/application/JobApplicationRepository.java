@@ -22,6 +22,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     Page<JobApplication> findByRecipientRecruiter_IdAndPipelineStage(UUID recruiterId, PipelineStage stage, Pageable pageable);
     List<JobApplication> findByJob_InternalId(UUID jobId);
     long countByRecipientRecruiter_IdAndPipelineStage(UUID recruiterId, PipelineStage stage);
+    long countByReferral_Id(UUID referralId);
 
     @Query("""
             select application from JobApplication application

@@ -19,6 +19,8 @@ public record PipelineCandidateResponse(
         PipelineStage pipelineStage,
         List<String> recentNotes,
         Instant profileLastUpdatedAt,
-        Instant lastActiveAt
+        Instant lastActiveAt,
+        String applicationSource,
+        String referralCode
 ) {
 }

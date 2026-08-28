@@ -21,9 +21,13 @@ All seeded accounts use password `SapienworxQA!2026` and the QA-only OTP
 | Recruiter | `recruiter.sam@sapienworx.qa` | `SapienworxQA!2026` | Email: `999999` | Recruiter workspace |
 | Candidate — Tech | `candidate.tech@sapienworx.qa` | `SapienworxQA!2026` | Email and mobile: `999999` | Candidate workspace |
 | Candidate — Unassigned | `candidate.unassigned@sapienworx.qa` | `SapienworxQA!2026` | Email and mobile: `999999` | Candidate domain selection |
+| Master Admin | `master.admin@sapienworx.qa` | `SapienworxQA!2026` | Email: `999999` | Master Access control plane |
 
 The two recruiters belong to **Sapienworx QA Organisation**. The candidate
 mobile values are test-only and are never delivered to a real handset.
+
+Open Master Access at <http://localhost:3001/admin/login>. This account is
+seeded only by the isolated `qa` profile and has the `SUPER_ADMIN` role.
 
 ## Signup testing
 

@@ -3,6 +3,7 @@ package com.sapienworx.api.communication;
 import com.sapienworx.api.audit.AuditAction;
 import com.sapienworx.api.candidate.Candidate;
 import com.sapienworx.api.candidate.CandidateRepository;
+import com.sapienworx.api.admin.PlatformAccessPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ public class RecruiterEmailDispatchService {
 
     private final CandidateRepository candidateRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final PlatformAccessPolicy platformAccessPolicy;
 
     @PreAuthorize("hasAnyRole('RECRUITER', 'ADMIN', 'SUPER_ADMIN')")
     @AuditAction(
@@ -26,6 +28,7 @@ public class RecruiterEmailDispatchService {
             candidateIdArgumentIndex = 0
     )
     public UUID queueForCandidate(UUID candidateId, RecruiterEmailCommand command) {
+        platformAccessPolicy.requireCampaignsEnabled();
         if (command == null || !candidateId.equals(command.candidateId())) {
             throw new IllegalArgumentException("Email dispatch candidate identifiers must match.");
         }

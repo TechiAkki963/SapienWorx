@@ -3,6 +3,9 @@ import "./globals.css";
 import "./logout.css";
 import "./recruiter-search-redesign.css";
 import "./ui-spec.css";
+import "./workflow.css";
+import "./reports.css";
+import "./master-governance.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SAPIENWORX_PUBLIC_SITE_URL ?? "http://localhost:3000"),

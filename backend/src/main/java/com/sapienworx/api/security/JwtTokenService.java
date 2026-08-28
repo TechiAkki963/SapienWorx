@@ -59,6 +59,16 @@ public class JwtTokenService {
         }
     }
 
+    /** Used only for platform session revocation checks after signature verification. */
+    public Optional<Instant> issuedAt(String token) {
+        try {
+            Date issuedAt = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().getIssuedAt();
+            return Optional.ofNullable(issuedAt).map(Date::toInstant);
+        } catch (RuntimeException invalidToken) {
+            return Optional.empty();
+        }
+    }
+
     public Duration ttl() {
         return ttl;
     }

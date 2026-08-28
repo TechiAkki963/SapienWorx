@@ -22,6 +22,7 @@ import com.sapienworx.api.interview.InterviewStatus;
 import com.sapienworx.api.job.JobRepository;
 import com.sapienworx.api.job.JobStatus;
 import com.sapienworx.api.notification.NotificationService;
+import com.sapienworx.api.workflow.ApplicationEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +52,7 @@ public class RecruiterOperationsService {
     private final InterviewRepository interviewRepository;
     private final NotificationService notificationService;
     private final SseNotificationService sseNotificationService;
+    private final ApplicationEventService applicationEventService;
 
     @Transactional(readOnly = true)
     public RecruiterDashboardResponse dashboard(UUID recruiterId) {
@@ -81,6 +83,7 @@ public class RecruiterOperationsService {
         JobApplication application = applicationForRecruiter(applicationId, recruiter);
         PipelineStage previous = application.getPipelineStage();
         application.setPipelineStage(stage);
+        applicationEventService.record(application, "RECRUITER", "PIPELINE_STAGE_CHANGED", "Application moved from " + human(previous) + " to " + human(stage) + ".");
         notificationService.create(application.getCandidate().getId(), "APPLICATION_STAGE_CHANGED", "Application update",
                 "Your application for " + application.getJob().getTitle() + " moved to " + human(stage) + ".", "APPLICATION", application.getId());
         sseNotificationService.publishPipelineUpdate(recruiterId,
@@ -168,6 +171,7 @@ public class RecruiterOperationsService {
         JobApplication application = applicationForRecruiter(request.applicationId(), recruiter);
         Interview interview = interviewRepository.save(Interview.builder().application(application).recruiter(recruiter).platformName(request.platformName().trim())
                 .meetingLink(request.meetingLink().trim()).scheduledAt(request.scheduledAt()).durationMinutes(request.durationMinutes()).status(InterviewStatus.SCHEDULED).build());
+        applicationEventService.record(application, "RECRUITER", "INTERVIEW_SCHEDULED", "Interview scheduled for " + request.scheduledAt() + " on " + request.platformName().trim() + ".");
         notificationService.create(application.getCandidate().getId(), "INTERVIEW_SCHEDULED", "Interview scheduled",
                 "An interview for " + application.getJob().getTitle() + " is scheduled on " + request.scheduledAt() + ".", "INTERVIEW", interview.getId());
         return new RecruiterDashboardResponse.UpcomingInterview(application.getCandidate().getFullName(), application.getJob().getTitle(), interview.getPlatformName(), interview.getMeetingLink(), interview.getScheduledAt(), interview.getDurationMinutes());
@@ -180,7 +184,8 @@ public class RecruiterOperationsService {
         Candidate candidate = application.getCandidate();
         return new PipelineCandidateResponse(application.getId(), candidate.getId(), candidate.getFullName(), candidate.getHeadline(), application.getJob().getPublicJobId(), application.getJob().getTitle(),
                 candidate.getSkills().stream().map(skill -> skill.getSkill()).sorted().toList(), maskEmail(candidate.getEmail()), maskMobile(candidate.getMobile()), application.getPipelineStage(),
-                recruiterNoteRepository.findTop10ByApplication_IdOrderByUpdatedAtDesc(application.getId()).stream().map(note -> note.getNoteText()).toList(), candidate.getUpdatedAt(), candidate.getLastActiveAt());
+                recruiterNoteRepository.findTop10ByApplication_IdOrderByUpdatedAtDesc(application.getId()).stream().map(note -> note.getNoteText()).toList(), candidate.getUpdatedAt(), candidate.getLastActiveAt(),
+                application.getApplicationSource().name(), application.getReferral() == null ? null : application.getReferral().getReferralCode());
     }
     private String human(PipelineStage stage) { return stage.name().toLowerCase(java.util.Locale.ROOT).replace('_', ' '); }
     private String maskEmail(String value) { int at = value.indexOf('@'); return at < 1 ? "••••" : value.substring(0, 1) + "••••@" + value.substring(at + 1); }

@@ -1,5 +1,6 @@
 package com.sapienworx.api.security;
 
+import com.sapienworx.api.admin.PlatformAccessPolicy;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -25,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTH_COOKIE = "SWX_AUTH";
 
     private final JwtTokenService jwtTokenService;
+    private final PlatformAccessPolicy platformAccessPolicy;
 
     @Override
     protected void doFilterInternal(
@@ -33,7 +35,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            tokenFrom(request).flatMap(jwtTokenService::verify).ifPresent(user -> {
+            Optional<String> token = tokenFrom(request);
+            Optional<AuthenticatedUser> authenticatedUser = token.flatMap(jwtTokenService::verify);
+            if (authenticatedUser.isPresent()) {
+                AuthenticatedUser user = authenticatedUser.get();
+                PlatformAccessPolicy.AccessDecision decision = platformAccessPolicy.accessFor(user);
+                if (!decision.permitted()) {
+                    response.sendError(decision.status().value(), decision.message());
+                    return;
+                }
+                if (token.flatMap(jwtTokenService::issuedAt).map(issuedAt -> platformAccessPolicy.isSessionRevoked(user, issuedAt)).orElse(true)) {
+                    response.sendError(401, "This session has been revoked. Please sign in again.");
+                    return;
+                }
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         user,
                         null,
@@ -41,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            });
+            }
         }
         filterChain.doFilter(request, response);
     }

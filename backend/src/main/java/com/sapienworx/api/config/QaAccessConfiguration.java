@@ -1,6 +1,8 @@
 package com.sapienworx.api.config;
 
 import com.sapienworx.api.candidate.Candidate;
+import com.sapienworx.api.admin.PlatformAdministrator;
+import com.sapienworx.api.admin.PlatformAdministratorRepository;
 import com.sapienworx.api.candidate.CandidateEducation;
 import com.sapienworx.api.candidate.CandidateRegistrationStatus;
 import com.sapienworx.api.candidate.CandidateRepository;
@@ -44,11 +46,13 @@ public class QaAccessConfiguration {
             OrganisationRepository organisationRepository,
             RecruiterRepository recruiterRepository,
             CandidateRepository candidateRepository,
+            PlatformAdministratorRepository platformAdministratorRepository,
             JobRepository jobRepository,
             PasswordEncoder passwordEncoder,
             @Value("${app.qa.test-account-password}") String password
     ) {
         return ignored -> {
+            if (platformAdministratorRepository.findByEmailIgnoreCase("master.admin@sapienworx.qa").isEmpty()) platformAdministratorRepository.save(PlatformAdministrator.builder().id(java.util.UUID.randomUUID()).displayName("Sapienworx Master Admin").email("master.admin@sapienworx.qa").passwordHash(passwordEncoder.encode(password)).build());
             Organisation organisation = organisationRepository.findByNameIgnoreCase(ORGANISATION_NAME)
                     .orElseGet(() -> organisationRepository.save(Organisation.builder()
                             .name(ORGANISATION_NAME)

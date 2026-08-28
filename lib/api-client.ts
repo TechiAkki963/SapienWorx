@@ -1,20 +1,21 @@
 // A local API is available through docker compose by default. Production sets
 // this to its HTTPS API origin at build time.
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080").replace(/\/$/, "");
+export const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080").replace(/\/$/, "");
 
 type CsrfBootstrapResponse = { token?: string };
 let csrfBootstrap: Promise<string | undefined> | undefined;
-let csrfRequestToken: string | undefined;
 
 async function ensureCsrfToken() {
-  if (csrfRequestToken || typeof document === "undefined") return csrfRequestToken;
+  if (typeof document === "undefined") return undefined;
+  // The API rotates the cookie-backed CSRF token after a successful write.
+  // Fetch a fresh token for every state-changing request while still sharing
+  // one in-flight bootstrap when two controls are submitted together.
   csrfBootstrap ??= fetch(`${apiBaseUrl}/api/auth/csrf`, { credentials: "include", cache: "no-store" })
     .then(async (response) => {
       if (!response.ok) throw new Error("Unable to prepare the secure request.");
       const body = await response.json() as CsrfBootstrapResponse;
       if (!body.token) throw new Error("Unable to prepare the secure request.");
-      csrfRequestToken = body.token;
-      return csrfRequestToken;
+      return body.token;
     })
     .finally(() => { csrfBootstrap = undefined; });
   return csrfBootstrap;

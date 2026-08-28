@@ -37,6 +37,14 @@ type CandidateApplicationSummary = {
   offerApplications: number;
 };
 
+type ApplicationTimeline = {
+  applicationId: string;
+  stage: ApplicationStage;
+  nextStep: string;
+  events: Array<{ type: string; summary: string; occurredAt: string }>;
+  interviews: Array<{ id: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number; status: string }>;
+};
+
 const filters: Array<{ id: ApplicationFilter; label: string }> = [
   { id: "ALL", label: "All applications" },
   { id: "ACTIVE", label: "In review" },
@@ -150,12 +158,24 @@ function ApplicationCard({ application }: { application: CandidateApplication })
   const progressIndex = stageIndex(application.stage);
   const progressLabels = ["Applied", "In review", "Interview", "Final review", "Offer"];
   const recruiter = application.recruiterName ? `${application.recruiterName}${application.recruiterTitle ? ` · ${application.recruiterTitle}` : ""}` : "Hiring team";
+  const [timeline, setTimeline] = useState<ApplicationTimeline | null>(null);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineError, setTimelineError] = useState("");
+  const toggleTimeline = async () => {
+    const nextOpen = !timelineOpen; setTimelineOpen(nextOpen); if (!nextOpen || timeline || timelineLoading) return;
+    setTimelineLoading(true); setTimelineError("");
+    try { setTimeline(await apiClient<ApplicationTimeline>(`/api/candidate/applications/${application.applicationId}/timeline`)); }
+    catch (reason) { setTimelineError(reason instanceof Error ? reason.message : "We could not load this application timeline."); }
+    finally { setTimelineLoading(false); }
+  };
 
   return <article className={`candidate-application-card stage-${application.stage.toLowerCase()}`}>
     <header className="candidate-application-card-head"><div><span className="candidate-application-company-mark">{application.companyName.slice(0, 1).toUpperCase()}</span><div><h3>{application.title}</h3><p>{application.companyName}{application.location ? ` · ${application.location}` : ""}</p></div></div><Badge tone={currentStage.tone}>{currentStage.label}</Badge></header>
     <div className="candidate-application-card-body"><div className="candidate-application-stage-copy"><strong>{currentStage.note}</strong><span>Applied {formatDate(application.appliedAt)} · Updated {relativeDate(application.updatedAt)}</span></div>
       <ol className="candidate-application-progress" aria-label={`Application progress: ${currentStage.label}`}>{progressLabels.map((label, index) => <li className={application.stage === "REJECTED" ? (index === 0 ? "completed" : "") : index <= progressIndex ? "completed" : ""} key={label}><span aria-hidden="true">{index < progressIndex ? "✓" : index + 1}</span><small>{label}</small></li>)}</ol>
     </div>
-    <footer className="candidate-application-card-footer"><div><span>Hiring contact</span><strong>{recruiter}</strong></div><div className="candidate-application-card-actions"><a href={publicJobPath(application.jobId, application.title)}>View job</a><a href="/candidate/messages">Messages</a></div></footer>
+    {timelineOpen && <section className="candidate-application-timeline" aria-live="polite">{timelineLoading && <p>Loading your timeline…</p>}{timelineError && <p className="candidate-application-timeline-error" role="alert">{timelineError}</p>}{timeline && <><p className="candidate-application-next-step"><b>Next step:</b> {timeline.nextStep}</p><ol>{timeline.events.map((event, index) => <li key={`${event.type}-${event.occurredAt}-${index}`}><span>●</span><div><b>{event.summary}</b><small>{formatDate(event.occurredAt)}</small></div></li>)}</ol>{timeline.interviews.length > 0 && <div className="candidate-application-interviews"><b>Scheduled interviews</b>{timeline.interviews.map((interview) => <article key={interview.id}><span>{formatDate(interview.scheduledAt)} · {interview.durationMinutes} min · {interview.platformName}</span><a href={interview.meetingLink} target="_blank" rel="noreferrer">Open meeting link</a></article>)}</div>}</>}</section>}
+    <footer className="candidate-application-card-footer"><div><span>Hiring contact</span><strong>{recruiter}</strong></div><div className="candidate-application-card-actions"><button type="button" onClick={() => void toggleTimeline()}>{timelineOpen ? "Hide timeline" : "View timeline"}</button><a href={publicJobPath(application.jobId, application.title)}>View job</a><a href="/candidate/messages">Messages</a></div></footer>
   </article>;
 }

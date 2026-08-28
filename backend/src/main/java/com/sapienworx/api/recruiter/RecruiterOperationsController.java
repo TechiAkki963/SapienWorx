@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,13 +23,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
+import java.util.Map;
+import com.sapienworx.api.reporting.PortalReportService;
 
 @RestController
 @RequestMapping("/api/recruiter")
 @RequiredArgsConstructor
 public class RecruiterOperationsController {
     private final RecruiterOperationsService operations;
+    private final PortalReportService portalReportService;
     @GetMapping("/dashboard") public RecruiterDashboardResponse dashboard(@AuthenticationPrincipal AuthenticatedUser user) { return operations.dashboard(recruiterId(user)); }
+    @GetMapping("/reports") public Map<String, Object> reports(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "90") int rangeDays) { return portalReportService.recruiterReport(recruiterId(user), rangeDays); }
+    @GetMapping("/reports/export.csv") public ResponseEntity<String> exportReport(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "90") int rangeDays) {
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sapienworx-recruiter-report.csv")
+                .contentType(MediaType.parseMediaType("text/csv")).body(portalReportService.recruiterCsv(recruiterId(user), rangeDays));
+    }
     @GetMapping("/pipeline") public Page<PipelineCandidateResponse> pipeline(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(required = false) com.sapienworx.api.application.PipelineStage stage, @RequestParam(defaultValue = "") String query, @RequestParam(defaultValue = "0") int page) { return operations.pipeline(recruiterId(user), stage, query, PageRequest.of(Math.max(0, page), 10)); }
     @PatchMapping("/pipeline/{applicationId}/stage") public PipelineCandidateResponse stage(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID applicationId, @Valid @RequestBody PipelineStageRequest request) { return operations.moveStage(recruiterId(user), applicationId, request.stage()); }
     @PostMapping("/pipeline/{applicationId}/notes") public PipelineCandidateResponse note(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID applicationId, @Valid @RequestBody RecruiterNoteRequest request) { return operations.addNote(recruiterId(user), applicationId, request.note()); }

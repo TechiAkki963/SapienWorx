@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -65,6 +66,12 @@ public class SecurityConfig {
                 // JWT lives in an automatically attached cookie; protect all authenticated writes with XSRF-TOKEN.
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository)
+                        // The SPA reads the token from /api/auth/csrf and
+                        // sends that raw value in X-XSRF-TOKEN. Spring's
+                        // default XOR handler expects a masked value instead,
+                        // which rejects otherwise valid saved-search and
+                        // profile updates with a 403 response.
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .ignoringRequestMatchers("/api/auth/request-otp", "/api/auth/verify-otp", "/error"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> httpBasic.disable())

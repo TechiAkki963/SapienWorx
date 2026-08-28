@@ -1,2 +1,2 @@
-import { AdminOverview } from "../../components/admin";
-export default function AdminPage() { return <AdminOverview />; }
+import { MasterAdminConsole } from "../../components/master-admin";
+export default function AdminPage() { return <MasterAdminConsole />; }

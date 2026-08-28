@@ -39,7 +39,7 @@ export async function generateMetadata({
       siteName: "Sapienworx",
       images: [{ url: `${canonicalPath}/opengraph-image`, width: 1200, height: 630, alt: `${job.title} at ${job.organisationName}` }],
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [`${canonicalPath}/opengraph-image`] },
   };
 }
 
@@ -48,9 +48,9 @@ export default async function PublicJobDetailPage({
   searchParams,
 }: {
   params: Promise<{ jobId: string; slug: string }>;
-  searchParams: Promise<{ from?: string | string[] }>;
+  searchParams: Promise<{ from?: string | string[]; ref?: string | string[]; source?: string | string[] }>;
 }) {
   const { jobId, slug } = await params;
-  const { from } = await searchParams;
-  return <PublicJobDetail jobId={jobId} slug={slug} initialJob={await getPublicJob(jobId)} fromSearch={from === "search" || (Array.isArray(from) && from.includes("search"))} />;
+  const { from, ref, source } = await searchParams;
+  return <PublicJobDetail jobId={jobId} slug={slug} initialJob={await getPublicJob(jobId)} referralCode={typeof ref === "string" ? ref : undefined} shareSource={typeof source === "string" ? source : undefined} fromSearch={from === "search" || (Array.isArray(from) && from.includes("search"))} />;
 }

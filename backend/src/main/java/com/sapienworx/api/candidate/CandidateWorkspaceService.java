@@ -4,22 +4,38 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sapienworx.api.application.JobApplication;
 import com.sapienworx.api.application.JobApplicationRepository;
+import com.sapienworx.api.application.ApplicationSource;
 import com.sapienworx.api.application.PipelineStage;
 import com.sapienworx.api.audit.AuditAction;
 import com.sapienworx.api.communication.DirectMessageRepository;
 import com.sapienworx.api.job.Job;
 import com.sapienworx.api.job.JobRepository;
+import com.sapienworx.api.job.JobResponse;
 import com.sapienworx.api.job.JobStatus;
 import com.sapienworx.api.notification.NotificationService;
 import com.sapienworx.api.recruiter.Recruiter;
 import com.sapienworx.api.recruiter.CandidateEngagementMetrics;
 import com.sapienworx.api.recruiter.CandidateProfileEngagementRepository;
+import com.sapienworx.api.interview.InterviewRepository;
+import com.sapienworx.api.workflow.ApplicationEventRepository;
+import com.sapienworx.api.workflow.ApplicationEventService;
+import com.sapienworx.api.workflow.CandidateContactPreference;
+import com.sapienworx.api.workflow.CandidateContactPreferenceRepository;
+import com.sapienworx.api.workflow.JobReferral;
+import com.sapienworx.api.workflow.JobReferralRepository;
+import com.sapienworx.api.admin.PlatformPrivacyCase;
+import com.sapienworx.api.admin.PlatformPrivacyCaseRepository;
+import com.sapienworx.api.admin.PrivacyCaseStatus;
+import com.sapienworx.api.admin.PrivacyCaseType;
+import com.sapienworx.api.workflow.WorkflowRequests;
+import com.sapienworx.api.workflow.WorkflowResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,6 +61,12 @@ public class CandidateWorkspaceService {
     private final NotificationService notificationService;
     private final DirectMessageRepository directMessageRepository;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventService applicationEventService;
+    private final ApplicationEventRepository applicationEventRepository;
+    private final InterviewRepository interviewRepository;
+    private final CandidateContactPreferenceRepository contactPreferenceRepository;
+    private final JobReferralRepository jobReferralRepository;
+    private final PlatformPrivacyCaseRepository platformPrivacyCaseRepository;
 
     @Transactional
     public CandidateProfileResponse profile(UUID candidateId) {
@@ -97,6 +119,9 @@ public class CandidateWorkspaceService {
     @Transactional
     public CandidateApplicationResponse apply(UUID candidateId, String publicJobId, CandidateApplicationRequest request) {
         Candidate candidate = candidate(candidateId);
+        if (candidate.isDeletionRequested()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Your account has a pending deletion request, so new applications are disabled.");
+        }
         Job job = jobRepository.findByPublicJobId(publicJobId).filter(value -> value.getStatus() == JobStatus.ACTIVE)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Published job was not found."));
         if (jobApplicationRepository.existsByCandidate_IdAndJob_InternalId(candidateId, job.getInternalId())) {
@@ -106,8 +131,20 @@ public class CandidateWorkspaceService {
         if (recipient == null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This job is not assigned to a hiring recruiter yet.");
         }
-        JobApplication application = jobApplicationRepository.save(JobApplication.builder().candidate(candidate).job(job)
-                .recipientRecruiter(recipient).coverLetter(trimToNull(request.coverLetter())).pipelineStage(PipelineStage.APPLIED).build());
+        if (recipient.getOrganisation() == null || !recipient.getOrganisation().getId().equals(job.getOrganisation().getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The job owner is not part of the posting organisation.");
+        }
+        ApplicationAttribution attribution = applicationAttribution(candidate, job, request.referralCode(), request.source());
+        JobApplication application;
+        try {
+            application = jobApplicationRepository.saveAndFlush(JobApplication.builder().candidate(candidate).job(job)
+                    .recipientRecruiter(recipient).referral(attribution.referral()).applicationSource(attribution.source())
+                    .coverLetter(trimToNull(request.coverLetter())).pipelineStage(PipelineStage.APPLIED).build());
+        } catch (DataIntegrityViolationException duplicateRace) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already applied for this job.");
+        }
+        applicationEventService.record(application, "CANDIDATE", "APPLICATION_SUBMITTED", "Application submitted to " + job.getOrganisation().getName() + ".");
+        preserveLegacyReferralAttribution(attribution.referral(), candidate);
         notificationService.create(recipient.getId(), "NEW_APPLICATION", "New application for " + job.getTitle(),
                 candidate.getFullName() + " has applied.", "APPLICATION", application.getId());
         return applicationResponse(application);
@@ -126,6 +163,74 @@ public class CandidateWorkspaceService {
         long interviews = jobApplicationRepository.countByCandidate_IdAndPipelineStageIn(candidateId, List.of(PipelineStage.INTERVIEWING));
         long offers = jobApplicationRepository.countByCandidate_IdAndPipelineStageIn(candidateId, List.of(PipelineStage.OFFER));
         return new CandidateApplicationSummaryResponse(total, active, interviews, offers);
+    }
+
+    @Transactional(readOnly = true)
+    public WorkflowResponses.ApplicationTimeline applicationTimeline(UUID candidateId, UUID applicationId) {
+        JobApplication application = jobApplicationRepository.findById(applicationId)
+                .filter(value -> value.getCandidate().getId().equals(candidateId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application was not found."));
+        List<WorkflowResponses.TimelineEvent> events = applicationEventRepository.findByApplication_IdOrderByCreatedAtAsc(applicationId).stream()
+                .map(event -> new WorkflowResponses.TimelineEvent(event.getEventType(), event.getEventSummary(), event.getCreatedAt())).toList();
+        List<WorkflowResponses.Interview> interviews = interviewRepository.findByApplication_IdOrderByScheduledAtAsc(applicationId).stream()
+                .map(interview -> new WorkflowResponses.Interview(interview.getId(), applicationId, application.getCandidate().getFullName(), application.getJob().getTitle(),
+                        interview.getPlatformName(), interview.getMeetingLink(), interview.getScheduledAt(), interview.getDurationMinutes(), interview.getStatus(), List.of())).toList();
+        return new WorkflowResponses.ApplicationTimeline(applicationId, application.getPipelineStage(), nextStep(application.getPipelineStage()), events, interviews);
+    }
+
+    @Transactional
+    public WorkflowResponses.Referral createReferral(UUID candidateId, String publicJobId) {
+        Candidate candidate = candidate(candidateId);
+        Job job = jobRepository.findByPublicJobId(publicJobId).filter(value -> value.getStatus() == JobStatus.ACTIVE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Published job was not found."));
+        JobReferral referral = jobReferralRepository.findByJob_InternalIdAndReferrerCandidate_Id(job.getInternalId(), candidateId)
+                .orElseGet(() -> jobReferralRepository.save(JobReferral.builder().job(job).referrerCandidate(candidate)
+                        .referralCode("SWX-" + UUID.randomUUID().toString().replace("-", "").substring(0, 20).toUpperCase(java.util.Locale.ROOT)).build()));
+        long applicationsAttributed = jobApplicationRepository.countByReferral_Id(referral.getId());
+        String separator = JobResponse.from(job).publicPath().contains("?") ? "&" : "?";
+        String shareUrl = JobResponse.from(job).publicPath() + separator + "ref=" + referral.getReferralCode() + "&source=candidate_share";
+        return new WorkflowResponses.Referral(referral.getReferralCode(), shareUrl, Math.toIntExact(Math.min(Integer.MAX_VALUE, applicationsAttributed)));
+    }
+
+    @Transactional(readOnly = true)
+    public WorkflowResponses.CandidatePrivacy privacy(UUID candidateId) {
+        Candidate candidate = candidate(candidateId);
+        return privacyResponse(candidate, contactPreferenceRepository.findById(candidateId).orElse(null));
+    }
+
+    @Transactional
+    public WorkflowResponses.CandidatePrivacy updatePrivacy(UUID candidateId, WorkflowRequests.CandidatePrivacyUpdateRequest request) {
+        Candidate candidate = candidate(candidateId);
+        if (request.profileSearchable() != null) {
+            candidate.setProfileSearchable(request.profileSearchable());
+            if (candidate.isProfileSearchable()) ensureSearchReady(candidate);
+        }
+        if (request.automationConsent() != null) candidate.setAutomationConsent(request.automationConsent());
+        CandidateContactPreference preference = contactPreferenceRepository.findById(candidateId).orElseGet(() -> CandidateContactPreference.builder().candidate(candidate).build());
+        if (request.outreachOptOut() != null) preference.setOutreachOptOut(request.outreachOptOut());
+        preference = contactPreferenceRepository.save(preference);
+        return privacyResponse(candidate, preference);
+    }
+
+    @Transactional
+    public WorkflowResponses.CandidatePrivacy requestDataExport(UUID candidateId) {
+        Candidate candidate = candidate(candidateId);
+        CandidateContactPreference preference = contactPreferenceRepository.findById(candidateId).orElseGet(() -> CandidateContactPreference.builder().candidate(candidate).build());
+        preference.setDataExportRequestedAt(Instant.now());
+        preference = contactPreferenceRepository.save(preference);
+        recordPrivacyCase(candidate, PrivacyCaseType.EXPORT, preference.getDataExportRequestedAt());
+        return privacyResponse(candidate, preference);
+    }
+
+    @Transactional
+    public WorkflowResponses.CandidatePrivacy requestDeletion(UUID candidateId) {
+        Candidate candidate = candidate(candidateId);
+        candidate.setDeletionRequested(true);
+        CandidateContactPreference preference = contactPreferenceRepository.findById(candidateId).orElseGet(() -> CandidateContactPreference.builder().candidate(candidate).build());
+        preference.setDeletionRequestedAt(Instant.now());
+        preference = contactPreferenceRepository.save(preference);
+        recordPrivacyCase(candidate, PrivacyCaseType.ERASURE, preference.getDeletionRequestedAt());
+        return privacyResponse(candidate, preference);
     }
 
     @Transactional(readOnly = true)
@@ -165,6 +270,16 @@ public class CandidateWorkspaceService {
 
     private Candidate candidate(UUID id) {
         return candidateRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate profile was not found."));
+    }
+    private void recordPrivacyCase(Candidate candidate, PrivacyCaseType type, Instant requestedAt) {
+        PlatformPrivacyCase caseFile = platformPrivacyCaseRepository.findByCandidate_IdAndRequestType(candidate.getId(), type)
+                .orElseGet(() -> PlatformPrivacyCase.builder().candidate(candidate).requestType(type).requestedAt(requestedAt).build());
+        caseFile.setRequestedAt(requestedAt);
+        caseFile.setStatus(PrivacyCaseStatus.REQUESTED);
+        caseFile.setReviewedAt(null);
+        caseFile.setReviewedByAdminId(null);
+        caseFile.setReviewNote(null);
+        platformPrivacyCaseRepository.save(caseFile);
     }
     private CandidateProfileResponse response(Candidate candidate) {
         return new CandidateProfileResponse(candidate.getId(), candidate.getFullName(), maskEmail(candidate.getEmail()), maskMobile(candidate.getMobile()),
@@ -223,6 +338,47 @@ public class CandidateWorkspaceService {
                 application.getAppliedAt(),
                 application.getUpdatedAt()
         );
+    }
+    private ApplicationAttribution applicationAttribution(Candidate applicant, Job job, String rawReferralCode, String rawSource) {
+        String code = trimToNull(rawReferralCode);
+        JobReferral referral = code == null ? null : jobReferralRepository.findByReferralCode(code.toUpperCase(java.util.Locale.ROOT))
+                .filter(value -> value.getJob().getInternalId().equals(job.getInternalId()))
+                .filter(value -> value.getReferrerCandidate() == null || !value.getReferrerCandidate().getId().equals(applicant.getId()))
+                .orElse(null);
+        return new ApplicationAttribution(referral, referral == null ? sharedSource(rawSource) : ApplicationSource.CANDIDATE_SHARE);
+    }
+    private ApplicationSource sharedSource(String rawSource) {
+        String source = rawSource == null ? "" : rawSource.trim().toUpperCase(java.util.Locale.ROOT).replace('-', '_');
+        return switch (source) {
+            case "LINKEDIN" -> ApplicationSource.LINKEDIN;
+            case "X", "TWITTER" -> ApplicationSource.X;
+            case "WHATSAPP" -> ApplicationSource.WHATSAPP;
+            case "COPY", "COPY_LINK" -> ApplicationSource.COPY_LINK;
+            case "CANDIDATE_SHARE", "SHARED_LINK", "SOCIAL" -> ApplicationSource.SHARED_LINK;
+            default -> ApplicationSource.DIRECT;
+        };
+    }
+    private void preserveLegacyReferralAttribution(JobReferral referral, Candidate applicant) {
+        if (referral == null || referral.getApplicantCandidate() != null) return;
+        referral.setApplicantCandidate(applicant);
+        referral.setAppliedAt(Instant.now());
+    }
+    private record ApplicationAttribution(JobReferral referral, ApplicationSource source) { }
+    private WorkflowResponses.CandidatePrivacy privacyResponse(Candidate candidate, CandidateContactPreference preference) {
+        return new WorkflowResponses.CandidatePrivacy(candidate.isProfileSearchable(), candidate.isAutomationConsent(), preference != null && preference.isOutreachOptOut(),
+                preference == null ? null : preference.getDataExportRequestedAt(), preference == null ? null : preference.getDeletionRequestedAt(),
+                preference == null ? candidate.getUpdatedAt() : preference.getUpdatedAt());
+    }
+    private String nextStep(PipelineStage stage) {
+        return switch (stage) {
+            case APPLIED -> "The hiring team will review your application.";
+            case SCREENING -> "Your profile is being reviewed by the hiring team.";
+            case INTERVIEWING -> "Check your scheduled interviews and prepare any requested materials.";
+            case FINAL_STAGE -> "The team is completing the final review.";
+            case OFFER -> "Review your offer and respond through your recruiter conversation.";
+            case ONBOARDED -> "Your hiring journey for this role is complete.";
+            case REJECTED -> "This role is closed. Continue exploring other opportunities.";
+        };
     }
     private int profileCompleteness(Candidate candidate) {
         JsonNode details = candidate.getProfileDetails();
