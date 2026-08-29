@@ -24,6 +24,7 @@ public class TalentPoolCandidate {
     @JdbcTypeCode(SqlTypes.JSON) @Column(nullable = false, columnDefinition = "jsonb") @Builder.Default private List<String> tags = List.of();
     @Column(name = "reminder_at") private Instant reminderAt;
     @Column(name = "collaboration_note", length = 2000) private String collaborationNote;
+    @Column(name = "next_action", length = 240) private String nextAction;
     @CreationTimestamp @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
     @UpdateTimestamp @Column(name = "updated_at", nullable = false) private Instant updatedAt;
 }

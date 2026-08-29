@@ -43,6 +43,7 @@ test("candidate can search, save and apply for roles", async ({ page }) => {
     Object.defineProperty(navigator, "share", { configurable: true, value: async () => undefined });
   });
   await page.route("**/api/public/jobs", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(jobFeed) }));
+  await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   await page.route("**/api/candidate/jobs/SWX-100/applications", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
 
   await page.goto("/candidate/jobs");
@@ -68,6 +69,8 @@ test("candidate can search, save and apply for roles", async ({ page }) => {
   await page.getByRole("tab", { name: "For you" }).click();
   await page.getByLabel("Job title, skill or company").fill("not a real role");
   await expect(page.getByText("No roles match those filters.")).toBeVisible();
+  await expect(page.getByText("We’ve looked through the live roles, but this combination is proving elusive. Shall we loosen one of the filters?")).toBeVisible();
+  await expect(page.locator(".editorial-empty-doodle")).toBeVisible();
 });
 
 test("a shared job keeps its application intent through registration", async ({ page }) => {

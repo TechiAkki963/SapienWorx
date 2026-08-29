@@ -58,6 +58,7 @@ test("does not render an empty candidate profile when the session is absent", as
 test("offers CV parsing only after candidate email and mobile OTP verification", async ({ page, context }) => {
   await context.addCookies([{ name: "XSRF-TOKEN", value: "test-csrf", domain: "localhost", path: "/" }]);
   let cvUploads = 0;
+  await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   await page.route("**/api/auth/request-otp", (route) => route.fulfill({ status: 200, json: { transactionId: "candidate-cv-otp", requiredChannels: ["EMAIL", "MOBILE"] } }));
   await page.route("**/api/auth/verify-otp", async (route) => {
     const request = route.request().postDataJSON() as { channel: "EMAIL" | "MOBILE" };

@@ -174,7 +174,8 @@ public class CandidateWorkspaceService {
                 .map(event -> new WorkflowResponses.TimelineEvent(event.getEventType(), event.getEventSummary(), event.getCreatedAt())).toList();
         List<WorkflowResponses.Interview> interviews = interviewRepository.findByApplication_IdOrderByScheduledAtAsc(applicationId).stream()
                 .map(interview -> new WorkflowResponses.Interview(interview.getId(), applicationId, application.getCandidate().getFullName(), application.getJob().getTitle(),
-                        interview.getPlatformName(), interview.getMeetingLink(), interview.getScheduledAt(), interview.getDurationMinutes(), interview.getStatus(), List.of())).toList();
+                        interview.getPlatformName(), interview.getMeetingLink(), interview.getScheduledAt(), interview.getDurationMinutes(), interview.getTimeZone(), interview.getAgenda(),
+                        interview.getPanelRecruiterIds() == null ? List.of() : interview.getPanelRecruiterIds(), List.of(), interview.getStatus(), List.of())).toList();
         return new WorkflowResponses.ApplicationTimeline(applicationId, application.getPipelineStage(), nextStep(application.getPipelineStage()), events, interviews);
     }
 

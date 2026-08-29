@@ -26,8 +26,8 @@ const navigation: Record<Workspace, NavItem[]> = {
     { id: "candidates", label: "Candidates", href: "/recruiter/pipeline", glyph: "♙" },
     { id: "sourcing", label: "Source candidates", href: "/recruiter/sourcing", glyph: "⌕" },
     { id: "pipeline", label: "Pipeline", href: "/recruiter/pipeline", glyph: "⇄" },
-    { id: "workbench", label: "Talent workspace", href: "/recruiter/workbench", glyph: "✦" },
-    { id: "interviews", label: "Interviews", href: "/recruiter", glyph: "◷" },
+    { id: "workbench", label: "Recruitment Workspace", href: "/recruiter/workbench", glyph: "✦" },
+    { id: "interviews", label: "Interviews", href: "/recruiter/workbench#interviews", glyph: "◷" },
     { id: "communications", label: "Communications", href: "/recruiter/communications", glyph: "✉" },
     { id: "reports", label: "Reports", href: "/recruiter/reports", glyph: "◔" },
   ],
@@ -130,5 +130,5 @@ export function SectionTitle({ eyebrow, title, action }: { eyebrow?: string; tit
 }
 
 export function EmptyState({ icon, title, copy, action }: { icon: string; title: string; copy: string; action: ReactNode }) {
-  return <div className="empty-state"><span>{icon}</span><h3>{title}</h3><p>{copy}</p>{action}</div>;
+  return <div className="empty-state editorial-empty-state"><span className="editorial-empty-icon">{icon}</span><h3>{title}</h3><p>{copy}</p>{action}</div>;
 }

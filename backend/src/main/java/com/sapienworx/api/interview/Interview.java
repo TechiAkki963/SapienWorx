@@ -20,9 +20,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
 
 @Entity
 @Table(name = "interviews")
@@ -39,6 +42,9 @@ public class Interview {
     @Column(name = "meeting_link", nullable = false, length = 2048) private String meetingLink;
     @Column(name = "scheduled_at", nullable = false) private Instant scheduledAt;
     @Builder.Default @Column(name = "duration_minutes", nullable = false) private int durationMinutes = 30;
+    @Builder.Default @Column(name = "time_zone", nullable = false, length = 80) private String timeZone = "UTC";
+    @Column(length = 2000) private String agenda;
+    @JdbcTypeCode(SqlTypes.JSON) @Column(name = "panel_recruiter_ids", nullable = false, columnDefinition = "jsonb") @Builder.Default private List<UUID> panelRecruiterIds = List.of();
     @Enumerated(EnumType.STRING) @Builder.Default @Column(nullable = false, length = 20) private InterviewStatus status = InterviewStatus.SCHEDULED;
     @CreationTimestamp @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
     @UpdateTimestamp @Column(name = "updated_at", nullable = false) private Instant updatedAt;

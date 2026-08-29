@@ -3,10 +3,12 @@ package com.sapienworx.api.workflow;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sapienworx.api.candidate.Candidate;
+import com.sapienworx.api.candidate.CandidateSkill;
 import com.sapienworx.api.candidate.CandidateRepository;
 import com.sapienworx.api.communication.RecruiterEmailCommand;
 import com.sapienworx.api.communication.RecruiterEmailDispatchService;
 import com.sapienworx.api.interview.InterviewRepository;
+import com.sapienworx.api.interview.InterviewStatus;
 import com.sapienworx.api.job.Job;
 import com.sapienworx.api.job.JobRepository;
 import com.sapienworx.api.recruiter.Recruiter;
@@ -68,16 +70,16 @@ public class RecruiterWorkflowService {
     public List<WorkflowResponses.TalentPool> talentPools(UUID recruiterId) {
         Recruiter recruiter = recruiter(recruiterId);
         return talentPoolRepository.findByOrganisation_IdOrderByUpdatedAtDesc(recruiter.getOrganisation().getId()).stream()
-                .map(pool -> new WorkflowResponses.TalentPool(pool.getId(), pool.getPoolName(), pool.getDescription(),
-                        talentPoolCandidateRepository.findByTalentPool_IdOrderByUpdatedAtDesc(pool.getId()).size(), pool.getUpdatedAt())).toList();
+                .map(pool -> talentPoolResponse(pool, talentPoolCandidateRepository.findByTalentPool_IdOrderByUpdatedAtDesc(pool.getId()).size())).toList();
     }
 
     @Transactional
     public WorkflowResponses.TalentPool createTalentPool(UUID recruiterId, WorkflowRequests.TalentPoolCreateRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
+        Job job = jobFor(recruiter, request.jobId());
         TalentPool pool = talentPoolRepository.save(TalentPool.builder().organisation(recruiter.getOrganisation()).createdByRecruiter(recruiter)
-                .poolName(request.name().trim()).description(trimToNull(request.description())).build());
-        return new WorkflowResponses.TalentPool(pool.getId(), pool.getPoolName(), pool.getDescription(), 0, pool.getUpdatedAt());
+                .job(job).poolName(request.name().trim()).description(trimToNull(request.description())).build());
+        return talentPoolResponse(pool, 0);
     }
 
     @Transactional(readOnly = true)
@@ -97,7 +99,8 @@ public class RecruiterWorkflowService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "The selected owner is not in your organisation."));
         TalentPoolCandidate member = talentPoolCandidateRepository.findByTalentPool_IdAndCandidate_Id(poolId, candidate.getId())
                 .orElseGet(() -> TalentPoolCandidate.builder().talentPool(pool).candidate(candidate).addedByRecruiter(recruiter).build());
-        member.setTags(normalizedTags(request.tags())); member.setOwnerRecruiter(owner); member.setReminderAt(request.reminderAt()); member.setCollaborationNote(trimToNull(request.note()));
+        member.setTags(normalizedTags(request.tags())); member.setOwnerRecruiter(owner); member.setReminderAt(request.reminderAt());
+        member.setCollaborationNote(trimToNull(request.note())); member.setNextAction(trimToNull(request.nextAction()));
         return memberResponse(talentPoolCandidateRepository.save(member));
     }
 
@@ -118,15 +121,18 @@ public class RecruiterWorkflowService {
     public WorkflowResponses.Campaign createCampaign(UUID recruiterId, WorkflowRequests.CampaignCreateRequest request) {
         platformAccessPolicy.requireCampaignsEnabled();
         Recruiter recruiter = recruiter(recruiterId);
-        Job job = request.jobInternalId() == null ? null : jobRepository.findById(request.jobInternalId())
-                .filter(value -> value.getOrganisation().getId().equals(recruiter.getOrganisation().getId()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose a job from your organisation."));
+        Job job = request.jobId() == null || request.jobId().isBlank()
+                ? request.jobInternalId() == null ? null : jobRepository.findById(request.jobInternalId())
+                    .filter(value -> value.getOrganisation().getId().equals(recruiter.getOrganisation().getId()))
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose a job from your organisation."))
+                : jobFor(recruiter, request.jobId());
         RecruitmentCampaign campaign = campaignRepository.save(RecruitmentCampaign.builder().recruiter(recruiter).job(job).campaignName(request.name().trim())
                 .subject(request.subject().trim()).bodyHtml(request.bodyHtml().trim()).build());
         request.candidateIds().stream().distinct().forEach(candidateId -> {
             Candidate candidate = candidateRepository.findById(candidateId).orElseThrow(() -> notFound("Candidate was not found."));
-            CampaignRecipientStatus status = contactPreferenceRepository.findById(candidateId).map(CandidateContactPreference::isOutreachOptOut).orElse(false)
-                    ? CampaignRecipientStatus.OPTED_OUT : CampaignRecipientStatus.QUEUED;
+            boolean optedOut = contactPreferenceRepository.findById(candidateId).map(CandidateContactPreference::isOutreachOptOut).orElse(false);
+            CampaignRecipientStatus status = optedOut ? CampaignRecipientStatus.OPTED_OUT
+                    : !candidate.isEmailVerified() || !candidate.isAutomationConsent() ? CampaignRecipientStatus.EXCLUDED : CampaignRecipientStatus.QUEUED;
             campaignRecipientRepository.save(RecruitmentCampaignRecipient.builder().campaign(campaign).candidate(candidate).deliveryStatus(status)
                     .optedOutAt(status == CampaignRecipientStatus.OPTED_OUT ? Instant.now() : null).build());
         });
@@ -145,7 +151,7 @@ public class RecruiterWorkflowService {
                         campaign.getJob() == null ? null : campaign.getJob().getPublicJobId(), campaign.getSubject(), campaign.getBodyHtml()));
                 recipient.setDeliveryStatus(CampaignRecipientStatus.SENT); recipient.setSentAt(Instant.now());
             } catch (IllegalStateException ignored) {
-                recipient.setDeliveryStatus(CampaignRecipientStatus.OPTED_OUT); recipient.setOptedOutAt(Instant.now());
+                recipient.setDeliveryStatus(CampaignRecipientStatus.EXCLUDED);
             }
         }
         campaign.setCampaignStatus(RecruitmentCampaignStatus.SENT);
@@ -170,6 +176,28 @@ public class RecruiterWorkflowService {
         return scorecardResponse(scorecardRepository.save(scorecard));
     }
 
+    @Transactional
+    public WorkflowResponses.Interview updateInterview(UUID recruiterId, UUID interviewId, WorkflowRequests.InterviewUpdateRequest request) {
+        Recruiter recruiter = recruiter(recruiterId);
+        var interview = interviewRepository.findById(interviewId)
+                .filter(value -> value.getRecruiter().getOrganisation().getId().equals(recruiter.getOrganisation().getId()))
+                .orElseThrow(() -> notFound("Interview was not found."));
+        if (request.scheduledAt() != null) {
+            if (request.scheduledAt().isBefore(Instant.now())) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose a future interview time.");
+            requireNoInterviewConflict(recruiterId, interviewId, request.scheduledAt(), request.durationMinutes() == null ? interview.getDurationMinutes() : request.durationMinutes());
+            interview.setScheduledAt(request.scheduledAt());
+            interview.setStatus(InterviewStatus.RESCHEDULED);
+        }
+        if (request.platformName() != null && !request.platformName().isBlank()) interview.setPlatformName(request.platformName().trim());
+        if (request.meetingLink() != null && !request.meetingLink().isBlank()) interview.setMeetingLink(request.meetingLink().trim());
+        if (request.durationMinutes() != null) interview.setDurationMinutes(request.durationMinutes());
+        if (request.timeZone() != null && !request.timeZone().isBlank()) interview.setTimeZone(request.timeZone().trim());
+        if (request.agenda() != null) interview.setAgenda(trimToNull(request.agenda()));
+        if (request.panelRecruiterIds() != null) interview.setPanelRecruiterIds(validPanelRecruiterIds(recruiter, request.panelRecruiterIds()));
+        if (request.status() != null) interview.setStatus(InterviewStatus.valueOf(request.status()));
+        return interviewResponse(interviewRepository.save(interview));
+    }
+
     @Transactional(readOnly = true)
     public WorkflowResponses.RecruiterWorkflowAnalytics analytics(UUID recruiterId) {
         recruiter(recruiterId);
@@ -180,8 +208,15 @@ public class RecruiterWorkflowService {
         int active = (int) campaigns.stream().filter(campaign -> campaign.getCampaignStatus() == RecruitmentCampaignStatus.QUEUED || campaign.getCampaignStatus() == RecruitmentCampaignStatus.SENT).count();
         var interviews = interviewRepository.findByRecruiter_IdAndScheduledAtAfterOrderByScheduledAtAsc(recruiterId, Instant.now().minus(7, ChronoUnit.DAYS), org.springframework.data.domain.PageRequest.of(0, 100));
         int scorecards = interviews.stream().mapToInt(interview -> scorecardRepository.findByInterview_IdOrderBySubmittedAtDesc(interview.getId()).size()).sum();
+        int replies = campaigns.stream().mapToInt(campaign -> (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(campaign.getId(), CampaignRecipientStatus.REPLIED)).sum();
+        int pendingScorecards = (int) interviews.stream().filter(interview -> interview.getStatus() != InterviewStatus.CANCELLED
+                && scorecardRepository.findByInterview_IdOrderBySubmittedAtDesc(interview.getId()).isEmpty()).count();
+        int upcoming = (int) interviews.stream().filter(interview -> interview.getScheduledAt().isAfter(Instant.now())
+                && interview.getStatus() != InterviewStatus.CANCELLED && interview.getStatus() != InterviewStatus.COMPLETED).count();
+        int dueReminders = (int) Math.min(Integer.MAX_VALUE,
+                talentPoolCandidateRepository.countByTalentPool_Organisation_IdAndReminderAtBefore(recruiter(recruiterId).getOrganisation().getId(), Instant.now()));
         return new WorkflowResponses.RecruiterWorkflowAnalytics(savedSearchRepository.findByRecruiter_IdOrderByUpdatedAtDesc(recruiterId).size(), pools.size(), candidatesInPools,
-                active, sent, interviews.getNumberOfElements(), scorecards);
+                active, sent, interviews.getNumberOfElements(), scorecards, dueReminders, replies, pendingScorecards, upcoming);
     }
 
     @Transactional
@@ -216,16 +251,67 @@ public class RecruiterWorkflowService {
         return organisationControls(recruiterId);
     }
 
-    private WorkflowResponses.SavedSearch savedSearchResponse(RecruiterSavedSearch search) { return new WorkflowResponses.SavedSearch(search.getId(), search.getSearchName(), search.getCriteria(), search.getAlertFrequency(), search.getUpdatedAt()); }
-    private WorkflowResponses.TalentPoolMember memberResponse(TalentPoolCandidate member) { Candidate candidate = member.getCandidate(); return new WorkflowResponses.TalentPoolMember(candidate.getId(), candidate.getFullName(), candidate.getHeadline(), candidate.getLocation(), member.getTags(), member.getOwnerRecruiter() == null ? null : member.getOwnerRecruiter().getFullName(), member.getReminderAt(), member.getCollaborationNote(), member.getUpdatedAt()); }
-    private WorkflowResponses.Campaign campaignResponse(RecruitmentCampaign campaign) { UUID id = campaign.getId(); return new WorkflowResponses.Campaign(id, campaign.getCampaignName(), campaign.getSubject(), campaign.getCampaignStatus(), campaignRecipientRepository.findByCampaign_Id(id).size(), (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(id, CampaignRecipientStatus.SENT), (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(id, CampaignRecipientStatus.REPLIED), (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(id, CampaignRecipientStatus.OPTED_OUT), campaign.getUpdatedAt()); }
-    private WorkflowResponses.Interview interviewResponse(com.sapienworx.api.interview.Interview interview) { return new WorkflowResponses.Interview(interview.getId(), interview.getApplication().getId(), interview.getApplication().getCandidate().getFullName(), interview.getApplication().getJob().getTitle(), interview.getPlatformName(), interview.getMeetingLink(), interview.getScheduledAt(), interview.getDurationMinutes(), interview.getStatus(), scorecardRepository.findByInterview_IdOrderBySubmittedAtDesc(interview.getId()).stream().map(this::scorecardResponse).toList()); }
+    private WorkflowResponses.SavedSearch savedSearchResponse(RecruiterSavedSearch search) {
+        String alertStatus = search.getAlertFrequency() == SavedSearchAlertFrequency.OFF ? "OFF"
+                : search.getLastAlertedAt() == null ? "READY" : "HEALTHY";
+        return new WorkflowResponses.SavedSearch(search.getId(), search.getSearchName(), search.getCriteria(), search.getAlertFrequency(), search.getLastAlertedAt(), alertStatus, search.getUpdatedAt());
+    }
+    private WorkflowResponses.TalentPool talentPoolResponse(TalentPool pool, int candidateCount) {
+        return new WorkflowResponses.TalentPool(pool.getId(), pool.getPoolName(), pool.getDescription(), pool.getJob() == null ? null : pool.getJob().getPublicJobId(),
+                pool.getJob() == null ? null : pool.getJob().getTitle(), candidateCount, pool.getUpdatedAt());
+    }
+    private WorkflowResponses.TalentPoolMember memberResponse(TalentPoolCandidate member) {
+        Candidate candidate = member.getCandidate();
+        return new WorkflowResponses.TalentPoolMember(candidate.getId(), candidate.getFullName(), candidate.getHeadline(), candidate.getLocation(), member.getTags(),
+                member.getOwnerRecruiter() == null ? null : member.getOwnerRecruiter().getFullName(), member.getReminderAt(), member.getCollaborationNote(), member.getNextAction(),
+                candidate.getOverallExperienceYears(), candidate.getExpectedSalaryLakhs(), candidate.getNoticePeriodDays(),
+                candidate.getSkills().stream().map(CandidateSkill::getSkill).sorted().toList(), candidate.isEmailVerified(), candidate.isMobileVerified(),
+                candidate.getLastActiveAt(), candidate.getUpdatedAt(), member.getUpdatedAt());
+    }
+    private WorkflowResponses.Campaign campaignResponse(RecruitmentCampaign campaign) {
+        UUID id = campaign.getId(); int recipients = campaignRecipientRepository.findByCampaign_Id(id).size();
+        int sent = (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(id, CampaignRecipientStatus.SENT);
+        int replies = (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(id, CampaignRecipientStatus.REPLIED);
+        return new WorkflowResponses.Campaign(id, campaign.getCampaignName(), campaign.getSubject(), campaign.getCampaignStatus(), recipients, sent, replies,
+                (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(id, CampaignRecipientStatus.OPTED_OUT),
+                (int) campaignRecipientRepository.countByCampaign_IdAndDeliveryStatus(id, CampaignRecipientStatus.EXCLUDED), sent == 0 ? 0 : Math.round(replies * 100f / sent),
+                campaign.getJob() == null ? null : campaign.getJob().getPublicJobId(), campaign.getJob() == null ? null : campaign.getJob().getTitle(), campaign.getUpdatedAt());
+    }
+    private WorkflowResponses.Interview interviewResponse(com.sapienworx.api.interview.Interview interview) {
+        List<UUID> panelIds = interview.getPanelRecruiterIds() == null ? List.of() : interview.getPanelRecruiterIds();
+        List<String> panelNames = recruiterRepository.findAllById(panelIds).stream().map(Recruiter::getFullName).toList();
+        return new WorkflowResponses.Interview(interview.getId(), interview.getApplication().getId(), interview.getApplication().getCandidate().getFullName(),
+                interview.getApplication().getJob().getTitle(), interview.getPlatformName(), interview.getMeetingLink(), interview.getScheduledAt(), interview.getDurationMinutes(),
+                interview.getTimeZone(), interview.getAgenda(), panelIds, panelNames, interview.getStatus(),
+                scorecardRepository.findByInterview_IdOrderBySubmittedAtDesc(interview.getId()).stream().map(this::scorecardResponse).toList());
+    }
     private WorkflowResponses.Scorecard scorecardResponse(InterviewScorecard scorecard) { return new WorkflowResponses.Scorecard(scorecard.getId(), scorecard.getRecruiter().getFullName(), scorecard.getRecommendation(), scorecard.getScore(), scorecard.getFeedback(), scorecard.getSubmittedAt()); }
     private Recruiter recruiter(UUID id) { return recruiterRepository.findById(id).orElseThrow(() -> notFound("Recruiter profile was not found.")); }
     private TalentPool poolFor(UUID recruiterId, UUID poolId) { return poolFor(recruiter(recruiterId), poolId); }
     private TalentPool poolFor(Recruiter recruiter, UUID poolId) { return talentPoolRepository.findByIdAndOrganisation_Id(poolId, recruiter.getOrganisation().getId()).orElseThrow(() -> notFound("Talent pool was not found.")); }
     private List<String> normalizedTags(List<String> tags) { return tags == null ? List.of() : tags.stream().filter(value -> value != null && !value.isBlank()).map(String::trim).distinct().toList(); }
     private String trimToNull(String value) { return value == null || value.isBlank() ? null : value.trim(); }
+    private Job jobFor(Recruiter recruiter, String publicJobId) {
+        if (publicJobId == null || publicJobId.isBlank()) return null;
+        return jobRepository.findByPublicJobId(publicJobId.trim())
+                .filter(value -> value.getOrganisation().getId().equals(recruiter.getOrganisation().getId()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose a job from your organisation."));
+    }
+    private List<UUID> validPanelRecruiterIds(Recruiter recruiter, List<UUID> panelRecruiterIds) {
+        if (panelRecruiterIds == null) return List.of();
+        List<UUID> unique = panelRecruiterIds.stream().filter(java.util.Objects::nonNull).distinct().limit(12).toList();
+        boolean invalid = recruiterRepository.findAllById(unique).stream().anyMatch(member -> !member.getOrganisation().getId().equals(recruiter.getOrganisation().getId()));
+        if (invalid || recruiterRepository.findAllById(unique).size() != unique.size()) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Every interviewer must belong to your organisation.");
+        return unique;
+    }
+    private void requireNoInterviewConflict(UUID recruiterId, UUID ignoredInterviewId, Instant scheduledAt, int durationMinutes) {
+        Instant end = scheduledAt.plus(durationMinutes, ChronoUnit.MINUTES);
+        boolean conflict = interviewRepository.findByRecruiter_IdAndScheduledAtAfterOrderByScheduledAtAsc(recruiterId, scheduledAt.minus(1, ChronoUnit.DAYS), org.springframework.data.domain.PageRequest.of(0, 200))
+                .stream().filter(value -> ignoredInterviewId == null || !value.getId().equals(ignoredInterviewId))
+                .filter(value -> value.getStatus() != InterviewStatus.CANCELLED)
+                .anyMatch(value -> value.getScheduledAt().isBefore(end) && value.getScheduledAt().plus(value.getDurationMinutes(), ChronoUnit.MINUTES).isAfter(scheduledAt));
+        if (conflict) throw new ResponseStatusException(HttpStatus.CONFLICT, "This recruiter already has an interview during the selected time.");
+    }
     private ResponseStatusException notFound(String message) { return new ResponseStatusException(HttpStatus.NOT_FOUND, message); }
     private OrganisationMemberRole memberRole(Recruiter recruiter) {
         return memberRoleRepository.findByRecruiter_Id(recruiter.getId()).orElseGet(() -> {

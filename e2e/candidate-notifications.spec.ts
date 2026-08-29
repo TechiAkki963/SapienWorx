@@ -15,6 +15,7 @@ const notificationPage = {
 
 test("candidate has one notification entry point and can manage the live activity feed", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("sapienworx.local-candidate-domain", "TECH"));
+  await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   await page.route("**/api/notifications**", (route) => {
     if (route.request().method() === "GET") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(notificationPage) });
     if (route.request().url().endsWith("/read-all")) return route.fulfill({ status: 204 });

@@ -14,6 +14,7 @@ const profile = {
 test("builds a recruiter-searchable profile and persists filter-aligned details", async ({ page, context }) => {
   await context.addCookies([{ name: "XSRF-TOKEN", value: "test-csrf", domain: "localhost", path: "/" }]);
   await page.addInitScript(() => window.localStorage.setItem("sapienworx.local-candidate-domain", "TECH"));
+  await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   let savedBody: Record<string, unknown> | undefined;
   await page.route("**/api/candidate/profile", async (route) => {
     if (route.request().method() === "GET") return route.fulfill({ status: 200, json: profile });

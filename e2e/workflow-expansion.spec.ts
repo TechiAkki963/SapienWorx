@@ -2,9 +2,20 @@ import { expect, test } from "@playwright/test";
 
 const now = new Date().toISOString();
 
-test("recruiters can save searches and navigate the shared talent workspace", async ({ page }) => {
+test("recruiters can save searches and run interviews from the Recruitment Workspace", async ({ page }) => {
   let savedSearch: { id: string; name: string; criteria: { expression: string }; alertFrequency: string; updatedAt: string } | null = null;
+  const poolMembers: Array<{ candidateId: string; fullName: string; headline: string; location: string; tags: string[]; ownerName: string | null; reminderAt: string | null; note: string | null; nextAction: string; experienceYears: number; expectedSalaryLakhs: number; noticePeriodDays: number; skills: string[]; emailVerified: boolean; mobileVerified: boolean; lastActiveAt: string; profileUpdatedAt: string; updatedAt: string }> = [{ candidateId: "candidate-1", fullName: "Asha Kumar", headline: "Senior backend engineer", location: "Bengaluru", tags: ["Priority"], ownerName: "Alex Recruiter", reminderAt: null, note: "@Sam review portfolio", nextAction: "Phone screen", experienceYears: 6, expectedSalaryLakhs: 24, noticePeriodDays: 30, skills: ["Node.js", "TypeScript"], emailVerified: true, mobileVerified: true, lastActiveAt: now, profileUpdatedAt: now, updatedAt: now }];
+  const campaigns: Array<{ id: string; name: string; subject: string; status: string; recipientCount: number; sentCount: number; repliedCount: number; optedOutCount: number; replyRate: number; jobId: string | null; jobTitle: string | null; updatedAt: string }> = [];
+  const interviews: Array<{ id: string; applicationId: string; candidateName: string; jobTitle: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number; status: string; scorecards: Array<{ id: string; recruiterName: string; recommendation: string; score: number; feedback: string; submittedAt: string }> }> = [];
   await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
+  await page.route("**/api/recruiter/pipeline**", (route) => route.fulfill({ status: 200, json: { content: [{ applicationId: "2fbd4be4-1bf2-4a1d-918d-500000000001", candidateId: "candidate-1", fullName: "Asha Kumar", headline: "Senior backend engineer", jobId: "SWX-100", jobTitle: "Backend Engineer", pipelineStage: "INTERVIEWING" }] } }));
+  await page.route("**/api/recruiter/jobs**", (route) => route.fulfill({ status: 200, json: { content: [{ jobId: "SWX-100", title: "Backend Engineer", status: "ACTIVE", location: "Bengaluru" }] } }));
+  await page.route("**/api/recruiter/sourcing/search", (route) => route.fulfill({ status: 200, json: { content: [{ candidateId: "candidate-2", fullName: "Mira Patel", headline: "Platform engineer", location: "Pune", overallExperienceYears: 5, expectedSalaryLakhs: 22, noticePeriodDays: 30, skills: "Java, AWS", emailVerified: true, mobileVerified: true, profileLastUpdatedAt: now, lastActiveAt: now, relevanceScore: 0.91 }] } }));
+  await page.route("**/api/recruiter/interviews", async (route) => {
+    const request = route.request().postDataJSON() as { applicationId: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number };
+    interviews.push({ id: "interview-1", applicationId: request.applicationId, candidateName: "Asha Kumar", jobTitle: "Backend Engineer", platformName: request.platformName, meetingLink: request.meetingLink, scheduledAt: request.scheduledAt, durationMinutes: request.durationMinutes, status: "SCHEDULED", scorecards: [] });
+    return route.fulfill({ status: 201, json: interviews[0] });
+  });
   await page.route("**/api/recruiter/workflow/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
     const method = route.request().method();
@@ -15,18 +26,36 @@ test("recruiters can save searches and navigate the shared talent workspace", as
       }
       return route.fulfill({ status: 200, json: savedSearch ? [savedSearch] : [] });
     }
-    if (path.endsWith("/talent-pools")) return route.fulfill({ status: 200, json: [{ id: "pool-1", name: "Platform shortlist", description: "Shared backend candidates", candidateCount: 1, updatedAt: now }] });
-    if (path.endsWith("/talent-pools/pool-1/members")) return route.fulfill({ status: 200, json: [{ candidateId: "candidate-1", fullName: "Asha Kumar", headline: "Senior backend engineer", location: "Bengaluru", tags: ["Priority"], ownerName: "Alex Recruiter", reminderAt: null, note: "@Sam review portfolio", updatedAt: now }] });
-    if (path.endsWith("/campaigns")) return route.fulfill({ status: 200, json: [] });
-    if (path.endsWith("/interviews")) return route.fulfill({ status: 200, json: [] });
-    if (path.endsWith("/analytics")) return route.fulfill({ status: 200, json: { savedSearches: 0, talentPools: 1, candidatesInPools: 1, activeCampaigns: 0, campaignsSent: 0, interviewsThisWeek: 0, scorecardsSubmitted: 0 } });
-    if (path.endsWith("/organisation-controls")) return route.fulfill({ status: 200, json: { currentUserRole: "ORG_ADMIN", candidateRetentionDays: 365, auditRetentionDays: 730, savedSearchAlertsEnabled: true, campaignsEnabled: true, updatedAt: now, members: [] } });
+    if (path.endsWith("/talent-pools")) return route.fulfill({ status: 200, json: [{ id: "pool-1", name: "Platform shortlist", description: "Shared backend candidates", jobId: "SWX-100", jobTitle: "Backend Engineer", candidateCount: poolMembers.length, updatedAt: now }] });
+    if (path.endsWith("/talent-pools/pool-1/members")) {
+      if (method === "PUT") {
+        const request = route.request().postDataJSON() as { candidateId: string; tags: string[]; nextAction: string };
+        poolMembers.push({ candidateId: request.candidateId, fullName: "Mira Patel", headline: "Platform engineer", location: "Pune", tags: request.tags, ownerName: null, reminderAt: null, note: null, nextAction: request.nextAction, experienceYears: 5, expectedSalaryLakhs: 22, noticePeriodDays: 30, skills: ["Java", "AWS"], emailVerified: true, mobileVerified: true, lastActiveAt: now, profileUpdatedAt: now, updatedAt: now });
+        return route.fulfill({ status: 200, json: poolMembers.at(-1) });
+      }
+      return route.fulfill({ status: 200, json: poolMembers });
+    }
+    if (path.endsWith("/campaigns")) {
+      if (method === "POST") { const request = route.request().postDataJSON() as { name: string; subject: string; candidateIds: string[]; jobId: string }; campaigns.push({ id: "campaign-1", name: request.name, subject: request.subject, status: "DRAFT", recipientCount: request.candidateIds.length, sentCount: 0, repliedCount: 0, optedOutCount: 0, replyRate: 0, jobId: request.jobId, jobTitle: "Backend Engineer", updatedAt: now }); return route.fulfill({ status: 201, json: campaigns[0] }); }
+      return route.fulfill({ status: 200, json: campaigns });
+    }
+    if (path.endsWith("/campaigns/campaign-1/launch")) { campaigns[0].status = "SENT"; campaigns[0].sentCount = campaigns[0].recipientCount; return route.fulfill({ status: 200, json: campaigns[0] }); }
+    if (path.endsWith("/interviews")) return route.fulfill({ status: 200, json: interviews });
+    if (path.endsWith("/interview-scorecards") && method === "POST") {
+      const request = route.request().postDataJSON() as { interviewId: string; recommendation: string; score: number; feedback: string };
+      interviews[0].scorecards = [{ id: "scorecard-1", recruiterName: "Alex Recruiter", recommendation: request.recommendation, score: request.score, feedback: request.feedback, submittedAt: now }];
+      return route.fulfill({ status: 201, json: interviews[0].scorecards[0] });
+    }
+    if (path.includes("/interviews/interview-1") && method === "PATCH") { const request = route.request().postDataJSON() as { scheduledAt?: string; status?: string }; if (request.scheduledAt) interviews[0].scheduledAt = request.scheduledAt; if (request.status) interviews[0].status = request.status; return route.fulfill({ status: 200, json: interviews[0] }); }
+    if (path.endsWith("/analytics")) return route.fulfill({ status: 200, json: { savedSearches: 0, talentPools: 1, candidatesInPools: poolMembers.length, activeCampaigns: campaigns.length, campaignsSent: campaigns.reduce((total, campaign) => total + campaign.sentCount, 0), interviewsThisWeek: interviews.length, scorecardsSubmitted: interviews.reduce((total, interview) => total + interview.scorecards.length, 0), dueReminders: 1, campaignReplies: 0, pendingScorecards: interviews.filter((interview) => !interview.scorecards.length).length, upcomingInterviews: interviews.length } });
+    if (path.endsWith("/organisation-controls")) return route.fulfill({ status: 200, json: { currentUserRole: "ORG_ADMIN", candidateRetentionDays: 365, auditRetentionDays: 730, savedSearchAlertsEnabled: true, campaignsEnabled: true, updatedAt: now, members: [{ recruiterId: "recruiter-1", fullName: "Alex Recruiter", officialEmail: "alex@example.test", workspaceRole: "ORG_ADMIN" }] } });
     return route.fulfill({ status: 404, json: { detail: "Unexpected workflow request" } });
   });
 
   await page.goto("/recruiter/workbench");
 
   await expect(page.getByRole("heading", { name: "Recruitment workspace" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Recruitment Workspace" })).toBeVisible();
   await expect(page.getByText("People in pools", { exact: true })).toBeVisible();
   await page.getByLabel("Search name").fill("Backend engineers");
   await page.getByLabel("Search criteria").fill("Node.js AND TypeScript");
@@ -38,6 +67,35 @@ test("recruiters can save searches and navigate the shared talent workspace", as
   await expect(page.getByRole("heading", { name: "Talent pools" })).toBeVisible();
   await expect(page.getByText("Asha Kumar", { exact: true })).toBeVisible();
   await expect(page.getByText("@Sam review portfolio", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Candidate from sourcing")).toBeVisible();
+  await expect(page.getByText("Candidate ID from sourcing")).toHaveCount(0);
+  await page.getByLabel("Candidate from sourcing").selectOption("candidate-2");
+  await page.getByLabel("Candidate next action").fill("Review AWS depth");
+  await page.getByRole("button", { name: "Add to pool" }).click();
+  await expect(page.getByText("Mira Patel", { exact: true })).toBeVisible();
+
+  await page.getByRole("tab", { name: "Campaigns" }).click();
+  await page.getByLabel("Campaign hiring role").selectOption("SWX-100");
+  await page.getByLabel("Campaign name").fill("Platform outreach");
+  await page.getByLabel("Subject").fill("Backend Engineer opportunity");
+  await page.getByLabel("Message").fill("Hi {{first_name}}, your profile matches our platform role.");
+  await page.getByRole("button", { name: "Create campaign" }).click();
+  await expect(page.getByText("Platform outreach", { exact: true })).toBeVisible();
+
+  await page.getByRole("link", { name: "Interviews" }).click();
+  await expect(page).toHaveURL(/\/recruiter\/workbench#interviews/);
+  await expect(page.getByRole("heading", { name: "Schedule interview" })).toBeVisible();
+  await page.getByLabel("Candidate application").selectOption("2fbd4be4-1bf2-4a1d-918d-500000000001");
+  await page.getByLabel("Interview format").selectOption("Google Meet");
+  await page.getByLabel("Interview date and time").fill(new Date(Date.now() + 86_400_000).toISOString().slice(0, 16));
+  await page.getByLabel("Meeting link or location").fill("https://meet.example.com/asha");
+  await page.getByRole("button", { name: "Schedule and notify candidate" }).click();
+  await expect(page.getByText("Interview scheduled. The candidate has been notified and the meeting is now in your workspace.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Join meeting" })).toHaveAttribute("href", "https://meet.example.com/asha");
+  await page.getByLabel("Feedback").fill("Strong systems evidence and clear trade-off decisions.");
+  await page.getByRole("button", { name: "Save scorecard" }).click();
+  await expect(page.getByText("Interview scorecard saved.")).toBeVisible();
+  await expect(page.getByText("1 scorecard submitted")).toBeVisible();
 });
 
 test("candidates can inspect their timeline and exercise privacy controls", async ({ page }) => {

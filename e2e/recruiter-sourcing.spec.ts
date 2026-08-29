@@ -7,6 +7,9 @@ test("builds a sourcing query and opens results in its own workspace", async ({ 
   await expect(page.getByLabel("Boolean keyword expression")).toHaveValue('("Node.Js" OR "Node")');
   await expect(page.getByRole("heading", { name: "Recent Searches" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Saved Searches" })).toBeVisible();
+  const historyRail = page.locator(".resdex-history");
+  await expect(historyRail).toHaveCSS("position", "sticky");
+  await expect(historyRail).toHaveCSS("border-radius", "18px 18px 12px");
 
   await page.getByText("Boolean on", { exact: true }).click();
   await page.getByLabel("Add a keyword").fill("TypeScript");

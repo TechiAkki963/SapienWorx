@@ -42,7 +42,16 @@ const initialSaved: SearchRecord[] = [
 function readRecords(key: string): SearchRecord[] {
   try {
     const parsed: unknown = JSON.parse(window.localStorage.getItem(key) ?? "[]");
-    return Array.isArray(parsed) ? parsed.filter((item): item is SearchRecord => Boolean(item && typeof item === "object" && "name" in item && "state" in item)).slice(0, 5) : [];
+    return Array.isArray(parsed) ? parsed.filter((item): item is SearchRecord => Boolean(
+      item
+      && typeof item === "object"
+      && "id" in item
+      && typeof item.id === "string"
+      && "name" in item
+      && typeof item.name === "string"
+      && "state" in item
+      && isSearchState(item.state)
+    )).slice(0, 5) : [];
   } catch { return []; }
 }
 
@@ -92,12 +101,14 @@ export function RecruiterSourcingV2() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
+    const controller = new AbortController();
     setRecent(readRecords(RECENT_SEARCHES_KEY));
     setSaved(readRecords(SAVED_SEARCHES_KEY));
-    void apiClient<Array<{ id: string; name: string; criteria: unknown }>>("/api/recruiter/workflow/saved-searches").then((records) => {
+    void apiClient<Array<{ id: string; name: string; criteria: unknown }>>("/api/recruiter/workflow/saved-searches", { signal: controller.signal }).then((records) => {
       const remote = records.map((record) => ({ id: record.id, name: record.name, state: isSearchState(record.criteria) ? record.criteria : startingSearch() }));
       if (remote.length) setSaved(remote);
     }).catch(() => undefined);
+    return () => controller.abort();
   }, []);
   useEffect(() => {
     if (!params.size) return;

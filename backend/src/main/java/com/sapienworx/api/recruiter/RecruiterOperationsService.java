@@ -25,6 +25,7 @@ import com.sapienworx.api.notification.NotificationService;
 import com.sapienworx.api.workflow.ApplicationEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -169,8 +170,22 @@ public class RecruiterOperationsService {
     public RecruiterDashboardResponse.UpcomingInterview schedule(UUID recruiterId, InterviewRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         JobApplication application = applicationForRecruiter(request.applicationId(), recruiter);
+        Instant requestedEnd = request.scheduledAt().plus(request.durationMinutes(), java.time.temporal.ChronoUnit.MINUTES);
+        boolean conflict = interviewRepository.findByRecruiter_IdAndScheduledAtAfterOrderByScheduledAtAsc(recruiterId,
+                        request.scheduledAt().minus(1, java.time.temporal.ChronoUnit.DAYS), PageRequest.of(0, 200)).stream()
+                .filter(value -> value.getStatus() != InterviewStatus.CANCELLED)
+                .anyMatch(value -> value.getScheduledAt().isBefore(requestedEnd)
+                        && value.getScheduledAt().plus(value.getDurationMinutes(), java.time.temporal.ChronoUnit.MINUTES).isAfter(request.scheduledAt()));
+        if (conflict) throw new ResponseStatusException(HttpStatus.CONFLICT, "This recruiter already has an interview during the selected time.");
+        List<UUID> panelIds = request.panelRecruiterIds() == null ? List.of() : request.panelRecruiterIds().stream().filter(java.util.Objects::nonNull).distinct().limit(12).toList();
+        List<Recruiter> panel = recruiterRepository.findAllById(panelIds);
+        if (panel.size() != panelIds.size() || panel.stream().anyMatch(member -> !member.getOrganisation().getId().equals(recruiter.getOrganisation().getId())))
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Every interviewer must belong to your organisation.");
         Interview interview = interviewRepository.save(Interview.builder().application(application).recruiter(recruiter).platformName(request.platformName().trim())
-                .meetingLink(request.meetingLink().trim()).scheduledAt(request.scheduledAt()).durationMinutes(request.durationMinutes()).status(InterviewStatus.SCHEDULED).build());
+                .meetingLink(request.meetingLink().trim()).scheduledAt(request.scheduledAt()).durationMinutes(request.durationMinutes())
+                .timeZone(request.timeZone() == null || request.timeZone().isBlank() ? "UTC" : request.timeZone().trim())
+                .agenda(request.agenda() == null || request.agenda().isBlank() ? null : request.agenda().trim()).panelRecruiterIds(panelIds)
+                .status(InterviewStatus.SCHEDULED).build());
         applicationEventService.record(application, "RECRUITER", "INTERVIEW_SCHEDULED", "Interview scheduled for " + request.scheduledAt() + " on " + request.platformName().trim() + ".");
         notificationService.create(application.getCandidate().getId(), "INTERVIEW_SCHEDULED", "Interview scheduled",
                 "An interview for " + application.getJob().getTitle() + " is scheduled on " + request.scheduledAt() + ".", "INTERVIEW", interview.getId());

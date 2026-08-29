@@ -23,6 +23,26 @@ export type RecruiterDashboardSnapshot = {
   upcomingInterviews: Array<{ candidateName: string; jobTitle: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number }>;
 };
 
+const localDemoJobs: Record<string, ApiJob> = {
+  SWX_NX_001: {
+    jobId: "SWX_NX_001",
+    title: "Senior Backend Engineer",
+    organisationName: "Nexora Cloud",
+    location: "Bengaluru · Hybrid",
+    department: "Engineering",
+    minimumExperienceYears: 4,
+    maximumExperienceYears: 7,
+    minimumSalaryLakhs: 18,
+    maximumSalaryLakhs: 28,
+    salaryVisible: true,
+    descriptionHtml: "<p>Build reliable data and workflow services for a fast-growing hiring platform.</p>",
+    skills: ["TypeScript", "Node.js", "PostgreSQL"],
+    status: "PUBLISHED",
+    publicPath: "/jobs/SWX_NX_001/senior-backend-engineer",
+    publishedAt: "2026-08-21T09:00:00Z",
+  },
+};
+
 async function serverFetch<T>(path: string, authenticated = false): Promise<T | null> {
   try {
     const requestHeaders = authenticated ? await headers() : undefined;
@@ -44,7 +64,9 @@ export async function getPublicJobs(keywords = "") {
 }
 
 export const getPublicJob = cache(async (jobId: string) => {
-  return serverFetch<ApiJob>(`/api/public/jobs/${encodeURIComponent(jobId)}`);
+  const liveJob = await serverFetch<ApiJob>(`/api/public/jobs/${encodeURIComponent(jobId)}`);
+  if (liveJob) return liveJob;
+  return process.env.NEXT_PUBLIC_LOCAL_DEMO === "true" ? localDemoJobs[jobId.toUpperCase()] ?? null : null;
 });
 
 export async function getCandidateDashboardSnapshot(): Promise<CandidateDashboardSnapshot | null> {

@@ -9,11 +9,15 @@ import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
 
 public record InterviewRequest(
         @NotNull UUID applicationId,
         @NotBlank @Size(max = 80) String platformName,
         @NotBlank @Size(max = 2048) String meetingLink,
         @NotNull @Future Instant scheduledAt,
-        @Min(5) @Max(480) int durationMinutes
+        @Min(5) @Max(480) int durationMinutes,
+        @Size(max = 80) String timeZone,
+        @Size(max = 2000) String agenda,
+        List<UUID> panelRecruiterIds
 ) { }

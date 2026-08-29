@@ -17,6 +17,10 @@ test("shows dense candidate results and preserves the search in Modify", async (
   await expect(avishCard.getByText("459 similar profiles")).toBeVisible();
   await expect(avishCard.getByText("Verified phone & email")).toBeVisible();
   await expect(avishCard.getByRole("button", { name: "⇩ CV" })).toBeVisible();
+  await expect(avishCard.locator(".talent-skill").first()).toBeVisible();
+  await expect.poll(() => avishCard.locator(".talent-skill").count()).toBeGreaterThan(5);
+  await expect(avishCard).toHaveCSS("border-radius", "18px 13px 18px 10px");
+  await expect(avishCard.getByRole("heading", { name: "Avish Bansal" })).toHaveCSS("font-family", /Georgia|Palatino|Baskerville|Iowan/);
 
   await page.getByRole("checkbox", { name: "Select Avish Bansal" }).check();
   await page.getByRole("button", { name: "Switch to NVite" }).click();
@@ -28,6 +32,7 @@ test("shows dense candidate results and preserves the search in Modify", async (
   await page.getByLabel("Active in").selectOption("FIFTEEN_DAYS");
   await page.getByLabel("Sort by").selectOption("updated");
   await page.getByLabel("Show").selectOption("80");
+  await expect(page).toHaveURL(/sortBy=updated/);
   await page.getByRole("link", { name: "View profile" }).first().click();
   await expect(page).toHaveURL(/\/recruiter\/candidates\//);
   await expect(page.getByRole("link", { name: "← Back to search results" })).toBeVisible();
@@ -46,7 +51,8 @@ test("shows dense candidate results and preserves the search in Modify", async (
 test("suggests widening an over-constrained experience search", async ({ page }) => {
   await page.goto("/search/results?anyKeywords=Typescript&minExperience=20");
 
-  await expect(page.getByRole("heading", { name: "No candidates match these refinements" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "This exact profile is proving elusive" })).toBeVisible();
+  await expect(page.getByText("We’ve scoured the database, but this exact profile is proving a bit elusive. Shall we broaden the experience filter?")).toBeVisible();
   await expect(page.getByRole("button", { name: "Remove experience filter" })).toBeVisible();
   await page.getByRole("button", { name: "Remove experience filter" }).click();
   await expect(page).not.toHaveURL(/minExperience=/);
