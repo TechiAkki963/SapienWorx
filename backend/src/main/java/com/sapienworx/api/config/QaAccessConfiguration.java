@@ -57,7 +57,12 @@ public class QaAccessConfiguration {
                     .orElseGet(() -> organisationRepository.save(Organisation.builder()
                             .name(ORGANISATION_NAME)
                             .initials("SWXQA")
+                            .workEmailDomain("sapienworx.qa")
                             .build()));
+            if (organisation.getWorkEmailDomain() == null) {
+                organisation.setWorkEmailDomain("sapienworx.qa");
+                organisationRepository.save(organisation);
+            }
 
             seedRecruiter(recruiterRepository, passwordEncoder, organisation,
                     "Alex Recruiter", "recruiter.alex@sapienworx.qa", "+919000000011", "Senior Recruiter", "Bengaluru", password);

@@ -26,7 +26,7 @@ body { background: var(--surface-off-white); color: var(--ink); font-size: 1rem;
 
 .workspace-main { background: var(--surface-off-white); }
 .workspace-main > * { width: min(100%, 1440px); margin-inline: auto; }
-.workspace-shell :is(.button, .icon-button, .nav-item, .switch-workspace, .action-link),
+.workspace-shell :is(.button, .icon-button, .nav-item, .action-link),
 .auth-page :is(.button, .portal-switch button),
 .public-page :is(.button, .view-all, .job-card-link, .recruiter-entry) {
   min-width: 44px;

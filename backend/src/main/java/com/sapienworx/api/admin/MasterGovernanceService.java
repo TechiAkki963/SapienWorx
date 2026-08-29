@@ -219,6 +219,11 @@ public class MasterGovernanceService {
         if (!PLAN_NAMES.contains(plan) || !INVOICE_STATUSES.contains(invoice)) throw invalid("Choose a valid plan and invoice status.");
         int seats = bounded(request.recruiterSeatLimit(), 5, 1, 100000);
         int credits = bounded(request.monthlyJobCreditLimit(), 10, 0, 1000000);
+        long seatsUsed = recruiters.findByOrganisation_Id(organisationId).size();
+        if (seats < seatsUsed) throw invalid("The recruiter seat limit cannot be lower than the " + seatsUsed + " seats currently in use.");
+        if (("TRIAL".equals(invoice) || "CURRENT".equals(invoice)) && request.renewalAt() == null) {
+            throw invalid("Add a renewal or trial-end date for an active billing plan.");
+        }
         jdbc.update("""
                 insert into organisation_billing_plans
                     (organisation_id, plan_name, recruiter_seat_limit, monthly_job_credit_limit, invoice_status, renewal_at, updated_by)
@@ -390,12 +395,15 @@ public class MasterGovernanceService {
     private List<Map<String, Object>> alerts() {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Map<String, Object> queue : queueMonitor.queues()) {
-            boolean available = Boolean.TRUE.equals(queue.get("available"));
             long messages = ((Number) queue.get("messages")).longValue();
             String name = String.valueOf(queue.get("name"));
-            if (!available) result.add(alert("queue-unavailable-" + name, "CRITICAL", "Queue unavailable", queue.get("label") + " cannot be reached.", "RabbitMQ"));
-            else if ("DEAD_LETTER".equals(queue.get("group")) && messages > 0) result.add(alert("dlq-" + name, "HIGH", "Dead-letter messages need review", messages + " messages are waiting in " + name + ".", "RabbitMQ"));
-            else if (messages > 100) result.add(alert("queue-backlog-" + name, "MEDIUM", "Queue backlog is growing", messages + " messages are waiting in " + name + ".", "RabbitMQ"));
+            String health = String.valueOf(queue.get("health"));
+            String description = String.valueOf(queue.get("healthSummary"));
+            if ("UNAVAILABLE".equals(health)) result.add(alert("queue-unavailable-" + name, "CRITICAL", "Queue unavailable", description, "RabbitMQ"));
+            else if ("BLOCKED".equals(health)) result.add(alert("queue-blocked-" + name, "CRITICAL", "Queue has no active worker", description, "RabbitMQ"));
+            else if ("UNSTAFFED".equals(health)) result.add(alert("queue-unstaffed-" + name, "HIGH", "Queue worker is offline", description, "RabbitMQ"));
+            else if ("DEGRADED".equals(health) && "DEAD_LETTER".equals(queue.get("group"))) result.add(alert("dlq-" + name, "HIGH", "Dead-letter messages need review", description, "RabbitMQ"));
+            else if ("DEGRADED".equals(health)) result.add(alert("queue-backlog-" + name, "MEDIUM", "Queue backlog is growing", description, "RabbitMQ"));
         }
         long urgentTickets = count("select count(*) from platform_support_tickets where status <> 'RESOLVED' and priority in ('HIGH', 'URGENT')");
         if (urgentTickets > 0) result.add(alert("urgent-support", "HIGH", "High-priority support cases", urgentTickets + " high-priority cases are unresolved.", "Support"));
@@ -405,6 +413,13 @@ public class MasterGovernanceService {
         if (incompleteProfiles > 0) result.add(alert("candidate-profile-quality", "LOW", "Candidate profile quality", incompleteProfiles + " candidate profiles are missing core sourcing details.", "Data quality"));
         long pastDue = count("select count(*) from organisation_billing_plans where invoice_status in ('PAST_DUE', 'SUSPENDED')");
         if (pastDue > 0) result.add(alert("billing-past-due", "HIGH", "Billing attention required", pastDue + " organisations have past-due or suspended billing.", "Billing"));
+        long seatOverages = count("""
+                select count(*) from organisation_billing_plans billing
+                where (select count(*) from recruiters recruiter where recruiter.organisation_id = billing.organisation_id) > billing.recruiter_seat_limit
+                """);
+        if (seatOverages > 0) result.add(alert("billing-seat-overage", "HIGH", "Recruiter seat limit exceeded", seatOverages + " organisations are operating above their configured recruiter seat limit.", "Billing"));
+        long missingRenewals = count("select count(*) from organisation_billing_plans where invoice_status in ('TRIAL', 'CURRENT') and renewal_at is null");
+        if (missingRenewals > 0) result.add(alert("billing-renewal-missing", "MEDIUM", "Renewal schedule missing", missingRenewals + " active or trial plans do not have a renewal date.", "Billing"));
         return result;
     }
 

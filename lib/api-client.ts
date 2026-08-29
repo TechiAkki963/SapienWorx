@@ -12,7 +12,7 @@ async function ensureCsrfToken() {
   // one in-flight bootstrap when two controls are submitted together.
   if (!csrfBootstrap) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10_000);
+    const timeout = setTimeout(() => controller.abort(), 8_000);
     csrfBootstrap = fetch(`${apiBaseUrl}/api/auth/csrf`, { credentials: "include", cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to prepare the secure request.");
@@ -38,7 +38,8 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
   const method = (init.method ?? "GET").toUpperCase();
   const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
   const isStateChanging = !["GET", "HEAD", "OPTIONS"].includes(method);
-  const requiresCsrf = isStateChanging && !path.startsWith("/api/auth/request-otp") && !path.startsWith("/api/auth/verify-otp");
+  const publicAuthWrite = ["/api/auth/request-otp", "/api/auth/verify-otp", "/api/auth/verify-recovery-code", "/api/auth/password-reset/"].some((prefix) => path.startsWith(prefix));
+  const requiresCsrf = isStateChanging && !publicAuthWrite;
   const token = requiresCsrf ? await ensureCsrfToken() : undefined;
   const requestController = new AbortController();
   const externalSignal = init.signal;
@@ -49,7 +50,7 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
   const timeout = setTimeout(() => {
     timedOut = true;
     requestController.abort();
-  }, isFormData ? 60_000 : 20_000);
+  }, isFormData ? 60_000 : 8_000);
 
   let response: Response;
   try {
@@ -65,6 +66,10 @@ export async function apiClient<T>(path: string, init: RequestInit = {}): Promis
     });
   } catch (error) {
     if (timedOut) throw new Error("This is taking longer than expected. Please try again.");
+    if (externalSignal?.aborted) throw error;
+    if (error instanceof TypeError) {
+      throw new Error("We could not reach Sapienworx. Your information is safe. Check your connection and try again.");
+    }
     throw error;
   } finally {
     clearTimeout(timeout);

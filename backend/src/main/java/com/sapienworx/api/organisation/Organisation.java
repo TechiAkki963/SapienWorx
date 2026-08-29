@@ -46,6 +46,10 @@ public class Organisation {
     @Column(nullable = false, length = 12)
     private String initials;
 
+    /** Domain claimed by the first verified recruiter for this organisation. */
+    @Column(name = "work_email_domain", length = 253)
+    private String workEmailDomain;
+
     @Builder.Default
     @Column(name = "job_sequence", nullable = false)
     private long jobSequence = 0L;

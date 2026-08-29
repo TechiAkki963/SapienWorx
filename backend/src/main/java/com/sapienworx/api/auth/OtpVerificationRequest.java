@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Pattern;
 public record OtpVerificationRequest(
         @NotBlank String transactionId,
         @NotNull OtpChannel channel,
-        @Pattern(regexp = "\\d{6}", message = "OTP must contain six digits.") String code
+        @Pattern(regexp = "\\d{6}", message = "OTP must contain six digits.") String code,
+        Boolean trustDevice
 ) {
 }

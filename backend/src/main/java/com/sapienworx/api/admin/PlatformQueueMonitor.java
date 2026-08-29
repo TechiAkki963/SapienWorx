@@ -20,6 +20,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class PlatformQueueMonitor {
+    private static final int BACKLOG_WARNING_THRESHOLD = 100;
+
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
 
@@ -54,9 +56,55 @@ public class PlatformQueueMonitor {
     private Map<String, Object> queue(String label, String name, String group) {
         try {
             var state = rabbitTemplate.execute(channel -> channel.queueDeclarePassive(name));
-            return Map.of("label", label, "name", name, "group", group, "messages", state.getMessageCount(), "consumers", state.getConsumerCount(), "available", true);
+            int messages = state.getMessageCount();
+            int consumers = state.getConsumerCount();
+            String health = health(group, messages, consumers, true);
+            return Map.of(
+                    "label", label,
+                    "name", name,
+                    "group", group,
+                    "messages", messages,
+                    "consumers", consumers,
+                    "available", true,
+                    "health", health,
+                    "healthSummary", healthSummary(group, messages, consumers, health),
+                    "requiresAttention", !"HEALTHY".equals(health)
+            );
         } catch (RuntimeException unavailable) {
-            return Map.of("label", label, "name", name, "group", group, "messages", 0, "consumers", 0, "available", false);
+            return Map.of(
+                    "label", label,
+                    "name", name,
+                    "group", group,
+                    "messages", 0,
+                    "consumers", 0,
+                    "available", false,
+                    "health", "UNAVAILABLE",
+                    "healthSummary", "The broker could not confirm that this queue is available.",
+                    "requiresAttention", true
+            );
         }
+    }
+
+    static String health(String group, int messages, int consumers, boolean available) {
+        if (!available) return "UNAVAILABLE";
+        if ("DEAD_LETTER".equals(group)) return messages > 0 ? "DEGRADED" : "HEALTHY";
+        if (messages > 0 && consumers == 0) return "BLOCKED";
+        if (consumers == 0) return "UNSTAFFED";
+        if (messages >= BACKLOG_WARNING_THRESHOLD) return "DEGRADED";
+        return "HEALTHY";
+    }
+
+    static String healthSummary(String group, int messages, int consumers, String health) {
+        return switch (health) {
+            case "UNAVAILABLE" -> "RabbitMQ did not return queue metadata.";
+            case "BLOCKED" -> messages + " messages are waiting with no worker available to process them.";
+            case "UNSTAFFED" -> "No worker is connected. New messages will wait until a consumer returns.";
+            case "DEGRADED" -> "DEAD_LETTER".equals(group)
+                    ? messages + " failed messages require controlled review."
+                    : messages + " messages are waiting; the backlog has crossed the warning threshold.";
+            default -> consumers > 0
+                    ? consumers + " worker" + (consumers == 1 ? " is" : "s are") + " available."
+                    : "No failed messages are waiting.";
+        };
     }
 }

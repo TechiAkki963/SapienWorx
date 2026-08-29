@@ -1,0 +1,31 @@
+package com.sapienworx.api.otp;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+class OtpEmailDispatcherWorkerTest {
+
+    @Test
+    void sendsPasswordResetOtpWithSecuritySpecificCopy() {
+        JavaMailSender sender = mock(JavaMailSender.class);
+        OtpEmailDispatcherWorker worker = new OtpEmailDispatcherWorker(sender);
+        ReflectionTestUtils.setField(worker, "fromAddress", "security@sapienworx.test");
+
+        worker.send(new OtpDispatchPayload(UUID.randomUUID(), "transaction", OtpPurpose.PASSWORD_RESET,
+                OtpChannel.EMAIL, "candidate@example.test", "123456"));
+
+        var captor = org.mockito.ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(sender).send(captor.capture());
+        assertThat(captor.getValue().getSubject()).isEqualTo("Reset your Sapienworx password");
+        assertThat(captor.getValue().getText()).contains("123456").contains("expires in 10 minutes");
+        assertThat(captor.getValue().getTo()).containsExactly("candidate@example.test");
+    }
+}

@@ -45,7 +45,8 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain otpAuthenticationFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/auth/request-otp", "/api/auth/verify-otp")
+                .securityMatcher("/api/auth/request-otp", "/api/auth/verify-otp", "/api/auth/verify-recovery-code",
+                        "/api/auth/password-reset/request", "/api/auth/password-reset/confirm", "/api/auth/organisations")
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
@@ -72,7 +73,8 @@ public class SecurityConfig {
                         // which rejects otherwise valid saved-search and
                         // profile updates with a 403 response.
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                        .ignoringRequestMatchers("/api/auth/request-otp", "/api/auth/verify-otp", "/error"))
+                        .ignoringRequestMatchers("/api/auth/request-otp", "/api/auth/verify-otp", "/api/auth/verify-recovery-code",
+                                "/api/auth/password-reset/request", "/api/auth/password-reset/confirm", "/error"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable())

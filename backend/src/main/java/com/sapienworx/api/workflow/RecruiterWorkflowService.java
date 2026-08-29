@@ -14,8 +14,10 @@ import com.sapienworx.api.job.JobRepository;
 import com.sapienworx.api.recruiter.Recruiter;
 import com.sapienworx.api.recruiter.RecruiterRepository;
 import com.sapienworx.api.admin.PlatformAccessPolicy;
+import com.sapienworx.api.audit.AuditAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -44,6 +46,7 @@ public class RecruiterWorkflowService {
     private final RecruiterEmailDispatchService emailDispatchService;
     private final ObjectMapper objectMapper;
     private final PlatformAccessPolicy platformAccessPolicy;
+    private final JdbcTemplate jdbc;
 
     @Transactional(readOnly = true)
     public List<WorkflowResponses.SavedSearch> savedSearches(UUID recruiterId) {
@@ -52,6 +55,7 @@ public class RecruiterWorkflowService {
     }
 
     @Transactional
+    @AuditAction(action = "RECRUITER_SEARCH_SAVED", resourceType = "SAVED_SEARCH")
     public WorkflowResponses.SavedSearch saveSearch(UUID recruiterId, WorkflowRequests.SavedSearchCreateRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         JsonNode criteria = request.criteria() == null ? objectMapper.createObjectNode() : request.criteria();
@@ -74,6 +78,7 @@ public class RecruiterWorkflowService {
     }
 
     @Transactional
+    @AuditAction(action = "TALENT_POOL_CREATED", resourceType = "TALENT_POOL")
     public WorkflowResponses.TalentPool createTalentPool(UUID recruiterId, WorkflowRequests.TalentPoolCreateRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         Job job = jobFor(recruiter, request.jobId());
@@ -89,6 +94,7 @@ public class RecruiterWorkflowService {
     }
 
     @Transactional
+    @AuditAction(action = "TALENT_POOL_MEMBER_UPDATED", resourceType = "TALENT_POOL", resourceIdArgumentIndex = 1)
     public WorkflowResponses.TalentPoolMember upsertTalentPoolMember(UUID recruiterId, UUID poolId, WorkflowRequests.TalentPoolCandidateRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         TalentPool pool = poolFor(recruiter, poolId);
@@ -118,6 +124,7 @@ public class RecruiterWorkflowService {
     }
 
     @Transactional
+    @AuditAction(action = "RECRUITMENT_CAMPAIGN_CREATED", resourceType = "CAMPAIGN")
     public WorkflowResponses.Campaign createCampaign(UUID recruiterId, WorkflowRequests.CampaignCreateRequest request) {
         platformAccessPolicy.requireCampaignsEnabled();
         Recruiter recruiter = recruiter(recruiterId);
@@ -140,6 +147,7 @@ public class RecruiterWorkflowService {
     }
 
     @Transactional
+    @AuditAction(action = "RECRUITMENT_CAMPAIGN_LAUNCHED", resourceType = "CAMPAIGN", resourceIdArgumentIndex = 1)
     public WorkflowResponses.Campaign launchCampaign(UUID recruiterId, UUID campaignId) {
         platformAccessPolicy.requireCampaignsEnabled();
         RecruitmentCampaign campaign = campaignRepository.findByIdAndRecruiter_Id(campaignId, recruiterId).orElseThrow(() -> notFound("Campaign was not found."));
@@ -166,6 +174,7 @@ public class RecruiterWorkflowService {
     }
 
     @Transactional
+    @AuditAction(action = "INTERVIEW_SCORECARD_SUBMITTED", resourceType = "INTERVIEW")
     public WorkflowResponses.Scorecard submitScorecard(UUID recruiterId, WorkflowRequests.InterviewScorecardRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         var interview = interviewRepository.findById(request.interviewId()).filter(value -> value.getRecruiter().getOrganisation().getId().equals(recruiter.getOrganisation().getId()))
@@ -177,6 +186,7 @@ public class RecruiterWorkflowService {
     }
 
     @Transactional
+    @AuditAction(action = "INTERVIEW_UPDATED", resourceType = "INTERVIEW", resourceIdArgumentIndex = 1)
     public WorkflowResponses.Interview updateInterview(UUID recruiterId, UUID interviewId, WorkflowRequests.InterviewUpdateRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         var interview = interviewRepository.findById(interviewId)
@@ -226,6 +236,32 @@ public class RecruiterWorkflowService {
         OrganisationControl controls = organisationControlRepository.findById(recruiter.getOrganisation().getId())
                 .orElseGet(() -> organisationControlRepository.save(OrganisationControl.builder().organisation(recruiter.getOrganisation()).build()));
         return organisationControlsResponse(recruiter.getOrganisation().getId(), role.getWorkspaceRole(), controls);
+    }
+
+    @Transactional
+    public WorkflowResponses.RecruiterAccountSettings accountSettings(UUID recruiterId) {
+        Recruiter recruiter = recruiter(recruiterId);
+        OrganisationMemberRole role = memberRole(recruiter);
+        OrganisationControl controls = organisationControlRepository.findById(recruiter.getOrganisation().getId())
+                .orElseGet(() -> organisationControlRepository.save(OrganisationControl.builder().organisation(recruiter.getOrganisation()).build()));
+        List<WorkflowResponses.RecruiterAccountSettings> settings = jdbc.query("""
+                select billing.plan_name, billing.recruiter_seat_limit, billing.monthly_job_credit_limit,
+                       billing.invoice_status, billing.renewal_at,
+                       (select count(*) from recruiters member where member.organisation_id = billing.organisation_id) seats_used,
+                       (select count(*) from jobs job where job.organisation_id = billing.organisation_id and job.created_at >= date_trunc('month', now())) jobs_this_month
+                from organisation_billing_plans billing where billing.organisation_id = ?
+                """, (result, row) -> new WorkflowResponses.RecruiterAccountSettings(
+                recruiter.getOrganisation().getId(), recruiter.getOrganisation().getName(), role.getWorkspaceRole(),
+                result.getString("plan_name"), result.getInt("recruiter_seat_limit"), result.getLong("seats_used"),
+                result.getInt("monthly_job_credit_limit"), result.getLong("jobs_this_month"), result.getString("invoice_status"),
+                result.getTimestamp("renewal_at") == null ? null : result.getTimestamp("renewal_at").toInstant(),
+                controls.isSavedSearchAlertsEnabled(), controls.isCampaignsEnabled(), recruiter.getAccountReviewStatus().name(),
+                recruiter.getReviewDueAt(), recruiter.getOrganisation().getWorkEmailDomain()), recruiter.getOrganisation().getId());
+        if (!settings.isEmpty()) return settings.get(0);
+        return new WorkflowResponses.RecruiterAccountSettings(recruiter.getOrganisation().getId(), recruiter.getOrganisation().getName(),
+                role.getWorkspaceRole(), "UNASSIGNED", 0, recruiterRepository.findByOrganisation_Id(recruiter.getOrganisation().getId()).size(),
+                0, 0, "NOT_CONFIGURED", null, controls.isSavedSearchAlertsEnabled(), controls.isCampaignsEnabled(),
+                recruiter.getAccountReviewStatus().name(), recruiter.getReviewDueAt(), recruiter.getOrganisation().getWorkEmailDomain());
     }
 
     @Transactional

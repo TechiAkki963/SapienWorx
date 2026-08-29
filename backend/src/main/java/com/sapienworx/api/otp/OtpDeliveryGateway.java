@@ -5,5 +5,5 @@ package com.sapienworx.api.otp;
  * log the plaintext OTP or raw recipient address.
  */
 public interface OtpDeliveryGateway {
-    void dispatch(String transactionId, OtpChannel channel, String destination, String plainTextOtp);
+    void dispatch(String transactionId, OtpPurpose purpose, OtpChannel channel, String destination, String plainTextOtp);
 }

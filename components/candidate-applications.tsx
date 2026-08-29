@@ -102,12 +102,16 @@ export function CandidateApplications() {
     let current = true;
     setLoading(true);
     setError("");
-    void Promise.all([
+    void Promise.allSettled([
       apiClient<CandidateApplicationsPage>(`/api/candidate/applications?page=${page}`),
       apiClient<CandidateApplicationSummary>("/api/candidate/applications/summary"),
     ])
-      .then(([applicationsResponse, summaryResponse]) => { if (current) { setData(applicationsResponse); setSummary(summaryResponse); } })
-      .catch((reason) => { if (current) setError(reason instanceof Error ? reason.message : "We could not load your applications."); })
+      .then(([applicationsResponse, summaryResponse]) => {
+        if (!current) return;
+        if (applicationsResponse.status === "fulfilled") setData(applicationsResponse.value);
+        else setError(applicationsResponse.reason instanceof Error ? applicationsResponse.reason.message : "We could not load your applications.");
+        if (summaryResponse.status === "fulfilled") setSummary(summaryResponse.value);
+      })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
   }, [page, reloadToken]);

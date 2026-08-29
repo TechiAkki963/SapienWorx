@@ -66,6 +66,14 @@ public class Recruiter {
     @Column(length = 160)
     private String designation;
 
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    @Builder.Default
+    @Column(name = "account_review_status", nullable = false, length = 24)
+    private RecruiterAccountReviewStatus accountReviewStatus = RecruiterAccountReviewStatus.PENDING;
+
+    @Column(name = "review_due_at")
+    private Instant reviewDueAt;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organisation_id", nullable = false)
     private Organisation organisation;

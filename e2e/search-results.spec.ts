@@ -68,3 +68,19 @@ test("uses the supported result-page sizes", async ({ page }) => {
 
   await expect(page).not.toHaveURL(/pageSize=/);
 });
+
+test("compares two to four selected candidates using the same evidence", async ({ page }) => {
+  await page.goto("/search/results?anyKeywords=Typescript%2CNode.js");
+
+  const compare = page.getByRole("button", { name: /Compare/ });
+  await expect(compare).toBeDisabled();
+  await page.getByRole("checkbox", { name: "Select Avish Bansal" }).check();
+  await page.getByRole("checkbox", { name: "Select Shivam Agrawal" }).check();
+  await expect(compare).toBeEnabled();
+  await compare.click();
+
+  await expect(page.getByRole("heading", { name: "Compare shortlisted candidates" })).toBeVisible();
+  await expect(page.getByText("Current role", { exact: true })).toBeVisible();
+  await expect(page.getByText("Recruiter activity", { exact: true })).toBeVisible();
+  await expect(page.getByText("Email and mobile verified").first()).toBeVisible();
+});

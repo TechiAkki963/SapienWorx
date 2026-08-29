@@ -21,11 +21,10 @@ const navigation: Record<Workspace, NavItem[]> = {
   ],
   recruiter: [
     { id: "dashboard", label: "Overview", href: "/recruiter", glyph: "▦" },
-    { id: "jobs", label: "Post Jobs", href: "/recruiter/jobs", glyph: "▤" },
-    { id: "my-jobs", label: "My Jobs", href: "/recruiter/jobs/manage", glyph: "◫" },
-    { id: "candidates", label: "Candidates", href: "/recruiter/pipeline", glyph: "♙" },
     { id: "sourcing", label: "Source candidates", href: "/recruiter/sourcing", glyph: "⌕" },
     { id: "pipeline", label: "Pipeline", href: "/recruiter/pipeline", glyph: "⇄" },
+    { id: "jobs", label: "Post Jobs", href: "/recruiter/jobs", glyph: "▤" },
+    { id: "my-jobs", label: "My Jobs", href: "/recruiter/jobs/manage", glyph: "◫" },
     { id: "workbench", label: "Recruitment Workspace", href: "/recruiter/workbench", glyph: "✦" },
     { id: "interviews", label: "Interviews", href: "/recruiter/workbench#interviews", glyph: "◷" },
     { id: "communications", label: "Communications", href: "/recruiter/communications", glyph: "✉" },
@@ -71,7 +70,7 @@ export function Button({ children, href, variant = "primary", onClick, type = "b
   return <button className={className} onClick={onClick} type={type} disabled={disabled}>{children}</button>;
 }
 
-export function WorkspaceShell({ workspace, active, title, description, actions, children }: { workspace: Workspace; active: string; title?: string; description?: string; actions?: ReactNode; children: ReactNode }) {
+export function WorkspaceShell({ workspace, active, title, description, actions, globalSearch, children }: { workspace: Workspace; active: string; title?: string; description?: string; actions?: ReactNode; globalSearch?: { value: string; onChange: (value: string) => void; placeholder?: string }; children: ReactNode }) {
   const initials = workspace === "candidate" ? "AM" : workspace === "recruiter" ? "JR" : "SA";
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
@@ -93,9 +92,9 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
       <WorkspaceLiveEvents />
       <header className="topbar">
         <Logo />
-        <label className="global-search"><span>⌕</span><input aria-label="Search" placeholder={workspace === "candidate" ? "Search jobs, companies, skills" : "Search"} /></label>
+        <label className="global-search"><span>⌕</span><input aria-label="Search" value={globalSearch?.value} onChange={globalSearch ? (event) => globalSearch.onChange(event.target.value) : undefined} placeholder={globalSearch?.placeholder ?? (workspace === "candidate" ? "Search jobs, companies, skills" : "Search")} /></label>
         <div className="topbar-actions">
-          <button className="icon-button" aria-label="Help">?</button>
+          {workspace === "admin" ? <a className="icon-button" aria-label="Help" href="#help">?</a> : <button className="icon-button" aria-label="Help">?</button>}
           <a className="icon-button notification-dot" aria-label="Notifications" href={workspace === "candidate" ? "/candidate/notifications" : "#notifications"}>♧<LiveEventIndicator workspace={workspace}/></a>
           <span className={`avatar avatar-${workspace}`}>{initials}</span>
         </div>
@@ -106,10 +105,9 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
           {navigation[workspace].map((item) => <a className={item.id === active ? "nav-item nav-item-active" : "nav-item"} href={item.href} key={item.id}><span aria-hidden="true">{item.glyph}</span>{item.label}{workspace === "recruiter" && item.id === "pipeline" && <LivePipelineBadge/>}</a>)}
         </nav>
         <div className="sidebar-bottom">
-          <a className={active === "settings" ? "nav-item nav-item-active" : "nav-item"} href={workspace === "candidate" ? "/candidate/settings" : "#settings"}><span aria-hidden="true">⚙</span>Settings</a>
+          <a className={active === "settings" ? "nav-item nav-item-active" : "nav-item"} href={workspace === "candidate" ? "/candidate/settings" : workspace === "recruiter" ? "/recruiter/settings" : "#settings"}><span aria-hidden="true">⚙</span>Settings</a>
           <button className="nav-item logout-button" type="button" onClick={() => { void signOut(); }} disabled={loggingOut}>{loggingOut ? "Logging out…" : "Log out"}</button>
           {logoutError && <p className="logout-error" role="alert">{logoutError}</p>}
-          <a className="switch-workspace" href={workspace === "candidate" ? "/recruiter" : workspace === "recruiter" ? "/admin" : "/candidate"}>Switch workspace <span>→</span></a>
         </div>
       </aside>
       <main className="workspace-main">

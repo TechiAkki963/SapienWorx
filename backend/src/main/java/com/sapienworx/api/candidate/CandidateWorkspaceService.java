@@ -117,6 +117,7 @@ public class CandidateWorkspaceService {
     }
 
     @Transactional
+    @AuditAction(action = "APPLICATION_SUBMITTED", resourceType = "APPLICATION", candidateIdArgumentIndex = 0, jobIdArgumentIndex = 1)
     public CandidateApplicationResponse apply(UUID candidateId, String publicJobId, CandidateApplicationRequest request) {
         Candidate candidate = candidate(candidateId);
         if (candidate.isDeletionRequested()) {
@@ -180,6 +181,7 @@ public class CandidateWorkspaceService {
     }
 
     @Transactional
+    @AuditAction(action = "JOB_SHARED", resourceType = "JOB", candidateIdArgumentIndex = 0, jobIdArgumentIndex = 1)
     public WorkflowResponses.Referral createReferral(UUID candidateId, String publicJobId) {
         Candidate candidate = candidate(candidateId);
         Job job = jobRepository.findByPublicJobId(publicJobId).filter(value -> value.getStatus() == JobStatus.ACTIVE)
@@ -200,6 +202,7 @@ public class CandidateWorkspaceService {
     }
 
     @Transactional
+    @AuditAction(action = "CANDIDATE_PRIVACY_UPDATED", resourceType = "PRIVACY", resourceIdArgumentIndex = 0, candidateIdArgumentIndex = 0)
     public WorkflowResponses.CandidatePrivacy updatePrivacy(UUID candidateId, WorkflowRequests.CandidatePrivacyUpdateRequest request) {
         Candidate candidate = candidate(candidateId);
         if (request.profileSearchable() != null) {
@@ -214,6 +217,7 @@ public class CandidateWorkspaceService {
     }
 
     @Transactional
+    @AuditAction(action = "CANDIDATE_DATA_EXPORT_REQUESTED", resourceType = "PRIVACY", resourceIdArgumentIndex = 0, candidateIdArgumentIndex = 0)
     public WorkflowResponses.CandidatePrivacy requestDataExport(UUID candidateId) {
         Candidate candidate = candidate(candidateId);
         CandidateContactPreference preference = contactPreferenceRepository.findById(candidateId).orElseGet(() -> CandidateContactPreference.builder().candidate(candidate).build());
@@ -224,6 +228,7 @@ public class CandidateWorkspaceService {
     }
 
     @Transactional
+    @AuditAction(action = "CANDIDATE_DATA_ERASURE_REQUESTED", resourceType = "PRIVACY", resourceIdArgumentIndex = 0, candidateIdArgumentIndex = 0)
     public WorkflowResponses.CandidatePrivacy requestDeletion(UUID candidateId) {
         Candidate candidate = candidate(candidateId);
         candidate.setDeletionRequested(true);

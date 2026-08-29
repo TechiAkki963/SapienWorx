@@ -6,6 +6,7 @@ import java.util.UUID;
 public record OtpDispatchPayload(
         UUID dispatchId,
         String transactionId,
+        OtpPurpose purpose,
         OtpChannel channel,
         String destination,
         String plainTextOtp

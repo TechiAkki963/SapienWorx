@@ -23,3 +23,14 @@ test("builds a sourcing query and opens results in its own workspace", async ({ 
   await expect(page.getByText("AI found", { exact: false })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Avish Bansal" })).toBeVisible();
 });
+
+test("keeps the detailed sourcing form available behind an explicit advanced mode", async ({ page }) => {
+  await page.goto("/recruiter/sourcing");
+
+  await expect(page.getByRole("button", { name: "Basic search" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("heading", { name: "Employment Details" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Advanced filters", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Advanced filters", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("heading", { name: "Employment Details" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Education Details" })).toBeVisible();
+});

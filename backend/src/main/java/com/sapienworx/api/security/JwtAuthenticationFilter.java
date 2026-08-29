@@ -1,6 +1,7 @@
 package com.sapienworx.api.security;
 
 import com.sapienworx.api.admin.PlatformAccessPolicy;
+import com.sapienworx.api.auth.AccountSessionService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -27,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
     private final PlatformAccessPolicy platformAccessPolicy;
+    private final AccountSessionService accountSessionService;
 
     @Override
     protected void doFilterInternal(
@@ -48,6 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.sendError(401, "This session has been revoked. Please sign in again.");
                     return;
                 }
+                if (!accountSessionService.isActive(user.sessionId(), user.userId(), user.role())) {
+                    response.sendError(401, "This device session is no longer active. Please sign in again.");
+                    return;
+                }
+                accountSessionService.touch(user.sessionId());
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         user,
                         null,

@@ -46,6 +46,9 @@ app:
     email:
       from: ${COMMUNICATION_EMAIL_FROM:notifications@sapienworx.com}
       worker-concurrency: ${COMMUNICATION_EMAIL_WORKER_CONCURRENCY:3-10}
+  authentication:
+    email:
+      from: ${AUTHENTICATION_EMAIL_FROM:security@sapienworx.com}
   domain-scoring:
     minimum-total-score: ${DOMAIN_SCORING_MINIMUM_TOTAL_SCORE:15}
     dominance-threshold: ${DOMAIN_SCORING_DOMINANCE_THRESHOLD:0.70}

@@ -3,6 +3,8 @@ package com.sapienworx.api.auth;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sapienworx.api.candidate.Candidate;
+import com.sapienworx.api.audit.AuditLogCommand;
+import com.sapienworx.api.audit.AuditLogWriter;
 import com.sapienworx.api.admin.PlatformAdministrator;
 import com.sapienworx.api.admin.PlatformAdministratorRepository;
 import com.sapienworx.api.admin.PlatformControlsRepository;
@@ -19,10 +21,12 @@ import com.sapienworx.api.organisation.OrganisationRepository;
 import com.sapienworx.api.recruiter.Recruiter;
 import com.sapienworx.api.recruiter.RecruiterRepository;
 import com.sapienworx.api.recruiter.RecruiterType;
+import com.sapienworx.api.recruiter.RecruiterAccountReviewStatus;
 import com.sapienworx.api.security.AuthenticatedUser;
 import com.sapienworx.api.security.PlatformRole;
 import com.sapienworx.api.taxonomy.DomainCategory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -43,6 +48,7 @@ import java.util.UUID;
 /** Coordinates the transient OTP exchange and creates a session only after required proof. */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
     private static final Duration TRANSACTION_TTL = Duration.ofMinutes(10);
     private static final Duration OTP_REQUEST_COOLDOWN = Duration.ofSeconds(30);
@@ -65,18 +71,23 @@ public class AuthenticationService {
     private final PlatformAdministratorRepository platformAdministratorRepository;
     private final PlatformControlsRepository platformControlsRepository;
     private final PlatformAccessPolicy platformAccessPolicy;
+    private final AccountSessionService accountSessionService;
+    private final CandidateRecoveryCodeService recoveryCodes;
+    private final AuditLogWriter auditLogWriter;
 
-    public OtpRequestResponse requestOtp(OtpRequest request) {
-        PendingAuthentication pending = preparePending(request);
+    public OtpRequestResponse requestOtp(OtpRequest request, String trustedDeviceToken) {
+        PendingAuthentication pending = preparePending(request, trustedDeviceToken);
         enforceOtpRequestCooldown(pending);
         String transactionId = UUID.randomUUID().toString();
         save(transactionId, pending);
 
         for (OtpChannel channel : pending.requiredChannels()) {
             String code = otpChallengeStore.issue(transactionId, purposeFor(pending.flow()), channel);
-            otpDeliveryGateway.dispatch(transactionId, channel, destinationFor(pending, channel), code);
+            otpDeliveryGateway.dispatch(transactionId, purposeFor(pending.flow()), channel, destinationFor(pending, channel), code);
         }
-        return new OtpRequestResponse(transactionId, pending.requiredChannels());
+        boolean trusted = pending.flow() == AuthFlow.SIGN_IN && pending.role() == PlatformRole.CANDIDATE
+                && !pending.requiredChannels().contains(OtpChannel.MOBILE);
+        return new OtpRequestResponse(transactionId, pending.requiredChannels(), trusted);
     }
 
     @Transactional
@@ -101,6 +112,24 @@ public class AuthenticationService {
         return new AuthenticatedUser(id, role);
     }
 
+    @Transactional
+    public AuthSessionResponse verifyRecoveryCode(RecoveryCodeVerificationRequest request) {
+        PendingAuthentication pending = find(request.transactionId());
+        if (pending.flow() != AuthFlow.SIGN_IN || pending.role() != PlatformRole.CANDIDATE
+                || pending.existingUserId() == null || !pending.requiredChannels().contains(OtpChannel.MOBILE)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A recovery code cannot be used for this verification request.");
+        }
+        if (!pending.verifiedChannels().contains(OtpChannel.EMAIL)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Verify the email code before using a recovery code.");
+        }
+        if (!recoveryCodes.consume(pending.existingUserId(), request.recoveryCode())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "That recovery code is invalid or has already been used.");
+        }
+        PendingAuthentication verified = pending.withVerified(OtpChannel.MOBILE);
+        save(request.transactionId(), verified);
+        return completionOrPending(request.transactionId(), verified);
+    }
+
     private AuthSessionResponse completionOrPending(String transactionId, PendingAuthentication pending) {
         Set<OtpChannel> remaining = new LinkedHashSet<>(pending.requiredChannels());
         remaining.removeAll(pending.verifiedChannels());
@@ -113,14 +142,31 @@ public class AuthenticationService {
             case RECRUITER_REGISTRATION, CONSULTANT_REGISTRATION -> registerRecruiter(pending);
             case SIGN_IN -> new AuthenticatedUser(pending.existingUserId(), pending.role());
         };
+        if (pending.flow() == AuthFlow.SIGN_IN && pending.role() == PlatformRole.SUPER_ADMIN) {
+            platformAdministratorRepository.findById(user.userId()).ifPresent(administrator -> {
+                administrator.setLastSignedInAt(Instant.now());
+                platformAdministratorRepository.save(administrator);
+            });
+        }
+        recordAccountActivity(user, pending.flow());
         redisTemplate.delete(transactionKey(transactionId));
         return new AuthSessionResponse(true, user.userId(), user.role(), redirectFor(user.role()), Set.of());
     }
 
-    private PendingAuthentication preparePending(OtpRequest request) {
+    private void recordAccountActivity(AuthenticatedUser user, AuthFlow flow) {
+        try {
+            auditLogWriter.record(new AuditLogCommand(user.userId(), flow == AuthFlow.SIGN_IN ? "ACCOUNT_SIGNED_IN" : "ACCOUNT_REGISTERED",
+                    "ACCOUNT", user.userId(), user.role() == PlatformRole.CANDIDATE ? user.userId() : null, null, null));
+        } catch (RuntimeException exception) {
+            // Authentication must remain available if non-critical compliance persistence is temporarily degraded.
+            log.error("Could not record account activity for role {}", user.role(), exception);
+        }
+    }
+
+    private PendingAuthentication preparePending(OtpRequest request, String trustedDeviceToken) {
         if (request.flow() != AuthFlow.SIGN_IN) platformAccessPolicy.requirePublicPlatformAvailable();
         if (request.flow() == AuthFlow.SIGN_IN) {
-            return signInPending(request);
+            return signInPending(request, trustedDeviceToken);
         }
         var platformControls = platformControlsRepository.findById(true).orElse(null);
         if (request.flow() == AuthFlow.CANDIDATE_REGISTRATION && platformControls != null && !platformControls.isCandidateSignupEnabled()) {
@@ -161,16 +207,24 @@ public class AuthenticationService {
         String password = required(request.password(), "A password of at least eight characters is required.");
         String name = recruiterName(request.firstName(), request.lastName());
         String location = recruiterLocation(request.city(), request.state(), request.location());
+        String organisationName = required(request.organisationName(), "Organisation is required.");
+        String workEmailDomain = email.substring(email.indexOf('@') + 1).toLowerCase(Locale.ROOT);
+        organisationRepository.findByNameIgnoreCase(organisationName).ifPresent(organisation -> {
+            if (organisation.getWorkEmailDomain() != null && !organisation.getWorkEmailDomain().equalsIgnoreCase(workEmailDomain)) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "The work email domain does not match this organisation. Choose the matching company or ask an administrator to review it.");
+            }
+        });
         Set<OtpChannel> channels = flow == AuthFlow.CONSULTANT_REGISTRATION
                 ? Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE) : Set.of(OtpChannel.EMAIL);
         return new PendingAuthentication(flow, PlatformRole.RECRUITER, null, name, email, mobile,
                 passwordEncoder.encode(password), false, false,
-                required(request.organisationName(), "Organisation is required."),
+                organisationName,
                 required(request.designation(), "Designation is required."), location,
                 null, null, null, null, null, null, null, List.of(), channels, Set.of());
     }
 
-    private PendingAuthentication signInPending(OtpRequest request) {
+    private PendingAuthentication signInPending(OtpRequest request, String trustedDeviceToken) {
         PlatformRole role = request.role();
         if (role != PlatformRole.CANDIDATE && role != PlatformRole.RECRUITER && role != PlatformRole.SUPER_ADMIN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Select a valid account type.");
@@ -193,9 +247,11 @@ public class AuthenticationService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Complete account verification before signing in.");
             }
             platformAccessPolicy.requireSignInAllowed(new AuthenticatedUser(candidate.getId(), role));
+            Set<OtpChannel> candidateChannels = accountSessionService.isTrustedCandidateDevice(candidate.getId(), trustedDeviceToken)
+                    ? Set.of(OtpChannel.EMAIL) : Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE);
             return new PendingAuthentication(AuthFlow.SIGN_IN, role, candidate.getId(), candidate.getFullName(),
                     candidate.getEmail(), candidate.getMobile(), null, false, false, null, null, null,
-                    null, null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
+                    null, null, null, null, null, null, null, List.of(), candidateChannels, Set.of());
         }
 
         Recruiter recruiter = recruiterRepository.findByOfficialEmail(email).orElseThrow(() -> invalidCredentials());
@@ -235,11 +291,18 @@ public class AuthenticationService {
     }
 
     private AuthenticatedUser registerRecruiter(PendingAuthentication pending) {
+        String workEmailDomain = pending.email().substring(pending.email().indexOf('@') + 1).toLowerCase(Locale.ROOT);
         Organisation organisation = organisationRepository.findByNameIgnoreCase(pending.organisationName())
                 .orElseGet(() -> organisationRepository.save(Organisation.builder()
                         .name(pending.organisationName())
                         .initials(initials(pending.organisationName()))
+                        .workEmailDomain(workEmailDomain)
                         .build()));
+        if (organisation.getWorkEmailDomain() != null && !organisation.getWorkEmailDomain().equalsIgnoreCase(workEmailDomain)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "The work email domain does not match this organisation. Choose the matching company or ask an administrator to review it.");
+        }
+        if (organisation.getWorkEmailDomain() == null) organisation.setWorkEmailDomain(workEmailDomain);
         boolean consultant = pending.flow() == AuthFlow.CONSULTANT_REGISTRATION;
         Recruiter recruiter = Recruiter.builder()
                 .fullName(pending.fullName())
@@ -250,6 +313,8 @@ public class AuthenticationService {
                 .designation(pending.designation())
                 .location(pending.location())
                 .recruiterType(consultant ? RecruiterType.CONSULTANT : RecruiterType.EMPLOYER)
+                .accountReviewStatus(RecruiterAccountReviewStatus.PENDING)
+                .reviewDueAt(java.time.Instant.now().plus(java.time.Duration.ofDays(1)))
                 .emailVerified(true)
                 .mobileVerified(consultant)
                 .build();
@@ -375,4 +440,6 @@ public class AuthenticationService {
                 .limit(6).reduce("", String::concat);
         return initials.isBlank() ? "SWX" : initials;
     }
+
+    public record RecoveryCodeVerificationRequest(String transactionId, String recoveryCode, Boolean trustDevice) { }
 }

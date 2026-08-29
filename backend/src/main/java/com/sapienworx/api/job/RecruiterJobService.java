@@ -5,6 +5,7 @@ import com.sapienworx.api.recruiter.RecruiterRepository;
 import com.sapienworx.api.taxonomy.DomainCategory;
 import com.sapienworx.api.admin.PlatformAccessPolicy;
 import com.sapienworx.api.admin.OrganisationBillingPolicy;
+import com.sapienworx.api.audit.AuditAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ public class RecruiterJobService {
     private final OrganisationBillingPolicy organisationBillingPolicy;
 
     @Transactional
+    @AuditAction(action = "RECRUITER_JOB_DRAFT_CREATED", resourceType = "JOB")
     public JobResponse createDraft(UUID recruiterId, JobUpsertRequest request) {
         Recruiter recruiter = recruiter(recruiterId);
         platformAccessPolicy.requireJobCreationAllowed(recruiter.getOrganisation().getId());
@@ -39,12 +41,14 @@ public class RecruiterJobService {
     }
 
     @Transactional
+    @AuditAction(action = "RECRUITER_JOB_UPDATED", resourceType = "JOB", jobIdArgumentIndex = 1)
     public JobResponse update(UUID recruiterId, String publicJobId, JobUpsertRequest request) {
         Job job = jobForRecruiter(recruiterId, publicJobId);
         return JobResponse.from(apply(job, request));
     }
 
     @Transactional
+    @AuditAction(action = "RECRUITER_JOB_PUBLISHED", resourceType = "JOB", jobIdArgumentIndex = 1)
     public JobResponse publish(UUID recruiterId, String publicJobId) {
         Job job = jobForRecruiter(recruiterId, publicJobId);
         if (job.getStatus() == JobStatus.ARCHIVED || job.getStatus() == JobStatus.CLOSED) {
@@ -56,6 +60,7 @@ public class RecruiterJobService {
     }
 
     @Transactional
+    @AuditAction(action = "RECRUITER_JOB_DUPLICATED", resourceType = "JOB", jobIdArgumentIndex = 1)
     public JobResponse duplicate(UUID recruiterId, String publicJobId) {
         Job source = jobForRecruiter(recruiterId, publicJobId);
         platformAccessPolicy.requireJobCreationAllowed(source.getOrganisation().getId());
@@ -78,6 +83,7 @@ public class RecruiterJobService {
     }
 
     @Transactional
+    @AuditAction(action = "RECRUITER_JOB_STATUS_CHANGED", resourceType = "JOB", jobIdArgumentIndex = 1)
     public JobResponse changeStatus(UUID recruiterId, String publicJobId, JobStatus status) {
         Job job = jobForRecruiter(recruiterId, publicJobId);
         job.setStatus(status);
@@ -100,6 +106,7 @@ public class RecruiterJobService {
     }
 
     @Transactional(readOnly = true)
+    @AuditAction(action = "RECRUITER_JOB_SHARE_OPENED", resourceType = "JOB", jobIdArgumentIndex = 1)
     public JobShareResponse share(UUID recruiterId, String publicJobId) {
         Job job = jobForRecruiter(recruiterId, publicJobId);
         if (job.getStatus() != JobStatus.ACTIVE) throw new ResponseStatusException(HttpStatus.CONFLICT, "Publish the job before sharing it.");

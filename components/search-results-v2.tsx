@@ -519,6 +519,7 @@ export function SearchResultsV2() {
   const [hideProfiles, setHideProfiles] = useState(false);
   const [saveState, setSaveState] = useState("");
   const [outreachOpen, setOutreachOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [contactMessage, setContactMessage] = useState("");
   const [livePage, setLivePage] = useState<SourcingPage | null>(null);
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
@@ -600,6 +601,7 @@ export function SearchResultsV2() {
   const allSelected =
     profiles.length > 0 &&
     profiles.every((profile) => selected.includes(profile.id));
+  const selectedProfiles = profiles.filter((profile) => selected.includes(profile.id));
   const totalProfiles =
     livePage?.totalElements ?? (fallbackHasNoMatches ? 0 : 638);
   const persist = (
@@ -1151,6 +1153,7 @@ export function SearchResultsV2() {
               </label>
               <button type="button">▣ &nbsp; Add to　⌄</button>
               <button type="button">◷ &nbsp; Set reminder　⌄</button>
+              <button type="button" className="talent-compare-button" disabled={selectedProfiles.length < 2 || selectedProfiles.length > 4} onClick={() => setCompareOpen(true)}>⇄ &nbsp; Compare {selectedProfiles.length > 0 ? `(${selectedProfiles.length})` : ""}</button>
               <p>
                 Want to reach candidates using bulk mails?{" "}
                 <button type="button" onClick={openOutreach}>
@@ -1255,6 +1258,25 @@ export function SearchResultsV2() {
           </main>
         </div>
       </div>
+      {compareOpen && (
+        <section className="candidate-compare-modal" role="dialog" aria-modal="true" aria-labelledby="compare-title">
+          <div className="candidate-compare-sheet">
+            <header><div><span className="eyebrow">Decision support</span><h2 id="compare-title">Compare shortlisted candidates</h2><p>Review the same evidence side by side. Open a profile for the complete, auditable record.</p></div><button type="button" aria-label="Close comparison" onClick={() => setCompareOpen(false)}>×</button></header>
+            <div className="candidate-compare-table" style={{ gridTemplateColumns: `minmax(150px, .7fr) repeat(${selectedProfiles.length}, minmax(210px, 1fr))` }}>
+              <b>Candidate</b>{selectedProfiles.map((profile) => <div className="candidate-compare-person" key={`name-${profile.id}`}><span>{profile.name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2)}</span><strong>{profile.name}</strong><a href={profileHref(profile.id)}>Open profile →</a></div>)}
+              <b>Current role</b>{selectedProfiles.map((profile) => <p key={`current-${profile.id}`}>{profile.current}</p>)}
+              <b>Experience</b>{selectedProfiles.map((profile) => <p key={`experience-${profile.id}`}>{profile.experience}</p>)}
+              <b>Salary</b>{selectedProfiles.map((profile) => <p key={`salary-${profile.id}`}>{profile.salary}</p>)}
+              <b>Location</b>{selectedProfiles.map((profile) => <p key={`location-${profile.id}`}>{profile.location}</p>)}
+              <b>Education</b>{selectedProfiles.map((profile) => <p key={`education-${profile.id}`}>{profile.education}</p>)}
+              <b>Key skills</b>{selectedProfiles.map((profile) => <div className="candidate-compare-skills" key={`skills-${profile.id}`}>{profile.skills.slice(0, 6).map((skill) => <span key={skill}>{skill}</span>)}</div>)}
+              <b>Recruiter activity</b>{selectedProfiles.map((profile) => <p key={`activity-${profile.id}`}>{profile.views} views · {profile.downloads} CV downloads</p>)}
+              <b>Verification</b>{selectedProfiles.map((profile) => <p key={`verification-${profile.id}`}>{profile.emailVerified && profile.mobileVerified ? "Email and mobile verified" : "Verification incomplete"}</p>)}
+            </div>
+            <footer><span>Comparison is limited to four candidates so the evidence remains readable.</span><Button variant="secondary" onClick={() => setCompareOpen(false)}>Close comparison</Button></footer>
+          </div>
+        </section>
+      )}
       {outreachOpen && (
         <section
           className="talent-outreach-modal"

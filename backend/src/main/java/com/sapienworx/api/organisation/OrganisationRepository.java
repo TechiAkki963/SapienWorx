@@ -7,11 +7,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 public interface OrganisationRepository extends JpaRepository<Organisation, UUID> {
 
     Optional<Organisation> findByNameIgnoreCase(String name);
+    List<Organisation> findTop8ByNameContainingIgnoreCaseOrderByName(String name);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select organisation from Organisation organisation where organisation.id = :id")

@@ -34,13 +34,13 @@ public class JwtTokenService {
 
     public String issue(AuthenticatedUser user) {
         Instant now = Instant.now();
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(user.userId().toString())
                 .claim("role", user.role().name())
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plus(ttl)))
-                .signWith(signingKey)
-                .compact();
+                .expiration(Date.from(now.plus(ttl)));
+        if (user.sessionId() != null) builder.claim("sid", user.sessionId().toString());
+        return builder.signWith(signingKey).compact();
     }
 
     public Optional<AuthenticatedUser> verify(String token) {
@@ -50,9 +50,11 @@ public class JwtTokenService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
+            String sessionId = claims.get("sid", String.class);
             return Optional.of(new AuthenticatedUser(
                     UUID.fromString(claims.getSubject()),
-                    PlatformRole.valueOf(claims.get("role", String.class))
+                    PlatformRole.valueOf(claims.get("role", String.class)),
+                    sessionId == null ? null : UUID.fromString(sessionId)
             ));
         } catch (RuntimeException invalidToken) {
             return Optional.empty();

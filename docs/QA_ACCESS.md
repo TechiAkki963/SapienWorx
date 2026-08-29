@@ -43,6 +43,24 @@ The normal 30-second request cooldown and 10-minute transaction expiry remain
 in force. `999999` does not bypass credentials, role selection, transaction
 creation, required OTP channels, or rate limits.
 
+## Account security walkthrough
+
+- Candidate signup always requires both email and mobile OTPs.
+- On candidate sign-in, selecting **Trust this personal device for 30 days**
+  stores an HttpOnly device token. A recognised, unrevoked device uses the
+  email OTP only; new or revoked devices still require both channels.
+- Candidate **Settings → Devices and sessions** can generate eight single-use
+  recovery codes. A recovery code replaces only the mobile OTP and can be used
+  only after the email OTP for that sign-in transaction is verified.
+- Candidate and recruiter Settings list active sessions and can revoke one
+  device or every other device. Password reset revokes every existing session.
+- **Forgot password?** sends a reset OTP to the verified account email through
+  `auth.otp.email.queue`. In QA, confirm it with `999999` and set a password of
+  at least eight characters.
+- Recruiter company lookup checks the selected organisation against the work
+  email domain before sending an OTP. Verified signup opens the workspace
+  immediately and records a company review due within one business day.
+
 ## RabbitMQ Management UI
 
 For local Compose, open <http://localhost:15672> and sign in with:

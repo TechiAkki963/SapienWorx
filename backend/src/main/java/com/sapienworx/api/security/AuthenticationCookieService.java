@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationCookieService {
 
+    public static final String TRUSTED_DEVICE_COOKIE = "SWX_TRUSTED_DEVICE";
+
     private final JwtTokenService jwtTokenService;
     private final boolean secureCookie;
 
@@ -31,6 +33,26 @@ public class AuthenticationCookieService {
 
     public ResponseCookie clear() {
         return ResponseCookie.from(JwtAuthenticationFilter.AUTH_COOKIE, "")
+                .httpOnly(true)
+                .secure(secureCookie)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0)
+                .build();
+    }
+
+    public ResponseCookie trustedDevice(String token) {
+        return ResponseCookie.from(TRUSTED_DEVICE_COOKIE, token)
+                .httpOnly(true)
+                .secure(secureCookie)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(java.time.Duration.ofDays(30))
+                .build();
+    }
+
+    public ResponseCookie clearTrustedDevice() {
+        return ResponseCookie.from(TRUSTED_DEVICE_COOKIE, "")
                 .httpOnly(true)
                 .secure(secureCookie)
                 .sameSite("Strict")

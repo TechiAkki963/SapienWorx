@@ -34,4 +34,9 @@ public final class WorkflowResponses {
     public record OrganisationControls(OrganisationWorkspaceRole currentUserRole, int candidateRetentionDays, int auditRetentionDays,
                                        boolean savedSearchAlertsEnabled, boolean campaignsEnabled, Instant updatedAt, List<OrganisationMember> members) { }
     public record OrganisationMember(UUID recruiterId, String fullName, String officialEmail, OrganisationWorkspaceRole workspaceRole) { }
+    public record RecruiterAccountSettings(UUID organisationId, String organisationName, OrganisationWorkspaceRole currentUserRole,
+                                           String planName, int recruiterSeatLimit, long seatsUsed, int monthlyJobCreditLimit,
+                                           long jobsThisMonth, String invoiceStatus, Instant renewalAt,
+                                           boolean savedSearchAlertsEnabled, boolean campaignsEnabled,
+                                           String accountReviewStatus, Instant reviewDueAt, String workEmailDomain) { }
 }
