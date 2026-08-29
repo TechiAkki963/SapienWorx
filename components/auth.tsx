@@ -226,7 +226,7 @@ function CandidateRegistration({ jobId, referralCode, shareSource }: { jobId?: s
   const [identity, setIdentity] = useState<CandidateIdentity>({ firstName: "", lastName: "", email: "", mobile: "" });
   const [careerStage, setCareerStage] = useState<CandidateCareerStage | "">("");
   const [domainCategory, setDomainCategory] = useState<CandidateDomain | "">("");
-  const [interestedDomains, setInterestedDomains] = useState<string[]>([]);
+  const [interestedDomains, setInterestedDomains] = useState<string[]>(() => [...interestedDomainOptions]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

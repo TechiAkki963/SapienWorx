@@ -1,5 +1,5 @@
 import { PublicLanding } from "../components/public-site";
-import { getPublicJobs, type ApiJob } from "../lib/backend";
+import { getPublicJobs, getPublicKnowledgePosts, type ApiJob } from "../lib/backend";
 
 function publicJob(job: ApiJob) {
   return { id: job.jobId, company: job.organisationName, companySlug: job.organisationName.toLowerCase().replace(/[^a-z0-9]+/g, "-"), title: job.title,
@@ -7,6 +7,6 @@ function publicJob(job: ApiJob) {
 }
 
 export default async function HomePage() {
-  const jobs = await getPublicJobs();
-  return <PublicLanding jobs={jobs?.content.map(publicJob)} />;
+  const [jobs, articles] = await Promise.all([getPublicJobs(), getPublicKnowledgePosts()]);
+  return <PublicLanding jobs={jobs?.content.map(publicJob)} articles={articles ?? undefined} />;
 }

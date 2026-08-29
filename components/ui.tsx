@@ -37,6 +37,7 @@ const navigation: Record<Workspace, NavItem[]> = {
     { id: "operations", label: "Service operations", href: "/admin#operations", glyph: "◌" },
     { id: "support", label: "Support & privacy", href: "/admin#support", glyph: "♡" },
     { id: "assurance", label: "Security & reports", href: "/admin#assurance", glyph: "▤" },
+    { id: "knowledge", label: "Knowledge Hub", href: "/admin#knowledge", glyph: "✎" },
     { id: "advanced", label: "Advanced controls", href: "/admin#advanced", glyph: "✦" },
   ],
 };

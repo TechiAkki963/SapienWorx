@@ -86,7 +86,7 @@ public class SecurityConfig {
                         // the continuation avoids a false access denial after
                         // the response has already begun streaming.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
-                        .requestMatchers("/actuator/health", "/error", "/api/auth/**", "/api/public/jobs/**").permitAll()
+                        .requestMatchers("/actuator/health", "/error", "/api/auth/**", "/api/public/jobs/**", "/api/public/knowledge-posts/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/events/**").authenticated()
                         .requestMatchers("/api/recruiter/**").hasAnyRole("RECRUITER", "ADMIN", "SUPER_ADMIN")

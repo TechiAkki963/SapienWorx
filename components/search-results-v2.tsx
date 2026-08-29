@@ -658,7 +658,7 @@ export function SearchResultsV2() {
     setPageSize(nextSize);
     setPageIndex(0);
     setSelected([]);
-    persist(activeCriteria, 0, nextSize);
+    persist(activeCriteria, 0, nextSize, sortBy);
   };
   const changeSort = (nextSort: "relevance" | "updated") => {
     sortRef.current = nextSort;

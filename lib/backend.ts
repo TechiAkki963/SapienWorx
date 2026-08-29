@@ -23,6 +23,21 @@ export type RecruiterDashboardSnapshot = {
   upcomingInterviews: Array<{ candidateName: string; jobTitle: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number }>;
 };
 
+export type PublicKnowledgePost = {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+  body: string;
+  heroTone: "navy" | "blue" | "purple" | "sage" | "terracotta";
+  featured: boolean;
+  status: "PUBLISHED";
+  authorName: string;
+  readingMinutes: number;
+  publishedAt: string;
+};
+
 const localDemoJobs: Record<string, ApiJob> = {
   SWX_NX_001: {
     jobId: "SWX_NX_001",
@@ -62,6 +77,13 @@ async function serverFetch<T>(path: string, authenticated = false): Promise<T | 
 export async function getPublicJobs(keywords = "") {
   return serverFetch<ApiPage<ApiJob>>(`/api/public/jobs${keywords ? `?keywords=${encodeURIComponent(keywords)}` : ""}`);
 }
+
+export async function getPublicKnowledgePosts() {
+  return serverFetch<PublicKnowledgePost[]>("/api/public/knowledge-posts");
+}
+
+export const getPublicKnowledgePost = cache(async (slug: string) =>
+  serverFetch<PublicKnowledgePost>(`/api/public/knowledge-posts/${encodeURIComponent(slug)}`));
 
 export const getPublicJob = cache(async (jobId: string) => {
   const liveJob = await serverFetch<ApiJob>(`/api/public/jobs/${encodeURIComponent(jobId)}`);

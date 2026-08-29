@@ -14,6 +14,7 @@ type Job = { id: string; publicJobId: string; title: string; organisation: strin
 type Ticket = { id: string; subjectType: string; subjectLabel: string; summary: string; priority: string; status: string; ownerAdminId: string; owner: string; createdAt: string; dueAt: string; updatedAt: string; resolvedAt: string };
 type PrivacyCase = { candidateId: string; candidate: string; type: "EXPORT" | "ERASURE"; requestedAt: string; status: string; reviewedAt: string; reviewedBy: string; reviewNote: string };
 type Activity = { id: string; action: string; resourceType: string; resourceId: string; jobId: string; occurredAt: string; actorId: string; actor: string };
+type KnowledgePost = { id: string; slug: string; title: string; category: string; excerpt: string; body: string; heroTone: "navy" | "blue" | "purple" | "sage" | "terracotta"; featured: boolean; status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; authorName: string; lastEditorialNote: string; readingMinutes: number; createdAt: string; updatedAt: string; publishedAt: string };
 type UserActivityEvent = { id: string; action: string; label: string; description: string; category: string; risk: "LOW" | "MEDIUM" | "HIGH"; occurredAt: string; actor: string; actorRelationship: string; resourceType: string; jobId: string };
 type UserActivityInvestigation = {
   investigation: { id: string; purpose: string; reason: string; openedAt: string; accessExpiresAt: string; rangeDays: number };
@@ -26,7 +27,7 @@ type UserActivityInvestigation = {
 type Dashboard = { candidates: number; recruiters: number; organisations: number; jobs: number; applications: number; auditEvents: number; activeJobs: number; openSupportTickets: number; privacyRequests: number; deadLetters: number; attentionQueues: number; blockedQueues: number; platformHealth: "HEALTHY" | "ATTENTION" | "CRITICAL" };
 type Tab = string;
 type ControlKey = "maintenanceMode" | "candidateSignupEnabled" | "recruiterSignupEnabled" | "cvParsingEnabled" | "campaignsEnabled";
-type MasterState = { dashboard: Dashboard; controls: Controls; users: User[]; organisations: Organisation[]; jobs: Job[]; queues: Queue[]; activity: Activity[]; tickets: Ticket[]; privacyCases: PrivacyCase[]; quality: Record<string, unknown>; security: Record<string, unknown>; governance: MasterGovernanceState };
+type MasterState = { dashboard: Dashboard; controls: Controls; users: User[]; organisations: Organisation[]; jobs: Job[]; queues: Queue[]; activity: Activity[]; tickets: Ticket[]; privacyCases: PrivacyCase[]; quality: Record<string, unknown>; security: Record<string, unknown>; governance: MasterGovernanceState; knowledgePosts: KnowledgePost[] };
 
 const normaliseQueue = (queue: Queue): Queue => {
   const health = queue.health ?? (!queue.available ? "UNAVAILABLE" : queue.messages > 0 && queue.consumers === 0 ? "BLOCKED" : queue.group === "DEAD_LETTER" && queue.messages > 0 ? "DEGRADED" : "HEALTHY");
@@ -45,9 +46,9 @@ const normaliseDashboard = (dashboard: Dashboard, queues: Queue[]): Dashboard =>
   return { ...dashboard, applications: dashboard.applications ?? 0, attentionQueues, blockedQueues, platformHealth };
 };
 
-const labels: Record<Tab, string> = { overview: "Platform overview", access: "Users & access", governance: "Organisations & jobs", operations: "Service operations", support: "Support & privacy", assurance: "Security & reports", advanced: "Advanced controls", notifications: "Notifications", settings: "Settings", help: "Help centre", search: "Platform search" };
-const hashTabs: Record<string, Tab> = { "#users": "access", "#governance": "governance", "#operations": "operations", "#support": "support", "#assurance": "assurance", "#advanced": "advanced", "#notifications": "notifications", "#settings": "settings", "#help": "help", "#search": "search" };
-const activeNavigation: Record<Tab, string> = { overview: "dashboard", access: "users", governance: "organisations", operations: "operations", support: "support", assurance: "assurance", advanced: "advanced", notifications: "notifications", settings: "settings", help: "help", search: "search" };
+const labels: Record<Tab, string> = { overview: "Platform overview", access: "Users & access", governance: "Organisations & jobs", operations: "Service operations", support: "Support & privacy", assurance: "Security & reports", knowledge: "Knowledge Hub", advanced: "Advanced controls", notifications: "Notifications", settings: "Settings", help: "Help centre", search: "Platform search" };
+const hashTabs: Record<string, Tab> = { "#users": "access", "#governance": "governance", "#operations": "operations", "#support": "support", "#assurance": "assurance", "#knowledge": "knowledge", "#advanced": "advanced", "#notifications": "notifications", "#settings": "settings", "#help": "help", "#search": "search" };
+const activeNavigation: Record<Tab, string> = { overview: "dashboard", access: "users", governance: "organisations", operations: "operations", support: "support", assurance: "assurance", knowledge: "knowledge", advanced: "advanced", notifications: "notifications", settings: "settings", help: "help", search: "search" };
 const controlsHelp: Record<ControlKey, [string, string]> = {
   maintenanceMode: ["Maintenance mode", "Pauses candidate, recruiter, and public job API access while Master Access remains available."],
   candidateSignupEnabled: ["Candidate sign-up", "Allows candidate registration and OTP verification."],
@@ -64,6 +65,7 @@ const sectionDescription = (tab: Tab) => ({
   operations: "Truthful queue readiness, worker coverage, and controlled recovery.",
   support: "Owned service cases and evidence-led privacy operations.",
   assurance: "Readable security posture, data quality, and immutable activity.",
+  knowledge: "Draft, review, publish, and archive practical guidance shown on the public Knowledge Hub.",
   advanced: "Role-aware approvals, releases, integrations, billing, and policy.",
   notifications: "Operational signals that still need acknowledgement or resolution.",
   settings: "Master identity, active sessions, and control-plane preferences.",
@@ -110,14 +112,14 @@ export function MasterAdminConsole() {
   const load = async () => {
     try {
       setLoading(true); setError("");
-      const [dashboard, controls, users, organisations, jobs, queues, activity, tickets, privacyCases, quality, security, governance] = await Promise.all([
+      const [dashboard, controls, users, organisations, jobs, queues, activity, tickets, privacyCases, quality, security, governance, knowledgePosts] = await Promise.all([
         apiClient<Dashboard>("/api/admin/master/dashboard"), apiClient<Controls>("/api/admin/master/controls"), apiClient<User[]>("/api/admin/master/users"),
         apiClient<Organisation[]>("/api/admin/master/organisations"), apiClient<Job[]>("/api/admin/master/jobs"), apiClient<Queue[]>("/api/admin/master/queues"),
         apiClient<Activity[]>("/api/admin/master/activity"), apiClient<Ticket[]>("/api/admin/master/support-tickets"), apiClient<PrivacyCase[]>("/api/admin/master/privacy-cases"),
-        apiClient<Record<string, unknown>>("/api/admin/master/data-quality"), apiClient<Record<string, unknown>>("/api/admin/master/security"), apiClient<MasterGovernanceState>("/api/admin/governance"),
+        apiClient<Record<string, unknown>>("/api/admin/master/data-quality"), apiClient<Record<string, unknown>>("/api/admin/master/security"), apiClient<MasterGovernanceState>("/api/admin/governance"), apiClient<KnowledgePost[]>("/api/admin/master/knowledge-posts"),
       ]);
       const normalisedQueues = queues.map(normaliseQueue);
-      setState({ dashboard: normaliseDashboard(dashboard, normalisedQueues), controls, users, organisations, jobs, queues: normalisedQueues, activity, tickets, privacyCases, quality, security, governance });
+      setState({ dashboard: normaliseDashboard(dashboard, normalisedQueues), controls, users, organisations, jobs, queues: normalisedQueues, activity, tickets, privacyCases, quality, security, governance, knowledgePosts });
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Master access is required."); }
     finally { setLoading(false); }
   };
@@ -156,6 +158,7 @@ export function MasterAdminConsole() {
     if (tab === "operations") content = <Operations queues={state.queues} onRetry={() => { if (window.confirm("Replay one CV parser dead-letter message? Only a safely decoded message will be replayed.")) void mutate("/api/admin/master/queues/cv-dlq/retry-one", { method: "POST" }, "CV parser replay attempted."); }} />;
     if (tab === "support") content = <Support tickets={state.tickets} privacyCases={state.privacyCases} currentAdminId={state.governance.currentAdmin.id} ticket={ticket} setTicket={setTicket} onCreate={() => { if (!ticket.subjectLabel.trim() || !ticket.summary.trim()) { setError("Enter a subject and support summary."); return; } void mutate("/api/admin/master/support-tickets", { method: "POST", body: JSON.stringify(ticket) }, "Support ticket created."); setTicket({ subjectType: "CANDIDATE", subjectLabel: "", summary: "", details: "", priority: "NORMAL" }); }} onTicket={(id, update) => void mutate(`/api/admin/master/support-tickets/${id}`, { method: "PATCH", body: JSON.stringify(update) }, "Support ticket updated.")} onPrivacy={(candidateId, type, status, reviewNote) => void mutate(`/api/admin/master/privacy-cases/${candidateId}/${type}`, { method: "PATCH", body: JSON.stringify({ status, reviewNote }) }, "Privacy case updated.")} />;
     if (tab === "assurance") content = <Assurance activity={state.activity.filter((item) => `${item.action} ${item.resourceType} ${item.resourceId} ${item.jobId} ${item.actor}`.toLowerCase().includes(filter.toLowerCase()))} quality={state.quality} security={state.security} />;
+    if (tab === "knowledge") content = <KnowledgeHubAdmin posts={state.knowledgePosts.filter((post) => `${post.title} ${post.category} ${post.status} ${post.authorName}`.toLowerCase().includes(filter.toLowerCase()))} onRefresh={load} />;
     if (tab === "advanced") content = <MasterGovernancePanel data={state.governance} onRefresh={load} />;
     if (tab === "notifications") content = <Notifications state={state} onOpen={openTab} />;
     if (tab === "settings") content = <AdminSettings state={state} onOpen={openTab} />;
@@ -220,6 +223,52 @@ function Access({ users, onControl }: { users: User[]; onControl: (type: string,
 function UserActivityReview({ data, category, risk, visibleEvents, onCategory, onRisk, onClose }: { data: UserActivityInvestigation; category: string; risk: string; visibleEvents: UserActivityEvent[]; onCategory: (value: string) => void; onRisk: (value: string) => void; onClose: () => void }) {
   const categories = Object.keys(data.summary.categoryCounts);
   return <section className="panel master-activity-review" aria-label="User activity investigation"><header className="master-investigation-header"><div><span className="eyebrow">User Activity &amp; Investigations</span><h2>{data.subject.name}</h2><p>{data.subject.maskedEmail} · {data.subject.organisation} · {pretty(data.subject.type)}</p></div><div className="master-investigation-access"><Badge tone="amber">Purpose: {pretty(data.investigation.purpose)}</Badge><small>Access closes {date(data.investigation.accessExpiresAt)}</small><button className="master-link" onClick={onClose}>Close review</button></div></header><div className="master-privacy-callout protected"><b>Protected, content-free timeline</b><p>{data.privacyNotice}</p><small>Reason: {data.investigation.reason} · Evidence ID {data.investigation.id}</small></div><div className="master-investigation-stats"><div><span>Events</span><strong>{data.summary.events}</strong><small>Last {data.investigation.rangeDays} days</small></div><div><span>Elevated signals</span><strong>{data.summary.elevatedSignals}</strong><small>Review context before acting</small></div><div><span>Active sessions</span><strong>{data.summary.activeSessions}</strong><small>Last seen {date(data.summary.lastSeenAt)}</small></div><div><span>Applications</span><strong>{data.summary.applications}</strong><small>Candidate or owned jobs</small></div></div><div className="master-activity-layout"><section className="master-activity-timeline"><div className="master-list-tools master-activity-tools"><label><span>Event category</span><select aria-label="Filter activity category" value={category} onChange={(event) => onCategory(event.target.value)}><option value="ALL">All categories</option>{categories.map((item) => <option value={item} key={item}>{pretty(item)} ({data.summary.categoryCounts[item]})</option>)}</select></label><label><span>Signal level</span><select aria-label="Filter activity risk" value={risk} onChange={(event) => onRisk(event.target.value)}><option value="ALL">All signals</option><option value="HIGH">Elevated</option><option value="MEDIUM">Review</option><option value="LOW">Routine</option></select></label></div><div className="master-timeline-list">{visibleEvents.map((event) => <article key={event.id}><span className={`master-timeline-dot risk-${event.risk.toLowerCase()}`} aria-hidden="true"/><div><div className="master-row-title"><b>{event.label}</b><Badge tone={event.risk === "HIGH" ? "rose" : event.risk === "MEDIUM" ? "amber" : "neutral"}>{event.risk === "HIGH" ? "Elevated" : event.risk === "MEDIUM" ? "Review" : "Routine"}</Badge><Badge tone="blue">{pretty(event.category)}</Badge></div><p>{event.description}</p><small>{date(event.occurredAt)} · {event.actorRelationship}: {event.actor}{event.jobId ? ` · Job ${event.jobId}` : ""}</small></div></article>)}{!visibleEvents.length && <div className="workflow-empty"><span>◌</span><p>No activity matches these filters in the authorised time range.</p></div>}</div></section><aside className="master-session-panel"><h3>Known sessions</h3><p>Device labels and coarse location hints only—never raw IP addresses.</p>{data.sessions.map((session) => <article key={session.id}><div className="master-row-title"><b>{session.deviceName}</b>{session.active && <Badge tone="green">Active</Badge>}{session.trusted && <Badge tone="purple">Trusted</Badge>}</div><p>{session.locationHint}</p><small>Last active {date(session.lastSeenAt)} · expires {date(session.expiresAt)}</small></article>)}{!data.sessions.length && <div className="workflow-empty compact"><span>◷</span><p>No account sessions were recorded.</p></div>}</aside></div></section>;
+}
+
+type KnowledgeForm = { title: string; slug: string; category: string; excerpt: string; body: string; heroTone: KnowledgePost["heroTone"]; featured: boolean };
+const emptyKnowledgeForm: KnowledgeForm = { title: "", slug: "", category: "Career growth", excerpt: "", body: "", heroTone: "navy", featured: false };
+
+function KnowledgeHubAdmin({ posts, onRefresh }: { posts: KnowledgePost[]; onRefresh: () => Promise<void> }) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<KnowledgeForm>(emptyKnowledgeForm);
+  const [status, setStatus] = useState("ALL");
+  const [editorialNote, setEditorialNote] = useState("");
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [saving, setSaving] = useState(false);
+  const visiblePosts = posts.filter((post) => status === "ALL" || post.status === status);
+  const readMinutes = Math.max(1, Math.ceil(form.body.trim().split(/\s+/).filter(Boolean).length / 220));
+  const edit = (post: KnowledgePost) => {
+    setEditingId(post.id);
+    setForm({ title: post.title, slug: post.slug, category: post.category, excerpt: post.excerpt, body: post.body, heroTone: post.heroTone, featured: post.featured });
+    setEditorialNote(post.lastEditorialNote ?? ""); setError(""); setNotice("");
+  };
+  const save = async () => {
+    try {
+      setSaving(true); setError(""); setNotice("");
+      const post = await apiClient<KnowledgePost>(editingId ? `/api/admin/master/knowledge-posts/${editingId}` : "/api/admin/master/knowledge-posts", {
+        method: editingId ? "PUT" : "POST", body: JSON.stringify(form),
+      });
+      setEditingId(post.id); setForm({ title: post.title, slug: post.slug, category: post.category, excerpt: post.excerpt, body: post.body, heroTone: post.heroTone, featured: post.featured });
+      setNotice(editingId ? "Draft changes saved." : "Article draft created."); await onRefresh();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "The article could not be saved."); }
+    finally { setSaving(false); }
+  };
+  const decide = async (post: KnowledgePost, action: "publish" | "archive") => {
+    if (editorialNote.trim().length < 10) { setError("Add an editorial note of at least 10 characters before changing publication status."); return; }
+    try {
+      setSaving(true); setError(""); setNotice("");
+      await apiClient<KnowledgePost>(`/api/admin/master/knowledge-posts/${post.id}/${action}`, { method: "POST", body: JSON.stringify({ reason: editorialNote }) });
+      setNotice(action === "publish" ? "Article published to the Knowledge Hub." : "Article archived and removed from public pages."); await onRefresh();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "The publication status could not be changed."); }
+    finally { setSaving(false); }
+  };
+  return <div className="knowledge-admin-layout"><section className="panel knowledge-editor"><SectionTitle eyebrow="Editorial desk" title={editingId ? "Edit article" : "Create a considered draft"} action={<button className="master-link" onClick={() => { setEditingId(null); setForm(emptyKnowledgeForm); setEditorialNote(""); setError(""); setNotice(""); }}>New draft</button>} />
+    <p>Write in Sapienworx’s practical, human voice. Public pages render plain editorial text—scripts and embedded HTML are never accepted.</p>
+    {error && <p className="workflow-error" role="alert">{error}</p>}{notice && <p className="workflow-notice" role="status">{notice}</p>}
+    <div className="knowledge-editor-form"><label><span>Article title</span><input aria-label="Article title" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="A specific, useful promise to the reader" /></label><label><span>Category</span><input aria-label="Article category" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} placeholder="Career growth" /></label><label className="span-all"><span>Public URL</span><input aria-label="Article slug" value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="Generated from the title when left blank" /></label><label className="span-all"><span>Standfirst</span><textarea aria-label="Article summary" value={form.excerpt} onChange={(event) => setForm({ ...form, excerpt: event.target.value })} placeholder="Summarise what the reader will learn in one or two sentences." /></label><label className="span-all"><span>Article</span><textarea className="knowledge-body-input" aria-label="Article body" value={form.body} onChange={(event) => setForm({ ...form, body: event.target.value })} placeholder={"Write clear paragraphs.\n\nUse a blank line to begin a new paragraph."} /></label><label><span>Card colour</span><select aria-label="Article colour" value={form.heroTone} onChange={(event) => setForm({ ...form, heroTone: event.target.value as KnowledgePost["heroTone"] })}><option value="navy">Deep navy</option><option value="blue">Ink blue</option><option value="purple">Muted plum</option><option value="sage">Sage</option><option value="terracotta">Terracotta</option></select></label><label className="knowledge-featured"><input type="checkbox" checked={form.featured} onChange={(event) => setForm({ ...form, featured: event.target.checked })} /><span><b>Feature on the home page</b><small>The newest three featured articles appear in the public Knowledge Hub band.</small></span></label><Button onClick={() => void save()} disabled={saving}>{saving ? "Saving…" : editingId ? "Save article" : "Create draft"}</Button></div>
+    {editingId && <div className="knowledge-publish-controls"><label><span>Editorial decision note</span><input aria-label="Editorial decision note" value={editorialNote} onChange={(event) => setEditorialNote(event.target.value)} placeholder="Example: Editorial review complete — claims and links checked" /></label><div><Button onClick={() => { const post = posts.find((item) => item.id === editingId); if (post) void decide(post, "publish"); }} disabled={saving}>Publish</Button><Button variant="danger" onClick={() => { const post = posts.find((item) => item.id === editingId); if (post) void decide(post, "archive"); }} disabled={saving}>Archive</Button></div></div>}
+  </section><aside className="knowledge-admin-side"><article className={`knowledge-preview article-${form.heroTone}`}><span>{form.category || "Category"}</span><h3>{form.title || "Your article title will appear here"}</h3><p>{form.excerpt || "A concise editorial summary gives readers a reason to continue."}</p><footer><small>{readMinutes} min read</small><b>Read article →</b></footer></article><section className="panel knowledge-library"><header><div><span className="eyebrow">Publication library</span><h3>{posts.length} articles</h3></div><select aria-label="Filter articles by status" value={status} onChange={(event) => setStatus(event.target.value)}><option value="ALL">All statuses</option><option value="DRAFT">Drafts</option><option value="PUBLISHED">Published</option><option value="ARCHIVED">Archived</option></select></header>{visiblePosts.map((post) => <article key={post.id} className={post.id === editingId ? "selected" : ""}><div><div className="master-row-title"><b>{post.title}</b><Badge tone={post.status === "PUBLISHED" ? "green" : post.status === "ARCHIVED" ? "neutral" : "amber"}>{pretty(post.status)}</Badge>{post.featured && <Badge tone="purple">Home page</Badge>}</div><p>{post.category} · {post.readingMinutes} min read · {post.authorName}</p><small>Updated {date(post.updatedAt)}</small></div><div><button className="master-link" onClick={() => edit(post)}>Edit</button>{post.status === "PUBLISHED" && <a className="master-link" href={`/knowledge/${post.slug}`} target="_blank" rel="noreferrer">View live ↗</a>}</div></article>)}{!visiblePosts.length && <div className="workflow-empty compact"><span>✎</span><p>No articles match this publication status.</p></div>}</section></aside></div>;
 }
 
 function Governance({ organisations, jobs, onControl, onJob }: { organisations: Organisation[]; jobs: Job[]; onControl: (type: string, id: string, update: Record<string, unknown>, message: string) => void; onJob: (id: string, status: Job["status"], reason: string) => void }) {

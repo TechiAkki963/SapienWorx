@@ -35,6 +35,8 @@ const activityInvestigation = {
   privacyNotice: "Operational metadata only. OTPs, passwords, message bodies, CV contents, contact values and raw search text are never included.",
 };
 
+const knowledgePosts = [{ id: "40000000-0000-0000-0000-000000000001", slug: "better-interview-briefs", title: "Write better interview briefs", category: "Hiring craft", excerpt: "A practical way to align interviewers before the first candidate conversation begins.", body: "A useful interview brief connects the role outcome to the evidence each interviewer should gather.\n\nAssign one clear competency to each stage and agree how good evidence will be recorded before interviews begin.", heroTone: "terracotta", featured: true, status: "DRAFT", authorName: "Sapienworx Master Admin", lastEditorialNote: "", readingMinutes: 1, createdAt: "2026-08-29T09:00:00Z", updatedAt: "2026-08-29T09:00:00Z", publishedAt: "" }];
+
 async function stubMasterAdmin(page: Page) {
   const payloads: Record<string, unknown> = {
     // Intentionally uses the pre-hardening dashboard shape to prove cached/rolling-upgrade responses cannot crash the console.
@@ -49,6 +51,7 @@ async function stubMasterAdmin(page: Page) {
     "/api/admin/master/privacy-cases": [],
     "/api/admin/master/data-quality": { incompleteCandidateProfiles: 2, staleActiveJobs: 0, jobsWithoutAccountableRecruiter: 0, duplicateAccounts: 0 },
     "/api/admin/master/security": { masterOtpRequired: true, masterPasswordRequired: true, suspendedSubjects: 0, passwordResetRequired: 0, sessionRevocationControls: 0, adminEndpointPolicy: "SUPER_ADMIN only" },
+    "/api/admin/master/knowledge-posts": knowledgePosts,
     "/api/admin/governance": governance,
   };
   await page.route("**/api/admin/**", async (route) => {
@@ -129,4 +132,22 @@ test("user activity review is purpose limited, time boxed, and content free", as
   await expect(page.getByText("Candidate CV downloaded by a recruiter", { exact: true })).toBeVisible();
   await expect(page.getByText("OTPs, passwords, message bodies", { exact: false })).toBeVisible();
   expect(investigationBody).toMatchObject({ purpose: "SECURITY", reason: "SEC-1842 repeated access complaint", rangeDays: 90 });
+});
+
+test("Knowledge Hub publishing requires an editorial note and records the decision", async ({ page }) => {
+  let publishBody: Record<string, unknown> | undefined;
+  await page.route("**/api/admin/master/knowledge-posts/*/publish", async (route) => {
+    publishBody = route.request().postDataJSON();
+    await route.fulfill({ status: 200, json: { ...knowledgePosts[0], status: "PUBLISHED", publishedAt: new Date().toISOString() } });
+  });
+  await page.getByRole("link", { name: "Knowledge Hub", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Knowledge Hub", exact: true })).toBeVisible();
+  await expect(page.getByText("Write better interview briefs", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(page.getByText("Add an editorial note of at least 10 characters before changing publication status.", { exact: true })).toBeVisible();
+  await page.getByLabel("Editorial decision note").fill("Editorial review complete — claims checked");
+  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(page.getByText("Article published to the Knowledge Hub.", { exact: true })).toBeVisible();
+  expect(publishBody).toEqual({ reason: "Editorial review complete — claims checked" });
 });

@@ -4,7 +4,7 @@ import java.util.List;
 
 public enum PlatformAdminRole {
     OWNER(List.of("*")),
-    OPERATIONS(List.of("platform.read", "operations.manage", "releases.manage", "integrations.manage")),
+    OPERATIONS(List.of("platform.read", "operations.manage", "releases.manage", "integrations.manage", "knowledge.manage")),
     SUPPORT(List.of("platform.read", "support.manage", "support.request_access")),
     COMPLIANCE(List.of("platform.read", "privacy.manage", "audit.export", "moderation.manage")),
     FINANCE(List.of("platform.read", "billing.manage", "reports.export")),

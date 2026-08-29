@@ -1,5 +1,7 @@
 import { KnowledgePage } from "../../components/public-site";
+import { getPublicKnowledgePosts } from "../../lib/backend";
 
-export default function KnowledgeHubPage() {
-  return <KnowledgePage />;
+export default async function KnowledgeHubPage() {
+  const articles = await getPublicKnowledgePosts();
+  return <KnowledgePage articles={articles ?? undefined} />;
 }
