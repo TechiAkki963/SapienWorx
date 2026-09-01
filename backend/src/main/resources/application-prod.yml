@@ -1,0 +1,71 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  flyway:
+    # Run Flyway in a one-off ECS migration task before deploying API/worker tasks.
+    enabled: ${FLYWAY_ENABLED:false}
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+  mail:
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+  datasource:
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: 10000
+      validation-timeout: 5000
+      idle-timeout: 600000
+      max-lifetime: 1500000
+  data:
+    redis:
+      connect-timeout: 2s
+      timeout: 2s
+      lettuce:
+        shutdown-timeout: 2s
+  task:
+    scheduling:
+      pool:
+        size: 8
+      thread-name-prefix: swx-worker-
+
+app:
+  queue:
+    provider: sqs
+  cv-storage:
+    type: s3
+    s3:
+      require-clean-scan-tag: true
+  security:
+    cookie:
+      secure: true
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:https://www.sapienworx.com}
+
+management:
+  endpoint:
+    health:
+      group:
+        readiness:
+          include: readinessState,db,redis,diskSpace
+
+logging:
+  pattern:
+    console: '{"timestamp":"%d{yyyy-MM-dd''T''HH:mm:ss.SSSXXX}","level":"%p","logger":"%logger{36}","message":"%replace(%m){''[\r\n]'','' ''}","trace":"%replace(%ex){''[\r\n]'','' ''}"}%n'
+
+server:
+  tomcat:
+    connection-timeout: 10s
+    max-connections: ${TOMCAT_MAX_CONNECTIONS:8192}
+    accept-count: ${TOMCAT_ACCEPT_COUNT:200}
+    threads:
+      max: ${TOMCAT_MAX_THREADS:200}
+      min-spare: ${TOMCAT_MIN_SPARE_THREADS:20}

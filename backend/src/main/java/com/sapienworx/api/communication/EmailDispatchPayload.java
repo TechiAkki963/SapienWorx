@@ -17,7 +17,7 @@ public record EmailDispatchPayload(
 ) {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("(?i)^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$");
     private static final int MAX_SUBJECT_LENGTH = 200;
-    private static final int MAX_HTML_LENGTH = 250_000;
+    private static final int MAX_HTML_LENGTH = 180_000;
 
     public EmailDispatchPayload {
         if (dispatchId == null || candidateId == null) {

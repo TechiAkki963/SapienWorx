@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { apiClient } from "../lib/api-client";
+import { apiBaseUrl, apiClient } from "../lib/api-client";
 import { publicJobPath } from "../lib/jobs/routes";
 import { Badge, Button, SectionTitle, WorkspaceShell } from "./ui";
 
@@ -44,6 +44,17 @@ type ApplicationTimeline = {
   events: Array<{ type: string; summary: string; occurredAt: string }>;
   interviews: Array<{ id: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number; status: string }>;
 };
+
+type CandidateOffer = {
+  offerId: string; applicationId: string; jobTitle: string; organisationName: string;
+  status: "SENT" | "ACCEPTED" | "DECLINED" | "EXPIRED" | "WITHDRAWN"; version: number;
+  designation: string; joiningDate: string; workplaceModel: "ON_SITE" | "HYBRID" | "REMOTE";
+  probationMonths: number; noticeBuyout: boolean; expiresAt: string; currency: string;
+  annualFixedAmount: number; annualVariableAmount: number; joiningBonus: number; retentionBonus: number;
+  otherCompensation: string; candidateMessage: string; termsText: string; sentAt: string | null;
+  respondedAt: string | null; responseNote: string | null; canRespond: boolean;
+};
+type CandidateOfferWorkspace = { offer: CandidateOffer | null };
 
 const filters: Array<{ id: ApplicationFilter; label: string }> = [
   { id: "ALL", label: "All applications" },
@@ -166,12 +177,36 @@ function ApplicationCard({ application }: { application: CandidateApplication })
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [timelineError, setTimelineError] = useState("");
+  const [offerWorkspace, setOfferWorkspace] = useState<CandidateOfferWorkspace | null>(null);
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [offerLoading, setOfferLoading] = useState(false);
+  const [offerError, setOfferError] = useState("");
+  const [offerNote, setOfferNote] = useState("");
+  const [offerPending, setOfferPending] = useState("");
+  const [offerNotice, setOfferNotice] = useState("");
   const toggleTimeline = async () => {
     const nextOpen = !timelineOpen; setTimelineOpen(nextOpen); if (!nextOpen || timeline || timelineLoading) return;
     setTimelineLoading(true); setTimelineError("");
     try { setTimeline(await apiClient<ApplicationTimeline>(`/api/candidate/applications/${application.applicationId}/timeline`)); }
     catch (reason) { setTimelineError(reason instanceof Error ? reason.message : "We could not load this application timeline."); }
     finally { setTimelineLoading(false); }
+  };
+  const toggleOffer = async () => {
+    const nextOpen = !offerOpen; setOfferOpen(nextOpen); if (!nextOpen || offerWorkspace || offerLoading) return;
+    setOfferLoading(true); setOfferError("");
+    try { setOfferWorkspace(await apiClient<CandidateOfferWorkspace>(`/api/candidate/applications/${application.applicationId}/offer`)); }
+    catch (reason) { setOfferError(reason instanceof Error ? reason.message : "We could not load your offer."); }
+    finally { setOfferLoading(false); }
+  };
+  const respondToOffer = async (decision: "ACCEPT" | "DECLINE") => {
+    const offer = offerWorkspace?.offer; if (!offer) return;
+    if (!window.confirm(decision === "ACCEPT" ? "Accept this offer? The hiring team will be notified immediately." : "Decline this offer? The hiring team will be notified immediately.")) return;
+    setOfferPending(decision); setOfferError(""); setOfferNotice("");
+    try {
+      const result = await apiClient<CandidateOfferWorkspace>(`/api/candidate/applications/${application.applicationId}/offer/response`, { method: "POST", body: JSON.stringify({ expectedVersion: offer.version, decision, note: offerNote.trim() }) });
+      setOfferWorkspace(result); setOfferNotice(decision === "ACCEPT" ? "Your acceptance is confirmed and the hiring team has been notified." : "Your decision has been recorded and the hiring team has been notified.");
+    } catch (reason) { setOfferError(reason instanceof Error ? reason.message : "Your response could not be recorded."); }
+    finally { setOfferPending(""); }
   };
 
   return <article className={`candidate-application-card stage-${application.stage.toLowerCase()}`}>
@@ -180,6 +215,17 @@ function ApplicationCard({ application }: { application: CandidateApplication })
       <ol className="candidate-application-progress" aria-label={`Application progress: ${currentStage.label}`}>{progressLabels.map((label, index) => <li className={application.stage === "REJECTED" ? (index === 0 ? "completed" : "") : index <= progressIndex ? "completed" : ""} key={label}><span aria-hidden="true">{index < progressIndex ? "✓" : index + 1}</span><small>{label}</small></li>)}</ol>
     </div>
     {timelineOpen && <section className="candidate-application-timeline" aria-live="polite">{timelineLoading && <p>Loading your timeline…</p>}{timelineError && <p className="candidate-application-timeline-error" role="alert">{timelineError}</p>}{timeline && <><p className="candidate-application-next-step"><b>Next step:</b> {timeline.nextStep}</p><ol>{timeline.events.map((event, index) => <li key={`${event.type}-${event.occurredAt}-${index}`}><span>●</span><div><b>{event.summary}</b><small>{formatDate(event.occurredAt)}</small></div></li>)}</ol>{timeline.interviews.length > 0 && <div className="candidate-application-interviews"><b>Scheduled interviews</b>{timeline.interviews.map((interview) => <article key={interview.id}><span>{formatDate(interview.scheduledAt)} · {interview.durationMinutes} min · {interview.platformName}</span><a href={interview.meetingLink} target="_blank" rel="noreferrer">Open meeting link</a></article>)}</div>}</>}</section>}
-    <footer className="candidate-application-card-footer"><div><span>Hiring contact</span><strong>{recruiter}</strong></div><div className="candidate-application-card-actions"><button type="button" onClick={() => void toggleTimeline()}>{timelineOpen ? "Hide timeline" : "View timeline"}</button><a href={publicJobPath(application.jobId, application.title)}>View job</a><a href="/candidate/messages">Messages</a></div></footer>
+    {offerOpen && <CandidateOfferPanel applicationId={application.applicationId} workspace={offerWorkspace} loading={offerLoading} error={offerError} notice={offerNotice} note={offerNote} setNote={setOfferNote} pending={offerPending} onRespond={respondToOffer}/>}
+    <footer className="candidate-application-card-footer"><div><span>Hiring contact</span><strong>{recruiter}</strong></div><div className="candidate-application-card-actions">{application.stage === "OFFER" && <button type="button" className="candidate-review-offer" onClick={() => void toggleOffer()}>{offerOpen ? "Close offer" : "Review offer"}</button>}<button type="button" onClick={() => void toggleTimeline()}>{timelineOpen ? "Hide timeline" : "View timeline"}</button><a href={publicJobPath(application.jobId, application.title)}>View job</a><a href="/candidate/messages">Messages</a></div></footer>
   </article>;
+}
+
+function CandidateOfferPanel({ applicationId, workspace, loading, error, notice, note, setNote, pending, onRespond }: { applicationId: string; workspace: CandidateOfferWorkspace | null; loading: boolean; error: string; notice: string; note: string; setNote: (value: string) => void; pending: string; onRespond: (decision: "ACCEPT" | "DECLINE") => Promise<void> }) {
+  const offer = workspace?.offer;
+  if (loading) return <section className="candidate-offer-panel" role="status">Opening your secure offer…</section>;
+  if (error) return <section className="candidate-offer-panel"><p className="candidate-application-timeline-error" role="alert">{error}</p></section>;
+  if (workspace && !offer) return <section className="candidate-offer-panel candidate-offer-preparing"><span aria-hidden="true">✦</span><div><strong>Your offer is being prepared.</strong><p>The hiring team has moved you to the offer stage. The approved document will appear here as soon as it is sent.</p></div></section>;
+  if (!offer) return null;
+  const total = offer.annualFixedAmount + offer.annualVariableAmount + offer.joiningBonus + offer.retentionBonus;
+  return <section className={`candidate-offer-panel status-${offer.status.toLowerCase()}`}><header><div><span>Secure offer · version {offer.version}</span><h4>{offer.designation}</h4><p>{offer.organisationName}</p></div><Badge tone={offer.status === "ACCEPTED" ? "green" : offer.status === "SENT" ? "blue" : "amber"}>{offer.status.toLowerCase().replaceAll("_", " ")}</Badge></header>{notice && <p className="candidate-offer-notice" role="status">✓ {notice}</p>}{offer.candidateMessage && <blockquote>{offer.candidateMessage}</blockquote>}<div className="candidate-offer-metrics"><div><span>Total compensation</span><strong>{new Intl.NumberFormat("en-IN", { style: "currency", currency: offer.currency, maximumFractionDigits: 0 }).format(total)}</strong></div><div><span>Joining date</span><strong>{formatDate(offer.joiningDate)}</strong></div><div><span>Workplace</span><strong>{offer.workplaceModel.toLowerCase().replaceAll("_", " ")}</strong></div><div><span>Valid until</span><strong>{formatDate(offer.expiresAt)}</strong></div></div><details><summary>Compensation and terms</summary><dl><div><dt>Annual fixed</dt><dd>{offer.currency} {offer.annualFixedAmount.toLocaleString("en-IN")}</dd></div><div><dt>Annual variable</dt><dd>{offer.currency} {offer.annualVariableAmount.toLocaleString("en-IN")}</dd></div><div><dt>Joining bonus</dt><dd>{offer.currency} {offer.joiningBonus.toLocaleString("en-IN")}</dd></div><div><dt>Retention bonus</dt><dd>{offer.currency} {offer.retentionBonus.toLocaleString("en-IN")}</dd></div><div><dt>Probation</dt><dd>{offer.probationMonths ? `${offer.probationMonths} months` : "Not applicable"}</dd></div><div><dt>Notice buyout</dt><dd>{offer.noticeBuyout ? "Included" : "Not included"}</dd></div></dl>{offer.otherCompensation && <p><b>Additional compensation</b><br/>{offer.otherCompensation}</p>}<p><b>Employment terms</b><br/>{offer.termsText}</p></details><div className="candidate-offer-document"><a href={`${apiBaseUrl}/api/candidate/applications/${applicationId}/offer/document.pdf`} target="_blank" rel="noopener noreferrer">Download offer PDF ↗</a><small>Your response and every version are recorded securely.</small></div>{offer.canRespond && <div className="candidate-offer-response"><label>Optional note to the hiring team<textarea rows={3} maxLength={1000} value={note} onChange={(event) => setNote(event.target.value)} placeholder="Share a question or a short note with your decision"/></label><div><Button variant="secondary" onClick={() => void onRespond("DECLINE")} disabled={Boolean(pending)}>{pending === "DECLINE" ? "Recording…" : "Decline offer"}</Button><Button onClick={() => void onRespond("ACCEPT")} disabled={Boolean(pending)}>{pending === "ACCEPT" ? "Confirming…" : "Accept offer"}</Button></div></div>}{!offer.canRespond && <div className="candidate-offer-complete"><strong>{offer.status === "ACCEPTED" ? "Offer accepted" : offer.status === "DECLINED" ? "Offer declined" : offer.status === "EXPIRED" ? "Offer expired" : "Offer withdrawn"}</strong>{offer.respondedAt && <span>Recorded {formatDate(offer.respondedAt)}</span>}{offer.responseNote && <p>{offer.responseNote}</p>}</div>}</section>;
 }

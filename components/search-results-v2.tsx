@@ -517,6 +517,7 @@ export function SearchResultsV2() {
   );
   const [selected, setSelected] = useState<string[]>([]);
   const [hideProfiles, setHideProfiles] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [saveState, setSaveState] = useState("");
   const [outreachOpen, setOutreachOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
@@ -527,12 +528,25 @@ export function SearchResultsV2() {
     Record<string, { view?: boolean; download?: boolean }>
   >({});
   const paramsRef = useRef(paramsKey);
+  const historyNavigationRef = useRef(false);
   const criteriaRef = useRef(initialState);
   const sortRef = useRef<"relevance" | "updated">(
     params.get("sortBy") === "updated" ? "updated" : "relevance",
   );
+  const pageSizeRef = useRef(validPageSize(params.get("pageSize")));
 
   useEffect(() => {
+    const markHistoryNavigation = () => { historyNavigationRef.current = true; };
+    window.addEventListener("popstate", markHistoryNavigation);
+    return () => window.removeEventListener("popstate", markHistoryNavigation);
+  }, []);
+  useEffect(() => {
+    const incomingParams = params.toString();
+    if (!historyNavigationRef.current && incomingParams !== paramsRef.current) {
+      router.replace(`/search/results${paramsRef.current ? `?${paramsRef.current}` : ""}`);
+      return;
+    }
+    historyNavigationRef.current = false;
     const next = stateFromSearchParams(params);
     const nextSort =
       params.get("sortBy") === "updated" ? "updated" : "relevance";
@@ -541,10 +555,12 @@ export function SearchResultsV2() {
     setDraft(next);
     setActiveCriteria(next);
     setPageIndex(Math.max(0, Number(params.get("page")) || 0));
-    setPageSize(validPageSize(params.get("pageSize")));
+    const nextPageSize = validPageSize(params.get("pageSize"));
+    pageSizeRef.current = nextPageSize;
+    setPageSize(nextPageSize);
     setSortBy(nextSort);
-    paramsRef.current = params.toString();
-  }, [paramsKey, params]);
+    paramsRef.current = incomingParams;
+  }, [paramsKey, params, router]);
   useEffect(() => {
     const controller = new AbortController();
     setIsLoadingProfiles(true);
@@ -624,7 +640,8 @@ export function SearchResultsV2() {
     setActiveCriteria(draft);
     setPageIndex(0);
     setSelected([]);
-    persist(draft, 0, pageSize);
+    setMobileFiltersOpen(false);
+    persist(draft, 0, pageSizeRef.current);
   };
   const clearFilters = () => {
     const cleared = {
@@ -636,7 +653,7 @@ export function SearchResultsV2() {
     setActiveCriteria(cleared);
     setPageIndex(0);
     setSelected([]);
-    persist(cleared, 0, pageSize);
+    persist(cleared, 0, pageSizeRef.current);
   };
   const clearExperience = () => {
     const next = { ...activeCriteria, minExperience: "", maxExperience: "" };
@@ -644,7 +661,7 @@ export function SearchResultsV2() {
     setActiveCriteria(next);
     setPageIndex(0);
     setSelected([]);
-    persist(next, 0, pageSize);
+    persist(next, 0, pageSizeRef.current);
   };
   const setActivity = (status: RecruiterSearchState["activeStatus"]) => {
     const next = { ...activeCriteria, activeStatus: status };
@@ -652,24 +669,27 @@ export function SearchResultsV2() {
     setActiveCriteria(next);
     setPageIndex(0);
     setSelected([]);
-    persist(next, 0, pageSize);
+    persist(next, 0, pageSizeRef.current);
   };
   const changePageSize = (nextSize: number) => {
+    pageSizeRef.current = nextSize;
     setPageSize(nextSize);
     setPageIndex(0);
     setSelected([]);
-    persist(activeCriteria, 0, nextSize, sortBy);
+    persist(activeCriteria, 0, nextSize, sortRef.current);
   };
   const changeSort = (nextSort: "relevance" | "updated") => {
     sortRef.current = nextSort;
     setSortBy(nextSort);
-    persist(activeCriteria, 0, pageSize, nextSort);
+    setPageIndex(0);
+    setSelected([]);
+    persist(activeCriteria, 0, pageSizeRef.current, nextSort);
   };
   const changePage = (nextPage: number) => {
     if (nextPage < 0 || nextPage >= totalPages) return;
     setPageIndex(nextPage);
     setSelected([]);
-    persist(activeCriteria, nextPage, pageSize);
+    persist(activeCriteria, nextPage, pageSizeRef.current);
   };
   const removeTerm = (term: string) =>
     setDraft((current) => ({
@@ -708,7 +728,7 @@ export function SearchResultsV2() {
     });
     setOutreachOpen(false);
     setSaveState(
-      `${selected.length} individual email${selected.length === 1 ? "" : "s"} prepared for the protected RabbitMQ workflow.`,
+      `${selected.length} individual email${selected.length === 1 ? "" : "s"} prepared for protected background delivery.`,
     );
   };
 
@@ -739,6 +759,15 @@ export function SearchResultsV2() {
           >
             Save Search
           </button>
+          <button
+            type="button"
+            className="talent-mobile-filter-toggle"
+            aria-expanded={mobileFiltersOpen}
+            aria-controls="candidate-result-filters"
+            onClick={() => setMobileFiltersOpen((current) => !current)}
+          >
+            ☷ {mobileFiltersOpen ? "Hide filters" : `Filters${draftTerms.length ? ` (${draftTerms.length})` : ""}`}
+          </button>
         </header>
         {saveState && (
           <p className="talent-save-state" role="status">
@@ -747,7 +776,8 @@ export function SearchResultsV2() {
         )}
         <div className="talent-results-layout">
           <aside
-            className="talent-filter-rail talent-filter-rail-expanded"
+            id="candidate-result-filters"
+            className={`talent-filter-rail talent-filter-rail-expanded${mobileFiltersOpen ? " mobile-open" : ""}`}
             aria-label="Candidate filters"
           >
             <label className="talent-hide-profiles">
@@ -1300,7 +1330,7 @@ export function SearchResultsV2() {
             </h2>
             <p>
               Each recipient is processed as an individual protected message
-              through the RabbitMQ-backed workflow.
+              through the protected background-delivery workflow.
             </p>
             <div>
               <Button

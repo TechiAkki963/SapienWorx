@@ -189,3 +189,7 @@
   .account-session > button { grid-column: 1 / -1; }
   .recovery-code-sheet > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+.candidate-sensitive-consent { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid #d9dfeb; border-radius: 12px; background: #fbfcff; margin-bottom: 18px; }
+.candidate-sensitive-consent input { margin-top: 3px; accent-color: #174ea6; }
+.candidate-sensitive-consent span { display: grid; gap: 4px; }
+.candidate-sensitive-consent small { color: #60708f; line-height: 1.45; }

@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { Badge, Button, Logo, SectionTitle, StatCard, WorkspaceShell } from "./ui";
 import { publicJobPath } from "../lib/jobs/routes";
 import { apiClient } from "../lib/api-client";
+import { PublicJobSave } from "./public-job-save";
+import { PublicJobShare } from "./public-job-share";
 
 type Candidate = { id: number; candidateId?: string; applicationId?: string; jobId?: string; name: string; initials: string; role: string; stage: "Screening" | "Interviewing" | "Final stage" | "Offer" | "Onboarded"; score: number; email: string; phone: string; profileUpdated: string; lastActive: string; note: string; liveSkills?: string[] };
 type LivePipelineCandidate = { applicationId: string; candidateId: string; fullName: string; headline: string | null; jobId: string; jobTitle: string; skills: string[]; maskedEmail: string; maskedMobile: string; pipelineStage: string; recentNotes: string[]; profileLastUpdatedAt: string | null; lastActiveAt: string | null };
@@ -68,7 +70,7 @@ const internalJobs = [
 ];
 
 type ManagedJobStatus = "Draft" | "Published" | "Closed" | "Archived";
-type ManagedJob = { id: string; jobId: string; title: string; status: ManagedJobStatus; location: string; createdAt: string; applicants: number; skills: string[]; minimumExperience: string; maximumExperience: string; minimumSalary: string; maximumSalary: string; description: string };
+type ManagedJob = { id: string; jobId: string; title: string; status: ManagedJobStatus; location: string; createdAt: string; applicants: number; skills: string[]; minimumExperience: string; maximumExperience: string; minimumSalary: string; maximumSalary: string; description: string; organisationName?: string; newApplicants?: number; screening?: number; interviewing?: number; finalStage?: number; offers?: number; onboarded?: number; rejected?: number; latestApplicationAt?: string | null };
 type ShareableJob = { jobId: string; title: string; company: string; location: string; skills: string[]; experience: string };
 
 const managedJobs: ManagedJob[] = [
@@ -156,6 +158,69 @@ function downloadAnalyticsExcel(analytics: AnalyticsSnapshot) {
 
 export function RecruiterJobs() { return <Suspense fallback={<WorkspaceShell workspace="recruiter" active="jobs" title="Create a job" description="Loading job workspace…"><section className="panel">Loading job workspace…</section></WorkspaceShell>}><RecruiterJobsContent/></Suspense>; }
 
+type RecruiterJobApiResponse = {
+  jobId: string;
+  title: string;
+  organisationName: string;
+  verifiedEmployer: boolean;
+  location: string;
+  department: string;
+  employmentType: string;
+  workplaceModel: string;
+  minimumExperienceYears: number;
+  maximumExperienceYears: number;
+  minimumSalaryLakhs: number | null;
+  maximumSalaryLakhs: number | null;
+  salaryVisible: boolean;
+  descriptionHtml: string;
+  companyOverview: string;
+  whyJoin: string;
+  responsibilitiesHtml: string;
+  hiringProcess: string;
+  skills: string[];
+  status: string;
+  domainCategory: string;
+  publicPath: string;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  publishedAt?: string | null;
+};
+
+type RecruiterManagedJobApiResponse = {
+  job: RecruiterJobApiResponse;
+  applicants: number;
+  newApplicants: number;
+  screening: number;
+  interviewing: number;
+  finalStage: number;
+  offers: number;
+  onboarded: number;
+  rejected: number;
+  latestApplicationAt: string | null;
+};
+
+type RecruiterManagedJobsPage = { content: RecruiterManagedJobApiResponse[] };
+
+type RecruiterJobApplicantApiResponse = {
+  applicationId: string;
+  candidateId: string;
+  fullName: string;
+  headline: string | null;
+  skills: string[];
+  pipelineStage: string;
+  appliedAt: string | null;
+  updatedAt: string | null;
+  lastActiveAt: string | null;
+  applicationSource: string;
+};
+
+type RecruiterJobWorkspaceApiResponse = {
+  summary: RecruiterManagedJobApiResponse;
+  applications: { content: RecruiterJobApplicantApiResponse[]; totalElements: number; totalPages: number; number: number };
+};
+
+const defaultHiringProcess = "Application review\nRecruiter conversation\nRole-focused conversation\nFinal team conversation and decision";
+
 function RecruiterJobsContent() {
   const searchParams = useSearchParams();
   const draftId = searchParams.get("draft");
@@ -163,47 +228,196 @@ function RecruiterJobsContent() {
   const editId = searchParams.get("edit");
   const requestedJobId = searchParams.get("jobId");
   const [title, setTitle] = useState("");
+  const [department, setDepartment] = useState("");
+  const [employmentType, setEmploymentType] = useState("FULL_TIME");
+  const [workplaceModel, setWorkplaceModel] = useState("HYBRID");
+  const [domainCategory, setDomainCategory] = useState("TECH");
   const [location, setLocation] = useState("");
   const [minimumExperience, setMinimumExperience] = useState("");
   const [maximumExperience, setMaximumExperience] = useState("");
   const [minimumSalary, setMinimumSalary] = useState("");
   const [maximumSalary, setMaximumSalary] = useState("");
   const [description, setDescription] = useState("");
+  const [responsibilities, setResponsibilities] = useState("");
+  const [companyOverview, setCompanyOverview] = useState("");
+  const [whyJoin, setWhyJoin] = useState("");
+  const [hiringProcess, setHiringProcess] = useState(defaultHiringProcess);
   const [skills, setSkills] = useState<string[]>(["Product design", "Figma"]);
   const [removingSkills, setRemovingSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
   const [status, setStatus] = useState<"editing" | "draft" | "published">("editing");
   const [jobId, setJobId] = useState("");
-  const [isAllocatingId, setIsAllocatingId] = useState(false);
+  const [organisationName, setOrganisationName] = useState("Nexora Technologies");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [jobIdNotice, setJobIdNotice] = useState("");
+  const [submissionError, setSubmissionError] = useState("");
   const [shareJob, setShareJob] = useState<ShareableJob | null>(null);
-  useEffect(() => { const source = managedJobs.find((job) => job.id === draftId || job.id === duplicateId || job.id === editId); if (!source) return; setTitle(source.title); setLocation(source.location); setMinimumExperience(source.minimumExperience); setMaximumExperience(source.maximumExperience); setMinimumSalary(source.minimumSalary); setMaximumSalary(source.maximumSalary); setDescription(source.description); setSkills(source.skills); setJobId(duplicateId ? requestedJobId ?? "" : source.jobId); setStatus(source.status === "Published" && !duplicateId ? "editing" : "draft"); }, [draftId, duplicateId, editId, requestedJobId]);
+
+  useEffect(() => {
+    const source = managedJobs.find((job) => job.id === draftId || job.id === duplicateId || job.id === editId);
+    if (source) {
+      setTitle(source.title);
+      setLocation(source.location);
+      setMinimumExperience(source.minimumExperience);
+      setMaximumExperience(source.maximumExperience);
+      setMinimumSalary(source.minimumSalary);
+      setMaximumSalary(source.maximumSalary);
+      setDescription(source.description);
+      setSkills(source.skills);
+      setDepartment(source.title.toLowerCase().includes("engineer") ? "Engineering" : "Product");
+      setJobId(duplicateId ? "" : source.jobId);
+      setStatus(source.status === "Published" && !duplicateId ? "editing" : "draft");
+    }
+
+    const lookupJobId = requestedJobId ?? source?.jobId;
+    if (!lookupJobId) return;
+    let cancelled = false;
+    apiClient<RecruiterJobApiResponse>(`/api/recruiter/jobs/${encodeURIComponent(lookupJobId)}`)
+      .then((job) => {
+        if (cancelled) return;
+        setTitle(duplicateId ? `${job.title} (copy)` : job.title);
+        setDepartment(job.department ?? "");
+        setEmploymentType(job.employmentType ?? "FULL_TIME");
+        setWorkplaceModel(job.workplaceModel ?? "HYBRID");
+        setDomainCategory(job.domainCategory ?? "UNASSIGNED");
+        setLocation(job.location ?? "");
+        setMinimumExperience(String(job.minimumExperienceYears ?? ""));
+        setMaximumExperience(String(job.maximumExperienceYears ?? ""));
+        setMinimumSalary(job.minimumSalaryLakhs == null ? "" : String(job.minimumSalaryLakhs));
+        setMaximumSalary(job.maximumSalaryLakhs == null ? "" : String(job.maximumSalaryLakhs));
+        setDescription(job.descriptionHtml ?? "");
+        setResponsibilities(job.responsibilitiesHtml ?? "");
+        setCompanyOverview(job.companyOverview ?? "");
+        setWhyJoin(job.whyJoin ?? "");
+        setHiringProcess(job.hiringProcess || defaultHiringProcess);
+        setSkills(job.skills ?? []);
+        setOrganisationName(job.organisationName || "Nexora Technologies");
+        setJobId(duplicateId ? "" : job.jobId);
+        setStatus(job.status === "ACTIVE" && !duplicateId ? "editing" : "draft");
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setSubmissionError(error instanceof Error ? error.message : "The job draft could not be loaded.");
+      });
+    return () => { cancelled = true; };
+  }, [draftId, duplicateId, editId, requestedJobId]);
+
   const addSkill = () => { const skill = skillInput.trim().replace(/,$/, ""); if (skill && !skills.some((item) => item.toLowerCase() === skill.toLowerCase())) setSkills((current) => [...current, skill]); setSkillInput(""); };
   const removeSkill = (skill: string) => { setRemovingSkills((current) => [...current, skill]); window.setTimeout(() => { setSkills((current) => current.filter((item) => item !== skill)); setRemovingSkills((current) => current.filter((item) => item !== skill)); }, 160); };
-  const salaryLabel = minimumSalary || maximumSalary ? `₹${minimumSalary || "0"}L – ₹${maximumSalary || "…"}L` : "Salary not set";
   const experienceLabel = minimumExperience || maximumExperience ? `${minimumExperience || "0"}–${maximumExperience || "…"} years` : "Experience not set";
-  const readyToPublish = Boolean(title.trim() && location.trim() && minimumExperience && maximumExperience && minimumSalary && maximumSalary && richTextToPlainText(description) && skills.length);
-  const markEditing = () => setStatus("editing");
-  const ensureJobId = async () => { if (jobId) return jobId; setIsAllocatingId(true); setJobIdNotice("Assigning secure Job ID…"); try { const response = await fetch("/api/jobs/allocate-id", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tenantId: "nexora-technologies", companyName: "Nexora Technologies" }) }); if (!response.ok) throw new Error("Job ID request failed"); const payload = await response.json() as { jobId: string }; setJobId(payload.jobId); setJobIdNotice(`Job ID assigned: ${payload.jobId}`); return payload.jobId; } catch { setJobIdNotice("Could not assign a Job ID. Please try again."); return null; } finally { setIsAllocatingId(false); } };
-  const saveDraft = async () => { const savedJobId = await ensureJobId(); if (savedJobId) setStatus("draft"); };
-  const publish = async () => { if (!readyToPublish) return; const publishedJobId = await ensureJobId(); if (!publishedJobId) return; setStatus("published"); setShareJob({ jobId: publishedJobId, title, company: "Nexora Technologies", location, skills, experience: experienceLabel }); };
+  const hiringSteps = hiringProcess.split("\n").map((step) => step.trim()).filter(Boolean);
+  const storyReady = Boolean(richTextToPlainText(description) && richTextToPlainText(responsibilities) && companyOverview.trim() && whyJoin.trim() && hiringSteps.length >= 3);
+  const readyToPublish = Boolean(title.trim() && department.trim() && location.trim() && minimumExperience && maximumExperience && skills.length && storyReady);
+  const markEditing = () => { setStatus("editing"); setSubmissionError(""); setJobIdNotice(""); };
+
+  const jobPayload = () => ({
+    title,
+    department,
+    employmentType,
+    workplaceModel,
+    location,
+    minimumExperienceYears: minimumExperience ? Number(minimumExperience) : null,
+    maximumExperienceYears: maximumExperience ? Number(maximumExperience) : null,
+    minimumSalaryLakhs: minimumSalary ? Number(minimumSalary) : null,
+    maximumSalaryLakhs: maximumSalary ? Number(maximumSalary) : null,
+    salaryVisible: false,
+    descriptionHtml: description,
+    companyOverview,
+    whyJoin,
+    responsibilitiesHtml: responsibilities,
+    hiringProcess,
+    skills,
+    domainCategory,
+  });
+
+  const persistDraft = async () => {
+    const draft = await apiClient<RecruiterJobApiResponse>(jobId ? `/api/recruiter/jobs/${encodeURIComponent(jobId)}` : "/api/recruiter/jobs", {
+      method: jobId ? "PATCH" : "POST",
+      body: JSON.stringify(jobPayload()),
+    });
+    setJobId(draft.jobId);
+    setOrganisationName(draft.organisationName || organisationName);
+    return draft;
+  };
+
+  const saveDraft = async () => {
+    setIsSaving(true);
+    setSubmissionError("");
+    setJobIdNotice("Saving this draft…");
+    try {
+      const saved = await persistDraft();
+      setStatus("draft");
+      setJobIdNotice(`Draft saved as ${saved.jobId}.`);
+    } catch (error) {
+      setJobIdNotice("");
+      setSubmissionError(error instanceof Error ? error.message : "The draft could not be saved.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const publish = async () => {
+    if (!readyToPublish) {
+      setSubmissionError("Complete the role basics, requirements, company story, responsibilities and at least three hiring stages before publishing.");
+      return;
+    }
+    setIsPublishing(true);
+    setSubmissionError("");
+    setJobIdNotice("Saving and publishing this role…");
+    try {
+      const saved = await persistDraft();
+      const published = await apiClient<RecruiterJobApiResponse>(`/api/recruiter/jobs/${encodeURIComponent(saved.jobId)}/publish`, { method: "POST" });
+      setStatus("published");
+      setJobId(published.jobId);
+      setJobIdNotice(`Published as ${published.jobId}.`);
+      setShareJob({ jobId: published.jobId, title: published.title, company: published.organisationName, location: published.location, skills: published.skills, experience: `${published.minimumExperienceYears}–${published.maximumExperienceYears} years` });
+    } catch (error) {
+      setJobIdNotice("");
+      setSubmissionError(error instanceof Error ? error.message : "The job could not be published.");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   return <WorkspaceShell workspace="recruiter" active="jobs" title="Post a job" description="Build the role, review its candidate-facing card, then publish and share it.">
     {status === "draft" && <div className="creation-success" role="status">Draft saved{jobId ? ` as ${jobId}` : ""}. Continue refining the role or publish it when ready.</div>}
     {status === "published" && <div className="creation-success" role="status"><strong>{title}</strong> is published as <strong>{jobId}</strong> and ready to share.</div>}
-    <ol className="job-publishing-roadmap" aria-label="Job publishing progress"><li className={title && location ? "complete" : "current"}><span>{title && location ? "✓" : "1"}</span><div><strong>Role basics</strong><small>Title, location and skills</small></div></li><li className={minimumExperience && maximumExperience && minimumSalary && maximumSalary ? "complete" : ""}><span>2</span><div><strong>Requirements</strong><small>Experience and salary</small></div></li><li className={richTextToPlainText(description) ? "complete" : ""}><span>3</span><div><strong>Candidate story</strong><small>Description and preview</small></div></li><li className={status === "published" ? "complete" : ""}><span>4</span><div><strong>Publish & share</strong><small>Final review and distribution</small></div></li></ol>
+    <ol className="job-publishing-roadmap" aria-label="Job publishing progress"><li className={title && location && department ? "complete" : "current"}><span>{title && location && department ? "✓" : "1"}</span><div><strong>Role basics</strong><small>Title, team and working model</small></div></li><li className={minimumExperience && maximumExperience && skills.length ? "complete" : ""}><span>2</span><div><strong>Requirements</strong><small>Experience and skills</small></div></li><li className={storyReady ? "complete" : ""}><span>3</span><div><strong>Candidate story</strong><small>Role, company and process</small></div></li><li className={status === "published" ? "complete" : ""}><span>4</span><div><strong>Publish & share</strong><small>Final review and distribution</small></div></li></ol>
     <section className="job-creation-layout">
-      <form className="panel job-creation-form" onSubmit={(event) => { event.preventDefault(); publish(); }}><SectionTitle eyebrow="Job details" title={draftId ? "Resume your draft" : "Create your job"}/><p className="form-hint">Only published jobs become visible to candidates. Your company is pulled from the recruiter profile: Nexora Technologies.</p><div className="form-grid job-form-grid"><label className="form-field full"><span>Job title</span><input aria-label="Job title" value={title} onChange={(event) => { setTitle(event.target.value); markEditing(); }} placeholder="e.g. Senior Product Designer" required/></label><label className="form-field full"><span>Skills</span><div className="job-skills-input"><div>{skills.map((skill) => <span className={`job-skill-tag ${removingSkills.includes(skill) ? "removing" : ""}`} key={skill}>{skill}<button type="button" aria-label={`Remove ${skill}`} onClick={() => { removeSkill(skill); markEditing(); }}>×</button></span>)}</div><input aria-label="Add a skill" value={skillInput} onChange={(event) => setSkillInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === ",") { event.preventDefault(); addSkill(); markEditing(); } }} onBlur={addSkill} placeholder="Add a skill and press Enter"/></div></label><label className="form-field full"><span>Location</span><input aria-label="Location" value={location} onChange={(event) => { setLocation(event.target.value); markEditing(); }} placeholder="e.g. Bengaluru, India · Hybrid" required/></label><div className="job-range-group full"><span>Experience</span><div><label className="form-field"><span>Min experience</span><input aria-label="Minimum experience" type="number" min="0" value={minimumExperience} onChange={(event) => { setMinimumExperience(event.target.value); markEditing(); }} placeholder="e.g. 3" required/></label><label className="form-field"><span>Max experience</span><input aria-label="Maximum experience" type="number" min="0" value={maximumExperience} onChange={(event) => { setMaximumExperience(event.target.value); markEditing(); }} placeholder="e.g. 6" required/></label></div></div><div className="job-range-group full"><span>Salary range</span><div><label className="form-field"><span>Min salary in lakhs</span><input aria-label="Minimum salary in lakhs" type="number" min="0" value={minimumSalary} onChange={(event) => { setMinimumSalary(event.target.value); markEditing(); }} placeholder="e.g. 12" required/></label><label className="form-field"><span>Max salary in lakhs</span><input aria-label="Maximum salary in lakhs" type="number" min="0" value={maximumSalary} onChange={(event) => { setMaximumSalary(event.target.value); markEditing(); }} placeholder="e.g. 18" required/></label></div></div><div className="form-field full"><span>Job description</span><RichJobEditor value={description} onChange={(value) => { setDescription(value); markEditing(); }}/></div></div><footer className="form-actions job-creation-actions"><Button variant="secondary" onClick={saveDraft}>Save as draft</Button><Button type="submit" disabled={!readyToPublish}>Publish job</Button></footer></form>
-      <aside className="panel job-live-preview" aria-label="Live job preview"><header><div><span className="eyebrow">Candidate-facing preview</span><h2>Job card</h2></div><Badge tone={status === "published" ? "green" : status === "draft" ? "amber" : "neutral"}>{status === "published" ? "Published" : status === "draft" ? "Draft" : "Preview"}</Badge></header><article className="job-public-preview"><div className="job-preview-company-mark">N</div><div><small>Nexora Technologies</small><h3>{title || "Your job title"}</h3></div><div className="job-preview-meta"><span>{experienceLabel}</span><span>{salaryLabel}</span><span>{location || "Location"}</span></div><div className="job-preview-skills">{skills.length ? skills.map((skill) => <span key={skill}>{skill}</span>) : <span>Add skills</span>}</div>{description ? <div className="job-preview-description" dangerouslySetInnerHTML={{ __html: description }}/> : <p>Your job description will appear here as you write it.</p>}<footer><span>Sapienworx verified role</span><b>View job →</b></footer></article><p className="job-preview-help">This preview updates as you edit. Candidates will open the complete job page from this card.</p></aside>
+      <form className="panel job-creation-form" onSubmit={(event) => { event.preventDefault(); void publish(); }}>
+        <SectionTitle eyebrow="Job details" title={draftId ? "Resume your draft" : "Create your job"}/>
+        <p className="form-hint">Save an incomplete draft at any time. Only a complete, published role is visible to candidates. The employer identity comes from your verified organisation profile.</p>
+        {submissionError && <div className="job-publish-error" role="alert">{submissionError}</div>}
+        {jobIdNotice && <div className="job-save-notice" role="status">{jobIdNotice}</div>}
+        <div className="form-grid job-form-grid">
+          <label className="form-field full"><span>Job title</span><input aria-label="Job title" value={title} onChange={(event) => { setTitle(event.target.value); markEditing(); }} placeholder="e.g. Senior Product Designer"/></label>
+          <label className="form-field full"><span>Department or team</span><input aria-label="Department or team" value={department} onChange={(event) => { setDepartment(event.target.value); markEditing(); }} placeholder="e.g. Product design"/></label>
+          <label className="form-field"><span>Employment type</span><select aria-label="Employment type" value={employmentType} onChange={(event) => { setEmploymentType(event.target.value); markEditing(); }}><option value="FULL_TIME">Full time</option><option value="PART_TIME">Part time</option><option value="CONTRACT">Contract</option><option value="INTERNSHIP">Internship</option><option value="TEMPORARY">Temporary</option><option value="FREELANCE">Freelance</option></select></label>
+          <label className="form-field"><span>Workplace model</span><select aria-label="Workplace model" value={workplaceModel} onChange={(event) => { setWorkplaceModel(event.target.value); markEditing(); }}><option value="ON_SITE">On site</option><option value="HYBRID">Hybrid</option><option value="REMOTE">Remote</option></select></label>
+          <label className="form-field full"><span>Role category</span><select aria-label="Role category" value={domainCategory} onChange={(event) => { setDomainCategory(event.target.value); markEditing(); }}><option value="TECH">Technology</option><option value="NON_TECH">Non-technology</option><option value="MIXED_AMBIGUOUS">Cross-functional</option><option value="UNASSIGNED">Unassigned</option></select></label>
+          <label className="form-field full"><span>Location</span><input aria-label="Location" value={location} onChange={(event) => { setLocation(event.target.value); markEditing(); }} placeholder="e.g. Bengaluru, India"/></label>
+          <div className="job-range-group full"><span>Experience</span><div><label className="form-field"><span>Minimum years</span><input aria-label="Minimum experience" type="number" min="0" value={minimumExperience} onChange={(event) => { setMinimumExperience(event.target.value); markEditing(); }} placeholder="e.g. 3"/></label><label className="form-field"><span>Maximum years</span><input aria-label="Maximum experience" type="number" min="0" value={maximumExperience} onChange={(event) => { setMaximumExperience(event.target.value); markEditing(); }} placeholder="e.g. 6"/></label></div></div>
+          <div className="job-range-group full"><span>Internal compensation range <em>Optional</em></span><div><label className="form-field"><span>Minimum salary in lakhs</span><input aria-label="Minimum salary in lakhs" type="number" min="0" value={minimumSalary} onChange={(event) => { setMinimumSalary(event.target.value); markEditing(); }} placeholder="e.g. 12"/></label><label className="form-field"><span>Maximum salary in lakhs</span><input aria-label="Maximum salary in lakhs" type="number" min="0" value={maximumSalary} onChange={(event) => { setMaximumSalary(event.target.value); markEditing(); }} placeholder="e.g. 18"/></label></div><small className="job-internal-note">Used for matching and internal reporting. Sapienworx does not display this range to candidates.</small></div>
+          <label className="form-field full"><span>Skills</span><div className="job-skills-input"><div>{skills.map((skill) => <span className={`job-skill-tag ${removingSkills.includes(skill) ? "removing" : ""}`} key={skill}>{skill}<button type="button" aria-label={`Remove ${skill}`} onClick={() => { removeSkill(skill); markEditing(); }}>×</button></span>)}</div><input aria-label="Add a skill" value={skillInput} onChange={(event) => setSkillInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === ",") { event.preventDefault(); addSkill(); markEditing(); } }} onBlur={() => { addSkill(); markEditing(); }} placeholder="Add a skill and press Enter"/></div></label>
+          <div className="form-field full"><span>Role summary</span><RichJobEditor label="Role summary" placeholder="Describe the role, its purpose and what success looks like…" value={description} onChange={(value) => { setDescription(value); markEditing(); }}/></div>
+          <div className="form-field full"><span>Responsibilities</span><RichJobEditor label="Responsibilities" placeholder="Add the outcomes and responsibilities candidates should understand before applying…" value={responsibilities} onChange={(value) => { setResponsibilities(value); markEditing(); }}/></div>
+          <label className="form-field full"><span>Company overview</span><textarea aria-label="Company overview" value={companyOverview} onChange={(event) => { setCompanyOverview(event.target.value); markEditing(); }} rows={4} maxLength={5000} placeholder="Introduce the company, its mission and the team this person will join."/></label>
+          <label className="form-field full"><span>Why join</span><textarea aria-label="Why join" value={whyJoin} onChange={(event) => { setWhyJoin(event.target.value); markEditing(); }} rows={4} maxLength={5000} placeholder="Give candidates honest reasons to consider this opportunity."/></label>
+          <label className="form-field full"><span>Hiring process</span><textarea aria-label="Hiring process" value={hiringProcess} onChange={(event) => { setHiringProcess(event.target.value); markEditing(); }} rows={6} maxLength={2000}/><small className="job-internal-note">Enter one stage per line. Add between three and six stages so candidates know what to expect.</small></label>
+        </div>
+        <footer className="form-actions job-creation-actions"><Button variant="secondary" onClick={() => void saveDraft()} disabled={isSaving || isPublishing}>{isSaving ? "Saving draft…" : "Save as draft"}</Button><Button type="submit" disabled={!readyToPublish || isSaving || isPublishing}>{isPublishing ? "Publishing…" : "Publish job"}</Button></footer>
+      </form>
+      <aside className="panel job-live-preview" aria-label="Live job preview"><header><div><span className="eyebrow">Candidate-facing preview</span><h2>Published story</h2></div><Badge tone={status === "published" ? "green" : status === "draft" ? "amber" : "neutral"}>{status === "published" ? "Published" : status === "draft" ? "Draft" : "Preview"}</Badge></header><article className="job-public-preview"><div className="job-preview-company-mark">{organisationName.charAt(0).toUpperCase() || "S"}</div><div><small>{organisationName} · Verified employer</small><h3>{title || "Your job title"}</h3><p className="job-preview-department">{department || "Department or team"}</p></div><div className="job-preview-meta"><span>{experienceLabel}</span><span>{readableJobLabel(workplaceModel)}</span><span>{readableJobLabel(employmentType)}</span><span>{location || "Location"}</span></div><div className="job-preview-skills">{skills.length ? skills.map((skill) => <span key={skill}>{skill}</span>) : <span>Add skills</span>}</div>{description ? <div className="job-preview-description" dangerouslySetInnerHTML={{ __html: description }}/> : <p>Your role summary will appear here as you write it.</p>}{responsibilities && <section className="job-preview-story"><strong>What you will own</strong><div className="job-preview-description" dangerouslySetInnerHTML={{ __html: responsibilities }}/></section>}{companyOverview && <section className="job-preview-story"><strong>About {organisationName}</strong><p>{companyOverview}</p></section>}{whyJoin && <section className="job-preview-story"><strong>Why join</strong><p>{whyJoin}</p></section>}{hiringSteps.length > 0 && <section className="job-preview-story"><strong>Hiring process</strong><ol className="job-preview-process">{hiringSteps.slice(0, 6).map((step, index) => <li key={`${step}-${index}`}><span>{index + 1}</span>{step}</li>)}</ol></section>}<footer><span>Sapienworx verified role</span><b>View job →</b></footer></article><p className="job-preview-help">This preview reflects the public job story. Internal salary information stays private.</p></aside>
     </section>
     {shareJob && <JobShareModal job={shareJob} onClose={() => setShareJob(null)}/>}
   </WorkspaceShell>;
 }
 
-function RichJobEditor({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+function RichJobEditor({ value, onChange, label = "Job description", placeholder = "Describe the role, key responsibilities, and what success looks like…" }: { value: string; onChange: (value: string) => void; label?: string; placeholder?: string }) {
   const editorRef = useRef<HTMLDivElement>(null);
   useEffect(() => { if (editorRef.current && editorRef.current.innerHTML !== value) editorRef.current.innerHTML = value; }, [value]);
   const applyFormat = (command: "bold" | "italic" | "underline" | "insertUnorderedList" | "insertOrderedList" | "createLink") => { const editor = editorRef.current; if (!editor) return; if (document.activeElement !== editor) editor.focus(); if (command === "createLink") { const url = window.prompt("Paste the external link"); if (!url) return; document.execCommand("createLink", false, url); } else document.execCommand(command, false); onChange(sanitizeRichText(editor.innerHTML)); };
-  return <div className="rich-text-editor"><div className="rich-text-toolbar" role="toolbar" aria-label="Job description formatting" onMouseDown={(event) => event.preventDefault()}><button type="button" onClick={() => applyFormat("bold")} aria-label="Bold"><b>B</b></button><button type="button" onClick={() => applyFormat("italic")} aria-label="Italic"><i>I</i></button><button type="button" onClick={() => applyFormat("underline")} aria-label="Underline"><u>U</u></button><span/><button type="button" onClick={() => applyFormat("insertUnorderedList")} aria-label="Bullet list">• List</button><button type="button" onClick={() => applyFormat("insertOrderedList")} aria-label="Numbered list">1. List</button><button type="button" onClick={() => applyFormat("createLink")} aria-label="Insert link">⌁ Link</button></div><div ref={editorRef} className="rich-text-surface" role="textbox" aria-label="Job description" aria-multiline="true" contentEditable suppressContentEditableWarning onInput={(event) => onChange(sanitizeRichText(event.currentTarget.innerHTML))} data-placeholder="Describe the role, key responsibilities, and what success looks like…"/></div>;
+  return <div className="rich-text-editor"><div className="rich-text-toolbar" role="toolbar" aria-label={`${label} formatting`} onMouseDown={(event) => event.preventDefault()}><button type="button" onClick={() => applyFormat("bold")} aria-label="Bold"><b>B</b></button><button type="button" onClick={() => applyFormat("italic")} aria-label="Italic"><i>I</i></button><button type="button" onClick={() => applyFormat("underline")} aria-label="Underline"><u>U</u></button><span/><button type="button" onClick={() => applyFormat("insertUnorderedList")} aria-label="Bullet list">• List</button><button type="button" onClick={() => applyFormat("insertOrderedList")} aria-label="Numbered list">1. List</button><button type="button" onClick={() => applyFormat("createLink")} aria-label="Insert link">⌁ Link</button></div><div ref={editorRef} className="rich-text-surface" role="textbox" aria-label={label} aria-multiline="true" contentEditable suppressContentEditableWarning onInput={(event) => onChange(sanitizeRichText(event.currentTarget.innerHTML))} data-placeholder={placeholder}/></div>;
 }
 
 function sanitizeRichText(value: string) { return value.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/\son\w+=("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/(href|src)=("|')?\s*javascript:[^\s>"']*("|')?/gi, ""); }
@@ -226,71 +440,266 @@ function managementPath({ query, status, location, order }: JobManagementInitial
 }
 
 export function RecruiterJobDetail({ jobId }: { jobId: string }) {
-  const job = managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase());
   const [activeTab, setActiveTab] = useState<RecruiterJobDetailTab>("Overview");
   const [backTo, setBackTo] = useState("/recruiter/jobs/manage");
-  useEffect(() => { const requestedBackPath = new URLSearchParams(window.location.search).get("back"); if (requestedBackPath?.startsWith("/recruiter/jobs/manage")) setBackTo(requestedBackPath); }, []);
-  if (!job) return <WorkspaceShell workspace="recruiter" active="my-jobs" title="Job not found" description="This vacancy may have been moved or archived."><section className="panel job-detail-empty"><p>We could not find a job with ID {jobId}.</p><Button href="/recruiter/jobs/manage" variant="secondary">Back to My Jobs</Button></section></WorkspaceShell>;
-  const applicantCandidates = startingCandidates.filter((candidate) => candidate.role === job.title);
+  const [workspace, setWorkspace] = useState<RecruiterJobWorkspaceApiResponse | null>(null);
+  const [dataSource, setDataSource] = useState<"loading" | "live" | "preview" | "error">("loading");
+  const [loadError, setLoadError] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
+  const [actionPending, setActionPending] = useState("");
+  const [actionNotice, setActionNotice] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [shareJob, setShareJob] = useState<ShareableJob | null>(null);
+  const previewJob = managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase());
+
+  useEffect(() => {
+    const requestedBackPath = new URLSearchParams(window.location.search).get("back");
+    if (requestedBackPath?.startsWith("/recruiter/jobs/manage")) setBackTo(requestedBackPath);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDataSource("loading");
+    setLoadError("");
+    void apiClient<RecruiterJobWorkspaceApiResponse>(`/api/recruiter/jobs/${encodeURIComponent(jobId)}/workspace?page=0&size=20`)
+      .then((response) => {
+        if (cancelled) return;
+        setWorkspace(response);
+        setDataSource("live");
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setWorkspace(null);
+        setLoadError(error instanceof Error ? error.message : "The job workspace could not be loaded.");
+        setDataSource(managedJobs.some((item) => item.jobId.toLowerCase() === jobId.toLowerCase()) ? "preview" : "error");
+      });
+    return () => { cancelled = true; };
+  }, [jobId, reloadToken]);
+
+  if (dataSource === "loading") return <WorkspaceShell workspace="recruiter" active="my-jobs" title="Loading job workspace" description="Retrieving the vacancy and its applicant pipeline…"><section className="panel job-detail-loading" aria-live="polite"><span/><span/><span/></section></WorkspaceShell>;
+  if (!workspace && !previewJob) return <WorkspaceShell workspace="recruiter" active="my-jobs" title="Job unavailable" description="This vacancy could not be opened for the current recruiter."><section className="panel job-detail-empty"><div className="job-publish-error" role="alert">{loadError || `We could not find a job with ID ${jobId}.`}</div><p>Check that the Job ID belongs to your organisation and that your recruiter session is still active.</p><div className="job-detail-empty-actions"><Button onClick={() => setReloadToken((value) => value + 1)}>Retry</Button><Button href="/recruiter/jobs/manage" variant="secondary">Back to My Jobs</Button></div></section></WorkspaceShell>;
+
+  const job = workspace ? managedJobFromApi(workspace.summary) : previewJob!;
+  const apiJob = workspace?.summary.job ?? previewApiJob(job);
+  const applicants = workspace?.applications.content ?? previewApplicants(job);
   const applicationLabel = job.applicants === 1 ? "1 applicant" : `${job.applicants} applicants`;
   const tabs: RecruiterJobDetailTab[] = ["Overview", "Applicants", "Job Description", "Settings"];
+  const pipelinePath = `/recruiter/pipeline?role=${job.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
+  const interviewActivity = (job.interviewing ?? 0) + (job.finalStage ?? 0);
+  const shareableJob: ShareableJob = { jobId: job.jobId, title: job.title, company: apiJob.organisationName, location: job.location, skills: job.skills, experience: `${job.minimumExperience}–${job.maximumExperience} Yrs Exp` };
+  const changeStatus = async (status: "ACTIVE" | "CLOSED" | "ARCHIVED" | "DRAFT", notice: string) => {
+    if (dataSource !== "live") return;
+    setActionPending(status);
+    setActionError("");
+    setActionNotice(`Updating ${job.title}…`);
+    try {
+      const updated = await apiClient<RecruiterJobApiResponse>(`/api/recruiter/jobs/${encodeURIComponent(job.jobId)}/status/${status}`, { method: "POST" });
+      setWorkspace((current) => current ? { ...current, summary: { ...current.summary, job: updated } } : current);
+      setActionNotice(notice);
+    } catch (error) {
+      setActionNotice("");
+      setActionError(error instanceof Error ? error.message : "The job status could not be updated.");
+    } finally {
+      setActionPending("");
+    }
+  };
   return <WorkspaceShell workspace="recruiter" active="my-jobs">
     <a className="job-detail-back" href={backTo}>‹ Back to My Jobs</a>
-    <section className="job-detail-header panel"><div className="job-detail-header-main"><div className="job-detail-company-mark">N</div><div><span className="eyebrow">Nexora Technologies</span><h1>{job.title}</h1><p>{job.location} <span>·</span> {job.minimumExperience}–{job.maximumExperience} years <span>·</span> ₹{job.minimumSalary}L–₹{job.maximumSalary}L</p></div></div><div className="job-detail-header-actions"><Badge tone={jobStatusTone(job.status)}>{job.status}</Badge><a className="button button-primary" href={`/recruiter/jobs?edit=${job.id}`}>Edit job</a></div></section>
-    <nav className="job-detail-tabs" aria-label="Job detail sections">{tabs.map((tab) => <button className={activeTab === tab ? "active" : ""} onClick={() => setActiveTab(tab)} key={tab} type="button">{tab}</button>)}</nav>
-    {activeTab === "Overview" && <section className="job-detail-overview"><article className="panel"><span className="eyebrow">Vacancy health</span><h2>Recruitment overview</h2><div className="job-detail-stats"><div><strong>{applicationLabel}</strong><span>Total received</span></div><div><strong>{job.status === "Published" ? "Live" : job.status}</strong><span>Current status</span></div><div><strong>{formatJobDate(job.createdAt)}</strong><span>Created</span></div></div></article><article className="panel"><span className="eyebrow">Skills requested</span><h2>What the role needs</h2><div className="job-detail-skills">{job.skills.map((skill) => <span key={skill}>{skill}</span>)}</div></article></section>}
-    {activeTab === "Applicants" && <section className="panel job-detail-applicants"><header><div><span className="eyebrow">Candidate flow</span><h2>{applicationLabel}</h2></div><Button href={`/recruiter/pipeline?role=${encodeURIComponent(job.title)}`} variant="secondary">View pipeline</Button></header>{applicantCandidates.length ? <div className="job-detail-applicant-list">{applicantCandidates.map((candidate) => <a href={`/recruiter/pipeline?role=${encodeURIComponent(job.title)}`} key={candidate.id}><span className="result-avatar">{candidate.initials}</span><div><strong>{candidate.name}</strong><small>{candidate.stage} · {candidate.score}% match</small></div><span>View →</span></a>)}</div> : <p className="job-detail-muted">Candidate applications will appear here once this role is published.</p>}</section>}
-    {activeTab === "Job Description" && <section className="panel job-detail-description"><header><div><span className="eyebrow">Read-only job specification</span><h2>Job description</h2></div><Button href={`/recruiter/jobs?edit=${job.id}`}>Edit job</Button></header><div className="job-detail-skills">{job.skills.map((skill) => <span key={skill}>{skill}</span>)}</div><article className="rich-job-render" dangerouslySetInnerHTML={{ __html: job.description }}/></section>}
-    {activeTab === "Settings" && <section className="panel job-detail-settings"><span className="eyebrow">Job settings</span><h2>Publishing details</h2><dl><div><dt>Job ID</dt><dd><code>{job.jobId}</code></dd></div><div><dt>Job visibility</dt><dd>{job.status === "Published" ? "Visible on Sapienworx" : "Not visible to candidates"}</dd></div><div><dt>Public application link</dt><dd><a href={publicJobPath(job.jobId, job.title)}>{publicJobPath(job.jobId, job.title)}</a></dd></div></dl></section>}
+    {dataSource === "preview" && <div className="job-publish-error" role="alert">{loadError} Showing a read-only preview; sign in again to use live applicant and lifecycle controls. <button type="button" onClick={() => setReloadToken((value) => value + 1)}>Retry live connection</button></div>}
+    {actionNotice && <div className="creation-success" role="status">{actionNotice}</div>}
+    {actionError && <div className="job-publish-error" role="alert">{actionError}</div>}
+    <section className="job-detail-header panel"><div className="job-detail-header-main"><div className="job-detail-company-mark">{apiJob.organisationName.charAt(0).toUpperCase()}</div><div><span className="eyebrow">{apiJob.organisationName} · {dataSource === "live" ? "Live workspace" : "Preview workspace"}</span><h1>{job.title}</h1><p>{displayJobLocation(job.location, apiJob.workplaceModel)} <span>·</span> {job.minimumExperience}–{job.maximumExperience} years <span>·</span> {readableJobLabel(apiJob.workplaceModel)} <span>·</span> {readableJobLabel(apiJob.employmentType)}</p></div></div><div className="job-detail-header-actions"><Badge tone={jobStatusTone(job.status)}>{job.status}</Badge>{job.status === "Published" && <Button variant="secondary" onClick={() => setShareJob(shareableJob)}>Share</Button>}<a className="button button-primary" href={`/recruiter/jobs?jobId=${encodeURIComponent(job.jobId)}`}>Edit job</a></div></section>
+    <nav className="job-detail-tabs" aria-label="Job detail sections">{tabs.map((tab) => <button className={activeTab === tab ? "active" : ""} aria-current={activeTab === tab ? "page" : undefined} onClick={() => setActiveTab(tab)} key={tab} type="button">{tab}{tab === "Applicants" && <span>{job.applicants}</span>}</button>)}</nav>
+    {activeTab === "Overview" && <section className="job-detail-overview"><article className="panel job-detail-health"><span className="eyebrow">Vacancy health</span><h2>Recruitment overview</h2><div className="job-detail-metric-grid"><div><strong>{job.applicants}</strong><span>Total applicants</span><small>{job.newApplicants ?? 0} awaiting review</small></div><div><strong>{interviewActivity}</strong><span>Interview activity</span><small>{job.finalStage ?? 0} in final stage</small></div><div><strong>{(job.offers ?? 0) + (job.onboarded ?? 0)}</strong><span>Offers and hires</span><small>{job.onboarded ?? 0} onboarded</small></div><div><strong>{job.status === "Published" ? "Live" : job.status}</strong><span>Publishing status</span><small>Updated {formatJobTimestamp(apiJob.updatedAt)}</small></div></div><a className="job-detail-pipeline-link" href={pipelinePath}>Open the complete candidate pipeline <span>→</span></a></article><article className="panel job-detail-role-brief"><span className="eyebrow">Role brief</span><h2>What the role needs</h2><dl><div><dt>Team</dt><dd>{apiJob.department}</dd></div><div><dt>Experience</dt><dd>{job.minimumExperience}–{job.maximumExperience} years</dd></div><div><dt>Work model</dt><dd>{readableJobLabel(apiJob.workplaceModel)}</dd></div><div><dt>Employment</dt><dd>{readableJobLabel(apiJob.employmentType)}</dd></div></dl><div className="job-detail-skills">{job.skills.map((skill) => <span key={skill}>{skill}</span>)}</div></article><article className="panel job-detail-funnel"><span className="eyebrow">Pipeline distribution</span><h2>Where candidates stand</h2><div className="job-detail-funnel-list">{[["New", job.newApplicants ?? 0], ["Screening", job.screening ?? 0], ["Interviewing", job.interviewing ?? 0], ["Final stage", job.finalStage ?? 0], ["Offer", job.offers ?? 0], ["Onboarded", job.onboarded ?? 0], ["Rejected", job.rejected ?? 0]].map(([label, count]) => <div key={String(label)}><span>{label}</span><b>{count}</b><i><span style={{ width: `${job.applicants ? Math.max(4, (Number(count) / job.applicants) * 100) : 0}%` }}/></i></div>)}</div></article></section>}
+    {activeTab === "Applicants" && <section className="panel job-detail-applicants"><header><div><span className="eyebrow">Candidate flow · latest first</span><h2>{applicationLabel}</h2><p>Applications shown here are attached to this exact Job ID.</p></div><Button href={pipelinePath} variant="secondary">Open full pipeline</Button></header>{applicants.length ? <div className="job-detail-applicant-list">{applicants.map((candidate) => <a href={`/recruiter/jobs/${encodeURIComponent(job.jobId)}/applications/${candidate.applicationId}`} key={candidate.applicationId}><span className="result-avatar">{candidateInitials(candidate.fullName)}</span><div><strong>{candidate.fullName}</strong><small>{candidate.headline || "Candidate profile"}</small><span>{candidate.skills.slice(0, 4).join(" · ") || "Profile skills pending"}</span></div><div className="job-detail-applicant-stage"><Badge tone={pipelineStageTone(candidate.pipelineStage)}>{readablePipelineStage(candidate.pipelineStage)}</Badge><small>Applied {formatJobTimestamp(candidate.appliedAt)}</small></div></a>)}</div> : <div className="job-detail-zero-state"><strong>No applications for this role yet</strong><p>{job.status === "Draft" ? "Publish the role when the candidate story is ready." : job.status === "Published" ? "Share the public role or review its search visibility to reach relevant candidates." : "Applications remain available after a job is closed or archived."}</p>{job.status === "Published" && <Button onClick={() => setShareJob(shareableJob)}>Share this role</Button>}</div>}</section>}
+    {activeTab === "Job Description" && <section className="job-detail-description-grid"><article className="panel job-detail-description"><header><div><span className="eyebrow">Candidate-facing specification</span><h2>Role story</h2></div><Button href={`/recruiter/jobs?jobId=${encodeURIComponent(job.jobId)}`}>Edit job</Button></header><div className="job-detail-skills">{job.skills.map((skill) => <span key={skill}>{skill}</span>)}</div><section><h3>About the role</h3><div className="rich-job-render" dangerouslySetInnerHTML={{ __html: apiJob.descriptionHtml }}/></section><section><h3>What the person will own</h3><div className="rich-job-render" dangerouslySetInnerHTML={{ __html: apiJob.responsibilitiesHtml }}/></section></article><aside className="stack"><section className="panel job-detail-story-card"><span className="eyebrow">About the employer</span><h3>{apiJob.organisationName}</h3><p>{apiJob.companyOverview || "Company overview has not been added yet."}</p></section><section className="panel job-detail-story-card"><span className="eyebrow">Candidate proposition</span><h3>Why join</h3><p>{apiJob.whyJoin || "Why-join copy has not been added yet."}</p></section><section className="panel job-detail-process"><span className="eyebrow">Hiring process</span><h3>What candidates can expect</h3><ol>{apiJob.hiringProcess.split(/\r?\n/).filter(Boolean).map((step, index) => <li key={`${step}-${index}`}><span>{index + 1}</span><p>{step}</p></li>)}</ol></section></aside></section>}
+    {activeTab === "Settings" && <section className="panel job-detail-settings"><header><div><span className="eyebrow">Job settings</span><h2>Publishing and lifecycle</h2></div><Badge tone={jobStatusTone(job.status)}>{job.status}</Badge></header><dl><div><dt>Job ID</dt><dd><code>{job.jobId}</code></dd></div><div><dt>Job visibility</dt><dd>{job.status === "Published" ? "Visible on Sapienworx and ready to share" : "Not visible to candidates"}</dd></div><div><dt>Created</dt><dd>{formatJobTimestamp(apiJob.createdAt)}</dd></div><div><dt>Last updated</dt><dd>{formatJobTimestamp(apiJob.updatedAt)}</dd></div><div><dt>Published</dt><dd>{apiJob.publishedAt ? formatJobTimestamp(apiJob.publishedAt) : "Not published yet"}</dd></div><div><dt>Internal compensation</dt><dd>{job.minimumSalary && job.maximumSalary ? `₹${job.minimumSalary}L–₹${job.maximumSalary}L · recruiter-only` : "Not specified"}</dd></div><div><dt>Public application link</dt><dd>{job.status === "Published" ? <a href={apiJob.publicPath}>{apiJob.publicPath}</a> : "Available after publishing"}</dd></div></dl><section className="job-detail-lifecycle"><div><strong>Lifecycle controls</strong><p>Every status change is recorded and guarded by the publishing rules.</p></div><div>{job.status === "Draft" && <Button href={`/recruiter/jobs?jobId=${encodeURIComponent(job.jobId)}`}>Finish and publish</Button>}{job.status === "Published" && <Button variant="secondary" disabled={Boolean(actionPending) || dataSource !== "live"} onClick={() => void changeStatus("CLOSED", `${job.title} is now closed.`)}>Close job</Button>}{job.status === "Closed" && <Button disabled={Boolean(actionPending) || dataSource !== "live"} onClick={() => void changeStatus("ACTIVE", `${job.title} has been reopened.`)}>Reopen job</Button>}{job.status !== "Archived" && <Button variant="quiet" disabled={Boolean(actionPending) || dataSource !== "live"} onClick={() => void changeStatus("ARCHIVED", `${job.title} has been archived.`)}>Archive job</Button>}{job.status === "Archived" && <Button disabled={Boolean(actionPending) || dataSource !== "live"} onClick={() => void changeStatus("DRAFT", `${job.title} has been restored as a draft.`)}>Restore as draft</Button>}</div></section></section>}
+    {shareJob && <JobShareModal job={shareJob} onClose={() => setShareJob(null)}/>}
   </WorkspaceShell>;
 }
 
-export type PublicJobDetailData = { jobId: string; title: string; organisationName: string; location: string; skills: string[]; minimumExperienceYears: number; maximumExperienceYears: number; minimumSalaryLakhs: number | null; maximumSalaryLakhs: number | null; salaryVisible: boolean; descriptionHtml: string };
+function previewApiJob(job: ManagedJob): RecruiterJobApiResponse {
+  return { jobId: job.jobId, title: job.title, organisationName: job.organisationName || "Nexora Technologies", verifiedEmployer: true, location: job.location, department: "General", employmentType: "FULL_TIME", workplaceModel: job.location.toLowerCase().includes("remote") ? "REMOTE" : job.location.toLowerCase().includes("hybrid") ? "HYBRID" : "ON_SITE", minimumExperienceYears: Number(job.minimumExperience), maximumExperienceYears: Number(job.maximumExperience), minimumSalaryLakhs: job.minimumSalary ? Number(job.minimumSalary) : null, maximumSalaryLakhs: job.maximumSalary ? Number(job.maximumSalary) : null, salaryVisible: false, descriptionHtml: job.description, companyOverview: "Nexora Technologies builds practical products with thoughtful, cross-functional teams.", whyJoin: "Do meaningful work with room to shape both the product and how the team delivers it.", responsibilitiesHtml: job.description, hiringProcess: "Application review\nRecruiter conversation\nRole-focused conversation\nFinal decision", skills: job.skills, status: job.status === "Published" ? "ACTIVE" : job.status.toUpperCase(), domainCategory: "TECH", publicPath: publicJobPath(job.jobId, job.title), createdAt: job.createdAt, updatedAt: job.createdAt, publishedAt: job.status === "Published" ? job.createdAt : null };
+}
 
-export function PublicJobDetail({ jobId, slug, fromSearch = false, initialJob, referralCode, shareSource }: { jobId: string; slug: string; fromSearch?: boolean; initialJob?: PublicJobDetailData | null; referralCode?: string; shareSource?: string }) {
-  const job = initialJob ? { id: initialJob.jobId, jobId: initialJob.jobId, title: initialJob.title, status: "Published" as const, location: initialJob.location, createdAt: "", applicants: 0, skills: initialJob.skills, minimumExperience: String(initialJob.minimumExperienceYears), maximumExperience: String(initialJob.maximumExperienceYears), minimumSalary: initialJob.salaryVisible ? String(initialJob.minimumSalaryLakhs ?? "") : "", maximumSalary: initialJob.salaryVisible ? String(initialJob.maximumSalaryLakhs ?? "") : "", description: initialJob.descriptionHtml, company: initialJob.organisationName } : managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase());
+function previewApplicants(job: ManagedJob): RecruiterJobApplicantApiResponse[] {
+  return startingCandidates.filter((candidate) => candidate.role === job.title).map((candidate) => ({ applicationId: `preview-${candidate.id}`, candidateId: String(candidate.id), fullName: candidate.name, headline: candidate.role, skills: candidateAttributes[candidate.id]?.skills ?? [], pipelineStage: candidate.stage.toUpperCase().replaceAll(" ", "_"), appliedAt: null, updatedAt: null, lastActiveAt: null, applicationSource: "PREVIEW" }));
+}
+
+function candidateInitials(name: string) { return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("") || "CA"; }
+function readablePipelineStage(stage: string) { return stage.toLowerCase().replaceAll("_", " ").replace(/^./, (value) => value.toUpperCase()); }
+function pipelineStageTone(stage: string): "amber" | "green" | "blue" | "neutral" { return stage === "ONBOARDED" || stage === "OFFER" ? "green" : stage === "INTERVIEWING" || stage === "FINAL_STAGE" ? "blue" : stage === "REJECTED" ? "neutral" : "amber"; }
+function formatJobTimestamp(value: string | null | undefined) { if (!value) return "Not available"; const parsed = new Date(value.includes("T") ? value : `${value}T00:00:00`); if (Number.isNaN(parsed.getTime())) return "Not available"; return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(parsed); }
+
+export type PublicJobDetailData = {
+  jobId: string; title: string; organisationName: string; verifiedEmployer: boolean; location: string; department: string;
+  employmentType: string; workplaceModel: string; skills: string[]; minimumExperienceYears: number; maximumExperienceYears: number;
+  minimumSalaryLakhs: number | null; maximumSalaryLakhs: number | null; salaryVisible: boolean; descriptionHtml: string;
+  companyOverview: string; whyJoin: string; responsibilitiesHtml: string; hiringProcess: string; publicPath: string; publishedAt: string | null;
+};
+
+function readableJobLabel(value: string) { return value.toLowerCase().replaceAll("_", " ").replace(/^./, (character) => character.toUpperCase()); }
+function displayJobLocation(location: string, workplaceModel: string) { const model = readableJobLabel(workplaceModel); const candidates = [` · ${model}`, `, ${model}`, ` (${model})`]; const suffix = candidates.find((value) => location.toLowerCase().endsWith(value.toLowerCase())); return suffix ? location.slice(0, -suffix.length).trim() : location; }
+function publicJobAge(value: string | null) { if (!value) return "Recently published"; const days = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 86_400_000)); return days === 0 ? "Posted today" : `Posted ${days}d ago`; }
+
+export function PublicJobDetail({ jobId, slug: _slug, fromSearch = false, initialJob, similarJobs = [], referralCode, shareSource }: { jobId: string; slug: string; fromSearch?: boolean; initialJob?: PublicJobDetailData | null; similarJobs?: PublicJobDetailData[]; referralCode?: string; shareSource?: string }) {
+  const managed = managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase());
+  const job = initialJob ? {
+    jobId: initialJob.jobId, title: initialJob.title, location: initialJob.location, skills: initialJob.skills,
+    minimumExperience: String(initialJob.minimumExperienceYears), maximumExperience: String(initialJob.maximumExperienceYears),
+    description: initialJob.descriptionHtml, company: initialJob.organisationName, verifiedEmployer: initialJob.verifiedEmployer,
+    department: initialJob.department, employmentType: initialJob.employmentType, workplaceModel: initialJob.workplaceModel,
+    companyOverview: initialJob.companyOverview, whyJoin: initialJob.whyJoin, responsibilitiesHtml: initialJob.responsibilitiesHtml,
+    hiringProcess: initialJob.hiringProcess, publicPath: initialJob.publicPath, publishedAt: initialJob.publishedAt,
+  } : managed ? {
+    jobId: managed.jobId, title: managed.title, location: managed.location, skills: managed.skills,
+    minimumExperience: managed.minimumExperience, maximumExperience: managed.maximumExperience, description: managed.description,
+    company: "Nexora Technologies", verifiedEmployer: true, department: "General", employmentType: "FULL_TIME",
+    workplaceModel: managed.location.toLowerCase().includes("remote") ? "REMOTE" : managed.location.toLowerCase().includes("hybrid") ? "HYBRID" : "ON_SITE",
+    companyOverview: "Nexora Technologies builds practical digital products with thoughtful, cross-functional teams.",
+    whyJoin: "Work on meaningful problems with room to influence both the product and how the team delivers it.",
+    responsibilitiesHtml: managed.description, hiringProcess: "Application review\nRecruiter conversation\nRole-focused conversation\nFinal decision",
+    publicPath: publicJobPath(managed.jobId, managed.title), publishedAt: `${managed.createdAt}T00:00:00Z`,
+  } : null;
   if (!job) return <main className="public-page public-job-detail-page"><header className="public-nav"><Logo /><a className="recruiter-entry" href="/jobs">Find jobs <span>→</span></a></header><section className="public-job-unavailable"><span className="eyebrow">Job unavailable</span><h1>This role is no longer available.</h1><p>The vacancy may have been closed, archived, or the link may be incomplete.</p><Button href="/jobs">Browse all jobs</Button></section></main>;
-  const canonicalPath = publicJobPath(job.jobId, job.title);
-  const salary = job.minimumSalary && job.maximumSalary ? <span>₹{job.minimumSalary}L–₹{job.maximumSalary}L</span> : <span>Salary discussed with the employer</span>;
-  const company = initialJob?.organisationName ?? "Nexora Technologies";
+  const canonicalPath = job.publicPath || publicJobPath(job.jobId, job.title);
   const authPath = (path: "/login" | "/register") => { const query = new URLSearchParams({ job: job.jobId }); if (referralCode) query.set("ref", referralCode); if (shareSource) query.set("source", shareSource); return `${path}?${query.toString()}`; };
   const registerPath = authPath("/register");
   const signInPath = authPath("/login");
+  const hiringSteps = job.hiringProcess.split(/\r?\n/).map((step) => step.trim()).filter(Boolean);
+  const processSteps = hiringSteps.length ? hiringSteps : ["Application review", "Recruiter conversation", "Role-focused conversation", "Final decision"];
   return <main className="public-page public-job-detail-page">
     <header className="public-nav"><Logo /><nav aria-label="Public navigation"><a href="/jobs">Find jobs</a><a href="/companies">Companies</a><a href="/knowledge">Knowledge hub</a></nav><div className="public-nav-actions"><a className="text-action" href={signInPath}>Sign in to apply</a><a className="button button-primary" href={registerPath}>Create profile</a></div></header>
     <nav className="public-job-breadcrumb public-container" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/jobs">Jobs</a><span>/</span><strong>{job.title}</strong></nav>
     {fromSearch && <div className="public-container"><a className="public-job-search-back" href="/jobs">‹ Back to search results</a></div>}
-    <section className="public-job-detail-hero"><div className="public-container"><div className="public-job-detail-brand"><span>{company.slice(0, 1)}</span><p>{company}</p></div><div className="public-job-detail-heading"><div><span className="eyebrow">Sapienworx verified role</span><h1>{job.title}</h1><div className="public-job-detail-meta"><span>{job.minimumExperience}–{job.maximumExperience} years</span>{salary}<span>{job.location}</span></div></div><a className="button button-primary public-job-hero-apply" href={registerPath}>Apply now <span>→</span></a></div></div></section>
-    <main className="public-job-detail-layout public-section"><article className="public-job-description"><span className="eyebrow">About the role</span><h2>Build your next chapter with {company}.</h2><div className="public-job-skill-list">{job.skills.map((skill) => <span key={skill}>{skill}</span>)}</div><div className="rich-job-render" dangerouslySetInnerHTML={{ __html: job.description }}/></article><aside className="public-job-apply-panel"><strong>{job.title}</strong><p>{job.location}</p><a className="button button-primary" href={registerPath}>Apply now <span>→</span></a><small>New to Sapienworx? We will create and verify your account before submitting your application.</small><small>Applications are delivered only to the recruiter who posted this role, including applications from shared links.</small><a className="public-job-copy-link" href={signInPath}>Already a member? Sign in to apply</a><a className="public-job-copy-link" href={canonicalPath}>Open canonical link</a></aside></main>
+    <section className="public-job-detail-hero"><div className="public-container public-job-hero-grid"><div className="public-job-detail-brand"><span>{job.company.slice(0, 1)}</span><div><p>{job.company}</p>{job.verifiedEmployer && <small>✓ Verified employer</small>}</div></div><div className="public-job-detail-heading"><span className="eyebrow">Career opportunity · {publicJobAge(job.publishedAt)}</span><h1>{job.title}</h1><div className="public-job-detail-meta"><span>{job.minimumExperience}–{job.maximumExperience} years</span><span>{readableJobLabel(job.workplaceModel)}</span><span>{readableJobLabel(job.employmentType)}</span><span>{job.location}</span></div><div className="public-job-hero-actions"><a className="button button-primary public-job-hero-apply" href={registerPath}>Apply now <span>→</span></a><PublicJobSave jobId={job.jobId} jobTitle={job.title} signInHref={signInPath}/><PublicJobShare publicPath={canonicalPath} title={job.title} company={job.company}/></div></div></div></section>
+    <section className="public-job-detail-shell public-section"><div className="public-job-story-column">
+      <article className="public-job-story-panel"><span className="eyebrow">About the role</span><h2>Build your next chapter with {job.company}.</h2><div className="public-job-skill-list">{job.skills.map((skill) => <span key={skill}>{skill}</span>)}</div><div className="rich-job-render" dangerouslySetInnerHTML={{ __html: job.description }}/></article>
+      <article className="public-job-story-panel"><span className="eyebrow">The work</span><h2>What you&apos;ll take ownership of</h2><div className="rich-job-render" dangerouslySetInnerHTML={{ __html: job.responsibilitiesHtml || job.description }}/></article>
+      <article className="public-job-story-panel public-job-process"><span className="eyebrow">What to expect</span><h2>A clear hiring process</h2><ol>{processSteps.map((step, index) => <li key={step}><span>{index + 1}</span><div><strong>{step}</strong><small>{index === 0 ? "Your verified Sapienworx profile is shared with the posting recruiter." : index === processSteps.length - 1 ? "You receive a clear outcome from the hiring team." : "The team shares the format before the conversation."}</small></div></li>)}</ol></article>
+    </div><aside className="public-job-detail-aside"><section className="public-job-apply-panel"><span className="eyebrow">Interested in this role?</span><strong>{job.title}</strong><p>{job.location}</p><a className="button button-primary" href={registerPath}>Apply now <span>→</span></a><PublicJobSave jobId={job.jobId} jobTitle={job.title} signInHref={signInPath}/><PublicJobShare publicPath={canonicalPath} title={job.title} company={job.company}/><small>New to Sapienworx? We will create and verify your account before submitting your application.</small><small>Applications are delivered only to the recruiter who posted this role, including applications from shared links.</small><a className="public-job-copy-link" href={signInPath}>Already a member? Sign in to apply</a></section><section className="public-job-company-panel"><div className="public-job-company-heading"><span>{job.company.slice(0, 1)}</span><div><strong>{job.company}</strong>{job.verifiedEmployer && <small>✓ Verified employer</small>}</div></div><p>{job.companyOverview || `${job.company} is actively hiring through Sapienworx.`}</p><h3>Why join</h3><p>{job.whyJoin || "Join a team where the role, expectations, and hiring process are communicated clearly."}</p><dl><div><dt>Team</dt><dd>{job.department}</dd></div><div><dt>Work model</dt><dd>{readableJobLabel(job.workplaceModel)}</dd></div><div><dt>Employment</dt><dd>{readableJobLabel(job.employmentType)}</dd></div></dl></section></aside></section>
+    {similarJobs.length > 0 && <section className="public-job-similar public-section"><header><div><span className="eyebrow">Keep exploring</span><h2>Similar roles worth a look</h2></div><a href="/jobs">Browse all jobs →</a></header><div>{similarJobs.map((similar) => <article key={similar.jobId}><p>{similar.organisationName}{similar.verifiedEmployer && <span>✓ Verified</span>}</p><h3>{similar.title}</h3><div className="public-job-detail-meta"><span>{similar.minimumExperienceYears}–{similar.maximumExperienceYears} years</span><span>{readableJobLabel(similar.workplaceModel)}</span><span>{similar.location}</span></div><div className="public-job-skill-list">{similar.skills.slice(0, 3).map((skill) => <span key={skill}>{skill}</span>)}</div><a href={similar.publicPath}>View role <span>→</span></a></article>)}</div></section>}
     <div className="public-job-mobile-apply"><a className="button button-primary" href={registerPath}>Apply now <span>→</span></a></div>
   </main>;
 }
 
 export type JobManagementInitialFilters = { query?: string; status?: string; location?: string; order?: string };
 
+function managedJobStatusFromApi(status: string): ManagedJobStatus {
+  if (status === "ACTIVE") return "Published";
+  if (status === "CLOSED") return "Closed";
+  if (status === "ARCHIVED") return "Archived";
+  return "Draft";
+}
+
+function managedJobFromApi(item: RecruiterManagedJobApiResponse): ManagedJob {
+  const job = item.job;
+  return {
+    id: job.jobId.toLowerCase(),
+    jobId: job.jobId,
+    title: job.title,
+    status: managedJobStatusFromApi(job.status),
+    location: job.location,
+    createdAt: job.createdAt ?? new Date().toISOString(),
+    applicants: item.applicants,
+    skills: job.skills,
+    minimumExperience: String(job.minimumExperienceYears),
+    maximumExperience: String(job.maximumExperienceYears),
+    minimumSalary: job.minimumSalaryLakhs == null ? "" : String(job.minimumSalaryLakhs),
+    maximumSalary: job.maximumSalaryLakhs == null ? "" : String(job.maximumSalaryLakhs),
+    description: job.descriptionHtml,
+    organisationName: job.organisationName,
+    newApplicants: item.newApplicants,
+    screening: item.screening,
+    interviewing: item.interviewing,
+    finalStage: item.finalStage,
+    offers: item.offers,
+    onboarded: item.onboarded,
+    rejected: item.rejected,
+    latestApplicationAt: item.latestApplicationAt,
+  };
+}
+
+function closeJobRowMenu(target: HTMLElement) {
+  target.closest("details")?.removeAttribute("open");
+}
+
 export function RecruiterJobList({ initialFilters = {} }: { initialFilters?: JobManagementInitialFilters }) {
   const [jobs, setJobs] = useState(managedJobs);
+  const [dataSource, setDataSource] = useState<"loading" | "live" | "preview">("loading");
   const [query, setQuery] = useState(initialFilters.query ?? "");
   const [statusFilter, setStatusFilter] = useState<"All" | ManagedJobStatus>(isManagedJobStatus(initialFilters.status) ? initialFilters.status : "All");
   const [locationFilter, setLocationFilter] = useState(initialFilters.location ?? "All");
   const [dateOrder, setDateOrder] = useState<"newest" | "oldest">(initialFilters.order === "oldest" ? "oldest" : "newest");
   const [shareJob, setShareJob] = useState<ShareableJob | null>(null);
   const [actionNotice, setActionNotice] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [actionPending, setActionPending] = useState("");
+
+  const loadLiveJobs = async () => {
+    try {
+      const response = await apiClient<RecruiterManagedJobsPage>("/api/recruiter/jobs?page=0&size=100");
+      setJobs(response.content.map(managedJobFromApi));
+      setDataSource("live");
+      setActionError("");
+    } catch {
+      setDataSource("preview");
+      setActionError("Live job data is temporarily unavailable. Showing the recruiter preview dataset; lifecycle changes are disabled until the connection returns.");
+    }
+  };
+
+  useEffect(() => { void loadLiveJobs(); }, []);
+
   const locations = Array.from(new Set(jobs.map((job) => job.location)));
   const filteredJobs = jobs.filter((job) => (statusFilter === "All" || job.status === statusFilter) && (locationFilter === "All" || job.location === locationFilter) && `${job.jobId} ${job.title}`.toLowerCase().includes(query.toLowerCase())).sort((first, second) => dateOrder === "newest" ? second.createdAt.localeCompare(first.createdAt) : first.createdAt.localeCompare(second.createdAt));
-  const toShareableJob = (job: ManagedJob): ShareableJob => ({ jobId: job.jobId, title: job.title, company: "Nexora Technologies", location: job.location, skills: job.skills, experience: `${job.minimumExperience}–${job.maximumExperience} Yrs Exp` });
+  const portfolioTotals = filteredJobs.reduce((totals, job) => ({ applicants: totals.applicants + job.applicants, newApplicants: totals.newApplicants + (job.newApplicants ?? 0), interviews: totals.interviews + (job.interviewing ?? 0) + (job.finalStage ?? 0), offers: totals.offers + (job.offers ?? 0) + (job.onboarded ?? 0) }), { applicants: 0, newApplicants: 0, interviews: 0, offers: 0 });
+  const toShareableJob = (job: ManagedJob): ShareableJob => ({ jobId: job.jobId, title: job.title, company: job.organisationName || "Nexora Technologies", location: job.location, skills: job.skills, experience: `${job.minimumExperience}–${job.maximumExperience} Yrs Exp` });
   const currentManagementPath = managementPath({ query, status: statusFilter, location: locationFilter, order: dateOrder });
-  const duplicateJob = async (job: ManagedJob) => { setActionNotice("Creating a new draft ID…"); try { const response = await fetch("/api/jobs/allocate-id", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tenantId: "nexora-technologies", companyName: "Nexora Technologies" }) }); if (!response.ok) throw new Error("Duplicate ID request failed"); const payload = await response.json() as { jobId: string }; const clone = { ...job, id: `${job.id}-copy`, jobId: payload.jobId, title: `${job.title} (copy)`, status: "Draft" as const, createdAt: "2026-08-21", applicants: 0 }; setJobs((current) => [clone, ...current]); window.location.assign(`/recruiter/jobs?duplicate=${job.id}&jobId=${payload.jobId}`); } catch { setActionNotice("Could not create a duplicate Job ID. Please try again."); } };
-  const updateJobStatus = (jobId: string, status: ManagedJobStatus) => { setJobs((current) => current.map((job) => job.id === jobId ? { ...job, status } : job)); setActionNotice(`Job status updated to ${status}.`); };
+  const duplicateJob = async (job: ManagedJob) => {
+    if (dataSource !== "live") return;
+    setActionPending(job.jobId);
+    setActionError("");
+    setActionNotice("Creating a fresh draft from this role…");
+    try {
+      const response = await apiClient<RecruiterJobApiResponse>(`/api/recruiter/jobs/${encodeURIComponent(job.jobId)}/duplicate`, { method: "POST" });
+      setActionNotice(`Draft ${response.jobId} created. Opening it now…`);
+      window.location.assign(`/recruiter/jobs?jobId=${encodeURIComponent(response.jobId)}`);
+    } catch (error) {
+      setActionNotice("");
+      setActionError(error instanceof Error ? error.message : "The job could not be duplicated.");
+    } finally {
+      setActionPending("");
+    }
+  };
+
+  const updateJobStatus = async (job: ManagedJob, apiStatus: "ACTIVE" | "CLOSED" | "ARCHIVED" | "DRAFT", label: string) => {
+    if (dataSource !== "live") return;
+    setActionPending(job.jobId);
+    setActionError("");
+    setActionNotice(`Updating ${job.title}…`);
+    try {
+      const response = await apiClient<RecruiterJobApiResponse>(`/api/recruiter/jobs/${encodeURIComponent(job.jobId)}/status/${apiStatus}`, { method: "POST" });
+      setJobs((current) => current.map((item) => item.jobId === job.jobId ? { ...item, status: managedJobStatusFromApi(response.status) } : item));
+      setActionNotice(`${job.title} ${label}.`);
+    } catch (error) {
+      setActionNotice("");
+      setActionError(error instanceof Error ? error.message : "The job status could not be updated.");
+    } finally {
+      setActionPending("");
+    }
+  };
+
   return <WorkspaceShell workspace="recruiter" active="my-jobs" title="My Jobs" description="Search, distribute, and manage every vacancy in your organisation." actions={<Button href="/recruiter/jobs">+ Post a job</Button>}>
     {actionNotice && <div className="creation-success" role="status">{actionNotice}</div>}
-    <section className="panel job-management"><header className="job-management-header"><div><span className="eyebrow">Job portfolio</span><h2>{filteredJobs.length} roles</h2></div><p>Search by exact Job ID or any part of a job title. Drafts reopen directly in Post Jobs.</p></header><div className="job-management-controls"><label className="job-management-search"><span>⌕</span><input aria-label="Search vacancies" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search Job ID or job title"/></label><label>Status<select aria-label="Filter jobs by status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "All" | ManagedJobStatus)}><option>All</option><option>Draft</option><option>Published</option><option>Closed</option><option>Archived</option></select></label><label>Location<select aria-label="Filter jobs by location" value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)}><option>All</option>{locations.map((location) => <option key={location}>{location}</option>)}</select></label><label>Created<select aria-label="Sort jobs by creation date" value={dateOrder} onChange={(event) => setDateOrder(event.target.value as "newest" | "oldest")}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label></div><div className="job-management-table-wrap"><table className="job-management-table"><thead><tr><th>Job ID</th><th>Vacancy</th><th>Status</th><th>Created</th><th>Applicants</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{filteredJobs.map((job) => <tr key={job.id}><td><a className="job-detail-link" href={`/recruiter/jobs/${encodeURIComponent(job.jobId)}?back=${encodeURIComponent(currentManagementPath)}`}><code>{job.jobId}</code></a></td><td><a className="job-detail-title" href={`/recruiter/jobs/${encodeURIComponent(job.jobId)}?back=${encodeURIComponent(currentManagementPath)}`}><strong>{job.title}</strong><small>{job.location} · {job.skills.slice(0, 2).join(", ")}</small></a></td><td><Badge tone={jobStatusTone(job.status)}>{job.status}</Badge></td><td>{formatJobDate(job.createdAt)}</td><td>{job.applicants || "—"}</td><td><details className="job-row-menu"><summary aria-label={`Actions for ${job.title}`}>•••</summary><div><a href={`/recruiter/jobs?${job.status === "Draft" ? "draft" : "edit"}=${job.id}`}>Edit job</a><button onClick={() => { void duplicateJob(job); }}>Duplicate job</button>{job.status === "Published" && <button onClick={() => setShareJob(toShareableJob(job))}>Share job</button>}<button onClick={() => updateJobStatus(job.id, "Closed")}>Close job</button><button onClick={() => updateJobStatus(job.id, "Archived")}>Archive job</button></div></details></td></tr>)}</tbody></table>{filteredJobs.length === 0 && <div className="empty-state"><span>⌕</span><h3>No jobs match these filters</h3><p>Adjust the status, location, date, or search term to find a role.</p></div>}</div></section>
+    {actionError && <div className="job-publish-error" role="alert">{actionError} {dataSource === "preview" && <button type="button" onClick={() => { setDataSource("loading"); void loadLiveJobs(); }}>Retry live connection</button>}</div>}
+    <section className="job-portfolio-metrics" aria-label="Filtered job portfolio analytics"><article><span>Applicants</span><strong>{portfolioTotals.applicants}</strong><small>Across visible roles</small></article><article><span>New applications</span><strong>{portfolioTotals.newApplicants}</strong><small>Awaiting first review</small></article><article><span>Interview activity</span><strong>{portfolioTotals.interviews}</strong><small>Interviewing or final stage</small></article><article><span>Offers and hires</span><strong>{portfolioTotals.offers}</strong><small>Offer or onboarded</small></article></section>
+    <section className="panel job-management"><header className="job-management-header"><div><span className="eyebrow">Job portfolio · {dataSource === "live" ? "Live organisation data" : dataSource === "loading" ? "Connecting…" : "Preview data"}</span><h2>{filteredJobs.length} roles</h2></div><p>Search by exact Job ID or any part of a job title. Pipeline totals update from submitted applications.</p></header><div className="job-management-controls"><label className="job-management-search"><span>⌕</span><input aria-label="Search vacancies" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search Job ID or job title"/></label><label>Status<select aria-label="Filter jobs by status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "All" | ManagedJobStatus)}><option>All</option><option>Draft</option><option>Published</option><option>Closed</option><option>Archived</option></select></label><label>Location<select aria-label="Filter jobs by location" value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)}><option>All</option>{locations.map((location) => <option key={location}>{location}</option>)}</select></label><label>Created<select aria-label="Sort jobs by creation date" value={dateOrder} onChange={(event) => setDateOrder(event.target.value as "newest" | "oldest")}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label></div><div className="job-management-table-wrap"><table className="job-management-table"><thead><tr><th>Job ID</th><th>Vacancy</th><th>Status</th><th>Created</th><th>Pipeline</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{filteredJobs.map((job) => <tr key={job.id}><td><a className="job-detail-link" href={`/recruiter/jobs/${encodeURIComponent(job.jobId)}?back=${encodeURIComponent(currentManagementPath)}`}><code>{job.jobId}</code></a></td><td><a className="job-detail-title" href={`/recruiter/jobs/${encodeURIComponent(job.jobId)}?back=${encodeURIComponent(currentManagementPath)}`}><strong>{job.title}</strong><small>{job.location} · {job.skills.slice(0, 2).join(", ")}</small></a></td><td><Badge tone={jobStatusTone(job.status)}>{job.status}</Badge></td><td>{formatJobDate(job.createdAt)}</td><td><a className="job-pipeline-cell" href={`/recruiter/pipeline?role=${job.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`}><strong>{job.applicants || "—"}</strong><small>{job.applicants ? `${job.newApplicants ?? 0} new · ${(job.interviewing ?? 0) + (job.finalStage ?? 0)} interviews` : "No applications yet"}</small></a></td><td><details className="job-row-menu"><summary aria-label={`Actions for ${job.title}`}>•••</summary><div><a href={`/recruiter/jobs?jobId=${encodeURIComponent(job.jobId)}`}>Edit job</a><button disabled={actionPending === job.jobId || dataSource !== "live"} onClick={(event) => { closeJobRowMenu(event.currentTarget); void duplicateJob(job); }}>Duplicate job</button>{job.status === "Published" && <button onClick={(event) => { closeJobRowMenu(event.currentTarget); setShareJob(toShareableJob(job)); }}>Share job</button>}{job.status === "Published" && <button disabled={actionPending === job.jobId || dataSource !== "live"} onClick={(event) => { closeJobRowMenu(event.currentTarget); void updateJobStatus(job, "CLOSED", "is now closed"); }}>Close job</button>}{job.status === "Closed" && <button disabled={actionPending === job.jobId || dataSource !== "live"} onClick={(event) => { closeJobRowMenu(event.currentTarget); void updateJobStatus(job, "ACTIVE", "has been reopened"); }}>Reopen job</button>}{job.status === "Archived" && <button disabled={actionPending === job.jobId || dataSource !== "live"} onClick={(event) => { closeJobRowMenu(event.currentTarget); void updateJobStatus(job, "DRAFT", "has been restored as a draft"); }}>Restore as draft</button>}{job.status !== "Archived" && <button disabled={actionPending === job.jobId || dataSource !== "live"} onClick={(event) => { closeJobRowMenu(event.currentTarget); void updateJobStatus(job, "ARCHIVED", "has been archived"); }}>Archive job</button>}</div></details></td></tr>)}</tbody></table>{filteredJobs.length === 0 && <div className="empty-state"><span>⌕</span><h3>No jobs match these filters</h3><p>{jobs.length === 0 && dataSource === "live" ? "Your organisation has no jobs yet. Publish the first role to start building a pipeline." : "Adjust the status, location, date, or search term to find a role."}</p>{jobs.length === 0 && dataSource === "live" && <Button href="/recruiter/jobs">Post your first job</Button>}</div>}</div></section>
     {shareJob && <JobShareModal job={shareJob} onClose={() => setShareJob(null)}/>}
   </WorkspaceShell>;
 }
 
 function jobStatusTone(status: ManagedJobStatus): "amber" | "green" | "blue" | "neutral" { return status === "Draft" ? "amber" : status === "Published" ? "green" : status === "Closed" ? "blue" : "neutral"; }
-function formatJobDate(value: string) { return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${value}T00:00:00`)); }
+function formatJobDate(value: string) { return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value.includes("T") ? value : `${value}T00:00:00`)); }
 
 function JobShareModal({ job, onClose }: { job: ShareableJob; onClose: () => void }) {
   const [sharedWith, setSharedWith] = useState("");

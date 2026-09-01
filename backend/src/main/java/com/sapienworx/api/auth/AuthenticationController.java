@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -49,12 +50,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/password-reset/request")
-    public PasswordResetService.ResetRequested requestPasswordReset(@RequestBody PasswordResetService.PasswordResetRequest request) {
+    public PasswordResetService.ResetRequested requestPasswordReset(@Valid @RequestBody PasswordResetService.PasswordResetRequest request) {
         return passwordResetService.request(request);
     }
 
     @PostMapping("/password-reset/confirm")
-    public ResponseEntity<Void> confirmPasswordReset(@RequestBody PasswordResetService.PasswordResetConfirmation request) {
+    public ResponseEntity<Void> confirmPasswordReset(@Valid @RequestBody PasswordResetService.PasswordResetConfirmation request) {
         passwordResetService.confirm(request);
         return ResponseEntity.noContent().build();
     }
@@ -66,6 +67,17 @@ public class AuthenticationController {
     @GetMapping("/csrf")
     public CsrfTokenResponse csrf(CsrfToken csrfToken) {
         return new CsrfTokenResponse(csrfToken.getToken(), csrfToken.getHeaderName());
+    }
+
+    /**
+     * Returns only the minimum identity data required by a portal shell to
+     * prevent a signed-in user from seeing another role's workspace. Domain
+     * endpoints remain responsible for their own authorisation.
+     */
+    @GetMapping("/session")
+    public ResponseEntity<CurrentSessionResponse> currentSession(@AuthenticationPrincipal AuthenticatedUser user) {
+        if (user == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(new CurrentSessionResponse(user.userId(), user.role().name()));
     }
 
     @PostMapping("/logout")
@@ -95,5 +107,8 @@ public class AuthenticationController {
     }
 
     public record CsrfTokenResponse(String token, String headerName) {
+    }
+
+    public record CurrentSessionResponse(UUID userId, String role) {
     }
 }

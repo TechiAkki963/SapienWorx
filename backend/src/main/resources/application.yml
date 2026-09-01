@@ -11,6 +11,10 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 21MB
   data:
     redis:
       url: ${REDIS_URL}
@@ -20,13 +24,68 @@ spring:
     addresses: ${RABBITMQ_ADDRESSES:localhost:5672}
     username: ${RABBITMQ_USERNAME:sapienworx}
     password: ${RABBITMQ_PASSWORD}
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+server:
+  shutdown: graceful
+  forward-headers-strategy: framework
+  max-http-request-header-size: 16KB
+  error:
+    include-exception: false
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 app:
+  queue:
+    provider: ${BACKGROUND_QUEUE_PROVIDER:rabbitmq}
+    sqs:
+      wait-time-seconds: ${SQS_WAIT_TIME_SECONDS:20}
+      max-messages: ${SQS_MAX_MESSAGES:5}
+      quarantine-retry-seconds: ${SQS_QUARANTINE_RETRY_SECONDS:30}
+      visibility-timeouts:
+        otp: ${SQS_OTP_VISIBILITY_TIMEOUT_SECONDS:60}
+        cv: ${SQS_CV_VISIBILITY_TIMEOUT_SECONDS:900}
+        email: ${SQS_EMAIL_VISIBILITY_TIMEOUT_SECONDS:120}
+      queues:
+        otp-email: ${SQS_OTP_EMAIL_QUEUE_URL:}
+        otp-mobile: ${SQS_OTP_MOBILE_QUEUE_URL:}
+        cv-candidate: ${SQS_CV_CANDIDATE_QUEUE_URL:}
+        cv-bulk: ${SQS_CV_BULK_QUEUE_URL:}
+        cv-dead-letter: ${SQS_CV_DEAD_LETTER_QUEUE_URL:}
+        email-bulk: ${SQS_EMAIL_BULK_QUEUE_URL:}
+        email-dead-letter: ${SQS_EMAIL_DEAD_LETTER_QUEUE_URL:}
+  workers:
+    cv-enabled: ${CV_WORKER_ENABLED:true}
+    otp-email-enabled: ${OTP_EMAIL_WORKER_ENABLED:true}
+    otp-mobile-enabled: ${OTP_MOBILE_WORKER_ENABLED:false}
+    email-enabled: ${EMAIL_WORKER_ENABLED:true}
+    poll-delay: ${WORKER_POLL_DELAY:PT1S}
+  aws:
+    region: ${AWS_REGION:ap-south-1}
   security:
     # Generate a 32-byte-or-longer random key and Base64 encode it. Do not commit it.
     jwt:
       base64-secret: ${JWT_BASE64_SECRET}
       ttl: PT8H
+      issuer: ${JWT_ISSUER:sapienworx}
     cookie:
       # Override to false only for local HTTP development.
       secure: ${AUTH_COOKIE_SECURE:true}
@@ -42,6 +101,16 @@ app:
   cv-storage:
     type: ${CV_STORAGE_TYPE:filesystem}
     root: ${CV_STORAGE_ROOT:./private-cv}
+    s3:
+      bucket: ${CV_STORAGE_S3_BUCKET:}
+      quarantine-prefix: ${CV_STORAGE_S3_QUARANTINE_PREFIX:quarantine/candidates}
+      kms-key-id: ${CV_STORAGE_S3_KMS_KEY_ID:}
+      require-clean-scan-tag: ${CV_STORAGE_REQUIRE_CLEAN_SCAN_TAG:false}
+  privacy:
+    # Keep disabled until production retention policy, backups, and legal hold handling are approved.
+    retention-purge-enabled: ${PRIVACY_RETENTION_PURGE_ENABLED:false}
+    erasure-grace-days: ${PRIVACY_ERASURE_GRACE_DAYS:30}
+    retention-purge-cron: "${PRIVACY_RETENTION_PURGE_CRON:0 30 2 * * *}"
   communication:
     email:
       from: ${COMMUNICATION_EMAIL_FROM:notifications@sapienworx.com}

@@ -9,6 +9,8 @@ import com.sapienworx.api.admin.PlatformAdministrator;
 import com.sapienworx.api.admin.PlatformAdministratorRepository;
 import com.sapienworx.api.admin.PlatformControlsRepository;
 import com.sapienworx.api.admin.PlatformAccessPolicy;
+import com.sapienworx.api.admin.PrivacyConsentEvidence;
+import com.sapienworx.api.admin.PrivacyConsentEvidenceRepository;
 import com.sapienworx.api.candidate.CandidateCareerStage;
 import com.sapienworx.api.candidate.CandidateRegistrationStatus;
 import com.sapienworx.api.candidate.CandidateRepository;
@@ -50,10 +52,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationService {
+    public static final String PRIVACY_NOTICE_VERSION = "2026-08-31";
+    public static final String PRIVACY_NOTICE_LANGUAGE = "en-IN";
     private static final Duration TRANSACTION_TTL = Duration.ofMinutes(10);
     private static final Duration OTP_REQUEST_COOLDOWN = Duration.ofSeconds(30);
     private static final String TRANSACTION_PREFIX = "sapienworx:auth:transaction:";
     private static final String OTP_COOLDOWN_PREFIX = "sapienworx:auth:otp-cooldown:";
+    private static final String LOGIN_FAILURE_PREFIX = "sapienworx:auth:login-failures:";
+    private static final int MAX_LOGIN_FAILURES = 5;
     private static final Set<String> SUPPORTED_INTERESTED_DOMAINS = Set.of(
             "Technology", "IT Services", "Manufacturing & Production", "Healthcare & Life Sciences",
             "Infrastructure, Transport & Real Estate", "BFSI", "BPM", "Consumer, Retail & Hospitality",
@@ -74,6 +80,7 @@ public class AuthenticationService {
     private final AccountSessionService accountSessionService;
     private final CandidateRecoveryCodeService recoveryCodes;
     private final AuditLogWriter auditLogWriter;
+    private final PrivacyConsentEvidenceRepository consentEvidenceRepository;
 
     public OtpRequestResponse requestOtp(OtpRequest request, String trustedDeviceToken) {
         PendingAuthentication pending = preparePending(request, trustedDeviceToken);
@@ -99,7 +106,13 @@ public class AuthenticationService {
         if (pending.verifiedChannels().contains(request.channel())) {
             return completionOrPending(request.transactionId(), pending);
         }
+        if (otpChallengeStore.attemptsExceeded(request.transactionId(), purposeFor(pending.flow()), request.channel())) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many incorrect codes. Request a new verification code and try again.");
+        }
         if (!otpChallengeStore.verify(request.transactionId(), purposeFor(pending.flow()), request.channel(), request.code())) {
+            if (otpChallengeStore.attemptsExceeded(request.transactionId(), purposeFor(pending.flow()), request.channel())) {
+                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many incorrect codes. Request a new verification code and try again.");
+            }
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "That verification code is invalid or has expired.");
         }
 
@@ -185,15 +198,17 @@ public class AuthenticationService {
             CandidateCareerStage careerStage = candidateCareerStage(request.careerStage());
             List<String> interestedDomains = candidateInterests(request.interestedDomains());
             if (!Boolean.TRUE.equals(request.termsAccepted())) {
-                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Accept the Terms and Data Processing Agreement before registration.");
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Accept the Terms and Privacy notice before registration.");
             }
+            requireNoticeAcknowledgement(request);
+            requireAdultEligibility(request);
             if (candidateRepository.existsByEmailOrMobile(email, mobile)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "An account already exists for this email or mobile number.");
             }
             return new PendingAuthentication(request.flow(), PlatformRole.CANDIDATE, null, name, email, mobile,
                     passwordEncoder.encode(password), true, Boolean.TRUE.equals(request.automationConsent()),
                     null, null, null, null, null, null, null, null, domainCategory, careerStage, interestedDomains,
-                    Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of());
+                    Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE), Set.of(), normalizedNoticeVersion(request.noticeVersion()), normalizedNoticeLanguage(request.noticeLanguage()), true);
         }
 
         validateOfficialEmail(email);
@@ -205,6 +220,10 @@ public class AuthenticationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported authentication flow.");
         }
         String password = required(request.password(), "A password of at least eight characters is required.");
+        if (!Boolean.TRUE.equals(request.termsAccepted())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Accept the Terms and Privacy notice before registration.");
+        }
+        requireNoticeAcknowledgement(request);
         String name = recruiterName(request.firstName(), request.lastName());
         String location = recruiterLocation(request.city(), request.state(), request.location());
         String organisationName = required(request.organisationName(), "Organisation is required.");
@@ -218,10 +237,10 @@ public class AuthenticationService {
         Set<OtpChannel> channels = flow == AuthFlow.CONSULTANT_REGISTRATION
                 ? Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE) : Set.of(OtpChannel.EMAIL);
         return new PendingAuthentication(flow, PlatformRole.RECRUITER, null, name, email, mobile,
-                passwordEncoder.encode(password), false, false,
+                passwordEncoder.encode(password), true, false,
                 organisationName,
                 required(request.designation(), "Designation is required."), location,
-                null, null, null, null, null, null, null, List.of(), channels, Set.of());
+                null, null, null, null, null, null, null, List.of(), channels, Set.of(), normalizedNoticeVersion(request.noticeVersion()), normalizedNoticeLanguage(request.noticeLanguage()), true);
     }
 
     private PendingAuthentication signInPending(OtpRequest request, String trustedDeviceToken) {
@@ -231,39 +250,43 @@ public class AuthenticationService {
         }
         String email = normalizeEmail(request.email());
         String password = required(request.password(), "Password is required.");
+        guardLoginAttempts(email);
         if (role == PlatformRole.SUPER_ADMIN) {
-            PlatformAdministrator administrator = platformAdministratorRepository.findByEmailIgnoreCase(email).orElseThrow(() -> invalidCredentials());
-            if (!administrator.isActive() || !passwordEncoder.matches(password, administrator.getPasswordHash())) throw invalidCredentials();
+            PlatformAdministrator administrator = platformAdministratorRepository.findByEmailIgnoreCase(email).orElseThrow(() -> failedCredentials(email));
+            if (!administrator.isActive() || !passwordEncoder.matches(password, administrator.getPasswordHash())) throw failedCredentials(email);
             AuthenticatedUser user = new AuthenticatedUser(administrator.getId(), role);
             platformAccessPolicy.requireSignInAllowed(user);
-            return new PendingAuthentication(AuthFlow.SIGN_IN, role, administrator.getId(), administrator.getDisplayName(), administrator.getEmail(), null, null, false, false, null, null, null, null, null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL), Set.of());
+            clearLoginAttempts(email);
+            return new PendingAuthentication(AuthFlow.SIGN_IN, role, administrator.getId(), administrator.getDisplayName(), administrator.getEmail(), null, null, false, false, null, null, null, null, null, null, null, null, null, null, List.of(), Set.of(OtpChannel.EMAIL), Set.of(), null, null, true);
         }
         if (role == PlatformRole.CANDIDATE) {
-            Candidate candidate = candidateRepository.findByEmail(email).orElseThrow(() -> invalidCredentials());
+            Candidate candidate = candidateRepository.findByEmail(email).orElseThrow(() -> failedCredentials(email));
             if (candidate.getPasswordHash() == null || !passwordEncoder.matches(password, candidate.getPasswordHash())) {
-                throw invalidCredentials();
+                throw failedCredentials(email);
             }
             if (candidate.getRegistrationStatus() != CandidateRegistrationStatus.ACTIVE) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Complete account verification before signing in.");
             }
             platformAccessPolicy.requireSignInAllowed(new AuthenticatedUser(candidate.getId(), role));
+            clearLoginAttempts(email);
             Set<OtpChannel> candidateChannels = accountSessionService.isTrustedCandidateDevice(candidate.getId(), trustedDeviceToken)
                     ? Set.of(OtpChannel.EMAIL) : Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE);
             return new PendingAuthentication(AuthFlow.SIGN_IN, role, candidate.getId(), candidate.getFullName(),
                     candidate.getEmail(), candidate.getMobile(), null, false, false, null, null, null,
-                    null, null, null, null, null, null, null, List.of(), candidateChannels, Set.of());
+                    null, null, null, null, null, null, null, List.of(), candidateChannels, Set.of(), null, null, true);
         }
 
-        Recruiter recruiter = recruiterRepository.findByOfficialEmail(email).orElseThrow(() -> invalidCredentials());
+        Recruiter recruiter = recruiterRepository.findByOfficialEmail(email).orElseThrow(() -> failedCredentials(email));
         if (recruiter.getPasswordHash() == null || !passwordEncoder.matches(password, recruiter.getPasswordHash())) {
-            throw invalidCredentials();
+            throw failedCredentials(email);
         }
         platformAccessPolicy.requireSignInAllowed(new AuthenticatedUser(recruiter.getId(), role));
+        clearLoginAttempts(email);
         Set<OtpChannel> channels = recruiter.getRecruiterType() == RecruiterType.CONSULTANT
                 ? Set.of(OtpChannel.EMAIL, OtpChannel.MOBILE) : Set.of(OtpChannel.EMAIL);
         return new PendingAuthentication(AuthFlow.SIGN_IN, role, recruiter.getId(), recruiter.getFullName(),
                 recruiter.getOfficialEmail(), recruiter.getMobile(), null, false, false, null, null, null,
-                null, null, null, null, null, null, null, List.of(), channels, Set.of());
+                null, null, null, null, null, null, null, List.of(), channels, Set.of(), null, null, true);
     }
 
     private AuthenticatedUser registerCandidate(PendingAuthentication pending) {
@@ -287,7 +310,9 @@ public class AuthenticationService {
                 .automationConsent(pending.automationConsent())
                 .build();
         candidate.activateAfterDualVerification();
-        return new AuthenticatedUser(candidateRepository.save(candidate).getId(), PlatformRole.CANDIDATE);
+        Candidate saved = candidateRepository.save(candidate);
+        recordRegistrationConsent(saved.getId(), pending);
+        return new AuthenticatedUser(saved.getId(), PlatformRole.CANDIDATE);
     }
 
     private AuthenticatedUser registerRecruiter(PendingAuthentication pending) {
@@ -318,8 +343,35 @@ public class AuthenticationService {
                 .emailVerified(true)
                 .mobileVerified(consultant)
                 .build();
-        return new AuthenticatedUser(recruiterRepository.save(recruiter).getId(), PlatformRole.RECRUITER);
+        Recruiter saved = recruiterRepository.save(recruiter);
+        recordRegistrationConsent(saved.getId(), pending);
+        return new AuthenticatedUser(saved.getId(), PlatformRole.RECRUITER);
     }
+
+    private void recordRegistrationConsent(UUID subjectId, PendingAuthentication pending) {
+        Instant now = Instant.now();
+        consentEvidenceRepository.save(PrivacyConsentEvidence.builder().subjectType(pending.role().name()).subjectId(subjectId)
+                .purpose("ACCOUNT_AND_RECRUITMENT_PROFILE").lawfulBasis("CONSENT")
+                .noticeVersion(pending.noticeVersion() == null ? PRIVACY_NOTICE_VERSION : pending.noticeVersion())
+                .noticeLanguage(pending.noticeLanguage() == null ? PRIVACY_NOTICE_LANGUAGE : pending.noticeLanguage())
+                .affirmativeAction(pending.termsAccepted()).recordedAt(now).build());
+    }
+
+    private void requireNoticeAcknowledgement(OtpRequest request) {
+        if (!PRIVACY_NOTICE_VERSION.equals(normalizedNoticeVersion(request.noticeVersion()))
+                || !PRIVACY_NOTICE_LANGUAGE.equals(normalizedNoticeLanguage(request.noticeLanguage()))) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Review the current Privacy notice and Terms before continuing.");
+        }
+    }
+
+    private void requireAdultEligibility(OtpRequest request) {
+        if (!Boolean.TRUE.equals(request.ageEligibilityConfirmed())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Sapienworx accounts are currently available to people aged 18 or over.");
+        }
+    }
+
+    private String normalizedNoticeVersion(String value) { return value == null ? "" : value.trim(); }
+    private String normalizedNoticeLanguage(String value) { return value == null ? "" : value.trim().toLowerCase(Locale.ROOT); }
 
     private PendingAuthentication find(String transactionId) {
         try {
@@ -370,6 +422,18 @@ public class AuthenticationService {
         }
     }
     private ResponseStatusException invalidCredentials() { return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email or password is incorrect."); }
+    private ResponseStatusException failedCredentials(String email) {
+        Long failures = redisTemplate.opsForValue().increment(LOGIN_FAILURE_PREFIX + fingerprint(email));
+        if (failures != null && failures == 1) redisTemplate.expire(LOGIN_FAILURE_PREFIX + fingerprint(email), Duration.ofMinutes(15));
+        return failures != null && failures >= MAX_LOGIN_FAILURES
+                ? new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many unsuccessful sign-in attempts. Try again in 15 minutes.")
+                : invalidCredentials();
+    }
+    private void guardLoginAttempts(String email) {
+        String value = redisTemplate.opsForValue().get(LOGIN_FAILURE_PREFIX + fingerprint(email));
+        if (value != null && Integer.parseInt(value) >= MAX_LOGIN_FAILURES) throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many unsuccessful sign-in attempts. Try again in 15 minutes.");
+    }
+    private void clearLoginAttempts(String email) { redisTemplate.delete(LOGIN_FAILURE_PREFIX + fingerprint(email)); }
 
     private String required(String value, String message) {
         if (value == null || value.isBlank()) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, message);

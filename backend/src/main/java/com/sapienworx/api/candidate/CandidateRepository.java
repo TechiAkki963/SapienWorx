@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import com.sapienworx.api.taxonomy.DomainCategory;
@@ -16,6 +17,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
     Optional<Candidate> findByEmail(String email);
     Optional<Candidate> findByMobile(String mobile);
     boolean existsByEmailOrMobile(String email, String mobile);
+    List<Candidate> findByDeletionRequestedTrueAndUpdatedAtBefore(Instant cutoff);
     long countByProfileSearchableTrueAndDomainCategoryAndIdNot(DomainCategory domainCategory, UUID candidateId);
 
     /**

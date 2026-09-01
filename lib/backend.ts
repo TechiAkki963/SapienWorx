@@ -7,9 +7,12 @@ const apiOrigin = (process.env.SAPIENWORX_API_URL ?? process.env.NEXT_PUBLIC_API
 
 export type ApiPage<T> = { content: T[]; totalElements: number; totalPages: number; number: number };
 export type ApiJob = {
-  jobId: string; title: string; organisationName: string; location: string; department: string;
+  jobId: string; title: string; organisationName: string; verifiedEmployer: boolean; location: string; department: string;
+  employmentType: "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERNSHIP" | "TEMPORARY" | "FREELANCE";
+  workplaceModel: "ON_SITE" | "HYBRID" | "REMOTE";
   minimumExperienceYears: number; maximumExperienceYears: number; minimumSalaryLakhs: number | null; maximumSalaryLakhs: number | null;
-  salaryVisible: boolean; descriptionHtml: string; skills: string[]; status: string; publicPath: string; publishedAt: string | null;
+  salaryVisible: boolean; descriptionHtml: string; companyOverview: string; whyJoin: string; responsibilitiesHtml: string;
+  hiringProcess: string; skills: string[]; status: string; publicPath: string; publishedAt: string | null;
 };
 export type CandidateDashboardSnapshot = {
   profile: { fullName: string; headline: string | null; domainCategory: string; profileSearchable: boolean; profileLastUpdatedAt: string | null; lastActiveAt: string | null };
@@ -43,14 +46,21 @@ const localDemoJobs: Record<string, ApiJob> = {
     jobId: "SWX_NX_001",
     title: "Senior Backend Engineer",
     organisationName: "Nexora Cloud",
+    verifiedEmployer: true,
     location: "Bengaluru · Hybrid",
     department: "Engineering",
+    employmentType: "FULL_TIME",
+    workplaceModel: "HYBRID",
     minimumExperienceYears: 4,
     maximumExperienceYears: 7,
     minimumSalaryLakhs: 18,
     maximumSalaryLakhs: 28,
     salaryVisible: true,
     descriptionHtml: "<p>Build reliable data and workflow services for a fast-growing hiring platform.</p>",
+    companyOverview: "Nexora Cloud builds dependable workflow infrastructure for teams operating at scale.",
+    whyJoin: "Join a focused engineering team where your judgement, craft, and measurable outcomes shape the product.",
+    responsibilitiesHtml: "<ul><li>Design and operate reliable workflow and data services.</li><li>Improve observability, testing, and production resilience.</li><li>Partner with product and platform teams on pragmatic technical decisions.</li></ul>",
+    hiringProcess: "Application review\nRecruiter conversation\nRole-focused technical conversation\nFinal team conversation and decision",
     skills: ["TypeScript", "Node.js", "PostgreSQL"],
     status: "PUBLISHED",
     publicPath: "/jobs/SWX_NX_001/senior-backend-engineer",
@@ -90,6 +100,10 @@ export const getPublicJob = cache(async (jobId: string) => {
   if (liveJob) return liveJob;
   return process.env.NEXT_PUBLIC_LOCAL_DEMO === "true" ? localDemoJobs[jobId.toUpperCase()] ?? null : null;
 });
+
+export async function getSimilarPublicJobs(jobId: string) {
+  return serverFetch<ApiJob[]>(`/api/public/jobs/${encodeURIComponent(jobId)}/similar?limit=3`);
+}
 
 export async function getCandidateDashboardSnapshot(): Promise<CandidateDashboardSnapshot | null> {
   return serverFetch<CandidateDashboardSnapshot>("/api/candidate/dashboard?rangeDays=90", true);

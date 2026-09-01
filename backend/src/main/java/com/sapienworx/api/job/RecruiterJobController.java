@@ -1,9 +1,9 @@
 package com.sapienworx.api.job;
 
 import com.sapienworx.api.security.AuthenticatedUser;
+import com.sapienworx.api.web.ApiPageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,11 +30,20 @@ public class RecruiterJobController {
         return recruiterJobService.createDraft(recruiterId(user), request);
     }
     @GetMapping
-    public Page<JobResponse> list(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(required = false) JobStatus status, @RequestParam(defaultValue = "0") int page) {
-        return recruiterJobService.list(recruiterId(user), status, PageRequest.of(Math.max(0, page), 20));
+    public ApiPageResponse<RecruiterManagedJobResponse> list(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(required = false) JobStatus status,
+                                                  @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        return ApiPageResponse.from(recruiterJobService.list(recruiterId(user), status, PageRequest.of(Math.max(0, page), Math.max(1, Math.min(size, 100)))));
     }
     @GetMapping("/{publicJobId}")
     public JobResponse details(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String publicJobId) { return recruiterJobService.details(recruiterId(user), publicJobId); }
+    @GetMapping("/{publicJobId}/workspace")
+    public RecruiterJobWorkspaceResponse workspace(@AuthenticationPrincipal AuthenticatedUser user,
+                                                    @PathVariable String publicJobId,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "20") int size) {
+        return recruiterJobService.workspace(recruiterId(user), publicJobId,
+                PageRequest.of(Math.max(0, page), Math.max(1, Math.min(size, 50))));
+    }
     @PatchMapping("/{publicJobId}")
     public JobResponse update(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String publicJobId, @Valid @RequestBody JobUpsertRequest request) { return recruiterJobService.update(recruiterId(user), publicJobId, request); }
     @PostMapping("/{publicJobId}/publish")

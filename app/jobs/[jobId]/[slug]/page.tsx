@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PublicJobDetail } from "../../../../components/recruiter";
-import { getPublicJob } from "../../../../lib/backend";
+import { getPublicJob, getSimilarPublicJobs } from "../../../../lib/backend";
 
 export const dynamic = "force-dynamic";
 
@@ -52,5 +52,6 @@ export default async function PublicJobDetailPage({
 }) {
   const { jobId, slug } = await params;
   const { from, ref, source } = await searchParams;
-  return <PublicJobDetail jobId={jobId} slug={slug} initialJob={await getPublicJob(jobId)} referralCode={typeof ref === "string" ? ref : undefined} shareSource={typeof source === "string" ? source : undefined} fromSearch={from === "search" || (Array.isArray(from) && from.includes("search"))} />;
+  const [job, similarJobs] = await Promise.all([getPublicJob(jobId), getSimilarPublicJobs(jobId)]);
+  return <PublicJobDetail jobId={jobId} slug={slug} initialJob={job} similarJobs={similarJobs ?? []} referralCode={typeof ref === "string" ? ref : undefined} shareSource={typeof source === "string" ? source : undefined} fromSearch={from === "search" || (Array.isArray(from) && from.includes("search"))} />;
 }

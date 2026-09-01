@@ -1,0 +1,172 @@
+name: AWS production deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type DEPLOY to release the current main commit"
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-south-1
+  ECS_CLUSTER: sapienworx-production
+  WEB_REPOSITORY: sapienworx-web
+  API_REPOSITORY: sapienworx-api
+  NEXT_PUBLIC_API_BASE_URL: https://www.sapienworx.com
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main' && inputs.confirm == 'DEPLOY'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ env.NEXT_PUBLIC_API_BASE_URL }}
+          DEPLOYMENT_VERSION: ${{ github.sha }}
+          NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - run: mvn -B -ntp clean verify
+        working-directory: backend
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      web_image: ${{ steps.images.outputs.web }}
+      api_image: ${{ steps.images.outputs.api }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: login
+        uses: aws-actions/amazon-ecr-login@v2
+      - id: images
+        shell: bash
+        run: |
+          echo "web=${{ steps.login.outputs.registry }}/${WEB_REPOSITORY}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "api=${{ steps.login.outputs.registry }}/${API_REPOSITORY}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          load: true
+          tags: ${{ steps.images.outputs.web }}
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=${{ env.NEXT_PUBLIC_API_BASE_URL }}
+            DEPLOYMENT_VERSION=${{ github.sha }}
+          secrets: |
+            next_server_actions_encryption_key=${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile
+          load: true
+          tags: ${{ steps.images.outputs.api }}
+      - uses: aquasecurity/trivy-action@0.32.0
+        with:
+          image-ref: ${{ steps.images.outputs.web }}
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          ignore-unfixed: true
+      - uses: aquasecurity/trivy-action@0.32.0
+        with:
+          image-ref: ${{ steps.images.outputs.api }}
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          ignore-unfixed: true
+      - run: docker push "${{ steps.images.outputs.web }}"
+      - run: docker push "${{ steps.images.outputs.api }}"
+
+  migrate:
+    needs: publish
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Run the one-off Flyway migration task
+        shell: bash
+        env:
+          PRIVATE_SUBNETS: ${{ vars.ECS_PRIVATE_SUBNETS }}
+          TASK_SECURITY_GROUP: ${{ vars.ECS_TASK_SECURITY_GROUP }}
+          API_IMAGE: ${{ needs.publish.outputs.api_image }}
+        run: |
+          set -euo pipefail
+          test -n "$PRIVATE_SUBNETS"
+          test -n "$TASK_SECURITY_GROUP"
+          aws ecs describe-task-definition --task-definition sapienworx-production-migration --query taskDefinition > migration-task.json
+          jq --arg IMAGE "$API_IMAGE" 'del(.taskDefinitionArn,.revision,.status,.requiresAttributes,.compatibilities,.registeredAt,.registeredBy) | .containerDefinitions |= map(if .name == "migration" then .image = $IMAGE else . end)' migration-task.json > next-migration-task.json
+          migration_definition="$(aws ecs register-task-definition --cli-input-json file://next-migration-task.json --query 'taskDefinition.taskDefinitionArn' --output text)"
+          task_arn="$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$migration_definition" \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[$PRIVATE_SUBNETS],securityGroups=[$TASK_SECURITY_GROUP],assignPublicIp=DISABLED}" \
+            --overrides '{"containerOverrides":[{"name":"migration","environment":[{"name":"FLYWAY_ENABLED","value":"true"}]}]}' \
+            --query 'tasks[0].taskArn' --output text)"
+          test -n "$task_arn"
+          test "$task_arn" != "None"
+          aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$task_arn"
+          exit_code="$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" --query 'tasks[0].containers[?name==`migration`].exitCode | [0]' --output text)"
+          test "$exit_code" = "0"
+
+  deploy:
+    needs: [publish, migrate]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Register immutable task revisions and update services
+        shell: bash
+        env:
+          WEB_IMAGE: ${{ needs.publish.outputs.web_image }}
+          API_IMAGE: ${{ needs.publish.outputs.api_image }}
+        run: |
+          set -euo pipefail
+          update_service() {
+            family="$1"; service="$2"; container="$3"; image="$4"
+            aws ecs describe-task-definition --task-definition "$family" --query taskDefinition > task.json
+            jq --arg NAME "$container" --arg IMAGE "$image" 'del(.taskDefinitionArn,.revision,.status,.requiresAttributes,.compatibilities,.registeredAt,.registeredBy) | .containerDefinitions |= map(if .name == $NAME then .image = $IMAGE else . end)' task.json > next-task.json
+            task_arn="$(aws ecs register-task-definition --cli-input-json file://next-task.json --query 'taskDefinition.taskDefinitionArn' --output text)"
+            aws ecs update-service --cluster "$ECS_CLUSTER" --service "$service" --task-definition "$task_arn" --force-new-deployment > /dev/null
+          }
+          update_service sapienworx-production-web sapienworx-production-web web "$WEB_IMAGE"
+          update_service sapienworx-production-api sapienworx-production-api api "$API_IMAGE"
+          for worker in cv auth email; do
+            update_service "sapienworx-production-worker-${worker}" "sapienworx-production-worker-${worker}" worker "$API_IMAGE"
+          done
+      - name: Wait for stable services
+        run: aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services sapienworx-production-web sapienworx-production-api sapienworx-production-worker-cv sapienworx-production-worker-auth sapienworx-production-worker-email
+      - name: Production smoke checks
+        shell: bash
+        run: |
+          curl --fail --retry 8 --retry-delay 10 https://www.sapienworx.com/ > /dev/null
+          curl --fail --retry 8 --retry-delay 10 https://www.sapienworx.com/actuator/health/readiness > /dev/null

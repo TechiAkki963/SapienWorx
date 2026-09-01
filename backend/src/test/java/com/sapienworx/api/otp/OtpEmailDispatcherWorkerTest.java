@@ -3,20 +3,28 @@ package com.sapienworx.api.otp;
 import org.junit.jupiter.api.Test;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import com.sapienworx.api.queue.QueueDeliveryGuard;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class OtpEmailDispatcherWorkerTest {
 
     @Test
     void sendsPasswordResetOtpWithSecuritySpecificCopy() {
         JavaMailSender sender = mock(JavaMailSender.class);
-        OtpEmailDispatcherWorker worker = new OtpEmailDispatcherWorker(sender);
+        QueueDeliveryGuard deliveryGuard = mock(QueueDeliveryGuard.class);
+        when(deliveryGuard.executeOnce(any(), any(), any(), any())).thenAnswer(invocation -> {
+            ((Runnable) invocation.getArgument(3)).run();
+            return true;
+        });
+        OtpEmailSender worker = new OtpEmailSender(sender, deliveryGuard);
         ReflectionTestUtils.setField(worker, "fromAddress", "security@sapienworx.test");
 
         worker.send(new OtpDispatchPayload(UUID.randomUUID(), "transaction", OtpPurpose.PASSWORD_RESET,

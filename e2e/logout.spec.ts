@@ -20,6 +20,7 @@ test("signs a recruiter out and removes local workspace data", async ({ page }) 
     window.localStorage.setItem("sapienworx-saved-candidates", '["preview-1"]');
   });
 
+  await page.getByRole("button", { name: /Account menu/ }).click();
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL(/\/recruiter\/login$/);
   await expect.poll(logoutRequests).toBe(1);
@@ -31,6 +32,7 @@ test("sends a candidate to the candidate sign-in page after logout", async ({ pa
   await page.addInitScript(() => window.localStorage.setItem("sapienworx.local-candidate-domain", "TECH"));
   await page.goto("/candidate");
 
+  await page.getByRole("button", { name: /Account menu/ }).click();
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();

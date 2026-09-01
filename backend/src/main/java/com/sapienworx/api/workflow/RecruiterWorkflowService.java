@@ -47,6 +47,7 @@ public class RecruiterWorkflowService {
     private final ObjectMapper objectMapper;
     private final PlatformAccessPolicy platformAccessPolicy;
     private final JdbcTemplate jdbc;
+    private final ApplicationEventService applicationEventService;
 
     @Transactional(readOnly = true)
     public List<WorkflowResponses.SavedSearch> savedSearches(UUID recruiterId) {
@@ -154,6 +155,13 @@ public class RecruiterWorkflowService {
         campaign.setCampaignStatus(RecruitmentCampaignStatus.QUEUED);
         for (RecruitmentCampaignRecipient recipient : campaignRecipientRepository.findByCampaign_Id(campaignId)) {
             if (recipient.getDeliveryStatus() != CampaignRecipientStatus.QUEUED) continue;
+            boolean optedOut = contactPreferenceRepository.findById(recipient.getCandidate().getId())
+                    .map(CandidateContactPreference::isOutreachOptOut).orElse(false);
+            if (optedOut || !recipient.getCandidate().isEmailVerified() || !recipient.getCandidate().isAutomationConsent()) {
+                recipient.setDeliveryStatus(optedOut ? CampaignRecipientStatus.OPTED_OUT : CampaignRecipientStatus.EXCLUDED);
+                if (optedOut) recipient.setOptedOutAt(Instant.now());
+                continue;
+            }
             try {
                 emailDispatchService.queueForCandidate(recipient.getCandidate().getId(), new RecruiterEmailCommand(recipient.getCandidate().getId(),
                         campaign.getJob() == null ? null : campaign.getJob().getPublicJobId(), campaign.getSubject(), campaign.getBodyHtml()));
@@ -179,10 +187,19 @@ public class RecruiterWorkflowService {
         Recruiter recruiter = recruiter(recruiterId);
         var interview = interviewRepository.findById(request.interviewId()).filter(value -> value.getRecruiter().getOrganisation().getId().equals(recruiter.getOrganisation().getId()))
                 .orElseThrow(() -> notFound("Interview was not found."));
+        List<UUID> panelIds = interview.getPanelRecruiterIds() == null ? List.of() : interview.getPanelRecruiterIds();
+        if (!interview.getRecruiter().getId().equals(recruiterId) && !panelIds.contains(recruiterId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the interview owner or an assigned panel member can submit this scorecard.");
+        }
         InterviewScorecard scorecard = scorecardRepository.findByInterview_IdAndRecruiter_Id(interview.getId(), recruiterId)
                 .orElseGet(() -> InterviewScorecard.builder().interview(interview).recruiter(recruiter).build());
-        scorecard.setRecommendation(request.recommendation()); scorecard.setScore(request.score()); scorecard.setFeedback(request.feedback().trim());
-        return scorecardResponse(scorecardRepository.save(scorecard));
+        scorecard.setRecommendation(request.recommendation()); scorecard.setScore(request.score());
+        scorecard.setCriteriaScores(request.criteriaScores() == null ? java.util.Map.of() : java.util.Map.copyOf(request.criteriaScores()));
+        scorecard.setFeedback(request.feedback().trim());
+        InterviewScorecard saved = scorecardRepository.save(scorecard);
+        applicationEventService.record(interview.getApplication(), "RECRUITER", "INTERVIEW_SCORECARD_SUBMITTED",
+                recruiter.getFullName() + " submitted a " + request.score() + "/5 interview scorecard (" + request.recommendation().toLowerCase(java.util.Locale.ROOT).replace('_', ' ') + ").");
+        return scorecardResponse(saved);
     }
 
     @Transactional
@@ -321,7 +338,7 @@ public class RecruiterWorkflowService {
                 interview.getTimeZone(), interview.getAgenda(), panelIds, panelNames, interview.getStatus(),
                 scorecardRepository.findByInterview_IdOrderBySubmittedAtDesc(interview.getId()).stream().map(this::scorecardResponse).toList());
     }
-    private WorkflowResponses.Scorecard scorecardResponse(InterviewScorecard scorecard) { return new WorkflowResponses.Scorecard(scorecard.getId(), scorecard.getRecruiter().getFullName(), scorecard.getRecommendation(), scorecard.getScore(), scorecard.getFeedback(), scorecard.getSubmittedAt()); }
+    private WorkflowResponses.Scorecard scorecardResponse(InterviewScorecard scorecard) { return new WorkflowResponses.Scorecard(scorecard.getId(), scorecard.getRecruiter().getFullName(), scorecard.getRecommendation(), scorecard.getScore(), scorecard.getCriteriaScores() == null ? java.util.Map.of() : scorecard.getCriteriaScores(), scorecard.getFeedback(), scorecard.getSubmittedAt()); }
     private Recruiter recruiter(UUID id) { return recruiterRepository.findById(id).orElseThrow(() -> notFound("Recruiter profile was not found.")); }
     private TalentPool poolFor(UUID recruiterId, UUID poolId) { return poolFor(recruiter(recruiterId), poolId); }
     private TalentPool poolFor(Recruiter recruiter, UUID poolId) { return talentPoolRepository.findByIdAndOrganisation_Id(poolId, recruiter.getOrganisation().getId()).orElseThrow(() -> notFound("Talent pool was not found.")); }

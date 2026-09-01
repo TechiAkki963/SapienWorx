@@ -20,6 +20,8 @@ public final class MasterAdminRequests {
     public record SupportTicketUpdateRequest(SupportTicketStatus status, SupportTicketPriority priority, UUID ownerAdminId) { }
     public record PrivacyCaseUpdateRequest(PrivacyCaseStatus status, String reviewNote) { }
     public record UserActivityInvestigationRequest(String purpose, String reason, Integer rangeDays) { }
+    public record BreachCreateRequest(String severity, String summary, Integer affectedSubjectCount, java.time.Instant detectedAt, String notes) { }
+    public record BreachUpdateRequest(PlatformBreachStatus status, java.time.Instant affectedPeopleNotifiedAt, java.time.Instant boardNotifiedAt, String notes) { }
     public record KnowledgePostUpsertRequest(String title, String slug, String category, String excerpt, String body,
                                              String heroTone, Boolean featured) { }
     public record KnowledgePostDecisionRequest(String reason) { }

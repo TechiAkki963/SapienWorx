@@ -22,11 +22,12 @@ public final class WorkflowResponses {
     public record Interview(UUID id, UUID applicationId, String candidateName, String jobTitle, String platformName, String meetingLink,
                             Instant scheduledAt, int durationMinutes, String timeZone, String agenda, List<UUID> panelRecruiterIds,
                             List<String> panelRecruiterNames, InterviewStatus status, List<Scorecard> scorecards) { }
-    public record Scorecard(UUID id, String recruiterName, String recommendation, int score, String feedback, Instant submittedAt) { }
+    public record Scorecard(UUID id, String recruiterName, String recommendation, int score,
+                            java.util.Map<String, Integer> criteriaScores, String feedback, Instant submittedAt) { }
     public record ApplicationTimeline(UUID applicationId, PipelineStage stage, String nextStep, List<TimelineEvent> events, List<Interview> interviews) { }
     public record TimelineEvent(String type, String summary, Instant occurredAt) { }
-    public record CandidatePrivacy(boolean profileSearchable, boolean automationConsent, boolean outreachOptOut, Instant dataExportRequestedAt,
-                                   Instant deletionRequestedAt, Instant updatedAt) { }
+    public record CandidatePrivacy(boolean profileSearchable, boolean automationConsent, boolean outreachOptOut, boolean sensitiveDataConsent,
+                                   Instant dataExportRequestedAt, Instant deletionRequestedAt, Instant updatedAt) { }
     public record Referral(String code, String shareUrl, int applicationsAttributed) { }
     public record RecruiterWorkflowAnalytics(int savedSearches, int talentPools, int candidatesInPools, int activeCampaigns,
                                              int campaignsSent, int interviewsThisWeek, int scorecardsSubmitted,

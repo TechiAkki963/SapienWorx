@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 public final class WorkflowRequests {
     private WorkflowRequests() { }
@@ -19,7 +20,9 @@ public final class WorkflowRequests {
     public record CampaignCreateRequest(@NotBlank @Size(max = 160) String name, UUID jobInternalId, @Size(max = 32) String jobId, @NotBlank @Size(max = 250) String subject,
                                         @NotBlank @Size(max = 20000) String bodyHtml, @Size(min = 1, max = 200) List<UUID> candidateIds) { }
     public record InterviewScorecardRequest(@NotNull UUID interviewId, @NotBlank @Pattern(regexp = "STRONG_YES|YES|MAYBE|NO|STRONG_NO") String recommendation,
-                                            @Min(1) @Max(5) int score, @NotBlank @Size(max = 4000) String feedback) { }
+                                            @Min(1) @Max(5) int score,
+                                            @Size(max = 10) Map<@Pattern(regexp = "technical|problemSolving|communication|roleFit") String, @Min(1) @Max(5) Integer> criteriaScores,
+                                            @NotBlank @Size(max = 4000) String feedback) { }
     public record OrganisationControlsRequest(@Min(30) @Max(3650) int candidateRetentionDays, @Min(365) @Max(7300) int auditRetentionDays,
                                               boolean savedSearchAlertsEnabled, boolean campaignsEnabled) { }
     public record OrganisationMemberRoleRequest(@NotNull UUID recruiterId, @NotNull OrganisationWorkspaceRole workspaceRole) { }
@@ -27,5 +30,5 @@ public final class WorkflowRequests {
                                          @Min(5) @Max(480) Integer durationMinutes, @Size(max = 80) String timeZone,
                                          @Size(max = 2000) String agenda, List<UUID> panelRecruiterIds,
                                          @Pattern(regexp = "SCHEDULED|RESCHEDULED|CANCELLED|COMPLETED") String status) { }
-    public record CandidatePrivacyUpdateRequest(Boolean profileSearchable, Boolean automationConsent, Boolean outreachOptOut) { }
+    public record CandidatePrivacyUpdateRequest(Boolean profileSearchable, Boolean automationConsent, Boolean outreachOptOut, Boolean sensitiveDataConsent) { }
 }

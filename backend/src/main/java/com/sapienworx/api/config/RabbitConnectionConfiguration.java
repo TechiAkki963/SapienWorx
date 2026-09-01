@@ -5,6 +5,7 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Creates the single AMQP connection factory used by CV parsing, OTP dispatch,
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
  * address works consistently for Docker and local development.
  */
 @Configuration
+@ConditionalOnProperty(name = "app.queue.provider", havingValue = "rabbitmq", matchIfMissing = true)
 public class RabbitConnectionConfiguration {
 
     @Bean
@@ -28,6 +30,10 @@ public class RabbitConnectionConfiguration {
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
         connectionFactory.setVirtualHost(virtualHost);
+        if ("amqps".equalsIgnoreCase(address.getScheme())) {
+            try { connectionFactory.getRabbitConnectionFactory().useSslProtocol(); }
+            catch (Exception exception) { throw new IllegalStateException("AMQPS was configured but TLS could not be enabled.", exception); }
+        }
         return connectionFactory;
     }
 }

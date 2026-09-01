@@ -7,3 +7,4 @@ backend/target/
 playwright-report/
 test-results/
 blob-report/
+tmp/

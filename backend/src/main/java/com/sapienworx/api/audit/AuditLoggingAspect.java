@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+import java.util.Set;
 
 /** Records successful annotated actions without risking PII in the application log. */
 @Aspect
@@ -18,6 +19,9 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class AuditLoggingAspect {
+    private static final Set<String> REQUIRED_AUDIT_ACTIONS = Set.of(
+            "CANDIDATE_CONTACT_REVEALED", "CANDIDATE_DATA_ERASED", "MASTER_PRIVACY_CASE_UPDATED",
+            "MASTER_SUBJECT_CONTROL_UPDATED", "MASTER_PLATFORM_CONTROLS_UPDATED");
 
     private final AuditLogWriter auditLogWriter;
 
@@ -27,6 +31,7 @@ public class AuditLoggingAspect {
             AuthenticatedUser actor = authenticatedUser();
             if (actor == null) {
                 log.warn("Sensitive action {} completed without an authenticated platform principal", auditAction.action());
+                if (REQUIRED_AUDIT_ACTIONS.contains(auditAction.action())) throw new IllegalStateException("A protected action requires an authenticated audit principal.");
                 return;
             }
 
@@ -41,8 +46,8 @@ public class AuditLoggingAspect {
                     stringArgument(arguments, auditAction.jobIdArgumentIndex())
             ));
         } catch (RuntimeException exception) {
-            // Compliance capture must never turn a successful candidate/recruiter action into an API failure.
             log.error("DPDP audit persistence failed for action {}", auditAction.action(), exception);
+            if (REQUIRED_AUDIT_ACTIONS.contains(auditAction.action())) throw exception;
         }
     }
 

@@ -27,6 +27,7 @@ public record CandidateProfileResponse(
         String profileSummary,
         boolean profileSearchable,
         boolean automationConsent,
+        boolean sensitiveDataConsent,
         boolean emailVerified,
         boolean mobileVerified,
         boolean cvAvailable,

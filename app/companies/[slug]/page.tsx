@@ -12,7 +12,12 @@ function toPublicJob(job: NonNullable<Awaited<ReturnType<typeof getPublicJobs>>>
     tags: job.skills,
     experience: `${job.minimumExperienceYears}–${job.maximumExperienceYears} years`,
     location: job.location,
-    type: job.department || "Full-time",
+    department: job.department || "General",
+    employmentType: job.employmentType,
+    workplaceModel: job.workplaceModel,
+    postedAt: job.publishedAt,
+    verifiedEmployer: job.verifiedEmployer,
+    publicPath: job.publicPath,
     mark: job.organisationName.slice(0, 2).toUpperCase(),
     tone: "teal",
   };

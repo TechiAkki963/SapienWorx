@@ -6,4 +6,5 @@ import java.util.UUID;
 
 public interface ApplicationEventRepository extends JpaRepository<ApplicationEvent, UUID> {
     List<ApplicationEvent> findByApplication_IdOrderByCreatedAtAsc(UUID applicationId);
+    List<ApplicationEvent> findByApplication_IdOrderByCreatedAtDesc(UUID applicationId);
 }

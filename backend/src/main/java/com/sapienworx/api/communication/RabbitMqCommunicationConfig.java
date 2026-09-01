@@ -14,9 +14,11 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /** Dedicated topology keeps delivery failures isolated from CV parser work. */
 @Configuration
+@ConditionalOnProperty(name = "app.queue.provider", havingValue = "rabbitmq", matchIfMissing = true)
 public class RabbitMqCommunicationConfig {
 
     public static final String EMAIL_EXCHANGE = "communication.email.exchange";

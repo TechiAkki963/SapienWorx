@@ -1,0 +1,7 @@
+import Link from "next/link";
+
+export const metadata = { title: "Cookies | Sapienworx", description: "Sapienworx cookie and local-storage notice." };
+
+export default function CookiesPage() {
+  return <main className="legal-page"><header><Link href="/" className="legal-brand">Sapienworx</Link><Link href="/privacy">Privacy notice</Link></header><article><p className="eyebrow">Cookie notice · version 2026-08-31</p><h1>Small files, explained plainly.</h1><p className="legal-lede">Sapienworx uses only the storage needed to keep you signed in, protect requests, remember workspace preferences and understand product performance.</p><section><h2>Strictly necessary</h2><p>Authentication and CSRF cookies keep your session and account changes secure. These cannot be disabled while you use an authenticated workspace.</p></section><section><h2>Optional measurement</h2><p>If analytics or campaign measurement is enabled in your deployment, it must be separately disclosed and can be declined. We do not sell personal information or use recruitment profile data for advertising.</p></section><section><h2>Control</h2><p>You can clear cookies and local storage in your browser. Clearing security cookies will sign you out and may require verification again. See the <Link href="/privacy">Privacy notice</Link> for your wider data choices.</p></section><footer><Link href="/privacy">Privacy notice</Link><Link href="/terms">Terms</Link><Link href="/">Back to Sapienworx</Link></footer></article></main>;
+}

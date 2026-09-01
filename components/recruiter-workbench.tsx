@@ -93,7 +93,7 @@ type PipelineApplication = {
 };
 type PipelinePage = { content: PipelineApplication[] };
 type JobOption = { jobId: string; title: string; status: string; location: string };
-type JobPage = { content: JobOption[] };
+type JobPage = { content: Array<{ job: JobOption }> };
 type CandidateOption = {
   candidateId: string;
   fullName: string;
@@ -212,7 +212,7 @@ export function RecruiterWorkbench() {
           body: JSON.stringify(sourceRequest({ ...defaultRecruiterSearch, allKeywords: "", activeStatus: "ALL" }, 0, 20)),
         }),
       ]);
-      if (jobResult.status === "fulfilled") setJobs(jobResult.value.content);
+      if (jobResult.status === "fulfilled") setJobs(jobResult.value.content.map((item) => item.job));
       if (candidateResult.status === "fulfilled") setCandidateDirectory(candidateResult.value.content);
       const poolId = selectedPoolId || nextPools[0]?.id || "";
       if (poolId && (includeMembers || !selectedPoolId)) {

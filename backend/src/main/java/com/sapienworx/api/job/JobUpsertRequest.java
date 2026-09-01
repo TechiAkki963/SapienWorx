@@ -3,23 +3,27 @@ package com.sapienworx.api.job;
 import com.sapienworx.api.taxonomy.DomainCategory;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
 public record JobUpsertRequest(
-        @NotBlank @Size(max = 200) String title,
+        @Size(max = 200) String title,
         @Size(max = 120) String department,
-        @NotBlank @Size(max = 200) String location,
-        @NotNull @Min(0) @Max(60) Integer minimumExperienceYears,
-        @NotNull @Min(0) @Max(60) Integer maximumExperienceYears,
+        EmploymentType employmentType,
+        WorkplaceModel workplaceModel,
+        @Size(max = 200) String location,
+        @Min(0) @Max(60) Integer minimumExperienceYears,
+        @Min(0) @Max(60) Integer maximumExperienceYears,
         @Min(0) @Max(1000) Integer minimumSalaryLakhs,
         @Min(0) @Max(1000) Integer maximumSalaryLakhs,
         boolean salaryVisible,
-        @NotBlank @Size(max = 100_000) String descriptionHtml,
-        @Size(max = 40) Set<@NotBlank @Size(max = 80) String> skills,
+        @Size(max = 100_000) String descriptionHtml,
+        @Size(max = 5_000) String companyOverview,
+        @Size(max = 5_000) String whyJoin,
+        @Size(max = 50_000) String responsibilitiesHtml,
+        @Size(max = 2_000) String hiringProcess,
+        @Size(max = 40) Set<@Size(max = 80) String> skills,
         DomainCategory domainCategory
 ) {
     public JobUpsertRequest {

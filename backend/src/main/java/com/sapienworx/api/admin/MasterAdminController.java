@@ -29,6 +29,7 @@ public class MasterAdminController {
     @GetMapping("/data-quality") public Map<String, Object> dataQuality() { return service.dataQuality(); }
     @GetMapping("/security") public Map<String, Object> security() { return service.securitySummary(); }
     @GetMapping("/controls") public Map<String, Object> controls() { return service.controls(); }
+    @GetMapping("/breaches") public List<Map<String, Object>> breaches() { return service.breaches(); }
 
     @PutMapping("/controls") public Map<String, Object> updateControls(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody MasterAdminRequests.PlatformControlsUpdateRequest request) { return service.update(actor(user), request); }
     @PutMapping("/subjects/{type}/{subjectId}") public Map<String, Object> updateSubject(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable PlatformSubjectType type, @PathVariable UUID subjectId, @RequestBody MasterAdminRequests.SubjectControlRequest request) { return service.updateSubject(actor(user), type, subjectId, request); }
@@ -37,6 +38,8 @@ public class MasterAdminController {
     @PostMapping("/support-tickets") public Map<String, Object> createSupportTicket(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody MasterAdminRequests.SupportTicketCreateRequest request) { return service.createSupportTicket(actor(user), request); }
     @PatchMapping("/support-tickets/{ticketId}") public Map<String, Object> updateSupportTicket(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID ticketId, @RequestBody MasterAdminRequests.SupportTicketUpdateRequest request) { return service.updateSupportTicket(actor(user), ticketId, request); }
     @PatchMapping("/privacy-cases/{candidateId}/{type}") public Map<String, Object> updatePrivacyCase(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID candidateId, @PathVariable PrivacyCaseType type, @RequestBody MasterAdminRequests.PrivacyCaseUpdateRequest request) { return service.updatePrivacyCase(actor(user), candidateId, type, request); }
+    @PostMapping("/breaches") public Map<String, Object> recordBreach(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody MasterAdminRequests.BreachCreateRequest request) { return service.recordBreach(actor(user), request); }
+    @PatchMapping("/breaches/{incidentId}") public Map<String, Object> updateBreach(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID incidentId, @RequestBody MasterAdminRequests.BreachUpdateRequest request) { return service.updateBreach(actor(user), incidentId, request); }
     @PostMapping("/user-activity/{type}/{subjectId}/investigate")
     public Map<String, Object> investigateUserActivity(@AuthenticationPrincipal AuthenticatedUser user,
                                                        @PathVariable PlatformSubjectType type,

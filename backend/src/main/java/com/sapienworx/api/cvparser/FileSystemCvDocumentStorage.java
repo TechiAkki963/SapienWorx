@@ -22,6 +22,7 @@ public class FileSystemCvDocumentStorage implements CvDocumentStorage {
         this.root = Path.of(root).toAbsolutePath().normalize();
     }
 
+    @Override
     public String store(UUID candidateId, MultipartFile file) throws IOException {
         String extension = extension(file.getOriginalFilename());
         String key = candidateId + "/" + UUID.randomUUID() + extension;
@@ -35,6 +36,19 @@ public class FileSystemCvDocumentStorage implements CvDocumentStorage {
 
     @Override
     public InputStream open(String fileKey) throws IOException { return Files.newInputStream(resolved(fileKey)); }
+
+    @Override
+    public void delete(String fileKey) throws IOException { Files.deleteIfExists(resolved(fileKey)); }
+
+    public void deleteCandidate(UUID candidateId) throws IOException {
+        Path candidateRoot = resolved(candidateId.toString());
+        if (!Files.exists(candidateRoot)) return;
+        try (var paths = Files.walk(candidateRoot)) {
+            paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                try { Files.deleteIfExists(path); } catch (IOException exception) { throw new java.io.UncheckedIOException(exception); }
+            });
+        } catch (java.io.UncheckedIOException exception) { throw exception.getCause(); }
+    }
 
     private Path resolved(String key) {
         Path resolved = root.resolve(key).normalize();

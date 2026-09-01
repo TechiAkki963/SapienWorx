@@ -8,6 +8,7 @@ import com.sapienworx.api.auth.AccountSession;
 import com.sapienworx.api.auth.AccountSessionRepository;
 import com.sapienworx.api.candidate.Candidate;
 import com.sapienworx.api.candidate.CandidateRepository;
+import com.sapienworx.api.candidate.CandidateWorkspaceService;
 import com.sapienworx.api.job.Job;
 import com.sapienworx.api.job.JobRepository;
 import com.sapienworx.api.job.JobStatus;
@@ -51,6 +52,8 @@ public class MasterAdminService {
     private final PlatformAdministratorRepository administrators;
     private final UserActivityInvestigationRepository investigations;
     private final AccountSessionRepository accountSessions;
+    private final CandidateWorkspaceService candidateWorkspaceService;
+    private final PlatformBreachIncidentRepository breachIncidents;
 
     @Transactional(readOnly = true)
     public Map<String, Object> dashboard() {
@@ -187,8 +190,42 @@ public class MasterAdminService {
         long suspended = subjectControls.findAll().stream().filter(PlatformSubjectControl::isSuspended).count();
         long resetRequired = subjectControls.findAll().stream().filter(PlatformSubjectControl::isPasswordResetRequired).count();
         long revoked = subjectControls.findAll().stream().filter(control -> control.getSessionInvalidAfter() != null).count();
+        long openBreaches = breachIncidents.findTop100ByOrderByDetectedAtDesc().stream().filter(item -> item.getStatus() != PlatformBreachStatus.CLOSED).count();
         return Map.of("masterOtpRequired", true, "masterPasswordRequired", true, "suspendedSubjects", suspended,
-                "passwordResetRequired", resetRequired, "sessionRevocationControls", revoked, "adminEndpointPolicy", "SUPER_ADMIN only");
+                "passwordResetRequired", resetRequired, "sessionRevocationControls", revoked, "openBreachIncidents", openBreaches, "adminEndpointPolicy", "SUPER_ADMIN only");
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> breaches() {
+        return breachIncidents.findTop100ByOrderByDetectedAtDesc().stream().map(this::breachView).toList();
+    }
+
+    @Transactional
+    @AuditAction(action = "MASTER_BREACH_RECORDED", resourceType = "BREACH")
+    public Map<String, Object> recordBreach(UUID actor, MasterAdminRequests.BreachCreateRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.COMPLIANCE);
+        String severity = normalized(request.severity()).toUpperCase(Locale.ROOT);
+        if (!Set.of("LOW", "MEDIUM", "HIGH", "CRITICAL").contains(severity) || normalized(request.summary()).isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Severity and incident summary are required.");
+        }
+        Instant detectedAt = request.detectedAt() == null ? Instant.now() : request.detectedAt();
+        PlatformBreachIncident incident = breachIncidents.save(PlatformBreachIncident.builder().severity(severity).summary(normalized(request.summary()))
+                .affectedSubjectCount(Math.max(0, request.affectedSubjectCount() == null ? 0 : request.affectedSubjectCount()))
+                .detectedAt(detectedAt).boardNotificationDueAt(detectedAt.plus(72, ChronoUnit.HOURS)).notes(trimToNull(request.notes())).updatedAt(Instant.now()).build());
+        return breachView(incident);
+    }
+
+    @Transactional
+    @AuditAction(action = "MASTER_BREACH_UPDATED", resourceType = "BREACH", resourceIdArgumentIndex = 1)
+    public Map<String, Object> updateBreach(UUID actor, UUID incidentId, MasterAdminRequests.BreachUpdateRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.COMPLIANCE);
+        PlatformBreachIncident incident = breachIncidents.findById(incidentId).orElseThrow(() -> notFound("Breach incident was not found."));
+        if (request.status() != null) incident.setStatus(request.status());
+        if (request.affectedPeopleNotifiedAt() != null) incident.setAffectedPeopleNotifiedAt(request.affectedPeopleNotifiedAt());
+        if (request.boardNotifiedAt() != null) incident.setBoardNotifiedAt(request.boardNotifiedAt());
+        if (request.notes() != null) incident.setNotes(trimToNull(request.notes()));
+        incident.setUpdatedAt(Instant.now());
+        return breachView(breachIncidents.save(incident));
     }
 
     @Transactional(readOnly = true) public List<Map<String, Object>> queues() { return queueMonitor.queues(); }
@@ -197,6 +234,7 @@ public class MasterAdminService {
     @Transactional
     @AuditAction(action = "MASTER_PLATFORM_CONTROLS_UPDATED", resourceType = "PLATFORM")
     public Map<String, Object> update(UUID actor, MasterAdminRequests.PlatformControlsUpdateRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER);
         String reason = normalized(request.reason());
         if (reason.isBlank()) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Record a reason for this platform-wide change.");
         if (request.maintenanceMode() == null && request.candidateSignupEnabled() == null && request.recruiterSignupEnabled() == null
@@ -217,6 +255,7 @@ public class MasterAdminService {
     @Transactional
     @AuditAction(action = "MASTER_SUBJECT_CONTROL_UPDATED", resourceType = "PLATFORM_SUBJECT", resourceIdArgumentIndex = 2)
     public Map<String, Object> updateSubject(UUID actor, PlatformSubjectType type, UUID subjectId, MasterAdminRequests.SubjectControlRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.OPERATIONS, PlatformAdminRole.SUPPORT);
         subjectExists(type, subjectId);
         boolean sensitive = Boolean.TRUE.equals(request.suspended()) || Boolean.TRUE.equals(request.passwordResetRequired())
                 || Boolean.TRUE.equals(request.revokeSessions()) || request.postingLimit() != null;
@@ -237,6 +276,7 @@ public class MasterAdminService {
     @Transactional
     @AuditAction(action = "MASTER_JOB_MODERATED", resourceType = "JOB", resourceIdArgumentIndex = 1)
     public Map<String, Object> moderateJob(UUID actor, UUID jobId, MasterAdminRequests.JobModerationRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.COMPLIANCE);
         if (request.status() == null) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose a job status.");
         if (normalized(request.reason()).isBlank()) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Record a moderation reason before changing the job status.");
         Job job = jobs.findById(jobId).orElseThrow(() -> notFound("Job was not found."));
@@ -248,11 +288,12 @@ public class MasterAdminService {
 
     @Transactional
     @AuditAction(action = "MASTER_CV_DLQ_RETRIED", resourceType = "CV_PARSER")
-    public Map<String, Object> retryCvFailure(UUID actor) { return Map.of("replayed", queueMonitor.retryOneCvFailure()); }
+    public Map<String, Object> retryCvFailure(UUID actor) { requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.OPERATIONS); return Map.of("replayed", queueMonitor.retryOneCvFailure()); }
 
     @Transactional
     @AuditAction(action = "MASTER_SUPPORT_TICKET_CREATED", resourceType = "SUPPORT_TICKET")
     public Map<String, Object> createSupportTicket(UUID actor, MasterAdminRequests.SupportTicketCreateRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.SUPPORT);
         if (request.subjectType() == null || normalized(request.subjectLabel()).isBlank() || normalized(request.summary()).isBlank()) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Subject and summary are required.");
         }
@@ -266,6 +307,7 @@ public class MasterAdminService {
     @Transactional
     @AuditAction(action = "MASTER_SUPPORT_TICKET_UPDATED", resourceType = "SUPPORT_TICKET", resourceIdArgumentIndex = 1)
     public Map<String, Object> updateSupportTicket(UUID actor, UUID ticketId, MasterAdminRequests.SupportTicketUpdateRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.SUPPORT);
         PlatformSupportTicket ticket = supportTickets.findById(ticketId).orElseThrow(() -> notFound("Support ticket was not found."));
         if (request.priority() != null) ticket.setPriority(request.priority());
         if (request.ownerAdminId() != null) ticket.setOwnerAdminId(request.ownerAdminId());
@@ -276,6 +318,7 @@ public class MasterAdminService {
     @Transactional
     @AuditAction(action = "MASTER_PRIVACY_CASE_UPDATED", resourceType = "PRIVACY_CASE", resourceIdArgumentIndex = 1, candidateIdArgumentIndex = 1)
     public Map<String, Object> updatePrivacyCase(UUID actor, UUID candidateId, PrivacyCaseType type, MasterAdminRequests.PrivacyCaseUpdateRequest request) {
+        requireRole(actor, PlatformAdminRole.OWNER, PlatformAdminRole.COMPLIANCE);
         Candidate candidate = candidates.findById(candidateId).orElseThrow(() -> notFound("Candidate was not found."));
         CandidateContactPreference preference = contactPreferences.findById(candidateId).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "No privacy request is recorded for this candidate."));
         Instant requestedAt = type == PrivacyCaseType.EXPORT ? preference.getDataExportRequestedAt() : preference.getDeletionRequestedAt();
@@ -288,7 +331,12 @@ public class MasterAdminService {
         PlatformPrivacyCase caseFile = privacyCases.findByCandidate_IdAndRequestType(candidateId, type)
                 .orElseGet(() -> PlatformPrivacyCase.builder().candidate(candidate).requestType(type).requestedAt(requestedAt).build());
         caseFile.setStatus(request.status()); caseFile.setReviewedByAdminId(actor); caseFile.setReviewedAt(Instant.now()); caseFile.setReviewNote(trimToNull(request.reviewNote()));
-        return privacyView(candidate, type, requestedAt, privacyCases.save(caseFile));
+        PlatformPrivacyCase saved = privacyCases.saveAndFlush(caseFile);
+        if (type == PrivacyCaseType.ERASURE && request.status() == PrivacyCaseStatus.COMPLETED) {
+            candidateWorkspaceService.erase(candidateId);
+            return map("candidateId", candidateId.toString(), "candidate", "Erased account", "type", type.name(), "requestedAt", requestedAt.toString(), "status", PrivacyCaseStatus.COMPLETED.name(), "reviewedAt", saved.getReviewedAt().toString(), "reviewedBy", actor.toString(), "reviewNote", saved.getReviewNote());
+        }
+        return privacyView(candidate, type, requestedAt, saved);
     }
 
     @Transactional(readOnly = true)
@@ -301,13 +349,14 @@ public class MasterAdminService {
     private PlatformControls control() { return controls.findById(true).orElseGet(() -> controls.save(new PlatformControls())); }
     private Map<String, Object> view(PlatformControls value) { return map("maintenanceMode", value.isMaintenanceMode(), "candidateSignupEnabled", value.isCandidateSignupEnabled(), "recruiterSignupEnabled", value.isRecruiterSignupEnabled(), "cvParsingEnabled", value.isCvParsingEnabled(), "campaignsEnabled", value.isCampaignsEnabled(), "updatedAt", value.getUpdatedAt() == null ? "" : value.getUpdatedAt().toString(), "updatedBy", value.getUpdatedBy() == null ? "" : value.getUpdatedBy().toString(), "lastChangeReason", value.getLastChangeReason() == null ? "" : value.getLastChangeReason()); }
     private Map<String, Object> activityView(AuditLog audit) { return map("id", audit.getId().toString(), "action", audit.getAction(), "resourceType", audit.getResourceType(), "resourceId", audit.getResourceId() == null ? "" : audit.getResourceId().toString(), "jobId", audit.getJobId() == null ? "" : audit.getJobId(), "occurredAt", audit.getOccurredAt().toString(), "actorId", audit.getActorId().toString(), "actor", administrators.findById(audit.getActorId()).map(PlatformAdministrator::getDisplayName).orElse(audit.getActorId().toString())); }
-    private Map<String, Object> userView(Candidate candidate) { PlatformSubjectControl control = subject(PlatformSubjectType.CANDIDATE, candidate.getId()); return map("id", candidate.getId().toString(), "type", "CANDIDATE", "name", candidate.getFullName(), "email", candidate.getEmail(), "organisation", "Independent candidate", "status", candidate.getRegistrationStatus().name(), "verified", candidate.isEmailVerified() && candidate.isMobileVerified(), "suspended", control != null && control.isSuspended(), "passwordResetRequired", control != null && control.isPasswordResetRequired(), "reason", control == null || control.getReason() == null ? "" : control.getReason()); }
-    private Map<String, Object> userView(Recruiter recruiter) { PlatformSubjectControl control = subject(PlatformSubjectType.RECRUITER, recruiter.getId()); return map("id", recruiter.getId().toString(), "type", "RECRUITER", "name", recruiter.getFullName(), "email", recruiter.getOfficialEmail(), "organisation", recruiter.getOrganisation().getName(), "status", "ACTIVE", "verified", recruiter.isEmailVerified(), "suspended", control != null && control.isSuspended(), "passwordResetRequired", control != null && control.isPasswordResetRequired(), "reason", control == null || control.getReason() == null ? "" : control.getReason()); }
+    private Map<String, Object> userView(Candidate candidate) { PlatformSubjectControl control = subject(PlatformSubjectType.CANDIDATE, candidate.getId()); return map("id", candidate.getId().toString(), "type", "CANDIDATE", "name", candidate.getFullName(), "email", maskEmail(candidate.getEmail()), "organisation", "Independent candidate", "status", candidate.getRegistrationStatus().name(), "verified", candidate.isEmailVerified() && candidate.isMobileVerified(), "suspended", control != null && control.isSuspended(), "passwordResetRequired", control != null && control.isPasswordResetRequired(), "reason", control == null || control.getReason() == null ? "" : control.getReason()); }
+    private Map<String, Object> userView(Recruiter recruiter) { PlatformSubjectControl control = subject(PlatformSubjectType.RECRUITER, recruiter.getId()); return map("id", recruiter.getId().toString(), "type", "RECRUITER", "name", recruiter.getFullName(), "email", maskEmail(recruiter.getOfficialEmail()), "organisation", recruiter.getOrganisation().getName(), "status", "ACTIVE", "verified", recruiter.isEmailVerified(), "suspended", control != null && control.isSuspended(), "passwordResetRequired", control != null && control.isPasswordResetRequired(), "reason", control == null || control.getReason() == null ? "" : control.getReason()); }
     private Map<String, Object> organisationView(Organisation organisation) { PlatformSubjectControl control = subject(PlatformSubjectType.ORGANISATION, organisation.getId()); List<Recruiter> members = recruiters.findByOrganisation_Id(organisation.getId()); long pendingReviews = members.stream().filter(member -> member.getAccountReviewStatus() != null && "PENDING".equals(member.getAccountReviewStatus().name())).count(); return map("id", organisation.getId().toString(), "name", organisation.getName(), "workEmailDomain", organisation.getWorkEmailDomain() == null ? "" : organisation.getWorkEmailDomain(), "recruiters", members.size(), "pendingRecruiterReviews", pendingReviews, "activeJobs", jobs.countByOrganisation_IdAndStatus(organisation.getId(), JobStatus.ACTIVE), "suspended", control != null && control.isSuspended(), "postingLimit", control == null ? 0 : control.getPostingLimit(), "reason", control == null || control.getReason() == null ? "" : control.getReason()); }
     private Map<String, Object> jobView(Job job) { return map("id", job.getInternalId().toString(), "publicJobId", job.getPublicJobId(), "title", job.getTitle(), "organisation", job.getOrganisation().getName(), "accountableRecruiter", job.getCreatedByRecruiter() == null ? "Unassigned" : job.getCreatedByRecruiter().getFullName(), "status", job.getStatus().name(), "applicants", applications.findByJob_InternalId(job.getInternalId()).size(), "updatedAt", job.getUpdatedAt().toString()); }
     private Map<String, Object> supportTicketView(PlatformSupportTicket ticket) { Instant createdAt = ticket.getCreatedAt(); Instant dueAt = createdAt == null ? null : createdAt.plus(ticket.getPriority() == SupportTicketPriority.URGENT ? 4 : ticket.getPriority() == SupportTicketPriority.HIGH ? 12 : ticket.getPriority() == SupportTicketPriority.NORMAL ? 48 : 96, ChronoUnit.HOURS); return map("id", ticket.getId().toString(), "subjectType", ticket.getSubjectType().name(), "subjectId", ticket.getSubjectId() == null ? "" : ticket.getSubjectId().toString(), "subjectLabel", ticket.getSubjectLabel(), "summary", ticket.getSummary(), "priority", ticket.getPriority().name(), "status", ticket.getStatus().name(), "ownerAdminId", ticket.getOwnerAdminId() == null ? "" : ticket.getOwnerAdminId().toString(), "owner", ticket.getOwnerAdminId() == null ? "Unassigned" : administrators.findById(ticket.getOwnerAdminId()).map(PlatformAdministrator::getDisplayName).orElse("Former administrator"), "createdAt", createdAt == null ? "" : createdAt.toString(), "dueAt", dueAt == null ? "" : dueAt.toString(), "updatedAt", ticket.getUpdatedAt().toString(), "resolvedAt", ticket.getResolvedAt() == null ? "" : ticket.getResolvedAt().toString()); }
     private Map<String, Object> privacyView(Candidate candidate, PrivacyCaseType type, Instant requestedAt, PlatformPrivacyCase caseFile) { return map("candidateId", candidate.getId().toString(), "candidate", candidate.getFullName(), "type", type.name(), "requestedAt", requestedAt.toString(), "status", caseFile == null ? PrivacyCaseStatus.REQUESTED.name() : caseFile.getStatus().name(), "reviewedAt", caseFile == null || caseFile.getReviewedAt() == null ? "" : caseFile.getReviewedAt().toString(), "reviewedBy", caseFile == null || caseFile.getReviewedByAdminId() == null ? "" : administrators.findById(caseFile.getReviewedByAdminId()).map(PlatformAdministrator::getDisplayName).orElse("Former administrator"), "reviewNote", caseFile == null || caseFile.getReviewNote() == null ? "" : caseFile.getReviewNote()); }
     private Map<String, Object> subjectControlView(PlatformSubjectControl control) { return Map.of("subjectType", control.getSubjectType().name(), "subjectId", control.getSubjectId().toString(), "suspended", control.isSuspended(), "passwordResetRequired", control.isPasswordResetRequired(), "postingLimit", control.getPostingLimit(), "sessionInvalidAfter", control.getSessionInvalidAfter() == null ? "" : control.getSessionInvalidAfter().toString(), "reason", control.getReason() == null ? "" : control.getReason()); }
+    private Map<String, Object> breachView(PlatformBreachIncident incident) { return map("id", incident.getId().toString(), "status", incident.getStatus().name(), "severity", incident.getSeverity(), "summary", incident.getSummary(), "affectedSubjectCount", incident.getAffectedSubjectCount(), "detectedAt", incident.getDetectedAt().toString(), "boardNotificationDueAt", incident.getBoardNotificationDueAt().toString(), "affectedPeopleNotifiedAt", value(incident.getAffectedPeopleNotifiedAt()), "boardNotifiedAt", value(incident.getBoardNotifiedAt()), "notes", value(incident.getNotes())); }
     private Map<String, Object> userActivitySubject(PlatformSubjectType type, UUID id) {
         if (type == PlatformSubjectType.CANDIDATE) {
             Candidate candidate = candidates.findById(id).orElseThrow(() -> notFound("Candidate was not found."));
@@ -341,6 +390,15 @@ public class MasterAdminService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "An active Master Access identity is required."));
         PlatformAdminRole role = administrator.getAdminRole() == null ? PlatformAdminRole.OWNER : administrator.getAdminRole();
         if (!mayInvestigate(role, purpose)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your Master Access role cannot open this type of investigation.");
+    }
+    private void requireRole(UUID actor, PlatformAdminRole... permitted) {
+        PlatformAdministrator administrator = administrators.findById(actor).filter(PlatformAdministrator::isActive)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "An active Master Access identity is required."));
+        PlatformAdminRole role = administrator.getAdminRole() == null ? PlatformAdminRole.OWNER : administrator.getAdminRole();
+        if (role == PlatformAdminRole.OWNER) return;
+        if (Arrays.stream(permitted).noneMatch(candidate -> candidate == role)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your Master Access role cannot perform this action.");
+        }
     }
     static boolean mayInvestigate(PlatformAdminRole role, String purpose) {
         return role == PlatformAdminRole.OWNER

@@ -1,0 +1,587 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Sapienworx production data plane - encrypted CV storage, SQS queues, DLQs, alarms and ECR.
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedPattern: "[a-z0-9-]+"
+  AlertEmail:
+    Type: String
+    Description: Address that receives dead-letter queue and operational alarms.
+
+Resources:
+  DataKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: !Sub "Sapienworx ${Environment} application data"
+      EnableKeyRotation: true
+      PendingWindowInDays: 30
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: EnableAccountAdministration
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+          - Sid: AllowCloudWatchAlarmEncryption
+            Effect: Allow
+            Principal:
+              Service: cloudwatch.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource: "*"
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+
+  DataKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub "alias/sapienworx-${Environment}-data"
+      TargetKeyId: !Ref DataKey
+
+  CvBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "sapienworx-${Environment}-cv-${AWS::AccountId}-${AWS::Region}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt DataKey.Arn
+      VersioningConfiguration:
+        Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: AbortIncompleteUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+          - Id: ExpireNoncurrentVersions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 30
+      Tags:
+        - Key: DataClassification
+          Value: Restricted-Personal-Data
+        - Key: Environment
+          Value: !Ref Environment
+
+  CvBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CvBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt CvBucket.Arn
+              - !Sub "${CvBucket.Arn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+  MalwareProtectionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: malware-protection-plan.guardduty.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ScanProtectedCvObjects
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ManageGuardDutyEventRule
+                Effect: Allow
+                Action:
+                  - events:PutRule
+                  - events:DeleteRule
+                  - events:PutTargets
+                  - events:RemoveTargets
+                Resource: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
+                Condition:
+                  StringLike:
+                    events:ManagedBy: malware-protection-plan.guardduty.amazonaws.com
+              - Sid: ValidateEventRule
+                Effect: Allow
+                Action:
+                  - events:DescribeRule
+                  - events:ListTargetsByRule
+                Resource: !Sub "arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"
+              - Sid: ConfigureBucketNotifications
+                Effect: Allow
+                Action:
+                  - s3:GetBucketNotification
+                  - s3:PutBucketNotification
+                Resource: !GetAtt CvBucket.Arn
+              - Sid: ValidateBucketOwnership
+                Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetBucketLocation
+                Resource: !GetAtt CvBucket.Arn
+              - Sid: ScanAndTagObjects
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetObjectTagging
+                  - s3:GetObjectVersionTagging
+                  - s3:PutObjectTagging
+                  - s3:PutObjectVersionTagging
+                Resource: !Sub "${CvBucket.Arn}/quarantine/*"
+              - Sid: DecryptObjectsForScanning
+                Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt DataKey.Arn
+
+  CvMalwareProtectionPlan:
+    Type: AWS::GuardDuty::MalwareProtectionPlan
+    DependsOn:
+      - CvBucketPolicy
+      - MalwareProtectionRole
+    Properties:
+      Actions:
+        Tagging:
+          Status: ENABLED
+      ProtectedResource:
+        S3Bucket:
+          BucketName: !Ref CvBucket
+          ObjectPrefixes:
+            - quarantine/
+      Role: !GetAtt MalwareProtectionRole.Arn
+
+  OperationsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "sapienworx-${Environment}-operations"
+      KmsMasterKeyId: !Ref DataKey
+
+  OperationsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: !Ref AlertEmail
+      TopicArn: !Ref OperationsTopic
+
+  CvDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-cv-dlq"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      MessageRetentionPeriod: 1209600
+
+  EmailDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-email-dlq"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      MessageRetentionPeriod: 1209600
+
+  OtpDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-otp-dlq"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      MessageRetentionPeriod: 604800
+
+  CandidateCvQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-cv-candidate"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      ReceiveMessageWaitTimeSeconds: 20
+      VisibilityTimeout: 900
+      MessageRetentionPeriod: 345600
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CvDeadLetterQueue.Arn
+        maxReceiveCount: 20
+
+  BulkCvQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-cv-bulk"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      ReceiveMessageWaitTimeSeconds: 20
+      VisibilityTimeout: 900
+      MessageRetentionPeriod: 345600
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CvDeadLetterQueue.Arn
+        maxReceiveCount: 20
+
+  OtpEmailQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-otp-email"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      ReceiveMessageWaitTimeSeconds: 20
+      VisibilityTimeout: 60
+      MessageRetentionPeriod: 3600
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt OtpDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  OtpMobileQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-otp-mobile"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      ReceiveMessageWaitTimeSeconds: 20
+      VisibilityTimeout: 60
+      MessageRetentionPeriod: 3600
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt OtpDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  BulkEmailQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "sapienworx-${Environment}-email-bulk"
+      KmsMasterKeyId: !GetAtt DataKey.Arn
+      ReceiveMessageWaitTimeSeconds: 20
+      VisibilityTimeout: 120
+      MessageRetentionPeriod: 345600
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt EmailDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  QueueTransportPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref CvDeadLetterQueue
+        - !Ref EmailDeadLetterQueue
+        - !Ref OtpDeadLetterQueue
+        - !Ref CandidateCvQueue
+        - !Ref BulkCvQueue
+        - !Ref OtpEmailQueue
+        - !Ref OtpMobileQueue
+        - !Ref BulkEmailQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: "*"
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+  CvDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "sapienworx-${Environment}-cv-dlq-not-empty"
+      AlarmDescription: Candidate CV parsing requires operator attention.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt CvDeadLetterQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref OperationsTopic
+
+  EmailDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "sapienworx-${Environment}-email-dlq-not-empty"
+      AlarmDescription: Email dispatch requires operator attention.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt EmailDeadLetterQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref OperationsTopic
+
+  OtpDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "sapienworx-${Environment}-otp-dlq-not-empty"
+      AlarmDescription: OTP delivery failures require immediate operator attention.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt OtpDeadLetterQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref OperationsTopic
+
+  ApiTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Least-privilege role for the public Sapienworx API service.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PublishApplicationEvents
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                  - sqs:GetQueueAttributes
+                Resource:
+                  - !GetAtt CandidateCvQueue.Arn
+                  - !GetAtt BulkCvQueue.Arn
+                  - !GetAtt OtpEmailQueue.Arn
+                  - !GetAtt OtpMobileQueue.Arn
+                  - !GetAtt BulkEmailQueue.Arn
+                  - !GetAtt CvDeadLetterQueue.Arn
+                  - !GetAtt EmailDeadLetterQueue.Arn
+                  - !GetAtt OtpDeadLetterQueue.Arn
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:ChangeMessageVisibility
+                Resource: !GetAtt CvDeadLetterQueue.Arn
+        - PolicyName: CandidateCvDocuments
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectTagging
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub "${CvBucket.Arn}/quarantine/candidates/*"
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt DataKey.Arn
+
+  CvWorkerTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Least-privilege role for deterministic CV parsing workers.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ConsumeCvQueues
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                Resource:
+                  - !GetAtt CandidateCvQueue.Arn
+                  - !GetAtt BulkCvQueue.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectTagging
+                Resource: !Sub "${CvBucket.Arn}/quarantine/*"
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt DataKey.Arn
+
+  AuthenticationWorkerTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Least-privilege role for email and mobile OTP delivery workers.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ConsumeOtpQueues
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                Resource:
+                  - !GetAtt OtpEmailQueue.Arn
+                  - !GetAtt OtpMobileQueue.Arn
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt DataKey.Arn
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: "*"
+
+  EmailWorkerTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Least-privilege role for recruiter bulk-email delivery workers.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ConsumeEmailQueue
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                Resource: !GetAtt BulkEmailQueue.Arn
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt DataKey.Arn
+
+  WebTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Deliberately empty application role for the Next.js web service.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+
+  WebRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: sapienworx-web
+      ImageTagMutability: IMMUTABLE
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EncryptionConfiguration:
+        EncryptionType: KMS
+        KmsKey: !GetAtt DataKey.Arn
+      LifecyclePolicy:
+        LifecyclePolicyText: '{"rules":[{"rulePriority":1,"description":"Keep 30 production images","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":30},"action":{"type":"expire"}}]}'
+
+  ApiRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: sapienworx-api
+      ImageTagMutability: IMMUTABLE
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EncryptionConfiguration:
+        EncryptionType: KMS
+        KmsKey: !GetAtt DataKey.Arn
+      LifecyclePolicy:
+        LifecyclePolicyText: '{"rules":[{"rulePriority":1,"description":"Keep 30 production images","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":30},"action":{"type":"expire"}}]}'
+
+Outputs:
+  CvBucketName:
+    Value: !Ref CvBucket
+  DataKeyArn:
+    Value: !GetAtt DataKey.Arn
+  OperationsTopicArn:
+    Value: !Ref OperationsTopic
+  CandidateCvQueueUrl:
+    Value: !Ref CandidateCvQueue
+  BulkCvQueueUrl:
+    Value: !Ref BulkCvQueue
+  CvDeadLetterQueueUrl:
+    Value: !Ref CvDeadLetterQueue
+  OtpEmailQueueUrl:
+    Value: !Ref OtpEmailQueue
+  OtpMobileQueueUrl:
+    Value: !Ref OtpMobileQueue
+  BulkEmailQueueUrl:
+    Value: !Ref BulkEmailQueue
+  EmailDeadLetterQueueUrl:
+    Value: !Ref EmailDeadLetterQueue
+  ApiTaskRoleArn:
+    Value: !GetAtt ApiTaskRole.Arn
+  CvWorkerTaskRoleArn:
+    Value: !GetAtt CvWorkerTaskRole.Arn
+  AuthenticationWorkerTaskRoleArn:
+    Value: !GetAtt AuthenticationWorkerTaskRole.Arn
+  EmailWorkerTaskRoleArn:
+    Value: !GetAtt EmailWorkerTaskRole.Arn
+  WebTaskRoleArn:
+    Value: !GetAtt WebTaskRole.Arn

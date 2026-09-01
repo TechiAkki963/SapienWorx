@@ -9,7 +9,7 @@ test("recruiters can save searches and run interviews from the Recruitment Works
   const interviews: Array<{ id: string; applicationId: string; candidateName: string; jobTitle: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number; status: string; scorecards: Array<{ id: string; recruiterName: string; recommendation: string; score: number; feedback: string; submittedAt: string }> }> = [];
   await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   await page.route("**/api/recruiter/pipeline**", (route) => route.fulfill({ status: 200, json: { content: [{ applicationId: "2fbd4be4-1bf2-4a1d-918d-500000000001", candidateId: "candidate-1", fullName: "Asha Kumar", headline: "Senior backend engineer", jobId: "SWX-100", jobTitle: "Backend Engineer", pipelineStage: "INTERVIEWING" }] } }));
-  await page.route("**/api/recruiter/jobs**", (route) => route.fulfill({ status: 200, json: { content: [{ jobId: "SWX-100", title: "Backend Engineer", status: "ACTIVE", location: "Bengaluru" }] } }));
+  await page.route("**/api/recruiter/jobs**", (route) => route.fulfill({ status: 200, json: { content: [{ job: { jobId: "SWX-100", title: "Backend Engineer", status: "ACTIVE", location: "Bengaluru" }, applicants: 1, newApplicants: 0, screening: 0, interviewing: 1, finalStage: 0, offers: 0, onboarded: 0, rejected: 0, latestApplicationAt: now }] } }));
   await page.route("**/api/recruiter/sourcing/search", (route) => route.fulfill({ status: 200, json: { content: [{ candidateId: "candidate-2", fullName: "Mira Patel", headline: "Platform engineer", location: "Pune", overallExperienceYears: 5, expectedSalaryLakhs: 22, noticePeriodDays: 30, skills: "Java, AWS", emailVerified: true, mobileVerified: true, profileLastUpdatedAt: now, lastActiveAt: now, relevanceScore: 0.91 }] } }));
   await page.route("**/api/recruiter/interviews", async (route) => {
     const request = route.request().postDataJSON() as { applicationId: string; platformName: string; meetingLink: string; scheduledAt: string; durationMinutes: number };
@@ -99,7 +99,7 @@ test("recruiters can save searches and run interviews from the Recruitment Works
 });
 
 test("candidates can inspect their timeline and exercise privacy controls", async ({ page }) => {
-  let privacy = { profileSearchable: true, automationConsent: false, outreachOptOut: false, dataExportRequestedAt: null as string | null, deletionRequestedAt: null as string | null, updatedAt: now };
+  let privacy = { profileSearchable: true, automationConsent: false, outreachOptOut: false, sensitiveDataConsent: false, dataExportRequestedAt: null as string | null, deletionRequestedAt: null as string | null, updatedAt: now };
   await page.addInitScript(() => localStorage.setItem("sapienworx.local-candidate-domain", "TECH"));
   await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   await page.route("**/api/candidate/applications/summary", (route) => route.fulfill({ status: 200, json: { totalApplications: 1, activeApplications: 1, interviewApplications: 1, offerApplications: 0 } }));
@@ -120,8 +120,8 @@ test("candidates can inspect their timeline and exercise privacy controls", asyn
 
   await page.goto("/candidate/settings");
   await expect(page.getByRole("heading", { name: "Settings and privacy" })).toBeVisible();
-  await page.getByRole("button", { name: /Download my data/ }).click();
-  await expect(page.getByRole("status")).toContainText("data export request has been recorded");
+  await page.getByRole("button", { name: /Request a copy of my data/ }).click();
+  await expect(page.locator(".candidate-privacy-notice")).toContainText("data export request has been recorded");
   await expect(page.getByText("Export requested", { exact: true })).toBeVisible();
 });
 

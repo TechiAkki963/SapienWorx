@@ -11,6 +11,11 @@ import com.sapienworx.api.otp.OtpPurpose;
 import com.sapienworx.api.recruiter.Recruiter;
 import com.sapienworx.api.recruiter.RecruiterRepository;
 import com.sapienworx.api.security.PlatformRole;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -20,6 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -28,6 +37,8 @@ import java.util.UUID;
 public class PasswordResetService {
     private static final Duration RESET_TTL = Duration.ofMinutes(10);
     private static final String PREFIX = "sapienworx:auth:password-reset:";
+    private static final String COOLDOWN_PREFIX = "sapienworx:auth:password-reset-cooldown:";
+    private static final Duration REQUEST_COOLDOWN = Duration.ofSeconds(60);
 
     private final CandidateRepository candidates;
     private final RecruiterRepository recruiters;
@@ -44,6 +55,10 @@ public class PasswordResetService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose Candidate or Recruiter account recovery.");
         }
         String email = request.email() == null ? "" : request.email().trim().toLowerCase(Locale.ROOT);
+        Boolean requestAllowed = redis.opsForValue().setIfAbsent(COOLDOWN_PREFIX + fingerprint(role + ":" + email), "1", REQUEST_COOLDOWN);
+        if (!Boolean.TRUE.equals(requestAllowed)) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "A recovery email was recently requested. Please wait one minute and try again.");
+        }
         UUID userId = role == PlatformRole.CANDIDATE
                 ? candidates.findByEmail(email).map(Candidate::getId).orElse(null)
                 : recruiters.findByOfficialEmail(email).map(Recruiter::getId).orElse(null);
@@ -69,9 +84,13 @@ public class PasswordResetService {
         String hash = passwordEncoder.encode(request.newPassword());
         if (pending.role() == PlatformRole.CANDIDATE) {
             Candidate candidate = candidates.findById(pending.userId()).orElseThrow(() -> resetExpired());
+            if (candidate.getPasswordHash() != null
+                    && passwordEncoder.matches(request.newPassword(), candidate.getPasswordHash())) throw passwordReuse();
             candidate.setPasswordHash(hash);
         } else {
             Recruiter recruiter = recruiters.findById(pending.userId()).orElseThrow(() -> resetExpired());
+            if (recruiter.getPasswordHash() != null
+                    && passwordEncoder.matches(request.newPassword(), recruiter.getPasswordHash())) throw passwordReuse();
             recruiter.setPasswordHash(hash);
         }
         sessions.revokeAll(pending.userId(), pending.role());
@@ -100,8 +119,22 @@ public class PasswordResetService {
         return new ResponseStatusException(HttpStatus.GONE, "This password reset request has expired. Start again.");
     }
 
+    private ResponseStatusException passwordReuse() {
+        return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose a password you have not just been using.");
+    }
+
+    private String fingerprint(String value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 must be available for recovery rate limiting.", exception);
+        }
+    }
+
     record PendingPasswordReset(UUID userId, PlatformRole role, String email) { }
-    public record PasswordResetRequest(PlatformRole role, String email) { }
-    public record PasswordResetConfirmation(String transactionId, String code, String newPassword) { }
+    public record PasswordResetRequest(@NotNull PlatformRole role, @NotBlank @Email String email) { }
+    public record PasswordResetConfirmation(@NotBlank String transactionId,
+                                            @NotBlank @Pattern(regexp = "\\d{6}") String code,
+                                            @NotBlank @Size(min = 8, max = 128) String newPassword) { }
     public record ResetRequested(String transactionId, String message) { }
 }

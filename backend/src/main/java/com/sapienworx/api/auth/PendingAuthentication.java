@@ -32,14 +32,17 @@ record PendingAuthentication(
         CandidateCareerStage careerStage,
         List<String> interestedDomains,
         Set<OtpChannel> requiredChannels,
-        Set<OtpChannel> verifiedChannels
+        Set<OtpChannel> verifiedChannels,
+        String noticeVersion,
+        String noticeLanguage,
+        boolean ageEligibilityConfirmed
 ) {
     PendingAuthentication withVerified(OtpChannel channel) {
         java.util.Set<OtpChannel> next = new java.util.LinkedHashSet<>(verifiedChannels);
         next.add(channel);
         return new PendingAuthentication(flow, role, existingUserId, fullName, email, mobile, passwordHash,
                 termsAccepted, automationConsent, organisationName, designation, location, headline, currentCompany,
-                overallExperienceYears, expectedSalaryLakhs, noticePeriodDays, domainCategory, careerStage, interestedDomains, requiredChannels, Set.copyOf(next));
+                overallExperienceYears, expectedSalaryLakhs, noticePeriodDays, domainCategory, careerStage, interestedDomains, requiredChannels, Set.copyOf(next), noticeVersion, noticeLanguage, ageEligibilityConfirmed);
     }
 
     boolean verified() { return verifiedChannels.containsAll(requiredChannels); }

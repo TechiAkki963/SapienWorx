@@ -27,6 +27,10 @@ import com.sapienworx.api.admin.PlatformPrivacyCase;
 import com.sapienworx.api.admin.PlatformPrivacyCaseRepository;
 import com.sapienworx.api.admin.PrivacyCaseStatus;
 import com.sapienworx.api.admin.PrivacyCaseType;
+import com.sapienworx.api.admin.PrivacyConsentEvidence;
+import com.sapienworx.api.admin.PrivacyConsentEvidenceRepository;
+import com.sapienworx.api.cvparser.CandidateParseResultRepository;
+import com.sapienworx.api.cvparser.CvDocumentStorage;
 import com.sapienworx.api.workflow.WorkflowRequests;
 import com.sapienworx.api.workflow.WorkflowResponses;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +46,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -67,6 +73,10 @@ public class CandidateWorkspaceService {
     private final CandidateContactPreferenceRepository contactPreferenceRepository;
     private final JobReferralRepository jobReferralRepository;
     private final PlatformPrivacyCaseRepository platformPrivacyCaseRepository;
+    private final SavedJobRepository savedJobRepository;
+    private final CandidateParseResultRepository candidateParseResultRepository;
+    private final CvDocumentStorage cvDocumentStorage;
+    private final PrivacyConsentEvidenceRepository consentEvidenceRepository;
 
     @Transactional
     public CandidateProfileResponse profile(UUID candidateId) {
@@ -96,6 +106,16 @@ public class CandidateWorkspaceService {
         if (request.interestedDomains() != null) candidate.setInterestedDomains(normalizedInterestedDomains(request.interestedDomains()));
         candidate.setWorkLinks(request.workLinks() == null ? List.of() : request.workLinks().stream().filter(link -> link != null && !link.isBlank()).map(String::trim).toList());
         if (request.profileDetails() != null) {
+            boolean includesSensitiveData = hasSensitiveProfileData(request.profileDetails());
+            if (includesSensitiveData && !candidate.isSensitiveDataConsent() && !Boolean.TRUE.equals(request.sensitiveDataConsent())) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Review the optional sensitive-data notice and confirm consent before saving diversity or personal details.");
+            }
+            if (Boolean.TRUE.equals(request.sensitiveDataConsent()) && !candidate.isSensitiveDataConsent()) {
+                candidate.setSensitiveDataConsent(true);
+                consentEvidenceRepository.save(PrivacyConsentEvidence.builder().subjectType("CANDIDATE").subjectId(candidateId)
+                        .purpose("OPTIONAL_SENSITIVE_PROFILE").lawfulBasis("EXPLICIT_CONSENT").noticeVersion("2026-08-31")
+                        .noticeLanguage("en-IN").affirmativeAction(true).recordedAt(Instant.now()).build());
+            }
             candidate.setProfileDetails(objectMapper.valueToTree(request.profileDetails()));
         }
         if (request.skills() != null) {
@@ -167,6 +187,41 @@ public class CandidateWorkspaceService {
     }
 
     @Transactional(readOnly = true)
+    public List<SavedJobResponse> savedJobs(UUID candidateId) {
+        candidate(candidateId);
+        return savedJobRepository.findByCandidate_IdOrderBySavedAtDesc(candidateId).stream().map(SavedJobResponse::from).toList();
+    }
+
+    @Transactional
+    @AuditAction(action = "CANDIDATE_JOB_SAVED", resourceType = "JOB", candidateIdArgumentIndex = 0, jobIdArgumentIndex = 1)
+    public SavedJobResponse saveJob(UUID candidateId, String publicJobId) {
+        Candidate candidate = candidate(candidateId);
+        if (candidate.isDeletionRequested()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Your account has a pending deletion request, so jobs cannot be saved.");
+        }
+        Job job = jobRepository.findByPublicJobId(publicJobId).filter(value -> value.getStatus() == JobStatus.ACTIVE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Published job was not found."));
+        SavedJob existing = savedJobRepository.findByCandidate_IdAndJob_InternalId(candidateId, job.getInternalId()).orElse(null);
+        if (existing != null) return SavedJobResponse.from(existing);
+        try {
+            return SavedJobResponse.from(savedJobRepository.saveAndFlush(SavedJob.builder().candidate(candidate).job(job).build()));
+        } catch (DataIntegrityViolationException duplicateRace) {
+            return savedJobRepository.findByCandidate_IdAndJob_InternalId(candidateId, job.getInternalId())
+                    .map(SavedJobResponse::from)
+                    .orElseThrow(() -> duplicateRace);
+        }
+    }
+
+    @Transactional
+    @AuditAction(action = "CANDIDATE_JOB_UNSAVED", resourceType = "JOB", candidateIdArgumentIndex = 0, jobIdArgumentIndex = 1)
+    public void removeSavedJob(UUID candidateId, String publicJobId) {
+        candidate(candidateId);
+        Job job = jobRepository.findByPublicJobId(publicJobId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job was not found."));
+        savedJobRepository.deleteByCandidate_IdAndJob_InternalId(candidateId, job.getInternalId());
+    }
+
+    @Transactional(readOnly = true)
     public WorkflowResponses.ApplicationTimeline applicationTimeline(UUID candidateId, UUID applicationId) {
         JobApplication application = jobApplicationRepository.findById(applicationId)
                 .filter(value -> value.getCandidate().getId().equals(candidateId))
@@ -210,6 +265,18 @@ public class CandidateWorkspaceService {
             if (candidate.isProfileSearchable()) ensureSearchReady(candidate);
         }
         if (request.automationConsent() != null) candidate.setAutomationConsent(request.automationConsent());
+        if (request.sensitiveDataConsent() != null) {
+            candidate.setSensitiveDataConsent(request.sensitiveDataConsent());
+            if (request.sensitiveDataConsent()) {
+                consentEvidenceRepository.save(PrivacyConsentEvidence.builder().subjectType("CANDIDATE").subjectId(candidateId)
+                        .purpose("OPTIONAL_SENSITIVE_PROFILE").lawfulBasis("EXPLICIT_CONSENT").noticeVersion("2026-08-31")
+                        .noticeLanguage("en-IN").affirmativeAction(true).recordedAt(Instant.now()).build());
+            } else {
+                candidate.setProfileDetails(scrubSensitiveProfileData(candidate.getProfileDetails()));
+                PrivacyConsentEvidence evidence = consentEvidenceRepository.findTopBySubjectIdAndPurposeAndWithdrawnAtIsNullOrderByRecordedAtDesc(candidateId, "OPTIONAL_SENSITIVE_PROFILE");
+                if (evidence != null) evidence.setWithdrawnAt(Instant.now());
+            }
+        }
         CandidateContactPreference preference = contactPreferenceRepository.findById(candidateId).orElseGet(() -> CandidateContactPreference.builder().candidate(candidate).build());
         if (request.outreachOptOut() != null) preference.setOutreachOptOut(request.outreachOptOut());
         preference = contactPreferenceRepository.save(preference);
@@ -225,6 +292,32 @@ public class CandidateWorkspaceService {
         preference = contactPreferenceRepository.save(preference);
         recordPrivacyCase(candidate, PrivacyCaseType.EXPORT, preference.getDataExportRequestedAt());
         return privacyResponse(candidate, preference);
+    }
+
+    @Transactional(readOnly = true)
+    @AuditAction(action = "CANDIDATE_DATA_EXPORT_DOWNLOADED", resourceType = "PRIVACY", resourceIdArgumentIndex = 0, candidateIdArgumentIndex = 0)
+    public Map<String, Object> dataExport(UUID candidateId) {
+        Candidate candidate = candidate(candidateId);
+        Map<String, Object> export = new LinkedHashMap<>();
+        export.put("exportedAt", Instant.now().toString());
+        export.put("account", Map.of("id", candidate.getId(), "fullName", candidate.getFullName(), "email", candidate.getEmail(),
+                "mobile", candidate.getMobile(), "emailVerified", candidate.isEmailVerified(), "mobileVerified", candidate.isMobileVerified(),
+                "createdAt", candidate.getCreatedAt(), "updatedAt", candidate.getUpdatedAt()));
+        export.put("profile", Map.of("headline", value(candidate.getHeadline()), "currentCompany", value(candidate.getCurrentCompany()),
+                "location", value(candidate.getLocation()), "overallExperienceYears", candidate.getOverallExperienceYears() == null ? 0 : candidate.getOverallExperienceYears(),
+                "noticePeriodDays", candidate.getNoticePeriodDays() == null ? 0 : candidate.getNoticePeriodDays(), "profileDetails", candidate.getProfileDetails()));
+        export.put("skills", candidate.getSkills().stream().map(skill -> Map.of("skill", skill.getSkill(), "rating", skill.getRating(),
+                "yearsOfExperience", skill.getYearsOfExperience() == null ? 0 : skill.getYearsOfExperience(), "experienceMonths", skill.getExperienceMonths() == null ? 0 : skill.getExperienceMonths())).toList());
+        export.put("education", candidate.getEducation().stream().map(education -> Map.of("level", education.getLevel(), "degreeName", education.getDegreeName(), "institutionName", education.getInstitutionName(),
+                "graduationYear", education.getGraduationYear() == null ? 0 : education.getGraduationYear(), "specialization", value(education.getSpecialization()))).toList());
+        export.put("choices", privacyResponse(candidate, contactPreferenceRepository.findById(candidateId).orElse(null)));
+        export.put("applications", jobApplicationRepository.findAllByCandidate_IdOrderByAppliedAtDesc(candidateId).stream().map(application -> Map.of(
+                "applicationId", application.getId(), "jobId", application.getJob().getPublicJobId(), "jobTitle", application.getJob().getTitle(),
+                "stage", application.getPipelineStage(), "source", application.getApplicationSource(), "appliedAt", value(application.getAppliedAt()), "updatedAt", value(application.getUpdatedAt()))).toList());
+        export.put("messages", directMessageRepository.findBySenderIdOrRecipientIdOrderBySentAtDesc(candidateId, candidateId).stream().map(message -> Map.of(
+                "messageId", message.getId(), "senderId", message.getSenderId(), "recipientId", message.getRecipientId(), "body", message.getBody(),
+                "sentAt", value(message.getSentAt()), "readAt", value(message.getReadAt()))).toList());
+        return export;
     }
 
     @Transactional
@@ -270,6 +363,10 @@ public class CandidateWorkspaceService {
     @AuditAction(action = "CANDIDATE_DATA_ERASED", resourceType = "CANDIDATE", resourceIdArgumentIndex = 0, candidateIdArgumentIndex = 0)
     public void erase(UUID candidateId) {
         Candidate candidate = candidate(candidateId);
+        candidateParseResultRepository.findByCandidate_Id(candidateId).forEach(result -> {
+            try { cvDocumentStorage.delete(result.getSourceFileKey()); } catch (java.io.IOException exception) { throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The private CV could not be removed safely."); }
+        });
+        candidateParseResultRepository.deleteByCandidate_Id(candidateId);
         directMessageRepository.deleteBySenderIdOrRecipientId(candidateId, candidateId);
         candidateRepository.delete(candidate);
     }
@@ -291,7 +388,7 @@ public class CandidateWorkspaceService {
         return new CandidateProfileResponse(candidate.getId(), candidate.getFullName(), maskEmail(candidate.getEmail()), maskMobile(candidate.getMobile()),
                 candidate.getHeadline(), candidate.getCurrentCompany(), candidate.getDepartmentRole(), candidate.getIndustry(), candidate.getPreviousRole(), candidate.getPreviousCompany(), candidate.getLocation(), candidate.getPreferredLocations(),
                 candidate.getOverallExperienceYears(), candidate.getExpectedSalaryLakhs(), candidate.getNoticePeriodDays(), candidate.getGender(), candidate.getProfileSummary(), candidate.isProfileSearchable(),
-                candidate.isAutomationConsent(), candidate.isEmailVerified(), candidate.isMobileVerified(), !candidate.getParseResults().isEmpty(), candidate.getDomainCategory(), candidate.getCareerStage(), candidate.getInterestedDomains(), candidate.getWorkLinks(),
+                candidate.isAutomationConsent(), candidate.isSensitiveDataConsent(), candidate.isEmailVerified(), candidate.isMobileVerified(), !candidate.getParseResults().isEmpty(), candidate.getDomainCategory(), candidate.getCareerStage(), candidate.getInterestedDomains(), candidate.getWorkLinks(),
                 candidate.getSkills().stream().sorted(Comparator.comparing(CandidateSkill::getSkill)).map(skill -> new CandidateProfileResponse.CandidateSkillView(skill.getSkill(), skill.getRating(), skill.getYearsOfExperience(), skill.getExperienceMonths(), skill.getSoftwareVersion(), skill.getLastUsedYear())).toList(),
                 candidate.getEducation().stream().map(education -> new CandidateProfileResponse.CandidateEducationView(education.getLevel(), education.getDegreeName(), education.getInstitutionName(), education.getGraduationYear(), education.getCourseStartYear(), education.getSpecialization(), education.getStudyType(), education.getGrade())).toList(),
                 candidate.getProfileDetails(),
@@ -371,10 +468,33 @@ public class CandidateWorkspaceService {
     }
     private record ApplicationAttribution(JobReferral referral, ApplicationSource source) { }
     private WorkflowResponses.CandidatePrivacy privacyResponse(Candidate candidate, CandidateContactPreference preference) {
-        return new WorkflowResponses.CandidatePrivacy(candidate.isProfileSearchable(), candidate.isAutomationConsent(), preference != null && preference.isOutreachOptOut(),
+        return new WorkflowResponses.CandidatePrivacy(candidate.isProfileSearchable(), candidate.isAutomationConsent(), preference != null && preference.isOutreachOptOut(), candidate.isSensitiveDataConsent(),
                 preference == null ? null : preference.getDataExportRequestedAt(), preference == null ? null : preference.getDeletionRequestedAt(),
                 preference == null ? candidate.getUpdatedAt() : preference.getUpdatedAt());
     }
+    private boolean hasSensitiveProfileData(CandidateProfileDetailsRequest details) {
+        if (details == null) return false;
+        CandidateProfileDetailsRequest.PersonalDetailsRequest personal = details.personalDetails();
+        CandidateProfileDetailsRequest.InclusionDetailsRequest inclusion = details.inclusionDetails();
+        if (personal != null && (hasText(personal.maritalStatus()) || personal.birthDay() != null || personal.birthMonth() != null
+                || personal.birthYear() != null || hasText(personal.category()) || hasText(personal.usaWorkPermit())
+                || personal.otherCountryWorkPermits() != null && !personal.otherCountryWorkPermits().isEmpty()
+                || hasText(personal.permanentAddress()) || hasText(personal.hometown()) || hasText(personal.pincode()))) return true;
+        return inclusion != null && (hasText(inclusion.disabilityStatus()) || hasText(inclusion.disabilityDetails())
+                || Boolean.TRUE.equals(inclusion.militaryExperience()) || hasText(inclusion.militaryDetails())
+                || Boolean.TRUE.equals(inclusion.careerBreak()) || hasText(inclusion.careerBreakDetails())
+                || inclusion.diversityTags() != null && !inclusion.diversityTags().isEmpty());
+    }
+    private JsonNode scrubSensitiveProfileData(JsonNode current) {
+        if (current == null || !current.isObject()) return current;
+        com.fasterxml.jackson.databind.node.ObjectNode copy = current.deepCopy();
+        copy.remove("personalDetails");
+        copy.remove("inclusionDetails");
+        return copy;
+    }
+    private boolean hasText(String value) { return value != null && !value.isBlank(); }
+    private String value(String value) { return value == null ? "" : value; }
+    private String value(Object value) { return value == null ? "" : String.valueOf(value); }
     private String nextStep(PipelineStage stage) {
         return switch (stage) {
             case APPLIED -> "The hiring team will review your application.";

@@ -1,32 +1,25 @@
 package com.sapienworx.api.cvparser;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+import com.sapienworx.api.queue.BackgroundQueuePublisher;
+import com.sapienworx.api.queue.LogicalQueue;
 
 /** Routes live candidate uploads separately from lower-priority recruiter bulk work. */
 @Service
 @RequiredArgsConstructor
 public class CvParserMessagePublisher {
 
-    private final RabbitTemplate rabbitTemplate;
+    private final BackgroundQueuePublisher queuePublisher;
 
     public void queueCandidateOnboarding(ParserPayload payload) {
         assertPayload(payload, CvParserMessageType.CANDIDATE_ONBOARDING);
-        rabbitTemplate.convertAndSend(
-                RabbitMqCvParserConfig.EXCHANGE_NAME,
-                RabbitMqCvParserConfig.CANDIDATE_ROUTING_KEY,
-                payload
-        );
+        queuePublisher.send(LogicalQueue.CV_CANDIDATE, payload);
     }
 
     public void queueRecruiterBulkUpload(ParserPayload payload) {
         assertPayload(payload, CvParserMessageType.RECRUITER_BULK_UPLOAD);
-        rabbitTemplate.convertAndSend(
-                RabbitMqCvParserConfig.EXCHANGE_NAME,
-                RabbitMqCvParserConfig.BULK_ROUTING_KEY,
-                payload
-        );
+        queuePublisher.send(LogicalQueue.CV_BULK, payload);
     }
 
     private void assertPayload(ParserPayload payload, CvParserMessageType expectedType) {

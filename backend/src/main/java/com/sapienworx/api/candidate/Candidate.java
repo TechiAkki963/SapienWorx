@@ -164,6 +164,11 @@ public class Candidate {
     @Column(name = "automation_consent", nullable = false)
     private boolean automationConsent = false;
 
+    /** Separate, revocable acknowledgement for optional sensitive profile fields. */
+    @Builder.Default
+    @Column(name = "sensitive_data_consent", nullable = false)
+    private boolean sensitiveDataConsent = false;
+
     @Builder.Default
     @Column(name = "deletion_requested", nullable = false)
     private boolean deletionRequested = false;

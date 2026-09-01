@@ -81,6 +81,7 @@ test("notifications, settings, help, and global search are functional", async ({
   await expect(page.getByRole("heading", { name: "Notifications", exact: true })).toBeVisible();
   await expect(page.getByText("Queue has no active worker", { exact: true })).toBeVisible();
 
+  await page.getByRole("button", { name: /Account menu/ }).click();
   await page.getByRole("link", { name: "Settings", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Devices and sessions" })).toBeVisible();

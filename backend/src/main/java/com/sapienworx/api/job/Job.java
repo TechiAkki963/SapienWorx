@@ -52,6 +52,16 @@ public class Job {
     @Column(nullable = false, length = 120)
     private String department;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "employment_type", nullable = false, length = 24)
+    private EmploymentType employmentType = EmploymentType.FULL_TIME;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "workplace_model", nullable = false, length = 16)
+    private WorkplaceModel workplaceModel = WorkplaceModel.ON_SITE;
+
     @Column(nullable = false, length = 200)
     private String location;
 
@@ -79,6 +89,24 @@ public class Job {
     /** Sanitised rich-text HTML from the recruiter editor. */
     @Column(name = "description_html", nullable = false, columnDefinition = "text")
     private String descriptionHtml;
+
+    @Builder.Default
+    @Column(name = "company_overview", nullable = false, columnDefinition = "text")
+    private String companyOverview = "";
+
+    @Builder.Default
+    @Column(name = "why_join", nullable = false, columnDefinition = "text")
+    private String whyJoin = "";
+
+    /** Sanitised, candidate-facing responsibilities supplied separately from the role summary. */
+    @Builder.Default
+    @Column(name = "responsibilities_html", nullable = false, columnDefinition = "text")
+    private String responsibilitiesHtml = "";
+
+    /** Newline-separated, ordered hiring stages. */
+    @Builder.Default
+    @Column(name = "hiring_process", nullable = false, columnDefinition = "text")
+    private String hiringProcess = "";
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "job_skills", joinColumns = @JoinColumn(name = "job_internal_id"))

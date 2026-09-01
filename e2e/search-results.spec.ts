@@ -26,7 +26,7 @@ test("shows dense candidate results and preserves the search in Modify", async (
   await page.getByRole("button", { name: "Switch to NVite" }).click();
   await expect.poll(() => page.evaluate(() => (window as Window & { sapienworxEvents?: Array<{ name: string; properties: Record<string, unknown> }> }).sapienworxEvents?.[0]?.name)).toBe("recruiter_bulk_email_opened");
   await expect(page.getByRole("heading", { name: "Email 1 selected candidate" })).toBeVisible();
-  await expect(page.getByText("Each recipient is processed as an individual protected message through the RabbitMQ-backed workflow.")).toBeVisible();
+  await expect(page.getByText("Each recipient is processed as an individual protected message through the protected background-delivery workflow.")).toBeVisible();
   await page.getByRole("button", { name: "Close email dialog" }).click();
 
   await page.getByLabel("Active in").selectOption("FIFTEEN_DAYS");

@@ -148,6 +148,23 @@ class CandidateApplicationRoutingTest {
         verify(raceHarness.notifications, never()).create(any(), any(), any(), any(), any(), any());
     }
 
+    @Test
+    void savesPublishedJobsForTheAuthenticatedCandidateAndRemovesThemIdempotently() {
+        Harness harness = new Harness();
+        Fixture fixture = harness.activeFixture();
+        when(harness.savedJobs.findByCandidate_IdAndJob_InternalId(fixture.candidate().getId(), fixture.job().getInternalId()))
+                .thenReturn(Optional.empty());
+        when(harness.savedJobs.saveAndFlush(any(SavedJob.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        SavedJobResponse saved = harness.service.saveJob(fixture.candidate().getId(), fixture.job().getPublicJobId());
+
+        assertThat(saved.jobId()).isEqualTo(fixture.job().getPublicJobId());
+        verify(harness.savedJobs).saveAndFlush(any(SavedJob.class));
+
+        harness.service.removeSavedJob(fixture.candidate().getId(), fixture.job().getPublicJobId());
+        verify(harness.savedJobs).deleteByCandidate_IdAndJob_InternalId(fixture.candidate().getId(), fixture.job().getInternalId());
+    }
+
     private record Fixture(Candidate candidate, Recruiter owner, Organisation organisation, Job job) { }
 
     private static final class Harness {
@@ -156,10 +173,14 @@ class CandidateApplicationRoutingTest {
         private final JobApplicationRepository applications = mock(JobApplicationRepository.class);
         private final NotificationService notifications = mock(NotificationService.class);
         private final JobReferralRepository referrals = mock(JobReferralRepository.class);
+        private final SavedJobRepository savedJobs = mock(SavedJobRepository.class);
         private final CandidateWorkspaceService service = new CandidateWorkspaceService(candidates, jobs, applications,
                 mock(CandidateProfileEngagementRepository.class), notifications, mock(DirectMessageRepository.class), new ObjectMapper(),
                 mock(ApplicationEventService.class), mock(ApplicationEventRepository.class), mock(InterviewRepository.class),
-                mock(CandidateContactPreferenceRepository.class), referrals, mock(PlatformPrivacyCaseRepository.class));
+                mock(CandidateContactPreferenceRepository.class), referrals, mock(PlatformPrivacyCaseRepository.class),
+                savedJobs, mock(com.sapienworx.api.cvparser.CandidateParseResultRepository.class),
+                mock(com.sapienworx.api.cvparser.CvDocumentStorage.class),
+                mock(com.sapienworx.api.admin.PrivacyConsentEvidenceRepository.class));
 
         private Fixture activeFixture() {
             UUID candidateId = UUID.randomUUID();

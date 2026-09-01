@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
@@ -76,6 +77,10 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/api/auth/request-otp", "/api/auth/verify-otp", "/api/auth/verify-recovery-code",
                                 "/api/auth/password-reset/request", "/api/auth/password-reset/confirm", "/error"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.deny())
+                        .contentTypeOptions(Customizer.withDefaults())
+                        .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable())
                 .logout(logout -> logout.disable())
@@ -86,7 +91,7 @@ public class SecurityConfig {
                         // the continuation avoids a false access denial after
                         // the response has already begun streaming.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
-                        .requestMatchers("/actuator/health", "/error", "/api/auth/**", "/api/public/jobs/**", "/api/public/knowledge-posts/**").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**", "/error", "/api/auth/**", "/api/public/jobs/**", "/api/public/knowledge-posts/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/events/**").authenticated()
                         .requestMatchers("/api/recruiter/**").hasAnyRole("RECRUITER", "ADMIN", "SUPER_ADMIN")

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Logo } from "./ui";
+import { Button, Logo, useHydrated } from "./ui";
 import { parseResumeText, type ParsedProfile } from "../lib/parser/deterministic";
 import { apiClient } from "../lib/api-client";
 import { trackProductEvent } from "../lib/telemetry";
@@ -18,6 +18,8 @@ type AuthSessionResponse = { authenticated: boolean; redirectTo: string | null; 
 type OrganisationLookup = { id: string; name: string; workEmailDomain: string | null; domainStatus: "MATCH" | "MISMATCH" | "UNCLAIMED" | "EMAIL_REQUIRED" };
 
 const interestedDomainOptions = ["Technology", "IT Services", "Manufacturing & Production", "Healthcare & Life Sciences", "Infrastructure, Transport & Real Estate", "BFSI", "BPM", "Consumer, Retail & Hospitality", "Media, Entertainment & Telecom", "Education"];
+const PRIVACY_NOTICE_VERSION = "2026-08-31";
+const PRIVACY_NOTICE_LANGUAGE = "en-IN";
 
 function sharedAuthPath(path: "/login" | "/register", jobId?: string, referralCode?: string, shareSource?: string) {
   const query = new URLSearchParams();
@@ -226,9 +228,11 @@ function CandidateRegistration({ jobId, referralCode, shareSource }: { jobId?: s
   const [identity, setIdentity] = useState<CandidateIdentity>({ firstName: "", lastName: "", email: "", mobile: "" });
   const [careerStage, setCareerStage] = useState<CandidateCareerStage | "">("");
   const [domainCategory, setDomainCategory] = useState<CandidateDomain | "">("");
-  const [interestedDomains, setInterestedDomains] = useState<string[]>(() => [...interestedDomainOptions]);
+  const [interestedDomains, setInterestedDomains] = useState<string[]>([]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [legalConsent, setLegalConsent] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState("");
   const [requestingCodes, setRequestingCodes] = useState(false);
@@ -237,7 +241,7 @@ function CandidateRegistration({ jobId, referralCode, shareSource }: { jobId?: s
   const journeyStartedAt = useRef<number | null>(performance.now());
   const contact = { name: `${identity.firstName} ${identity.lastName}`.trim(), email: identity.email, mobile: identity.mobile };
   const directionComplete = Boolean(careerStage && domainCategory && interestedDomains.length);
-  const canRequestOtp = Boolean(directionComplete && identity.firstName.trim() && identity.lastName.trim() && identity.email.trim() && identity.mobile.trim() && password.length >= 8 && password === confirmPassword);
+  const canRequestOtp = Boolean(directionComplete && identity.firstName.trim() && identity.lastName.trim() && identity.email.trim() && identity.mobile.trim() && password.length >= 8 && password === confirmPassword && legalConsent && ageConfirmed);
   const passwordsMatch = Boolean(confirmPassword && password === confirmPassword);
 
   const updateIdentity = (key: keyof CandidateIdentity, value: string) => { setIdentity((current) => ({ ...current, [key]: value })); setNotice(""); };
@@ -260,7 +264,8 @@ function CandidateRegistration({ jobId, referralCode, shareSource }: { jobId?: s
       trackProductEvent("candidate_signup_otp_requested", { careerStage, primaryDomain: domainCategory, selectedDomainCount: interestedDomains.length, sharedJob: Boolean(jobId) });
       const response = await apiClient<OtpRequestResponse>("/api/auth/request-otp", { method: "POST", body: JSON.stringify({
         flow: "CANDIDATE_REGISTRATION", firstName: identity.firstName, lastName: identity.lastName, email: identity.email, mobile: identity.mobile,
-        careerStage, domainCategory, interestedDomains, password, termsAccepted: true,
+        careerStage, domainCategory, interestedDomains, password, termsAccepted: legalConsent,
+        noticeVersion: PRIVACY_NOTICE_VERSION, noticeLanguage: PRIVACY_NOTICE_LANGUAGE, ageEligibilityConfirmed: ageConfirmed,
       }) });
       setTransactionId(response.transactionId);
       setStep("verify");
@@ -303,7 +308,7 @@ function CandidateRegistration({ jobId, referralCode, shareSource }: { jobId?: s
       <button className="back-link" type="button" onClick={() => { setNotice(""); setStep("direction"); }}>← Back to career direction</button><div className="candidate-signup-stage"><span>2</span><div><strong>Your account details</strong><small>Use the email and mobile number you want to verify and use to sign in.</small></div></div>
       <div className="candidate-onboarding-grid"><AuthField label="First name" value={identity.firstName} onChange={(value) => updateIdentity("firstName", value)} placeholder="Your first name"/><AuthField label="Last name" value={identity.lastName} onChange={(value) => updateIdentity("lastName", value)} placeholder="Your last name"/><AuthField label="Email address" type="email" value={identity.email} onChange={(value) => updateIdentity("email", value)} placeholder="you@example.com"/><AuthField label="Mobile number" type="tel" value={identity.mobile} onChange={(value) => updateIdentity("mobile", value)} placeholder="+91 00000 00000"/><AuthField label="Create password" type={showPassword ? "text" : "password"} value={password} onChange={setPassword} placeholder="At least 8 characters"/><AuthField label="Confirm password" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={setConfirmPassword} placeholder="Re-enter your password"/></div>
       <div className="candidate-password-guidance"><div><strong>{password.length >= 8 ? "✓ Password length looks good" : "Use at least 8 characters"}</strong><small>{confirmPassword ? passwordsMatch ? "Passwords match." : "Passwords do not match yet." : "Use a password you can remember securely."}</small></div><button type="button" onClick={() => setShowPassword((current) => !current)}>{showPassword ? "Hide passwords" : "Show passwords"}</button></div>
-      <p className="candidate-verification-note"><span>⌁</span><span><strong>Step 3 is a quick verification.</strong> We&apos;ll send one code to your email and another to your mobile. Your profile stays private until you choose to share it.</span></p><p className="auth-microcopy">By sending verification codes, you agree to the required Terms and Data Processing Agreement.</p>{notice && <p className="form-notice" role="alert">{notice}</p>}<Button type="submit" disabled={!canRequestOtp || requestingCodes}>{requestingCodes ? "Sending secure codes…" : "Continue to verification →"}</Button>
+      <p className="candidate-verification-note"><span>⌁</span><span><strong>Step 3 is a quick verification.</strong> We&apos;ll send one code to your email and another to your mobile. Your profile stays private until you choose to share it.</span></p><Consent checked={legalConsent} onChange={setLegalConsent} ageConfirmed={ageConfirmed} onAgeChange={setAgeConfirmed}/>{notice && <p className="form-notice" role="alert">{notice}</p>}<Button type="submit" disabled={!canRequestOtp || requestingCodes}>{requestingCodes ? "Sending secure codes…" : "Continue to verification →"}</Button>
     </form>}
     {step === "verify" && <DualOtp contact={contact} onVerify={verifyRegistration} onResend={startRegistration} onEditContact={() => { setNotice(""); setStep("details"); }} autoVerify/>}
     {step === "profile" && <ProfileCreationOptions applicationMessage={applicationMessage}/>}
@@ -336,7 +341,7 @@ function ProfileCreationOptions({ applicationMessage = "" }: { applicationMessag
   return <div className="profile-creation-options">{applicationMessage && <p className="form-notice" role="status">{applicationMessage}</p>}<section className="profile-creation-option"><span>⇧</span><div><h2>Build from your CV</h2><p>Upload a PDF, DOCX or TXT file. Sapienworx will extract a private draft for you to review and edit.</p></div><label className="upload-target"><input aria-label="Upload CV for parsing" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" onChange={(event) => { setResumeFile(event.target.files?.[0] ?? null); setMessage(""); setError(""); }}/><strong>{resumeFile?.name || "Choose your CV"}</strong><small>PDF, DOCX or TXT · uploaded only to your verified account</small></label>{resumeFile && <Button onClick={uploadCv} disabled={uploading}>{uploading ? "Uploading CV…" : "Upload and parse CV →"}</Button>}{message && <p className="form-notice">{message}</p>}{error && <p className="consent-error" role="alert">{error}</p>}{message && <Button href="/candidate/profile">Review parsed profile →</Button>}</section><section className="profile-creation-option"><span>✦</span><div><h2>Create it manually</h2><p>Add experience, education, skills and projects one section at a time. Start with only the essentials.</p></div><Button onClick={() => trackProductEvent("candidate_profile_path_selected", { method: "manual" })} href="/candidate/profile">Build profile manually →</Button></section><section className="profile-creation-option profile-creation-later"><span>◷</span><div><h2>Finish later</h2><p>Your account is ready. Explore the workspace now and return whenever you are ready to complete your profile.</p></div><Button onClick={() => trackProductEvent("candidate_profile_path_selected", { method: "later" })} href="/candidate">Go to my dashboard →</Button></section></div>;
 }
 
-function Consent({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) { return <><section className="dpdp-notice"><strong>What we collect and why</strong><p>We use your contact details to secure your account and your CV only to create the profile you review. You can access, correct, export or request deletion of your data.</p></section><label className="consent-row"><input checked={checked} onChange={(event) => onChange(event.target.checked)} type="checkbox"/><span><b>I agree to the required Terms and Data Processing Agreement.</b><small>Required to create and secure your profile.</small></span></label></>; }
+function Consent({ checked, onChange, ageConfirmed = false, onAgeChange }: { checked: boolean; onChange: (checked: boolean) => void; ageConfirmed?: boolean; onAgeChange?: (checked: boolean) => void }) { return <><section className="dpdp-notice"><strong>What we collect and why</strong><p>We use your contact details to secure your account and your CV only to create the profile you review. You can access, correct, export or request deletion of your data. Read the <a href="/privacy">Privacy notice</a> and <a href="/terms">Terms</a> before continuing.</p></section><label className="consent-row"><input checked={checked} onChange={(event) => onChange(event.target.checked)} type="checkbox"/><span><b>I agree to the Terms and Privacy notice.</b><small>Required to create and secure your profile.</small></span></label>{onAgeChange && <label className="consent-row"><input checked={ageConfirmed} onChange={(event) => onAgeChange(event.target.checked)} type="checkbox"/><span><b>I confirm I am 18 or older.</b><small>Sapienworx currently supports adult accounts only.</small></span></label>}</>; }
 
 type RecruiterType = "employer" | "consultant";
 type RecruiterDetails = Omit<Contact, "name"> & { firstName: string; lastName: string; city: string; state: string; organization: string; designation: string; password: string; confirmPassword: string };
@@ -348,6 +353,7 @@ function RecruiterRegistration() {
   const [recruiterType, setRecruiterType] = useState<RecruiterType>("employer");
   const [details, setDetails] = useState<RecruiterDetails>({ firstName: "", lastName: "", email: "", mobile: "", city: "", state: "", organization: "", designation: "", password: "", confirmPassword: "" });
   const [consent, setConsent] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [showPasswords, setShowPasswords] = useState(false);
   const [error, setError] = useState("");
   const [transactionId, setTransactionId] = useState("");
@@ -356,7 +362,7 @@ function RecruiterRegistration() {
   const emailOnly = recruiterType === "employer";
   const accountComplete = Boolean(details.firstName && details.lastName && details.mobile && details.email && details.password.length >= 8 && details.password === details.confirmPassword);
   const organisationComplete = Boolean(details.city && details.state && details.organization && details.designation && consent);
-  const update = (key: keyof RecruiterDetails, value: string) => { setDetails({ ...details, [key]: value }); setError(""); };
+  const update = (key: keyof RecruiterDetails, value: string) => { setDetails((current) => ({ ...current, [key]: value })); setError(""); };
   useEffect(() => {
     if (step !== "organisation" || details.organization.trim().length < 2) { setOrganisationSuggestions([]); return; }
     const controller = new AbortController();
@@ -379,7 +385,7 @@ function RecruiterRegistration() {
   const continueToVerification = async () => {
     if (!accountComplete || !organisationComplete) { setError("Complete the account and organisation details before verification."); return; }
     try {
-      const response = await apiClient<OtpRequestResponse>("/api/auth/request-otp", { method: "POST", body: JSON.stringify({ flow: recruiterType === "consultant" ? "CONSULTANT_REGISTRATION" : "RECRUITER_REGISTRATION", firstName: details.firstName, lastName: details.lastName, email: details.email, mobile: details.mobile, password: details.password, organisationName: details.organization, designation: details.designation, city: details.city, state: details.state }) });
+      const response = await apiClient<OtpRequestResponse>("/api/auth/request-otp", { method: "POST", body: JSON.stringify({ flow: recruiterType === "consultant" ? "CONSULTANT_REGISTRATION" : "RECRUITER_REGISTRATION", firstName: details.firstName, lastName: details.lastName, email: details.email, mobile: details.mobile, password: details.password, organisationName: details.organization, designation: details.designation, city: details.city, state: details.state, termsAccepted: consent, noticeVersion: PRIVACY_NOTICE_VERSION, noticeLanguage: PRIVACY_NOTICE_LANGUAGE, ageEligibilityConfirmed: ageConfirmed }) });
       setTransactionId(response.transactionId); setStep("verify");
     } catch (reason) { setError(reason instanceof Error ? reason.message : "We could not start secure registration."); throw reason; }
   };
@@ -415,7 +421,10 @@ export function CandidateOnboarding() { return <AuthFrame eyebrow="Candidate pro
 
 function ParserValue({ label, value }: { label: string; value?: string }) { return <div><span>{label}</span><strong>{value || "Not found"}</strong></div>; }
 function AuthField({ label, placeholder, type = "text", value, onChange, required = true, inputMode }: { label: string; placeholder?: string; type?: string; value?: string; onChange?: (value: string) => void; required?: boolean; inputMode?: "text" | "numeric" | "email" | "tel" | "url" | "search" | "decimal" | "none" }) { return <label className="auth-field"><span>{label}</span><input required={required} type={type} inputMode={inputMode} value={value} onChange={(event) => onChange?.(event.target.value)} placeholder={placeholder}/></label>; }
-export function AuthFrame({ eyebrow, title, copy, children }: { eyebrow: string; title: string; copy: string; children: React.ReactNode }) { return <main className="auth-page"><header className="auth-nav"><Logo/><a href="/">Back to home</a></header><section className="auth-layout"><aside className="auth-aside"><span className="auth-aside-kicker">Sapienworx</span><h1>Recruitment that keeps <em>people</em> in control.</h1><p>Clear progress for candidates. Confident decisions for recruitment teams. Privacy built into the journey.</p><div className="auth-benefits"><span>✓ Human-confirmed profile data</span><span>✓ Two-factor account protection</span><span>✓ Clear data choices</span></div></aside><section className="auth-card"><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p className="auth-copy">{copy}</p>{children}</section></section></main>; }
+export function AuthFrame({ eyebrow, title, copy, children }: { eyebrow: string; title: string; copy: string; children: React.ReactNode }) {
+  const hydrated = useHydrated();
+  return <main className="auth-page"><header className="auth-nav"><Logo/><a href="/">Back to home</a></header><section className="auth-layout"><aside className="auth-aside"><span className="auth-aside-kicker">Sapienworx</span><h1>Recruitment that keeps <em>people</em> in control.</h1><p>Clear progress for candidates. Confident decisions for recruitment teams. Privacy built into the journey.</p><div className="auth-benefits"><span>✓ Human-confirmed profile data</span><span>✓ Two-factor account protection</span><span>✓ Clear data choices</span></div></aside><section className="auth-card" aria-busy={!hydrated}><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p className="auth-copy">{copy}</p>{hydrated ? children : <div className="auth-hydration-state" role="status"><span aria-hidden="true"/>Preparing your secure form…</div>}</section></section></main>;
+}
 
 function friendlyOtpError(reason: unknown) {
   const message = reason instanceof Error ? reason.message : "";

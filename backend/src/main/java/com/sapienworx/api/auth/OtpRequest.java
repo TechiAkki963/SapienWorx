@@ -36,6 +36,9 @@ public record OtpRequest(
         @Size(max = 180) String currentCompany,
         @Min(0) @Max(60) Integer overallExperienceYears,
         @Min(0) @Max(1000) Integer expectedSalaryLakhs,
-        @Min(0) @Max(365) Integer noticePeriodDays
+        @Min(0) @Max(365) Integer noticePeriodDays,
+        String noticeVersion,
+        String noticeLanguage,
+        Boolean ageEligibilityConfirmed
 ) {
 }

@@ -19,10 +19,12 @@ public class JwtTokenService {
 
     private final SecretKey signingKey;
     private final Duration ttl;
+    private final String issuer;
 
     public JwtTokenService(
             @Value("${app.security.jwt.base64-secret}") String base64Secret,
-            @Value("${app.security.jwt.ttl:PT8H}") Duration ttl
+            @Value("${app.security.jwt.ttl:PT8H}") Duration ttl,
+            @Value("${app.security.jwt.issuer:sapienworx}") String issuer
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
         if (keyBytes.length < 32) {
@@ -30,12 +32,14 @@ public class JwtTokenService {
         }
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.ttl = ttl;
+        this.issuer = issuer;
     }
 
     public String issue(AuthenticatedUser user) {
         Instant now = Instant.now();
         var builder = Jwts.builder()
                 .subject(user.userId().toString())
+                .issuer(issuer)
                 .claim("role", user.role().name())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(ttl)));
@@ -47,6 +51,7 @@ public class JwtTokenService {
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(signingKey)
+                    .requireIssuer(issuer)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
@@ -64,7 +69,7 @@ public class JwtTokenService {
     /** Used only for platform session revocation checks after signature verification. */
     public Optional<Instant> issuedAt(String token) {
         try {
-            Date issuedAt = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload().getIssuedAt();
+            Date issuedAt = Jwts.parser().verifyWith(signingKey).requireIssuer(issuer).build().parseSignedClaims(token).getPayload().getIssuedAt();
             return Optional.ofNullable(issuedAt).map(Date::toInstant);
         } catch (RuntimeException invalidToken) {
             return Optional.empty();

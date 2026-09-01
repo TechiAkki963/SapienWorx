@@ -3,9 +3,10 @@ package com.sapienworx.api.communication;
 import com.sapienworx.api.candidate.Candidate;
 import com.sapienworx.api.candidate.CandidateRepository;
 import com.sapienworx.api.admin.PlatformAccessPolicy;
+import com.sapienworx.api.queue.BackgroundQueuePublisher;
+import com.sapienworx.api.queue.LogicalQueue;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,8 +24,8 @@ class RecruiterEmailDispatchServiceTest {
     @Test
     void queuesOnlyTheVerifiedCandidateEmailWithNoApiExposure() {
         CandidateRepository candidateRepository = mock(CandidateRepository.class);
-        RabbitTemplate rabbitTemplate = mock(RabbitTemplate.class);
-        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, rabbitTemplate, mock(PlatformAccessPolicy.class));
+        BackgroundQueuePublisher queuePublisher = mock(BackgroundQueuePublisher.class);
+        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, queuePublisher, mock(PlatformAccessPolicy.class));
         UUID candidateId = UUID.randomUUID();
         Candidate candidate = Candidate.builder()
                 .id(candidateId)
@@ -37,11 +38,7 @@ class RecruiterEmailDispatchServiceTest {
                 new RecruiterEmailCommand(candidateId, "SWX_NT_001", "Interview update", "<p>Hello</p>"));
 
         ArgumentCaptor<EmailDispatchPayload> payload = ArgumentCaptor.forClass(EmailDispatchPayload.class);
-        verify(rabbitTemplate).convertAndSend(
-                eq(RabbitMqCommunicationConfig.EMAIL_EXCHANGE),
-                eq(RabbitMqCommunicationConfig.EMAIL_ROUTING_KEY),
-                payload.capture()
-        );
+        verify(queuePublisher).send(eq(LogicalQueue.EMAIL_BULK), payload.capture());
         assertThat(payload.getValue().dispatchId()).isEqualTo(dispatchId);
         assertThat(payload.getValue().candidateId()).isEqualTo(candidateId);
         assertThat(payload.getValue().recipientEmail()).isEqualTo("candidate@example.com");
@@ -50,8 +47,8 @@ class RecruiterEmailDispatchServiceTest {
     @Test
     void refusesToQueueAnUnverifiedCandidateEmail() {
         CandidateRepository candidateRepository = mock(CandidateRepository.class);
-        RabbitTemplate rabbitTemplate = mock(RabbitTemplate.class);
-        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, rabbitTemplate, mock(PlatformAccessPolicy.class));
+        BackgroundQueuePublisher queuePublisher = mock(BackgroundQueuePublisher.class);
+        RecruiterEmailDispatchService service = new RecruiterEmailDispatchService(candidateRepository, queuePublisher, mock(PlatformAccessPolicy.class));
         UUID candidateId = UUID.randomUUID();
         Candidate candidate = Candidate.builder().id(candidateId).email("candidate@example.com").build();
         when(candidateRepository.findById(candidateId)).thenReturn(Optional.of(candidate));
@@ -59,6 +56,6 @@ class RecruiterEmailDispatchServiceTest {
         assertThatThrownBy(() -> service.queueForCandidate(candidateId,
                 new RecruiterEmailCommand(candidateId, null, "Subject", "<p>Hello</p>")))
                 .isInstanceOf(IllegalStateException.class);
-        verifyNoInteractions(rabbitTemplate);
+        verifyNoInteractions(queuePublisher);
     }
 }

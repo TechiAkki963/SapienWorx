@@ -55,6 +55,15 @@ public class JobApplication {
     @JoinColumn(name = "recipient_recruiter_id", updatable = false)
     private Recruiter recipientRecruiter;
 
+    /** Current working owner; the original recipient remains the immutable routing record. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_recruiter_id")
+    private Recruiter assignedRecruiter;
+
+    @Builder.Default
+    @Column(name = "required_offer_approvals", nullable = false)
+    private int requiredOfferApprovals = 1;
+
     /** Optional durable attribution for a candidate-generated share link. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "referral_id", updatable = false)

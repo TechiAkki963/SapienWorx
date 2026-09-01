@@ -1,8 +1,8 @@
 package com.sapienworx.api.notification;
 
 import com.sapienworx.api.security.AuthenticatedUser;
+import com.sapienworx.api.web.ApiPageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,8 +24,8 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public Page<NotificationResponse> list(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "0") int page) {
-        return notificationService.list(userId(user), PageRequest.of(Math.max(0, page), 20));
+    public ApiPageResponse<NotificationResponse> list(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam(defaultValue = "0") int page) {
+        return ApiPageResponse.from(notificationService.list(userId(user), PageRequest.of(Math.max(0, page), 20)));
     }
 
     @PatchMapping("/{notificationId}/read")

@@ -26,6 +26,7 @@ public record CandidateProfileRequest(
         @Size(max = 20) List<@Size(max = 2048) String> workLinks,
         @Size(max = 80) List<@Valid CandidateSkillRequest> skills,
         @Size(max = 20) List<@Valid CandidateEducationRequest> education,
-        @Valid CandidateProfileDetailsRequest profileDetails
+        @Valid CandidateProfileDetailsRequest profileDetails,
+        Boolean sensitiveDataConsent
 ) {
 }

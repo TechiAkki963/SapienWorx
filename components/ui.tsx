@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { apiClient } from "../lib/api-client";
 import { WorkspaceLiveEvents } from "./workspace-live-events";
@@ -48,6 +48,39 @@ const workspaceLabels: Record<Workspace, string> = {
   admin: "Platform control",
 };
 
+type CurrentSession = { userId: string; role: "CANDIDATE" | "RECRUITER" | "ADMIN" | "SUPER_ADMIN" };
+
+const workspaceRoles: Record<Workspace, CurrentSession["role"][]> = {
+  candidate: ["CANDIDATE"],
+  recruiter: ["RECRUITER", "ADMIN"],
+  admin: ["SUPER_ADMIN"],
+};
+
+const workspaceLogin: Record<Workspace, string> = {
+  candidate: "/login",
+  recruiter: "/recruiter/login",
+  admin: "/admin/login",
+};
+
+const workspaceSettings: Record<Workspace, string> = {
+  candidate: "/candidate/settings",
+  recruiter: "/recruiter/settings",
+  admin: "#settings",
+};
+
+const roleHome: Record<CurrentSession["role"], string> = {
+  CANDIDATE: "/candidate",
+  RECRUITER: "/recruiter",
+  ADMIN: "/recruiter",
+  SUPER_ADMIN: "/admin",
+};
+
+export function useHydrated() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  return hydrated;
+}
+
 export function Logo({ light = false }: { light?: boolean }) {
   return (
     <a className={`logo ${light ? "logo-light" : ""}`} href="/" aria-label="Sapienworx home">
@@ -73,8 +106,51 @@ export function Button({ children, href, variant = "primary", onClick, type = "b
 
 export function WorkspaceShell({ workspace, active, title, description, actions, globalSearch, children }: { workspace: Workspace; active: string; title?: string; description?: string; actions?: ReactNode; globalSearch?: { value: string; onChange: (value: string) => void; placeholder?: string }; children: ReactNode }) {
   const initials = workspace === "candidate" ? "AM" : workspace === "recruiter" ? "JR" : "SA";
+  const hydrated = useHydrated();
+  const localDemo = process.env.NEXT_PUBLIC_LOCAL_DEMO === "true";
+  const [access, setAccess] = useState<"checking" | "allowed" | "redirecting">(localDemo ? "allowed" : "checking");
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+  const accountTriggerRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!hydrated || localDemo) return;
+    let cancelled = false;
+    void apiClient<CurrentSession>("/api/auth/session")
+      .then((session) => {
+        if (cancelled) return;
+        if (workspaceRoles[workspace].includes(session.role)) {
+          setAccess("allowed");
+          return;
+        }
+        setAccess("redirecting");
+        window.location.replace(roleHome[session.role]);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAccess("redirecting");
+        window.location.replace(workspaceLogin[workspace]);
+      });
+    return () => { cancelled = true; };
+  }, [hydrated, localDemo, workspace]);
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const dismissOutside = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) setAccountMenuOpen(false);
+    };
+    const dismissWithKeyboard = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setAccountMenuOpen(false);
+      accountTriggerRef.current?.focus();
+    };
+    document.addEventListener("pointerdown", dismissOutside);
+    document.addEventListener("keydown", dismissWithKeyboard);
+    return () => {
+      document.removeEventListener("pointerdown", dismissOutside);
+      document.removeEventListener("keydown", dismissWithKeyboard);
+    };
+  }, [accountMenuOpen]);
   const signOut = async () => {
     setLoggingOut(true);
     setLogoutError("");
@@ -88,6 +164,9 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
       setLoggingOut(false);
     }
   };
+  if (!hydrated || access !== "allowed") {
+    return <main className="workspace-access-state" aria-live="polite"><Logo/><span className="workspace-access-pulse" aria-hidden="true"/><h1>{access === "redirecting" ? "Taking you to the right workspace…" : "Securing your workspace…"}</h1><p>We’re confirming your signed-in role before showing private information.</p></main>;
+  }
   return (
     <div className="workspace-shell">
       <WorkspaceLiveEvents />
@@ -97,18 +176,34 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
         <div className="topbar-actions">
           {workspace === "admin" ? <a className="icon-button" aria-label="Help" href="#help">?</a> : <button className="icon-button" aria-label="Help">?</button>}
           <a className="icon-button notification-dot" aria-label="Notifications" href={workspace === "candidate" ? "/candidate/notifications" : "#notifications"}>♧<LiveEventIndicator workspace={workspace}/></a>
-          <span className={`avatar avatar-${workspace}`}>{initials}</span>
+          <div className="account-menu-shell" ref={accountMenuRef}>
+            <button
+              ref={accountTriggerRef}
+              className={`avatar avatar-${workspace} account-trigger`}
+              type="button"
+              aria-label={`Account menu · ${initials}`}
+              aria-expanded={accountMenuOpen}
+              aria-controls="workspace-account-menu"
+              onClick={() => setAccountMenuOpen((open) => !open)}
+            >{initials}</button>
+            {accountMenuOpen && <div className="account-menu" id="workspace-account-menu" aria-label="Account options">
+              <div className="account-menu-identity">
+                <span className={`avatar avatar-${workspace}`}>{initials}</span>
+                <div><strong>{workspace === "admin" ? "Master Admin" : workspace === "recruiter" ? "Recruiter account" : "Candidate account"}</strong><small>{workspaceLabels[workspace]}</small></div>
+              </div>
+              <a aria-current={active === "settings" ? "page" : undefined} className="account-menu-item" href={workspaceSettings[workspace]} onClick={() => setAccountMenuOpen(false)}><span aria-hidden="true">⚙</span>Settings</a>
+              <button className="account-menu-item account-menu-logout" type="button" onClick={() => { void signOut(); }} disabled={loggingOut}><span aria-hidden="true">↪</span>{loggingOut ? "Logging out…" : "Log out"}</button>
+              {logoutError && <p className="logout-error" role="alert">{logoutError}</p>}
+            </div>}
+          </div>
         </div>
       </header>
       <aside className="sidebar">
         <div className="workspace-name"><span className={`workspace-icon workspace-${workspace}`}>{workspace === "candidate" ? "✦" : workspace === "recruiter" ? "N" : "S"}</span><div><strong>{workspaceLabels[workspace]}</strong><small>{workspace === "admin" ? "Super admin" : workspace === "recruiter" ? "Recruiter workspace" : "Candidate portal"}</small></div></div>
-        <nav aria-label={`${workspace} navigation`}>
-          {navigation[workspace].map((item) => <a className={item.id === active ? "nav-item nav-item-active" : "nav-item"} href={item.href} key={item.id}><span aria-hidden="true">{item.glyph}</span>{item.label}{workspace === "recruiter" && item.id === "pipeline" && <LivePipelineBadge/>}</a>)}
-        </nav>
-        <div className="sidebar-bottom">
-          <a className={active === "settings" ? "nav-item nav-item-active" : "nav-item"} href={workspace === "candidate" ? "/candidate/settings" : workspace === "recruiter" ? "/recruiter/settings" : "#settings"}><span aria-hidden="true">⚙</span>Settings</a>
-          <button className="nav-item logout-button" type="button" onClick={() => { void signOut(); }} disabled={loggingOut}>{loggingOut ? "Logging out…" : "Log out"}</button>
-          {logoutError && <p className="logout-error" role="alert">{logoutError}</p>}
+        <div className="sidebar-scroll">
+          <nav aria-label={`${workspace} navigation`}>
+            {navigation[workspace].map((item) => <a aria-current={item.id === active ? "page" : undefined} className={item.id === active ? "nav-item nav-item-active" : "nav-item"} href={item.href} key={item.id}><span aria-hidden="true">{item.glyph}</span>{item.label}{workspace === "recruiter" && item.id === "pipeline" && <LivePipelineBadge/>}</a>)}
+          </nav>
         </div>
       </aside>
       <main className="workspace-main">

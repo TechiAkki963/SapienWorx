@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 /**
  * Orchestrates object storage, text extraction, deterministic mapping, and a
@@ -43,9 +44,10 @@ public class StoredDocumentDeterministicCvParsingService implements Deterministi
     @Override
     @Transactional
     public CvParsingOutcome parseAndPersist(ParserPayload payload) {
-        if (parseResultRepository.existsByRequestId(payload.requestId())) {
-            throw new IllegalStateException("A parser result already exists for this request.");
-        }
+        CandidateParseResult completed = parseResultRepository.findByRequestId(payload.requestId()).orElse(null);
+        if (completed != null) return new CvParsingOutcome(completed.getId(), completed.getParserVersion(),
+                completed.getWarnings() == null ? List.of() : StreamSupport.stream(completed.getWarnings().spliterator(), false)
+                        .map(com.fasterxml.jackson.databind.JsonNode::asText).toList());
 
         Candidate candidate = candidateRepository.findById(payload.candidateId())
                 .orElseThrow(() -> new IllegalArgumentException("Candidate does not exist for this parser request."));

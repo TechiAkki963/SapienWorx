@@ -2,12 +2,14 @@
 
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiClient } from "../lib/api-client";
 import { getCandidateDomain, resolveCandidateDomain, type CandidateDomainCategory } from "../lib/candidate-domain";
 import { AuthFrame } from "./auth";
 import { Button } from "./ui";
 
 type ResolvedDomain = "TECH" | "NON_TECH";
 type CandidateDomainContextValue = { domainCategory: CandidateDomainCategory | null };
+type CurrentSession = { userId: string; role: "CANDIDATE" | "RECRUITER" | "ADMIN" | "SUPER_ADMIN" };
 type GateState =
   | { status: "loading" }
   | { status: "error"; message: string }
@@ -17,12 +19,10 @@ const CandidateDomainContext = createContext<CandidateDomainContextValue>({ doma
 const LOCAL_DOMAIN_STORAGE_KEY = "sapienworx.local-candidate-domain";
 
 function isLocalDemo() {
-  // Localhost is our deliberately isolated QA/demo environment. It keeps the
-  // seeded candidate journeys testable without replacing the production API
-  // gate on a deployed host.
-  if (process.env.NEXT_PUBLIC_LOCAL_DEMO === "true") return true;
-  if (typeof window === "undefined") return false;
-  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  // Demo behaviour must be an explicit build-time choice. Treating every
+  // localhost deployment as a demo bypassed the authenticated domain check in
+  // the production Docker build and left protected candidate URLs in place.
+  return process.env.NEXT_PUBLIC_LOCAL_DEMO === "true";
 }
 
 function localDomainCategory(): CandidateDomainCategory | null {
@@ -46,6 +46,17 @@ export function CandidateDomainGate({ children }: { children: ReactNode }) {
     setState({ status: "loading" });
     if (isLocalDemo()) {
       setState({ status: "ready", domainCategory: localDomainCategory() ?? "UNASSIGNED" });
+      return;
+    }
+    let session: CurrentSession;
+    try {
+      session = await apiClient<CurrentSession>("/api/auth/session", { signal });
+    } catch {
+      if (!signal?.aborted) window.location.replace("/login");
+      return;
+    }
+    if (session.role !== "CANDIDATE") {
+      window.location.replace(session.role === "SUPER_ADMIN" ? "/admin" : "/recruiter");
       return;
     }
     try {

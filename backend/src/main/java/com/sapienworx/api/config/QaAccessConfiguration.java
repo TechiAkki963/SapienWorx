@@ -201,7 +201,12 @@ public class QaAccessConfiguration {
             JobSeed seed = jobs.get(index);
             Organisation organisation = organisationRepository.findByNameIgnoreCase(seed.organisationName())
                     .orElseGet(() -> organisationRepository.save(Organisation.builder()
-                            .name(seed.organisationName()).initials(seed.organisationInitials()).jobSequence(1).build()));
+                            .name(seed.organisationName()).initials(seed.organisationInitials())
+                            .workEmailDomain("sapienworx.qa").jobSequence(1).build()));
+            if (organisation.getWorkEmailDomain() == null || organisation.getWorkEmailDomain().isBlank()) {
+                organisation.setWorkEmailDomain("sapienworx.qa");
+                organisationRepository.save(organisation);
+            }
             if (organisation.getJobSequence() < 1) {
                 organisation.setJobSequence(1);
                 organisationRepository.save(organisation);
@@ -213,10 +218,16 @@ public class QaAccessConfiguration {
             Recruiter owner = recruiterRepository.findByOfficialEmail(ownerEmail).orElseThrow();
             Job existing = jobRepository.findByPublicJobId(seed.publicJobId()).orElse(null);
             if (existing != null) {
+                boolean changed = false;
                 if (existing.getCreatedByRecruiter() == null) {
                     existing.setCreatedByRecruiter(owner);
-                    jobRepository.save(existing);
+                    changed = true;
                 }
+                if (existing.getCompanyOverview() == null || existing.getCompanyOverview().isBlank()) { existing.setCompanyOverview(companyOverview(seed)); changed = true; }
+                if (existing.getWhyJoin() == null || existing.getWhyJoin().isBlank()) { existing.setWhyJoin(whyJoin(seed)); changed = true; }
+                if (existing.getResponsibilitiesHtml() == null || existing.getResponsibilitiesHtml().isBlank()) { existing.setResponsibilitiesHtml(responsibilities(seed)); changed = true; }
+                if (existing.getHiringProcess() == null || existing.getHiringProcess().isBlank()) { existing.setHiringProcess(hiringProcess(seed)); changed = true; }
+                if (changed) jobRepository.save(existing);
                 continue;
             }
             jobRepository.save(Job.builder()
@@ -231,6 +242,10 @@ public class QaAccessConfiguration {
                     .domainCategory(seed.domainCategory())
                     .salaryVisible(true)
                     .descriptionHtml("<p>" + seed.description() + "</p>")
+                    .companyOverview(companyOverview(seed))
+                    .whyJoin(whyJoin(seed))
+                    .responsibilitiesHtml(responsibilities(seed))
+                    .hiringProcess(hiringProcess(seed))
                     .skills(new LinkedHashSet<>(seed.skills()))
                     .status(JobStatus.ACTIVE)
                     .publishedAt(Instant.now())
@@ -238,6 +253,38 @@ public class QaAccessConfiguration {
                     .createdByRecruiter(owner)
                     .build());
         }
+    }
+
+    private String companyOverview(JobSeed seed) {
+        return switch (seed.organisationName()) {
+            case "Nexora Cloud" -> "Nexora Cloud builds dependable workflow infrastructure for teams operating at scale.";
+            case "Atlas Labs" -> "Atlas Labs turns complex operational data into simple products for ambitious teams.";
+            case "Pulse Health" -> "Pulse Health creates practical digital services that help care teams make better decisions.";
+            case "Morrow" -> "Morrow designs consumer financial products around clarity, confidence, and long-term trust.";
+            case "Keystone" -> "Keystone helps modern businesses run secure, resilient cloud platforms.";
+            default -> "Northstar Ventures partners with growing B2B companies to build durable commercial engines.";
+        };
+    }
+
+    private String whyJoin(JobSeed seed) {
+        return "Join a focused " + seed.department().toLowerCase(java.util.Locale.ROOT)
+                + " team where your judgement, craft, and measurable outcomes will shape the product.";
+    }
+
+    private String responsibilities(JobSeed seed) {
+        return switch (seed.title()) {
+            case "Senior Backend Engineer" -> "<ul><li>Design and operate reliable workflow and data services.</li><li>Improve observability, testing, and production resilience.</li><li>Partner with product and platform teams on pragmatic technical decisions.</li></ul>";
+            case "Cloud Engineer" -> "<ul><li>Build repeatable cloud infrastructure and delivery pipelines.</li><li>Strengthen security, monitoring, and incident readiness.</li><li>Help engineering teams ship safely and independently.</li></ul>";
+            case "Data Analyst" -> "<ul><li>Turn operational questions into clear analytical work.</li><li>Build trusted reporting and reusable datasets.</li><li>Present recommendations to clinical and product stakeholders.</li></ul>";
+            case "Product Designer" -> "<ul><li>Lead discovery and interaction design for key journeys.</li><li>Translate research into clear product decisions.</li><li>Raise the quality and consistency of the design system.</li></ul>";
+            case "Product Manager" -> "<ul><li>Own outcomes for a defined product area.</li><li>Run discovery with customers and delivery partners.</li><li>Set priorities and communicate evidence-based trade-offs.</li></ul>";
+            default -> "<ul><li>Shape acquisition and lifecycle strategy.</li><li>Run measurable experiments across the customer journey.</li><li>Partner with product, sales, and analytics teams.</li></ul>";
+        };
+    }
+
+    private String hiringProcess(JobSeed seed) {
+        String craftStage = seed.domainCategory() == DomainCategory.TECH ? "Role-focused technical conversation" : "Role-focused portfolio or case conversation";
+        return "Application review\nRecruiter conversation\n" + craftStage + "\nFinal team conversation and decision";
     }
 
     private record JobSeed(

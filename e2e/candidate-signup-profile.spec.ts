@@ -16,9 +16,10 @@ test("guides a candidate through career direction, account details, and dual-con
   await page.goto("/register");
   await expect(page.getByText("Career essentials", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Career direction", { exact: true })).toBeVisible();
-  await expect(page.getByRole("checkbox", { name: "All" })).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("checkbox", { name: "All" })).toHaveAttribute("aria-checked", "false");
   await page.getByRole("radio", { name: /Fresher/ }).click();
   await page.getByRole("radio", { name: /Technology \/ IT/ }).click();
+  await page.getByRole("checkbox", { name: "Technology", exact: true }).click();
   await page.getByRole("button", { name: "Continue to account details →" }).click();
   await expect(page.getByText("Account details", { exact: true })).toBeVisible();
   await page.getByLabel("First name").fill("Asha");
@@ -27,6 +28,8 @@ test("guides a candidate through career direction, account details, and dual-con
   await page.getByLabel("Mobile number").fill("+91 9876543210");
   await page.getByLabel("Create password").fill("TestPassword9!");
   await page.getByLabel("Confirm password").fill("TestPassword9!");
+  await page.getByRole("checkbox", { name: /I agree to the Terms and Privacy notice/ }).check();
+  await page.getByRole("checkbox", { name: /I confirm I am 18 or older/ }).check();
   await page.getByRole("button", { name: "Continue to verification →" }).click();
 
   await expect(page.getByText("Email code", { exact: true })).toBeVisible();
@@ -38,7 +41,7 @@ test("guides a candidate through career direction, account details, and dual-con
     mobile: "+91 9876543210",
     careerStage: "FRESHER",
     domainCategory: "TECH",
-    interestedDomains: ["Technology", "IT Services", "Manufacturing & Production", "Healthcare & Life Sciences", "Infrastructure, Transport & Real Estate", "BFSI", "BPM", "Consumer, Retail & Hospitality", "Media, Entertainment & Telecom", "Education"],
+    interestedDomains: ["Technology"],
     password: "TestPassword9!",
   });
   expect(requestBody).not.toHaveProperty("headline");
@@ -73,6 +76,7 @@ test("offers CV parsing only after candidate email and mobile OTP verification",
   await expect(page.getByLabel("Upload CV for parsing")).toHaveCount(0);
   await page.getByRole("radio", { name: /Experienced/ }).click();
   await page.getByRole("radio", { name: /Technology \/ IT/ }).click();
+  await page.getByRole("checkbox", { name: "Technology", exact: true }).click();
   await page.getByRole("button", { name: "Continue to account details →" }).click();
   await page.getByLabel("First name").fill("Asha");
   await page.getByLabel("Last name").fill("Raman");
@@ -80,6 +84,8 @@ test("offers CV parsing only after candidate email and mobile OTP verification",
   await page.getByLabel("Mobile number").fill("+91 9876543210");
   await page.getByLabel("Create password").fill("TestPassword9!");
   await page.getByLabel("Confirm password").fill("TestPassword9!");
+  await page.getByRole("checkbox", { name: /I agree to the Terms and Privacy notice/ }).check();
+  await page.getByRole("checkbox", { name: /I confirm I am 18 or older/ }).check();
   await page.getByRole("button", { name: "Continue to verification →" }).click();
   await enterOtp(page, "Email");
   await enterOtp(page, "Mobile");

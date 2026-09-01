@@ -11,6 +11,8 @@ import "./editorial-system.css";
 import "./portal-improvements.css";
 import "./master-activity.css";
 import "./knowledge.css";
+import "./mobile-workspaces.css";
+import "./legal.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SAPIENWORX_PUBLIC_SITE_URL ?? "http://localhost:3000"),

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,10 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @ConditionalOnBean(DeterministicCvParsingService.class)
+@ConditionalOnProperty(name = "app.queue.provider", havingValue = "rabbitmq", matchIfMissing = true)
 public class CvParserWorker {
-
-    private final ObjectProvider<DeterministicCvParsingService> parsingServiceProvider;
-    private final ObjectProvider<CvParsingEventPublisher> eventPublisherProvider;
+    private final CvParserProcessor processor;
 
     @RabbitListener(
             queues = RabbitMqCvParserConfig.CANDIDATE_QUEUE,
@@ -27,9 +27,8 @@ public class CvParserWorker {
             containerFactory = "cvParserRabbitListenerContainerFactory"
     )
     public void processCandidateCv(ParserPayload payload) {
-        requireType(payload, CvParserMessageType.CANDIDATE_ONBOARDING);
         log.info("Processing high-priority CV parse request {} for candidate {}", payload.requestId(), payload.candidateId());
-        process(payload);
+        processor.process(payload, CvParserMessageType.CANDIDATE_ONBOARDING);
     }
 
     @RabbitListener(
@@ -38,31 +37,7 @@ public class CvParserWorker {
             containerFactory = "cvParserRabbitListenerContainerFactory"
     )
     public void processBulkCv(ParserPayload payload) {
-        requireType(payload, CvParserMessageType.RECRUITER_BULK_UPLOAD);
         log.info("Processing bulk CV parse request {} for job {}", payload.requestId(), payload.jobId());
-        process(payload);
-    }
-
-    private void process(ParserPayload payload) {
-        try {
-            DeterministicCvParsingService parsingService = parsingServiceProvider.getIfAvailable();
-            if (parsingService == null) {
-                throw new IllegalStateException("No deterministic CV parsing service is configured.");
-            }
-            CvParsingOutcome outcome = parsingService.parseAndPersist(payload);
-            eventPublisherProvider.ifAvailable(eventPublisher -> eventPublisher.publishCompleted(payload, outcome));
-        } catch (RuntimeException exception) {
-            log.warn("CV parse request {} failed; listener retry/DLQ policy will handle it", payload.requestId(), exception);
-            throw exception;
-        }
-    }
-
-    private void requireType(ParserPayload payload, CvParserMessageType expectedType) {
-        if (payload == null || payload.type() != expectedType || payload.candidateId() == null || payload.fileKey() == null || payload.fileKey().isBlank()) {
-            throw new IllegalArgumentException("Invalid CV parser payload.");
-        }
-        if (expectedType == CvParserMessageType.RECRUITER_BULK_UPLOAD && (payload.jobId() == null || payload.jobId().isBlank())) {
-            throw new IllegalArgumentException("Bulk parser payload requires a job ID.");
-        }
+        processor.process(payload, CvParserMessageType.RECRUITER_BULK_UPLOAD);
     }
 }

@@ -5,9 +5,10 @@ import com.sapienworx.api.candidate.Candidate;
 import com.sapienworx.api.candidate.CandidateRepository;
 import com.sapienworx.api.admin.PlatformAccessPolicy;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import com.sapienworx.api.queue.BackgroundQueuePublisher;
+import com.sapienworx.api.queue.LogicalQueue;
 
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class RecruiterEmailDispatchService {
 
     private final CandidateRepository candidateRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final BackgroundQueuePublisher queuePublisher;
     private final PlatformAccessPolicy platformAccessPolicy;
 
     @PreAuthorize("hasAnyRole('RECRUITER', 'ADMIN', 'SUPER_ADMIN')")
@@ -39,9 +40,8 @@ public class RecruiterEmailDispatchService {
         }
 
         UUID dispatchId = UUID.randomUUID();
-        rabbitTemplate.convertAndSend(
-                RabbitMqCommunicationConfig.EMAIL_EXCHANGE,
-                RabbitMqCommunicationConfig.EMAIL_ROUTING_KEY,
+        queuePublisher.send(
+                LogicalQueue.EMAIL_BULK,
                 new EmailDispatchPayload(
                         dispatchId,
                         candidateId,
@@ -49,8 +49,7 @@ public class RecruiterEmailDispatchService {
                         candidate.getEmail(),
                         command.subject(),
                         command.htmlContent()
-                )
-        );
+                ));
         return dispatchId;
     }
 }
