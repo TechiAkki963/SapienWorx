@@ -49,6 +49,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Scan tracked history for common credential formats
-        uses: trufflesecurity/trufflehog@v3.90.8
+        uses: trufflesecurity/trufflehog@v3.97.1
         with:
           extra_args: --only-verified
