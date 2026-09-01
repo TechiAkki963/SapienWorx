@@ -20,7 +20,8 @@ env:
   ECS_CLUSTER: sapienworx-production
   WEB_REPOSITORY: sapienworx-web
   API_REPOSITORY: sapienworx-api
-  NEXT_PUBLIC_API_BASE_URL: https://www.sapienworx.com
+  NEXT_PUBLIC_API_BASE_URL: https://api.sapienworx.com
+  SAPIENWORX_PUBLIC_SITE_URL: https://www.sapienworx.com
 
 jobs:
   verify:
@@ -37,6 +38,7 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_API_BASE_URL: ${{ env.NEXT_PUBLIC_API_BASE_URL }}
+          SAPIENWORX_PUBLIC_SITE_URL: ${{ env.SAPIENWORX_PUBLIC_SITE_URL }}
           DEPLOYMENT_VERSION: ${{ github.sha }}
           NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
       - uses: actions/setup-java@v4
@@ -76,6 +78,7 @@ jobs:
           tags: ${{ steps.images.outputs.web }}
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=${{ env.NEXT_PUBLIC_API_BASE_URL }}
+            SAPIENWORX_PUBLIC_SITE_URL=${{ env.SAPIENWORX_PUBLIC_SITE_URL }}
             DEPLOYMENT_VERSION=${{ github.sha }}
           secrets: |
             next_server_actions_encryption_key=${{ secrets.NEXT_SERVER_ACTIONS_ENCRYPTION_KEY }}
@@ -169,4 +172,4 @@ jobs:
         shell: bash
         run: |
           curl --fail --retry 8 --retry-delay 10 https://www.sapienworx.com/ > /dev/null
-          curl --fail --retry 8 --retry-delay 10 https://www.sapienworx.com/actuator/health/readiness > /dev/null
+          curl --fail --retry 8 --retry-delay 10 https://api.sapienworx.com/actuator/health/readiness > /dev/null

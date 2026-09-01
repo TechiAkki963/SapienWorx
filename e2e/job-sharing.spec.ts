@@ -42,7 +42,8 @@ test("public jobs publish a large branded Open Graph image and preserve the shar
   expect((await image.body()).byteLength).toBeGreaterThan(10_000);
 
   await page.goto("/jobs/SWX_NX_001/senior-backend-engineer?source=linkedin");
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /opengraph-image/);
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", /^https:\/\/www\.sapienworx\.com\/jobs\//);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /^https:\/\/www\.sapienworx\.com\/jobs\/.*\/opengraph-image$/);
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
   await expect(page.getByRole("link", { name: /Apply now/ }).first()).toHaveAttribute("href", "/register?job=SWX_NX_001&source=linkedin");
   await expect(page.getByText(/delivered only to the recruiter who posted this role/i)).toBeVisible();

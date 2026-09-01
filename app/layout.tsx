@@ -15,7 +15,7 @@ import "./mobile-workspaces.css";
 import "./legal.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SAPIENWORX_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.SAPIENWORX_PUBLIC_SITE_URL ?? "https://www.sapienworx.com"),
   title: "Sapienworx | Recruitment that works",
   description: "A candidate-first recruitment workspace for modern hiring teams.",
 };

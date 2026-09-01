@@ -2,12 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("shows dense candidate results and preserves the search in Modify", async ({ page }) => {
   await page.goto("/search/results?anyKeywords=Typescript%2CNode.js&location=Bengaluru");
-  await page.evaluate(() => {
-    (window as Window & { sapienworxEvents?: Array<{ name: string; properties: Record<string, unknown> }> }).sapienworxEvents = [];
-    window.addEventListener("sapienworx:analytics", (event) => {
-      (window as Window & { sapienworxEvents?: Array<{ name: string; properties: Record<string, unknown> }> }).sapienworxEvents?.push((event as CustomEvent<{ name: string; properties: Record<string, unknown> }>).detail);
-    });
-  });
+  await page.evaluate(() => { window.dataLayer = []; });
 
   await expect(page.getByText("638", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Avish Bansal" })).toBeVisible();
@@ -24,7 +19,7 @@ test("shows dense candidate results and preserves the search in Modify", async (
 
   await page.getByRole("checkbox", { name: "Select Avish Bansal" }).check();
   await page.getByRole("button", { name: "Switch to NVite" }).click();
-  await expect.poll(() => page.evaluate(() => (window as Window & { sapienworxEvents?: Array<{ name: string; properties: Record<string, unknown> }> }).sapienworxEvents?.[0]?.name)).toBe("recruiter_bulk_email_opened");
+  await expect.poll(() => page.evaluate(() => window.dataLayer?.[0]?.event)).toBe("recruiter_bulk_email_opened");
   await expect(page.getByRole("heading", { name: "Email 1 selected candidate" })).toBeVisible();
   await expect(page.getByText("Each recipient is processed as an individual protected message through the protected background-delivery workflow.")).toBeVisible();
   await page.getByRole("button", { name: "Close email dialog" }).click();

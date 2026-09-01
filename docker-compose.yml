@@ -74,9 +74,11 @@ services:
       context: .
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+        SAPIENWORX_PUBLIC_SITE_URL: http://localhost:3001
     environment:
       SAPIENWORX_API_URL: http://api:8080
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+      SAPIENWORX_PUBLIC_SITE_URL: http://localhost:3001
     ports:
       # Keep the production container separate from an optional local `npm run dev` on 3000.
       - "3001:3000"
