@@ -1,11 +1,11 @@
-FROM node:20-alpine AS dependencies
+FROM node:26-alpine AS dependencies
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:20-alpine AS builder
+FROM node:26-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_API_BASE_URL
@@ -23,7 +23,7 @@ RUN --mount=type=secret,id=next_server_actions_encryption_key,required=false \
     fi; \
     npm run build
 
-FROM node:20-alpine AS runner
+FROM node:26-alpine AS runner
 WORKDIR /app
 ARG SAPIENWORX_PUBLIC_SITE_URL
 ENV NODE_ENV=production
