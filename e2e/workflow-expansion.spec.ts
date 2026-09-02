@@ -84,6 +84,8 @@ test("recruiters can save searches and run interviews from the Recruitment Works
 
   await page.getByRole("link", { name: "Interviews" }).click();
   await expect(page).toHaveURL(/\/recruiter\/workbench#interviews/);
+  await expect(page.getByRole("heading", { name: "Interviews", exact: true })).toBeVisible();
+  await expect(page.getByText("Schedule interviews, coordinate panels, capture scorecards, and track hiring decisions.", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Schedule interview" })).toBeVisible();
   await page.getByLabel("Candidate application").selectOption("2fbd4be4-1bf2-4a1d-918d-500000000001");
   await page.getByLabel("Interview format").selectOption("Google Meet");

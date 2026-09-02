@@ -4,6 +4,8 @@ import com.sapienworx.api.audit.AuditLog;
 import com.sapienworx.api.job.Job;
 import com.sapienworx.api.recruiter.Recruiter;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.time.Instant;
 
 /**
  * Tenant data required by the Job entity. jobSequence is incremented only while
@@ -49,6 +52,56 @@ public class Organisation {
     /** Domain claimed by the first verified recruiter for this organisation. */
     @Column(name = "work_email_domain", length = 253)
     private String workEmailDomain;
+
+    @Column(name = "legal_name", length = 220)
+    private String legalName;
+
+    @Column(name = "display_name", length = 180)
+    private String displayName;
+
+    @Column(name = "website_url", length = 500)
+    private String websiteUrl;
+
+    @Column(name = "logo_url", length = 1000)
+    private String logoUrl;
+
+    @Column(length = 160)
+    private String industry;
+
+    @Column(name = "company_size", length = 40)
+    private String companySize;
+
+    @Column(length = 200)
+    private String headquarters;
+
+    @Column(name = "candidate_description", length = 2000)
+    private String candidateDescription;
+
+    @Column(name = "linkedin_url", length = 500)
+    private String linkedinUrl;
+
+    @Column(name = "registration_reference", length = 120)
+    private String registrationReference;
+
+    @Column(name = "brand_colour", length = 7)
+    private String brandColour;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "brand_verification_status", nullable = false, length = 32)
+    private OrganisationBrandVerificationStatus brandVerificationStatus = OrganisationBrandVerificationStatus.DRAFT;
+
+    @Column(name = "brand_verification_note", length = 1000)
+    private String brandVerificationNote;
+
+    @Column(name = "brand_verified_at")
+    private Instant brandVerifiedAt;
+
+    @Column(name = "brand_verified_by")
+    private UUID brandVerifiedBy;
+
+    @Column(name = "brand_updated_at")
+    private Instant brandUpdatedAt;
 
     @Builder.Default
     @Column(name = "job_sequence", nullable = false)

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { apiClient } from "../lib/api-client";
 import { Badge, Button, Meter, SectionTitle, WorkspaceShell } from "./ui";
 import { AccountSecurity } from "./account-security";
+import { RecruiterOrganisationBrandKit } from "./organisation-brand-kit";
 
 type RecruiterAccountSettings = {
   organisationId: string;
@@ -55,6 +56,7 @@ export function RecruiterSettings() {
           <article className="panel settings-capabilities"><SectionTitle eyebrow="Workspace safeguards" title="Enabled capabilities"/><div><span>Saved-search alerts</span><Badge tone={settings.savedSearchAlertsEnabled ? "green" : "neutral"}>{settings.savedSearchAlertsEnabled ? "Enabled" : "Disabled"}</Badge></div><div><span>Recruiter campaigns</span><Badge tone={settings.campaignsEnabled ? "green" : "neutral"}>{settings.campaignsEnabled ? "Enabled" : "Disabled"}</Badge></div><p>Organisation administrators can change retention, alerts, campaigns, and member roles inside Recruitment Workspace.</p><Button href="/recruiter/workbench#controls" variant="secondary">Open workspace controls</Button></article>
           <article className="panel settings-security"><SectionTitle eyebrow="Security" title="Sign-in and organisation access"/><ul><li>Official work email verification is required.</li><li>OTP challenges protect new or untrusted sessions.</li><li>Candidate contact access is recorded against hiring context.</li></ul><p>Need a plan or billing change? Contact your organisation administrator so access stays auditable.</p></article>
         </section>
+        <RecruiterOrganisationBrandKit/>
         <AccountSecurity/>
       </>}
     </main>

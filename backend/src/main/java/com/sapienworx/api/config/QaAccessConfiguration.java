@@ -13,6 +13,7 @@ import com.sapienworx.api.job.JobRepository;
 import com.sapienworx.api.job.JobStatus;
 import com.sapienworx.api.organisation.Organisation;
 import com.sapienworx.api.organisation.OrganisationRepository;
+import com.sapienworx.api.organisation.OrganisationBrandVerificationStatus;
 import com.sapienworx.api.recruiter.Recruiter;
 import com.sapienworx.api.recruiter.RecruiterRepository;
 import com.sapienworx.api.recruiter.RecruiterType;
@@ -61,8 +62,10 @@ public class QaAccessConfiguration {
                             .build()));
             if (organisation.getWorkEmailDomain() == null) {
                 organisation.setWorkEmailDomain("sapienworx.qa");
-                organisationRepository.save(organisation);
             }
+            seedVerifiedBrand(organisation, "Sapienworx QA Organisation", "Recruitment technology", "Bengaluru, India",
+                    "https://qa.sapienworx.com", "#144A75", "A controlled QA organisation for validating accountable recruitment workflows.");
+            organisationRepository.save(organisation);
 
             seedRecruiter(recruiterRepository, passwordEncoder, organisation,
                     "Alex Recruiter", "recruiter.alex@sapienworx.qa", "+919000000011", "Senior Recruiter", "Bengaluru", password);
@@ -209,8 +212,11 @@ public class QaAccessConfiguration {
             }
             if (organisation.getJobSequence() < 1) {
                 organisation.setJobSequence(1);
-                organisationRepository.save(organisation);
             }
+            seedVerifiedBrand(organisation, seed.organisationName(), seed.department() + " services", seed.location(),
+                    "https://" + seed.organisationInitials().toLowerCase(java.util.Locale.ROOT) + ".sapienworx.qa",
+                    brandColour(index), companyOverview(seed));
+            organisationRepository.save(organisation);
             String ownerEmail = "hiring." + seed.organisationInitials().toLowerCase(java.util.Locale.ROOT) + "@sapienworx.qa";
             seedRecruiter(recruiterRepository, passwordEncoder, organisation,
                     seed.organisationName() + " Hiring", ownerEmail, String.format("+9190000001%02d", index + 1),
@@ -264,6 +270,26 @@ public class QaAccessConfiguration {
             case "Keystone" -> "Keystone helps modern businesses run secure, resilient cloud platforms.";
             default -> "Northstar Ventures partners with growing B2B companies to build durable commercial engines.";
         };
+    }
+
+    private void seedVerifiedBrand(Organisation organisation, String displayName, String industry, String headquarters,
+                                   String website, String colour, String description) {
+        organisation.setLegalName(displayName + " Pvt Ltd");
+        organisation.setDisplayName(displayName);
+        organisation.setWebsiteUrl(website);
+        organisation.setIndustry(industry);
+        organisation.setCompanySize("51–200");
+        organisation.setHeadquarters(headquarters);
+        organisation.setCandidateDescription(description);
+        organisation.setBrandColour(colour);
+        organisation.setBrandVerificationStatus(OrganisationBrandVerificationStatus.VERIFIED);
+        organisation.setBrandVerificationNote("Verified QA brand fixture for end-to-end testing.");
+        organisation.setBrandVerifiedAt(Instant.now());
+        organisation.setBrandUpdatedAt(Instant.now());
+    }
+
+    private String brandColour(int index) {
+        return List.of("#144A75", "#496B5A", "#8A5948", "#3E5576", "#5B607D", "#70565F").get(index % 6);
     }
 
     private String whyJoin(JobSeed seed) {

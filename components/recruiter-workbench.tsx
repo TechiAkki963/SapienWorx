@@ -281,8 +281,10 @@ export function RecruiterWorkbench() {
     <WorkspaceShell
       workspace="recruiter"
       active={tab === "interviews" ? "interviews" : "workbench"}
-      title="Recruitment workspace"
-      description="Coordinate talent searches, shared pools, outreach, interviews, and organisation controls in one place."
+      title={tab === "interviews" ? "Interviews" : "Recruitment workspace"}
+      description={tab === "interviews"
+        ? "Schedule interviews, coordinate panels, capture scorecards, and track hiring decisions."
+        : "Coordinate talent searches, shared pools, outreach, interviews, and organisation controls in one place."}
       actions={
         <><span className="workflow-sync-state">{lastSyncedAt ? `Synced ${formatTimeOnly(lastSyncedAt)}` : "Live data"}</span><Button onClick={() => void refresh(true)} variant="secondary">Refresh</Button></>
       }

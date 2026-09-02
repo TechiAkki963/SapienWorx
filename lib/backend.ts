@@ -7,7 +7,7 @@ const apiOrigin = (process.env.SAPIENWORX_API_URL ?? process.env.NEXT_PUBLIC_API
 
 export type ApiPage<T> = { content: T[]; totalElements: number; totalPages: number; number: number };
 export type ApiJob = {
-  jobId: string; title: string; organisationName: string; verifiedEmployer: boolean; location: string; department: string;
+  jobId: string; title: string; organisationName: string; verifiedEmployer: boolean; organisationLogoUrl: string | null; organisationBrandColour: string | null; location: string; department: string;
   employmentType: "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERNSHIP" | "TEMPORARY" | "FREELANCE";
   workplaceModel: "ON_SITE" | "HYBRID" | "REMOTE";
   minimumExperienceYears: number; maximumExperienceYears: number; minimumSalaryLakhs: number | null; maximumSalaryLakhs: number | null;
@@ -47,6 +47,8 @@ const localDemoJobs: Record<string, ApiJob> = {
     title: "Senior Backend Engineer",
     organisationName: "Nexora Cloud",
     verifiedEmployer: true,
+    organisationLogoUrl: null,
+    organisationBrandColour: "#144A75",
     location: "Bengaluru · Hybrid",
     department: "Engineering",
     employmentType: "FULL_TIME",

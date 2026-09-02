@@ -39,10 +39,20 @@ test("recruiter settings show company review timing and device sessions", async 
     campaignsEnabled: true, accountReviewStatus: "PENDING", reviewDueAt: "2026-08-30T09:00:00Z", workEmailDomain: "sapienworx.qa",
   } }));
   await page.route("**/api/account/security/sessions", (route) => route.fulfill({ status: 200, json: [currentSession] }));
+  await page.route("**/api/recruiter/organisation-brand", (route) => route.fulfill({ status: 200, json: {
+    organisationId: "org-1", legalName: "Sapienworx QA Pvt Ltd", displayName: "Sapienworx QA", workEmailDomain: "sapienworx.qa",
+    websiteUrl: "https://sapienworx.qa", logoUrl: null, industry: "Recruitment technology", companySize: "51–200",
+    headquarters: "Bengaluru, India", candidateDescription: "Building a more accountable recruitment experience.", linkedinUrl: null,
+    registrationReference: "QA-COMPANY-1", brandColour: "#144A75", verificationStatus: "PENDING_VERIFICATION",
+    verificationNote: null, verifiedAt: null, updatedAt: "2026-08-29T09:00:00Z", editable: true, history: [],
+  } }));
 
   await page.goto("/recruiter/settings");
   await expect(page.getByText(/pending review/i)).toBeVisible();
   await expect(page.getByText("The verified work-email domain is sapienworx.qa.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Devices and sessions" })).toBeVisible();
   await expect(page.getByText("Chrome on Windows", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The company candidates will recognise" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Legal company name *" })).toHaveValue("Sapienworx QA Pvt Ltd");
+  await expect(page.locator("blockquote")).toHaveText("Building a more accountable recruitment experience.");
 });

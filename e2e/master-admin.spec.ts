@@ -36,6 +36,7 @@ const activityInvestigation = {
 };
 
 const knowledgePosts = [{ id: "40000000-0000-0000-0000-000000000001", slug: "better-interview-briefs", title: "Write better interview briefs", category: "Hiring craft", excerpt: "A practical way to align interviewers before the first candidate conversation begins.", body: "A useful interview brief connects the role outcome to the evidence each interviewer should gather.\n\nAssign one clear competency to each stage and agree how good evidence will be recorded before interviews begin.", heroTone: "terracotta", featured: true, status: "DRAFT", authorName: "Sapienworx Master Admin", lastEditorialNote: "", readingMinutes: 1, createdAt: "2026-08-29T09:00:00Z", updatedAt: "2026-08-29T09:00:00Z", publishedAt: "" }];
+const organisationBrands = [{ organisationId: "20000000-0000-0000-0000-000000000001", legalName: "Sapienworx QA Pvt Ltd", displayName: "Sapienworx QA", workEmailDomain: "sapienworx.qa", websiteUrl: "https://sapienworx.qa", logoUrl: null, industry: "Recruitment technology", companySize: "51–200", headquarters: "Bengaluru, India", candidateDescription: "Building a more accountable recruitment experience.", linkedinUrl: null, registrationReference: "QA-COMPANY-1", brandColour: "#144A75", verificationStatus: "PENDING_VERIFICATION", verificationNote: null, verifiedAt: null, updatedAt: "2026-08-29T09:00:00Z", editable: true, history: [] }];
 
 async function stubMasterAdmin(page: Page) {
   const payloads: Record<string, unknown> = {
@@ -52,6 +53,7 @@ async function stubMasterAdmin(page: Page) {
     "/api/admin/master/data-quality": { incompleteCandidateProfiles: 2, staleActiveJobs: 0, jobsWithoutAccountableRecruiter: 0, duplicateAccounts: 0 },
     "/api/admin/master/security": { masterOtpRequired: true, masterPasswordRequired: true, suspendedSubjects: 0, passwordResetRequired: 0, sessionRevocationControls: 0, adminEndpointPolicy: "SUPER_ADMIN only" },
     "/api/admin/master/knowledge-posts": knowledgePosts,
+    "/api/admin/organisation-brands": organisationBrands,
     "/api/admin/governance": governance,
   };
   await page.route("**/api/admin/**", async (route) => {
@@ -74,6 +76,14 @@ test("overview reports blocked workers truthfully without duplicate tab navigati
   await expect(page.getByText("1 blocked or unavailable", { exact: false })).toBeVisible();
   await expect(page.getByText("Readiness includes worker coverage", { exact: false })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Master Access sections" })).toHaveCount(0);
+});
+
+test("organisation governance includes an auditable company identity review", async ({ page }) => {
+  await page.getByRole("link", { name: "Organisations & jobs", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Organisation identity & brand review" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Legal company name *" })).toHaveValue("Sapienworx QA Pvt Ltd");
+  await expect(page.getByRole("button", { name: "Verify company" })).toBeVisible();
+  await expect(page.getByText("No companies match this status.")).toHaveCount(0);
 });
 
 test("notifications, settings, help, and global search are functional", async ({ page }) => {

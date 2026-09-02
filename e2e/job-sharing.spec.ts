@@ -19,16 +19,19 @@ test("recruiter share dialog matches the social card and creates source-tagged s
   const card = page.getByLabel("Social media card preview");
   await expect(card).toBeVisible();
   await expect(card.getByText("Sapienworx", { exact: true })).toBeVisible();
-  await expect(card.getByText("ENTERPRISE RECRUITMENT", { exact: true })).toBeVisible();
+  await expect(card.getByText("www.sapienworx.com", { exact: true })).toBeVisible();
   await expect(card.getByText("Senior Product Designer", { exact: true })).toBeVisible();
   await expect(card.getByText("Nexora Technologies", { exact: true })).toBeVisible();
+  await expect(card.getByText(/Yrs Exp|years/i)).toBeVisible();
   await expect(page.getByText(/applications from every valid shared link/i)).toBeVisible();
 
   const linkedIn = await page.getByRole("link", { name: "in LinkedIn" }).getAttribute("href");
   const x = await page.getByRole("link", { name: "𝕏 X" }).getAttribute("href");
+  const facebook = await page.getByRole("link", { name: "f Facebook" }).getAttribute("href");
   const whatsApp = await page.getByRole("link", { name: "◉ WhatsApp" }).getAttribute("href");
   expect(decodeURIComponent(linkedIn ?? "")).toContain("source=linkedin");
   expect(decodeURIComponent(x ?? "")).toContain("source=x");
+  expect(decodeURIComponent(facebook ?? "")).toContain("source=facebook");
   expect(decodeURIComponent(whatsApp ?? "")).toContain("source=whatsapp");
 
   await page.getByRole("button", { name: "Close share dialog" }).click();

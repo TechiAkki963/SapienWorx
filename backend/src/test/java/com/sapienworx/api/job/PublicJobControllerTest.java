@@ -2,6 +2,7 @@ package com.sapienworx.api.job;
 
 import com.sapienworx.api.admin.PlatformAccessPolicy;
 import com.sapienworx.api.organisation.Organisation;
+import com.sapienworx.api.organisation.OrganisationBrandVerificationStatus;
 import com.sapienworx.api.taxonomy.DomainCategory;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +28,8 @@ class PublicJobControllerTest {
         PlatformAccessPolicy accessPolicy = mock(PlatformAccessPolicy.class);
         PublicJobController controller = new PublicJobController(jobs, accessPolicy);
         Organisation organisation = Organisation.builder().id(UUID.randomUUID()).name("Verified Co")
-                .initials("VC").workEmailDomain("verified.test").build();
+                .initials("VC").workEmailDomain("verified.test")
+                .brandVerificationStatus(OrganisationBrandVerificationStatus.VERIFIED).build();
 
         Job source = job("SWX_001", "Platform Engineer", "Engineering", DomainCategory.TECH,
                 WorkplaceModel.HYBRID, List.of("Java", "Kubernetes"), organisation, 4);

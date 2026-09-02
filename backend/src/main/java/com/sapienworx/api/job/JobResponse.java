@@ -10,6 +10,8 @@ public record JobResponse(
         String title,
         String organisationName,
         boolean verifiedEmployer,
+        String organisationLogoUrl,
+        String organisationBrandColour,
         String location,
         String department,
         EmploymentType employmentType,
@@ -41,8 +43,12 @@ public record JobResponse(
     }
 
     private static JobResponse from(Job job, boolean includeInternalCompensation) {
-        boolean verifiedEmployer = job.getOrganisation().getWorkEmailDomain() != null && !job.getOrganisation().getWorkEmailDomain().isBlank();
-        return new JobResponse(job.getPublicJobId(), job.getTitle(), job.getOrganisation().getName(), verifiedEmployer, job.getLocation(),
+        boolean verifiedEmployer = job.getOrganisation().getBrandVerificationStatus() == com.sapienworx.api.organisation.OrganisationBrandVerificationStatus.VERIFIED;
+        String organisationName = job.getOrganisation().getDisplayName() == null || job.getOrganisation().getDisplayName().isBlank()
+                ? job.getOrganisation().getName() : job.getOrganisation().getDisplayName();
+        String logoUrl = verifiedEmployer ? job.getOrganisation().getLogoUrl() : null;
+        String brandColour = verifiedEmployer ? job.getOrganisation().getBrandColour() : null;
+        return new JobResponse(job.getPublicJobId(), job.getTitle(), organisationName, verifiedEmployer, logoUrl, brandColour, job.getLocation(),
                 job.getDepartment(), job.getEmploymentType(), job.getWorkplaceModel(), job.getMinimumExperienceYears(), job.getMaximumExperienceYears(),
                 includeInternalCompensation || job.isSalaryVisible() ? job.getMinimumSalaryLakhs() : null,
                 includeInternalCompensation || job.isSalaryVisible() ? job.getMaximumSalaryLakhs() : null,

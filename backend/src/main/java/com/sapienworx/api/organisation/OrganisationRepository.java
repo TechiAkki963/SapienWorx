@@ -13,7 +13,10 @@ import java.util.UUID;
 public interface OrganisationRepository extends JpaRepository<Organisation, UUID> {
 
     Optional<Organisation> findByNameIgnoreCase(String name);
+    Optional<Organisation> findByWebsiteUrlIgnoreCase(String websiteUrl);
+    Optional<Organisation> findByWorkEmailDomainIgnoreCase(String workEmailDomain);
     List<Organisation> findTop8ByNameContainingIgnoreCaseOrderByName(String name);
+    List<Organisation> findAllByOrderByBrandUpdatedAtDesc();
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select organisation from Organisation organisation where organisation.id = :id")
