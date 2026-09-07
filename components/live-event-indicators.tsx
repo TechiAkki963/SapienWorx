@@ -52,8 +52,7 @@ const noticeStyle: CSSProperties = {
 
 export function LiveEventIndicator({ workspace }: { workspace: Workspace }) {
   const notifications = useLiveEventsStore((state) => state.unreadNotificationCount);
-  const pipelineUpdates = useLiveEventsStore((state) => state.pipelineUpdates.length);
-  const count = workspace === "recruiter" ? notifications + pipelineUpdates : notifications;
+  const count = notifications;
   if (count === 0) return null;
   return <span style={eventBadgeStyle} aria-label={`${count} live updates`}>{count > 9 ? "9+" : count}</span>;
 }
@@ -61,7 +60,16 @@ export function LiveEventIndicator({ workspace }: { workspace: Workspace }) {
 export function LivePipelineBadge() {
   const count = useLiveEventsStore((state) => state.pipelineUpdates.length);
   if (count === 0) return null;
-  return <span style={navBadgeStyle} aria-label={`${count} recent pipeline updates`}>{count > 9 ? "9+" : count}</span>;
+  return <span className="nav-attention-badge" style={navBadgeStyle} aria-label={`${count} recent pipeline updates`}>{count > 9 ? "9+" : count}</span>;
+}
+
+export function LiveAttentionBadge({ type }: { type: "messages" | "interviews" }) {
+  const messages = useLiveEventsStore((state) => state.unreadMessageCount);
+  const interviews = useLiveEventsStore((state) => state.unreadInterviewCount);
+  const count = type === "messages" ? messages : interviews;
+  if (count === 0) return null;
+  const label = type === "messages" ? "unread messages" : "unread interview updates";
+  return <span className="nav-attention-badge" style={navBadgeStyle} aria-label={`${count} ${label}`}>{count > 9 ? "9+" : count}</span>;
 }
 
 export function LiveUpdateNotice({ workspace }: { workspace: Workspace }) {

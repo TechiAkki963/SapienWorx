@@ -40,7 +40,7 @@ class RecruiterEmailDispatchServiceTest {
         ArgumentCaptor<EmailDispatchPayload> payload = ArgumentCaptor.forClass(EmailDispatchPayload.class);
         verify(queuePublisher).send(eq(LogicalQueue.EMAIL_BULK), payload.capture());
         assertThat(payload.getValue().dispatchId()).isEqualTo(dispatchId);
-        assertThat(payload.getValue().candidateId()).isEqualTo(candidateId);
+        assertThat(payload.getValue().recipientUserId()).isEqualTo(candidateId);
         assertThat(payload.getValue().recipientEmail()).isEqualTo("candidate@example.com");
     }
 

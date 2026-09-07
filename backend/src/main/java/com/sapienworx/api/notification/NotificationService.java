@@ -1,6 +1,7 @@
 package com.sapienworx.api.notification;
 
 import com.sapienworx.api.events.SseNotificationService;
+import com.sapienworx.api.communication.DirectMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
+    private final DirectMessageRepository directMessageRepository;
     private final SseNotificationService sseNotificationService;
 
     @Transactional
@@ -30,6 +32,15 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public Page<NotificationResponse> list(UUID recipientId, Pageable pageable) {
         return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(recipientId, pageable).map(NotificationResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationAttentionResponse attention(UUID recipientId) {
+        return new NotificationAttentionResponse(
+                notificationRepository.countByRecipientIdAndReadAtIsNull(recipientId),
+                directMessageRepository.countByRecipientIdAndReadAtIsNull(recipientId),
+                notificationRepository.countByRecipientIdAndReadAtIsNullAndNotificationTypeStartingWith(recipientId, "INTERVIEW")
+        );
     }
 
     @Transactional

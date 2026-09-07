@@ -30,7 +30,8 @@ const articles: PublicKnowledgePost[] = [
   { id: "default-3", slug: "questions-worth-asking-before-you-accept-an-offer", category: "Work life", title: "Questions worth asking before you accept an offer", excerpt: "A concise guide to understanding expectations, growth, management and the realities behind an offer.", body: "", readingMinutes: 4, heroTone: "sage", featured: true, status: "PUBLISHED", authorName: "Sapienworx Editorial", publishedAt: "" },
 ];
 
-export function PublicNavigation() {
+export function PublicNavigation({ editorial = false }: { editorial?: boolean }) {
+  if (editorial) return <header className="public-nav public-nav-editorial"><Logo/><nav aria-label="Public navigation"><Link href="/jobs">Find jobs</Link><Link href="/#how-it-works">For you</Link><Link href="/jobs">Explore roles</Link><Link href="/knowledge">Resources</Link></nav><div className="public-nav-actions"><Link className="recruiter-entry" href="/recruiter/login">For recruiters <span>→</span></Link><Link className="text-action" href="/login">Sign in</Link><Link className="button button-primary" href="/candidate/jobs">Search jobs</Link><details className="public-mobile-menu"><summary aria-label="Open navigation menu"><i/><i/><i/></summary><nav aria-label="Mobile public navigation"><Link href="/candidate/jobs">Search jobs</Link><Link href="/#how-it-works">For you</Link><Link href="/jobs">Explore roles</Link><Link href="/knowledge">Resources</Link><Link href="/login">Sign in</Link><Link className="mobile-recruiter-entry" href="/recruiter/login">For recruiters <span>→</span></Link></nav></details></div></header>;
   return <header className="public-nav"><Logo/><nav aria-label="Public navigation"><Link href="/jobs">Find jobs</Link><Link href="/companies">Companies</Link><Link href="/knowledge">Knowledge hub</Link><Link href="/#features">How it works</Link></nav><div className="public-nav-actions"><Link className="text-action" href="/login">Sign in</Link><Link className="button button-primary" href="/register">Create profile</Link><Link className="recruiter-entry" href="/recruiter/login">For recruiters <span>→</span></Link><details className="public-mobile-menu"><summary aria-label="Open navigation menu"><i/><i/><i/></summary><nav aria-label="Mobile public navigation"><Link href="/login">Sign in</Link><Link href="/jobs">Find jobs</Link><Link href="/companies">Companies</Link><Link href="/knowledge">Knowledge hub</Link><Link href="/#features">How it works</Link><Link className="mobile-recruiter-entry" href="/recruiter/login">For recruiters <span>→</span></Link></nav></details></div></header>;
 }
 
@@ -43,7 +44,76 @@ export function JobCard({ job }: { job: PublicJob }) { const jobPath = job.publi
 function CompanyCard({ company }: { company: typeof companies[number] }) { const jobCount = publicJobs.filter((job) => job.companySlug === company.slug).length; return <Link className="public-company-card" href={`/companies/${company.slug}`}><span className={`public-company-mark mark-${company.tone}`}>{company.mark}</span><div><strong>{company.name}</strong><small>{company.industry}</small></div><span className="company-count">{jobCount || 1} jobs</span><b>→</b></Link>; }
 function SectionHead({ eyebrow, title, copy, href, label }: { eyebrow: string; title: string; copy?: string; href: string; label: string }) { return <header className="public-section-head"><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2>{copy && <p>{copy}</p>}</div><Link href={href} className="view-all">{label} <span>→</span></Link></header>; }
 
-export function PublicLanding({ jobs = publicJobs, articles: publishedArticles = articles }: { jobs?: PublicJob[]; articles?: PublicKnowledgePost[] }) { const featuredArticles = publishedArticles.filter((article) => article.featured).slice(0, 3); const visibleArticles = featuredArticles.length ? featuredArticles : publishedArticles.slice(0, 3); return <main className="public-page"><PublicNavigation/><section className="landing-search-hero"><div className="public-container"><h1>Work that fits your <em>life</em>, not just your CV.</h1><p className="landing-candidate-promise"><strong>Career-defining roles from verified companies building what’s next.</strong><span>Build a standout profile and connect with employers who recognise your strengths.</span></p><JobSearch/><div className="landing-hero-actions"><div className="popular-searches"><span>Popular:</span><Link href="/jobs?keywords=Product+Designer">Product Designer</Link><Link href="/jobs?keywords=Frontend+Engineer">Frontend Engineer</Link><Link href="/jobs?keywords=Data+Analyst">Data Analyst</Link></div><Link className="landing-profile-action" href="/register">Build my profile from CV <span>→</span></Link></div></div></section><section className="public-section featured-jobs"><SectionHead eyebrow="Opportunities for you" title="Explore featured jobs" copy="Fresh roles from teams building meaningful work." href="/jobs" label="View all jobs"/><div className="public-job-grid">{jobs.slice(0, 6).map((job) => <JobCard job={job} key={job.id}/>)}</div></section><section className="company-strip"><div className="public-section"><SectionHead eyebrow="Discover teams" title="Find your people" href="/companies" label="View all companies"/><div className="public-company-grid">{companies.map((company) => <CompanyCard company={company} key={company.slug}/>)}</div></div></section><section className="public-section feature-section" id="features"><header className="feature-heading"><span className="eyebrow">Built around your next move</span><h2>Sapienworx makes the whole journey clearer.</h2><p>Less repetition. Better visibility. More control over your professional information.</p></header><div className="public-feature-grid">{features.map((feature) => <article key={feature.title}><span>{feature.icon}</span><h3>{feature.title}</h3><p>{feature.copy}</p></article>)}</div></section><section className="knowledge-band"><div className="public-section"><SectionHead eyebrow="The knowledge hub" title="Good advice for real career decisions." href="/knowledge" label="Explore the hub"/><div className="article-grid">{visibleArticles.map((article) => <ArticleCard article={article} key={article.id}/>)}</div>{!visibleArticles.length && <p className="knowledge-empty">Fresh guidance is being prepared by the Sapienworx editorial team.</p>}</div></section><PublicFooter/></main>; }
+export function PublicLanding({ jobs = publicJobs, articles: publishedArticles = articles }: { jobs?: PublicJob[]; articles?: PublicKnowledgePost[] }) {
+  const featuredArticles = publishedArticles.filter((article) => article.featured).slice(0, 3);
+  const visibleArticles = featuredArticles.length ? featuredArticles : publishedArticles.slice(0, 3);
+  const visibleJobs = (jobs.length ? jobs : publicJobs).slice(0, 3);
+
+  return <main className="public-page landing-v2">
+    <PublicNavigation editorial/>
+    <section className="landing-v2-hero">
+      <div className="landing-v2-container landing-v2-hero-grid">
+        <div className="landing-v2-hero-copy">
+          <span className="landing-v2-kicker">Work that moves you forward</span>
+          <h1>Find roles that<br/>challenge you.<br/><em>Build what’s next.</em></h1>
+          <p>Sapienworx connects ambitious people with verified companies building meaningful work.</p>
+          <div className="landing-v2-actions">
+            <Link className="landing-v2-button landing-v2-button-primary" href="/candidate/jobs">Search jobs <span>→</span></Link>
+            <Link className="landing-v2-button landing-v2-button-secondary" href="/register"><span aria-hidden="true">▤</span> Build my profile from CV</Link>
+          </div>
+          <p className="landing-v2-promise"><span aria-hidden="true">✓</span> Career-defining roles from verified companies building what’s next.</p>
+        </div>
+        <div className="landing-v2-role-stack" aria-label="Preview of verified opportunities">
+          <i className="landing-v2-paper landing-v2-paper-sage"/><i className="landing-v2-paper landing-v2-paper-navy"/><i className="landing-v2-paper landing-v2-paper-terracotta"/>
+          <div className="landing-v2-role-stack-cards">{visibleJobs.map((job) => <LandingRoleCard job={job} key={job.id}/>)}</div>
+        </div>
+      </div>
+    </section>
+
+    <section className="landing-v2-trust" aria-label="Sapienworx principles"><div className="landing-v2-container landing-v2-trust-grid">
+      <LandingTrust icon="◇" title="Every company verified" copy="We verify every company and role so you can apply with confidence."/>
+      <LandingTrust icon="⌁" title="Human-first matching" copy="Smart matching that values your potential, not just keywords."/>
+      <LandingTrust icon="⌑" title="Your data stays protected" copy="Your privacy is our priority. Your data is never sold."/>
+      <LandingTrust icon="⌇" title="Built for long-term impact" copy="We connect you with companies creating lasting value."/>
+    </div></section>
+
+    <section className="landing-v2-section landing-v2-how" id="how-it-works"><div className="landing-v2-container landing-v2-how-grid">
+      <div><span className="landing-v2-kicker">How Sapienworx works</span><h2>Your next role, in three simple steps.</h2></div>
+      <ol className="landing-v2-steps"><LandingStep index="1" title="Create your profile" copy="Share your experience and what drives you."/><LandingStep index="2" title="Discover better matches" copy="We surface roles that fit your skills and ambitions."/><LandingStep index="3" title="Connect with purpose" copy="Start conversations with teams building what’s next."/></ol>
+      <div className="landing-v2-abstract-art" aria-hidden="true"><i/><b/><span/><em/></div>
+    </div></section>
+
+    <section className="landing-v2-section landing-v2-roles"><div className="landing-v2-container">
+      <header className="landing-v2-section-head"><div><span className="landing-v2-kicker">Verified opportunities</span><h2>Roles worth your attention.</h2><p>Considered opportunities from teams doing work that matters.</p></div><Link href="/jobs">View all jobs <span>→</span></Link></header>
+      <div className="landing-v2-role-grid">{visibleJobs.map((job) => <LandingRoleCard job={job} detailed key={job.id}/>)}</div>
+    </div></section>
+
+    <section className="landing-v2-section landing-v2-profile"><div className="landing-v2-container landing-v2-profile-panel">
+      <div className="landing-v2-profile-copy"><span className="landing-v2-kicker">A profile on your terms</span><h2>Your profile. Your privacy. Your next opportunity.</h2><p>Share your professional story with confidence. Your contact details stay protected until you choose to connect.</p><ul><li>Only verified companies can view your profile</li><li>You control when and how you are contacted</li><li>A stronger profile brings more relevant matches</li></ul><Link href="/register">Build my profile <span>→</span></Link></div>
+      <div className="landing-v2-profile-preview"><div className="landing-v2-avatar">AS</div><div><strong>Alex Stewart</strong><span>Product Designer</span><small>London, UK · Open to new opportunities <b>●</b></small></div><div className="landing-v2-profile-skills"><span>Product design</span><span>Design systems</span><span>Figma</span><span>User research</span></div><footer><span aria-hidden="true">⌑</span><p><strong>Your contact details are protected</strong>Companies will only see your details after you accept a connection.</p></footer></div>
+    </div></section>
+
+    <section className="landing-v2-recruiter"><div className="landing-v2-container"><div><span className="landing-v2-kicker">For hiring teams</span><h2>Hiring with purpose?</h2><p>Find and connect with the people who will shape what’s next.</p></div><Link href="/recruiter/login">For recruiters <span>→</span></Link></div></section>
+
+    <section className="landing-v2-section landing-v2-knowledge"><div className="landing-v2-container">
+      <header className="landing-v2-section-head"><div><span className="landing-v2-kicker">Knowledge Hub</span><h2>Useful guidance for real career decisions.</h2><p>Practical ideas to help you grow and make confident next moves.</p></div><Link href="/knowledge">Visit all articles <span>→</span></Link></header>
+      {visibleArticles.length ? <div className="landing-v2-article-grid">{visibleArticles.map((article, index) => <LandingArticleCard article={article} index={index} key={article.id}/>)}</div> : <p className="landing-v2-empty">Fresh guidance is being prepared by the Sapienworx editorial team.</p>}
+    </div></section>
+
+    <section className="landing-v2-final"><div className="landing-v2-container"><div className="landing-v2-final-art" aria-hidden="true"><i/><b/><span/></div><h2>Your next chapter starts here.</h2><p>Join Sapienworx and discover roles that challenge you and build the future.</p><div><Link className="landing-v2-button landing-v2-button-primary" href="/candidate/jobs">Search jobs <span>→</span></Link><Link href="/register">Build my profile from CV <span>→</span></Link></div></div></section>
+    <LandingFooter/>
+  </main>;
+}
+
+function LandingRoleCard({ job, detailed = false }: { job: PublicJob; detailed?: boolean }) {
+  const jobPath = job.publicPath ?? (job.id.startsWith("SWX_") ? `/jobs/${encodeURIComponent(job.id)}/${jobTitleSlug(job.title)}` : `/jobs?keywords=${encodeURIComponent(job.title)}`);
+  return <article className={`landing-v2-role-card ${detailed ? "landing-v2-role-card-detailed" : ""}`}><header><span className={`public-company-mark mark-${job.tone}`}>{job.mark}</span><div><small>{job.verifiedEmployer ? "● Verified company" : job.company}</small><h3>{job.title}</h3><p>{displayLocation(job.location, job.workplaceModel)} <b>·</b> {job.department}</p></div><span className="landing-v2-bookmark" aria-label={`Save ${job.title}`}>⌑</span></header><div className="landing-v2-role-tags">{job.tags.slice(0, 4).map((tag) => <span key={tag}>{tag}</span>)}</div>{detailed && <><p className="landing-v2-role-summary">A focused opportunity for people ready to build meaningful work with an ambitious team.</p><footer><span>{job.experience}</span><span>{humanJobLabel(job.workplaceModel)}</span><Link href={jobPath}>View role <b>→</b></Link></footer></>}</article>;
+}
+
+function LandingTrust({ icon, title, copy }: { icon: string; title: string; copy: string }) { return <article><span>{icon}</span><div><h3>{title}</h3><p>{copy}</p></div></article>; }
+function LandingStep({ index, title, copy }: { index: string; title: string; copy: string }) { return <li><span>{index}</span><div><h3>{title}</h3><p>{copy}</p></div></li>; }
+function LandingArticleCard({ article, index }: { article: PublicKnowledgePost; index: number }) { return <article className={`landing-v2-article landing-v2-article-${index % 3}`}><div className="landing-v2-article-art" aria-hidden="true"><i/><b/><span/></div><div><span>{article.category}</span><h3>{article.title}</h3><p>{article.excerpt}</p></div><footer><small>{article.readingMinutes} min read</small><Link href={`/knowledge/${article.slug}`}>Read article <b>→</b></Link></footer></article>; }
+function LandingFooter() { return <footer className="landing-v2-footer"><div className="landing-v2-container"><div className="landing-v2-footer-brand"><Logo/><p>Meaningful work, made more accessible.</p></div><div className="landing-v2-footer-links"><div><strong>Product</strong><Link href="/jobs">Find jobs</Link><Link href="/#features">How it works</Link><Link href="/knowledge">Career advice</Link></div><div><strong>Candidates</strong><Link href="/register">Create profile</Link><Link href="/candidate/jobs">Search roles</Link><Link href="/login">Sign in</Link></div><div><strong>Recruiters</strong><Link href="/recruiter/login">For recruiters</Link><Link href="/recruiter/register">Post a role</Link><Link href="/recruiter">Recruitment workspace</Link></div><div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms of use</Link><Link href="/cookies">Cookies</Link></div></div><small>© 2026 Sapienworx. All rights reserved.</small></div></footer>; }
 
 function ArticleCard({ article, detailed = false }: { article: PublicKnowledgePost; detailed?: boolean }) { return <article className={`article-card article-${article.heroTone}`}><div><span>{article.category}</span><h3>{article.title}</h3>{detailed && <p>{article.excerpt}</p>}</div><footer><small>{article.readingMinutes} min read</small><Link href={`/knowledge/${article.slug}`}>Read article <b>→</b></Link></footer></article>; }
 function PublicFooter() { return <footer className="public-footer"><Logo light/><p>Clearer careers. More confident hiring.</p><div><Link href="/jobs">Jobs</Link><Link href="/companies">Companies</Link><Link href="/recruiter/login">Recruiter workspace</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/cookies">Cookies</Link></div></footer>; }

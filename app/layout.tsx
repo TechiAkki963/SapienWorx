@@ -9,6 +9,7 @@ import "./reports.css";
 import "./master-governance.css";
 import "./editorial-system.css";
 import "./portal-improvements.css";
+import "./workspace-polish.css";
 import "./master-activity.css";
 import "./knowledge.css";
 import "./mobile-workspaces.css";

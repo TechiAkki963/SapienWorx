@@ -13,4 +13,5 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     Optional<Notification> findByIdAndRecipientId(UUID id, UUID recipientId);
     List<Notification> findByRecipientIdAndReadAtIsNull(UUID recipientId);
     long countByRecipientIdAndReadAtIsNull(UUID recipientId);
+    long countByRecipientIdAndReadAtIsNullAndNotificationTypeStartingWith(UUID recipientId, String notificationType);
 }

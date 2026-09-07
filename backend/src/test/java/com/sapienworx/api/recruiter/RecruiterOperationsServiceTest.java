@@ -22,6 +22,7 @@ import com.sapienworx.api.job.JobRepository;
 import com.sapienworx.api.job.JobStatus;
 import com.sapienworx.api.job.WorkplaceModel;
 import com.sapienworx.api.notification.NotificationService;
+import com.sapienworx.api.communication.InterviewNotificationDeliveryService;
 import com.sapienworx.api.offer.OfferService;
 import com.sapienworx.api.organisation.Organisation;
 import com.sapienworx.api.recruiter.RecruiterJobApplicantDetailResponse;
@@ -65,6 +66,7 @@ class RecruiterOperationsServiceTest {
     private final ApplicationEventRepository applicationEventRepository = mock(ApplicationEventRepository.class);
     private final InterviewScorecardRepository scorecards = mock(InterviewScorecardRepository.class);
     private final OfferService offers = mock(OfferService.class);
+    private final InterviewNotificationDeliveryService interviewNotifications = mock(InterviewNotificationDeliveryService.class);
     private final Organisation organisation = Organisation.builder().id(UUID.randomUUID()).name("Nexora").initials("NX").build();
     private final Recruiter recruiter = Recruiter.builder().id(UUID.randomUUID()).fullName("Alex Recruiter")
             .officialEmail("alex@nexora.test").organisation(organisation).build();
@@ -73,7 +75,7 @@ class RecruiterOperationsServiceTest {
     @BeforeEach
     void setUp() {
         service = new RecruiterOperationsService(recruiters, jobs, applications, notes, sourcing, candidates, engagement,
-                parses, interviews, notifications, events, applicationEvents, applicationEventRepository, scorecards, offers);
+                parses, interviews, notifications, events, applicationEvents, applicationEventRepository, scorecards, offers, interviewNotifications);
         when(recruiters.findById(recruiter.getId())).thenReturn(Optional.of(recruiter));
     }
 

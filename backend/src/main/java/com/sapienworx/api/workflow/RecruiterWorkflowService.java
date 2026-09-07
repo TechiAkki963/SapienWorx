@@ -7,6 +7,7 @@ import com.sapienworx.api.candidate.CandidateSkill;
 import com.sapienworx.api.candidate.CandidateRepository;
 import com.sapienworx.api.communication.RecruiterEmailCommand;
 import com.sapienworx.api.communication.RecruiterEmailDispatchService;
+import com.sapienworx.api.communication.InterviewNotificationDeliveryService;
 import com.sapienworx.api.interview.InterviewRepository;
 import com.sapienworx.api.interview.InterviewStatus;
 import com.sapienworx.api.job.Job;
@@ -48,6 +49,7 @@ public class RecruiterWorkflowService {
     private final PlatformAccessPolicy platformAccessPolicy;
     private final JdbcTemplate jdbc;
     private final ApplicationEventService applicationEventService;
+    private final InterviewNotificationDeliveryService interviewNotificationDeliveryService;
 
     @Transactional(readOnly = true)
     public List<WorkflowResponses.SavedSearch> savedSearches(UUID recruiterId) {
@@ -209,11 +211,13 @@ public class RecruiterWorkflowService {
         var interview = interviewRepository.findById(interviewId)
                 .filter(value -> value.getRecruiter().getOrganisation().getId().equals(recruiter.getOrganisation().getId()))
                 .orElseThrow(() -> notFound("Interview was not found."));
+        InterviewNotificationDeliveryService.Change deliveryChange = null;
         if (request.scheduledAt() != null) {
             if (request.scheduledAt().isBefore(Instant.now())) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Choose a future interview time.");
             requireNoInterviewConflict(recruiterId, interviewId, request.scheduledAt(), request.durationMinutes() == null ? interview.getDurationMinutes() : request.durationMinutes());
             interview.setScheduledAt(request.scheduledAt());
             interview.setStatus(InterviewStatus.RESCHEDULED);
+            deliveryChange = InterviewNotificationDeliveryService.Change.RESCHEDULED;
         }
         if (request.platformName() != null && !request.platformName().isBlank()) interview.setPlatformName(request.platformName().trim());
         if (request.meetingLink() != null && !request.meetingLink().isBlank()) interview.setMeetingLink(request.meetingLink().trim());
@@ -221,8 +225,20 @@ public class RecruiterWorkflowService {
         if (request.timeZone() != null && !request.timeZone().isBlank()) interview.setTimeZone(request.timeZone().trim());
         if (request.agenda() != null) interview.setAgenda(trimToNull(request.agenda()));
         if (request.panelRecruiterIds() != null) interview.setPanelRecruiterIds(validPanelRecruiterIds(recruiter, request.panelRecruiterIds()));
-        if (request.status() != null) interview.setStatus(InterviewStatus.valueOf(request.status()));
-        return interviewResponse(interviewRepository.save(interview));
+        if (request.status() != null) {
+            interview.setStatus(InterviewStatus.valueOf(request.status()));
+            if (interview.getStatus() == InterviewStatus.CANCELLED) deliveryChange = InterviewNotificationDeliveryService.Change.CANCELLED;
+        }
+        boolean detailsUpdated = request.platformName() != null || request.meetingLink() != null || request.durationMinutes() != null
+                || request.timeZone() != null || request.agenda() != null || request.panelRecruiterIds() != null;
+        if (deliveryChange == null && detailsUpdated) deliveryChange = InterviewNotificationDeliveryService.Change.UPDATED;
+        var saved = interviewRepository.save(interview);
+        if (deliveryChange != null) {
+            applicationEventService.record(saved.getApplication(), "RECRUITER", "INTERVIEW_" + deliveryChange.name(),
+                    "Interview was " + deliveryChange.label() + ".");
+            interviewNotificationDeliveryService.deliver(saved, deliveryChange);
+        }
+        return interviewResponse(saved);
     }
 
     @Transactional(readOnly = true)

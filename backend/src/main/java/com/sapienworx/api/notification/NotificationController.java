@@ -28,6 +28,11 @@ public class NotificationController {
         return ApiPageResponse.from(notificationService.list(userId(user), PageRequest.of(Math.max(0, page), 20)));
     }
 
+    @GetMapping("/summary")
+    public NotificationAttentionResponse summary(@AuthenticationPrincipal AuthenticatedUser user) {
+        return notificationService.attention(userId(user));
+    }
+
     @PatchMapping("/{notificationId}/read")
     public NotificationResponse markRead(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID notificationId) {
         return notificationService.markRead(userId(user), notificationId);

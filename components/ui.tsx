@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { apiClient } from "../lib/api-client";
 import { WorkspaceLiveEvents } from "./workspace-live-events";
-import { LiveEventIndicator, LivePipelineBadge, LiveUpdateNotice } from "./live-event-indicators";
+import { LiveAttentionBadge, LiveEventIndicator, LivePipelineBadge, LiveUpdateNotice } from "./live-event-indicators";
+import { useLiveEventsStore, type AttentionSummary } from "../stores/live-events";
 
 export type Workspace = "candidate" | "recruiter" | "admin";
 
@@ -84,7 +85,7 @@ export function useHydrated() {
 export function Logo({ light = false }: { light?: boolean }) {
   return (
     <a className={`logo ${light ? "logo-light" : ""}`} href="/" aria-label="Sapienworx home">
-      <Image className="logo-mark" src="/brand/sapienworx-mark.jpeg" alt="" width={36} height={36} priority />
+      <Image className="logo-mark" src="/brand/sapienworx-mark.jpeg" alt="" width={36} height={36} sizes="36px" />
       <span>Sapien<span>worx</span></span>
     </a>
   );
@@ -114,6 +115,7 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
   const [logoutError, setLogoutError] = useState("");
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const accountTriggerRef = useRef<HTMLButtonElement>(null);
+  const hydrateAttention = useLiveEventsStore((state) => state.hydrateAttention);
   useEffect(() => {
     if (!hydrated || localDemo) return;
     let cancelled = false;
@@ -134,6 +136,14 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
       });
     return () => { cancelled = true; };
   }, [hydrated, localDemo, workspace]);
+  useEffect(() => {
+    if (!hydrated || access !== "allowed" || workspace === "admin") return;
+    let current = true;
+    void apiClient<AttentionSummary>("/api/notifications/summary")
+      .then((summary) => { if (current) hydrateAttention(summary); })
+      .catch(() => undefined);
+    return () => { current = false; };
+  }, [access, hydrateAttention, hydrated, workspace]);
   useEffect(() => {
     if (!accountMenuOpen) return;
     const dismissOutside = (event: PointerEvent) => {
@@ -168,14 +178,15 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
     return <main className="workspace-access-state" aria-live="polite"><Logo/><span className="workspace-access-pulse" aria-hidden="true"/><h1>{access === "redirecting" ? "Taking you to the right workspace…" : "Securing your workspace…"}</h1><p>We’re confirming your signed-in role before showing private information.</p></main>;
   }
   return (
-    <div className="workspace-shell">
+    <div className={`workspace-shell workspace-shell-${workspace}`}>
+      <a className="skip-link" href="#workspace-content">Skip to workspace content</a>
       <WorkspaceLiveEvents />
       <header className="topbar">
         <Logo />
         <label className="global-search"><span>⌕</span><input aria-label="Search" value={globalSearch?.value} onChange={globalSearch ? (event) => globalSearch.onChange(event.target.value) : undefined} placeholder={globalSearch?.placeholder ?? (workspace === "candidate" ? "Search jobs, companies, skills" : "Search")} /></label>
         <div className="topbar-actions">
           {workspace === "admin" ? <a className="icon-button" aria-label="Help" href="#help">?</a> : <button className="icon-button" aria-label="Help">?</button>}
-          <a className="icon-button notification-dot" aria-label="Notifications" href={workspace === "candidate" ? "/candidate/notifications" : "#notifications"}>♧<LiveEventIndicator workspace={workspace}/></a>
+          <a className="icon-button notification-dot" aria-label="Notifications" href={workspace === "candidate" ? "/candidate/notifications" : workspace === "recruiter" ? "/recruiter/communications" : "#notifications"}>♧<LiveEventIndicator workspace={workspace}/></a>
           <div className="account-menu-shell" ref={accountMenuRef}>
             <button
               ref={accountTriggerRef}
@@ -202,11 +213,11 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
         <div className="workspace-name"><span className={`workspace-icon workspace-${workspace}`}>{workspace === "candidate" ? "✦" : workspace === "recruiter" ? "N" : "S"}</span><div><strong>{workspaceLabels[workspace]}</strong><small>{workspace === "admin" ? "Super admin" : workspace === "recruiter" ? "Recruiter workspace" : "Candidate portal"}</small></div></div>
         <div className="sidebar-scroll">
           <nav aria-label={`${workspace} navigation`}>
-            {navigation[workspace].map((item) => <a aria-current={item.id === active ? "page" : undefined} className={item.id === active ? "nav-item nav-item-active" : "nav-item"} href={item.href} key={item.id}><span aria-hidden="true">{item.glyph}</span>{item.label}{workspace === "recruiter" && item.id === "pipeline" && <LivePipelineBadge/>}</a>)}
+            {navigation[workspace].map((item) => <a aria-current={item.id === active ? "page" : undefined} className={item.id === active ? "nav-item nav-item-active" : "nav-item"} href={item.href} key={item.id}><span aria-hidden="true">{item.glyph}</span>{item.label}{workspace === "recruiter" && item.id === "pipeline" && <LivePipelineBadge/>}{workspace === "candidate" && item.id === "messages" && <LiveAttentionBadge type="messages" />}{workspace === "candidate" && item.id === "applications" && <LiveAttentionBadge type="interviews" />}{workspace === "recruiter" && item.id === "communications" && <LiveAttentionBadge type="messages" />}{workspace === "recruiter" && item.id === "interviews" && <LiveAttentionBadge type="interviews" />}</a>)}
           </nav>
         </div>
       </aside>
-      <main className="workspace-main">
+      <main className="workspace-main" id="workspace-content" tabIndex={-1}>
         {(title || description || actions) && <div className="page-heading"><div><h1>{title}</h1>{description && <p>{description}</p>}</div>{actions && <div className="heading-actions">{actions}</div>}</div>}
         <LiveUpdateNotice workspace={workspace}/>
         {children}

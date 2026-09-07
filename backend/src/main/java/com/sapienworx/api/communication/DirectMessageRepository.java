@@ -26,6 +26,7 @@ public interface DirectMessageRepository extends JpaRepository<DirectMessage, UU
             """)
     List<DirectMessage> recentConversation(@Param("firstUser") UUID firstUser, @Param("secondUser") UUID secondUser, Pageable pageable);
     long countBySenderIdAndRecipientIdAndReadAtIsNull(UUID senderId, UUID recipientId);
+    long countByRecipientIdAndReadAtIsNull(UUID recipientId);
     Page<DirectMessage> findByRecipientIdOrderBySentAtDesc(UUID recipientId, Pageable pageable);
     List<DirectMessage> findBySenderIdOrRecipientIdOrderBySentAtDesc(UUID senderId, UUID recipientId);
 }

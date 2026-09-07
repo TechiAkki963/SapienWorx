@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "../lib/api-client";
 import { Badge, Button, SectionTitle, WorkspaceShell } from "./ui";
+import { useLiveEventsStore, type AttentionSummary } from "../stores/live-events";
 
 type NotificationFilter = "ALL" | "UNREAD" | "APPLICATIONS" | "INTERVIEWS";
 type CandidateNotification = {
@@ -48,6 +49,7 @@ export function CandidateNotifications() {
   const [actionError, setActionError] = useState("");
   const [markingAll, setMarkingAll] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+  const hydrateAttention = useLiveEventsStore((state) => state.hydrateAttention);
 
   useEffect(() => {
     let current = true;
@@ -72,6 +74,7 @@ export function CandidateNotifications() {
     try {
       const updated = await apiClient<CandidateNotification>(`/api/notifications/${notification.id}/read`, { method: "PATCH" });
       setData((current) => current ? { ...current, content: current.content.map((item) => item.id === updated.id ? updated : item) } : current);
+      void apiClient<AttentionSummary>("/api/notifications/summary").then(hydrateAttention).catch(() => undefined);
     } catch (reason) { setActionError(reason instanceof Error ? reason.message : "We could not update this notification."); }
   }
 
@@ -82,6 +85,7 @@ export function CandidateNotifications() {
       await apiClient<void>("/api/notifications/read-all", { method: "PATCH" });
       const readAt = new Date().toISOString();
       setData((current) => current ? { ...current, content: current.content.map((notification) => notification.readAt ? notification : { ...notification, readAt }) } : current);
+      void apiClient<AttentionSummary>("/api/notifications/summary").then(hydrateAttention).catch(() => undefined);
     } catch (reason) { setActionError(reason instanceof Error ? reason.message : "We could not mark the notifications as read."); }
     finally { setMarkingAll(false); }
   }
@@ -149,6 +153,7 @@ export function CandidateMessages() {
   const [sendError, setSendError] = useState("");
   const [sending, setSending] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+  const hydrateAttention = useLiveEventsStore((state) => state.hydrateAttention);
 
   useEffect(() => {
     let current = true;
@@ -177,11 +182,12 @@ export function CandidateMessages() {
         if (!current) return;
         setMessages(response.content);
         setConversations((items) => items.map((item) => item.recruiterId === active.recruiterId ? { ...item, unreadCount: 0 } : item));
+        void apiClient<AttentionSummary>("/api/notifications/summary").then(hydrateAttention).catch(() => undefined);
       })
       .catch((reason) => { if (current) setSendError(reason instanceof Error ? reason.message : "We could not load this conversation."); })
       .finally(() => { if (current) setLoadingThread(false); });
     return () => { current = false; };
-  }, [active?.recruiterId]);
+  }, [active?.recruiterId, hydrateAttention]);
 
   const visibleConversations = useMemo(() => {
     const search = query.trim().toLowerCase();

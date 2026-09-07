@@ -463,7 +463,7 @@ export function RecruiterWorkbench() {
                     method: "POST",
                     body: JSON.stringify(payload),
                   }).then(() => undefined),
-                "Interview scheduled. The candidate has been notified and the meeting is now in your workspace.",
+                "Interview scheduled. Calendar invitations are queued to the candidate and interview team, and the meeting is now in your workspace.",
               )
             }
             onScore={(payload) =>
@@ -480,7 +480,7 @@ export function RecruiterWorkbench() {
             onUpdate={(id, payload) =>
               run(
                 () => apiClient(`/api/recruiter/workflow/interviews/${id}`, { method: "PATCH", body: JSON.stringify(payload) }).then(() => undefined),
-                payload.status === "CANCELLED" ? "Interview cancelled." : payload.status === "COMPLETED" ? "Interview marked complete." : "Interview updated and the schedule is current.",
+                payload.status === "CANCELLED" ? "Interview cancelled and calendar withdrawals are queued." : payload.status === "COMPLETED" ? "Interview marked complete." : "Interview updated and calendar invitations are queued.",
               )
             }
           />
@@ -1229,7 +1229,7 @@ function Interviews({
       <section className="workflow-grid workflow-two workflow-interview-grid">
         <form className="panel workflow-form" onSubmit={(event) => void submitSchedule(event)}>
           <SectionTitle eyebrow="Plan the conversation" title="Schedule interview" />
-          <p>Select an application from your pipeline. Sapienworx will notify the candidate after the interview is saved.</p>
+          <p>Select an application from your pipeline. Sapienworx will alert the candidate in-app and queue a calendar invitation to their verified email and the interview team.</p>
           {scheduleError && <p className="workflow-field-error" role="alert">{scheduleError}</p>}
           <label>
             <span>Candidate application</span>
@@ -1272,7 +1272,7 @@ function Interviews({
             <span>{platformName === "In person" ? "Interview location" : "Meeting link or dial-in"}</span>
             <input aria-label="Meeting link or location" value={meetingLink} onChange={(event) => setMeetingLink(event.target.value)} placeholder={platformName === "In person" ? "e.g. Bengaluru office · Meeting room 4" : "https://meet.example.com/…"} required />
           </label>
-          <Button type="submit" disabled={scheduling || !applications.length}>{scheduling ? "Scheduling…" : "Schedule and notify candidate"}</Button>
+          <Button type="submit" disabled={scheduling || !applications.length}>{scheduling ? "Scheduling…" : "Schedule and send calendar invite"}</Button>
         </form>
 
         <section className="panel workflow-list workflow-interview-list">
@@ -1289,6 +1289,7 @@ function Interviews({
                 {interview.panelRecruiterNames?.length ? <small>Panel: {interview.panelRecruiterNames.join(", ")}</small> : <small>Panel owner only</small>}
                 {interview.agenda && <small>Agenda: {interview.agenda}</small>}
                 <small>{interview.scorecards.length ? `${interview.scorecards.length} scorecard${interview.scorecards.length === 1 ? "" : "s"} submitted` : "Scorecard pending"}</small>
+                {!['CANCELLED', 'COMPLETED'].includes(interview.status) && <small>Calendar invitation queued to the candidate and interview team</small>}
               </div>
               <div className="workflow-interview-actions">
                 {isLink ? <a className="button button-secondary" href={interview.meetingLink} target="_blank" rel="noreferrer">Join meeting</a> : <span className="workflow-interview-location">{interview.meetingLink}</span>}

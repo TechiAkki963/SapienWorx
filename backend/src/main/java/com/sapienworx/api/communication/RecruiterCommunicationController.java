@@ -26,6 +26,7 @@ public class RecruiterCommunicationController {
     private final CommunicationService communicationService;
     private final RecruiterEmailDispatchService recruiterEmailDispatchService;
     @PostMapping("/messages") public MessageResponse send(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody MessageRequest request) { return communicationService.send(recruiterId(user), PlatformRole.RECRUITER, request); }
+    @GetMapping("/messages/conversations") public List<RecruiterConversationResponse> conversations(@AuthenticationPrincipal AuthenticatedUser user) { return communicationService.recruiterConversations(recruiterId(user)); }
     @GetMapping("/messages") public ApiPageResponse<MessageResponse> conversation(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam UUID with, @RequestParam(defaultValue = "0") int page) { return ApiPageResponse.from(communicationService.conversation(recruiterId(user), with, PageRequest.of(Math.max(0, page), 50))); }
     @PostMapping("/templates") public InmailTemplateResponse saveTemplate(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody InmailTemplateRequest request) { return communicationService.saveTemplate(recruiterId(user), request); }
     @GetMapping("/templates") public List<InmailTemplateResponse> templates(@AuthenticationPrincipal AuthenticatedUser user) { return communicationService.templates(recruiterId(user)); }

@@ -22,6 +22,7 @@ import com.sapienworx.api.interview.InterviewStatus;
 import com.sapienworx.api.job.JobRepository;
 import com.sapienworx.api.job.JobStatus;
 import com.sapienworx.api.notification.NotificationService;
+import com.sapienworx.api.communication.InterviewNotificationDeliveryService;
 import com.sapienworx.api.offer.OfferService;
 import com.sapienworx.api.workflow.ApplicationEventService;
 import com.sapienworx.api.workflow.ApplicationEventRepository;
@@ -60,6 +61,7 @@ public class RecruiterOperationsService {
     private final ApplicationEventRepository applicationEventRepository;
     private final InterviewScorecardRepository interviewScorecardRepository;
     private final OfferService offerService;
+    private final InterviewNotificationDeliveryService interviewNotificationDeliveryService;
 
     @Transactional(readOnly = true)
     public RecruiterDashboardResponse dashboard(UUID recruiterId) {
@@ -295,8 +297,7 @@ public class RecruiterOperationsService {
         String panelNames = panel.stream().map(Recruiter::getFullName).sorted().collect(java.util.stream.Collectors.joining(", "));
         applicationEventService.record(application, "RECRUITER", "INTERVIEW_SCHEDULED", recruiter.getFullName() + " scheduled an interview for "
                 + request.scheduledAt() + " on " + request.platformName().trim() + (panelNames.isBlank() ? "." : " with " + panelNames + "."));
-        notificationService.create(application.getCandidate().getId(), "INTERVIEW_SCHEDULED", "Interview scheduled",
-                "An interview for " + application.getJob().getTitle() + " is scheduled on " + request.scheduledAt() + ".", "INTERVIEW", interview.getId());
+        interviewNotificationDeliveryService.deliver(interview, InterviewNotificationDeliveryService.Change.SCHEDULED);
         return new RecruiterDashboardResponse.UpcomingInterview(application.getCandidate().getFullName(), application.getJob().getTitle(), interview.getPlatformName(), interview.getMeetingLink(), interview.getScheduledAt(), interview.getDurationMinutes());
     }
 

@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Meter, SectionTitle, WorkspaceShell } from "./ui";
+import { apiClient } from "../lib/api-client";
+import { useLiveEventsStore, type AttentionSummary } from "../stores/live-events";
 
 type CandidateRecord = { id: number; name: string; initials: string; role: string; location: string; experience: number; notice: string; salary: string; education: "Bachelors" | "Masters"; activeDays: number; skills: string[]; lastUpdated: string; lastActive: string };
 
@@ -77,10 +79,65 @@ export function RecruiterCommunications() {
   useEffect(() => { setSubject(template.subject); setMessage(template.content); setSent(false); }, [template]);
   const replaceVariables = (copy: string) => copy.replaceAll("{{first_name}}", "Amara").replaceAll("{{company}}", "Nexora Technologies").replaceAll("{{top_skill}}", "Figma and design systems").replaceAll("{{job_title}}", "Senior Product Designer").replaceAll("{{location}}", "London").replaceAll("{{recruiter_name}}", "Jordan Reyes");
   return <WorkspaceShell workspace="recruiter" active="communications" title="Communications" description="Create consistent, thoughtful candidate conversations at scale." actions={<Button variant="secondary">Manage templates</Button>}>
+    <RecruiterReplyInbox />
     {sent && <div className="creation-success">{selectedCount} individual messages are ready for the protected delivery queue. Delivery, failures, opt-outs, and replies will be visible in hiring reports.</div>}
     <section className="communications-preflight" aria-label="Campaign preflight"><div><span>✓</span><p><strong>{selectedCount} eligible recipients</strong><small>Verified contact and consent rules are checked again before delivery.</small></p></div><div><span>⊘</span><p><strong>Opt-outs excluded automatically</strong><small>No shared recipient lists or exposed candidate addresses.</small></p></div><div><span>↗</span><p><strong>Delivery status tracked</strong><small>Queued, delivered, failed, opted-out, and replied states flow into Reports.</small></p></div></section>
     <section className="communications-grid"><aside className="panel template-list"><SectionTitle eyebrow="Templates" title="Message library" action={<Button variant="quiet">+ New</Button>}/>{templates.map((item) => <button className={item.id === templateId ? "template-item active" : "template-item"} onClick={() => setTemplateId(item.id)} key={item.id}><strong>{item.name}</strong><small>{item.subject}</small></button>)}<div className="template-help"><b>Dynamic variables</b><p>Use {"{{first_name}}"}, {"{{job_title}}"}, {"{{company}}"}, {"{{location}}"}, {"{{top_skill}}"} and {"{{recruiter_name}}"}.</p></div></aside><section className="panel message-editor"><SectionTitle eyebrow="Bulk message" title={template.name}/><div className="selected-candidate-bar"><div><strong>{selectedCount} candidates selected</strong><small>Senior Product Designer pipeline</small></div><button onClick={() => setSelectedCount((value) => value === 3 ? 10 : 3)} className="button button-quiet">Change selection</button></div><label className="form-field"><span>Subject</span><input value={subject} onChange={(event) => setSubject(event.target.value)}/></label><label className="form-field"><span>Message</span><textarea value={message} onChange={(event) => setMessage(event.target.value)}/></label><footer className="message-actions"><span>Your message will be sent as individual emails, never as a shared recipient list.</span><Button onClick={() => setSent(true)} disabled={!subject.trim() || !message.trim()}>Review {selectedCount} messages →</Button></footer></section><aside className="panel message-preview"><SectionTitle eyebrow="Live preview" title="Candidate view"/><div className="email-preview"><small>To: protected candidate contact</small><strong>{replaceVariables(subject)}</strong><p>{replaceVariables(message)}</p></div><div className="compliance-callout"><b>Respectful messaging</b><p>Only contact candidates with a lawful purpose and provide a clear way to opt out. Delivery and template changes belong in the audit trail.</p></div></aside></section>
   </WorkspaceShell>;
+}
+
+type RecruiterConversation = { candidateId: string; candidateName: string; applicationId: string; jobTitle: string; applicationStage: string; lastMessageBody: string | null; lastMessageAt: string | null; activityAt: string; unreadCount: number };
+type RecruiterMessage = { id: string; senderId: string; recipientId: string; applicationId: string | null; body: string; sentAt: string; readAt: string | null };
+type RecruiterMessagePage = { content: RecruiterMessage[] };
+const inboxTime = (value: string) => new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(value));
+
+/** Direct replies stay application-linked; campaigns remain a separate, auditable workflow below. */
+function RecruiterReplyInbox() {
+  const [conversations, setConversations] = useState<RecruiterConversation[]>([]);
+  const [activeCandidateId, setActiveCandidateId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<RecruiterMessage[]>([]);
+  const [draft, setDraft] = useState("");
+  const [error, setError] = useState("");
+  const [sending, setSending] = useState(false);
+  const hydrateAttention = useLiveEventsStore((state) => state.hydrateAttention);
+
+  useEffect(() => {
+    let current = true;
+    void apiClient<RecruiterConversation[]>("/api/recruiter/communications/messages/conversations")
+      .then((items) => { if (current) { setConversations(items); setActiveCandidateId((active) => items.some((item) => item.candidateId === active) ? active : items[0]?.candidateId ?? null); } })
+      .catch((reason) => { if (current) setError(reason instanceof Error ? reason.message : "We could not load candidate replies."); });
+    return () => { current = false; };
+  }, []);
+
+  const active = conversations.find((item) => item.candidateId === activeCandidateId) ?? null;
+  useEffect(() => {
+    if (!active) { setMessages([]); return; }
+    let current = true;
+    void apiClient<RecruiterMessagePage>(`/api/recruiter/communications/messages?with=${active.candidateId}`)
+      .then((page) => { if (current) { setMessages(page.content); setConversations((items) => items.map((item) => item.candidateId === active.candidateId ? { ...item, unreadCount: 0 } : item)); void apiClient<AttentionSummary>("/api/notifications/summary").then(hydrateAttention).catch(() => undefined); } })
+      .catch((reason) => { if (current) setError(reason instanceof Error ? reason.message : "We could not load this conversation."); });
+    return () => { current = false; };
+  }, [active?.candidateId, hydrateAttention]);
+
+  async function send() {
+    if (!active || !draft.trim() || sending) return;
+    setSending(true); setError("");
+    try {
+      const sent = await apiClient<RecruiterMessage>("/api/recruiter/communications/messages", { method: "POST", body: JSON.stringify({ recipientId: active.candidateId, applicationId: active.applicationId, body: draft.trim() }) });
+      setMessages((items) => [...items, sent]);
+      setConversations((items) => items.map((item) => item.candidateId === active.candidateId ? { ...item, lastMessageBody: sent.body, lastMessageAt: sent.sentAt, activityAt: sent.sentAt } : item).sort((left, right) => new Date(right.activityAt).getTime() - new Date(left.activityAt).getTime()));
+      setDraft("");
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "Your reply could not be sent."); }
+    finally { setSending(false); }
+  }
+
+  const unread = conversations.reduce((total, item) => total + item.unreadCount, 0);
+  return <section className="message-center recruiter-reply-inbox" aria-label="Candidate reply inbox">
+    <aside className="message-list"><header><div><span className="eyebrow">Direct replies</span><h2>Candidate inbox</h2><p>{conversations.length} application-linked conversations</p></div><span className="message-unread-count">{unread} unread</span></header>
+      <div className="conversation-list">{error && !active && <p className="candidate-message-error" role="alert">{error}</p>}{!error && conversations.length === 0 && <p className="message-empty">Candidate replies will appear here, linked to the relevant application.</p>}{conversations.map((conversation) => <button type="button" key={conversation.candidateId} className={conversation.candidateId === active?.candidateId ? "conversation active" : "conversation"} onClick={() => setActiveCandidateId(conversation.candidateId)}><span className="conversation-avatar">{conversation.candidateName.split(" ").map((part) => part[0]).slice(0, 2).join("")}</span><div className="conversation-summary"><strong>{conversation.candidateName}</strong><small>{conversation.jobTitle}</small><p>{conversation.lastMessageBody ?? "No message yet"}</p></div><time className="conversation-time">{conversation.unreadCount > 0 && <i aria-label={`${conversation.unreadCount} unread`} />}{conversation.activityAt ? inboxTime(conversation.activityAt) : ""}</time></button>)}</div>
+    </aside>
+    <article className="conversation-panel">{active ? <><header><div className="conversation-person"><span className="conversation-avatar">{active.candidateName.split(" ").map((part) => part[0]).slice(0, 2).join("")}</span><div><strong>{active.candidateName}</strong><small>{active.jobTitle} · {active.applicationStage.replaceAll("_", " ")}</small></div></div><Badge tone="blue">Application linked</Badge></header><div className="message-context"><span>Private reply</span><p>Send only role-relevant information. A secure email alert is sent without exposing the message content.</p></div><div className="message-thread" aria-live="polite">{messages.map((message) => <div className={`message-bubble ${message.recipientId === active.candidateId ? "me" : "them"}`} key={message.id}><p>{message.body}</p><small>{message.recipientId === active.candidateId ? "You" : active.candidateName} · {inboxTime(message.sentAt)}</small></div>)}{messages.length === 0 && <div className="candidate-thread-empty"><strong>Start a thoughtful conversation.</strong><p>Your message will remain attached to this application.</p></div>}</div><footer className="message-composer"><label className="message-compose-field"><span className="sr-only">Reply to {active.candidateName}</span><textarea value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={`Reply to ${active.candidateName.split(" ")[0]}…`} disabled={sending} /></label>{error && <p className="candidate-message-send-error" role="alert">{error}</p>}<div><small>Application linked · Secure email alert enabled</small><Button onClick={() => void send()} disabled={!draft.trim() || sending}>{sending ? "Sending…" : "Send reply"}</Button></div></footer></> : <div className="candidate-message-placeholder"><strong>Choose a candidate conversation.</strong><p>Replies from applicants will appear here with the associated job context.</p></div>}</article>
+  </section>;
 }
 
 export function RecruiterAnalyticsControls() {

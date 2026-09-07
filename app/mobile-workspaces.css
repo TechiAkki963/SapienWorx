@@ -340,6 +340,7 @@
 
   .sidebar .nav-item {
     display: flex !important;
+    position: relative;
     width: auto;
     min-width: 72px;
     min-height: 64px !important;
@@ -368,6 +369,16 @@
     background: #e7f3f1 !important;
     color: #153f5a !important;
     box-shadow: inset 0 3px 0 #2a7ea6;
+  }
+
+  .sidebar .nav-item .nav-attention-badge {
+    position: absolute !important;
+    top: 5px;
+    right: 6px;
+    min-width: 14px !important;
+    height: 14px !important;
+    margin: 0 !important;
+    font-size: 8px !important;
   }
 
   .account-trigger {

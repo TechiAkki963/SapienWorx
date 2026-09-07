@@ -25,11 +25,7 @@ async function enterOtp(page: Page, label: "Email" | "Mobile") {
 }
 
 async function beginCandidateSignIn(page: Page) {
-  // The portal switch is an intentional hydration check: subsequent form
-  // interactions must pass through React's client-side event handlers.
-  await page.getByRole("tab", { name: "Recruiter" }).click();
-  await expect(page.getByPlaceholder("you@company.com")).toBeVisible();
-  await page.getByRole("tab", { name: "Candidate" }).click();
+  // Candidate and recruiter authentication are deliberately separate routes.
   await expect(page.getByPlaceholder("you@example.com")).toBeVisible();
   await page.getByPlaceholder("you@example.com").fill("candidate@example.com");
   const password = page.getByPlaceholder("Enter your password");
@@ -51,6 +47,17 @@ test.describe("Authentication and mandatory domain routing", () => {
     await expect(page.getByPlaceholder("Enter your password")).toBeVisible();
     await expect(page.getByRole("button", { name: "Show password" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Continue securely →" })).toBeDisabled();
+    await expect(page.getByRole("tablist", { name: "Choose a portal" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Recruiter sign in" })).toHaveAttribute("href", "/recruiter/login");
+  });
+
+  test("keeps the recruiter sign-in flow on its dedicated route", async ({ page }) => {
+    await page.goto("/recruiter/login");
+
+    await expect(page.getByText("Recruiter workspace", { exact: true })).toBeVisible();
+    await expect(page.getByPlaceholder("you@company.com")).toBeVisible();
+    await expect(page.getByRole("tablist", { name: "Choose a portal" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Candidate sign in" })).toHaveAttribute("href", "/login");
   });
 
   test("routes a verified technical candidate to the candidate dashboard", async ({ page }) => {
