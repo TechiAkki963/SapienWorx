@@ -9,7 +9,7 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 \
     mvn -B -ntp -DskipTests package
 
-FROM eclipse-temurin:17-jre-jammy AS runner
+FROM eclipse-temurin:25-jre-jammy AS runner
 WORKDIR /app
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
 
