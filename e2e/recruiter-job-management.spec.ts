@@ -57,7 +57,12 @@ test("My Jobs uses live pipeline analytics and guarded lifecycle controls", asyn
   const analytics = page.getByLabel("Filtered job portfolio analytics");
   await expect(analytics.locator("article").filter({ hasText: "Applicants" }).getByText("23", { exact: true })).toBeVisible();
   await expect(analytics.locator("article").filter({ hasText: "New applications" }).getByText("5", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /18 5 new · 4 interviews/ })).toHaveAttribute("href", "/recruiter/pipeline?role=live-product-manager");
+
+  const liveRoleRow = page.getByRole("row", { name: /Live Product Manager/ });
+  const pipelineLink = liveRoleRow.locator("a.job-pipeline-cell");
+  await expect(pipelineLink).toHaveAttribute("href", "/recruiter/pipeline?role=live-product-manager");
+  await expect(pipelineLink.getByText("18", { exact: true })).toBeVisible();
+  await expect(pipelineLink.getByText("5 new · 4 interviews", { exact: true })).toBeVisible();
 
   await page.getByLabel("Actions for Live Product Manager").click();
   await page.getByRole("button", { name: "Close job" }).click();
