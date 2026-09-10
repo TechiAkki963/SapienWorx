@@ -1,2 +1,5 @@
-import { RecruiterPipeline } from "../../../components/recruiter";
-export default function RecruiterPipelinePage() { return <RecruiterPipeline />; }
+import { RecruiterPipelineV2 } from "../../../components/recruiter-pipeline-v2";
+
+export default function RecruiterPipelinePage() {
+  return <RecruiterPipelineV2 />;
+}
