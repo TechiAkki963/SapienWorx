@@ -1,5 +1,3 @@
 import { CandidateMessages } from "../../../components/candidate-communication";
-
-export default function CandidateMessagesPage() {
-  return <CandidateMessages />;
-}
+import { CandidateInboxNav } from "../../../components/candidate-inbox-nav";
+export default function CandidateMessagesPage(){ return <><CandidateInboxNav active="messages"/><CandidateMessages/></>; }
