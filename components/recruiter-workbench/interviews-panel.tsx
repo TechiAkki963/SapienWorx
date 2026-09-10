@@ -1,0 +1,4 @@
+"use client";
+import { Button } from "../ui";
+import type { Interview } from "./types";
+export default function InterviewsPanel({items}:{items:Interview[]}){return <section className="panel workflow-list"><header className="section-title"><div><span className="eyebrow">Upcoming schedule</span><h2>Interviews</h2></div><Button href="/recruiter/interviews" variant="secondary">Interview centre</Button></header>{items.length?items.slice(0,8).map(item=><article key={item.id}><div><strong>{item.candidateName}</strong><p>{item.jobTitle}</p></div><div><span className="badge badge-neutral">{item.status.toLowerCase()}</span><small>{new Date(item.scheduledAt).toLocaleString()}</small></div></article>):<div className="empty-state"><strong>No upcoming interviews.</strong><p>Scheduled interviews will appear here once a recruiter supplies the external meeting details.</p></div>}</section>}

@@ -1,7 +1,10 @@
-import { KnowledgePage } from "../../components/public-site";
+import { KnowledgeIndexV1 } from "../../components/knowledge-index-v1";
 import { getPublicKnowledgePosts } from "../../lib/backend";
 
-export default async function KnowledgeHubPage() {
+type Search = { category?: string | string[] };
+export default async function KnowledgeHubPage({ searchParams }: { searchParams: Promise<Search> }) {
+  const search = await searchParams;
+  const category = Array.isArray(search.category) ? search.category[0] : search.category;
   const articles = await getPublicKnowledgePosts();
-  return <KnowledgePage articles={articles ?? undefined} />;
+  return <KnowledgeIndexV1 articles={articles ?? []} category={category}/>;
 }

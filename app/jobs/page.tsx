@@ -1,4 +1,5 @@
-import { PublicJobsPage, type PublicJob } from "../../components/public-site";
+import { PublicJobsV1 } from "../../components/public-jobs-v1";
+import type { PublicJob } from "../../components/public-site";
 import { getPublicJobs, type ApiJob, type PublicJobQuery } from "../../lib/backend";
 
 function publicJob(job: ApiJob): PublicJob {
@@ -33,19 +34,11 @@ const number = (value: string | string[] | undefined) => {
 export default async function JobsPage({ searchParams }: { searchParams: Promise<Search> }) {
   const search = await searchParams;
   const query: PublicJobQuery = {
-    keywords: first(search.keywords),
-    location: first(search.location),
-    workplaceModel: first(search.workplaceModel),
-    employmentType: first(search.employmentType),
-    minimumExperienceYears: number(search.minimumExperienceYears),
-    maximumExperienceYears: number(search.maximumExperienceYears),
-    minimumSalaryLakhs: number(search.minimumSalaryLakhs),
-    maximumSalaryLakhs: number(search.maximumSalaryLakhs),
-    page: number(search.page) ?? 0,
-    pageSize: number(search.pageSize) ?? 20,
+    keywords: first(search.keywords), location: first(search.location), workplaceModel: first(search.workplaceModel), employmentType: first(search.employmentType),
+    minimumExperienceYears: number(search.minimumExperienceYears), maximumExperienceYears: number(search.maximumExperienceYears), minimumSalaryLakhs: number(search.minimumSalaryLakhs), maximumSalaryLakhs: number(search.maximumSalaryLakhs),
+    page: number(search.page) ?? 0, pageSize: number(search.pageSize) ?? 20,
   };
-
   const response = await getPublicJobs(query);
   const page = response ? { ...response, content: response.content.map(publicJob) } : undefined;
-  return <PublicJobsPage search={search} jobs={page?.content ?? []} page={page} />;
+  return <PublicJobsV1 search={search} jobs={page?.content ?? []} page={page} />;
 }

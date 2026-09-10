@@ -1,0 +1,4 @@
+"use client";
+import { Button } from "../ui";
+import type { TalentPool } from "./types";
+export default function TalentPoolsPanel({items}:{items:TalentPool[]}){return <section className="panel workflow-list"><header className="section-title"><div><span className="eyebrow">Shared talent</span><h2>Talent pools</h2></div><Button href="/recruiter/candidates" variant="secondary">Candidate directory</Button></header>{items.length?items.map(item=><article key={item.id}><div><strong>{item.name}</strong><p>{item.description||"Shared recruiter talent pool"}</p></div><span className="badge badge-neutral">{item.candidateCount} people</span></article>):<div className="empty-state"><strong>No talent pools yet.</strong><p>Create pools from candidate search or the candidate directory.</p></div>}</section>}
