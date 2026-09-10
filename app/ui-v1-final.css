@@ -48,12 +48,18 @@ html body .auth-page :is(.eyebrow,label > span) { text-transform: none; letter-s
 @media (max-width: 639px) {
   .workspace-shell-recruiter, .workspace-shell-admin { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; grid-template-rows: auto minmax(0,1fr); }
   .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 1fr; }
-  .workspace-shell-recruiter .sidebar, .workspace-shell-admin .sidebar { display: none; }
+  .workspace-shell-recruiter .sidebar { display: none; }
+  .workspace-shell-admin .sidebar { position: fixed; z-index: 70; inset: auto 0 0; width: 100%; height: 76px; min-height: 76px; display: block; border: 0; border-top: 1px solid #34353b; background: #1b1c20; overflow-x: auto; overflow-y: hidden; }
+  .workspace-shell-admin .workspace-name { display: none; }
+  .workspace-shell-admin .sidebar-scroll { width: max-content; min-width: 100%; height: 76px; overflow: visible; }
+  .workspace-shell-admin .sidebar nav { height: 76px; display: flex; align-items: stretch; gap: 2px; padding: 4px 8px max(4px,env(safe-area-inset-bottom)); }
+  .workspace-shell-admin .sidebar .nav-item { min-width: 92px; min-height: 64px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 4px 8px; text-align: center; font-size: 10px; }
+  .workspace-shell-admin .sidebar .nav-label { display: block; max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .topbar { padding-inline: var(--space-4); }
   .workspace-mobile-nav { position: fixed; z-index: 70; inset: auto 0 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); min-height: 72px; padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb,var(--cloud) 96%,transparent); backdrop-filter: blur(12px); }
   .workspace-mobile-nav .nav-item { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 3px; padding: var(--space-1); text-align: center; font-size: 10px; }
   .workspace-mobile-nav .nav-label { display: block; overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
-  .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { padding-bottom: 88px; }
+  .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { padding-bottom: 92px; }
   .topbar-context, .topbar-search { display: none; }
 }
 
