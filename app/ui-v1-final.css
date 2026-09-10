@@ -38,6 +38,13 @@ html body .auth-page :is(.eyebrow,label > span) { text-transform: none; letter-s
 .workspace-access-state p { color: var(--muted); }
 .onboarding-summary { padding: var(--space-4); }
 
+/* Empty-state illustration retained in the consolidated V1 layer. */
+.editorial-empty-doodle { width: 72px; height: 40px; margin: 0 auto var(--space-3); display: inline-flex; align-items: end; justify-content: center; gap: 6px; }
+.editorial-empty-doodle i { width: 10px; border: 1px solid color-mix(in srgb,var(--portal-accent-deep) 45%,var(--line)); border-radius: 999px 999px 3px 3px; background: var(--portal-accent-soft); }
+.editorial-empty-doodle i:nth-child(1) { height: 21px; transform: rotate(-8deg); }
+.editorial-empty-doodle i:nth-child(2) { height: 32px; }
+.editorial-empty-doodle i:nth-child(3) { height: 17px; transform: rotate(8deg); }
+
 @media (max-width: 639px) {
   .workspace-shell-recruiter, .workspace-shell-admin { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; grid-template-rows: auto minmax(0,1fr); }
   .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 1fr; }
@@ -46,7 +53,7 @@ html body .auth-page :is(.eyebrow,label > span) { text-transform: none; letter-s
   .workspace-mobile-nav { position: fixed; z-index: 70; inset: auto 0 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); min-height: 72px; padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb,var(--cloud) 96%,transparent); backdrop-filter: blur(12px); }
   .workspace-mobile-nav .nav-item { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 3px; padding: var(--space-1); text-align: center; font-size: 10px; }
   .workspace-mobile-nav .nav-label { display: block; overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
-  .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main { padding-bottom: 88px; }
+  .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { padding-bottom: 88px; }
   .topbar-context, .topbar-search { display: none; }
 }
 
@@ -66,4 +73,15 @@ html body .auth-page :is(.eyebrow,label > span) { text-transform: none; letter-s
 
 @media (min-width: 1440px) {
   .topbar { padding-inline: var(--space-6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body .workspace-shell .nav-item,
+  html body .workspace-shell .button,
+  html body .workspace-shell .icon-button,
+  html body .workspace-shell .account-trigger,
+  html body .editorial-empty-doodle i {
+    animation: none;
+    transition: none;
+  }
 }
