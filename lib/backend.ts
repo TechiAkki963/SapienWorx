@@ -41,6 +41,19 @@ export type PublicKnowledgePost = {
   publishedAt: string;
 };
 
+export type PublicJobQuery = {
+  keywords?: string;
+  location?: string;
+  workplaceModel?: string;
+  employmentType?: string;
+  minimumExperienceYears?: number;
+  maximumExperienceYears?: number;
+  minimumSalaryLakhs?: number;
+  maximumSalaryLakhs?: number;
+  page?: number;
+  pageSize?: number;
+};
+
 const localDemoJobs: Record<string, ApiJob> = {
   SWX_NX_001: {
     jobId: "SWX_NX_001",
@@ -81,13 +94,31 @@ async function serverFetch<T>(path: string, authenticated = false): Promise<T | 
     if (!response.ok) return null;
     return response.json() as Promise<T>;
   } catch {
-    // The UI retains its graceful empty state while infrastructure is starting.
     return null;
   }
 }
 
-export async function getPublicJobs(keywords = "") {
-  return serverFetch<ApiPage<ApiJob>>(`/api/public/jobs${keywords ? `?keywords=${encodeURIComponent(keywords)}` : ""}`);
+export async function getPublicJobs(query: string | PublicJobQuery = "") {
+  const request: PublicJobQuery = typeof query === "string" ? { keywords: query } : query;
+  const params = new URLSearchParams();
+  const textEntries: Array<[string, string | undefined]> = [
+    ["keywords", request.keywords],
+    ["location", request.location],
+    ["workplaceModel", request.workplaceModel],
+    ["employmentType", request.employmentType],
+  ];
+  textEntries.forEach(([key, value]) => { if (value?.trim()) params.set(key, value.trim()); });
+  const numberEntries: Array<[string, number | undefined]> = [
+    ["minimumExperienceYears", request.minimumExperienceYears],
+    ["maximumExperienceYears", request.maximumExperienceYears],
+    ["minimumSalaryLakhs", request.minimumSalaryLakhs],
+    ["maximumSalaryLakhs", request.maximumSalaryLakhs],
+    ["page", request.page],
+    ["pageSize", request.pageSize],
+  ];
+  numberEntries.forEach(([key, value]) => { if (value !== undefined && Number.isFinite(value)) params.set(key, String(value)); });
+  const suffix = params.size ? `?${params.toString()}` : "";
+  return serverFetch<ApiPage<ApiJob>>(`/api/public/jobs${suffix}`);
 }
 
 export async function getPublicKnowledgePosts() {
