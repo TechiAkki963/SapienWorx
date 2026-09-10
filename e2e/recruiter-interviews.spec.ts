@@ -1,21 +1,30 @@
 import { expect, test } from "@playwright/test";
 
+type InterviewRequest = {
+  applicationId: string;
+  meetingLink: string;
+  platformName: string;
+  scheduledAt: string;
+  durationMinutes: number;
+};
+
 test("schedules an interview with a recruiter-supplied external HTTPS meeting link", async ({ page }) => {
   const applicationId = "2fbd4be4-1bf2-4a1d-918d-500000000001";
-  let posted: Record<string, unknown> | null = null;
+  let posted: InterviewRequest | undefined;
 
   await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   await page.route("**/api/recruiter/interviews", async (route) => {
-    posted = route.request().postDataJSON() as Record<string, unknown>;
+    const request = route.request().postDataJSON() as InterviewRequest;
+    posted = request;
     return route.fulfill({
       status: 201,
       json: {
         candidateName: "Asha Kumar",
         jobTitle: "Backend Engineer",
-        platformName: posted.platformName,
-        meetingLink: posted.meetingLink,
-        scheduledAt: posted.scheduledAt,
-        durationMinutes: posted.durationMinutes,
+        platformName: request.platformName,
+        meetingLink: request.meetingLink,
+        scheduledAt: request.scheduledAt,
+        durationMinutes: request.durationMinutes,
       },
     });
   });
@@ -31,15 +40,16 @@ test("schedules an interview with a recruiter-supplied external HTTPS meeting li
   await page.getByLabel("External meeting URL").fill("http://meet.example.test/interview");
   await page.getByRole("button", { name: "Schedule Interview" }).click();
   await expect(page.getByText("Enter a valid HTTPS external meeting URL.")).toBeVisible();
-  expect(posted).toBeNull();
+  expect(posted).toBeUndefined();
 
   await page.getByLabel("External meeting URL").fill("https://meet.google.com/abc-defg-hij");
   await expect(page.getByText("Google Meet ↗", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Schedule Interview" }).click();
 
   await expect(page.getByText("Interview scheduled ✓", { exact: false })).toBeVisible();
-  expect(posted).not.toBeNull();
-  expect(posted?.applicationId).toBe(applicationId);
-  expect(posted?.meetingLink).toBe("https://meet.google.com/abc-defg-hij");
-  expect(posted?.platformName).toBe("Google Meet");
+  expect(posted).toBeDefined();
+  const request = posted as InterviewRequest;
+  expect(request.applicationId).toBe(applicationId);
+  expect(request.meetingLink).toBe("https://meet.google.com/abc-defg-hij");
+  expect(request.platformName).toBe("Google Meet");
 });
