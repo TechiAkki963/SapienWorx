@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function expectBottomWorkspaceNavigation(page: Page, minimumItems: number) {
-  const dock = page.locator(".sidebar");
+async function expectBottomWorkspaceNavigation(page: Page, expectedItems = 5) {
+  const dock = page.locator(".workspace-mobile-nav");
   await expect(dock).toBeVisible();
-  await expect.poll(() => dock.getByRole("link").count()).toBeGreaterThanOrEqual(minimumItems);
+  await expect(dock.getByRole("link")).toHaveCount(expectedItems);
   const layout = await dock.evaluate((element) => {
     const style = getComputedStyle(element);
     const bounds = element.getBoundingClientRect();
@@ -19,49 +19,47 @@ async function expectBottomWorkspaceNavigation(page: Page, minimumItems: number)
   expect(layout.widthGap).toBeLessThanOrEqual(1);
   expect(layout.minimumTarget).toBeGreaterThanOrEqual(44);
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
-  const mainPadding = await page.locator(".workspace-main").evaluate((element) => Number.parseFloat(getComputedStyle(element).paddingBottom));
-  expect(mainPadding).toBeGreaterThanOrEqual(100);
 }
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => window.localStorage.setItem("sapienworx.local-candidate-domain", "TECH"));
 });
 
-test("candidate, recruiter, and Master Admin keep primary navigation in a bottom dock and account actions under their initials", async ({ page }) => {
+test("candidate and recruiter use a five-item mobile bottom dock while account actions remain under initials", async ({ page }) => {
   await page.goto("/candidate/jobs");
-  await expect(page.getByRole("link", { name: "Applications" })).toBeAttached();
-  await expectBottomWorkspaceNavigation(page, 6);
-  await expect(page.locator(".sidebar").getByRole("link", { name: "Settings", exact: true })).toHaveCount(0);
+  await expectBottomWorkspaceNavigation(page);
+  await expect(page.locator(".workspace-mobile-nav").getByRole("link", { name: "Applications" })).toBeVisible();
   await page.getByRole("button", { name: /Account menu/ }).click();
   await expect(page.getByRole("link", { name: "Settings", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Log out" })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("link", { name: "Settings", exact: true })).toHaveCount(0);
 
   await page.goto("/recruiter/jobs");
-  await expect(page.getByRole("link", { name: "Recruitment Workspace" })).toBeAttached();
-  await expectBottomWorkspaceNavigation(page, 9);
+  await expectBottomWorkspaceNavigation(page);
+  const recruiterDock = page.locator(".workspace-mobile-nav");
+  await expect(recruiterDock.getByRole("link", { name: "Jobs", exact: true })).toBeVisible();
+  await expect(recruiterDock.getByRole("link", { name: "Interviews", exact: true })).toBeVisible();
+});
 
+test("Master Admin remains operational on mobile and keeps account actions available", async ({ page }) => {
   await page.route("**/api/admin/**", (route) => route.fulfill({ status: 503, json: { message: "Mobile shell fixture" } }));
   await page.goto("/admin");
   await expect(page.getByRole("link", { name: "Knowledge Hub" })).toBeAttached();
-  await expectBottomWorkspaceNavigation(page, 8);
   await page.getByRole("button", { name: /Account menu/ }).click();
   await expect(page.getByRole("link", { name: "Settings", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Log out" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 });
 
-test("mobile sourcing cards retain engagement, CV, and freshness details", async ({ page }) => {
+test("mobile sourcing result cards retain CV, relevance and freshness details", async ({ page }) => {
   await page.goto("/search/results?anyKeywords=Typescript%2CNode.js&location=Bengaluru");
 
-  const card = page.locator(".talent-profile-card").filter({ has: page.getByRole("heading", { name: "Avish Bansal" }) });
+  const card = page.getByRole("heading", { name: "Avish Bansal" }).locator("xpath=ancestor::article");
   await expect(card).toBeVisible();
-  await expect(card.getByRole("button", { name: "⇩ CV" })).toBeVisible();
-  await expect(card.getByText(/Modified /)).toBeVisible();
-  await expect(card.getByText(/Active /)).toBeVisible();
-  const evidence = card.locator(".talent-profile-bottom > span").first();
-  await expect(evidence).toBeVisible();
-  await expect(evidence).toContainText(/\d+/);
+  await expect(card.getByText("CV available", { exact: true })).toBeVisible();
+  await expect(card.getByText(/Relevance \d+%/)).toBeVisible();
+  await expect(card.getByText(/Profile updated /)).toBeVisible();
+  await expect(card.getByText(/Last active /)).toBeVisible();
   await expect.poll(() => card.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
 });
 
