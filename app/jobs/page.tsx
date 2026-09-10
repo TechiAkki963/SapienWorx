@@ -1,16 +1,34 @@
-import { PublicJobsPage } from "../../components/public-site";
+import { PublicJobsPage, type PublicJob } from "../../components/public-site";
 import { getPublicJobs, type ApiJob, type PublicJobQuery } from "../../lib/backend";
 
-function publicJob(job: ApiJob) {
-  return { id: job.jobId, company: job.organisationName, companySlug: job.organisationName.toLowerCase().replace(/[^a-z0-9]+/g, "-"), title: job.title,
-    tags: job.skills, experience: `${job.minimumExperienceYears}–${job.maximumExperienceYears} years`, location: job.location, department: job.department,
-    employmentType: job.employmentType, workplaceModel: job.workplaceModel, postedAt: job.publishedAt, verifiedEmployer: job.verifiedEmployer,
-    publicPath: job.publicPath, mark: job.organisationName.slice(0, 1), tone: "blue" };
+function publicJob(job: ApiJob): PublicJob {
+  return {
+    id: job.jobId,
+    company: job.organisationName,
+    companySlug: job.organisationName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    title: job.title,
+    tags: job.skills,
+    experience: `${job.minimumExperienceYears}–${job.maximumExperienceYears} years`,
+    location: job.location,
+    department: job.department,
+    employmentType: job.employmentType,
+    workplaceModel: job.workplaceModel,
+    postedAt: job.publishedAt,
+    verifiedEmployer: job.verifiedEmployer,
+    publicPath: job.publicPath,
+    mark: job.organisationName.slice(0, 1).toUpperCase(),
+    tone: "blue",
+  };
 }
 
 type Search = Record<string, string | string[] | undefined>;
 const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
-const number = (value: string | string[] | undefined) => { const parsed = Number(first(value)); return Number.isFinite(parsed) ? parsed : undefined; };
+const number = (value: string | string[] | undefined) => {
+  const raw = first(value);
+  if (raw === undefined || raw === "") return undefined;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
 
 export default async function JobsPage({ searchParams }: { searchParams: Promise<Search> }) {
   const search = await searchParams;
@@ -26,6 +44,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
     page: number(search.page) ?? 0,
     pageSize: number(search.pageSize) ?? 20,
   };
-  const jobs = await getPublicJobs(query);
-  return <PublicJobsPage search={search} jobs={jobs?.content ?? []} page={jobs ?? undefined} />;
+
+  const response = await getPublicJobs(query);
+  const page = response ? { ...response, content: response.content.map(publicJob) } : undefined;
+  return <PublicJobsPage search={search} jobs={page?.content ?? []} page={page} />;
 }
