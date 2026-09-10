@@ -14,8 +14,9 @@ test("candidate workspace keeps message and interview attention counts after a r
 
   await page.goto("/candidate/messages");
   await expect(page.getByRole("heading", { name: "Message centre" })).toBeVisible();
-  await expect(page.getByLabel("2 unread messages")).toBeVisible();
-  await expect(page.getByLabel("1 unread interview updates")).toBeVisible();
+  const candidateNav = page.locator(".candidate-desktop-nav");
+  await expect(candidateNav.getByLabel("2 unread messages")).toBeVisible();
+  await expect(candidateNav.getByLabel("1 unread interview updates")).toBeVisible();
   await expect(page.getByLabel("3 live updates")).toBeVisible();
 });
 
@@ -32,8 +33,9 @@ test("recruiter can see and reply to an application-linked candidate message", a
   await page.goto("/recruiter/communications");
   await expect(page.getByRole("heading", { name: "Candidate inbox" })).toBeVisible();
   await expect(page.getByText("Amara Mensah", { exact: true })).toHaveCount(2);
-  await expect(page.getByLabel("1 unread messages")).toBeVisible();
-  await expect(page.getByLabel("2 unread interview updates")).toBeVisible();
+  const recruiterNav = page.locator(".sidebar");
+  await expect(recruiterNav.getByLabel("1 unread messages")).toBeVisible();
+  await expect(recruiterNav.getByLabel("2 unread interview updates")).toBeVisible();
 
   await page.getByLabel("Reply to Amara").fill("Tuesday at 3 PM works. I have sent the calendar invitation.");
   await page.getByRole("button", { name: "Send reply" }).click();
