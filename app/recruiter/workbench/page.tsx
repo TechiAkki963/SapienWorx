@@ -1,3 +1,2 @@
-import { RecruiterWorkbench } from "../../../components/recruiter-workbench";
-
-export default function RecruiterWorkbenchPage() { return <RecruiterWorkbench />; }
+import { RecruiterWorkbenchV1 } from "../../../components/recruiter-workbench-v1";
+export default function RecruiterWorkbenchPage(){return <RecruiterWorkbenchV1/>;}

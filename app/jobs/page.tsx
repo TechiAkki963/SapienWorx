@@ -1,51 +1,9 @@
-import { PublicJobsPage, type PublicJob } from "../../components/public-site";
+import { PublicJobsV1 } from "../../components/public-jobs-v1";
+import type { PublicJob } from "../../components/public-site";
 import { getPublicJobs, type ApiJob, type PublicJobQuery } from "../../lib/backend";
 
-function publicJob(job: ApiJob): PublicJob {
-  return {
-    id: job.jobId,
-    company: job.organisationName,
-    companySlug: job.organisationName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-    title: job.title,
-    tags: job.skills,
-    experience: `${job.minimumExperienceYears}–${job.maximumExperienceYears} years`,
-    location: job.location,
-    department: job.department,
-    employmentType: job.employmentType,
-    workplaceModel: job.workplaceModel,
-    postedAt: job.publishedAt,
-    verifiedEmployer: job.verifiedEmployer,
-    publicPath: job.publicPath,
-    mark: job.organisationName.slice(0, 1).toUpperCase(),
-    tone: "blue",
-  };
-}
-
-type Search = Record<string, string | string[] | undefined>;
-const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
-const number = (value: string | string[] | undefined) => {
-  const raw = first(value);
-  if (raw === undefined || raw === "") return undefined;
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) ? parsed : undefined;
-};
-
-export default async function JobsPage({ searchParams }: { searchParams: Promise<Search> }) {
-  const search = await searchParams;
-  const query: PublicJobQuery = {
-    keywords: first(search.keywords),
-    location: first(search.location),
-    workplaceModel: first(search.workplaceModel),
-    employmentType: first(search.employmentType),
-    minimumExperienceYears: number(search.minimumExperienceYears),
-    maximumExperienceYears: number(search.maximumExperienceYears),
-    minimumSalaryLakhs: number(search.minimumSalaryLakhs),
-    maximumSalaryLakhs: number(search.maximumSalaryLakhs),
-    page: number(search.page) ?? 0,
-    pageSize: number(search.pageSize) ?? 20,
-  };
-
-  const response = await getPublicJobs(query);
-  const page = response ? { ...response, content: response.content.map(publicJob) } : undefined;
-  return <PublicJobsPage search={search} jobs={page?.content ?? []} page={page} />;
-}
+function publicJob(job: ApiJob): PublicJob { return { id: job.jobId, company: job.organisationName, companySlug: job.organisationName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""), title: job.title, tags: job.skills, experience: `${job.minimumExperienceYears}–${job.maximumExperienceYears} years`, location: job.location, department: job.department, employmentType: job.employmentType, workplaceModel: job.workplaceModel, postedAt: job.publishedAt, verifiedEmployer: job.verifiedEmployer, publicPath: job.publicPath, mark: job.organisationName.slice(0,1).toUpperCase(), tone: "blue" }; }
+type Search = Record<string,string|string[]|undefined>;
+const first = (value: string|string[]|undefined) => Array.isArray(value) ? value[0] : value;
+const number = (value: string|string[]|undefined) => { const raw=first(value); if (raw === undefined || raw === "") return undefined; const parsed=Number(raw); return Number.isFinite(parsed) ? parsed : undefined; };
+export default async function JobsPage({searchParams}:{searchParams:Promise<Search>}) { const search=await searchParams; const query:PublicJobQuery={keywords:first(search.keywords),location:first(search.location),workplaceModel:first(search.workplaceModel),employmentType:first(search.employmentType),minimumExperienceYears:number(search.minimumExperienceYears),maximumExperienceYears:number(search.maximumExperienceYears),minimumSalaryLakhs:number(search.minimumSalaryLakhs),maximumSalaryLakhs:number(search.maximumSalaryLakhs),page:number(search.page)??0,pageSize:number(search.pageSize)??20}; const response=await getPublicJobs(query); const page=response?{...response,content:response.content.map(publicJob)}:undefined; return <PublicJobsV1 search={search} jobs={page?.content??[]} page={page}/>; }

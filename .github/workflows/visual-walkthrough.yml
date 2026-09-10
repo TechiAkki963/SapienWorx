@@ -1,53 +1,32 @@
 name: Visual walkthrough
-
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "app/**"
-      - "components/**"
-      - "e2e/visual-walkthrough.spec.ts"
-      - ".github/workflows/visual-walkthrough.yml"
+    paths: ["app/**","components/**","e2e/visual-walkthrough.spec.ts",".github/workflows/visual-walkthrough.yml"]
   workflow_dispatch:
-
-permissions:
-  contents: read
-
+permissions: { contents: read }
 jobs:
   screenshots:
-    name: Capture desktop and mobile walkthrough
+    name: Capture all four responsive modes
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_LOCAL_DEMO: "true"
+    env: { NEXT_PUBLIC_LOCAL_DEMO: "true" }
     steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: package-lock.json
-      - name: Install dependencies
-        run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Capture walkthrough
-        run: npx playwright test e2e/visual-walkthrough.spec.ts --project=chromium --project=mobile-chromium
-      - name: Upload walkthrough screenshots
-        if: always()
+      - uses: actions/checkout@v4
+        name: Check out source
+      - uses: actions/setup-node@v4
+        name: Set up Node 20
+        with: { node-version: "20", cache: npm, cache-dependency-path: package-lock.json }
+      - run: npm ci
+        name: Install dependencies
+      - run: npx playwright install --with-deps chromium
+        name: Install Chromium
+      - run: npx playwright test e2e/visual-walkthrough.spec.ts --project=chromium
+        name: Capture mobile, tablet, desktop and wide walkthrough
+      - if: always()
         uses: actions/upload-artifact@v4
-        with:
-          name: sapienworx-visual-walkthrough
-          path: artifacts/walkthrough/
-          retention-days: 30
-          if-no-files-found: warn
-      - name: Upload failure diagnostics
-        if: failure()
+        name: Upload walkthrough screenshots
+        with: { name: sapienworx-visual-walkthrough, path: "artifacts/walkthrough/", retention-days: 30, if-no-files-found: warn }
+      - if: failure()
         uses: actions/upload-artifact@v4
-        with:
-          name: sapienworx-visual-walkthrough-failures
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 14
+        name: Upload failure diagnostics
+        with: { name: sapienworx-visual-walkthrough-failures, path: "playwright-report/\ntest-results/", retention-days: 14 }

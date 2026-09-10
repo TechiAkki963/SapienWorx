@@ -1,0 +1,69 @@
+/* Final V1 shell + interaction normalization, intentionally imported last. */
+html body .workspace-shell :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
+html body .public-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
+html body .auth-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
+html body .onboarding-v1 :is(button,input,select,textarea,summary,[role="button"],[role="tab"]) { min-height: 44px; }
+html body :is(.workspace-shell,.public-page,.auth-page,.onboarding-v1) :is(a.button,a.nav-item,a.action-link,a.view-all,a.job-card-link,a.privacy-link,a.switch-workspace,a.recruiter-entry) { min-height: 44px; display: inline-flex; align-items: center; }
+html body .workspace-shell :is(.eyebrow,.section-title p,dt,th,label > span),
+html body .public-page :is(.eyebrow,dt,th,label > span),
+html body .auth-page :is(.eyebrow,label > span) { text-transform: none; letter-spacing: normal; }
+
+.skip-link { position: fixed; z-index: 999; top: var(--space-2); left: var(--space-2); transform: translateY(-140%); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--ink); color: var(--cloud); }
+.skip-link:focus { transform: translateY(0); }
+.workspace-shell-recruiter, .workspace-shell-admin { grid-template-areas: "sidebar topbar" "sidebar main"; grid-template-rows: auto minmax(0,1fr); min-height: 100vh; }
+.workspace-shell-recruiter { grid-template-columns: 248px minmax(0,1fr); }
+.workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 72px minmax(0,1fr); }
+.workspace-shell-admin { grid-template-columns: 260px minmax(0,1fr); }
+.workspace-shell-recruiter .topbar, .workspace-shell-admin .topbar { grid-area: topbar; }
+.workspace-shell-recruiter .sidebar, .workspace-shell-admin .sidebar { grid-area: sidebar; position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { grid-area: main; grid-column: auto; }
+.topbar { padding-inline: var(--space-5); justify-content: space-between; }
+.topbar .logo { flex: 0 0 auto; }
+.topbar-context, .topbar-actions { flex: 0 0 auto; }
+.candidate-desktop-nav { display: flex; align-items: center; justify-content: center; flex: 1; }
+.workspace-name { min-height: 68px; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); border-bottom: 1px solid color-mix(in srgb,var(--line) 70%,transparent); }
+.workspace-name > div { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.workspace-name small { color: var(--muted); }
+.workspace-shell-admin .workspace-name small, .workspace-shell-admin .workspace-name strong { color: var(--cloud); }
+.workspace-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--portal-accent-soft); color: var(--portal-accent-deep); font-family: var(--font-data); font-weight: 600; }
+.workspace-shell-admin .workspace-icon { background: color-mix(in srgb,var(--cloud) 12%,transparent); color: var(--cloud); }
+.sidebar-collapse { width: 44px; min-width: 44px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: transparent; color: inherit; }
+.sidebar-scroll { height: calc(100vh - 68px); overflow-y: auto; }
+.recruiter-sidebar-collapsed .workspace-name > div, .recruiter-sidebar-collapsed .nav-label { display: none; }
+.recruiter-sidebar-collapsed .workspace-name { justify-content: center; padding-inline: var(--space-2); }
+.recruiter-sidebar-collapsed .sidebar-collapse { width: 40px; min-width: 40px; }
+.recruiter-sidebar-collapsed .sidebar .nav-item { justify-content: center; padding-inline: 0; }
+.workspace-mobile-nav { display: none; }
+.workspace-access-state { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: var(--space-3); padding: var(--space-5); background: var(--paper); text-align: center; }
+.workspace-access-state p { color: var(--muted); }
+.onboarding-summary { padding: var(--space-4); }
+
+@media (max-width: 639px) {
+  .workspace-shell-recruiter, .workspace-shell-admin { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; grid-template-rows: auto minmax(0,1fr); }
+  .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 1fr; }
+  .workspace-shell-recruiter .sidebar, .workspace-shell-admin .sidebar { display: none; }
+  .topbar { padding-inline: var(--space-4); }
+  .workspace-mobile-nav { position: fixed; z-index: 70; inset: auto 0 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); min-height: 72px; padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb,var(--cloud) 96%,transparent); backdrop-filter: blur(12px); }
+  .workspace-mobile-nav .nav-item { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 3px; padding: var(--space-1); text-align: center; font-size: 10px; }
+  .workspace-mobile-nav .nav-label { display: block; overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main { padding-bottom: 88px; }
+  .topbar-context, .topbar-search { display: none; }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .workspace-shell-recruiter, .workspace-shell-admin { grid-template-columns: 72px minmax(0,1fr); }
+  .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 72px minmax(0,1fr); }
+  .workspace-shell-recruiter .workspace-name > div, .workspace-shell-admin .workspace-name > div, .workspace-shell-recruiter .nav-label, .workspace-shell-admin .nav-label { display: none; }
+  .workspace-shell-recruiter .sidebar .nav-item, .workspace-shell-admin .sidebar .nav-item { justify-content: center; padding-inline: 0; }
+  .workspace-shell-recruiter .workspace-name, .workspace-shell-admin .workspace-name { justify-content: center; padding-inline: var(--space-2); }
+  .workspace-shell-recruiter .sidebar-collapse { width: 40px; min-width: 40px; }
+  .topbar { padding-inline: var(--space-4); }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .topbar { padding-inline: var(--space-5); }
+}
+
+@media (min-width: 1440px) {
+  .topbar { padding-inline: var(--space-6); }
+}

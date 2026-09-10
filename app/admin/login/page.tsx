@@ -1,2 +1,2 @@
-import { MasterAdminLogin } from "../../../components/master-admin";
-export default function MasterAdminLoginPage(){ return <MasterAdminLogin/>; }
+import { AdminLoginV1 } from "../../../components/admin-login-v1";
+export default function AdminLoginPage(){return <AdminLoginV1/>;}

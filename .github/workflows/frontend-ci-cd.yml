@@ -1,144 +1,87 @@
 name: Frontend CI/CD
-
 on:
   push:
-    branches: [main, complete-ui-spec-20260910]
-    paths:
-      - "app/**"
-      - "components/**"
-      - "hooks/**"
-      - "lib/**"
-      - "e2e/**"
-      - "package.json"
-      - "package-lock.json"
-      - "next.config.mjs"
-      - "Dockerfile"
-      - ".dockerignore"
-      - "tsconfig.json"
-      - ".github/workflows/frontend-ci-cd.yml"
+    branches: [main, complete-v1]
+    paths: ["app/**","components/**","hooks/**","lib/**","e2e/**","package.json","package-lock.json","next.config.mjs","Dockerfile",".dockerignore","tsconfig.json",".github/workflows/frontend-ci-cd.yml"]
   pull_request:
     branches: [main]
-    paths:
-      - "app/**"
-      - "components/**"
-      - "hooks/**"
-      - "lib/**"
-      - "e2e/**"
-      - "package.json"
-      - "package-lock.json"
-      - "next.config.mjs"
-      - "Dockerfile"
-      - ".dockerignore"
-      - "tsconfig.json"
-      - ".github/workflows/frontend-ci-cd.yml"
-
+    paths: ["app/**","components/**","hooks/**","lib/**","e2e/**","package.json","package-lock.json","next.config.mjs","Dockerfile",".dockerignore","tsconfig.json",".github/workflows/frontend-ci-cd.yml"]
 permissions:
   contents: read
-
 concurrency:
   group: frontend-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   build-and-test:
     name: Type-check and build web app
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install locked dependencies
-        run: npm ci
-
-      - name: Run type checks
-        run: npm run lint
-
-      - name: Build production app
-        run: npm run build
-
+      - uses: actions/checkout@v4
+        name: Check out source
+      - uses: actions/setup-node@v4
+        name: Set up Node 20
+        with: { node-version: "20", cache: npm, cache-dependency-path: package-lock.json }
+      - run: npm ci
+        name: Install locked dependencies
+      - run: npm run lint
+        name: Run type checks
+      - run: npm run build
+        name: Build production app
   browser-regression:
-    name: Desktop and mobile browser regression
+    name: Four-breakpoint browser regression
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_LOCAL_DEMO: "true"
-
+    env: { NEXT_PUBLIC_LOCAL_DEMO: "true" }
     steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install locked dependencies
-        run: npm ci
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Run desktop and mobile automation
-        run: npx playwright test --project=chromium --project=mobile-chromium
-
-      - name: Preserve visual walkthrough
-        if: always()
+      - uses: actions/checkout@v4
+        name: Check out source
+      - uses: actions/setup-node@v4
+        name: Set up Node 20
+        with: { node-version: "20", cache: npm, cache-dependency-path: package-lock.json }
+      - run: npm ci
+        name: Install locked dependencies
+      - run: npx playwright install --with-deps chromium
+        name: Install Chromium
+      - run: npx playwright test --project=chromium --project=mobile-chromium
+        name: Run browser automation
+      - if: always()
         uses: actions/upload-artifact@v4
-        with:
-          name: sapienworx-visual-walkthrough-${{ github.run_id }}
-          path: artifacts/walkthrough/
-          retention-days: 30
-          if-no-files-found: warn
-
-      - name: Preserve failed-test diagnostics
-        if: failure()
+        name: Preserve visual walkthrough
+        with: { name: "sapienworx-visual-walkthrough-${{ github.run_id }}", path: "artifacts/walkthrough/", retention-days: 30, if-no-files-found: warn }
+      - if: failure()
         uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          retention-days: 14
-
+        name: Preserve failed-test diagnostics
+        with: { name: playwright-report, path: "playwright-report/\ntest-results/", retention-days: 14 }
+  docker-validate:
+    name: Validate web container build
+    needs: [build-and-test,browser-regression]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Check out source
+      - uses: docker/setup-buildx-action@v3
+        name: Set up Docker Buildx
+      - run: docker buildx build --load --file ./Dockerfile --tag sapienworx-frontend:ci .
+        name: Build web image
   docker-build-push:
     name: Build and publish web image
-    needs: [build-and-test, browser-regression]
+    needs: [docker-validate]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
+    permissions: { contents: read, packages: write }
     steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+        name: Check out source
       - name: Set image name
         id: image
         shell: bash
         run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}-frontend" >> "$GITHUB_OUTPUT"
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v6
-
-      - name: Build and push image
-        uses: docker/build-push-action@v6
+      - uses: docker/login-action@v3
+        name: Log in to GitHub Container Registry
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: docker/setup-buildx-action@v3
+        name: Set up Docker Buildx
+      - uses: docker/build-push-action@v6
+        name: Build and push image
         with:
           context: .
           file: ./Dockerfile

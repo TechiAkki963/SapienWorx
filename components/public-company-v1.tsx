@@ -1,0 +1,14 @@
+import { JobCard, PublicNavigation, type PublicJob } from "./public-site";
+
+const human = (value:string) => value.replaceAll("_"," ").toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+export function PublicCompanyV1({slug,jobs}:{slug:string;jobs?:PublicJob[]}) {
+  const matches=(jobs??[]).filter(job=>job.companySlug===slug);
+  const company=matches[0]?.company ?? slug.split("-").map(part=>part.charAt(0).toUpperCase()+part.slice(1)).join(" ");
+  const verified=matches.some(job=>job.verifiedEmployer);
+  const locations=[...new Set(matches.map(job=>job.location))].slice(0,3);
+  const modes=[...new Set(matches.map(job=>human(job.workplaceModel)))];
+  return <main className="public-page"><PublicNavigation/>
+    <section className="employer-brand-hero"><div className="public-container employer-brand-heading"><span className="employer-brand-mark">{company.slice(0,2).toUpperCase()}</span><div><span className="eyebrow">{verified?"Verified employer":"Employer profile"}</span><h1>{company}</h1><p>{matches.length ? "Explore current roles and the practical details this hiring team has published on SapienWorx." : "This employer profile is ready for verified company information and future published opportunities."}</p></div></div></section>
+    <section className="public-section employer-brand-layout"><div><article className="panel employer-brand-story"><span className="eyebrow">Company story</span><h2>What candidates can expect</h2><p>{matches.length ? `This profile currently focuses on ${matches.length} published role${matches.length===1?"":"s"}. Culture, team imagery and employee perspectives appear here when the organisation supplies verified branding content.` : "The organisation has not published culture content yet. SapienWorx keeps the page intentionally clear rather than filling it with invented claims."}</p></article><section><header className="landing-v2-section-head"><div><span className="eyebrow">Open roles</span><h2>Current opportunities</h2></div></header>{matches.length?<div className="public-job-grid-list">{matches.map(job=><JobCard key={job.id} job={job}/>)}</div>:<div className="editorial-empty-state"><h3>No published roles right now.</h3><p>Check again later for new openings from this employer.</p></div>}</section></div><aside className="panel employer-brand-facts"><h2>Employer snapshot</h2><dl><div><dt>Open roles</dt><dd>{matches.length}</dd></div><div><dt>Verification</dt><dd>{verified?"Verified":"Pending"}</dd></div><div><dt>Work modes</dt><dd>{modes.length?modes.join(", "):"Not published"}</dd></div><div><dt>Locations</dt><dd>{locations.length?locations.join(" · "):"Not published"}</dd></div></dl><p className="muted">Photos, testimonials and richer culture content are shown only when supplied by the employer.</p></aside></section>
+  </main>;
+}
