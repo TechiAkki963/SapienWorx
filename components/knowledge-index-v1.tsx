@@ -1,0 +1,9 @@
+import Link from "next/link";
+import type { PublicKnowledgePost } from "../lib/backend";
+import { PublicNavigation } from "./public-site";
+
+export function KnowledgeIndexV1({ articles, category }: { articles: PublicKnowledgePost[]; category?: string }) {
+  const categories = Array.from(new Set(articles.map((article) => article.category).filter(Boolean))).sort();
+  const visible = category ? articles.filter((article) => article.category === category) : articles;
+  return <main className="public-page knowledge-index-v1"><PublicNavigation editorial/><section className="public-page-heading"><div className="public-container"><span className="eyebrow">Career resources</span><h1>Practical guidance for better career decisions.</h1><p>Explore job-search, interview and career-growth guidance from the SapienWorx editorial library.</p></div></section><section className="public-section"><nav className="knowledge-category-chips" aria-label="Article categories"><Link className={!category ? "active" : ""} href="/knowledge">All</Link>{categories.map((item)=><Link className={category===item?"active":""} href={`/knowledge?category=${encodeURIComponent(item)}`} key={item}>{item}</Link>)}</nav>{visible.length ? <div className="landing-v2-article-grid">{visible.map((article)=><article className="landing-v2-article" key={article.id}><div><span>{article.category}</span><h3>{article.title}</h3><p>{article.excerpt}</p></div><footer><small>{article.readingMinutes} min read</small><Link href={`/knowledge/${article.slug}`}>Read article →</Link></footer></article>)}</div> : <div className="empty-state"><strong>No articles in this category yet.</strong><p>Choose another category or view all current guidance.</p><Link className="button button-primary" href="/knowledge">View all articles</Link></div>}</section></main>;
+}
