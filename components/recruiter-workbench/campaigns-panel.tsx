@@ -1,0 +1,4 @@
+"use client";
+import { Button } from "../ui";
+import type { Campaign } from "./types";
+export default function CampaignsPanel({items}:{items:Campaign[]}){return <section className="panel workflow-list"><header className="section-title"><div><span className="eyebrow">Outreach</span><h2>Campaigns</h2></div><Button href="/recruiter/communications" variant="secondary">Open communications</Button></header>{items.length?items.map(item=><article key={item.id}><div><strong>{item.name}</strong><p>{item.subject}</p></div><div><span className="badge badge-neutral">{item.status.toLowerCase()}</span><small>{item.sentCount}/{item.recipientCount} sent · {item.repliedCount} replies</small></div></article>):<div className="empty-state"><strong>No campaigns yet.</strong><p>Build role-relevant outreach from the Communications workspace.</p></div>}</section>}
