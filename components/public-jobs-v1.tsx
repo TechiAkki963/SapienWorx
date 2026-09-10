@@ -1,68 +1,13 @@
+"use client";
 import Link from "next/link";
+import { useRef } from "react";
 import { JobCard, JobSearch, PublicNavigation, type PublicJob } from "./public-site";
 
-type PublicSearch = Record<string, string | string[] | undefined>;
-type PublicPageMeta = { totalElements: number; totalPages: number; number: number };
-const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
-const labels: Record<string, string> = {
-  workplaceModel: "Workplace",
-  employmentType: "Employment",
-  minimumExperienceYears: "Min experience",
-  maximumExperienceYears: "Max experience",
-  minimumSalaryLakhs: "Min salary",
-  maximumSalaryLakhs: "Max salary",
-};
-
-function hrefWithout(search: PublicSearch | undefined, omit: string) {
-  const params = new URLSearchParams();
-  Object.entries(search ?? {}).forEach(([key, raw]) => {
-    const value = first(raw);
-    if (value && key !== omit && key !== "page") params.set(key, value);
-  });
-  return `/jobs${params.size ? `?${params.toString()}` : ""}`;
-}
-function pageHref(search: PublicSearch | undefined, page: number) {
-  const params = new URLSearchParams();
-  Object.entries(search ?? {}).forEach(([key, raw]) => { const value = first(raw); if (value && key !== "page") params.set(key, value); });
-  if (page > 0) params.set("page", String(page));
-  return `/jobs${params.size ? `?${params.toString()}` : ""}`;
-}
-function FilterSelect({ label, name, value, options }: { label: string; name: string; value?: string; options: Array<[string,string]> }) {
-  return <label className="public-filter-field"><span>{label}</span><select name={name} defaultValue={value ?? ""}>{options.map(([key,text]) => <option value={key} key={key}>{text}</option>)}</select></label>;
-}
-function FilterFields({ search }: { search?: PublicSearch }) {
-  return <>
-    <input type="hidden" name="keywords" value={first(search?.keywords) ?? ""}/>
-    <input type="hidden" name="location" value={first(search?.location) ?? ""}/>
-    <FilterSelect label="Workplace" name="workplaceModel" value={first(search?.workplaceModel)} options={[["","Any workplace"],["REMOTE","Remote"],["HYBRID","Hybrid"],["ON_SITE","On-site"]]}/>
-    <FilterSelect label="Employment type" name="employmentType" value={first(search?.employmentType)} options={[["","Any employment type"],["FULL_TIME","Full-time"],["PART_TIME","Part-time"],["CONTRACT","Contract"],["INTERNSHIP","Internship"],["TEMPORARY","Temporary"]]}/>
-    <div className="public-filter-range"><label><span>Experience from</span><input name="minimumExperienceYears" type="number" min="0" max="60" defaultValue={first(search?.minimumExperienceYears) ?? ""}/></label><label><span>Experience to</span><input name="maximumExperienceYears" type="number" min="0" max="60" defaultValue={first(search?.maximumExperienceYears) ?? ""}/></label></div>
-    <div className="public-filter-range"><label><span>Salary from (LPA)</span><input name="minimumSalaryLakhs" type="number" min="0" step="0.5" defaultValue={first(search?.minimumSalaryLakhs) ?? ""}/></label><label><span>Salary to (LPA)</span><input name="maximumSalaryLakhs" type="number" min="0" step="0.5" defaultValue={first(search?.maximumSalaryLakhs) ?? ""}/></label></div>
-    <button className="button button-primary" type="submit">Apply filters</button>
-    <Link className="button button-quiet" href="/jobs">Clear all filters</Link>
-  </>;
-}
-
-export function PublicJobsV1({ search, jobs, page }: { search?: PublicSearch; jobs: PublicJob[]; page?: PublicPageMeta }) {
-  const keyword = first(search?.keywords);
-  const total = page?.totalElements ?? jobs.length;
-  const filterKeys = ["workplaceModel","employmentType","minimumExperienceYears","maximumExperienceYears","minimumSalaryLakhs","maximumSalaryLakhs"];
-  const applied = filterKeys.flatMap((key) => {
-    const value = first(search?.[key]);
-    return value ? [{ key, value }] : [];
-  });
-  return <main className="public-page public-list-page public-jobs-v1">
-    <PublicNavigation/>
-    <section className="public-page-heading"><div className="public-container"><span className="eyebrow">Job search</span><h1>{keyword ? `Roles matching “${keyword}”` : "Find a role that fits"}</h1><p>Search current published roles using clear job criteria. Compatibility is only shown after sign-in when it can be based on your profile.</p><JobSearch compact search={search}/></div></section>
-    <div className="public-filter-mobile-trigger"><details className="public-filter-disclosure"><summary>Filters{applied.length ? ` (${applied.length})` : ""}</summary><div className="public-filter-backdrop" aria-hidden="true"/><aside className="public-filter-sheet" aria-label="Job filters"><div className="public-filter-sheet-head"><strong>Refine your search</strong><span>Close from Filters</span></div><form action="/jobs"><FilterFields search={search}/></form></aside></details></div>
-    <section className="public-section public-jobs-layout">
-      <aside className="public-filters public-filter-desktop"><form action="/jobs"><strong>Refine your search</strong><FilterFields search={search}/></form></aside>
-      <div className="public-job-results">
-        {applied.length > 0 && <div className="public-applied-filter-row" aria-label="Applied filters"><span>Applied</span>{applied.map(({key,value}) => <Link href={hrefWithout(search,key)} key={key}>{labels[key]}: {value}<span aria-hidden="true">×</span></Link>)}<Link href="/jobs">Clear all</Link></div>}
-        <div className="listing-summary"><strong>{total} published role{total === 1 ? "" : "s"}</strong><span>Server-filtered results</span></div>
-        {jobs.length ? <div className="public-job-grid-list">{jobs.map((job) => <JobCard job={job} key={job.id}/>)}</div> : <section className="public-job-zero"><h2>No roles match these filters</h2><p>Remove one or more filters, or clear the search to explore all current roles.</p>{applied.length > 0 && <div className="public-applied-filter-row">{applied.map(({key,value}) => <Link href={hrefWithout(search,key)} key={key}>{labels[key]}: {value}<span aria-hidden="true">×</span></Link>)}</div>}<Link className="button button-primary" href="/jobs">Clear all filters</Link></section>}
-        {page && page.totalPages > 1 && <nav className="public-pagination" aria-label="Job results pages"><Link className={page.number <= 0 ? "disabled" : ""} aria-disabled={page.number <= 0} href={pageHref(search, Math.max(0,page.number-1))}>← Previous</Link><span>Page {page.number+1} of {page.totalPages}</span><Link className={page.number+1 >= page.totalPages ? "disabled" : ""} aria-disabled={page.number+1 >= page.totalPages} href={pageHref(search, Math.min(page.totalPages-1,page.number+1))}>Next →</Link></nav>}
-      </div>
-    </section>
-  </main>;
-}
+type PublicSearch=Record<string,string|string[]|undefined>;type PublicPageMeta={totalElements:number;totalPages:number;number:number};
+const first=(value:string|string[]|undefined)=>Array.isArray(value)?value[0]:value;
+const labels:Record<string,string>={workplaceModel:"Workplace",employmentType:"Employment",minimumExperienceYears:"Min experience",maximumExperienceYears:"Max experience",minimumSalaryLakhs:"Min salary",maximumSalaryLakhs:"Max salary"};
+function hrefWithout(search:PublicSearch|undefined,omit:string){const params=new URLSearchParams();Object.entries(search??{}).forEach(([key,raw])=>{const value=first(raw);if(value&&key!==omit&&key!=="page")params.set(key,value)});return `/jobs${params.size?`?${params.toString()}`:""}`}
+function pageHref(search:PublicSearch|undefined,page:number){const params=new URLSearchParams();Object.entries(search??{}).forEach(([key,raw])=>{const value=first(raw);if(value&&key!=="page")params.set(key,value)});if(page>0)params.set("page",String(page));return `/jobs${params.size?`?${params.toString()}`:""}`}
+function FilterSelect({label,name,value,options}:{label:string;name:string;value?:string;options:Array<[string,string]>}){return <label className="public-filter-field"><span>{label}</span><select name={name} defaultValue={value??""}>{options.map(([key,text])=><option value={key} key={key}>{text}</option>)}</select></label>}
+function FilterFields({search}:{search?:PublicSearch}){return <><input type="hidden" name="keywords" value={first(search?.keywords)??""}/><input type="hidden" name="location" value={first(search?.location)??""}/><FilterSelect label="Workplace" name="workplaceModel" value={first(search?.workplaceModel)} options={[["","Any workplace"],["REMOTE","Remote"],["HYBRID","Hybrid"],["ON_SITE","On-site"]]}/><FilterSelect label="Employment type" name="employmentType" value={first(search?.employmentType)} options={[["","Any employment type"],["FULL_TIME","Full-time"],["PART_TIME","Part-time"],["CONTRACT","Contract"],["INTERNSHIP","Internship"],["TEMPORARY","Temporary"]]}/><div className="public-filter-range"><label><span>Experience from</span><input name="minimumExperienceYears" type="number" min="0" max="60" defaultValue={first(search?.minimumExperienceYears)??""}/></label><label><span>Experience to</span><input name="maximumExperienceYears" type="number" min="0" max="60" defaultValue={first(search?.maximumExperienceYears)??""}/></label></div><div className="public-filter-range"><label><span>Salary from (LPA)</span><input name="minimumSalaryLakhs" type="number" min="0" step="0.5" defaultValue={first(search?.minimumSalaryLakhs)??""}/></label><label><span>Salary to (LPA)</span><input name="maximumSalaryLakhs" type="number" min="0" step="0.5" defaultValue={first(search?.maximumSalaryLakhs)??""}/></label></div><button className="button button-primary" type="submit">Apply filters</button><Link className="button button-quiet" href="/jobs">Clear all filters</Link></>}
+export function PublicJobsV1({search,jobs,page}:{search?:PublicSearch;jobs:PublicJob[];page?:PublicPageMeta}){const disclosure=useRef<HTMLDetailsElement>(null);const keyword=first(search?.keywords);const total=page?.totalElements??jobs.length;const filterKeys=["workplaceModel","employmentType","minimumExperienceYears","maximumExperienceYears","minimumSalaryLakhs","maximumSalaryLakhs"];const applied=filterKeys.flatMap(key=>{const value=first(search?.[key]);return value?[{key,value}]:[]});const close=()=>disclosure.current?.removeAttribute("open");return <main className="public-page public-list-page public-jobs-v1"><PublicNavigation/><section className="public-page-heading"><div className="public-container"><span className="eyebrow">Job search</span><h1>{keyword?`Roles matching “${keyword}”`:"Find a role that fits"}</h1><p>Search current published roles using clear job criteria. Compatibility is only shown after sign-in when it can be based on your profile.</p><JobSearch compact search={search}/></div></section><div className="public-filter-mobile-trigger"><details className="public-filter-disclosure" ref={disclosure}><summary>Filters{applied.length?` (${applied.length})`:""}</summary><button type="button" className="public-filter-backdrop" aria-label="Close job filters" onClick={close}/><aside className="public-filter-sheet" aria-label="Job filters"><div className="public-filter-sheet-head"><strong>Refine your search</strong><button type="button" className="button button-quiet" onClick={close}>Close</button></div><form action="/jobs"><FilterFields search={search}/></form></aside></details></div><section className="public-section public-jobs-layout"><aside className="public-filters public-filter-desktop"><form action="/jobs"><strong>Refine your search</strong><FilterFields search={search}/></form></aside><div className="public-job-results">{applied.length>0&&<div className="public-applied-filter-row" aria-label="Applied filters"><span>Applied</span>{applied.map(({key,value})=><Link href={hrefWithout(search,key)} key={key}>{labels[key]}: {value}<span aria-hidden="true">×</span></Link>)}<Link href="/jobs">Clear all</Link></div>}<div className="listing-summary"><strong>{total} published role{total===1?"":"s"}</strong><span>Server-filtered results</span></div>{jobs.length?<div className="public-job-grid-list">{jobs.map(job=><JobCard job={job} key={job.id}/>)}</div>:<section className="public-job-zero"><h2>No roles match these filters</h2><p>Remove one or more filters, or clear the search to explore all current roles.</p>{applied.length>0&&<div className="public-applied-filter-row">{applied.map(({key,value})=><Link href={hrefWithout(search,key)} key={key}>{labels[key]}: {value}<span aria-hidden="true">×</span></Link>)}</div>}<Link className="button button-primary" href="/jobs">Clear all filters</Link></section>}{page&&page.totalPages>1&&<nav className="public-pagination" aria-label="Job results pages"><Link className={page.number<=0?"disabled":""} aria-disabled={page.number<=0} href={pageHref(search,Math.max(0,page.number-1))}>← Previous</Link><span>Page {page.number+1} of {page.totalPages}</span><Link className={page.number+1>=page.totalPages?"disabled":""} aria-disabled={page.number+1>=page.totalPages} href={pageHref(search,Math.min(page.totalPages-1,page.number+1))}>Next →</Link></nav>}</div></section></main>}
