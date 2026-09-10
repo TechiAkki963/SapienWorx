@@ -2,6 +2,7 @@ package com.sapienworx.api.job;
 
 import com.sapienworx.api.admin.PlatformAccessPolicy;
 import com.sapienworx.api.web.ApiPageResponse;
+import jakarta.persistence.criteria.SetJoin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,7 +54,7 @@ public class PublicJobController {
             String needle = "%" + keywords.trim().toLowerCase(Locale.ROOT) + "%";
             filters = filters.and((root, query, builder) -> {
                 query.distinct(true);
-                var skills = root.joinSet("skills", jakarta.persistence.criteria.JoinType.LEFT);
+                SetJoin<Job, String> skills = root.joinSet("skills", jakarta.persistence.criteria.JoinType.LEFT);
                 return builder.or(
                         builder.like(builder.lower(root.get("title")), needle),
                         builder.like(builder.lower(root.get("department")), needle),
