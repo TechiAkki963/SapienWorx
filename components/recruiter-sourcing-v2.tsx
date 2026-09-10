@@ -1,181 +1,423 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { defaultRecruiterSearch, keywordList, searchParamsFor, stateFromSearchParams, type RecruiterSearchState } from "../lib/recruiter-search";
-import { WorkspaceShell } from "./ui";
+import {
+  defaultRecruiterSearch,
+  keywordList,
+  searchParamsFor,
+  stateFromSearchParams,
+  type RecruiterSearchState,
+} from "../lib/recruiter-search";
 import { apiClient } from "../lib/api-client";
+import { Button, WorkspaceShell } from "./ui";
 
 type SearchRecord = { id: string; name: string; state: RecruiterSearchState };
 
 const RECENT_SEARCHES_KEY = "sapienworx-recent-sourcing-searches";
 const SAVED_SEARCHES_KEY = "sapienworx-saved-sourcing-searches";
-const years = Array.from({ length: 21 }, (_, index) => String(index));
+const experienceYears = Array.from({ length: 21 }, (_, index) => String(index));
+const salaryOptions = [5, 10, 15, 20, 25, 30, 40, 50];
 
-function startingSearch(): RecruiterSearchState {
-  return {
-    ...defaultRecruiterSearch,
-    anyKeywords: "Node.Js, Node",
-    allKeywords: "",
-    booleanQuery: '("Node.Js" OR "Node")',
-    minExperience: "5",
-    maxExperience: "8",
-    minSalary: "20",
-    maxSalary: "25",
-  };
+function emptySearch(): RecruiterSearchState {
+  return { ...defaultRecruiterSearch, allKeywords: "", gender: "" };
 }
 
-const initialRecent: SearchRecord[] = [
-  { id: "recent-1", name: '("Node.Js" or "Node") | 5-8 years | 20-25 Lacs', state: startingSearch() },
-  { id: "recent-2", name: "9940535707", state: { ...startingSearch(), booleanQuery: "9940535707" } },
-  { id: "recent-3", name: "9994941352", state: { ...startingSearch(), booleanQuery: "9994941352" } },
-  { id: "recent-4", name: "7550083171", state: { ...startingSearch(), booleanQuery: "7550083171" } },
-  { id: "recent-5", name: '("Node.Js" or "Node") | 5-8 years | 20-25 Lacs', state: startingSearch() },
-];
-
-const initialSaved: SearchRecord[] = [
-  { id: "saved-1", name: "DevOps App Support", state: { ...startingSearch(), anyKeywords: "AWS, DevOps, Datadog", booleanQuery: "AWS OR DevOps OR Datadog", minExperience: "6", maxExperience: "9" } },
-  { id: "saved-2", name: "ETL", state: { ...startingSearch(), anyKeywords: "ETL, SQL queries, Airflow", booleanQuery: "ETL OR \"SQL queries\" OR Airflow", minExperience: "5", maxExperience: "10" } },
-  { id: "saved-3", name: "backend", state: startingSearch() },
-];
+function isSearchState(value: unknown): value is RecruiterSearchState {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "anyKeywords" in value &&
+      "allKeywords" in value &&
+      "activeStatus" in value,
+  );
+}
 
 function readRecords(key: string): SearchRecord[] {
   try {
     const parsed: unknown = JSON.parse(window.localStorage.getItem(key) ?? "[]");
-    return Array.isArray(parsed) ? parsed.filter((item): item is SearchRecord => Boolean(
-      item
-      && typeof item === "object"
-      && "id" in item
-      && typeof item.id === "string"
-      && "name" in item
-      && typeof item.name === "string"
-      && "state" in item
-      && isSearchState(item.state)
-    )).slice(0, 5) : [];
-  } catch { return []; }
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (item): item is SearchRecord =>
+          Boolean(
+            item &&
+              typeof item === "object" &&
+              "id" in item &&
+              typeof item.id === "string" &&
+              "name" in item &&
+              typeof item.name === "string" &&
+              "state" in item &&
+              isSearchState(item.state),
+          ),
+      )
+      .map((item) => ({ ...item, state: { ...item.state, gender: "" } }))
+      .slice(0, 5);
+  } catch {
+    return [];
+  }
 }
 
 function expressionFor(search: RecruiterSearchState) {
   const mandatory = keywordList(search.allKeywords);
   const optional = keywordList(search.anyKeywords);
-  const quote = (value: string) => value.includes(" ") ? `"${value}"` : value;
+  const quote = (value: string) => (value.includes(" ") ? `"${value}"` : value);
   const all = mandatory.map(quote).join(" AND ");
   const any = optional.map(quote).join(" OR ");
   return all && any ? `${all} AND (${any})` : all || any;
 }
 
-function isSearchState(value: unknown): value is RecruiterSearchState {
-  return Boolean(value && typeof value === "object" && "anyKeywords" in value && "allKeywords" in value && "activeStatus" in value);
+function searchName(search: RecruiterSearchState) {
+  const keywords = search.booleanQuery || [...keywordList(search.allKeywords), ...keywordList(search.anyKeywords)].join(", ");
+  const details = [keywords, search.location, search.minExperience && search.maxExperience ? `${search.minExperience}-${search.maxExperience} years` : ""]
+    .filter(Boolean)
+    .join(" · ");
+  return details || "Candidate search";
 }
 
-function Chip({ children, selected = false, onClick }: { children: ReactNode; selected?: boolean; onClick?: () => void }) {
-  return <button className={selected ? "resdex-chip resdex-chip-selected" : "resdex-chip"} type="button" onClick={onClick}>{children}</button>;
+function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
+  return (
+    <label className="resdex-field">
+      <span>{label}</span>
+      {children}
+      {hint && <small>{hint}</small>}
+    </label>
+  );
 }
 
-function Field({ label, children, helper }: { label: string; children: ReactNode; helper?: ReactNode }) {
-  return <label className="resdex-field"><span>{label}</span>{children}{helper && <small>{helper}</small>}</label>;
-}
-
-function ResdexSection({ title, badge, children }: { title: string; badge?: string; children: ReactNode }) {
-  return <section className="resdex-section"><header><h2>{title}</h2>{badge && <b>{badge}</b>}<span aria-hidden="true">⌃</span></header>{children}</section>;
-}
-
-function HistoryRail({ recent, saved, onFill, onSearch }: { recent: SearchRecord[]; saved: SearchRecord[]; onFill: (record: SearchRecord) => void; onSearch: (record: SearchRecord) => void }) {
-  const recentRecords = recent.length ? recent : initialRecent;
-  const savedRecords = saved.length ? saved : initialSaved;
-  return <aside className="resdex-history" aria-label="Search history">
-    <section><h2>◷ &nbsp; Recent Searches</h2>{recentRecords.map((record) => <article key={record.id}><strong>{record.name}</strong><div><button type="button" onClick={() => onFill(record)}>Fill this search</button><button type="button" onClick={() => onSearch(record)}>Search profiles</button></div></article>)}</section>
-    <section><header><h2>◷ &nbsp; Saved Searches</h2><button type="button">View all</button></header>{savedRecords.map((record) => <article key={record.id}><strong>{record.name}</strong><p>{record.name === "DevOps App Support" ? 'SRE, Site Reliability Engineer | "Datadog", AWS, Devops, "Support" | 6-9 years |10-15 Lacs' : record.name === "ETL" ? '"ETL", "SQL queries", "Airflow" | 5-10 years' : '("Node.Js" or "Node") | 5-8 years |20-25 Lacs'}</p><div><button type="button" onClick={() => onFill(record)}>Fill this search</button><button type="button" onClick={() => onSearch(record)}>100+ new profiles</button></div></article>)}</section>
-  </aside>;
+function SearchHistory({ title, records, onFill, onSearch }: { title: string; records: SearchRecord[]; onFill: (record: SearchRecord) => void; onSearch: (record: SearchRecord) => void }) {
+  return (
+    <section>
+      <h2>{title}</h2>
+      {records.length ? (
+        records.map((record) => (
+          <article key={record.id}>
+            <strong>{record.name}</strong>
+            <div>
+              <button type="button" onClick={() => onFill(record)}>Edit search</button>
+              <button type="button" onClick={() => onSearch(record)}>Run search</button>
+            </div>
+          </article>
+        ))
+      ) : (
+        <p className="muted">Nothing here yet.</p>
+      )}
+    </section>
+  );
 }
 
 export function RecruiterSourcingV2() {
   const router = useRouter();
   const params = useSearchParams();
-  const [search, setSearch] = useState<RecruiterSearchState>(startingSearch);
-  const [booleanMode, setBooleanMode] = useState(true);
-  const [filterTerms, setFilterTerms] = useState(["Typescript", '"Data Structures","Algorithm"']);
+  const [search, setSearch] = useState<RecruiterSearchState>(emptySearch);
+  const [booleanMode, setBooleanMode] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [recent, setRecent] = useState<SearchRecord[]>([]);
   const [saved, setSaved] = useState<SearchRecord[]>([]);
-  const [includeRelocation, setIncludeRelocation] = useState(true);
   const [status, setStatus] = useState("");
-  const [searchDepth, setSearchDepth] = useState<"basic" | "advanced">("basic");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
     setRecent(readRecords(RECENT_SEARCHES_KEY));
     setSaved(readRecords(SAVED_SEARCHES_KEY));
-    void apiClient<Array<{ id: string; name: string; criteria: unknown }>>("/api/recruiter/workflow/saved-searches", { signal: controller.signal }).then((records) => {
-      const remote = records.map((record) => ({ id: record.id, name: record.name, state: isSearchState(record.criteria) ? record.criteria : startingSearch() }));
-      if (remote.length) setSaved(remote);
-    }).catch(() => undefined);
+    void apiClient<Array<{ id: string; name: string; criteria: unknown }>>(
+      "/api/recruiter/workflow/saved-searches",
+      { signal: controller.signal },
+    )
+      .then((records) => {
+        const remote = records
+          .filter((record) => isSearchState(record.criteria))
+          .map((record) => ({
+            id: record.id,
+            name: record.name,
+            state: { ...(record.criteria as RecruiterSearchState), gender: "" },
+          }));
+        if (remote.length) setSaved(remote.slice(0, 5));
+      })
+      .catch(() => undefined);
     return () => controller.abort();
   }, []);
+
   useEffect(() => {
     if (!params.size) return;
     const next = stateFromSearchParams(params);
     setSearch(next);
     setBooleanMode(Boolean(next.booleanQuery));
-    if (next.departmentRole || next.industry || next.company || next.designation || next.institution || next.gender) setSearchDepth("advanced");
+    if (
+      next.company ||
+      next.designation ||
+      next.departmentRole ||
+      next.industry ||
+      next.qualification ||
+      next.institution ||
+      next.educationTypes.length ||
+      next.requireGithub ||
+      next.requireLeetcode ||
+      next.requirePortfolio
+    ) {
+      setAdvancedOpen(true);
+    }
   }, [params]);
 
-  const update = <K extends keyof RecruiterSearchState>(key: K, value: RecruiterSearchState[K]) => setSearch((current) => ({ ...current, [key]: value }));
-  const toggleBoolean = (enabled: boolean) => {
-    setBooleanMode(enabled);
-    update("booleanQuery", enabled ? expressionFor(search) : "");
+  const appliedFilters = useMemo(
+    () =>
+      [
+        search.location && `Location: ${search.location}`,
+        (search.minExperience || search.maxExperience) && `Experience: ${search.minExperience || "0"}-${search.maxExperience || "Any"} years`,
+        (search.minSalary || search.maxSalary) && `Salary: ₹${search.minSalary || "0"}-${search.maxSalary || "Any"} LPA`,
+        search.company && `Company: ${search.company}`,
+        search.industry && `Industry: ${search.industry}`,
+        search.activeStatus !== "ALL" && `Active: ${search.activeStatus.replaceAll("_", " ").toLowerCase()}`,
+      ].filter(Boolean) as string[],
+    [search],
+  );
+
+  const update = <K extends keyof RecruiterSearchState>(key: K, value: RecruiterSearchState[K]) => {
+    setSearch((current) => ({ ...current, [key]: value, gender: "" }));
   };
-  const saveRecord = (key: string, record: SearchRecord) => {
-    const next = [record, ...readRecords(key).filter((item) => item.name !== record.name)].slice(0, 5);
+
+  const storeRecord = (key: string, record: SearchRecord) => {
+    const safeRecord = { ...record, state: { ...record.state, gender: "" } };
+    const next = [safeRecord, ...readRecords(key).filter((item) => item.name !== safeRecord.name)].slice(0, 5);
     window.localStorage.setItem(key, JSON.stringify(next));
-    key === RECENT_SEARCHES_KEY ? setRecent(next) : setSaved(next);
+    if (key === RECENT_SEARCHES_KEY) setRecent(next);
+    else setSaved(next);
   };
-  const submit = (state = search) => {
-    const name = state.booleanQuery || [...keywordList(state.allKeywords), ...keywordList(state.anyKeywords)].join(", ") || "Candidate search";
-    saveRecord(RECENT_SEARCHES_KEY, { id: crypto.randomUUID(), name, state });
-    router.push(`/search/results?${searchParamsFor(state).toString()}`);
+
+  const runSearch = (state = search) => {
+    const safeState = { ...state, gender: "" as const };
+    storeRecord(RECENT_SEARCHES_KEY, {
+      id: crypto.randomUUID(),
+      name: searchName(safeState),
+      state: safeState,
+    });
+    const query = searchParamsFor(safeState).toString();
+    router.push(`/search/results${query ? `?${query}` : ""}`);
   };
-  const fill = (record: SearchRecord) => {
-    setSearch(record.state);
-    setBooleanMode(Boolean(record.state.booleanQuery));
-    setStatus("Search details filled. You can refine them before searching.");
+
+  const fillSearch = (record: SearchRecord) => {
+    const safeState = { ...record.state, gender: "" as const };
+    setSearch(safeState);
+    setBooleanMode(Boolean(safeState.booleanQuery));
+    setHistoryOpen(false);
+    setStatus("Search loaded. Review the filters before running it.");
   };
+
   const saveCurrent = async () => {
-    const name = search.booleanQuery || [...keywordList(search.allKeywords), ...keywordList(search.anyKeywords)].join(", ") || "Candidate search";
-    saveRecord(SAVED_SEARCHES_KEY, { id: crypto.randomUUID(), name, state: search });
+    const safeState = { ...search, gender: "" as const };
+    const name = searchName(safeState);
+    setSaving(true);
+    setStatus("");
     try {
-      await apiClient("/api/recruiter/workflow/saved-searches", { method: "POST", body: JSON.stringify({ name, criteria: search, alertFrequency: "DAILY" }) });
-      setStatus("Search saved to your workspace with daily matching-profile alerts.");
-    } catch (reason) { setStatus(reason instanceof Error ? reason.message : "Search saved in this browser, but the shared workspace could not be updated."); }
+      const response = await apiClient<{ id?: string }>("/api/recruiter/workflow/saved-searches", {
+        method: "POST",
+        body: JSON.stringify({ name, criteria: safeState, alertFrequency: "DAILY" }),
+      });
+      storeRecord(SAVED_SEARCHES_KEY, {
+        id: response.id || crypto.randomUUID(),
+        name,
+        state: safeState,
+      });
+      setStatus("Search saved to your recruiter workspace.");
+    } catch (reason) {
+      setStatus(reason instanceof Error ? reason.message : "We couldn't save this search. Your search criteria have not changed.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  return <WorkspaceShell workspace="recruiter" active="sourcing" title="Search candidates" description="Build a precise candidate search using skills, experience and profile evidence.">
-    <div className="sourcing-reference">
-      <div className="resdex-shell">
-      <form className="resdex-form" onSubmit={(event) => { event.preventDefault(); submit(); }}>
-        {status && <p className="resdex-status" role="status">{status}</p>}
-        <section className="sourcing-depth-picker" aria-labelledby="search-depth-title"><div><span className="eyebrow">Search depth</span><h2 id="search-depth-title">Start focused. Add precision only when you need it.</h2><p>Basic search covers the filters used most often. Advanced keeps every detailed sourcing control available.</p></div><div role="group" aria-label="Search depth"><button type="button" className={searchDepth === "basic" ? "selected" : ""} aria-pressed={searchDepth === "basic"} onClick={() => setSearchDepth("basic")}>Basic search</button><button type="button" className={searchDepth === "advanced" ? "selected" : ""} aria-pressed={searchDepth === "advanced"} onClick={() => setSearchDepth("advanced")}>Advanced filters</button></div></section>
-        <Field label="Client you’re hiring for" helper={<><b>New</b></>}><input placeholder="Add client/company you’re hiring for" /></Field>
-        <p className="resdex-ai-tip">✦ &nbsp; Get AI-powered results tailored to your client’s hiring needs</p>
-        <div className="resdex-keyword-title"><span>Keywords</span><label className="resdex-toggle"><input type="checkbox" checked={booleanMode} onChange={(event) => toggleBoolean(event.target.checked)} /><i /><em>Boolean {booleanMode ? "on" : "off"}</em></label></div>
-        {booleanMode ? <div className="resdex-query-input"><input aria-label="Boolean keyword expression" value={search.booleanQuery} onChange={(event) => update("booleanQuery", event.target.value)} /><button type="button" onClick={() => update("booleanQuery", "")}>Clear all</button></div> : <div className="resdex-query-input"><input aria-label="Add a keyword" value={search.anyKeywords} onChange={(event) => update("anyKeywords", event.target.value)} placeholder="Type another keyword" /><button type="button" onClick={() => update("anyKeywords", "")}>Clear all</button></div>}
-        <button className="resdex-scope" type="button">Search keyword in <b>Entire resume</b>　⌄</button>
-        <button className="resdex-add-link" type="button">+ Add IT Skills</button>
-        <div className="resdex-filter-keywords"><span>Keywords used in filters</span><div>{filterTerms.map((term) => <button type="button" key={term} onClick={() => setFilterTerms((items) => items.filter((item) => item !== term))}>{term}<b>×</b></button>)}</div></div>
-        <Field label="Experience"><span className="resdex-inline-fields"><select aria-label="Minimum experience" value={search.minExperience} onChange={(event) => update("minExperience", event.target.value)}>{years.map((year) => <option key={year}>{year}</option>)}</select><i>to</i><select aria-label="Maximum experience" value={search.maxExperience} onChange={(event) => update("maxExperience", event.target.value)}>{years.map((year) => <option key={year}>{year}</option>)}</select><em>Years</em></span></Field>
-        <Field label="Current location of candidate"><input aria-label="Current location" value={search.location} onChange={(event) => update("location", event.target.value)} placeholder="Add location" /><span className="resdex-checkline"><input type="checkbox" checked={includeRelocation} onChange={(event) => setIncludeRelocation(event.target.checked)} />Include candidates who prefer to relocate to above locations <button type="button">Change preferred location</button></span><span className="resdex-checkline"><input type="checkbox" />Exclude candidates who have mentioned Anywhere in...　ⓘ</span></Field>
-        <Field label="Annual Salary"><span className="resdex-inline-fields resdex-salary"><select aria-label="Currency"><option>INR</option></select><select aria-label="Minimum salary" value={search.minSalary} onChange={(event) => update("minSalary", event.target.value)}>{[5, 10, 15, 20, 25, 30].map((value) => <option key={value}>{value}</option>)}</select><i>to</i><select aria-label="Maximum salary" value={search.maxSalary} onChange={(event) => update("maxSalary", event.target.value)}>{[10, 15, 20, 25, 30, 40].map((value) => <option key={value}>{value}</option>)}</select><em>Lacs</em></span><span className="resdex-checkline"><input type="checkbox" />Include candidates who did not mention their current salary</span></Field>
+  const reset = () => {
+    setSearch(emptySearch());
+    setBooleanMode(false);
+    setAdvancedOpen(false);
+    setStatus("Filters reset.");
+  };
 
-        {searchDepth === "advanced" ? <div className="sourcing-advanced-fields"><ResdexSection title="Employment Details"><Field label="Department and Role"><input aria-label="Department and Role" value={search.departmentRole} onChange={(event) => update("departmentRole", event.target.value)} placeholder="Add Department/Role" /></Field><Field label="Industry"><input aria-label="Industry" value={search.industry} onChange={(event) => update("industry", event.target.value)} placeholder="Add industry" /></Field><Field label="Company"><input value={search.company} onChange={(event) => update("company", event.target.value)} placeholder="Add company name" /><button className="resdex-dropdown-label" type="button">Search in Current company　⌄</button><button className="resdex-add-link" type="button">+ Add Exclude Company</button></Field><div className="resdex-keyword-title resdex-designation-title"><span>Designation</span><label className="resdex-toggle"><input type="checkbox" /><i /><em>Boolean off</em></label></div><input value={search.designation} onChange={(event) => update("designation", event.target.value)} placeholder="Add designation" /><button className="resdex-dropdown-label" type="button">Search in Current designation　⌄</button><div className="resdex-pill-row"><span>Notice Period/ Availability to join　ⓘ</span><div><Chip>Any</Chip><Chip selected>0 - 15 days　✓</Chip><Chip selected>1 month　✓</Chip><Chip>2 months　+</Chip><Chip>3 months　+</Chip><Chip>More than 3 months　+</Chip><Chip selected>Currently serving notice period　✓</Chip></div></div></ResdexSection>
+  return (
+    <WorkspaceShell
+      workspace="recruiter"
+      active="sourcing"
+      title="Search talent"
+      description="Use structured filters or Boolean search. Protected personal attributes are not used for sourcing or ranking."
+    >
+      <div className="sourcing-reference">
+        <form className="resdex-form" onSubmit={(event) => { event.preventDefault(); runSearch(); }}>
+          {status && <p className="resdex-status" role="status">{status}</p>}
 
-        <ResdexSection title="Education Details"><div className="resdex-qualification"><span>UG Qualification</span><div><Chip selected>Any UG qualification</Chip><Chip>Specific UG qualification</Chip><Chip>No UG qualification</Chip></div><small>Any UG - Candidates with any UG qualification will appear in the result</small></div><Field label="Institute"><input value={search.institution} onChange={(event) => update("institution", event.target.value)} placeholder="Select institute" /></Field><div className="resdex-pill-row"><span>Education Type</span><div><Chip selected>Full Time　✓</Chip><Chip>Part Time　+</Chip><Chip>Correspondence　+</Chip></div></div><div className="resdex-year-row"><span>Year of degree completion</span><div><select><option>From</option></select><select><option>To</option></select></div></div><p className="resdex-education-note">ⓘ　 Show candidates with both UG and PG qualification <b>⌄</b></p><div className="resdex-qualification"><span>PG Qualification</span><div><Chip selected>Any PG qualification</Chip><Chip>Specific PG qualification</Chip><Chip>No PG qualification</Chip></div><small>Any PG - Candidates with any PG qualification will appear in the result</small></div><Field label="Institute"><input placeholder="Select institute" /></Field><div className="resdex-pill-row"><span>Education Type</span><div><Chip selected>Full Time　✓</Chip><Chip>Part Time　+</Chip><Chip>Correspondence　+</Chip></div></div><div className="resdex-year-row"><span>Year of degree completion</span><div><select><option>From</option></select><select><option>To</option></select></div></div><div className="resdex-qualification resdex-ppg"><span>PPG Qualification</span><div><Chip>Any PPG qualification</Chip><Chip>Specific PPG qualification</Chip><Chip>No PPG qualification</Chip></div></div></ResdexSection>
+          <section className="sourcing-depth-picker" aria-labelledby="sourcing-heading">
+            <div>
+              <span className="eyebrow">Candidate sourcing</span>
+              <h2 id="sourcing-heading">Start with the essentials.</h2>
+              <p>Keep the common filters visible and open advanced filters only when the role needs more precision.</p>
+            </div>
+            <div role="group" aria-label="Sourcing utilities">
+              <button type="button" aria-expanded={historyOpen} onClick={() => setHistoryOpen((value) => !value)}>Recent & saved</button>
+              <button type="button" className={advancedOpen ? "selected" : ""} aria-expanded={advancedOpen} onClick={() => setAdvancedOpen((value) => !value)}>More filters {appliedFilters.length ? `(${appliedFilters.length})` : ""}</button>
+            </div>
+          </section>
 
-        <ResdexSection title="Diversity Hiring" badge="New Add-on"><div className="resdex-diversity"><h3>♟　 Gender</h3><div><Chip selected={search.gender === ""} onClick={() => update("gender", "")}>All candidates</Chip><Chip selected={search.gender === "male"} onClick={() => update("gender", "male")}>Male candidates</Chip><Chip selected={search.gender === "female"} onClick={() => update("gender", "female")}>Female candidates</Chip></div><h3>♟　 Candidates with career break</h3><Chip>Women returning to work</Chip><h3>♿　 Differently-abled</h3><input placeholder="Select differently abled type" /><div className="resdex-compact-pills"><Chip>Any　+</Chip><Chip>Blindness　+</Chip><Chip>Low Vision　+</Chip><Chip>Hearing Impairment　+</Chip><Chip>Speech and Language Disability　+</Chip><Chip>Locomotor Disability　+</Chip><button type="button">+17 more</button></div><h3>♟　 Defence background personnel</h3><div className="resdex-compact-pills"><Chip>Any　+</Chip><Chip>Army　+</Chip><Chip>Navy　+</Chip><Chip>Air Force　+</Chip><Chip>Other Paramilitary Forces　+</Chip></div></div></ResdexSection>
+          <div className="resdex-keyword-title">
+            <span>Search query</span>
+            <label className="resdex-toggle">
+              <input
+                type="checkbox"
+                checked={booleanMode}
+                onChange={(event) => {
+                  const enabled = event.target.checked;
+                  setBooleanMode(enabled);
+                  update("booleanQuery", enabled ? expressionFor(search) : "");
+                }}
+              />
+              <i />
+              <em>{booleanMode ? "Boolean search" : "Structured search"}</em>
+            </label>
+          </div>
 
-        <ResdexSection title="Additional Details"><h3 className="resdex-subheading">Candidate details</h3><Field label="Candidate Category"><input placeholder="Add candidate category" /></Field><Field label="Candidate Age"><span className="resdex-inline-fields"><input placeholder="Min age" /><i>to</i><input placeholder="Max age" /><em>Years</em></span></Field><h3 className="resdex-subheading">Work details</h3><Field label="Show candidates seeking"><span className="resdex-inline-fields resdex-work-selects"><select><option>Job type</option></select><select><option>Employment type</option></select></span></Field><Field label="Work permit for"><input placeholder="Choose category" /></Field><h3 className="resdex-subheading">Display details</h3><div className="resdex-pill-row"><span>Show</span><div><Chip selected>All candidates</Chip><Chip>New registrations</Chip><Chip>Modified candidates</Chip></div></div><div className="resdex-pill-row"><span>Show only candidates with</span><div><Chip>Verified mobile number　+</Chip><Chip>Verified email ID　+</Chip><Chip>Attached resume　+</Chip></div></div></ResdexSection></div> : <section className="sourcing-advanced-invite"><span>＋</span><div><h2>Need education, company, diversity, or work-permit filters?</h2><p>Advanced filters reveal the complete sourcing form without losing anything you entered above.</p></div><button type="button" onClick={() => setSearchDepth("advanced")}>Show advanced filters</button></section>}
-        <footer className="resdex-form-footer"><label className="resdex-active-status">Active in - <select aria-label="Candidate activity period" value={search.activeStatus} onChange={(event) => update("activeStatus", event.target.value as RecruiterSearchState["activeStatus"])}><option value="ONE_DAY">1 day</option><option value="THREE_DAYS">3 days</option><option value="SEVEN_DAYS">7 days</option><option value="FIFTEEN_DAYS">15 days</option><option value="THIRTY_DAYS">30 days</option><option value="SIXTY_DAYS">60 days</option><option value="NINETY_DAYS">90 days</option><option value="ONE_YEAR">1 year</option><option value="ALL">Any time</option></select></label><button type="button" onClick={() => { void saveCurrent(); }}>Save search</button><button type="submit">Search candidates</button></footer>
-      </form>
-      <HistoryRail recent={recent} saved={saved} onFill={fill} onSearch={(record) => submit(record.state)} />
+          {booleanMode ? (
+            <div className="resdex-query-input">
+              <input
+                aria-label="Boolean keyword expression"
+                value={search.booleanQuery}
+                onChange={(event) => update("booleanQuery", event.target.value)}
+                placeholder='e.g. (Java OR Kotlin) AND "Spring Boot"'
+              />
+              <button type="button" onClick={() => update("booleanQuery", "")}>Clear</button>
+            </div>
+          ) : (
+            <>
+              <Field label="Any of these skills, titles or keywords">
+                <input
+                  aria-label="Add a keyword"
+                  value={search.anyKeywords}
+                  onChange={(event) => update("anyKeywords", event.target.value)}
+                  placeholder="Java, Spring Boot, Backend Engineer"
+                />
+              </Field>
+              <Field label="Must include" hint="Separate multiple terms with commas.">
+                <input
+                  aria-label="Required keywords"
+                  value={search.allKeywords}
+                  onChange={(event) => update("allKeywords", event.target.value)}
+                  placeholder="PostgreSQL, AWS"
+                />
+              </Field>
+              <Field label="Exclude keywords">
+                <input
+                  aria-label="Excluded keywords"
+                  value={search.excludeKeywords}
+                  onChange={(event) => update("excludeKeywords", event.target.value)}
+                  placeholder="Intern, fresher"
+                />
+              </Field>
+            </>
+          )}
+
+          <Field label="Current location">
+            <input
+              aria-label="Current location"
+              value={search.location}
+              onChange={(event) => update("location", event.target.value)}
+              placeholder="Mumbai, Pune, Bengaluru"
+            />
+          </Field>
+
+          <Field label="Experience">
+            <span className="resdex-inline-fields">
+              <select aria-label="Minimum experience" value={search.minExperience} onChange={(event) => update("minExperience", event.target.value)}>
+                <option value="">Min</option>
+                {experienceYears.map((year) => <option value={year} key={year}>{year}</option>)}
+              </select>
+              <i>to</i>
+              <select aria-label="Maximum experience" value={search.maxExperience} onChange={(event) => update("maxExperience", event.target.value)}>
+                <option value="">Max</option>
+                {experienceYears.map((year) => <option value={year} key={year}>{year}</option>)}
+              </select>
+              <em>years</em>
+            </span>
+          </Field>
+
+          <Field label="Profile activity">
+            <select aria-label="Active in" value={search.activeStatus} onChange={(event) => update("activeStatus", event.target.value as RecruiterSearchState["activeStatus"])}>
+              <option value="ONE_DAY">Last 24 hours</option>
+              <option value="THREE_DAYS">Last 3 days</option>
+              <option value="SEVEN_DAYS">Last 7 days</option>
+              <option value="FIFTEEN_DAYS">Last 15 days</option>
+              <option value="THIRTY_DAYS">Last 30 days</option>
+              <option value="SIXTY_DAYS">Last 60 days</option>
+              <option value="NINETY_DAYS">Last 90 days</option>
+              <option value="ONE_YEAR">Last year</option>
+              <option value="ALL">Any time</option>
+            </select>
+          </Field>
+
+          {appliedFilters.length > 0 && (
+            <div className="resdex-filter-keywords" aria-label="Applied filters">
+              <span>Applied filters</span>
+              <div>{appliedFilters.map((filter) => <span className="resdex-chip resdex-chip-selected" key={filter}>{filter}</span>)}</div>
+            </div>
+          )}
+
+          {advancedOpen && (
+            <div className="sourcing-advanced-fields" id="advanced-sourcing-filters">
+              <section className="resdex-section">
+                <header><h2>Employment</h2></header>
+                <Field label="Current or previous company"><input value={search.company} onChange={(event) => update("company", event.target.value)} placeholder="Company name" /></Field>
+                <Field label="Designation"><input value={search.designation} onChange={(event) => update("designation", event.target.value)} placeholder="Current or previous title" /></Field>
+                <Field label="Department / role"><input aria-label="Department and Role" value={search.departmentRole} onChange={(event) => update("departmentRole", event.target.value)} placeholder="Engineering, Data, Product" /></Field>
+                <Field label="Industry"><input aria-label="Industry" value={search.industry} onChange={(event) => update("industry", event.target.value)} placeholder="Fintech, SaaS, Healthcare" /></Field>
+              </section>
+
+              <section className="resdex-section">
+                <header><h2>Compensation</h2></header>
+                <Field label="Annual salary">
+                  <span className="resdex-inline-fields resdex-salary">
+                    <select aria-label="Minimum salary" value={search.minSalary} onChange={(event) => update("minSalary", event.target.value)}>
+                      <option value="">Min</option>
+                      {salaryOptions.map((value) => <option value={value} key={value}>{value}</option>)}
+                    </select>
+                    <i>to</i>
+                    <select aria-label="Maximum salary" value={search.maxSalary} onChange={(event) => update("maxSalary", event.target.value)}>
+                      <option value="">Max</option>
+                      {salaryOptions.map((value) => <option value={value} key={value}>{value}</option>)}
+                    </select>
+                    <em>LPA</em>
+                  </span>
+                </Field>
+              </section>
+
+              <section className="resdex-section">
+                <header><h2>Education</h2></header>
+                <Field label="Qualification"><input value={search.qualification} onChange={(event) => { update("qualification", event.target.value); update("ugMode", event.target.value ? "specific" : "any"); }} placeholder="B.Tech, MBA, M.Sc" /></Field>
+                <Field label="Institution"><input value={search.institution} onChange={(event) => update("institution", event.target.value)} placeholder="University or institute" /></Field>
+              </section>
+
+              <section className="resdex-section">
+                <header><h2>Professional profile links</h2></header>
+                <label className="resdex-checkline"><input type="checkbox" checked={search.requireGithub} onChange={(event) => update("requireGithub", event.target.checked)} />Has GitHub profile</label>
+                <label className="resdex-checkline"><input type="checkbox" checked={search.requireLeetcode} onChange={(event) => update("requireLeetcode", event.target.checked)} />Has LeetCode profile</label>
+                <label className="resdex-checkline"><input type="checkbox" checked={search.requirePortfolio} onChange={(event) => update("requirePortfolio", event.target.checked)} />Has portfolio / work samples</label>
+              </section>
+
+              <p className="resdex-status" role="note">Sensitive personal attributes such as gender, age, disability, religion or other protected characteristics are intentionally excluded from normal sourcing and ranking.</p>
+            </div>
+          )}
+
+          {historyOpen && (
+            <aside className="resdex-history" aria-label="Search history">
+              <SearchHistory title="Recent searches" records={recent} onFill={fillSearch} onSearch={runSearch} />
+              <SearchHistory title="Saved searches" records={saved} onFill={fillSearch} onSearch={runSearch} />
+            </aside>
+          )}
+
+          <div className="resdex-sticky-actions">
+            <button type="button" onClick={reset}>Reset</button>
+            <Button type="button" variant="secondary" onClick={() => void saveCurrent()} disabled={saving}>{saving ? "Saving…" : "Save search"}</Button>
+            <Button type="submit">Search candidates</Button>
+          </div>
+        </form>
       </div>
-    </div>
-  </WorkspaceShell>;
+    </WorkspaceShell>
+  );
 }
