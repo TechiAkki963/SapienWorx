@@ -39,7 +39,7 @@ test("keeps detailed sourcing criteria behind progressive disclosure", async ({ 
 test("supports Boolean search without presenting AI sourcing claims", async ({ page }) => {
   await page.goto("/recruiter/sourcing");
 
-  await page.getByRole("checkbox").first().check();
+  await page.getByText("Structured search", { exact: true }).click();
   await expect(page.getByText("Boolean search", { exact: true })).toBeVisible();
   await page.getByLabel("Boolean keyword expression").fill('(Java OR Kotlin) AND "Spring Boot"');
   await page.getByRole("button", { name: "Search candidates" }).click();

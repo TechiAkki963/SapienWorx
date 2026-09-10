@@ -22,9 +22,14 @@ test("keyboard users can bypass workspace navigation and retain a visible focus 
 });
 
 test("candidate, recruiter, and admin controls preserve touch targets and focus treatment", async ({ page }) => {
-  for (const path of ["/candidate/jobs", "/recruiter/sourcing", "/admin"]) {
-    await page.goto(path);
-    const navItem = page.locator(".sidebar .nav-item").first();
+  const cases = [
+    { path: "/candidate/jobs", selector: ".candidate-desktop-nav .nav-item" },
+    { path: "/recruiter/sourcing", selector: ".sidebar .nav-item" },
+    { path: "/admin", selector: ".sidebar .nav-item" },
+  ];
+  for (const item of cases) {
+    await page.goto(item.path);
+    const navItem = page.locator(item.selector).first();
     await expect(navItem).toBeVisible();
     const target = await navItem.evaluate((element) => {
       const box = element.getBoundingClientRect();

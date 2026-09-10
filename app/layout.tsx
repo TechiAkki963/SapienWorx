@@ -13,6 +13,8 @@ import "./workspace-polish.css";
 import "./master-activity.css";
 import "./knowledge.css";
 import "./mobile-workspaces.css";
+import "./workspace-shell-v2.css";
+import "./candidate-interviews.css";
 import "./legal.css";
 
 export const metadata: Metadata = {

@@ -2,12 +2,13 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, complete-ui-spec-20260910]
     paths:
       - "app/**"
       - "components/**"
       - "hooks/**"
       - "lib/**"
+      - "e2e/**"
       - "package.json"
       - "package-lock.json"
       - "next.config.mjs"
@@ -22,6 +23,7 @@ on:
       - "components/**"
       - "hooks/**"
       - "lib/**"
+      - "e2e/**"
       - "package.json"
       - "package-lock.json"
       - "next.config.mjs"
@@ -65,6 +67,8 @@ jobs:
   browser-regression:
     name: Desktop and mobile browser regression
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_LOCAL_DEMO: "true"
 
     steps:
       - name: Check out source
@@ -85,6 +89,15 @@ jobs:
 
       - name: Run desktop and mobile automation
         run: npx playwright test --project=chromium --project=mobile-chromium
+
+      - name: Preserve visual walkthrough
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sapienworx-visual-walkthrough-${{ github.run_id }}
+          path: artifacts/walkthrough/
+          retention-days: 30
+          if-no-files-found: warn
 
       - name: Preserve failed-test diagnostics
         if: failure()
@@ -122,7 +135,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v6
 
       - name: Build and push image
         uses: docker/build-push-action@v6
