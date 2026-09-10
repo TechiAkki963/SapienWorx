@@ -51,7 +51,7 @@ function readRecords(key: string): SearchRecord[] {
               isSearchState(item.state),
           ),
       )
-      .map((item) => ({ ...item, state: { ...item.state, gender: "" } }))
+      .map((item): SearchRecord => ({ ...item, state: { ...item.state, gender: "" as const } }))
       .slice(0, 5);
   } catch {
     return [];
@@ -127,12 +127,12 @@ export function RecruiterSourcingV2() {
       { signal: controller.signal },
     )
       .then((records) => {
-        const remote = records
+        const remote: SearchRecord[] = records
           .filter((record) => isSearchState(record.criteria))
           .map((record) => ({
             id: record.id,
             name: record.name,
-            state: { ...(record.criteria as RecruiterSearchState), gender: "" },
+            state: { ...(record.criteria as RecruiterSearchState), gender: "" as const },
           }));
         if (remote.length) setSaved(remote.slice(0, 5));
       })
@@ -179,15 +179,15 @@ export function RecruiterSourcingV2() {
   };
 
   const storeRecord = (key: string, record: SearchRecord) => {
-    const safeRecord = { ...record, state: { ...record.state, gender: "" } };
-    const next = [safeRecord, ...readRecords(key).filter((item) => item.name !== safeRecord.name)].slice(0, 5);
+    const safeRecord: SearchRecord = { ...record, state: { ...record.state, gender: "" as const } };
+    const next: SearchRecord[] = [safeRecord, ...readRecords(key).filter((item) => item.name !== safeRecord.name)].slice(0, 5);
     window.localStorage.setItem(key, JSON.stringify(next));
     if (key === RECENT_SEARCHES_KEY) setRecent(next);
     else setSaved(next);
   };
 
   const runSearch = (state = search) => {
-    const safeState = { ...state, gender: "" as const };
+    const safeState: RecruiterSearchState = { ...state, gender: "" as const };
     storeRecord(RECENT_SEARCHES_KEY, {
       id: crypto.randomUUID(),
       name: searchName(safeState),
@@ -198,7 +198,7 @@ export function RecruiterSourcingV2() {
   };
 
   const fillSearch = (record: SearchRecord) => {
-    const safeState = { ...record.state, gender: "" as const };
+    const safeState: RecruiterSearchState = { ...record.state, gender: "" as const };
     setSearch(safeState);
     setBooleanMode(Boolean(safeState.booleanQuery));
     setHistoryOpen(false);
@@ -206,7 +206,7 @@ export function RecruiterSourcingV2() {
   };
 
   const saveCurrent = async () => {
-    const safeState = { ...search, gender: "" as const };
+    const safeState: RecruiterSearchState = { ...search, gender: "" as const };
     const name = searchName(safeState);
     setSaving(true);
     setStatus("");
@@ -406,8 +406,8 @@ export function RecruiterSourcingV2() {
 
           {historyOpen && (
             <aside className="resdex-history" aria-label="Search history">
-              <SearchHistory title="Recent searches" records={recent} onFill={fillSearch} onSearch={runSearch} />
-              <SearchHistory title="Saved searches" records={saved} onFill={fillSearch} onSearch={runSearch} />
+              <SearchHistory title="Recent searches" records={recent} onFill={fillSearch} onSearch={(record) => runSearch(record.state)} />
+              <SearchHistory title="Saved searches" records={saved} onFill={fillSearch} onSearch={(record) => runSearch(record.state)} />
             </aside>
           )}
 
