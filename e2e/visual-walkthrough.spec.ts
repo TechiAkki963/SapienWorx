@@ -50,16 +50,25 @@ async function prepare(page: Page) {
   });
 }
 
+async function verify(page: Page, route: string, responseStatus?: number) {
+  expect(responseStatus ?? 200, `${route} should render without an HTTP server error`).toBeLessThan(500);
+  await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error|This page could not be found/i);
+}
+
 for (const [name, route] of routes) {
-  test(`walkthrough ${name}`, async ({ page }, testInfo) => {
+  test(`walkthrough ${name}`, async ({ page }) => {
     await prepare(page);
-    const response = await page.goto(route, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(450);
-    expect(response?.status() ?? 200, `${route} should render without an HTTP server error`).toBeLessThan(500);
-    await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error|This page could not be found/i);
-    await page.screenshot({
-      path: `artifacts/walkthrough/${testInfo.project.name}/${name}.png`,
-      fullPage: true,
-    });
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    const desktopResponse = await page.goto(route, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(350);
+    await verify(page, route, desktopResponse?.status());
+    await page.screenshot({ path: `artifacts/walkthrough/desktop/${name}.png`, fullPage: true });
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobileResponse = await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(350);
+    await verify(page, route, mobileResponse?.status());
+    await page.screenshot({ path: `artifacts/walkthrough/mobile/${name}.png`, fullPage: true });
   });
 }
