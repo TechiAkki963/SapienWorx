@@ -19,6 +19,7 @@ import "./candidate-interviews.css";
 import "./legal.css";
 import "./ui-v1.css";
 import "./public-auth-v1.css";
+import "./candidate-v1.css";
 
 const inter = Inter({
   subsets: ["latin"],
