@@ -1,6 +1,7 @@
 package com.sapienworx.api.job;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -8,7 +9,7 @@ import java.util.Optional;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface JobRepository extends JpaRepository<Job, UUID> {
+public interface JobRepository extends JpaRepository<Job, UUID>, JpaSpecificationExecutor<Job> {
     Optional<Job> findByPublicJobId(String publicJobId);
     Page<Job> findByStatusOrderByPublishedAtDesc(JobStatus status, Pageable pageable);
     Page<Job> findByOrganisation_IdOrderByUpdatedAtDesc(UUID organisationId, Pageable pageable);
