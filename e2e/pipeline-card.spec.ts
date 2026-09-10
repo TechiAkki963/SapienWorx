@@ -7,6 +7,12 @@ const pipelineResponse = {
       candidateId: "candidate-1",
       fullName: "Asha Kumar",
       headline: "Senior backend engineer",
+      currentCompany: "Nexora Labs",
+      location: "Bengaluru",
+      preferredLocations: "Bengaluru, Remote",
+      overallExperienceYears: 6,
+      expectedSalaryLakhs: 24,
+      noticePeriodDays: 30,
       jobId: "SWX-100",
       jobTitle: "Backend Engineer",
       skills: ["Node.js", "TypeScript", "PostgreSQL"],
@@ -31,6 +37,7 @@ const pipelineResponse = {
 };
 
 test("uses a responsive list-only candidate pipeline with 10 20 40 80 pagination", async ({ page }) => {
+  await page.route("**/api/auth/csrf", (route) => route.fulfill({ status: 200, json: { token: "test-csrf" } }));
   await page.route("**/api/recruiter/pipeline**", async (route) => {
     if (route.request().method() === "PATCH") {
       return route.fulfill({ status: 200, json: { ...pipelineResponse.content[0], pipelineStage: "INTERVIEWING" } });
