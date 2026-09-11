@@ -69,7 +69,7 @@ jobs:
         run: |
           echo "web=${{ steps.login.outputs.registry }}/${WEB_REPOSITORY}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
           echo "api=${{ steps.login.outputs.registry }}/${API_REPOSITORY}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - uses: docker/build-push-action@v6
         with:
           context: .
