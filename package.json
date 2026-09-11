@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit && npm run lint:styles",
+    "tokens:migrate": "node scripts/migrate-design-tokens.mjs",
+    "lint": "npm run tokens:migrate && tsc --noEmit && npm run lint:styles",
     "lint:styles": "node scripts/check-design-tokens.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
