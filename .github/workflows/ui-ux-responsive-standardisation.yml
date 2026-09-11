@@ -6,6 +6,8 @@ on:
       - ui-ux-responsive-standardisation
     paths:
       - "scripts/apply-ui-ux-responsive-standardisation.mjs"
+      - "scripts/run-ui-ux-responsive-standardisation.mjs"
+      - "scripts/check-design-tokens.mjs"
       - ".github/workflows/ui-ux-responsive-standardisation.yml"
       - "app/**"
       - "components/**"
@@ -37,7 +39,7 @@ jobs:
           cache: npm
 
       - name: Apply design-system consolidation
-        run: node scripts/apply-ui-ux-responsive-standardisation.mjs
+        run: node scripts/run-ui-ux-responsive-standardisation.mjs
 
       - name: Install locked dependencies
         run: npm ci
