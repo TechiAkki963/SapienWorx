@@ -28,6 +28,17 @@ The authoritative UI/UX and frontend architecture source of truth is `docs/MASTE
 - Keep the four canonical responsive modes: <=639, 640-1023, 1024-1439, >=1440.
 - Every API-backed view needs truthful loading, empty, filtered-empty where relevant, error/retry, mutation-busy, and success states.
 - Never display raw Java/SQL/queue/infrastructure errors to end users.
+- Never substitute fictional/sample candidate, recruiter, job, résumé, analytics, or account data when a signed-in API response is absent.
+
+## Rebuild v2.3 design-system guardrails
+
+- `app/ui-v1.css` is the canonical token definition file.
+- Keep the existing color palette unchanged unless a later product decision explicitly revises it.
+- Use only the shared `--font-size-*` tokens for explicit font sizes and pair typography with `--line-height-tight`, `--line-height-normal`, or `--line-height-relaxed` where line-height needs to be declared.
+- Use only `--space-1` through `--space-9` for padding, margin, and gap declarations. Do not hand-tune those properties with literal px/rem/em values.
+- `--space-9` is reserved for large section-level rhythm such as landing hero/section padding, not routine component internals.
+- Do not introduce literal hex colors outside `app/ui-v1.css`.
+- Run `npm run lint:styles` when changing CSS. The design-token guardrail is also part of `npm run lint`.
 
 ## Integration guardrails
 
