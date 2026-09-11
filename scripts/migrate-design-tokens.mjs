@@ -4,38 +4,23 @@ import { join } from "node:path";
 const root = process.cwd();
 const tokenFile = join(root, "app", "ui-v1.css");
 const ignoredDirectories = new Set([".git", ".next", "node_modules", "coverage", "playwright-report", "test-results"]);
+const guardedPropertyName = "font-size|padding(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?|margin(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?|gap|row-gap|column-gap";
+const guardedDeclaration = new RegExp(`\\b(${guardedPropertyName})\\s*:\\s*([^;{}]+)`, "gi");
 const spacingProperties = /^(padding(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?|margin(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?|gap|row-gap|column-gap)$/i;
 
 const fontPxTokens = [
-  [11, "--font-size-xs"],
-  [13, "--font-size-sm"],
-  [15, "--font-size-base"],
-  [17, "--font-size-md"],
-  [20, "--font-size-lg"],
-  [24, "--font-size-xl"],
-  [30, "--font-size-2xl"],
-  [38, "--font-size-3xl"],
-  [Infinity, "--font-size-4xl"],
+  [11, "--font-size-xs"], [13, "--font-size-sm"], [15, "--font-size-base"],
+  [17, "--font-size-md"], [20, "--font-size-lg"], [24, "--font-size-xl"],
+  [30, "--font-size-2xl"], [38, "--font-size-3xl"], [Infinity, "--font-size-4xl"],
 ];
 
 const legacyColorMap = new Map([
-  ["#fff", "var(--cloud)"],
-  ["#ffffff", "var(--cloud)"],
-  ["#144a75", "var(--indigo)"],
-  ["#cbd8df", "var(--line)"],
-  ["#dce4e8", "var(--line)"],
-  ["#314b5f", "var(--ink-soft)"],
-  ["#213c50", "var(--ink-soft)"],
-  ["#526779", "var(--muted)"],
-  ["#657a8b", "var(--muted)"],
-  ["#eaf3f6", "var(--indigo-soft)"],
-  ["#f0f5f7", "var(--paper)"],
-  ["#f4fbfb", "var(--indigo-soft)"],
-  ["#f5fbfb", "var(--indigo-soft)"],
-  ["#c7e0e2", "var(--line)"],
-  ["#cfe3e4", "var(--line)"],
-  ["#315b60", "var(--indigo-deep)"],
-  ["#e8c9c9", "var(--warn)"],
+  ["#fff", "var(--cloud)"], ["#ffffff", "var(--cloud)"], ["#144a75", "var(--indigo)"],
+  ["#cbd8df", "var(--line)"], ["#dce4e8", "var(--line)"], ["#314b5f", "var(--ink-soft)"],
+  ["#213c50", "var(--ink-soft)"], ["#526779", "var(--muted)"], ["#657a8b", "var(--muted)"],
+  ["#eaf3f6", "var(--indigo-soft)"], ["#f0f5f7", "var(--paper)"], ["#f4fbfb", "var(--indigo-soft)"],
+  ["#f5fbfb", "var(--indigo-soft)"], ["#c7e0e2", "var(--line)"], ["#cfe3e4", "var(--line)"],
+  ["#315b60", "var(--indigo-deep)"], ["#e8c9c9", "var(--warn)"],
   ["#fff8f8", "color-mix(in srgb, var(--warn) 5%, var(--cloud))"],
 ]);
 
@@ -90,21 +75,21 @@ function migrateColors(source) {
   return source.replace(/#[0-9a-f]{3,8}\b/gi, (hex) => legacyColorMap.get(hex.toLowerCase()) ?? hex);
 }
 
+function migrateDeclarations(source) {
+  guardedDeclaration.lastIndex = 0;
+  return source.replace(guardedDeclaration, (whole, property, rawValue) => {
+    const value = property.toLowerCase() === "font-size" ? migrateFontSize(rawValue) : spacingProperties.test(property) ? migrateSpacing(rawValue) : rawValue;
+    return `${property}: ${value.trim()}`;
+  });
+}
+
 let changedFiles = 0;
 for (const file of await cssFiles(root)) {
   if (file === tokenFile) continue;
   const original = await readFile(file, "utf8");
-  const lines = migrateColors(original).split(/\r?\n/);
-  const migrated = lines.map((line) => {
-    const declaration = line.match(/^(\s*)([\w-]+)\s*:\s*([^;]+)(;.*)?$/);
-    if (!declaration) return line;
-    const [, indent, property, rawValue, suffix = ""] = declaration;
-    const normalized = property.toLowerCase();
-    let value = rawValue.trim();
-    if (normalized === "font-size") value = migrateFontSize(value);
-    else if (spacingProperties.test(normalized)) value = migrateSpacing(value);
-    return `${indent}${property}: ${value}${suffix || ";"}`;
-  }).join("\n");
+  let migrated = migrateColors(original);
+  migrated = migrated.replace(/button:\s+disabled\b/g, "button:disabled");
+  migrated = migrateDeclarations(migrated);
   if (migrated !== original) {
     await writeFile(file, migrated, "utf8");
     changedFiles += 1;
