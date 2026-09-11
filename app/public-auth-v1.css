@@ -969,7 +969,7 @@
 }
 
 .knowledge-article > section p {
-  margin: 0 0 1.35em;
+  margin: 0 0 var(--space-5);
   color: var(--ink-soft);
   font-size: var(--font-size-md);
   line-height: 1.8;
