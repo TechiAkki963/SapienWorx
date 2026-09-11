@@ -1,5 +1,2 @@
-import { CandidateNotifications } from "../../../components/candidate-communication";
-
-export default function CandidateNotificationsPage() {
-  return <CandidateNotifications />;
-}
+import { redirect } from "next/navigation";
+export default function CandidateNotificationsPage(){redirect("/candidate/messages?view=updates");}

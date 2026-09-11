@@ -1,74 +1,14 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect,test,type Page } from "@playwright/test";
 
-const routes = [
-  ["public-home", "/"],
-  ["public-jobs", "/jobs"],
-  ["public-job-detail", "/jobs/SWX_NX_001/senior-backend-engineer"],
-  ["public-companies", "/companies"],
-  ["public-company-detail", "/companies/nexora-cloud"],
-  ["public-knowledge", "/knowledge"],
-  ["public-recruiters", "/recruiters"],
-  ["candidate-login", "/login"],
-  ["candidate-register", "/register"],
-  ["candidate-onboarding", "/candidate/onboarding"],
-  ["candidate-review", "/candidate/review"],
-  ["candidate-home", "/candidate"],
-  ["candidate-jobs", "/candidate/jobs"],
-  ["candidate-applications", "/candidate/applications"],
-  ["candidate-interviews", "/candidate/interviews"],
-  ["candidate-messages", "/candidate/messages"],
-  ["candidate-profile", "/candidate/profile"],
-  ["candidate-notifications", "/candidate/notifications"],
-  ["candidate-settings", "/candidate/settings"],
-  ["candidate-reports", "/candidate/reports"],
-  ["recruiter-login", "/recruiter/login"],
-  ["recruiter-register", "/recruiter/register"],
-  ["recruiter-home", "/recruiter"],
-  ["recruiter-jobs", "/recruiter/jobs"],
-  ["recruiter-manage-jobs", "/recruiter/jobs/manage"],
-  ["recruiter-candidates", "/recruiter/candidates"],
-  ["recruiter-candidate-detail", "/recruiter/candidates/demo-avish-bansal"],
-  ["recruiter-sourcing", "/recruiter/sourcing"],
-  ["recruiter-search-results", "/search/results?anyKeywords=Java&location=Mumbai"],
-  ["recruiter-pipeline", "/recruiter/pipeline"],
-  ["recruiter-interviews", "/recruiter/interviews"],
-  ["recruiter-messages", "/recruiter/communications"],
-  ["recruiter-workbench", "/recruiter/workbench"],
-  ["recruiter-reports", "/recruiter/reports"],
-  ["recruiter-settings", "/recruiter/settings"],
-  ["admin-login", "/admin/login"],
-  ["admin-control-centre", "/admin"],
-  ["privacy", "/privacy"],
-  ["terms", "/terms"],
-  ["cookies", "/cookies"],
+const routes=[
+["public-home","/"],["public-jobs","/jobs"],["public-job-detail","/jobs/SWX_NX_001/senior-backend-engineer"],["public-companies","/companies"],["public-company-detail","/companies/nexora-cloud"],["public-knowledge","/knowledge"],["public-recruiters","/recruiters"],["candidate-login","/login"],["candidate-register","/register"],["candidate-onboarding","/candidate/onboarding"],["candidate-review","/candidate/review"],["candidate-home","/candidate"],["candidate-jobs","/candidate/jobs"],["candidate-applications","/candidate/applications"],["candidate-interviews","/candidate/interviews"],["candidate-messages","/candidate/messages"],["candidate-profile","/candidate/profile"],["candidate-notifications","/candidate/notifications"],["candidate-settings","/candidate/settings"],["candidate-reports","/candidate/reports"],["recruiter-login","/recruiter/login"],["recruiter-register","/recruiter/register"],["recruiter-home","/recruiter"],["recruiter-jobs","/recruiter/jobs"],["recruiter-manage-jobs","/recruiter/jobs/manage"],["recruiter-candidates","/recruiter/candidates"],["recruiter-candidate-detail","/recruiter/candidates/demo-avish-bansal"],["recruiter-sourcing","/recruiter/sourcing"],["recruiter-search-results","/search/results?anyKeywords=Java&location=Mumbai"],["recruiter-pipeline","/recruiter/pipeline"],["recruiter-interviews","/recruiter/interviews"],["recruiter-messages","/recruiter/communications"],["recruiter-workbench","/recruiter/workbench"],["recruiter-reports","/recruiter/reports"],["recruiter-settings","/recruiter/settings"],["admin-login","/admin/login"],["admin-control-centre","/admin"],["privacy","/privacy"],["terms","/terms"],["cookies","/cookies"]
 ] as const;
-
-async function prepare(page: Page) {
-  await page.addInitScript(() => {
-    window.localStorage.setItem("sapienworx.local-candidate-domain", "TECH");
-    window.localStorage.setItem("sapienworx.recruiter.sidebar", "expanded");
-  });
-}
-
-async function verify(page: Page, route: string, responseStatus?: number) {
-  expect(responseStatus ?? 200, `${route} should render without an HTTP server error`).toBeLessThan(500);
-  await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error|This page could not be found/i);
-}
-
-for (const [name, route] of routes) {
-  test(`walkthrough ${name}`, async ({ page }) => {
-    await prepare(page);
-
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    const desktopResponse = await page.goto(route, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(350);
-    await verify(page, route, desktopResponse?.status());
-    await page.screenshot({ path: `artifacts/walkthrough/desktop/${name}.png`, fullPage: true });
-
-    await page.setViewportSize({ width: 390, height: 844 });
-    const mobileResponse = await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(350);
-    await verify(page, route, mobileResponse?.status());
-    await page.screenshot({ path: `artifacts/walkthrough/mobile/${name}.png`, fullPage: true });
-  });
-}
+const viewports=[
+  ["mobile",390,844],
+  ["tablet",834,1112],
+  ["desktop",1280,900],
+  ["wide",1440,1000],
+] as const;
+async function prepare(page:Page){await page.addInitScript(()=>{localStorage.setItem("sapienworx.local-candidate-domain","TECH");localStorage.setItem("sapienworx.recruiter.sidebar","expanded");});}
+async function verify(page:Page,route:string,status?:number){expect(status??200,`${route} should render without a server error`).toBeLessThan(500);await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error|This page could not be found/i);}
+for(const[name,route]of routes){test(`walkthrough ${name}`,async({page})=>{await prepare(page);for(const[mode,width,height]of viewports){await page.setViewportSize({width,height});const response=await page.goto(route,{waitUntil:"domcontentloaded"});await page.waitForTimeout(250);await verify(page,route,response?.status());await page.screenshot({path:`artifacts/walkthrough/${mode}/${name}.png`,fullPage:true});}});}

@@ -6,224 +6,38 @@ import { WorkspaceShell } from "./ui";
 import styles from "./recruiter-pipeline-v2.module.css";
 
 type PipelineStage = "APPLIED" | "SCREENING" | "INTERVIEWING" | "FINAL_STAGE" | "OFFER" | "ONBOARDED" | "REJECTED";
+type CareerStage = "" | "FRESHER" | "EXPERIENCED";
+type Candidate = { applicationId:string; candidateId:string; fullName:string; headline:string|null; currentCompany:string|null; location:string|null; preferredLocations:string[]; overallExperienceYears:number|null; expectedSalaryLakhs:number|null; noticePeriodDays:number|null; departmentRole:string|null; educationSummary:string|null; careerStage:"FRESHER"|"EXPERIENCED"|null; jobId:string; jobTitle:string; skills:string[]; pipelineStage:PipelineStage; recentNotes:string[]; profileLastUpdatedAt:string|null; lastActiveAt:string|null; lastRecruiterViewedAt:string|null; applicationSource:string };
+type PageResponse<T> = { content:T[]; totalElements:number; totalPages:number; number:number; size:number; first:boolean; last:boolean; numberOfElements:number; empty:boolean };
+type Filters = { query:string; jobRole:string; skill:string; minExp:string; maxExp:string; location:string; notice:string; company:string; education:string; minSalary:string; maxSalary:string; activeDays:string; careerStage:CareerStage; gender:string };
+const emptyFilters:Filters={query:"",jobRole:"",skill:"",minExp:"",maxExp:"",location:"",notice:"",company:"",education:"",minSalary:"",maxSalary:"",activeDays:"",careerStage:"",gender:""};
+const pageSizes=[10,20,40,80] as const;
+const stages:Array<{value:""|PipelineStage;label:string}>=[{value:"",label:"All stages"},{value:"APPLIED",label:"Applied"},{value:"SCREENING",label:"Screening"},{value:"INTERVIEWING",label:"Interviewing"},{value:"FINAL_STAGE",label:"Final stage"},{value:"OFFER",label:"Offer"},{value:"ONBOARDED",label:"Hired"},{value:"REJECTED",label:"Rejected"}];
+function stageLabel(stage:PipelineStage){return stages.find((item)=>item.value===stage)?.label??stage}
+function formatDate(value:string|null){if(!value)return"Not available";const date=new Date(value);return Number.isNaN(date.getTime())?"Not available":new Intl.DateTimeFormat("en-IN",{day:"numeric",month:"short",year:"numeric"}).format(date)}
+function initials(name:string){return name.split(/\s+/).filter(Boolean).slice(0,2).map((part)=>part[0]?.toUpperCase()).join("")||"C"}
 
-type PipelineCandidate = {
-  applicationId: string;
-  candidateId: string;
-  fullName: string;
-  headline: string | null;
-  currentCompany: string | null;
-  location: string | null;
-  preferredLocations: string | null;
-  overallExperienceYears: number | null;
-  expectedSalaryLakhs: number | null;
-  noticePeriodDays: number | null;
-  jobId: string;
-  jobTitle: string;
-  skills: string[];
-  maskedEmail: string | null;
-  maskedMobile: string | null;
-  pipelineStage: PipelineStage;
-  recentNotes: string[];
-  profileLastUpdatedAt: string | null;
-  lastActiveAt: string | null;
-  applicationSource: string;
-  referralCode: string | null;
-};
-
-type PageResponse<T> = {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-  first: boolean;
-  last: boolean;
-  numberOfElements: number;
-  empty: boolean;
-};
-
-const stages: Array<{ value: "" | PipelineStage; label: string }> = [
-  { value: "", label: "All stages" },
-  { value: "APPLIED", label: "Applied" },
-  { value: "SCREENING", label: "Screening" },
-  { value: "INTERVIEWING", label: "Interviewing" },
-  { value: "FINAL_STAGE", label: "Final stage" },
-  { value: "OFFER", label: "Offer" },
-  { value: "ONBOARDED", label: "Hired" },
-  { value: "REJECTED", label: "Rejected" },
-];
-
-const pageSizes = [10, 20, 40, 80] as const;
-
-function humanStage(stage: PipelineStage) {
-  return stages.find((item) => item.value === stage)?.label ?? stage;
+export function RecruiterPipelineV2(){
+ const[filters,setFilters]=useState<Filters>(emptyFilters);const[stage,setStage]=useState<""|PipelineStage>("");const[page,setPage]=useState(0);const[pageSize,setPageSize]=useState<(typeof pageSizes)[number]>(10);const[data,setData]=useState<PageResponse<Candidate>|null>(null);const[status,setStatus]=useState<"loading"|"ready"|"error">("loading");const[error,setError]=useState("");const[notice,setNotice]=useState("");const[selected,setSelected]=useState<Set<string>>(new Set());const[bulkStage,setBulkStage]=useState<PipelineStage>("SCREENING");const[bulkBusy,setBulkBusy]=useState(false);const[updatingId,setUpdatingId]=useState<string|null>(null);
+ const load=useCallback(async()=>{setStatus("loading");setError("");const params=new URLSearchParams({page:String(page),pageSize:String(pageSize)});if(stage)params.set("stage",stage);const textParams:Array<[keyof Filters,string]>=[["query","query"],["jobRole","jobRole"],["skill","skill"],["location","location"],["company","company"],["education","education"],["gender","gender"]];textParams.forEach(([key,parameter])=>{if(filters[key].trim())params.set(parameter,filters[key].trim())});const numericParams:Array<[keyof Filters,string]>=[["minExp","minimumExperienceYears"],["maxExp","maximumExperienceYears"],["notice","maximumNoticePeriodDays"],["minSalary","minimumSalaryLakhs"],["maxSalary","maximumSalaryLakhs"],["activeDays","activeWithinDays"]];numericParams.forEach(([key,parameter])=>{if(filters[key])params.set(parameter,filters[key])});if(filters.careerStage)params.set("careerStage",filters.careerStage);try{const response=await apiClient<PageResponse<Candidate>>(`/api/recruiter/pipeline?${params.toString()}`);setData(response);setStatus("ready");setSelected((current)=>new Set([...current].filter((id)=>response.content.some((candidate)=>candidate.applicationId===id))))}catch(reason){setStatus("error");setError(reason instanceof Error?reason.message:"We could not load the candidate pipeline.")}},[filters,page,pageSize,stage]);
+ useEffect(()=>{void load()},[load]);
+ const updateFilter=(key:keyof Filters,value:string)=>{setFilters((current)=>({...current,[key]:value}));setPage(0)};const clearFilters=()=>{setFilters(emptyFilters);setStage("");setPage(0)};const hasFilters=stage!==""||Object.values(filters).some(Boolean);const visibleIds=data?.content.map((candidate)=>candidate.applicationId)??[];const allVisibleSelected=visibleIds.length>0&&visibleIds.every((id)=>selected.has(id));const showing=useMemo(()=>{if(!data||!data.totalElements)return"0 candidates";const start=data.number*data.size+1;return`${start}–${start+data.numberOfElements-1} of ${data.totalElements}`},[data]);
+ const toggleCandidate=(id:string)=>setSelected((current)=>{const next=new Set(current);next.has(id)?next.delete(id):next.add(id);return next});const togglePage=()=>setSelected(allVisibleSelected?new Set():new Set(visibleIds));
+ const moveStage=async(candidate:Candidate,next:PipelineStage)=>{if(candidate.pipelineStage===next)return;setUpdatingId(candidate.applicationId);setNotice("");setError("");try{await apiClient(`/api/recruiter/pipeline/${candidate.applicationId}/stage`,{method:"PATCH",body:JSON.stringify({stage:next})});setNotice(`${candidate.fullName} moved to ${stageLabel(next)}.`);await load()}catch(reason){setError(reason instanceof Error?reason.message:"We could not update this candidate.")}finally{setUpdatingId(null)}};
+ const bulkMove=async()=>{if(!selected.size)return;setBulkBusy(true);setNotice("");setError("");const ids=[...selected];try{await Promise.all(ids.map((applicationId)=>apiClient(`/api/recruiter/pipeline/${applicationId}/stage`,{method:"PATCH",body:JSON.stringify({stage:bulkStage})})));setNotice(`${ids.length} candidate${ids.length===1?"":"s"} moved to ${stageLabel(bulkStage)}.`);setSelected(new Set());await load()}catch(reason){setError(reason instanceof Error?reason.message:"We could not update all selected candidates. Refresh the pipeline to review the completed changes.");await load()}finally{setBulkBusy(false)}};
+ return <WorkspaceShell workspace="recruiter" active="pipeline" title="Candidate pipeline" description="A table-first recruitment workflow for filtering, comparing and moving candidates. Ten candidates are shown per page by default.">
+ <section className={styles.filterPanel} aria-label="Candidate filters"><div className={styles.coreFilters}><Filter label="Name / keyword"><input value={filters.query} onChange={(e)=>updateFilter("query",e.target.value)} placeholder="Candidate or keyword"/></Filter><Filter label="Title / role"><input value={filters.jobRole} onChange={(e)=>updateFilter("jobRole",e.target.value)} placeholder="Java Developer"/></Filter><Filter label="Skills"><input value={filters.skill} onChange={(e)=>updateFilter("skill",e.target.value)} placeholder="Java, React…"/></Filter><Filter label="Experience"><div className={styles.range}><input aria-label="Minimum experience" type="number" min="0" value={filters.minExp} onChange={(e)=>updateFilter("minExp",e.target.value)} placeholder="Min"/><input aria-label="Maximum experience" type="number" min="0" value={filters.maxExp} onChange={(e)=>updateFilter("maxExp",e.target.value)} placeholder="Max"/></div></Filter><Filter label="Location"><input value={filters.location} onChange={(e)=>updateFilter("location",e.target.value)} placeholder="Mumbai, Remote…"/></Filter><Filter label="Notice period"><select value={filters.notice} onChange={(e)=>updateFilter("notice",e.target.value)}><option value="">Any</option><option value="0">Immediate</option><option value="15">15 days</option><option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option></select></Filter></div>
+ <div className={styles.filterFooter}><Filter label="Stage"><select value={stage} onChange={(e)=>{setStage(e.target.value as ""|PipelineStage);setPage(0)}}>{stages.map((item)=><option value={item.value} key={item.value||"all"}>{item.label}</option>)}</select></Filter><details className={styles.advanced}><summary>More filters</summary><div className={styles.advancedGrid}><Filter label="Current company"><input value={filters.company} onChange={(e)=>updateFilter("company",e.target.value)}/></Filter><Filter label="Education"><input value={filters.education} onChange={(e)=>updateFilter("education",e.target.value)}/></Filter><Filter label="Salary range (LPA)"><div className={styles.range}><input aria-label="Minimum salary" type="number" min="0" value={filters.minSalary} onChange={(e)=>updateFilter("minSalary",e.target.value)} placeholder="Min"/><input aria-label="Maximum salary" type="number" min="0" value={filters.maxSalary} onChange={(e)=>updateFilter("maxSalary",e.target.value)} placeholder="Max"/></div></Filter><Filter label="Last active"><select value={filters.activeDays} onChange={(e)=>updateFilter("activeDays",e.target.value)}><option value="">Any time</option><option value="1">24 hours</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select></Filter><Filter label="Career stage"><select value={filters.careerStage} onChange={(e)=>updateFilter("careerStage",e.target.value)}><option value="">Any</option><option value="FRESHER">Fresher</option><option value="EXPERIENCED">Experienced</option></select></Filter><Filter label="Gender — consented profiles only"><select value={filters.gender} onChange={(e)=>updateFilter("gender",e.target.value)}><option value="">Any</option><option value="female">Female</option><option value="male">Male</option><option value="non-binary">Non-binary</option></select></Filter></div></details><button type="button" className={styles.clearFilters} onClick={clearFilters} disabled={!hasFilters}>Clear filters</button></div></section>
+ {selected.size>0&&<section className={styles.bulkBar} aria-label="Bulk candidate actions"><strong>{selected.size} selected</strong><label><span>Move to</span><select value={bulkStage} onChange={(e)=>setBulkStage(e.target.value as PipelineStage)}>{stages.filter((item):item is {value:PipelineStage;label:string}=>Boolean(item.value)).map((item)=><option value={item.value} key={item.value}>{item.label}</option>)}</select></label><button type="button" onClick={()=>void bulkMove()} disabled={bulkBusy}>{bulkBusy?"Updating…":"Move selected"}</button><a href="/recruiter/communications">Bulk message</a><button type="button" className={styles.ghost} onClick={()=>setSelected(new Set())}>Clear</button></section>}
+ {notice&&<p className={styles.success} role="status">{notice}</p>}{error&&status!=="error"&&<p className={styles.error} role="alert">{error}</p>}
+ {status==="loading"&&<PipelineState title="Loading candidates…" copy="Fetching the latest pipeline records." busy/>}{status==="error"&&<PipelineState title="Pipeline unavailable" copy={error} action={<button type="button" onClick={()=>void load()}>Try again</button>}/>} {status==="ready"&&data?.empty&&<PipelineState title={hasFilters?"No candidates match these filters":"No candidates in this pipeline"} copy={hasFilters?"Clear or relax one or more filters and try again.":"Candidates will appear here when applications enter your pipeline."} action={hasFilters?<button type="button" onClick={clearFilters}>Clear filters</button>:undefined}/>} 
+ {status==="ready"&&data&&!data.empty&&<><div className={styles.tableMeta}><span>{showing} candidates</span><label>Rows per page<select value={pageSize} onChange={(e)=>{setPageSize(Number(e.target.value) as (typeof pageSizes)[number]);setPage(0)}}>{pageSizes.map((size)=><option value={size} key={size}>{size}</option>)}</select></label></div><div className={styles.tableWrap}><table className={styles.table}><thead><tr><th className={styles.checkboxCell}><input aria-label="Select all candidates on this page" type="checkbox" checked={allVisibleSelected} onChange={togglePage}/></th><th>Candidate</th><th>Skills</th><th>Experience</th><th>Location</th><th>Notice</th><th>Stage</th><th>Activity</th><th>Actions</th></tr></thead><tbody>{data.content.map((candidate)=><CandidateRow candidate={candidate} selected={selected.has(candidate.applicationId)} updating={updatingId===candidate.applicationId} onToggle={()=>toggleCandidate(candidate.applicationId)} onMove={moveStage} key={candidate.applicationId}/>)}</tbody></table></div><div className={styles.mobileList}>{data.content.map((candidate)=><CandidateCard candidate={candidate} selected={selected.has(candidate.applicationId)} updating={updatingId===candidate.applicationId} onToggle={()=>toggleCandidate(candidate.applicationId)} onMove={moveStage} key={candidate.applicationId}/>)}</div><nav className={styles.pagination} aria-label="Pipeline pagination"><span>Page {data.number+1} of {Math.max(1,data.totalPages)}</span><div><button type="button" disabled={data.first} onClick={()=>setPage((value)=>Math.max(0,value-1))}>← Previous</button><button type="button" disabled={data.last} onClick={()=>setPage((value)=>value+1)}>Next →</button></div></nav></>}
+ </WorkspaceShell>
 }
-
-function initials(name: string) {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "C";
-}
-
-function formatFreshness(value: string | null) {
-  if (!value) return "Not available";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Not available";
-  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);
-}
-
-export function RecruiterPipelineV2() {
-  const [query, setQuery] = useState("");
-  const [stage, setStage] = useState<"" | PipelineStage>("");
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState<(typeof pageSizes)[number]>(20);
-  const [data, setData] = useState<PageResponse<PipelineCandidate> | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [error, setError] = useState("");
-  const [actionMessage, setActionMessage] = useState("");
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setStatus("loading");
-    setError("");
-    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
-    if (query.trim()) params.set("query", query.trim());
-    if (stage) params.set("stage", stage);
-    try {
-      const response = await apiClient<PageResponse<PipelineCandidate>>(`/api/recruiter/pipeline?${params.toString()}`);
-      setData(response);
-      setStatus("ready");
-    } catch (caught) {
-      setStatus("error");
-      setError(caught instanceof Error ? caught.message : "We could not load the candidate pipeline.");
-    }
-  }, [page, pageSize, query, stage]);
-
-  useEffect(() => { void load(); }, [load]);
-
-  const moveStage = async (candidate: PipelineCandidate, nextStage: PipelineStage) => {
-    if (nextStage === candidate.pipelineStage) return;
-    setUpdatingId(candidate.applicationId);
-    setActionMessage("");
-    setError("");
-    try {
-      await apiClient<PipelineCandidate>(`/api/recruiter/pipeline/${candidate.applicationId}/stage`, {
-        method: "PATCH",
-        body: JSON.stringify({ stage: nextStage }),
-      });
-      setActionMessage(`${candidate.fullName} moved to ${humanStage(nextStage)}.`);
-      await load();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "We could not update the candidate stage.");
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const showing = useMemo(() => {
-    if (!data || data.totalElements === 0) return "0 candidates";
-    const start = data.number * data.size + 1;
-    const end = start + data.numberOfElements - 1;
-    return `Showing ${start}–${end} of ${data.totalElements} candidates`;
-  }, [data]);
-
-  return (
-    <WorkspaceShell
-      workspace="recruiter"
-      active="pipeline"
-      title="Candidate Pipeline"
-      description="Review candidates in a mobile-friendly list. Search, filter, take action and move stages without a Kanban board."
-    >
-      <section aria-label="Pipeline controls" className={styles.toolbar}>
-        <label className={styles.fieldGrow}>
-          <span className={styles.label}>Search candidates</span>
-          <input
-            className={styles.input}
-            value={query}
-            onChange={(event) => { setQuery(event.target.value); setPage(0); }}
-            placeholder="Name, job or keyword"
-          />
-        </label>
-        <label className={styles.field}>
-          <span className={styles.label}>Pipeline stage</span>
-          <select className={styles.select} value={stage} onChange={(event) => { setStage(event.target.value as "" | PipelineStage); setPage(0); }}>
-            {stages.map((item) => <option key={item.value || "all"} value={item.value}>{item.label}</option>)}
-          </select>
-        </label>
-      </section>
-
-      {actionMessage && <p className={styles.success} role="status">{actionMessage}</p>}
-      {error && status !== "error" && <p className={styles.error} role="alert">{error}</p>}
-      {status === "loading" && <div className={styles.state} aria-live="polite"><h2>Loading candidates…</h2><p>Fetching the latest pipeline records.</p></div>}
-      {status === "error" && <div className={styles.state} role="alert"><h2>Pipeline unavailable</h2><p>{error}</p><button className={styles.actionButton} type="button" onClick={() => void load()}>Retry</button></div>}
-      {status === "ready" && data?.empty && <div className={styles.state}><h2>No candidates found</h2><p>Try another search or stage, or return after candidates enter the pipeline.</p></div>}
-
-      {status === "ready" && data && !data.empty && <>
-        <p className={styles.status} aria-live="polite">{showing}</p>
-        <div className={styles.list}>
-          {data.content.map((candidate) => (
-            <article className={styles.card} key={candidate.applicationId}>
-              <div className={styles.top}>
-                <div className={styles.identity}>
-                  <div className={styles.avatar} aria-hidden="true">{initials(candidate.fullName)}</div>
-                  <div>
-                    <h2 className={styles.name}>{candidate.fullName}</h2>
-                    <p className={styles.headline}>{candidate.headline || "Candidate profile"}</p>
-                  </div>
-                </div>
-                <span className={styles.stage}>{humanStage(candidate.pipelineStage)}</span>
-              </div>
-
-              <div className={styles.facts}>
-                <div className={styles.fact}><span>Job</span><strong>{candidate.jobTitle}</strong></div>
-                <div className={styles.fact}><span>Current company</span><strong>{candidate.currentCompany || "Not shared"}</strong></div>
-                <div className={styles.fact}><span>Experience</span><strong>{candidate.overallExperienceYears == null ? "Not shared" : `${candidate.overallExperienceYears} years`}</strong></div>
-                <div className={styles.fact}><span>Location</span><strong>{candidate.location || "Not shared"}</strong></div>
-                <div className={styles.fact}><span>Notice period</span><strong>{candidate.noticePeriodDays == null ? "Not shared" : `${candidate.noticePeriodDays} days`}</strong></div>
-                <div className={styles.fact}><span>Expected salary</span><strong>{candidate.expectedSalaryLakhs == null ? "Not shared" : `₹${candidate.expectedSalaryLakhs} LPA`}</strong></div>
-                <div className={styles.fact}><span>Source</span><strong>{candidate.applicationSource || "Direct"}</strong></div>
-                <div className={styles.fact}><span>Last active</span><strong>{formatFreshness(candidate.lastActiveAt)}</strong></div>
-              </div>
-
-              {candidate.skills.length > 0 && <div className={styles.skills} aria-label={`${candidate.fullName} skills`}>
-                {candidate.skills.slice(0, 8).map((skill) => <span className={styles.skill} key={skill}>{skill}</span>)}
-              </div>}
-              {candidate.recentNotes[0] && <div className={styles.notes}><strong>Latest note:</strong> {candidate.recentNotes[0]}</div>}
-
-              <div className={styles.actions}>
-                <a className={styles.actionLink} href={`/recruiter/jobs/${encodeURIComponent(candidate.jobId)}/applications/${candidate.applicationId}`}>View profile</a>
-                <a className={styles.actionButton} href={`/recruiter/communications?candidate=${candidate.candidateId}&job=${encodeURIComponent(candidate.jobId)}`}>Message</a>
-                <a className={styles.actionButton} href={`/recruiter/interviews?application=${candidate.applicationId}`}>Schedule interview</a>
-                <div className={styles.move}>
-                  <label htmlFor={`stage-${candidate.applicationId}`}>Move stage</label>
-                  <select
-                    id={`stage-${candidate.applicationId}`}
-                    aria-label={`Move ${candidate.fullName} to`}
-                    value={candidate.pipelineStage}
-                    disabled={updatingId === candidate.applicationId}
-                    onChange={(event) => void moveStage(candidate, event.target.value as PipelineStage)}
-                  >
-                    {stages.filter((item): item is { value: PipelineStage; label: string } => Boolean(item.value)).map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}
-                  </select>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <nav className={styles.pagination} aria-label="Pipeline pagination">
-          <span className={styles.paginationInfo}>{showing}</span>
-          <div className={styles.paginationControls}>
-            <button type="button" disabled={data.first} onClick={() => setPage((value) => Math.max(0, value - 1))}>← Previous</button>
-            <span className={styles.paginationInfo}>Page {data.number + 1} of {Math.max(1, data.totalPages)}</span>
-            <button type="button" disabled={data.last} onClick={() => setPage((value) => value + 1)}>Next →</button>
-            <label className={styles.pageSize}>Candidates per page
-              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value) as (typeof pageSizes)[number]); setPage(0); }}>
-                {pageSizes.map((size) => <option value={size} key={size}>{size}</option>)}
-              </select>
-            </label>
-          </div>
-        </nav>
-      </>}
-    </WorkspaceShell>
-  );
-}
+function Filter({label,children}:{label:string;children:React.ReactNode}){return<label className={styles.filter}><span>{label}</span>{children}</label>}
+function CandidateIdentity({candidate}:{candidate:Candidate}){return<div className={styles.identity}><span className={styles.avatar} aria-hidden="true">{initials(candidate.fullName)}</span><span><strong>{candidate.fullName}</strong><small>{candidate.headline||candidate.departmentRole||candidate.jobTitle}</small><small>{candidate.currentCompany||candidate.jobTitle}</small></span></div>}
+function Skills({values}:{values:string[]}){return<div className={styles.skills}>{values.slice(0,3).map((skill)=><span key={skill}>{skill}</span>)}{values.length>3&&<small>+{values.length-3}</small>}</div>}
+function CandidateActions({candidate,updating,onMove}:{candidate:Candidate;updating:boolean;onMove:(candidate:Candidate,stage:PipelineStage)=>Promise<void>}){return<div className={styles.actions}><a href={`/recruiter/jobs/${encodeURIComponent(candidate.jobId)}/applications/${candidate.applicationId}`}>View</a><a href={`/recruiter/communications?candidate=${candidate.candidateId}&job=${encodeURIComponent(candidate.jobId)}`}>Message</a><a href={`/recruiter/interviews?application=${candidate.applicationId}`}>Interview</a><select aria-label={`Move ${candidate.fullName} to pipeline stage`} value={candidate.pipelineStage} disabled={updating} onChange={(e)=>void onMove(candidate,e.target.value as PipelineStage)}>{stages.filter((item):item is {value:PipelineStage;label:string}=>Boolean(item.value)).map((item)=><option value={item.value} key={item.value}>{item.label}</option>)}</select></div>}
+function CandidateRow({candidate,selected,updating,onToggle,onMove}:{candidate:Candidate;selected:boolean;updating:boolean;onToggle:()=>void;onMove:(candidate:Candidate,stage:PipelineStage)=>Promise<void>}){return<tr className={selected?styles.selectedRow:undefined}><td className={styles.checkboxCell}><input aria-label={`Select ${candidate.fullName}`} type="checkbox" checked={selected} onChange={onToggle}/></td><td><CandidateIdentity candidate={candidate}/></td><td><Skills values={candidate.skills}/></td><td className={styles.data}>{candidate.overallExperienceYears==null?"—":`${candidate.overallExperienceYears} yrs`}</td><td>{candidate.location||"—"}</td><td className={styles.data}>{candidate.noticePeriodDays==null?"—":candidate.noticePeriodDays===0?"Immediate":`${candidate.noticePeriodDays}d`}</td><td><span className={styles.stage}>{stageLabel(candidate.pipelineStage)}</span></td><td><div className={styles.activity}><strong>{formatDate(candidate.lastActiveAt)}</strong><small>Updated {formatDate(candidate.profileLastUpdatedAt)}</small></div></td><td><CandidateActions candidate={candidate} updating={updating} onMove={onMove}/></td></tr>}
+function CandidateCard({candidate,selected,updating,onToggle,onMove}:{candidate:Candidate;selected:boolean;updating:boolean;onToggle:()=>void;onMove:(candidate:Candidate,stage:PipelineStage)=>Promise<void>}){return<article className={`${styles.card} ${selected?styles.cardSelected:""}`}><header><input aria-label={`Select ${candidate.fullName}`} type="checkbox" checked={selected} onChange={onToggle}/><CandidateIdentity candidate={candidate}/><span className={styles.stage}>{stageLabel(candidate.pipelineStage)}</span></header><Skills values={candidate.skills}/><dl><div><dt>Experience</dt><dd>{candidate.overallExperienceYears==null?"Not shared":`${candidate.overallExperienceYears} years`}</dd></div><div><dt>Location</dt><dd>{candidate.location||"Not shared"}</dd></div><div><dt>Notice</dt><dd>{candidate.noticePeriodDays==null?"Not shared":candidate.noticePeriodDays===0?"Immediate":`${candidate.noticePeriodDays} days`}</dd></div><div><dt>Last active</dt><dd>{formatDate(candidate.lastActiveAt)}</dd></div></dl><CandidateActions candidate={candidate} updating={updating} onMove={onMove}/></article>}
+function PipelineState({title,copy,busy=false,action}:{title:string;copy:string;busy?:boolean;action?:React.ReactNode}){return<section className={styles.state} aria-busy={busy||undefined} role={busy?"status":undefined}><h2>{title}</h2><p>{copy}</p>{action}</section>}

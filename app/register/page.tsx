@@ -1,5 +1,2 @@
-import { RegistrationPortal } from "../../components/auth";
-export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ job?: string | string[]; ref?: string | string[]; source?: string | string[] }> }) {
-  const { job, ref, source } = await searchParams;
-  return <RegistrationPortal jobId={typeof job === "string" ? job : undefined} referralCode={typeof ref === "string" ? ref : undefined} shareSource={typeof source === "string" ? source : undefined} />;
-}
+import { EmailOtpCandidateRegistration } from "../../components/email-otp-auth";
+export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ job?: string | string[]; ref?: string | string[]; source?: string | string[] }> }) { const params = await searchParams; return <EmailOtpCandidateRegistration jobId={typeof params.job === "string" ? params.job : undefined} referralCode={typeof params.ref === "string" ? params.ref : undefined} shareSource={typeof params.source === "string" ? params.source : undefined}/>; }

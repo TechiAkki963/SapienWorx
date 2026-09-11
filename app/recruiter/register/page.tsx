@@ -1,5 +1,2 @@
-import { RegistrationPortal } from "../../../components/auth";
-
-export default function RecruiterRegisterPage() {
-  return <RegistrationPortal portal="recruiter" />;
-}
+import { EmailOtpRecruiterRegistration } from "../../../components/email-otp-auth";
+export default function RecruiterRegisterPage(){ return <EmailOtpRecruiterRegistration/>; }

@@ -1,2 +1,2 @@
-import { MasterAdminLogin } from "../../../components/master-admin";
-export default function MasterAdminLoginPage(){ return <MasterAdminLogin/>; }
+import { EmailOtpLogin } from "../../../components/email-otp-auth";
+export default function AdminLoginPage(){ return <EmailOtpLogin role="SUPER_ADMIN"/>; }
