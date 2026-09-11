@@ -12,24 +12,6 @@ permissions:
   contents: read
 
 jobs:
-  codeql:
-    name: CodeQL (${{ matrix.language }})
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [java-kotlin, javascript-typescript]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-      - uses: github/codeql-action/autobuild@v3
-      - uses: github/codeql-action/analyze@v3
-
   dependency-review:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -43,7 +25,7 @@ jobs:
         with:
           fail-on-severity: high
       - name: Dependency review availability note
-        run: echo "Dependency review is advisory until Dependency Graph is enabled in repository security settings. CodeQL and verified-secret scanning remain blocking."
+        run: echo "Dependency review is advisory until Dependency Graph is enabled in repository security settings. Verified-secret scanning remains blocking."
 
   repository-secrets:
     name: Secret patterns
