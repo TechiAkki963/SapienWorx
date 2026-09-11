@@ -16,9 +16,9 @@
 
 .panel h2,
 .aside h2 {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-2);
   color: var(--ink);
-  font-size: 20px;
+  font-size: var(--font-size-lg);
 }
 
 .intro {
@@ -29,7 +29,7 @@
 
 .form { display: grid; gap: var(--space-3); }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-.field { min-width: 0; display: grid; gap: 6px; }
+.field { min-width: 0; display: grid; gap: var(--space-2); }
 .field > span:first-child { color: var(--muted); font-size: 12px; font-weight: 600; }
 
 .input,
@@ -49,7 +49,7 @@
   border: 1px solid var(--line);
   background: var(--cloud);
   color: var(--ink);
-  padding: 10px var(--space-3);
+  padding: var(--space-3) var(--space-3);
 }
 
 .input::placeholder,
@@ -145,7 +145,7 @@
   min-height: 28px;
   display: inline-flex;
   align-items: center;
-  padding: 3px 9px;
+  padding: var(--space-1) var(--space-2);
   border: 1px solid color-mix(in srgb, var(--portal-accent) 18%, var(--line));
   border-radius: 999px;
   background: var(--portal-accent-soft);
@@ -179,7 +179,7 @@
   background: color-mix(in srgb, var(--paper) 58%, var(--cloud));
 }
 
-.upcomingCard time { color: var(--muted); font-family: var(--font-data); font-size: 12px; font-weight: 500; }
+.upcomingCard time { color: var(--muted); font-family: var(--font-data); font-size: var(--font-size-sm); font-weight: 500; }
 .upcomingCard strong { color: var(--ink); }
 .upcomingCard span,
 .upcomingCard small { color: var(--muted); }
@@ -210,7 +210,7 @@
   padding-top: var(--space-3);
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
 }
 

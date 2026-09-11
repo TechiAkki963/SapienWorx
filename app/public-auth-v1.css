@@ -119,7 +119,7 @@
   display: inline-flex;
   align-items: center;
   color: var(--ink-soft);
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   text-decoration: none;
 }
@@ -152,7 +152,7 @@
   height: 44px;
   display: grid;
   place-content: center;
-  gap: 4px;
+  gap: var(--space-1);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--cloud);
@@ -217,7 +217,7 @@
   margin: 0;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: clamp(38px, 5vw, 68px);
+  font-size: clamp(var(--font-size-3xl), 5vw, var(--font-size-4xl));
   font-weight: 600;
   line-height: 1.02;
   letter-spacing: -0.035em;
@@ -259,7 +259,7 @@
   margin: 0;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: clamp(48px, 6vw, 84px);
+  font-size: clamp(var(--font-size-4xl), 6vw, var(--font-size-4xl));
   font-weight: 600;
   line-height: .96;
   letter-spacing: -0.045em;
@@ -342,7 +342,7 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .landing-v2-promise > span {
@@ -403,9 +403,9 @@
 }
 
 .landing-v2-role-card h3 {
-  margin: 2px 0;
+  margin: var(--space-1) 0;
   color: var(--ink);
-  font-size: 18px;
+  font-size: var(--font-size-lg);
 }
 
 .landing-v2-role-card p,
@@ -425,7 +425,7 @@
 .landing-v2-role-tags span,
 .public-tags span,
 .public-job-skill-list span {
-  padding: 6px 9px;
+  padding: var(--space-2) var(--space-2);
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--paper);
@@ -477,15 +477,15 @@
 
 .landing-v2-trust-grid h2,
 .landing-v2-trust-grid h3 {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-2);
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--font-size-md);
 }
 
 .landing-v2-trust-grid p {
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   line-height: 1.6;
 }
 
@@ -505,7 +505,7 @@
 .landing-v2-recruiter h2 {
   margin: var(--space-3) 0 0;
   color: var(--ink);
-  font-size: clamp(30px, 4vw, 50px);
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
   line-height: 1.05;
 }
 
@@ -530,7 +530,7 @@
 }
 
 .landing-v2-steps h3 {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-2);
 }
 
 .landing-v2-steps p {
@@ -605,7 +605,7 @@
 .article-card h3 {
   margin: var(--space-3) 0;
   color: var(--ink);
-  font-size: 22px;
+  font-size: var(--font-size-xl);
   line-height: 1.2;
 }
 
@@ -749,7 +749,7 @@
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--line);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .listing-summary strong {
@@ -793,9 +793,9 @@
 }
 
 .public-job-content h3 {
-  margin: 4px 0 var(--space-2);
+  margin: var(--space-1) 0 var(--space-2);
   color: var(--ink);
-  font-size: 20px;
+  font-size: var(--font-size-lg);
 }
 
 .public-job-company,
@@ -948,7 +948,7 @@
 .knowledge-article header > p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 19px;
+  font-size: var(--font-size-lg);
   line-height: 1.65;
 }
 
@@ -957,7 +957,7 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .knowledge-article header footer span {
@@ -971,7 +971,7 @@
 .knowledge-article > section p {
   margin: 0 0 1.35em;
   color: var(--ink-soft);
-  font-size: 17px;
+  font-size: var(--font-size-md);
   line-height: 1.8;
 }
 
@@ -1002,7 +1002,7 @@
   gap: var(--space-2);
   padding-block: var(--space-4);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .public-job-breadcrumb a,
@@ -1045,7 +1045,7 @@
 }
 
 .public-job-detail-brand p {
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
   font-weight: 600;
 }
 
@@ -1157,7 +1157,7 @@
 }
 
 .public-job-apply-panel > strong {
-  font-size: 20px;
+  font-size: var(--font-size-lg);
 }
 
 .public-job-apply-panel > p,
@@ -1263,7 +1263,7 @@
 .recruiter-marketing-copy h1 {
   max-width: 840px;
   margin: 0;
-  font-size: clamp(46px, 6vw, 78px);
+  font-size: clamp(var(--font-size-4xl), 6vw, var(--font-size-4xl));
   line-height: .98;
 }
 
@@ -1335,7 +1335,7 @@
 .recruiter-marketing-pillars span {
   font-family: var(--font-data);
   color: var(--indigo);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .recruiter-marketing-pillars h2 {
@@ -1362,7 +1362,7 @@
 .recruiter-marketing-cta h2 {
   margin: 0 0 var(--space-2);
   color: var(--cloud);
-  font-size: 32px;
+  font-size: var(--font-size-3xl);
 }
 
 .recruiter-marketing-cta p {
@@ -1403,7 +1403,7 @@
   align-items: center;
   gap: var(--space-4);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .auth-nav-actions a {
@@ -1451,7 +1451,7 @@
   align-content: center;
   gap: var(--space-5);
   min-height: 620px;
-  padding: clamp(40px, 6vw, 76px);
+  padding: clamp(var(--space-7), 6vw, var(--space-8));
   border-radius: var(--radius-lg);
 }
 
@@ -1486,7 +1486,7 @@
 .auth-aside h1 {
   max-width: 560px;
   margin: 0;
-  font-size: clamp(38px, 5vw, 62px);
+  font-size: clamp(var(--font-size-3xl), 5vw, var(--font-size-4xl));
   font-weight: 600;
   line-height: .98;
 }
@@ -1498,7 +1498,7 @@
 .auth-aside > p {
   max-width: 540px;
   margin: 0;
-  font-size: 16px;
+  font-size: var(--font-size-md);
   line-height: 1.7;
   opacity: .82;
 }
@@ -1506,7 +1506,7 @@
 .auth-benefits {
   display: grid;
   gap: var(--space-3);
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 600;
 }
 
@@ -1531,7 +1531,7 @@
 .auth-card {
   align-self: center;
   width: min(100%, 560px);
-  padding: clamp(36px, 5vw, 64px);
+  padding: clamp(var(--space-6), 5vw, var(--space-8));
   border: 0;
   background: var(--paper);
   box-shadow: none;
@@ -1552,7 +1552,7 @@
 .auth-card > h1 {
   margin: 0;
   color: var(--ink);
-  font-size: clamp(34px, 5vw, 52px);
+  font-size: clamp(var(--font-size-3xl), 5vw, var(--font-size-4xl));
   font-weight: 600;
   line-height: 1.02;
 }
@@ -1604,7 +1604,7 @@
 }
 
 .login-password-field .auth-field input {
-  padding-right: 72px;
+  padding-right: var(--space-8);
 }
 
 .login-password-field > button {
@@ -1634,7 +1634,7 @@
 .trusted-device-choice input {
   width: 20px;
   min-height: 20px;
-  margin-top: 2px;
+  margin-top: var(--space-1);
   accent-color: var(--portal-accent);
 }
 
@@ -1783,7 +1783,7 @@
   .public-page-heading h1,
   .landing-v2-hero-copy h1,
   .recruiter-marketing-copy h1 {
-    font-size: 42px;
+    font-size: var(--font-size-4xl);
   }
 
   .landing-v2-hero {
@@ -1910,7 +1910,7 @@
 
   .public-job-detail-heading h1,
   .knowledge-article h1 {
-    font-size: 40px;
+    font-size: var(--font-size-4xl);
   }
 
   .public-job-detail-aside {
@@ -1969,7 +1969,7 @@
   }
 
   .auth-aside h1 {
-    font-size: 38px;
+    font-size: var(--font-size-3xl);
   }
 
   .auth-aside-note {

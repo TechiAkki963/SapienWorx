@@ -62,7 +62,7 @@
 .workspace-shell-candidate .page-heading h1 {
   margin: 0;
   color: var(--ink);
-  font-size: clamp(30px, 4vw, 46px);
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
   line-height: 1.04;
 }
 
@@ -155,7 +155,7 @@
 .candidate-analytics-heading h2 {
   margin: var(--space-2) 0 0;
   color: var(--ink);
-  font-size: clamp(28px, 4vw, 42px);
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
 }
 
 .candidate-analytics-heading p {
@@ -202,7 +202,7 @@
 .candidate-analytics-metric > strong {
   color: var(--ink);
   font-family: var(--font-data);
-  font-size: 30px;
+  font-size: var(--font-size-2xl);
   font-weight: 500;
 }
 
@@ -257,7 +257,7 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-analytics-range select {
@@ -397,7 +397,7 @@
 .candidate-activity-gauge {
   display: inline-flex;
   margin-block: var(--space-3);
-  padding: 7px 10px;
+  padding: var(--space-2) var(--space-3);
   border-radius: 999px;
   background: var(--amber-tint);
   color: var(--amber-deep);
@@ -423,7 +423,7 @@
 }
 
 .candidate-activity-tip p {
-  margin: 4px 0;
+  margin: var(--space-1) 0;
   color: var(--muted);
   line-height: 1.45;
 }
@@ -460,7 +460,7 @@
 .candidate-job-results-head h2 {
   margin: var(--space-2) 0 0;
   color: var(--ink);
-  font-size: clamp(27px, 3vw, 38px);
+  font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-3xl));
 }
 
 .candidate-jobs-hero p,
@@ -477,7 +477,7 @@
   align-items: center;
   gap: var(--space-3);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-job-search {
@@ -532,7 +532,7 @@
   padding-top: var(--space-4);
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-jobs-quick-filters button {
@@ -572,7 +572,7 @@
   align-items: center;
   gap: var(--space-2);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-job-result-controls select {
@@ -664,9 +664,9 @@
 }
 
 .candidate-job-card-title p {
-  margin-top: 4px;
+  margin-top: var(--space-1);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-job-card-actions button,
@@ -696,7 +696,7 @@
 .candidate-job-match strong {
   color: var(--amber-deep);
   font-family: var(--font-data);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-job-match span {
@@ -721,7 +721,7 @@
   background: var(--paper);
   color: var(--ink-soft);
   padding: 4px 9px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-job-meta {
@@ -829,7 +829,7 @@
 .workspace-shell-candidate .stat-grid .stat-card > strong {
   color: var(--ink);
   font-family: var(--font-data);
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   font-weight: 500;
 }
 
@@ -933,9 +933,9 @@
 }
 
 .candidate-application-card-head p {
-  margin-top: 4px;
+  margin-top: var(--space-1);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-application-stage-copy {
@@ -948,7 +948,7 @@
 .candidate-application-stage-copy span {
   color: var(--muted);
   font-family: var(--font-data);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-application-progress {
@@ -994,7 +994,7 @@
   border-radius: 50%;
   background: var(--cloud);
   font-family: var(--font-data);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 
 .candidate-application-progress li.completed {
@@ -1110,9 +1110,9 @@
 }
 
 .candidate-interview-card h2 {
-  margin: var(--space-2) 0 2px;
+  margin: var(--space-2) 0 var(--space-1);
   color: var(--ink);
-  font-size: 22px;
+  font-size: var(--font-size-xl);
 }
 
 .candidate-interview-company {
@@ -1223,7 +1223,7 @@
 .candidate-notification-content {
   min-width: 0;
   display: grid;
-  gap: 5px;
+  gap: var(--space-2);
 }
 
 .candidate-notification-content > div {
@@ -1286,7 +1286,7 @@
 }
 
 .candidate-message-centre .message-list h2 {
-  margin: 4px 0;
+  margin: var(--space-1) 0;
   color: var(--ink);
 }
 
@@ -1298,7 +1298,7 @@
 .message-unread-count {
   color: var(--amber-deep);
   font-family: var(--font-data);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-message-centre .message-search {
@@ -1368,7 +1368,7 @@
 .conversation-summary {
   min-width: 0;
   display: grid;
-  gap: 3px;
+  gap: var(--space-1);
 }
 
 .conversation-summary small,
@@ -1379,7 +1379,7 @@
 }
 
 .conversation-summary p {
-  margin: 3px 0 0;
+  margin: var(--space-1) 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1429,9 +1429,9 @@
 }
 
 .message-context p {
-  margin: 4px 0 0;
+  margin: var(--space-1) 0 0;
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .message-context a {
@@ -1451,7 +1451,7 @@
   align-items: center;
   gap: var(--space-3);
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 
 .message-day-divider::before,
@@ -1488,7 +1488,7 @@
   margin-top: 6px;
   color: var(--muted);
   font-family: var(--font-data);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
 }
 
 .message-composer {
@@ -1552,7 +1552,7 @@
   background: var(--amber);
   color: var(--amber-ink);
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
 }
 
@@ -1564,9 +1564,9 @@
 }
 
 .candidate-hero-identity h2 {
-  margin-block: 4px;
+  margin-block: var(--space-1);
   color: var(--ink);
-  font-size: 26px;
+  font-size: var(--font-size-2xl);
 }
 
 .candidate-hero-identity > div > span,
@@ -1590,7 +1590,7 @@
 .candidate-hero-facts b {
   color: var(--ink);
   font-family: var(--font-data);
-  font-size: 17px;
+  font-size: var(--font-size-md);
 }
 
 .candidate-hero-facts span {
@@ -1824,7 +1824,7 @@
 .candidate-subsection-heading h3 {
   margin: 0;
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--font-size-md);
 }
 
 .candidate-profile-remove-text {
@@ -2079,7 +2079,7 @@
 .workspace-shell-candidate .report-funnel-row small {
   color: var(--muted);
   font-family: var(--font-data);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 
 .workspace-shell-candidate .report-track {
@@ -2190,7 +2190,7 @@
   }
 
   .workspace-shell-candidate .page-heading h1 {
-    font-size: 32px;
+    font-size: var(--font-size-3xl);
   }
 
   .candidate-analytics-heading,
