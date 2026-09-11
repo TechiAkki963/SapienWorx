@@ -149,7 +149,7 @@
 .eyebrow,
 .recruiterEyebrow {
   color: var(--amber-deep);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -173,7 +173,7 @@
   max-width: 720px;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   line-height: 1.7;
 }
 
@@ -199,7 +199,7 @@
 .experience legend,
 .experience label > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -294,12 +294,12 @@
 
 .previewHeading span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .previewHeading strong {
   font-family: var(--font-data);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .previewList {
@@ -334,7 +334,7 @@
 
 .previewJob strong {
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: var(--font-size-md);
 }
 
 .previewJob small {
@@ -392,7 +392,7 @@
 
 .trust h2 {
   margin: var(--space-4) 0 var(--space-2);
-  font-size: 21px;
+  font-size: var(--font-size-xl);
 }
 
 .trust p {
@@ -417,7 +417,7 @@
 
 .sectionHeading h2 {
   margin: var(--space-2) 0;
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: clamp(var(--font-size-3xl), 4vw, var(--font-size-4xl));
   letter-spacing: -0.04em;
 }
 
@@ -461,7 +461,7 @@
 
 .jobMain h3 {
   margin: var(--space-1) 0 var(--space-2);
-  font-size: 22px;
+  font-size: var(--font-size-xl);
 }
 
 .meta,
@@ -473,7 +473,7 @@
 
 .meta {
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .tags {
@@ -486,7 +486,7 @@
   background: var(--cloud);
   padding: var(--space-1) var(--space-2);
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .rowAction {
@@ -577,7 +577,7 @@
 
 .recruiterBand h2 {
   margin: var(--space-2) 0;
-  font-size: clamp(30px, 4vw, 48px);
+  font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
   letter-spacing: -0.04em;
 }
 
@@ -636,7 +636,7 @@
 
 .articleGrid article > span {
   color: var(--amber-deep);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 

@@ -36,7 +36,7 @@
   gap: var(--space-2);
   margin: 0;
   color: var(--portal-accent-deep);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -47,7 +47,7 @@
   min-height: 44px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  padding: 10px 16px;
+  padding: var(--space-3) var(--space-4);
   font-weight: 600;
   text-decoration: none;
   box-shadow: none;
@@ -227,7 +227,7 @@
   max-width: 720px;
   margin: 0;
   color: var(--muted);
-  font-size: 16px;
+  font-size: var(--font-size-md);
   line-height: 1.7;
 }
 
@@ -274,7 +274,7 @@
   max-width: 690px;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   line-height: 1.7;
 }
 
@@ -430,7 +430,7 @@
   border-radius: 999px;
   background: var(--paper);
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .landing-v2-role-card footer {
@@ -439,7 +439,7 @@
   align-items: center;
   gap: var(--space-4);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .landing-v2-role-card footer a {
@@ -712,15 +712,15 @@
 
 .public-filters form > strong {
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--font-size-md);
 }
 
 .public-filter-field,
 .public-filter-range label {
   display: grid;
-  gap: 7px;
+  gap: var(--space-2);
   color: var(--ink-soft);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -754,7 +754,7 @@
 
 .listing-summary strong {
   color: var(--ink);
-  font-size: 15px;
+  font-size: var(--font-size-base);
 }
 
 .public-job-grid-list {
@@ -806,7 +806,7 @@
 
 .public-job-company {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .public-job-company span {
@@ -819,7 +819,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .public-job-decision-meta span + span::before,
@@ -901,18 +901,18 @@
 
 .public-company-card > div {
   display: grid;
-  gap: 5px;
+  gap: var(--space-2);
 }
 
 .public-company-card strong {
   color: var(--ink);
-  font-size: 17px;
+  font-size: var(--font-size-md);
 }
 
 .public-company-card small,
 .company-count {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .company-count {
@@ -941,7 +941,7 @@
 
 .knowledge-article h1 {
   margin: 0;
-  font-size: clamp(40px, 6vw, 68px);
+  font-size: clamp(var(--font-size-4xl), 6vw, var(--font-size-4xl));
   line-height: 1.02;
 }
 
@@ -981,7 +981,7 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: var(--space-5);
-  padding: var(--space-6) max(24px, calc((100vw - var(--content-max)) / 2));
+  padding: var(--space-6) max(var(--space-5), calc((100vw - var(--content-max)) / 2));
 }
 
 .public-footer > div {
@@ -1056,7 +1056,7 @@
 
 .public-job-detail-heading h1 {
   margin: var(--space-3) 0 var(--space-4);
-  font-size: clamp(40px, 6vw, 70px);
+  font-size: clamp(var(--font-size-4xl), 6vw, var(--font-size-4xl));
   line-height: .98;
 }
 
@@ -1066,7 +1066,7 @@
   gap: var(--space-3);
   color: var(--muted);
   font-family: var(--font-data);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .public-job-hero-actions {
@@ -1101,7 +1101,7 @@
 
 .public-job-story-panel h2 {
   margin: var(--space-3) 0 var(--space-5);
-  font-size: 30px;
+  font-size: var(--font-size-2xl);
 }
 
 .rich-job-render {
@@ -1130,7 +1130,7 @@
 
 .public-job-process li div {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .public-job-process small {
@@ -1176,7 +1176,7 @@
 
 .public-job-company-heading > div {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .public-job-company-panel dl {
@@ -1271,7 +1271,7 @@
   max-width: 720px;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   line-height: 1.7;
 }
 
@@ -1287,7 +1287,7 @@
 
 .recruiter-marketing-flow > span {
   color: var(--indigo);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -1340,7 +1340,7 @@
 
 .recruiter-marketing-pillars h2 {
   margin: var(--space-3) 0 var(--space-2);
-  font-size: 20px;
+  font-size: var(--font-size-lg);
 }
 
 .recruiter-marketing-pillars p {
@@ -1570,9 +1570,9 @@
 
 .auth-field {
   display: grid;
-  gap: 7px;
+  gap: var(--space-2);
   color: var(--ink-soft);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -1640,7 +1640,7 @@
 
 .trusted-device-choice span {
   display: grid;
-  gap: 5px;
+  gap: var(--space-2);
 }
 
 .trusted-device-choice small,
@@ -1655,7 +1655,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .auth-row button,
@@ -1886,7 +1886,7 @@
   .public-job-decision-meta,
   .public-job-content footer {
     display: grid;
-    gap: 5px;
+    gap: var(--space-2);
   }
 
   .public-job-decision-meta span + span::before,

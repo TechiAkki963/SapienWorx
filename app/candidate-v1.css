@@ -35,7 +35,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 600;
 }
 
@@ -89,7 +89,7 @@
 .workspace-shell-candidate .eyebrow,
 .workspace-shell-candidate .section-title > div > p {
   color: var(--amber-deep);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -208,7 +208,7 @@
 
 .candidate-analytics-metric div {
   display: grid;
-  gap: 3px;
+  gap: var(--space-1);
 }
 
 .candidate-analytics-metric span {
@@ -229,7 +229,7 @@
 
 .candidate-performance-note > span {
   color: var(--amber-deep);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -243,13 +243,13 @@
 
 .candidate-analytics-period > div {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .candidate-analytics-period span,
 .candidate-analytics-period small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-analytics-range {
@@ -357,7 +357,7 @@
 .candidate-activity-person p,
 .candidate-activity-card-footer small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-activity-card-footer,
@@ -383,7 +383,7 @@
   min-width: 0;
   flex: 1;
   display: grid;
-  gap: 3px;
+  gap: var(--space-1);
 }
 
 .application-row small {
@@ -430,7 +430,7 @@
 
 .candidate-activity-tip a {
   color: var(--amber-deep);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   text-decoration: none;
 }
@@ -501,9 +501,9 @@
 
 .candidate-filter-control {
   display: grid;
-  gap: 7px;
+  gap: var(--space-2);
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -660,7 +660,7 @@
 
 .candidate-job-card h3 {
   color: var(--ink);
-  font-size: 19px;
+  font-size: var(--font-size-lg);
 }
 
 .candidate-job-card-title p {
@@ -701,7 +701,7 @@
 
 .candidate-job-match span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-job-tags,
@@ -720,7 +720,7 @@
   border-radius: 999px;
   background: var(--paper);
   color: var(--ink-soft);
-  padding: 4px 9px;
+  padding: var(--space-1) var(--space-2);
   font-size: var(--font-size-sm);
 }
 
@@ -730,7 +730,7 @@
   gap: var(--space-3);
   color: var(--muted);
   font-family: var(--font-data);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-job-meta span + span::before {
@@ -788,7 +788,7 @@
 .candidate-applications-hero h2,
 .candidate-notifications-hero h2 {
   margin: var(--space-2) 0;
-  font-size: clamp(26px, 3vw, 38px);
+  font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-3xl));
 }
 
 .candidate-applications-hero p,
@@ -814,7 +814,7 @@
 .report-kpi-strip article,
 .workspace-shell-candidate .stat-grid .stat-card {
   display: grid;
-  gap: 5px;
+  gap: var(--space-2);
   padding: var(--space-4);
   border: 0;
   border-right: 1px solid var(--line);
@@ -839,7 +839,7 @@
 .candidate-application-stat-grid small,
 .candidate-notification-stat-grid small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .candidate-application-browser,
@@ -929,7 +929,7 @@
 
 .candidate-application-card-head h3 {
   color: var(--ink);
-  font-size: 18px;
+  font-size: var(--font-size-lg);
 }
 
 .candidate-application-card-head p {
@@ -963,7 +963,7 @@
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 7px;
+  gap: var(--space-2);
   color: var(--muted);
   text-align: center;
 }
@@ -1033,7 +1033,7 @@
 
 .candidate-application-timeline li div {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .candidate-application-timeline small {
@@ -1087,7 +1087,7 @@
   border-radius: 999px;
   background: var(--paper);
   font-family: var(--font-data);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 
 .candidate-interview-list {
@@ -1129,12 +1129,12 @@
 
 .candidate-interview-card dl div {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .candidate-interview-card dt {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   text-transform: uppercase;
 }
 
@@ -1142,7 +1142,7 @@
   margin: 0;
   color: var(--ink);
   font-family: var(--font-data);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
 }
 
@@ -1162,7 +1162,7 @@
   border-left: 3px solid var(--amber);
   background: var(--amber-tint);
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   line-height: 1.6;
 }
 
@@ -1375,7 +1375,7 @@
 .conversation-summary p,
 .conversation-time {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .conversation-summary p {
@@ -1394,7 +1394,7 @@
   width: 7px;
   height: 7px;
   display: inline-block;
-  margin-right: 5px;
+  margin-right: var(--space-2);
   border-radius: 50%;
   background: var(--amber);
 }
@@ -1414,7 +1414,7 @@
 
 .conversation-person > div {
   display: grid;
-  gap: 3px;
+  gap: var(--space-1);
 }
 
 .message-context {
@@ -1485,7 +1485,7 @@
 
 .message-bubble small {
   display: block;
-  margin-top: 6px;
+  margin-top: var(--space-2);
   color: var(--muted);
   font-family: var(--font-data);
   font-size: var(--font-size-xs);
@@ -1583,7 +1583,7 @@
 
 .candidate-hero-facts > div {
   display: grid;
-  gap: 3px;
+  gap: var(--space-1);
   min-width: 90px;
 }
 
@@ -1595,7 +1595,7 @@
 
 .candidate-hero-facts span {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 
 .candidate-hero-actions {
@@ -1644,7 +1644,7 @@
 .candidate-sensitive-consent span,
 .privacy-toggle span {
   display: grid;
-  gap: 3px;
+  gap: var(--space-1);
 }
 
 .candidate-profile-visibility small,
@@ -1666,7 +1666,7 @@
 
 .candidate-profile-roadmap > div {
   display: grid;
-  gap: 5px;
+  gap: var(--space-2);
 }
 
 .candidate-profile-roadmap ol {
@@ -1685,9 +1685,9 @@
   min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--space-2);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   text-decoration: none;
 }
@@ -1705,7 +1705,7 @@
   border: 1px solid var(--line);
   border-radius: 50%;
   font-family: var(--font-data);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
 }
 
 .candidate-profile-roadmap li.current a > span,
@@ -1758,9 +1758,9 @@
 
 .candidate-profile-field {
   display: grid;
-  gap: 7px;
+  gap: var(--space-2);
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -1844,7 +1844,7 @@
 .candidate-tag-editor > span,
 .candidate-choice-group > span {
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -1903,7 +1903,7 @@
 
 .candidate-contact-protected > div {
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .candidate-contact-protected small {
@@ -1923,7 +1923,7 @@
 
 .candidate-profile-readiness h2 {
   margin: var(--space-2) 0;
-  font-size: 20px;
+  font-size: var(--font-size-lg);
 }
 
 .candidate-profile-readiness > p,
@@ -1950,7 +1950,7 @@
 
 .candidate-profile-savebar > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 /* Settings/privacy — stacked sections; no nested local sidebar. */
@@ -2066,7 +2066,7 @@
 
 .workspace-shell-candidate .report-funnel-row {
   display: grid;
-  gap: 7px;
+  gap: var(--space-2);
 }
 
 .workspace-shell-candidate .report-funnel-row > div:first-child {
@@ -2181,7 +2181,7 @@
 
   .workspace-shell-candidate .workspace-main {
     padding-inline: var(--space-4);
-    padding-bottom: 88px;
+    padding-bottom: var(--space-9);
   }
 
   .workspace-shell-candidate .page-heading {
@@ -2293,7 +2293,7 @@
 
   .candidate-job-meta {
     display: grid;
-    gap: 5px;
+    gap: var(--space-2);
   }
 
   .candidate-job-meta span + span::before {
@@ -2322,7 +2322,7 @@
 
   .candidate-interview-card dl > div:first-child dd {
     color: var(--ink);
-    font-size: 15px;
+    font-size: var(--font-size-base);
     font-weight: 600;
   }
 
