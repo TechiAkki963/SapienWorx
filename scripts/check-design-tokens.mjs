@@ -12,6 +12,7 @@ const customPropertyDefinition = /(--[a-z0-9-_]+)\s*:/gi;
 const customPropertyReference = /var\(\s*(--[a-z0-9-_]+)/gi;
 const inlineStyleBlock = /style\s*=\s*\{\{([\s\S]*?)\}\}/g;
 const inlineSpacingProperty = /\b(margin(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|padding(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|gap|rowGap|columnGap)\s*:\s*(?:["'`])?(-?\d*\.?\d+)(px|rem|em)?(?:["'`])?/g;
+const mediaQuery = /@media\s*([^\{]+)\{/gi;
 const widthBoundary = /(?:min|max)-width\s*:\s*(\d+)px/gi;
 const runtimeProvidedVariables = new Set(["--font-inter", "--font-space-grotesk", "--font-ibm-plex-mono"]);
 const generatedImageFile = /(?:^|\/)(?:opengraph-image|twitter-image)\.tsx$/;
@@ -94,9 +95,14 @@ for (const file of cssFiles) {
     if (!definedVariables.has(match[1])) violations.push(`${path}:${lineNumber(source, match.index)} references undefined CSS variable ${match[1]}`);
   }
 
-  widthBoundary.lastIndex = 0;
-  for (let match = widthBoundary.exec(source); match; match = widthBoundary.exec(source)) {
-    if (!allowedBoundaries.has(Number(match[1]))) violations.push(`${path}:${lineNumber(source, match.index)} uses non-canonical responsive boundary ${match[1]}px`);
+  mediaQuery.lastIndex = 0;
+  for (let mediaMatch = mediaQuery.exec(source); mediaMatch; mediaMatch = mediaQuery.exec(source)) {
+    widthBoundary.lastIndex = 0;
+    for (let match = widthBoundary.exec(mediaMatch[1]); match; match = widthBoundary.exec(mediaMatch[1])) {
+      if (!allowedBoundaries.has(Number(match[1]))) {
+        violations.push(`${path}:${lineNumber(source, mediaMatch.index)} uses non-canonical responsive boundary ${match[1]}px`);
+      }
+    }
   }
 }
 
