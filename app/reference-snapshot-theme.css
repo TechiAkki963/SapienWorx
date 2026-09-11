@@ -214,6 +214,105 @@ textarea {
   color: var(--indigo-deep);
 }
 
+/* Master Admin reference: dense white management surfaces with inline filters and rows. */
+.workspace-shell-admin .master-stack {
+  gap: var(--space-4);
+}
+
+.workspace-shell-admin .master-wide-list {
+  overflow: hidden;
+  padding: 0;
+}
+
+.workspace-shell-admin .master-wide-list > .section-title {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.workspace-shell-admin .master-list-tools {
+  margin: 0;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.workspace-shell-admin .master-list-tools label {
+  min-width: 180px;
+}
+
+.workspace-shell-admin .master-wide-list > article {
+  margin: 0;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--line);
+  background: var(--cloud);
+  transition: background .2s ease;
+}
+
+.workspace-shell-admin .master-wide-list > article:hover {
+  background: color-mix(in srgb, var(--indigo-soft) 55%, var(--cloud));
+}
+
+.workspace-shell-admin .master-row-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.workspace-shell-admin .master-wide-list p,
+.workspace-shell-admin .master-wide-list small {
+  color: var(--muted);
+}
+
+.workspace-shell-admin .workflow-list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.workspace-shell-admin .workflow-list-actions .button {
+  min-height: 36px;
+  padding-inline: var(--space-3);
+}
+
+.workspace-shell-admin .master-health-banner,
+.workspace-shell-admin .master-investigation-request,
+.workspace-shell-admin .master-activity-review,
+.workspace-shell-admin .master-ticket-form {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+  box-shadow: var(--shadow-surface);
+}
+
+.workspace-shell-admin .master-health-banner {
+  border-left: 4px solid var(--good);
+}
+
+.workspace-shell-admin .master-health-attention,
+.workspace-shell-admin .master-health-critical {
+  border-left-color: var(--warn);
+}
+
+.workspace-shell-admin .master-privacy-callout {
+  border: 1px solid #dbe1ff;
+  border-radius: var(--radius-md);
+  background: var(--indigo-soft);
+}
+
+.workspace-shell-admin .master-investigation-stats {
+  gap: var(--space-3);
+}
+
+.workspace-shell-admin .master-investigation-stats > div {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+  box-shadow: var(--shadow-surface);
+}
+
 .badge-blue,
 .badge-purple {
   background: #dbe1ff;
@@ -239,5 +338,11 @@ textarea {
   .workspace-shell-recruiter,
   .workspace-shell-admin {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-shell-admin .master-wide-list > .section-title,
+  .workspace-shell-admin .master-list-tools,
+  .workspace-shell-admin .master-wide-list > article {
+    padding-inline: var(--space-4);
   }
 }
