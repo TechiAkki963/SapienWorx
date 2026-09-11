@@ -1,0 +1,45 @@
+name: Rebuild v2.3 token migration
+
+on:
+  push:
+    branches:
+      - rebuild-v2.3-ux-hardening
+    paths:
+      - "scripts/migrate-design-tokens.mjs"
+      - ".github/workflows/rebuild-v2-3-token-migration.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: rebuild-v2.3-ux-hardening
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Migrate CSS to shared design tokens
+        run: node scripts/migrate-design-tokens.mjs
+
+      - name: Verify design-token guardrail
+        run: node scripts/check-design-tokens.mjs
+
+      - name: Commit migrated CSS
+        run: |
+          if git diff --quiet; then
+            echo "No CSS migration changes were required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- '*.css'
+          git commit -m "Rebuild v2.3: migrate CSS to design tokens [skip ci]"
+          git push origin HEAD:rebuild-v2.3-ux-hardening
