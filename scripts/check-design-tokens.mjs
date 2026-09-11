@@ -13,6 +13,7 @@ const customPropertyReference = /var\(\s*(--[a-z0-9-_]+)/gi;
 const inlineStyleBlock = /style\s*=\s*\{\{([\s\S]*?)\}\}/g;
 const inlineSpacingProperty = /\b(margin(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|padding(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|gap|rowGap|columnGap)\s*:\s*(?:["'`])?(-?\d*\.?\d+)(px|rem|em)?(?:["'`])?/g;
 const runtimeProvidedVariables = new Set(["--font-inter", "--font-space-grotesk", "--font-ibm-plex-mono"]);
+const generatedImageFile = /(?:^|\/)(?:opengraph-image|twitter-image)\.tsx$/;
 
 async function filesMatching(directory, extensions) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -78,8 +79,10 @@ for (const file of cssFiles) {
 }
 
 for (const file of sourceFiles) {
-  const source = await readFile(file, "utf8");
   const path = displayPath(file);
+  // Next ImageResponse social cards are not DOM surfaces and cannot consume the app stylesheet.
+  if (generatedImageFile.test(path)) continue;
+  const source = await readFile(file, "utf8");
   inlineStyleBlock.lastIndex = 0;
   for (let styleMatch = inlineStyleBlock.exec(source); styleMatch; styleMatch = inlineStyleBlock.exec(source)) {
     const block = styleMatch[1];
