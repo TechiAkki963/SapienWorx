@@ -35,7 +35,7 @@
   background: var(--paper);
   color: var(--ink-soft);
   font-family: var(--font-data);
-  font-size: var(--font-size-xs, .7rem);
+  font-size: var(--font-size-xs, var(--font-size-sm));
 }
 
 .tabs button.selected {
@@ -54,7 +54,7 @@
 }
 
 .state strong { color: var(--ink); }
-.state p { margin: 0; color: var(--muted); font-size: var(--font-size-sm, .78rem); }
+.state p { margin: 0; color: var(--muted); font-size: var(--font-size-sm, var(--font-size-sm)); }
 .days { display: grid; gap: var(--space-4); }
 .dayGroup { display: grid; gap: var(--space-2); }
 
@@ -65,8 +65,8 @@
   gap: var(--space-3);
   padding: 0 var(--space-1);
 }
-.dayHeader h2 { margin: 0; color: var(--ink); font-size: var(--font-size-md, 1rem); }
-.dayHeader span { color: var(--muted); font-size: var(--font-size-xs, .7rem); }
+.dayHeader h2 { margin: 0; color: var(--ink); font-size: var(--font-size-md, var(--font-size-md)); }
+.dayHeader span { color: var(--muted); font-size: var(--font-size-xs, var(--font-size-sm)); }
 
 .list {
   overflow: hidden;
@@ -86,19 +86,19 @@
 }
 .row:last-child { border-bottom: 0; }
 .row:hover { background: color-mix(in srgb, var(--portal-accent-soft) 24%, var(--cloud)); }
-.time { color: var(--ink); font-family: var(--font-data); font-size: var(--font-size-sm, .78rem); font-weight: 700; }
+.time { color: var(--ink); font-family: var(--font-data); font-size: var(--font-size-sm, var(--font-size-sm)); font-weight: 700; }
 
 .role,
 .mode,
 .panel { min-width: 0; display: grid; gap: var(--space-1); }
 .role strong,
-.mode strong { overflow: hidden; color: var(--ink); font-size: var(--font-size-sm, .78rem); text-overflow: ellipsis; white-space: nowrap; }
+.mode strong { overflow: hidden; color: var(--ink); font-size: var(--font-size-sm, var(--font-size-sm)); text-overflow: ellipsis; white-space: nowrap; }
 .role span,
 .role small,
 .mode span,
 .mode small,
 .panel > span,
-.panel > small { color: var(--muted); font-size: var(--font-size-xs, .7rem); }
+.panel > small { color: var(--muted); font-size: var(--font-size-xs, var(--font-size-sm)); }
 .role small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .panel > div { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; }
 .panelPerson { display: inline-flex; align-items: center; gap: var(--space-1); max-width: 9rem; }
@@ -112,13 +112,13 @@
   background: var(--portal-accent-soft);
   color: var(--portal-accent-deep);
   font-family: var(--font-data);
-  font-size: var(--font-size-xs, .7rem);
+  font-size: var(--font-size-xs, var(--font-size-sm));
   font-style: normal;
   font-weight: 700;
 }
-.panelPerson b { overflow: hidden; color: var(--ink-soft); font-size: var(--font-size-xs, .7rem); text-overflow: ellipsis; white-space: nowrap; }
+.panelPerson b { overflow: hidden; color: var(--ink-soft); font-size: var(--font-size-xs, var(--font-size-sm)); text-overflow: ellipsis; white-space: nowrap; }
 .actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-1); flex-wrap: wrap; }
-.actions :global(.button) { min-height: 2rem; padding-inline: var(--space-2); font-size: var(--font-size-xs, .7rem); white-space: nowrap; }
+.actions :global(.button) { min-height: 2rem; padding-inline: var(--space-2); font-size: var(--font-size-xs, var(--font-size-sm)); white-space: nowrap; }
 
 .privacyNote {
   margin: 0;
@@ -126,7 +126,7 @@
   border-left: .2rem solid var(--portal-accent);
   background: var(--portal-accent-soft);
   color: var(--ink-soft);
-  font-size: var(--font-size-xs, .7rem);
+  font-size: var(--font-size-xs, var(--font-size-sm));
   line-height: var(--line-height-normal, 1.5);
 }
 
