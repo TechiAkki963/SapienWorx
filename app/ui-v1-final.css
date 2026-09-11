@@ -49,7 +49,7 @@ html, body { max-width: none; overflow-x: visible; }
 .topbar { padding-inline: var(--space-5); justify-content: space-between; }
 .candidate-desktop-nav { display: flex; align-items: center; justify-content: center; flex: 1; }
 .workspace-name { min-height: 68px; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); border-bottom: 1px solid var(--line); }
-.workspace-name > div { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.workspace-name > div { min-width: 0; flex: 1; display: grid; gap: var(--space-1); }
 .workspace-name small { color: var(--muted); }
 .workspace-shell-admin .workspace-name :is(small,strong) { color: var(--cloud); }
 .workspace-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--portal-accent-soft); color: var(--portal-accent-deep); font-family: var(--font-data); font-weight: 600; }
@@ -77,10 +77,10 @@ html, body { max-width: none; overflow-x: visible; }
   .workspace-shell-admin .sidebar { position: fixed; z-index: var(--z-navigation); inset: auto 0 0; width: 100%; height: 76px; min-height: 76px; border: 0; border-top: 1px solid var(--ink-soft); overflow-x: auto; overflow-y: hidden; }
   .workspace-shell-admin .workspace-name { display: none; }
   .workspace-shell-admin .sidebar-scroll { width: max-content; min-width: 100%; height: 76px; overflow: visible; }
-  .workspace-shell-admin .sidebar nav { height: 76px; display: flex; align-items: stretch; gap: 2px; padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); }
-  .workspace-shell-admin .sidebar .nav-item { min-width: 92px; min-height: 64px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: var(--space-1) var(--space-2); font-size: 10px; }
+  .workspace-shell-admin .sidebar nav { height: 76px; display: flex; align-items: stretch; gap: var(--space-1); padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); }
+  .workspace-shell-admin .sidebar .nav-item { min-width: 92px; min-height: 64px; display: grid; justify-items: center; align-content: center; gap: var(--space-1); padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs); }
   .workspace-mobile-nav { position: fixed; z-index: var(--z-navigation); inset: auto 0 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); min-height: 72px; padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb,var(--cloud) 96%,transparent); backdrop-filter: blur(12px); }
-  .workspace-mobile-nav .nav-item { min-width: 0; display: grid; justify-items: center; align-content: center; gap: var(--space-1); padding: var(--space-1); text-align: center; font-size: 10px; }
+  .workspace-mobile-nav .nav-item { min-width: 0; display: grid; justify-items: center; align-content: center; gap: var(--space-1); padding: var(--space-1); text-align: center; font-size: var(--font-size-xs); }
   .workspace-mobile-nav .nav-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { padding-bottom: var(--space-9); }
   .topbar-context, .topbar-search { display: none; }

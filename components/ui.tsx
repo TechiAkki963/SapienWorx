@@ -48,8 +48,7 @@ const navigation: Record<Workspace, NavItem[]> = {
   recruiter: [
     { id: "dashboard", label: "Home", href: "/recruiter", icon: "home" },
     { id: "jobs", label: "Jobs", href: "/recruiter/jobs/manage", icon: "jobs" },
-    { id: "candidates", label: "Candidates", href: "/recruiter/candidates", icon: "people" },
-    { id: "sourcing", label: "Sourcing", href: "/recruiter/sourcing", icon: "search" },
+    { id: "sourcing", label: "Candidates", href: "/recruiter/sourcing", icon: "people" },
     { id: "pipeline", label: "Pipeline", href: "/recruiter/pipeline", icon: "pipeline" },
     { id: "interviews", label: "Interviews", href: "/recruiter/interviews", icon: "calendar" },
     { id: "communications", label: "Messages", href: "/recruiter/communications", icon: "message" },
@@ -70,7 +69,7 @@ const navigation: Record<Workspace, NavItem[]> = {
 
 const mobileNavigation: Record<Exclude<Workspace, "admin">, NavItem[]> = {
   candidate: [navigation.candidate[0], navigation.candidate[1], navigation.candidate[2], navigation.candidate[4], navigation.candidate[5]],
-  recruiter: [navigation.recruiter[0], navigation.recruiter[1], navigation.recruiter[2], navigation.recruiter[5], navigation.recruiter[7]],
+  recruiter: [navigation.recruiter[0], navigation.recruiter[1], navigation.recruiter[2], navigation.recruiter[4], navigation.recruiter[6]],
 };
 
 const workspaceLabels: Record<Workspace, string> = {
@@ -110,7 +109,7 @@ export function Button({ children, href, variant = "primary", onClick, type = "b
 }
 
 function NavLink({ workspace, item, active, compact = false }: { workspace: Workspace; item: NavItem; active: string; compact?: boolean }) {
-  const activeNow = item.id === active || (item.id === "candidates" && active === "pipeline");
+  const activeNow = item.id === active;
   return <a aria-current={activeNow ? "page" : undefined} className={`${activeNow ? "nav-item nav-item-active" : "nav-item"}${compact ? " nav-item-compact" : ""}`} href={item.href} title={compact ? item.label : undefined}><Icon name={item.icon} /><span className="nav-label">{item.label}</span>{workspace === "recruiter" && item.id === "pipeline" && <LivePipelineBadge/>}{workspace === "candidate" && item.id === "messages" && <LiveAttentionBadge type="messages" />}{workspace === "candidate" && item.id === "applications" && <LiveAttentionBadge type="interviews" />}{workspace === "recruiter" && item.id === "communications" && <LiveAttentionBadge type="messages" />}{workspace === "recruiter" && item.id === "interviews" && <LiveAttentionBadge type="interviews" />}</a>;
 }
 

@@ -14,23 +14,9 @@ export type CandidateDashboardData = {
   applications: Array<{ applicationId: string; title: string; companyName: string; stage: string; updatedAt: string }>;
 };
 
-const dashboardPreview: CandidateDashboardData = {
-  profile: { fullName: "Amara Mensah", headline: "Senior Product Designer", domainCategory: "NON_TECH", profileSearchable: true, profileLastUpdatedAt: "2026-08-23T10:30:00Z", lastActiveAt: new Date().toISOString() },
-  performance: { rangeDays: 90, profileAppearances: 24, recruiterActions: 31, profileViews: 24, resumeDownloads: 7, profileAppearancesInRange: 12, recruiterActionsInRange: 16, appearanceChangePercent: 33, actionChangePercent: 45, profileCompleteness: 82, activityLevel: "MEDIUM" },
-  recruiterActivity: [
-    { recruiterName: "Neha Sharma", recruiterTitle: "Talent Partner", organisationName: "Tyro Ventures", action: "PROFILE_VIEWED", occurredAt: "2026-08-27T09:30:00Z" },
-    { recruiterName: "Kartik Iyer", recruiterTitle: "Director, Talent", organisationName: "Integrated Personnel Services", action: "RESUME_DOWNLOADED", occurredAt: "2026-08-27T06:00:00Z" },
-    { recruiterName: "Sofia Malik", recruiterTitle: "Recruitment Lead", organisationName: "Morrow Health", action: "PROFILE_VIEWED", occurredAt: "2026-08-25T09:00:00Z" },
-  ],
-  applications: [
-    { applicationId: "preview-1", title: "Product Designer", companyName: "Northstar", stage: "INTERVIEW", updatedAt: "2026-08-27T08:00:00Z" },
-    { applicationId: "preview-2", title: "Senior UX Designer", companyName: "Tandem", stage: "SCREENING", updatedAt: "2026-08-26T12:00:00Z" },
-  ],
-};
-
-export function CandidateDashboard({ initialData }: { initialData?: CandidateDashboardData | null }) {
-  const [dashboard, setDashboard] = useState(initialData ?? dashboardPreview);
-  const [rangeDays, setRangeDays] = useState<DashboardRange>((initialData?.performance.rangeDays as DashboardRange) ?? 90);
+export function CandidateDashboard({ initialData }: { initialData: CandidateDashboardData }) {
+  const [dashboard, setDashboard] = useState(initialData);
+  const [rangeDays, setRangeDays] = useState<DashboardRange>((initialData.performance.rangeDays as DashboardRange) || 90);
   const [activityFilter, setActivityFilter] = useState<ActivityKind>("ALL");
   const [refreshing, setRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState("");
@@ -77,16 +63,6 @@ function activityLevelCopy(level: CandidateDashboardData["performance"]["activit
 function changeLabel(value: number) { return `${value >= 0 ? "↑" : "↓"} ${Math.abs(value)}%`; }
 function initials(value: string) { return value.split(" ").map((part) => part[0]).join("").slice(0, 2) || "R"; }
 function relativeTime(value: string) { const diff = Math.max(0, Date.now() - new Date(value).getTime()); const minutes = Math.floor(diff / 60_000); if (minutes < 1) return "Just now"; if (minutes < 60) return `${minutes} min ago`; const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours}h ago`; const days = Math.floor(hours / 24); return `${days}d ago`; }
-
-export function ResumeReview() {
-  const [confirmed, setConfirmed] = useState(false);
-  return <WorkspaceShell workspace="candidate" active="resume" title="Review your CV details" description="Confirm every extracted field before it becomes part of your candidate profile." actions={<Button href="/candidate/profile" variant="secondary">Open profile</Button>}>
-    <div className="review-intro"><span>✦</span><div><b>{confirmed ? "Your confirmed details are now in your profile." : "Your profile is unchanged until you confirm the information below."}</b> Field confidence is a guide only. Please check each item against your original CV.</div>{confirmed && <Badge tone="green">Profile updated</Badge>}</div>
-    <section className="review-layout"><aside className="document-pane" aria-label="Original uploaded resume"><div className="document-toolbar"><span>Amara_Mensah_Resume.pdf</span><span>− &nbsp; 100% &nbsp; +</span></div><article className="document-paper"><h2>Amara Mensah</h2><div className="document-contact">Product Designer · London, UK · amara.mensah@email.com</div><h3>Profile</h3><p>Product designer with 6+ years creating intuitive digital experiences for people and growing teams.</p><h3>Experience</h3><div className="document-job"><strong>Senior Product Designer · Northstar Labs</strong><p>Jan 2022 – Present · London, UK</p><p>Leading end-to-end experience design for an analytics platform used by 20,000+ customers.</p></div><h3>Education</h3><p><strong>BA Interaction Design</strong> · University of the Arts London · 2016 – 2019</p><h3>Skills</h3><p>Product strategy · Figma · Prototyping · Research · Design systems</p></article></aside><form className="review-form" onSubmit={(event) => { event.preventDefault(); setConfirmed(true); }}><header className="review-form-head"><div><h2>Extracted details</h2><p>Edit, accept or correct the information found in your CV.</p></div><Badge tone="green">5 sections found</Badge></header><div className="review-section"><div className="review-section-title"><h3>Personal information</h3><span className="confidence high">● High confidence</span></div><div className="review-fields"><Field label="Full name" defaultValue="Amara Mensah"/><Field label="Email" defaultValue="amara.mensah@email.com"/><Field label="Phone" defaultValue="+44 7700 900 112"/><Field label="Location" defaultValue="London, United Kingdom"/></div></div><div className="review-section"><div className="review-section-title"><h3>Most recent experience</h3><span className="confidence high">● High confidence</span></div><div className="review-fields"><Field label="Company" defaultValue="Northstar Labs"/><Field label="Role" defaultValue="Senior Product Designer"/><Field label="Start date" defaultValue="January 2022"/><Field label="End date" defaultValue="Present"/><Field label="Roles and responsibilities" defaultValue="Leading end-to-end experience design for an analytics platform used by 20,000+ customers." multiline wide/></div></div><footer className="review-footer"><p>By confirming, you choose which parsed details become part of your Sapienworx profile.</p><div><Button href="/candidate" variant="secondary">Cancel</Button><Button type="submit">{confirmed ? "Confirmed" : "Confirm and update profile"}</Button></div></footer></form></section>
-  </WorkspaceShell>;
-}
-
-function Field({ label, defaultValue, wide = false, multiline = false }: { label: string; defaultValue: string; wide?: boolean; multiline?: boolean }) { return <div className={`review-field ${wide ? "wide" : ""}`}><label>{label}</label>{multiline ? <textarea defaultValue={defaultValue}/> : <input defaultValue={defaultValue}/>}</div>; }
 
 type CandidateJob = { id: string; company: string; role: string; department: string; skills: string[]; location: string; type: string; minimumExperience: number; maximumExperience: number; minimumSalary: number | null; maximumSalary: number | null; postedDays: number; logo: string; color: string; matchScore: number; match?: string; description: string; publicPath: string };
 type PublicJobPage = { content: Array<{ jobId: string; title: string; organisationName: string; location: string; department: string; minimumExperienceYears: number; maximumExperienceYears: number; minimumSalaryLakhs: number | null; maximumSalaryLakhs: number | null; salaryVisible: boolean; descriptionHtml: string; skills: string[]; publishedAt: string | null; publicPath: string }> };
