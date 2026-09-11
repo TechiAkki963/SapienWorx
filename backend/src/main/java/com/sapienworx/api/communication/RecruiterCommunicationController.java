@@ -8,11 +8,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,11 +29,14 @@ import java.util.UUID;
 public class RecruiterCommunicationController {
     private final CommunicationService communicationService;
     private final RecruiterEmailDispatchService recruiterEmailDispatchService;
+    private final RecruiterTemplateManagementService templateManagementService;
     @PostMapping("/messages") public MessageResponse send(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody MessageRequest request) { return communicationService.send(recruiterId(user), PlatformRole.RECRUITER, request); }
     @GetMapping("/messages/conversations") public List<RecruiterConversationResponse> conversations(@AuthenticationPrincipal AuthenticatedUser user) { return communicationService.recruiterConversations(recruiterId(user)); }
     @GetMapping("/messages") public ApiPageResponse<MessageResponse> conversation(@AuthenticationPrincipal AuthenticatedUser user, @RequestParam UUID with, @RequestParam(defaultValue = "0") int page) { return ApiPageResponse.from(communicationService.conversation(recruiterId(user), with, PageRequest.of(Math.max(0, page), 50))); }
     @PostMapping("/templates") public InmailTemplateResponse saveTemplate(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody InmailTemplateRequest request) { return communicationService.saveTemplate(recruiterId(user), request); }
     @GetMapping("/templates") public List<InmailTemplateResponse> templates(@AuthenticationPrincipal AuthenticatedUser user) { return communicationService.templates(recruiterId(user)); }
+    @PutMapping("/templates/{templateId}") public InmailTemplateResponse updateTemplate(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID templateId, @Valid @RequestBody InmailTemplateRequest request) { return templateManagementService.update(recruiterId(user), templateId, request); }
+    @DeleteMapping("/templates/{templateId}") @ResponseStatus(HttpStatus.NO_CONTENT) public void deleteTemplate(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID templateId) { templateManagementService.delete(recruiterId(user), templateId); }
     @PostMapping("/bulk-email") public List<UUID> bulkEmail(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody BulkEmailRequest request) {
         recruiterId(user);
         return request.candidateIds().stream().distinct()
