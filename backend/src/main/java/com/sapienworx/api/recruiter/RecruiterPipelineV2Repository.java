@@ -42,6 +42,8 @@ public class RecruiterPipelineV2Repository {
             CandidateCareerStage careerStage,
             String gender,
             String jobRole,
+            String sortBy,
+            String sortDirection,
             Pageable pageable
     ) {
         StringBuilder where = new StringBuilder("""
@@ -82,8 +84,9 @@ public class RecruiterPipelineV2Repository {
         }
 
         String from = " from JobApplication application join application.candidate candidate join application.job job ";
+        String orderBy = orderBy(sortBy, sortDirection);
         TypedQuery<JobApplication> contentQuery = entityManager.createQuery(
-                "select application" + from + where + " order by application.updatedAt desc", JobApplication.class);
+                "select application" + from + where + orderBy, JobApplication.class);
         TypedQuery<Long> countQuery = entityManager.createQuery("select count(application)" + from + where, Long.class);
         parameters.forEach((key, value) -> { contentQuery.setParameter(key, value); countQuery.setParameter(key, value); });
         contentQuery.setFirstResult((int) pageable.getOffset());
@@ -107,6 +110,19 @@ public class RecruiterPipelineV2Repository {
         if (value instanceof Timestamp timestamp) return timestamp.toInstant();
         if (value instanceof OffsetDateTime offsetDateTime) return offsetDateTime.toInstant();
         return null;
+    }
+
+    private String orderBy(String sortBy, String sortDirection) {
+        String expression = switch (sortBy == null ? "" : sortBy.trim().toLowerCase(java.util.Locale.ROOT)) {
+            case "name" -> "candidate.fullName";
+            case "experience" -> "candidate.overallExperienceYears";
+            case "notice" -> "candidate.noticePeriodDays";
+            case "stage" -> "application.pipelineStage";
+            case "activity" -> "candidate.lastActiveAt";
+            default -> "application.updatedAt";
+        };
+        String direction = "asc".equalsIgnoreCase(sortDirection) ? " asc" : " desc";
+        return " order by " + expression + direction + ", application.updatedAt desc";
     }
 
     private boolean hasText(String value) { return value != null && !value.isBlank(); }
