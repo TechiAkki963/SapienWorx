@@ -54,6 +54,11 @@ const spacingToken = (value) => {
 
 const fontTokenForPx = (value) => fontPxTokens.find(([upper]) => value <= upper)?.[1] ?? "--font-size-4xl";
 const fontTokenForRem = (value) => fontTokenForPx(value * 16);
+const spacingValueToToken = (numericPx) => {
+  if (numericPx === 0) return "0";
+  const token = `var(${spacingToken(numericPx)})`;
+  return numericPx < 0 ? `calc(${token} * -1)` : token;
+};
 
 async function cssFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -75,12 +80,10 @@ function migrateFontSize(value) {
 }
 
 function migrateSpacing(value) {
-  return value.replace(/(-?\d*\.?\d+)px\b/gi, (_, raw) => {
-    const numeric = Number(raw);
-    if (numeric === 0) return "0";
-    const token = `var(${spacingToken(numeric)})`;
-    return numeric < 0 ? `calc(${token} * -1)` : token;
-  });
+  return value
+    .replace(/(-?\d*\.?\d+)px\b/gi, (_, raw) => spacingValueToToken(Number(raw)))
+    .replace(/(-?\d*\.?\d+)rem\b/gi, (_, raw) => spacingValueToToken(Number(raw) * 16))
+    .replace(/(-?\d*\.?\d+)em\b/gi, (_, raw) => spacingValueToToken(Number(raw) * 16));
 }
 
 function migrateColors(source) {
