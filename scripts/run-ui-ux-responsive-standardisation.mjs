@@ -16,6 +16,10 @@ executable = executable.replace(
   "consolidated = `${consolidated.trim()}${standardOverrides}`;",
   "if (!consolidated.includes(\"SapienWorx enterprise design-system contract\")) consolidated = `${consolidated.trim()}${standardOverrides}`;",
 );
+executable = executable.replace(
+  "const closeDrawer = (event) =>",
+  "const closeDrawer = (event: KeyboardEvent) =>",
+);
 executable += "\nconsole.log(`UI/UX standardisation applied. Consolidated ${importedNames.length} active global layers, removed ${globalCssNames.length} legacy global CSS files, and migrated ${cssFiles.length - 1} scoped stylesheets.`);\n";
 
 await writeFile(temporaryPath, executable, "utf8");
