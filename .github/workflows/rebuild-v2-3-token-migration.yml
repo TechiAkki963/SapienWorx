@@ -43,4 +43,19 @@ jobs:
           fi
 
       - name: Verify design-token guardrail
-        run: node scripts/check-design-tokens.mjs
+        id: token_guardrail
+        continue-on-error: true
+        run: node scripts/check-design-tokens.mjs > design-token-violations.txt 2>&1
+
+      - name: Upload token guardrail report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-token-guardrail-report
+          path: design-token-violations.txt
+
+      - name: Fail when token guardrail reports violations
+        if: steps.token_guardrail.outcome == 'failure'
+        run: |
+          cat design-token-violations.txt
+          exit 1
