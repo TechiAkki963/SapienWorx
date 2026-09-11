@@ -5,7 +5,6 @@ import "./public-auth-v1.css";
 import "./candidate-v1.css";
 import "./complete-v1.css";
 import "./ui-v1-final.css";
-import "./rebuild-v2-first.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], display: "swap", variable: "--font-space-grotesk" });

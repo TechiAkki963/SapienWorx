@@ -1,15 +1,44 @@
-/* Final V1 shell + interaction normalization, intentionally imported last. */
-html body .workspace-shell :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
-html body .public-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
-html body .auth-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
-html body .onboarding-v1 :is(button,input,select,textarea,summary,[role="button"],[role="tab"]) { min-height: 44px; }
-html body :is(.workspace-shell,.public-page,.auth-page,.onboarding-v1) :is(a.button,a.nav-item,a.action-link,a.view-all,a.job-card-link,a.privacy-link,a.switch-workspace,a.recruiter-entry) { min-height: 44px; display: inline-flex; align-items: center; }
-html body .workspace-shell :is(.eyebrow,.section-title p,dt,th,label > span),
-html body .public-page :is(.eyebrow,dt,th,label > span),
-html body .auth-page :is(.eyebrow,label > span) { text-transform: none; letter-spacing: normal; }
+/* Canonical SapienWorx semantic layer. Rebuild-v2 overrides were folded here so active UI has one final normalization layer. */
+:root {
+  --color-app-background: var(--paper);
+  --color-surface: var(--cloud);
+  --color-surface-subtle: color-mix(in srgb, var(--paper) 74%, var(--cloud));
+  --color-border: var(--line);
+  --color-border-strong: color-mix(in srgb, var(--ink) 24%, var(--line));
+  --color-text: var(--ink);
+  --color-text-secondary: var(--ink-soft);
+  --color-text-muted: var(--muted);
+  --color-success: var(--good);
+  --color-warning: var(--amber-deep);
+  --color-danger: var(--warn);
+  --control-height: 44px;
+  --control-height-compact: 36px;
+  --shadow-surface: 0 1px 2px color-mix(in srgb, var(--ink) 7%, transparent);
+  --shadow-dropdown: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
+  --shadow-dialog: 0 24px 64px color-mix(in srgb, var(--ink) 18%, transparent);
+  --z-content: 1;
+  --z-sticky: 20;
+  --z-dropdown: 40;
+  --z-navigation: 60;
+  --z-overlay: 80;
+  --z-dialog: 90;
+  --z-toast: 100;
+  --z-skip-link: 110;
+}
 
-.skip-link { position: fixed; z-index: 999; top: var(--space-2); left: var(--space-2); transform: translateY(-140%); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--ink); color: var(--cloud); }
+/* Cancel the old emergency overflow mask. Components must own their actual overflow. */
+html, body { max-width: none; overflow-x: visible; }
+
+:where(a, button, input, select, textarea, summary):focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.workspace-shell :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
+.public-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
+.auth-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]) { min-height: var(--control-height); }
+.workspace-main { min-width: 0; color: var(--color-text); }
+.workspace-main > * { max-width: var(--content-max); }
+
+.skip-link { position: fixed; z-index: var(--z-skip-link); top: var(--space-2); left: var(--space-2); transform: translateY(-140%); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--ink); color: var(--cloud); }
 .skip-link:focus { transform: translateY(0); }
+
 .workspace-shell-recruiter, .workspace-shell-admin { grid-template-areas: "sidebar topbar" "sidebar main"; grid-template-rows: auto minmax(0,1fr); min-height: 100vh; }
 .workspace-shell-recruiter { grid-template-columns: 248px minmax(0,1fr); }
 .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 72px minmax(0,1fr); }
@@ -18,76 +47,52 @@ html body .auth-page :is(.eyebrow,label > span) { text-transform: none; letter-s
 .workspace-shell-recruiter .sidebar, .workspace-shell-admin .sidebar { grid-area: sidebar; position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { grid-area: main; grid-column: auto; }
 .topbar { padding-inline: var(--space-5); justify-content: space-between; }
-.topbar .logo { flex: 0 0 auto; }
-.topbar-context, .topbar-actions { flex: 0 0 auto; }
 .candidate-desktop-nav { display: flex; align-items: center; justify-content: center; flex: 1; }
-.workspace-name { min-height: 68px; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); border-bottom: 1px solid color-mix(in srgb,var(--line) 70%,transparent); }
+.workspace-name { min-height: 68px; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); border-bottom: 1px solid var(--line); }
 .workspace-name > div { min-width: 0; flex: 1; display: grid; gap: 2px; }
 .workspace-name small { color: var(--muted); }
-.workspace-shell-admin .workspace-name small, .workspace-shell-admin .workspace-name strong { color: var(--cloud); }
+.workspace-shell-admin .workspace-name :is(small,strong) { color: var(--cloud); }
 .workspace-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--portal-accent-soft); color: var(--portal-accent-deep); font-family: var(--font-data); font-weight: 600; }
 .workspace-shell-admin .workspace-icon { background: color-mix(in srgb,var(--cloud) 12%,transparent); color: var(--cloud); }
-.sidebar-collapse { width: 44px; min-width: 44px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: transparent; color: inherit; }
+.sidebar-collapse { width: var(--control-height); min-width: var(--control-height); border: 1px solid var(--line); border-radius: var(--radius-sm); background: transparent; color: inherit; }
 .sidebar-scroll { height: calc(100vh - 68px); overflow-y: auto; }
 .recruiter-sidebar-collapsed .workspace-name > div, .recruiter-sidebar-collapsed .nav-label { display: none; }
 .recruiter-sidebar-collapsed .workspace-name { justify-content: center; padding-inline: var(--space-2); }
-.recruiter-sidebar-collapsed .sidebar-collapse { width: 40px; min-width: 40px; }
 .recruiter-sidebar-collapsed .sidebar .nav-item { justify-content: center; padding-inline: 0; }
 .workspace-mobile-nav { display: none; }
-.workspace-access-state { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: var(--space-3); padding: var(--space-5); background: var(--paper); text-align: center; }
-.workspace-access-state p { color: var(--muted); }
-.onboarding-summary { padding: var(--space-4); }
+.workspace-access-state { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: var(--space-3); padding: var(--space-5); text-align: center; }
 
-/* Empty-state illustration retained in the consolidated V1 layer. */
-.editorial-empty-doodle { width: 72px; height: 40px; margin: 0 auto var(--space-3); display: inline-flex; align-items: end; justify-content: center; gap: 6px; }
-.editorial-empty-doodle i { width: 10px; border: 1px solid color-mix(in srgb,var(--portal-accent-deep) 45%,var(--line)); border-radius: 999px 999px 3px 3px; background: var(--portal-accent-soft); }
-.editorial-empty-doodle i:nth-child(1) { height: 21px; transform: rotate(-8deg); }
-.editorial-empty-doodle i:nth-child(2) { height: 32px; }
-.editorial-empty-doodle i:nth-child(3) { height: 17px; transform: rotate(8deg); }
+.logo .logo-mark { display: none; }
+.logo { gap: 0; font-family: var(--font-display); font-size: 21px; font-weight: 700; letter-spacing: -0.035em; }
 
+.guarded-dialog-backdrop { z-index: var(--z-overlay); }
+.guarded-dialog { z-index: var(--z-dialog); box-shadow: var(--shadow-dialog); }
+
+@media (max-width: 1023px) {
+  .auth-layout { width: min(calc(100% - (var(--space-4) * 2)),760px); grid-template-columns: 1fr; padding-block: var(--space-5); }
+}
 @media (max-width: 639px) {
-  .workspace-shell-recruiter, .workspace-shell-admin { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; grid-template-rows: auto minmax(0,1fr); }
-  .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 1fr; }
+  .workspace-shell-recruiter, .workspace-shell-admin, .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; grid-template-rows: auto minmax(0,1fr); }
   .workspace-shell-recruiter .sidebar { display: none; }
-  .workspace-shell-admin .sidebar { position: fixed; z-index: 70; inset: auto 0 0; width: 100%; height: 76px; min-height: 76px; display: block; border: 0; border-top: 1px solid #34353b; background: #1b1c20; overflow-x: auto; overflow-y: hidden; }
+  .workspace-shell-admin .sidebar { position: fixed; z-index: var(--z-navigation); inset: auto 0 0; width: 100%; height: 76px; min-height: 76px; border: 0; border-top: 1px solid var(--ink-soft); overflow-x: auto; overflow-y: hidden; }
   .workspace-shell-admin .workspace-name { display: none; }
   .workspace-shell-admin .sidebar-scroll { width: max-content; min-width: 100%; height: 76px; overflow: visible; }
   .workspace-shell-admin .sidebar nav { height: 76px; display: flex; align-items: stretch; gap: 2px; padding: 4px 8px max(4px,env(safe-area-inset-bottom)); }
-  .workspace-shell-admin .sidebar .nav-item { min-width: 92px; min-height: 64px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 4px 8px; text-align: center; font-size: 10px; }
-  .workspace-shell-admin .sidebar .nav-label { display: block; max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .topbar { padding-inline: var(--space-4); }
-  .workspace-mobile-nav { position: fixed; z-index: 70; inset: auto 0 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); min-height: 72px; padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb,var(--cloud) 96%,transparent); backdrop-filter: blur(12px); }
+  .workspace-shell-admin .sidebar .nav-item { min-width: 92px; min-height: 64px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 4px 8px; font-size: 10px; }
+  .workspace-mobile-nav { position: fixed; z-index: var(--z-navigation); inset: auto 0 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); min-height: 72px; padding: var(--space-1) var(--space-2) max(var(--space-1),env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb,var(--cloud) 96%,transparent); backdrop-filter: blur(12px); }
   .workspace-mobile-nav .nav-item { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 3px; padding: var(--space-1); text-align: center; font-size: 10px; }
-  .workspace-mobile-nav .nav-label { display: block; overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-mobile-nav .nav-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { padding-bottom: 92px; }
   .topbar-context, .topbar-search { display: none; }
+  .topbar { padding-inline: var(--space-4); }
+  .auth-layout { width: 100%; padding: 0; }
+  .auth-card, .auth-aside { border-radius: 0; }
 }
-
 @media (min-width: 640px) and (max-width: 1023px) {
-  .workspace-shell-recruiter, .workspace-shell-admin { grid-template-columns: 72px minmax(0,1fr); }
-  .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 72px minmax(0,1fr); }
+  .workspace-shell-recruiter, .workspace-shell-admin, .workspace-shell-recruiter.recruiter-sidebar-collapsed { grid-template-columns: 72px minmax(0,1fr); }
   .workspace-shell-recruiter .workspace-name > div, .workspace-shell-admin .workspace-name > div, .workspace-shell-recruiter .nav-label, .workspace-shell-admin .nav-label { display: none; }
   .workspace-shell-recruiter .sidebar .nav-item, .workspace-shell-admin .sidebar .nav-item { justify-content: center; padding-inline: 0; }
   .workspace-shell-recruiter .workspace-name, .workspace-shell-admin .workspace-name { justify-content: center; padding-inline: var(--space-2); }
-  .workspace-shell-recruiter .sidebar-collapse { width: 40px; min-width: 40px; }
-  .topbar { padding-inline: var(--space-4); }
 }
-
-@media (min-width: 1024px) and (max-width: 1439px) {
-  .topbar { padding-inline: var(--space-5); }
-}
-
-@media (min-width: 1440px) {
-  .topbar { padding-inline: var(--space-6); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html body .workspace-shell .nav-item,
-  html body .workspace-shell .button,
-  html body .workspace-shell .icon-button,
-  html body .workspace-shell .account-trigger,
-  html body .editorial-empty-doodle i {
-    animation: none;
-    transition: none;
-  }
-}
+@media (min-width: 1440px) { .workspace-main > * { margin-inline: auto; width: min(100%, var(--content-max)); } }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms; animation-iteration-count: 1; transition-duration: .01ms; scroll-behavior: auto; } }
