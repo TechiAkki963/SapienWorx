@@ -18,6 +18,27 @@ const fontPxTokens = [
   [Infinity, "--font-size-4xl"],
 ];
 
+const legacyColorMap = new Map([
+  ["#fff", "var(--cloud)"],
+  ["#ffffff", "var(--cloud)"],
+  ["#144a75", "var(--indigo)"],
+  ["#cbd8df", "var(--line)"],
+  ["#dce4e8", "var(--line)"],
+  ["#314b5f", "var(--ink-soft)"],
+  ["#213c50", "var(--ink-soft)"],
+  ["#526779", "var(--muted)"],
+  ["#657a8b", "var(--muted)"],
+  ["#eaf3f6", "var(--indigo-soft)"],
+  ["#f0f5f7", "var(--paper)"],
+  ["#f4fbfb", "var(--indigo-soft)"],
+  ["#f5fbfb", "var(--indigo-soft)"],
+  ["#c7e0e2", "var(--line)"],
+  ["#cfe3e4", "var(--line)"],
+  ["#315b60", "var(--indigo-deep)"],
+  ["#e8c9c9", "var(--warn)"],
+  ["#fff8f8", "color-mix(in srgb, var(--warn) 5%, var(--cloud))"],
+]);
+
 const spacingToken = (value) => {
   const absolute = Math.abs(value);
   if (absolute <= 4) return "--space-1";
@@ -62,16 +83,25 @@ function migrateSpacing(value) {
   });
 }
 
+function migrateColors(source) {
+  return source.replace(/#[0-9a-f]{3,8}\b/gi, (hex) => legacyColorMap.get(hex.toLowerCase()) ?? hex);
+}
+
 let changedFiles = 0;
 for (const file of await cssFiles(root)) {
   if (file === tokenFile) continue;
   const original = await readFile(file, "utf8");
-  const migrated = original.replace(/(^|[;{}]\s*)([\w-]+)\s*:\s*([^;{}]+)(;?)/gm, (whole, prefix, property, value, suffix) => {
+  const lines = migrateColors(original).split(/\r?\n/);
+  const migrated = lines.map((line) => {
+    const declaration = line.match(/^(\s*)([\w-]+)\s*:\s*([^;]+)(;.*)?$/);
+    if (!declaration) return line;
+    const [, indent, property, rawValue, suffix = ""] = declaration;
     const normalized = property.toLowerCase();
-    if (normalized === "font-size") return `${prefix}${property}: ${migrateFontSize(value.trim())}${suffix}`;
-    if (spacingProperties.test(normalized)) return `${prefix}${property}: ${migrateSpacing(value.trim())}${suffix}`;
-    return whole;
-  });
+    let value = rawValue.trim();
+    if (normalized === "font-size") value = migrateFontSize(value);
+    else if (spacingProperties.test(normalized)) value = migrateSpacing(value);
+    return `${indent}${property}: ${value}${suffix || ";"}`;
+  }).join("\n");
   if (migrated !== original) {
     await writeFile(file, migrated, "utf8");
     changedFiles += 1;
