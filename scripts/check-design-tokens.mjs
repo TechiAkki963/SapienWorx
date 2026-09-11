@@ -1,5 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
-import { join, relative, sep } from "node:path";
+import { extname, join, relative, sep } from "node:path";
 
 const root = process.cwd();
 const tokenFile = join(root, "app", "ui-v1.css");
@@ -8,15 +8,21 @@ const guardedPropertyName = "font-size|padding(?:-(?:top|right|bottom|left|inlin
 const guardedDeclaration = new RegExp(`\\b(${guardedPropertyName})\\s*:\\s*([^;{}]+)`, "gi");
 const literalLength = /(-?\d*\.?\d+)(px|rem|em)\b/i;
 const literalHex = /#[0-9a-f]{3,8}\b/gi;
+const customPropertyDefinition = /(--[a-z0-9-_]+)\s*:/gi;
+const customPropertyReference = /var\(\s*(--[a-z0-9-_]+)/gi;
+const inlineStyleBlock = /style\s*=\s*\{\{([\s\S]*?)\}\}/g;
+const inlineSpacingProperty = /\b(margin(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|padding(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|gap|rowGap|columnGap)\s*:\s*(?:["'`])?(-?\d*\.?\d+)(px|rem|em)?(?:["'`])?/g;
+const runtimeProvidedVariables = new Set(["--font-inter", "--font-space-grotesk", "--font-ibm-plex-mono"]);
+const generatedImageFile = /(?:^|\/)(?:opengraph-image|twitter-image)\.tsx$/;
 
-async function cssFiles(directory) {
+async function filesMatching(directory, extensions) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
     if (entry.name.startsWith(".") || ignoredDirectories.has(entry.name)) continue;
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...await cssFiles(path));
-    else if (entry.isFile() && entry.name.endsWith(".css")) files.push(path);
+    if (entry.isDirectory()) files.push(...await filesMatching(path, extensions));
+    else if (entry.isFile() && extensions.has(extname(entry.name))) files.push(path);
   }
   return files;
 }
@@ -25,23 +31,69 @@ function lineNumber(source, index) {
   return source.slice(0, index).split("\n").length;
 }
 
-const violations = [];
-for (const file of await cssFiles(root)) {
-  if (file === tokenFile) continue;
-  const source = await readFile(file, "utf8");
-  const displayPath = relative(root, file).split(sep).join("/");
+function displayPath(file) {
+  return relative(root, file).split(sep).join("/");
+}
 
-  guardedDeclaration.lastIndex = 0;
-  for (let match = guardedDeclaration.exec(source); match; match = guardedDeclaration.exec(source)) {
-    if (literalLength.test(match[2])) {
-      violations.push(`${displayPath}:${lineNumber(source, match.index)} ${match[1]} must use a Sapienworx typography/spacing token`);
+const cssFiles = await filesMatching(root, new Set([".css"]));
+const sourceFiles = [
+  ...await filesMatching(join(root, "app"), new Set([".ts", ".tsx"])),
+  ...await filesMatching(join(root, "components"), new Set([".ts", ".tsx"])),
+];
+const violations = [];
+const definedVariables = new Set(runtimeProvidedVariables);
+
+for (const file of cssFiles) {
+  const source = await readFile(file, "utf8");
+  customPropertyDefinition.lastIndex = 0;
+  for (let match = customPropertyDefinition.exec(source); match; match = customPropertyDefinition.exec(source)) {
+    definedVariables.add(match[1]);
+  }
+}
+
+for (const file of cssFiles) {
+  const source = await readFile(file, "utf8");
+  const path = displayPath(file);
+
+  if (file !== tokenFile) {
+    guardedDeclaration.lastIndex = 0;
+    for (let match = guardedDeclaration.exec(source); match; match = guardedDeclaration.exec(source)) {
+      if (literalLength.test(match[2])) {
+        violations.push(`${path}:${lineNumber(source, match.index)} ${match[1]} must use a Sapienworx typography/spacing token`);
+      }
+      literalLength.lastIndex = 0;
     }
-    literalLength.lastIndex = 0;
+
+    literalHex.lastIndex = 0;
+    for (let match = literalHex.exec(source); match; match = literalHex.exec(source)) {
+      violations.push(`${path}:${lineNumber(source, match.index)} literal hex colors are only allowed in app/ui-v1.css`);
+    }
   }
 
-  literalHex.lastIndex = 0;
-  for (let match = literalHex.exec(source); match; match = literalHex.exec(source)) {
-    violations.push(`${displayPath}:${lineNumber(source, match.index)} literal hex colors are only allowed in app/ui-v1.css`);
+  customPropertyReference.lastIndex = 0;
+  for (let match = customPropertyReference.exec(source); match; match = customPropertyReference.exec(source)) {
+    if (!definedVariables.has(match[1])) {
+      violations.push(`${path}:${lineNumber(source, match.index)} references undefined CSS variable ${match[1]}`);
+    }
+  }
+}
+
+for (const file of sourceFiles) {
+  const path = displayPath(file);
+  // Next ImageResponse social cards are not DOM surfaces and cannot consume the app stylesheet.
+  if (generatedImageFile.test(path)) continue;
+  const source = await readFile(file, "utf8");
+  inlineStyleBlock.lastIndex = 0;
+  for (let styleMatch = inlineStyleBlock.exec(source); styleMatch; styleMatch = inlineStyleBlock.exec(source)) {
+    const block = styleMatch[1];
+    inlineSpacingProperty.lastIndex = 0;
+    for (let spacingMatch = inlineSpacingProperty.exec(block); spacingMatch; spacingMatch = inlineSpacingProperty.exec(block)) {
+      const numeric = Number(spacingMatch[2]);
+      if (numeric !== 0) {
+        const absoluteIndex = styleMatch.index + spacingMatch.index;
+        violations.push(`${path}:${lineNumber(source, absoluteIndex)} inline ${spacingMatch[1]} must move to token-backed CSS`);
+      }
+    }
   }
 }
 
@@ -50,4 +102,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log("Design-token guardrail passed.");
+console.log(`Design-token guardrail passed across ${cssFiles.length} CSS files and ${sourceFiles.length} TS/TSX files.`);
