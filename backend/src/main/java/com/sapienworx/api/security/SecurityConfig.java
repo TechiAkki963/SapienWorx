@@ -38,16 +38,18 @@ public class SecurityConfig {
     }
 
     /**
-     * OTP exchange is deliberately public and has no authentication cookie to
-     * protect. Keeping it in a dedicated chain makes the CSRF boundary explicit
-     * and leaves CSRF enabled for every authenticated API route below.
+     * OTP exchange and other single-use activation/recovery exchanges are public
+     * and have no authentication cookie to protect. Keeping them in a dedicated
+     * chain makes the CSRF boundary explicit while authenticated APIs remain
+     * protected by CSRF below.
      */
     @Bean
     @Order(1)
     SecurityFilterChain otpAuthenticationFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/auth/request-otp", "/api/auth/verify-otp", "/api/auth/verify-recovery-code",
-                        "/api/auth/password-reset/request", "/api/auth/password-reset/confirm", "/api/auth/organisations")
+                        "/api/auth/password-reset/request", "/api/auth/password-reset/confirm", "/api/auth/organisations",
+                        "/api/auth/admin-activation", "/api/auth/admin-activation/**")
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
@@ -65,17 +67,12 @@ public class SecurityConfig {
 
         http
                 .cors(Customizer.withDefaults())
-                // JWT lives in an automatically attached cookie; protect all authenticated writes with XSRF-TOKEN.
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository)
-                        // The SPA reads the token from /api/auth/csrf and
-                        // sends that raw value in X-XSRF-TOKEN. Spring's
-                        // default XOR handler expects a masked value instead,
-                        // which rejects otherwise valid saved-search and
-                        // profile updates with a 403 response.
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .ignoringRequestMatchers("/api/auth/request-otp", "/api/auth/verify-otp", "/api/auth/verify-recovery-code",
-                                "/api/auth/password-reset/request", "/api/auth/password-reset/confirm", "/error"))
+                                "/api/auth/password-reset/request", "/api/auth/password-reset/confirm",
+                                "/api/auth/admin-activation", "/api/auth/admin-activation/**", "/error"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.deny())
@@ -85,11 +82,6 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .logout(logout -> logout.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        // An authenticated SSE request is redispatched by the
-                        // servlet container when it writes heartbeats/events.
-                        // Its initial REQUEST remains protected below; allowing
-                        // the continuation avoids a false access denial after
-                        // the response has already begun streaming.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/error", "/api/auth/**", "/api/public/jobs/**", "/api/public/knowledge-posts/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
