@@ -4,6 +4,7 @@ import "./ui-v1.css";
 import "./public-auth-v1.css";
 import "./candidate-v1.css";
 import "./candidate-applications-v2.css";
+import "./candidate-profile-v2.css";
 import "./complete-v1.css";
 import "./ui-v1-final.css";
 
