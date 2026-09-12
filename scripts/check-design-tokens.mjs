@@ -12,7 +12,14 @@ const customPropertyDefinition = /(--[a-z0-9-_]+)\s*:/gi;
 const customPropertyReference = /var\(\s*(--[a-z0-9-_]+)/gi;
 const inlineStyleBlock = /style\s*=\s*\{\{([\s\S]*?)\}\}/g;
 const inlineSpacingProperty = /\b(margin(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|padding(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|gap|rowGap|columnGap)\s*:\s*(?:["'`])?(-?\d*\.?\d+)(px|rem|em)?(?:["'`])?/g;
-const runtimeProvidedVariables = new Set(["--font-inter", "--font-space-grotesk", "--font-ibm-plex-mono", "--step-count"]);
+const runtimeProvidedVariables = new Set([
+  "--font-inter",
+  "--font-space-grotesk",
+  "--font-merriweather",
+  "--font-nunito-sans",
+  "--font-ibm-plex-mono",
+  "--step-count",
+]);
 const generatedImageFile = /(?:^|\/)(?:opengraph-image|twitter-image)\.tsx$/;
 
 // These files predate the v2.3 literal-spacing guardrail and are tracked as migration debt.
