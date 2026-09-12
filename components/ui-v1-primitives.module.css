@@ -25,7 +25,7 @@
 
 .rowBody { min-width: 0; }
 .rowTitle { color: var(--ink); font-weight: 700; }
-.rowMeta { margin-top: var(--space-1); color: var(--muted); font-size: .75rem; }
+.rowMeta { margin-top: var(--space-1); color: var(--muted); font-size: var(--font-size-sm); }
 
 .empty {
   display: grid;
@@ -44,19 +44,19 @@
   display: inline-flex;
   align-items: center;
   min-height: 28px;
-  padding: 4px 9px;
+  padding: var(--space-1) var(--space-2);
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--cloud);
   color: var(--ink-soft);
-  font-size: .75rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
 }
 .chipHit { border-color: var(--amber); background: var(--amber-tint); color: var(--amber-ink); }
 .chipGood { color: var(--good); }
 
 .stepper { display: grid; grid-template-columns: repeat(var(--step-count), minmax(0, 1fr)); }
-.step { position: relative; display: grid; justify-items: center; gap: var(--space-2); text-align: center; color: var(--muted); font-size: .7rem; }
+.step { position: relative; display: grid; justify-items: center; gap: var(--space-2); text-align: center; color: var(--muted); font-size: var(--font-size-sm); }
 .step::after {
   content: "";
   position: absolute;
@@ -80,7 +80,7 @@
   border-radius: 999px;
   background: var(--cloud);
   color: var(--muted);
-  font-size: .7rem;
+  font-size: var(--font-size-sm);
   font-weight: 800;
 }
 .stepComplete .circle { border-color: var(--amber); background: var(--amber); color: var(--amber-ink); }

@@ -17,7 +17,7 @@
 
 .eyebrow {
   color: var(--amber-deep);
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -65,14 +65,14 @@
 
 .statCard strong {
   font-family: var(--font-data);
-  font-size: 1.75rem;
+  font-size: var(--font-size-2xl);
   line-height: 1;
   color: var(--ink);
 }
 
 .statCard span {
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: var(--font-size-sm);
 }
 
 .zeroState {
@@ -126,7 +126,7 @@
   gap: var(--space-3);
   margin-top: var(--space-2);
   color: var(--ink-soft);
-  font-size: 0.8125rem;
+  font-size: var(--font-size-sm);
 }
 
 .sectionHeading {
@@ -180,16 +180,16 @@
 }
 
 .applicationMeta {
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
 }
 
 .stage {
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: var(--space-2) var(--space-3);
   background: var(--paper);
   color: var(--ink-soft);
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -233,7 +233,7 @@
   gap: var(--space-2);
   margin-top: var(--space-3);
   color: var(--good);
-  font-size: 0.8125rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
 }
 

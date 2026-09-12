@@ -34,13 +34,13 @@
   background: var(--portal-accent-soft);
   color: var(--portal-accent-deep);
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: var(--font-size-md);
   font-weight: 700;
 }
 
 .workspace-shell-candidate .candidate-hero-identity h2 {
   margin: var(--space-1) 0;
-  font-size: 1.55rem;
+  font-size: var(--font-size-2xl);
 }
 
 .workspace-shell-candidate .candidate-hero-identity p,
@@ -64,9 +64,9 @@
   display: block;
   color: var(--ink);
   font-family: var(--font-data);
-  font-size: .9rem;
+  font-size: var(--font-size-base);
 }
-.workspace-shell-candidate .candidate-hero-facts span { color: var(--muted); font-size: .68rem; }
+.workspace-shell-candidate .candidate-hero-facts span { color: var(--muted); font-size: var(--font-size-xs); }
 
 .workspace-shell-candidate .candidate-hero-actions {
   display: grid;
@@ -91,9 +91,9 @@
   border-radius: var(--radius-sm);
   background: var(--cloud);
 }
-.workspace-shell-candidate .candidate-profile-visibility span { display: grid; gap: 2px; }
-.workspace-shell-candidate .candidate-profile-visibility b { color: var(--ink); font-size: .72rem; }
-.workspace-shell-candidate .candidate-profile-visibility small { color: var(--muted); font-size: .66rem; }
+.workspace-shell-candidate .candidate-profile-visibility span { display: grid; gap: var(--space-1); }
+.workspace-shell-candidate .candidate-profile-visibility b { color: var(--ink); font-size: var(--font-size-sm); }
+.workspace-shell-candidate .candidate-profile-visibility small { color: var(--muted); font-size: var(--font-size-xs); }
 
 .workspace-shell-candidate .candidate-profile-roadmap {
   position: sticky;
@@ -109,8 +109,8 @@
   background: color-mix(in srgb, var(--cloud) 94%, transparent);
   backdrop-filter: blur(12px);
 }
-.workspace-shell-candidate .candidate-profile-roadmap > div { display: grid; gap: 2px; }
-.workspace-shell-candidate .candidate-profile-roadmap > div strong { font-size: .75rem; }
+.workspace-shell-candidate .candidate-profile-roadmap > div { display: grid; gap: var(--space-1); }
+.workspace-shell-candidate .candidate-profile-roadmap > div strong { font-size: var(--font-size-sm); }
 .workspace-shell-candidate .candidate-profile-roadmap ol {
   display: flex;
   gap: var(--space-2);
@@ -128,7 +128,7 @@
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--muted);
-  font-size: .7rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
@@ -149,7 +149,7 @@
 }
 .workspace-shell-candidate .candidate-profile-content > section,
 .workspace-shell-candidate .candidate-profile-content > .panel {
-  scroll-margin-top: 150px;
+  scroll-margin-top: var(--space-9);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--cloud);
@@ -185,9 +185,9 @@
   border-radius: var(--radius-sm);
   background: var(--portal-accent-soft);
 }
-.workspace-shell-candidate .candidate-contact-protected div { display: grid; gap: 2px; }
-.workspace-shell-candidate .candidate-contact-protected b { font-size: .75rem; }
-.workspace-shell-candidate .candidate-contact-protected small { color: var(--muted); font-size: .68rem; }
+.workspace-shell-candidate .candidate-contact-protected div { display: grid; gap: var(--space-1); }
+.workspace-shell-candidate .candidate-contact-protected b { font-size: var(--font-size-sm); }
+.workspace-shell-candidate .candidate-contact-protected small { color: var(--muted); font-size: var(--font-size-xs); }
 
 .workspace-shell-candidate .candidate-complete-repeater {
   border: 1px solid var(--line);
@@ -199,7 +199,7 @@
   margin: 0;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
-  font-size: .76rem;
+  font-size: var(--font-size-sm);
   font-weight: 650;
 }
 .workspace-shell-candidate .candidate-profile-status-success {

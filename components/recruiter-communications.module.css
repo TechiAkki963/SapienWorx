@@ -1,34 +1,34 @@
 .section { margin-top: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-surface); overflow: hidden; }
 .sectionHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: var(--space-5); border-bottom: 1px solid var(--color-border); }
-.sectionHeader h2 { margin: 3px 0 0; font-size: var(--text-section); }
-.sectionHeader p { margin: 6px 0 0; color: var(--color-text-muted); }
+.sectionHeader h2 { margin: var(--space-1) 0 0; font-size: var(--text-section); }
+.sectionHeader p { margin: var(--space-2) 0 0; color: var(--color-text-muted); }
 .eyebrow { color: var(--portal-accent-deep); font-size: var(--text-caption); font-weight: 700; }
 .inbox { display: grid; grid-template-columns: minmax(260px, 34%) minmax(0, 1fr); min-height: 420px; }
 .conversationList { border-right: 1px solid var(--color-border); background: var(--color-surface-subtle); }
 .conversation { width: 100%; min-height: 76px; display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: 0; border-bottom: 1px solid var(--color-border); background: transparent; color: var(--color-text); text-align: left; cursor: pointer; }
 .conversation:hover, .conversation.active { background: var(--portal-accent-soft); }
-.conversation > span:nth-child(2) { min-width: 0; display: grid; gap: 2px; }
+.conversation > span:nth-child(2) { min-width: 0; display: grid; gap: var(--space-1); }
 .conversation strong, .conversation small, .conversation em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .conversation small, .conversation em { color: var(--color-text-muted); font-size: var(--text-caption); font-style: normal; }
 .avatar { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--portal-accent-soft); color: var(--portal-accent-deep); font-family: var(--font-data); font-weight: 700; }
 .unread { min-width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: var(--portal-accent); color: var(--cloud); font-size: var(--text-caption); }
 .thread { min-width: 0; display: grid; grid-template-rows: auto minmax(220px,1fr) auto; }
 .thread > header, .thread > footer { padding: var(--space-4) var(--space-5); }
-.thread > header { display: grid; gap: 3px; border-bottom: 1px solid var(--color-border); }
+.thread > header { display: grid; gap: var(--space-1); border-bottom: 1px solid var(--color-border); }
 .thread > header small { color: var(--color-text-muted); }
 .thread > footer { border-top: 1px solid var(--color-border); }
-.thread label, .editor label { display: grid; gap: 6px; }
+.thread label, .editor label { display: grid; gap: var(--space-2); }
 .thread textarea { min-height: 92px; }
 .messages { padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); overflow-y: auto; }
 .message { max-width: min(78%, 640px); padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-subtle); }
 .message.mine { align-self: flex-end; border-color: color-mix(in srgb, var(--portal-accent) 32%, var(--line)); background: var(--portal-accent-soft); }
-.message p { margin: 0 0 6px; white-space: pre-wrap; }
+.message p { margin: 0 0 var(--space-2); white-space: pre-wrap; }
 .message small { color: var(--color-text-muted); }
 .label { font-size: var(--text-label); font-weight: 700; color: var(--color-text-secondary); }
 .templateLayout, .composeGrid { display: grid; grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr); }
 .templateList { border-right: 1px solid var(--color-border); background: var(--color-surface-subtle); }
 .templateCard { border-bottom: 1px solid var(--color-border); }
-.templateCard > button { width: 100%; min-height: 76px; display: grid; gap: 4px; padding: var(--space-3) var(--space-4); border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.templateCard > button { width: 100%; min-height: 76px; display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
 .templateCard > button[aria-pressed="true"] { background: var(--portal-accent-soft); }
 .templateCard > button span, .templateCard > button small { color: var(--color-text-muted); }
 .templateCard > div { display: flex; gap: var(--space-2); padding: 0 var(--space-4) var(--space-3); }
@@ -36,7 +36,7 @@
 .danger { color: var(--color-danger); }
 .editor { padding: var(--space-5); display: grid; gap: var(--space-4); align-content: start; }
 .editor h3 { margin: 0; }
-.editor :is(input, select, textarea), .thread textarea { width: 100%; min-height: var(--control-height); padding: 10px 12px; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); }
+.editor :is(input, select, textarea), .thread textarea { width: 100%; min-height: var(--control-height); padding: var(--space-3) var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); }
 .editor textarea, .thread textarea { resize: vertical; }
 .help { margin: 0; color: var(--color-text-muted); font-size: var(--text-small); }
 .actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
