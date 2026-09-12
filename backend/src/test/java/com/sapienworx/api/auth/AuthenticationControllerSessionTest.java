@@ -16,8 +16,7 @@ class AuthenticationControllerSessionTest {
     private final AuthenticationController controller = new AuthenticationController(
             mock(AuthenticationService.class),
             mock(AuthenticationCookieService.class),
-            mock(AccountSessionService.class),
-            mock(PasswordResetService.class)
+            mock(AccountSessionService.class)
     );
 
     @Test
