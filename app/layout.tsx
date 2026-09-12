@@ -5,6 +5,7 @@ import "./data-dense-ux.css";
 import "./reference-snapshot-theme.css";
 import "./master-admin-snapshot.css";
 import "./role-page-snapshots.css";
+import "./remaining-portal-snapshots.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const geist = Geist({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
