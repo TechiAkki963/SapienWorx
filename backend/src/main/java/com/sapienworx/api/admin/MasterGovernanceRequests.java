@@ -1,6 +1,7 @@
 package com.sapienworx.api.admin;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -8,6 +9,7 @@ public final class MasterGovernanceRequests {
     private MasterGovernanceRequests() { }
 
     public record AdminRoleUpdate(PlatformAdminRole role) { }
+    public record AdminPermissionsUpdate(List<String> permissions) { }
     public record ApprovalCreate(String requestKind, String resourceType, String resourceId, String summary, Map<String, Object> payload) { }
     public record ApprovalDecision(String status, String note) { }
     public record AlertUpdate(String status, String note) { }
