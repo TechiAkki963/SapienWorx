@@ -10,6 +10,7 @@ import "./complete-v1.css";
 import "./ui-v1-final.css";
 import "./canonical-redesign.css";
 import "./auth-canonical.css";
+import "./secondary-routes-canonical.css";
 
 const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
