@@ -33,6 +33,12 @@ public class MasterGovernanceController {
         return service.updateAdminRole(actor(user), administratorId, request);
     }
 
+    @PutMapping("/admins/{administratorId}/permissions")
+    public Map<String, Object> updateAdminPermissions(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID administratorId,
+                                                      @RequestBody MasterGovernanceRequests.AdminPermissionsUpdate request) {
+        return service.updateAdminPermissions(actor(user), administratorId, request);
+    }
+
     @PostMapping("/approvals")
     public Map<String, Object> createApproval(@AuthenticationPrincipal AuthenticatedUser user,
                                                @RequestBody MasterGovernanceRequests.ApprovalCreate request) {
