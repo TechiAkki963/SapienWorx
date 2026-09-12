@@ -10,6 +10,7 @@ import "./complete-v1.css";
 import "./ui-v1-final.css";
 import "./canonical-redesign.css";
 import "./auth-canonical.css";
+// Secondary layers complete the same visual system across deep Candidate, Recruiter and Admin routes.
 import "./secondary-routes-canonical.css";
 import "./recruiter-secondary-canonical.css";
 
