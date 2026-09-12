@@ -1,0 +1,29 @@
+.candidate-applications-page{display:flex;flex-direction:column;gap:var(--space-5)}
+.candidate-applications-hero{background:var(--cloud);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-5);display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-5)}
+.candidate-applications-hero h2{margin:var(--space-2) 0;font-size:clamp(24px,3vw,36px)}
+.candidate-applications-hero p{margin:0;color:var(--muted);max-width:720px}
+.candidate-application-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-3)}
+.candidate-application-stat-grid article{background:var(--cloud);border:1px solid var(--line);border-radius:var(--radius-md);padding:var(--space-4);display:flex;flex-direction:column;gap:6px}
+.candidate-application-stat-grid span,.candidate-application-stat-grid small{color:var(--muted);font-size:12px}.candidate-application-stat-grid strong{font-family:var(--font-data);font-size:26px;color:var(--ink)}
+.candidate-application-browser{background:var(--cloud);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-5)}
+.candidate-application-controls{display:flex;justify-content:space-between;gap:var(--space-4);align-items:center;margin:var(--space-4) 0}
+.candidate-application-filter{display:flex;gap:6px;flex-wrap:wrap}.candidate-application-filter button{min-height:44px;border:1px solid var(--line);background:var(--cloud);color:var(--ink-soft);border-radius:999px;padding:0 var(--space-3)}.candidate-application-filter button.selected{border-color:var(--amber);background:var(--amber-tint);color:var(--amber-ink)}
+.candidate-application-search{display:flex;align-items:center;gap:var(--space-2);min-width:min(320px,100%);border:1px solid var(--line);border-radius:var(--radius-sm);padding:0 var(--space-3);background:var(--cloud)}.candidate-application-search input{border:0;min-width:0;flex:1;background:transparent}
+.candidate-application-list{display:flex;flex-direction:column;gap:var(--space-3)}
+.candidate-application-card{border:1px solid var(--line);border-radius:var(--radius-md);background:var(--cloud);padding:var(--space-4)}
+.candidate-application-card-head{display:flex;justify-content:space-between;gap:var(--space-4);align-items:flex-start}.candidate-application-card-head>div{display:flex;gap:var(--space-3);align-items:center}.candidate-application-card-head h3{margin:0}.candidate-application-card-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.candidate-application-company-mark{width:42px;height:42px;border-radius:10px;background:var(--paper);display:grid;place-items:center;font-family:var(--font-display);font-weight:700}
+.candidate-application-card-body{padding-top:var(--space-4)}.candidate-application-stage-copy{display:flex;justify-content:space-between;gap:var(--space-3);align-items:center}.candidate-application-stage-copy strong{font-size:13px}.candidate-application-stage-copy span{font-size:11px;color:var(--muted)}
+.candidate-application-progress{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));list-style:none;padding:0;margin:var(--space-5) 0 var(--space-2)}
+.candidate-application-progress li{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--muted)}
+.candidate-application-progress li::before{content:"";position:absolute;top:13px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0;transform-origin:left center;transition:background-color 400ms ease,transform 400ms ease}
+.candidate-application-progress li:first-child::before{display:none}
+.candidate-application-progress li>span{width:28px;height:28px;border:2px solid var(--line);border-radius:50%;background:var(--cloud);display:grid;place-items:center;position:relative;z-index:1;font-family:var(--font-data);font-size:11px;color:var(--muted)}
+.candidate-application-progress li.completed::before{background:var(--amber)}
+.candidate-application-progress li.completed>span{border-color:var(--amber);background:var(--amber);color:var(--amber-ink)}
+.candidate-application-progress li.completed:last-of-type>span{background:var(--cloud);box-shadow:inset 0 0 0 5px var(--cloud);position:relative}
+.candidate-application-progress li small{font-size:10px;color:inherit}
+.candidate-application-timeline{margin-top:var(--space-4);padding:var(--space-4);background:var(--paper);border-radius:var(--radius-md)}
+.candidate-application-next-step{margin-top:0}.candidate-applications-empty,.candidate-applications-error{padding:var(--space-6);text-align:center}.candidate-applications-empty p,.candidate-applications-error span{color:var(--muted)}
+.candidate-applications-pagination{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);border-top:1px solid var(--line);margin-top:var(--space-5);padding-top:var(--space-4)}
+@media(max-width:639px){.candidate-applications-hero{align-items:flex-start;flex-direction:column}.candidate-application-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.candidate-application-controls{align-items:stretch;flex-direction:column}.candidate-application-search{min-width:0}.candidate-application-stage-copy{align-items:flex-start;flex-direction:column}.candidate-application-progress{overflow-x:auto;grid-template-columns:repeat(5,minmax(90px,1fr));padding-bottom:var(--space-2)}.candidate-application-card-head{gap:var(--space-2)}.candidate-applications-pagination{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.candidate-application-progress li::before{transition-duration:.01ms}}
