@@ -162,6 +162,12 @@ public class AdminInvitationService {
 
         UUID administratorId = UUID.randomUUID();
         PlatformAdminRole role = PlatformAdminRole.valueOf(String.valueOf(invitation.get("admin_role")));
+        List<String> storedPermissions = java.util.Arrays.stream(String.valueOf(invitation.get("permissions")).split(","))
+                .map(String::trim)
+                .filter(value -> !value.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
         PlatformAdministrator administrator = PlatformAdministrator.builder()
                 .id(administratorId)
                 .displayName(String.valueOf(invitation.get("display_name")))
@@ -169,7 +175,7 @@ public class AdminInvitationService {
                 .passwordHash(passwordHash)
                 .active(true)
                 .adminRole(role)
-                .customPermissions(String.valueOf(invitation.get("permissions")))
+                .permissions(storedPermissions)
                 .build();
         administrators.save(administrator);
         jdbc.update("update platform_admin_invitations set accepted_at = now(), accepted_admin_id = ? where id = ?", administratorId, invitationId);
