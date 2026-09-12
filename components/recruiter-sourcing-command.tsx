@@ -1,0 +1,39 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { defaultRecruiterSearch, searchParamsFor, stateFromSearchParams, type RecruiterSearchState } from "../lib/recruiter-search";
+import { Button, WorkspaceShell } from "./ui";
+import styles from "./recruiter-sourcing-command.module.css";
+
+const experience=Array.from({length:21},(_,i)=>String(i));
+const activeOptions:[[RecruiterSearchState["activeStatus"],string],...Array<[RecruiterSearchState["activeStatus"],string]>]=[["ONE_DAY","Last 24 hours"],["THREE_DAYS","Last 3 days"],["SEVEN_DAYS","Last 7 days"],["FIFTEEN_DAYS","Last 15 days"],["THIRTY_DAYS","Last 30 days"],["SIXTY_DAYS","Last 60 days"],["NINETY_DAYS","Last 90 days"],["ONE_YEAR","Last year"],["ALL","Any time"]];
+export function RecruiterSourcingCommand(){
+ const router=useRouter(),params=useSearchParams();
+ const [search,setSearch]=useState<RecruiterSearchState>(()=>params.size?stateFromSearchParams(params):{...defaultRecruiterSearch,gender:""});
+ const update=<K extends keyof RecruiterSearchState>(key:K,value:RecruiterSearchState[K])=>setSearch(current=>({...current,[key]:value,gender:""}));
+ const criteria=useMemo(()=>[
+  search.anyKeywords&&["Keywords",search.anyKeywords],search.allKeywords&&["Must include",search.allKeywords],search.excludeKeywords&&["Exclude",search.excludeKeywords],search.location&&["Location",search.location],
+  (search.minExperience||search.maxExperience)&&["Experience",`${search.minExperience||0}–${search.maxExperience||"Any"} years`],search.company&&["Company",search.company],search.designation&&["Designation",search.designation],search.departmentRole&&["Role",search.departmentRole],search.industry&&["Industry",search.industry],search.qualification&&["Qualification",search.qualification]
+ ].filter(Boolean) as string[][],[search]);
+ const run=()=>{const query=searchParamsFor({...search,gender:""}).toString();router.push(`/search/results${query?`?${query}`:""}`)};
+ const reset=()=>setSearch({...defaultRecruiterSearch,gender:""});
+ return <WorkspaceShell workspace="recruiter" active="sourcing" title="Search talent" description="Persistent filters keep the sourcing context visible while you build a precise, privacy-safe candidate search.">
+  <div className={styles.layout}>
+   <aside className={styles.rail}>
+    <header><div><span className="eyebrow">Filter rail</span><h2>Sourcing criteria</h2></div><button type="button" onClick={reset}>Reset</button></header>
+    <section><h3>Keywords</h3><label><span>Any keywords</span><textarea rows={2} value={search.anyKeywords} onChange={e=>update("anyKeywords",e.target.value)} placeholder="Java, Spring Boot, Backend"/></label><label><span>Must include</span><input value={search.allKeywords} onChange={e=>update("allKeywords",e.target.value)} placeholder="PostgreSQL, AWS"/></label><label><span>Exclude</span><input value={search.excludeKeywords} onChange={e=>update("excludeKeywords",e.target.value)} placeholder="Intern, fresher"/></label></section>
+    <section><h3>Role & skills</h3><label><span>Designation</span><input value={search.designation} onChange={e=>update("designation",e.target.value)} placeholder="Backend Engineer"/></label><label><span>Department / role</span><input value={search.departmentRole} onChange={e=>update("departmentRole",e.target.value)} placeholder="Engineering"/></label><label><span>Industry</span><input value={search.industry} onChange={e=>update("industry",e.target.value)} placeholder="SaaS, Fintech"/></label></section>
+    <section><h3>Experience & location</h3><div className={styles.inline}><label><span>Min exp.</span><select value={search.minExperience} onChange={e=>update("minExperience",e.target.value)}><option value="">Any</option>{experience.map(v=><option key={v}>{v}</option>)}</select></label><label><span>Max exp.</span><select value={search.maxExperience} onChange={e=>update("maxExperience",e.target.value)}><option value="">Any</option>{experience.map(v=><option key={v}>{v}</option>)}</select></label></div><label><span>Current location</span><input value={search.location} onChange={e=>update("location",e.target.value)} placeholder="Mumbai, Pune, Bengaluru"/></label><label><span>Profile activity</span><select value={search.activeStatus} onChange={e=>update("activeStatus",e.target.value as RecruiterSearchState["activeStatus"])}>{activeOptions.map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label></section>
+    <section><h3>Employment</h3><label><span>Company</span><input value={search.company} onChange={e=>update("company",e.target.value)} placeholder="Current or previous"/></label><label><span>Qualification</span><input value={search.qualification} onChange={e=>{update("qualification",e.target.value);update("ugMode",e.target.value?"specific":"any")}} placeholder="B.Tech, MBA"/></label><label><span>Institution</span><input value={search.institution} onChange={e=>update("institution",e.target.value)} placeholder="University or institute"/></label></section>
+    <section><h3>Professional evidence</h3><label className={styles.check}><input type="checkbox" checked={search.requireGithub} onChange={e=>update("requireGithub",e.target.checked)}/><span>GitHub profile</span></label><label className={styles.check}><input type="checkbox" checked={search.requireLeetcode} onChange={e=>update("requireLeetcode",e.target.checked)}/><span>LeetCode profile</span></label><label className={styles.check}><input type="checkbox" checked={search.requirePortfolio} onChange={e=>update("requirePortfolio",e.target.checked)}/><span>Portfolio / work samples</span></label></section>
+    <div className={styles.sticky}><Button onClick={run}>Search candidates</Button></div>
+   </aside>
+   <main className={styles.canvas}>
+    <section className={styles.query}><span className="eyebrow">Search builder</span><h2>Build a precise candidate search without losing context.</h2><p>The filter rail remains visible on desktop while results criteria are summarised here. Protected attributes such as gender, age, disability, religion and other sensitive characteristics are excluded from normal sourcing and ranking.</p><label><span>Boolean expression (optional)</span><textarea rows={3} value={search.booleanQuery} onChange={e=>update("booleanQuery",e.target.value)} placeholder='(Java OR Kotlin) AND "Spring Boot"'/></label><div><Button onClick={run}>Run search</Button><Button variant="secondary" onClick={reset}>Clear all</Button></div></section>
+    <section className={styles.summary}><header><div><span className="eyebrow">Active criteria</span><h2>{criteria.length?`${criteria.length} filters applied`:"Broad candidate search"}</h2></div></header>{criteria.length?<dl>{criteria.map(([label,value])=><div key={`${label}-${value}`}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>:<p>Add role, skill, experience or location filters from the rail. Start broad, then narrow only where the role requires it.</p>}</section>
+    <section className={styles.guidance}><div><strong>Search strategy</strong><p>Use must-have skills sparingly. Combine role context with experience and recent activity before adding company or education constraints.</p></div><div><strong>Explainable retrieval</strong><p>Results show search rank with evidence chips rather than pretending the retrieval score is an AI fit probability.</p></div><div><strong>Privacy boundary</strong><p>Contact details remain masked until an authorised, audited reveal is performed in a job pipeline context.</p></div></section>
+   </main>
+  </div>
+ </WorkspaceShell>
+}

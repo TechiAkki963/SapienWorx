@@ -1,0 +1,102 @@
+/* Remaining signed-in portal snapshot alignment. */
+
+/* Recruiter sourcing */
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_layout"]{grid-template-columns:288px minmax(0,1fr);gap: var(--space-5)}
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_rail"]{top:var(--space-4);border-radius:var(--radius-sm);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_rail"]>header{padding: var(--space-4)}
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_rail"] section{padding: var(--space-4)}
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_query"],
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_summary"],
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_guidance"]{border-radius:var(--radius-sm);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_query"]{padding: var(--space-5)}
+.workspace-shell-recruiter [class*="recruiter-sourcing-command_summary"]{padding: var(--space-5)}
+
+/* Recruiter communications */
+.workspace-shell-recruiter [class*="recruiter-communications_section"]{margin-top: var(--space-4);border-color:var(--line);border-radius:var(--radius-md);background:var(--cloud);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-recruiter [class*="recruiter-communications_sectionHeader"]{padding: var(--space-4) var(--space-5);border-color:var(--line);background:var(--cloud)}
+.workspace-shell-recruiter [class*="recruiter-communications_inbox"]{grid-template-columns:320px minmax(0,1fr);min-height:560px}
+.workspace-shell-recruiter [class*="recruiter-communications_conversationList"]{border-color:var(--line);background:var(--paper)}
+.workspace-shell-recruiter [class*="recruiter-communications_conversation"]{min-height:82px;padding: var(--space-3) var(--space-4);border-color:var(--line)}
+.workspace-shell-recruiter [class*="recruiter-communications_thread"]>header{min-height:68px;padding: var(--space-3) var(--space-5);background:var(--cloud)}
+.workspace-shell-recruiter [class*="recruiter-communications_messages"]{padding: var(--space-5);background:var(--paper)}
+.workspace-shell-recruiter [class*="recruiter-communications_message"]{border-color:var(--line);background:var(--cloud);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-recruiter [class*="recruiter-communications_message"][class*="mine"]{border-color:var(--indigo);background:var(--indigo-soft)}
+.workspace-shell-recruiter [class*="recruiter-communications_templateLayout"]{grid-template-columns:300px minmax(0,1fr)}
+.workspace-shell-recruiter [class*="recruiter-communications_preview"]{border-color:var(--line);border-radius:var(--radius-sm);background:var(--paper)}
+
+/* Candidate job discovery */
+.workspace-shell-candidate .candidate-jobs-page{display:grid;gap: var(--space-5)}
+.workspace-shell-candidate .candidate-jobs-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap: var(--space-5);padding: var(--space-5) var(--space-6);border-radius:var(--radius-md)}
+.workspace-shell-candidate .candidate-jobs-hero h2{margin: var(--space-1) 0;font-size: var(--font-size-xl)}
+.workspace-shell-candidate .candidate-jobs-hero p{max-width:760px;margin: 0;color:var(--muted);line-height:1.6}
+.workspace-shell-candidate .candidate-job-search{padding: 0;overflow:hidden;border-radius:var(--radius-md)}
+.workspace-shell-candidate .candidate-filter-title{display:flex;align-items:start;justify-content:space-between;gap: var(--space-4);padding: var(--space-5) var(--space-6);border-bottom:1px solid var(--line)}
+.workspace-shell-candidate .candidate-filter-title h2{margin: var(--space-1) 0}.workspace-shell-candidate .candidate-filter-title p{margin: 0;color:var(--muted)}
+.workspace-shell-candidate .candidate-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap: var(--space-3);padding: var(--space-5) var(--space-6)}
+.workspace-shell-candidate .candidate-filter-control{display:grid;gap: var(--space-1)}
+.workspace-shell-candidate .candidate-filter-control>span{color:var(--muted);font-size: var(--font-size-xs);font-weight:700}
+.workspace-shell-candidate .candidate-filter-control input,.workspace-shell-candidate .candidate-filter-control select{min-height:42px;padding-inline: var(--space-3);border:1px solid var(--line);background:var(--cloud)}
+.workspace-shell-candidate .candidate-jobs-quick-filters{display:flex;align-items:center;gap: var(--space-2);padding: 0 var(--space-6) var(--space-5);flex-wrap:wrap}
+.workspace-shell-candidate .candidate-jobs-quick-filters>span{color:var(--muted);font-size: var(--font-size-xs);font-weight:700}
+.workspace-shell-candidate .candidate-jobs-quick-filters button{min-height:32px;padding-inline: var(--space-3);border:1px solid var(--line);border-radius:999px;background:var(--cloud);color:var(--ink-soft);cursor:pointer}
+.workspace-shell-candidate .candidate-jobs-quick-filters button.selected{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo-deep)}
+.workspace-shell-candidate .candidate-job-results{display:grid;gap: var(--space-4)}
+.workspace-shell-candidate .candidate-job-results-head{display:flex;align-items:end;justify-content:space-between;gap: var(--space-4)}
+.workspace-shell-candidate .candidate-job-results-head h2{margin: var(--space-1) 0}.workspace-shell-candidate .candidate-job-results-head p{margin: 0;color:var(--muted)}
+.workspace-shell-candidate .candidate-job-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap: var(--space-3)}
+.workspace-shell-candidate .candidate-job-card{display:grid;gap: var(--space-4);padding: var(--space-5);border:1px solid var(--line);border-radius:var(--radius-md);background:var(--cloud);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-candidate .candidate-job-card:hover,.workspace-shell-candidate .candidate-job-card.selected{border-color:color-mix(in srgb,var(--indigo) 28%,var(--line));box-shadow:var(--snapshot-shadow-hover)}
+.workspace-shell-candidate .candidate-job-card-top{display:flex;align-items:start;gap: var(--space-3)}
+.workspace-shell-candidate .candidate-job-card-title{display:flex;justify-content:space-between;gap: var(--space-3);min-width:0;flex:1}
+.workspace-shell-candidate .candidate-job-card-title h3{margin: 0;font-size: var(--font-size-lg)}.workspace-shell-candidate .candidate-job-card-title p{margin: var(--space-1) 0 0;color:var(--muted)}
+.workspace-shell-candidate .candidate-job-tags,.workspace-shell-candidate .candidate-job-meta{display:flex;flex-wrap:wrap;gap: var(--space-2)}
+.workspace-shell-candidate .candidate-job-tags span{padding: var(--space-1) var(--space-2);border-radius:999px;background:var(--indigo-soft);color:var(--indigo-deep);font-size: var(--font-size-xs)}
+.workspace-shell-candidate .candidate-job-meta span{color:var(--muted);font-size: var(--font-size-sm)}
+.workspace-shell-candidate .candidate-job-card footer{display:flex;align-items:center;justify-content:space-between;gap: var(--space-3);padding-top: var(--space-3);border-top:1px solid var(--line)}
+
+/* Candidate interview schedule */
+.workspace-shell-candidate [class*="candidate-interviews_tabs"]{padding: var(--space-1);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--cloud);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-candidate [class*="candidate-interviews_tabs"] button{border-radius:var(--radius-sm)}
+.workspace-shell-candidate [class*="candidate-interviews_dayGroup"]{gap: var(--space-3)}
+.workspace-shell-candidate [class*="candidate-interviews_list"]{border-radius:var(--radius-md);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-candidate [class*="candidate-interviews_row"]{min-height:96px;padding: var(--space-4)}
+.workspace-shell-candidate [class*="candidate-interviews_dayHeader"]{padding-inline: 0}
+
+/* Candidate / recruiter inboxes share the same two-pane interaction shape. */
+.workspace-shell-candidate [class*="candidate-inbox-v1_inbox"],
+.workspace-shell-recruiter [class*="recruiter-communications_inbox"]{border-color:var(--line);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-candidate [class*="candidate-inbox-v1_feedPane"],
+.workspace-shell-candidate [class*="candidate-inbox-v1_detailPane"]{background:var(--cloud)}
+.workspace-shell-candidate [class*="candidate-inbox-v1_thread"]{background:var(--paper)}
+
+/* Master Admin operations/audit refinements */
+.workspace-shell-admin .master-operations-summary{margin: var(--space-4) var(--space-5);padding: var(--space-3) var(--space-4);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper)}
+.workspace-shell-admin .master-operations-summary.attention{border-left:4px solid var(--warn)}
+.workspace-shell-admin .master-operations-summary.healthy{border-left:4px solid var(--good)}
+.workspace-shell-admin .master-callout{margin: var(--space-4) var(--space-5);padding: var(--space-4);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper)}
+.workspace-shell-admin .master-callout p{margin: var(--space-1) 0 0;color:var(--muted)}
+.workspace-shell-admin [class*="assurance"] .workflow-list,
+.workspace-shell-admin [class*="audit"]{box-shadow:var(--snapshot-shadow)}
+
+@media(max-width:1199px){
+  .workspace-shell-candidate .candidate-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace-shell-candidate .candidate-job-list{grid-template-columns:1fr}
+  .workspace-shell-recruiter [class*="recruiter-sourcing-command_layout"]{grid-template-columns:260px minmax(0,1fr)}
+}
+
+@media(max-width:1023px){
+  .workspace-shell-recruiter [class*="recruiter-sourcing-command_layout"]{grid-template-columns:1fr}
+  .workspace-shell-recruiter [class*="recruiter-sourcing-command_rail"]{position:static;max-height:none}
+  .workspace-shell-recruiter [class*="recruiter-communications_inbox"],
+  .workspace-shell-recruiter [class*="recruiter-communications_templateLayout"]{grid-template-columns:1fr}
+}
+
+@media(max-width:767px){
+  .workspace-shell-candidate .candidate-jobs-hero{grid-template-columns:1fr;padding: var(--space-4)}
+  .workspace-shell-candidate .candidate-filter-title{padding: var(--space-4);flex-direction:column}
+  .workspace-shell-candidate .candidate-filter-grid{grid-template-columns:1fr;padding: var(--space-4)}
+  .workspace-shell-candidate .candidate-jobs-quick-filters{padding: 0 var(--space-4) var(--space-4)}
+  .workspace-shell-candidate .candidate-job-results-head{align-items:stretch;flex-direction:column}
+  .workspace-shell-candidate .candidate-job-card{padding: var(--space-4)}
+  .workspace-shell-candidate .candidate-job-card-title{flex-direction:column}
+}

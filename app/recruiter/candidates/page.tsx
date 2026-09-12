@@ -1,5 +1,5 @@
-import { RecruiterPipelineV2 } from "../../../components/recruiter-pipeline-v2";
+import { redirect } from "next/navigation";
 
 export default function RecruiterCandidatesPage() {
-  return <RecruiterPipelineV2 />;
+  redirect("/recruiter/sourcing");
 }
