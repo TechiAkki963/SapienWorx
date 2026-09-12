@@ -5,7 +5,7 @@
 .metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap: var(--space-3)}
 .metrics article{display:grid;gap: var(--space-1);padding: var(--space-4);border:1px solid var(--line);border-radius:14px;background:var(--cloud);min-width:0}
 .metrics span,.metrics small,.panelHeader p,.person small,.evidence small,.candidateTable td>small,.savedSearches small,.members small,.poolSummary small{color:var(--muted)}
-.metrics strong{font-family:var(--font-data);font-size: clamp(var(--font-size-xl),2vw,var(--font-size-3xl));line-height:1;color:var(--ink)}
+.metrics strong{font-family:var(--font-data);font-size: var(--font-size-2xl);line-height:1;color:var(--ink)}
 .grid{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(280px,.8fr);gap: var(--space-4);align-items:start}
 .main,.sidebar{display:grid;gap: var(--space-4)}
 .panel{border:1px solid var(--line);border-radius:16px;background:var(--cloud);overflow:hidden}
@@ -14,11 +14,11 @@
 .panelHeader p{margin: var(--space-2) 0 0;max-width:70ch}
 .rediscoverySearch{display:flex;gap: var(--space-2);padding: var(--space-3) var(--space-4);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--paper) 55%,var(--cloud))}
 .rediscoverySearch label{flex:1}
-.rediscoverySearch input,.poolSelect select,.createPool input,.createPool textarea{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--cloud);color:var(--ink);padding: var(--space-3) var(--space-3);font:inherit}
+.rediscoverySearch input,.poolSelect select,.createPool input,.createPool textarea{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--cloud);color:var(--ink);padding: var(--space-3);font:inherit}
 .rediscoverySearch input:focus,.poolSelect select:focus,.createPool input:focus,.createPool textarea:focus{outline:2px solid var(--indigo);outline-offset:2px}
 .candidateTableWrap{overflow:auto}
 .candidateTable{width:100%;border-collapse:collapse;min-width:920px}
-.candidateTable th{padding: var(--space-3) var(--space-3);text-align:left;font-size: var(--text-label);color:var(--muted);background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}
+.candidateTable th{padding: var(--space-3);text-align:left;font-size: var(--text-label);color:var(--muted);background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}
 .candidateTable td{padding: var(--space-3);vertical-align:top;border-bottom:1px solid var(--line);font-size: var(--text-small)}
 .candidateTable tbody tr:hover{background:var(--indigo-tint)}
 .person{display:flex;gap: var(--space-3);align-items:flex-start;min-width:210px}
