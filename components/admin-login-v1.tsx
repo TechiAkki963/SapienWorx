@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { apiClient } from "../lib/api-client";
 import { Button, Logo, useHydrated } from "./ui";
 
@@ -11,10 +11,12 @@ export function AdminLoginV1() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [transaction, setTransaction] = useState("");
-  const [code, setCode] = useState("");
+  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
+  const digitRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [working, setWorking] = useState(false);
+  const code = digits.join("");
 
   const request = async () => {
     const nextErrors: FieldErrors = {};
@@ -34,11 +36,26 @@ export function AdminLoginV1() {
         body: JSON.stringify({ flow: "SIGN_IN", role: "SUPER_ADMIN", email: email.trim(), password }),
       });
       setTransaction(response.transactionId);
+      setDigits(["", "", "", "", "", ""]);
+      window.setTimeout(() => digitRefs.current[0]?.focus(), 0);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Secure verification could not be started.");
     } finally {
       setWorking(false);
     }
+  };
+
+  const setDigit = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    setDigits((current) => current.map((item, itemIndex) => itemIndex === index ? digit : item));
+    if (digit && index < 5) digitRefs.current[index + 1]?.focus();
+  };
+
+  const pasteDigits = (value: string) => {
+    const next = value.replace(/\D/g, "").slice(0, 6).split("");
+    if (!next.length) return;
+    setDigits(Array.from({ length: 6 }, (_, index) => next[index] ?? ""));
+    digitRefs.current[Math.min(next.length, 6) - 1]?.focus();
   };
 
   const verify = async () => {
@@ -64,7 +81,7 @@ export function AdminLoginV1() {
       <h1>Master Access</h1>
       <p>Protected platform operations require password and email OTP verification. Administrative activity is audited.</p>
       {!hydrated ? <p role="status">Preparing secure form…</p> : transaction ? <form onSubmit={(event) => { event.preventDefault(); void verify(); }}>
-        <label className="auth-field"><span>Email OTP</span><input aria-label="Email OTP" inputMode="numeric" maxLength={6} value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} /></label>
+        <fieldset className="auth-otp-fieldset"><legend>Email verification code</legend><div className="auth-otp-digits" onPaste={(event) => { event.preventDefault(); pasteDigits(event.clipboardData.getData("text")); }}>{digits.map((digit, index) => <input key={index} ref={(element) => { digitRefs.current[index] = element; }} aria-label={`Verification digit ${index + 1}`} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} maxLength={1} value={digit} onChange={(event) => setDigit(index, event.target.value)} onKeyDown={(event) => { if (event.key === "Backspace" && !digits[index] && index > 0) digitRefs.current[index - 1]?.focus(); }} />)}</div><small>Enter the six-digit code sent to your approved administrator email.</small></fieldset>
         {error && <p className="workflow-error" role="alert">{error}</p>}
         <Button type="submit" disabled={code.length !== 6 || working}>{working ? "Verifying…" : "Verify and open Master Access"}</Button>
       </form> : <form onSubmit={(event) => { event.preventDefault(); void request(); }} noValidate>
