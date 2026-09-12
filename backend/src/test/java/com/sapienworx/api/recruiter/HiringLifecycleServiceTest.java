@@ -77,6 +77,33 @@ class HiringLifecycleServiceTest {
     }
 
     @Test
+    void rejectedCandidateCannotReceiveAnotherInterviewInvite() {
+        JobApplication application = application(PipelineStage.REJECTED);
+        InterviewRequest request = interviewRequest();
+        when(applications.findById(applicationId)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> service.scheduleInterview(recruiterId, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.CONFLICT))
+                .hasMessageContaining("active interview stage");
+
+        verify(operations, never()).schedule(recruiterId, request);
+    }
+
+    @Test
+    void offerStageCandidateCannotReceiveAnotherInterviewInvite() {
+        JobApplication application = application(PipelineStage.OFFER);
+        InterviewRequest request = interviewRequest();
+        when(applications.findById(applicationId)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> service.scheduleInterview(recruiterId, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+
+        verify(operations, never()).schedule(recruiterId, request);
+    }
+
+    @Test
     void acceptedOfferCannotMoveBackIntoEarlierHiringStage() {
         JobApplication application = application(PipelineStage.OFFER);
         when(applications.findById(applicationId)).thenReturn(Optional.of(application));
