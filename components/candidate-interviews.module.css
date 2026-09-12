@@ -1,7 +1,20 @@
 .page {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
+
+.missionHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+}
+.missionHeader h2 { margin: var(--space-1) 0 var(--space-2); color: var(--ink); font-size: 1.4rem; }
+.missionHeader p { max-width: 48rem; margin: 0; color: var(--muted); line-height: 1.55; }
 
 .tabs {
   display: flex;
@@ -10,9 +23,8 @@
   padding-bottom: var(--space-1);
   border-bottom: 1px solid var(--line);
 }
-
 .tabs button {
-  min-height: 2.25rem;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -25,7 +37,6 @@
   white-space: nowrap;
   cursor: pointer;
 }
-
 .tabs button span {
   display: grid;
   place-items: center;
@@ -35,13 +46,9 @@
   background: var(--paper);
   color: var(--ink-soft);
   font-family: var(--font-data);
-  font-size: var(--font-size-xs, .7rem);
+  font-size: .7rem;
 }
-
-.tabs button.selected {
-  background: var(--portal-accent-soft);
-  color: var(--portal-accent-deep);
-}
+.tabs button.selected { background: var(--portal-accent-soft); color: var(--portal-accent-deep); }
 
 .state {
   display: grid;
@@ -52,104 +59,82 @@
   border-radius: var(--radius-md);
   background: var(--cloud);
 }
-
 .state strong { color: var(--ink); }
-.state p { margin: 0; color: var(--muted); font-size: var(--font-size-sm, .78rem); }
-.days { display: grid; gap: var(--space-4); }
+.state p { margin: 0; color: var(--muted); font-size: .78rem; }
+.days { display: grid; gap: var(--space-5); }
 .dayGroup { display: grid; gap: var(--space-2); }
+.dayHeader { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding: 0 var(--space-1); }
+.dayHeader h2 { margin: 0; color: var(--ink); font-size: 1rem; }
+.dayHeader span { color: var(--muted); font-size: .72rem; }
 
-.dayHeader {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: 0 var(--space-1);
-}
-.dayHeader h2 { margin: 0; color: var(--ink); font-size: var(--font-size-md, 1rem); }
-.dayHeader span { color: var(--muted); font-size: var(--font-size-xs, .7rem); }
-
-.list {
-  overflow: hidden;
+.list { display: grid; gap: var(--space-3); }
+.row {
+  display: grid;
+  grid-template-columns: 7rem minmax(13rem, 1.3fr) minmax(8rem, .8fr) minmax(12rem, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+  padding: var(--space-4);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--cloud);
 }
-
-.row {
-  display: grid;
-  grid-template-columns: 6.5rem minmax(12rem, 1.35fr) minmax(8rem, .7fr) minmax(11rem, 1fr) auto;
-  gap: var(--space-3);
-  align-items: center;
-  min-height: 5.5rem;
-  padding: var(--space-3);
-  border-bottom: 1px solid var(--line);
-}
-.row:last-child { border-bottom: 0; }
-.row:hover { background: color-mix(in srgb, var(--portal-accent-soft) 24%, var(--cloud)); }
-.time { color: var(--ink); font-family: var(--font-data); font-size: var(--font-size-sm, .78rem); font-weight: 700; }
-
-.role,
-.mode,
-.panel { min-width: 0; display: grid; gap: var(--space-1); }
-.role strong,
-.mode strong { overflow: hidden; color: var(--ink); font-size: var(--font-size-sm, .78rem); text-overflow: ellipsis; white-space: nowrap; }
-.role span,
-.role small,
-.mode span,
-.mode small,
-.panel > span,
-.panel > small { color: var(--muted); font-size: var(--font-size-xs, .7rem); }
+.row:hover { border-color: color-mix(in srgb, var(--portal-accent) 28%, var(--line)); }
+.scheduleBlock { display: grid; gap: var(--space-1); }
+.scheduleBlock > span { color: var(--muted); font-size: .7rem; }
+.time { color: var(--ink); font-family: var(--font-data); font-size: .82rem; font-weight: 700; }
+.role, .mode, .panel { min-width: 0; display: grid; gap: var(--space-1); }
+.role strong, .mode strong { overflow: hidden; color: var(--ink); font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+.role span, .role small, .mode span, .mode small, .panel > span, .panel > small { color: var(--muted); font-size: .72rem; }
 .role small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .panel > div { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; }
-.panelPerson { display: inline-flex; align-items: center; gap: var(--space-1); max-width: 9rem; }
+.panelPerson { display: inline-flex; align-items: center; gap: var(--space-1); max-width: 10rem; }
 .panelPerson i {
-  width: 1.5rem;
-  height: 1.5rem;
-  flex: 0 0 1.5rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--portal-accent-soft);
-  color: var(--portal-accent-deep);
-  font-family: var(--font-data);
-  font-size: var(--font-size-xs, .7rem);
-  font-style: normal;
-  font-weight: 700;
+  width: 1.6rem; height: 1.6rem; flex: 0 0 1.6rem; display: grid; place-items: center; border-radius: 50%;
+  background: var(--portal-accent-soft); color: var(--portal-accent-deep); font-family: var(--font-data); font-size: .68rem; font-style: normal; font-weight: 700;
 }
-.panelPerson b { overflow: hidden; color: var(--ink-soft); font-size: var(--font-size-xs, .7rem); text-overflow: ellipsis; white-space: nowrap; }
-.actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-1); flex-wrap: wrap; }
-.actions :global(.button) { min-height: 2rem; padding-inline: var(--space-2); font-size: var(--font-size-xs, .7rem); white-space: nowrap; }
+.panelPerson b { overflow: hidden; color: var(--ink-soft); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.prep {
+  grid-column: 2 / -1;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--portal-accent-soft) 28%, var(--cloud));
+}
+.prep > span { color: var(--ink); font-size: .74rem; font-weight: 700; }
+.prep ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) var(--space-4); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.prep li { color: var(--ink-soft); font-size: .72rem; }
+.prep li::before { content: "○"; margin-right: var(--space-2); color: var(--portal-accent-deep); }
+
+.actions { grid-column: 2 / -1; display: flex; align-items: center; justify-content: flex-start; gap: var(--space-2); flex-wrap: wrap; }
+.actions :global(.button) { min-height: 36px; padding-inline: var(--space-3); font-size: .72rem; white-space: nowrap; }
 
 .privacyNote {
   margin: 0;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border-left: .2rem solid var(--portal-accent);
   background: var(--portal-accent-soft);
   color: var(--ink-soft);
-  font-size: var(--font-size-xs, .7rem);
-  line-height: var(--line-height-normal, 1.5);
+  font-size: .72rem;
+  line-height: 1.5;
 }
 
 @media (max-width: 1199px) {
-  .row { grid-template-columns: 5.5rem minmax(12rem, 1.4fr) minmax(8rem, .8fr) minmax(10rem, 1fr); }
-  .actions { grid-column: 2 / -1; justify-content: flex-start; }
+  .row { grid-template-columns: 5.5rem minmax(12rem, 1.2fr) minmax(8rem, .8fr); }
+  .panel { grid-column: 2 / -1; }
+  .prep, .actions { grid-column: 2 / -1; }
 }
-
 @media (max-width: 767px) {
-  .row { grid-template-columns: 5rem minmax(0, 1fr); align-items: start; }
-  .mode,
-  .panel,
-  .actions { grid-column: 2; }
+  .missionHeader { align-items: flex-start; flex-direction: column; }
+  .row { grid-template-columns: 5rem minmax(0, 1fr); }
+  .mode, .panel, .prep, .actions { grid-column: 2; }
+  .prep ul { grid-template-columns: 1fr; }
   .actions { align-items: stretch; flex-direction: column; }
   .actions :global(.button) { justify-content: center; }
 }
-
 @media (max-width: 639px) {
+  .missionHeader { padding: var(--space-4); }
   .dayHeader { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
   .row { grid-template-columns: 1fr; }
-  .time,
-  .role,
-  .mode,
-  .panel,
-  .actions { grid-column: auto; }
+  .scheduleBlock, .role, .mode, .panel, .prep, .actions { grid-column: auto; }
 }
