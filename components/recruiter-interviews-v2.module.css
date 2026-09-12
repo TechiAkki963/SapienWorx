@@ -168,6 +168,76 @@
 
 .notificationNote strong { color: var(--ink); }
 
+.confirmation {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--portal-accent) 35%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--portal-accent-soft) 26%, var(--cloud));
+}
+
+.confirmationHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.confirmationHeader h3 { margin: 2px 0 0; font-size: 18px; }
+.confirmationHeader button {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-3);
+  background: var(--cloud);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.reviewGrid > div {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--cloud);
+}
+
+.reviewGrid dt {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.reviewGrid dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.reviewWide { grid-column: 1 / -1; }
+.urlValue { overflow-wrap: anywhere; font-family: var(--font-data); font-size: 11px !important; }
+
+.confirmationWarning {
+  margin: 0;
+  padding: var(--space-3);
+  border-left: 3px solid var(--portal-accent);
+  background: var(--cloud);
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 .upcomingList { display: grid; gap: var(--space-2); }
 
 .upcomingCard {
@@ -220,9 +290,12 @@
 }
 
 @media (max-width: 639px) {
-  .grid { grid-template-columns: 1fr; }
+  .grid,
+  .reviewGrid { grid-template-columns: 1fr; }
+  .reviewWide { grid-column: auto; }
   .panel,
-  .aside { padding: var(--space-3); }
+  .aside,
+  .confirmation { padding: var(--space-3); }
   .actions { display: grid; }
   .primary,
   .secondary { width: 100%; }
