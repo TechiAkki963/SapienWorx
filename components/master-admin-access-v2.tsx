@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "../lib/api-client";
 import { Button, WorkspaceShell } from "./ui";
+import { MasterAdminInvitations } from "./master-admin-invitations";
 import styles from "./master-admin-access-v2.module.css";
 
 type Admin = {
@@ -119,10 +120,7 @@ export function MasterAdminAccessV2() {
         </aside>
       </section>
 
-      <section className={styles.inviteNote}>
-        <div><span className={styles.eyebrow}>Administrator provisioning</span><h3>Invite admin requires an activation contract</h3><p>Master Admin sign-in requires a password hash and email OTP. SapienWorx does not yet have an administrator invitation/activation endpoint, so this workspace deliberately does not show a fake “invite sent” action. Provisioning will be enabled only with a real expiring activation flow.</p></div>
-        <span>Security guardrail</span>
-      </section>
+      <MasterAdminInvitations owner={data?.currentAdmin.role === "OWNER"} />
     </main>
   </WorkspaceShell>;
 }
