@@ -2,22 +2,29 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { apiClient } from "../lib/api-client";
 import { defaultRecruiterSearch, searchParamsFor, stateFromSearchParams, type RecruiterSearchState } from "../lib/recruiter-search";
 import { Button, WorkspaceShell } from "./ui";
 import styles from "./recruiter-sourcing-command.module.css";
 
 const experience=Array.from({length:21},(_,i)=>String(i));
 const activeOptions:[[RecruiterSearchState["activeStatus"],string],...Array<[RecruiterSearchState["activeStatus"],string]>]=[["ONE_DAY","Last 24 hours"],["THREE_DAYS","Last 3 days"],["SEVEN_DAYS","Last 7 days"],["FIFTEEN_DAYS","Last 15 days"],["THIRTY_DAYS","Last 30 days"],["SIXTY_DAYS","Last 60 days"],["NINETY_DAYS","Last 90 days"],["ONE_YEAR","Last year"],["ALL","Any time"]];
+function defaultSearchName(search:RecruiterSearchState){return [search.designation||search.allKeywords||search.anyKeywords,search.location,search.minExperience&&search.maxExperience?`${search.minExperience}-${search.maxExperience} yrs`:""].filter(Boolean).join(" · ")||"Candidate search"}
 export function RecruiterSourcingCommand(){
  const router=useRouter(),params=useSearchParams();
  const [search,setSearch]=useState<RecruiterSearchState>(()=>params.size?stateFromSearchParams(params):{...defaultRecruiterSearch,gender:""});
+ const [saveName,setSaveName]=useState("");
+ const [alertFrequency,setAlertFrequency]=useState<"OFF"|"DAILY"|"INSTANT">("DAILY");
+ const [saving,setSaving]=useState(false);
+ const [status,setStatus]=useState("");
  const update=<K extends keyof RecruiterSearchState>(key:K,value:RecruiterSearchState[K])=>setSearch(current=>({...current,[key]:value,gender:""}));
  const criteria=useMemo(()=>[
   search.anyKeywords&&["Preferred keywords",search.anyKeywords],search.allKeywords&&["Must include",search.allKeywords],search.excludeKeywords&&["Exclude",search.excludeKeywords],search.location&&["Location",search.location],
   (search.minExperience||search.maxExperience)&&["Experience",`${search.minExperience||0}–${search.maxExperience||"Any"} years`],search.company&&["Company",search.company],search.designation&&["Designation",search.designation],search.departmentRole&&["Role",search.departmentRole],search.industry&&["Industry",search.industry],search.qualification&&["Qualification",search.qualification]
  ].filter(Boolean) as string[][],[search]);
  const run=()=>{const query=searchParamsFor({...search,gender:""}).toString();router.push(`/search/results${query?`?${query}`:""}`)};
- const reset=()=>setSearch({...defaultRecruiterSearch,gender:""});
+ const reset=()=>{setSearch({...defaultRecruiterSearch,gender:""});setStatus("")};
+ const save=async()=>{setSaving(true);setStatus("");try{const safe={...search,gender:"" as const};await apiClient("/api/recruiter/workflow/saved-searches",{method:"POST",body:JSON.stringify({name:saveName.trim()||defaultSearchName(safe),criteria:safe,alertFrequency})});setSaveName("");setStatus(`Search saved with ${alertFrequency.toLowerCase()} alerts.`)}catch(reason){setStatus(reason instanceof Error?reason.message:"Search could not be saved.")}finally{setSaving(false)}};
  return <WorkspaceShell workspace="recruiter" active="sourcing" title="Search talent" description="Persistent filters keep the sourcing context visible while you build a precise, privacy-safe candidate search." actions={<Button href="/recruiter/talent-crm" variant="secondary">Talent CRM & rediscovery</Button>}>
   <div className={styles.layout}>
    <aside className={styles.rail}>
@@ -31,7 +38,7 @@ export function RecruiterSourcingCommand(){
    </aside>
    <main className={styles.canvas}>
     <section className={styles.query}><span className="eyebrow">Search builder</span><h2>Build a precise candidate search without losing context.</h2><p>The filter rail remains visible on desktop while results criteria are summarised here. Protected attributes such as gender, age, disability, religion and other sensitive characteristics are excluded from normal sourcing and ranking.</p><label><span>Boolean expression (optional)</span><textarea rows={3} value={search.booleanQuery} onChange={e=>update("booleanQuery",e.target.value)} placeholder='(Java OR Kotlin) AND "Spring Boot"'/></label><div><Button onClick={run}>Run search</Button><Button variant="secondary" onClick={reset}>Clear all</Button></div></section>
-    <section className={styles.summary}><header><div><span className="eyebrow">Active criteria</span><h2>{criteria.length?`${criteria.length} filters applied`:"Broad candidate search"}</h2></div></header>{criteria.length?<dl>{criteria.map(([label,value])=><div key={`${label}-${value}`}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>:<p>Add role, skill, experience or location filters from the rail. Start broad, then narrow only where the role requires it.</p>}</section>
+    <section className={styles.summary}><header><div><span className="eyebrow">Active criteria</span><h2>{criteria.length?`${criteria.length} filters applied`:"Broad candidate search"}</h2></div></header>{criteria.length?<dl>{criteria.map(([label,value])=><div key={`${label}-${value}`}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>:<p>Add role, skill, experience or location filters from the rail. Start broad, then narrow only where the role requires it.</p>}<div className={styles.saveSearch}><label><span>Saved search name</span><input value={saveName} onChange={e=>setSaveName(e.target.value)} placeholder={defaultSearchName(search)}/></label><label><span>Alert cadence</span><select value={alertFrequency} onChange={e=>setAlertFrequency(e.target.value as "OFF"|"DAILY"|"INSTANT")}><option value="INSTANT">Instant</option><option value="DAILY">Daily</option><option value="OFF">Off</option></select></label><Button variant="secondary" onClick={()=>void save()} disabled={saving}>{saving?"Saving…":"Save search"}</Button></div>{status&&<p className={styles.status} role="status">{status}</p>}</section>
     <section className={styles.guidance}><div><strong>Search strategy</strong><p>Preferred keywords improve ranking without excluding candidates. Use must-have skills sparingly, then add role context, experience and recent activity.</p></div><div><strong>Rediscover first</strong><p>Before paying for net-new sourcing effort, open Talent CRM to review previous applicants, interviewed candidates and final-stage history from your organisation.</p><Button href="/recruiter/talent-crm" variant="secondary">Open Talent CRM</Button></div><div><strong>Privacy boundary</strong><p>Contact details remain masked until an authorised, audited reveal is performed in a job pipeline context.</p></div></section>
    </main>
   </div>
