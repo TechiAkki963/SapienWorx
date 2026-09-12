@@ -23,9 +23,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MasterGovernanceController {
     private final MasterGovernanceService service;
+    private final PlatformAdminPermissionService permissions;
 
     @GetMapping
-    public Map<String, Object> summary(@AuthenticationPrincipal AuthenticatedUser user) { return service.summary(actor(user)); }
+    public Map<String, Object> summary(@AuthenticationPrincipal AuthenticatedUser user) {
+        permissions.requirePermission(actor(user), "platform.read");
+        return service.summary(actor(user));
+    }
 
     @PatchMapping("/admins/{administratorId}/role")
     public Map<String, Object> updateAdminRole(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID administratorId,
@@ -36,24 +40,27 @@ public class MasterGovernanceController {
     @PutMapping("/admins/{administratorId}/permissions")
     public Map<String, Object> updateAdminPermissions(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID administratorId,
                                                       @RequestBody MasterGovernanceRequests.AdminPermissionsUpdate request) {
-        return service.updateAdminPermissions(actor(user), administratorId, request);
+        return permissions.updatePermissions(actor(user), administratorId, request);
     }
 
     @PostMapping("/approvals")
     public Map<String, Object> createApproval(@AuthenticationPrincipal AuthenticatedUser user,
                                                @RequestBody MasterGovernanceRequests.ApprovalCreate request) {
+        permissions.requirePermission(actor(user), "platform.read");
         return service.createApproval(actor(user), request);
     }
 
     @PatchMapping("/approvals/{approvalId}")
     public Map<String, Object> decideApproval(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID approvalId,
                                                @RequestBody MasterGovernanceRequests.ApprovalDecision request) {
+        permissions.requireAnyPermission(actor(user), "audit.export", "moderation.manage", "operations.manage");
         return service.decideApproval(actor(user), approvalId, request);
     }
 
     @PatchMapping("/alerts/{alertKey}")
     public Map<String, Object> updateAlert(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String alertKey,
                                            @RequestBody MasterGovernanceRequests.AlertUpdate request) {
+        permissions.requirePermission(actor(user), "operations.manage");
         return service.updateAlert(actor(user), alertKey, request);
     }
 
@@ -66,46 +73,54 @@ public class MasterGovernanceController {
     @PatchMapping("/moderation/{caseId}")
     public Map<String, Object> updateModeration(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID caseId,
                                                 @RequestBody MasterGovernanceRequests.ModerationUpdate request) {
+        permissions.requirePermission(actor(user), "moderation.manage");
         return service.updateModeration(actor(user), caseId, request);
     }
 
     @PatchMapping("/feature-flags/{flagKey}")
     public Map<String, Object> updateFeatureFlag(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable String flagKey,
                                                  @RequestBody MasterGovernanceRequests.FeatureFlagUpdate request) {
+        permissions.requirePermission(actor(user), "releases.manage");
         return service.updateFeatureFlag(actor(user), flagKey, request);
     }
 
     @PatchMapping("/integrations/{integrationId}")
     public Map<String, Object> updateIntegration(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID integrationId,
                                                  @RequestBody MasterGovernanceRequests.IntegrationUpdate request) {
+        permissions.requirePermission(actor(user), "integrations.manage");
         return service.updateIntegration(actor(user), integrationId, request);
     }
 
     @PutMapping("/billing/{organisationId}")
     public Map<String, Object> updateBilling(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID organisationId,
                                              @RequestBody MasterGovernanceRequests.BillingUpdate request) {
+        permissions.requirePermission(actor(user), "billing.manage");
         return service.updateBilling(actor(user), organisationId, request);
     }
 
     @PostMapping("/support-access")
     public Map<String, Object> requestSupportAccess(@AuthenticationPrincipal AuthenticatedUser user,
                                                     @RequestBody MasterGovernanceRequests.SupportAccessCreate request) {
+        permissions.requirePermission(actor(user), "support.request_access");
         return service.requestSupportAccess(actor(user), request);
     }
 
     @PatchMapping("/support-access/{requestId}")
     public Map<String, Object> updateSupportAccess(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID requestId,
                                                    @RequestBody MasterGovernanceRequests.SupportAccessUpdate request) {
+        permissions.requirePermission(actor(user), "support.manage");
         return service.updateSupportAccess(actor(user), requestId, request);
     }
 
     @GetMapping("/support-access/{requestId}/snapshot")
     public Map<String, Object> maskedSupportSnapshot(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID requestId) {
+        permissions.requirePermission(actor(user), "support.manage");
         return service.maskedSupportSnapshot(actor(user), requestId);
     }
 
     @GetMapping("/reports/operations.csv")
     public ResponseEntity<String> operationalReport(@AuthenticationPrincipal AuthenticatedUser user) {
+        permissions.requireAnyPermission(actor(user), "reports.export", "audit.export");
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sapienworx-operations-report.csv")
                 .contentType(MediaType.parseMediaType("text/csv"))
