@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter, Space_Grotesk } from "next/font/google";
 import "./ui-v1.css";
 import "./public-auth-v1.css";
+import "./admin-auth-v2.css";
 import "./candidate-v1.css";
 import "./candidate-applications-v2.css";
 import "./candidate-profile-v2.css";
