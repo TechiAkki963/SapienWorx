@@ -38,11 +38,17 @@ public class OtpEmailSender {
     }
 
     private String subject(OtpPurpose purpose) {
-        return purpose == OtpPurpose.PASSWORD_RESET ? "Reset your Sapienworx password" : "Your Sapienworx verification code";
+        if (purpose == OtpPurpose.PASSWORD_RESET) return "Reset your Sapienworx password";
+        if (purpose == OtpPurpose.ADMIN_ACTIVATION) return "Verify your Sapienworx administrator activation";
+        return "Your Sapienworx verification code";
     }
 
     private String body(OtpPurpose purpose, String code) {
-        String action = purpose == OtpPurpose.PASSWORD_RESET ? "reset your password" : "complete verification";
+        String action = switch (purpose) {
+            case PASSWORD_RESET -> "reset your password";
+            case ADMIN_ACTIVATION -> "activate your administrator account";
+            default -> "complete verification";
+        };
         return "Use " + code + " to " + action + ". This code expires in 10 minutes. "
                 + "If you did not request this, you can safely ignore this email. Sapienworx will never ask you to share this code.";
     }
