@@ -1,6 +1,6 @@
 /* Snapshot-aligned visual layer.
-   Source of truth: docs/ui_ux_design/stitch_app_ui_ux_design/*/screen.png + code.html
-   and portal_intelligence/DESIGN.md.
+   Source of truth: the Stitch page folders under docs/ui_ux_design/stitch_app_ui_ux_design,
+   their screen.png and code.html references, plus portal_intelligence/DESIGN.md.
 
    Presentation only: production data, permissions, privacy, audited PII reveal,
    pagination, workflow state and provider-agnostic interview links are unchanged. */
@@ -33,7 +33,6 @@ h4,
   letter-spacing: -0.01em;
 }
 
-/* Stitch uses the same professional blue interaction language across signed-in portals. */
 .workspace-shell-candidate,
 .workspace-shell-recruiter {
   --portal-accent: var(--indigo);
@@ -49,7 +48,6 @@ h4,
   --portal-accent-ink: var(--cloud);
 }
 
-/* Flat-Plus surfaces from the reference designs. */
 .panel,
 .widget,
 .stat-card,
@@ -133,7 +131,6 @@ textarea:focus {
   color: var(--warn);
 }
 
-/* Common 64px top chrome. */
 .topbar {
   min-height: var(--workspace-topbar);
   border-color: var(--line);
@@ -170,7 +167,6 @@ textarea:focus {
   max-width: 1440px;
 }
 
-/* Recruiter and Master Admin: fixed operational rail. */
 .workspace-shell-recruiter,
 .workspace-shell-admin {
   grid-template-columns: var(--workspace-sidebar) minmax(0, 1fr);
@@ -263,7 +259,6 @@ textarea:focus {
 .workspace-shell-admin .panel:hover,
 .workspace-shell-admin .widget:hover { box-shadow: var(--snapshot-shadow-hover); }
 
-/* Dense reference-table rhythm: horizontal dividers only. */
 .workspace-shell-recruiter table,
 .workspace-shell-admin table {
   width: 100%;
@@ -294,7 +289,6 @@ textarea:focus {
 
 .workspace-shell-recruiter tbody tr,
 .workspace-shell-admin tbody tr { transition: background .16s ease; }
-
 .workspace-shell-recruiter tbody tr:hover { background: var(--indigo-soft); }
 .workspace-shell-admin tbody tr:hover { background: color-mix(in srgb, var(--ink) 3%, var(--cloud)); }
 
@@ -303,7 +297,6 @@ textarea:focus {
 .workspace-shell-admin [class*="audit"] small,
 .workspace-shell-admin [class*="audit"] td:first-child { font-family: var(--font-data); }
 
-/* Search/filter rails from recruiter sourcing and candidate job-discovery references. */
 .workspace-shell-recruiter [class*="filter-rail"],
 .workspace-shell-recruiter [class*="filters-rail"],
 .workspace-shell-candidate [class*="filter-rail"],
@@ -337,7 +330,6 @@ textarea:focus {
 .workspace-shell-candidate [class*="job-row"]:hover,
 .workspace-shell-candidate [class*="application-row"]:hover { background: var(--indigo-soft); }
 
-/* Candidate: top navigation and warmer breathing room without generic card sprawl. */
 .workspace-shell-candidate .topbar {
   border-bottom: 1px solid var(--line);
   background: var(--cloud);
@@ -370,7 +362,6 @@ textarea:focus {
 
 .workspace-shell-candidate .candidate-analytics-layout,
 .workspace-shell-candidate [class*="candidate-"][class*="layout"] { gap: var(--space-6); }
-
 .workspace-shell-candidate .candidate-analytics-main,
 .workspace-shell-candidate .candidate-analytics-aside { gap: var(--space-5); }
 
@@ -381,7 +372,6 @@ textarea:focus {
 .workspace-shell-candidate .candidate-completeness-card { padding: var(--space-5); }
 
 .workspace-shell-candidate .candidate-analytics-heading { margin-bottom: var(--space-5); }
-
 .workspace-shell-candidate .candidate-analytics-heading h2,
 .workspace-shell-candidate .candidate-analytics-heading h1 {
   color: var(--ink);
@@ -404,18 +394,15 @@ textarea:focus {
 .workspace-shell-candidate .meter-fill,
 .workspace-shell-candidate .meter-blue { background: var(--indigo); }
 
-/* Application/status timeline hierarchy. */
 .workspace-shell-candidate [class*="application-timeline"],
 .workspace-shell-candidate [class*="status-timeline"],
 .workspace-shell-candidate [class*="application-status"] { position: relative; }
 
 .workspace-shell-candidate [class*="timeline"] strong,
 .workspace-shell-candidate [class*="application"] strong { color: var(--ink); }
-
 .workspace-shell-candidate [class*="timeline"] small,
 .workspace-shell-candidate [class*="application"] small { color: var(--muted); }
 
-/* Messaging, parser, preview and evaluation surfaces. */
 .workspace-shell-candidate [class*="inbox"],
 .workspace-shell-candidate [class*="message"],
 .workspace-shell-recruiter [class*="communication"],
@@ -427,18 +414,14 @@ textarea:focus {
 
 .workspace-shell-candidate [class*="thread"],
 .workspace-shell-recruiter [class*="thread"] { background: var(--cloud); }
-
 .workspace-shell-recruiter [class*="scorecard"],
 .workspace-shell-recruiter [class*="evaluation"] { box-shadow: var(--snapshot-shadow); }
 
-/* Rich applicant detail remains the production workspace, visually aligned to the snapshots. */
 .workspace-shell-recruiter .applicant-workspace-hero,
 .workspace-shell-recruiter .applicant-workspace-grid { gap: var(--space-4); }
-
 .workspace-shell-recruiter .applicant-workspace-grid > *,
 .workspace-shell-recruiter .applicant-workspace-hero > * { border-color: var(--line); }
 
-/* Master Admin: neutral command centre and ledger treatment. */
 .workspace-shell-admin .master-stack { gap: var(--space-4); }
 
 .workspace-shell-admin .master-wide-list {
@@ -520,7 +503,6 @@ textarea:focus {
 }
 
 .workspace-shell-admin .master-investigation-stats { gap: var(--space-3); }
-
 .workspace-shell-admin .master-investigation-stats > div {
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
@@ -534,7 +516,6 @@ textarea:focus {
 .workspace-shell-admin [class*="organisation"],
 .workspace-shell-admin [class*="organization"] { border-color: var(--line); }
 
-/* Documented responsive breakpoints. */
 @media (max-width: 1023px) {
   .workspace-shell-recruiter,
   .workspace-shell-admin { grid-template-columns: 1fr; }
