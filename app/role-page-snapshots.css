@@ -1,0 +1,548 @@
+/* Route-level snapshot alignment for high-traffic recruiter and candidate pages.
+   The underlying components keep their existing APIs, permissions and workflow behavior. */
+
+/* Recruiter pipeline: fixed filter rail + scan-first operations table. */
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_workspace"]{
+  grid-template-columns:272px minmax(0,1fr);
+  gap:var(--space-5);
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_filterRail"]{
+  top:var(--space-4);
+  padding:var(--space-4);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--snapshot-shadow);
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_filterHeader"]{
+  padding-bottom:var(--space-3);
+  border-bottom:1px solid var(--line);
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_toolbar"]{
+  min-height:56px;
+  margin-bottom:var(--space-3);
+  padding:var(--space-3) var(--space-4);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--snapshot-shadow);
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_tableWrap"]{
+  border-radius:var(--radius-sm);
+  box-shadow:var(--snapshot-shadow);
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_table"] th{
+  min-height:44px;
+  padding:var(--space-3);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_table"] td{
+  padding:var(--space-3);
+  vertical-align:middle;
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_identity"]{
+  min-width:220px;
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_skills"]{
+  max-width:260px;
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_stage"]{
+  min-height:28px;
+  padding-inline:var(--space-2);
+  border:1px solid color-mix(in srgb,var(--indigo) 18%,var(--line));
+}
+
+.workspace-shell-recruiter [class*="recruiter-pipeline-v2_bulkBar"]{
+  top:var(--space-3);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--snapshot-shadow-hover);
+}
+
+/* Recruiter Job Center: closer to the Stitch job-operations table. */
+.workspace-shell-recruiter [class*="recruiter-job-management-command_summary"]{
+  border-radius:var(--radius-sm);
+  box-shadow:var(--snapshot-shadow);
+}
+
+.workspace-shell-recruiter [class*="recruiter-job-management-command_summary"]>div{
+  min-height:96px;
+  align-content:center;
+  padding:var(--space-4);
+}
+
+.workspace-shell-recruiter [class*="recruiter-job-management-command_controls"]{
+  min-height:68px;
+  padding:var(--space-3) var(--space-4);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--snapshot-shadow);
+}
+
+.workspace-shell-recruiter [class*="recruiter-job-management-command_tableWrap"]{
+  border-radius:var(--radius-sm);
+  box-shadow:var(--snapshot-shadow);
+}
+
+.workspace-shell-recruiter [class*="recruiter-job-management-command_table"] th{
+  padding-block:var(--space-3);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.workspace-shell-recruiter [class*="recruiter-job-management-command_table"] td{
+  padding-block:var(--space-3);
+}
+
+.workspace-shell-recruiter [class*="recruiter-job-management-command_quality"]>span{
+  height:var(--space-2);
+}
+
+.workspace-shell-recruiter [class*="recruiter-job-management-command_actions"] a,
+.workspace-shell-recruiter [class*="recruiter-job-management-command_actions"] button{
+  min-height:34px;
+}
+
+/* Candidate applications: application tracker snapshot composition. */
+.workspace-shell-candidate .candidate-applications-page{
+  display:grid;
+  gap:var(--space-5);
+}
+
+.workspace-shell-candidate .candidate-applications-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:var(--space-5);
+  padding:var(--space-5) var(--space-6);
+  border-radius:var(--radius-md);
+}
+
+.workspace-shell-candidate .candidate-applications-hero h2{
+  margin:var(--space-1) 0;
+  font-size:var(--font-size-xl);
+}
+
+.workspace-shell-candidate .candidate-applications-hero p{
+  max-width:760px;
+  margin:0;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.workspace-shell-candidate .candidate-application-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--space-3);
+}
+
+.workspace-shell-candidate .candidate-application-stat-grid>article{
+  display:grid;
+  gap:var(--space-2);
+  min-height:112px;
+  padding:var(--space-4);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:var(--cloud);
+  box-shadow:var(--snapshot-shadow);
+}
+
+.workspace-shell-candidate .candidate-application-stat-grid span{
+  color:var(--muted);
+  font-size:var(--font-size-xs);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.workspace-shell-candidate .candidate-application-stat-grid strong{
+  font:650 var(--font-size-2xl)/1 var(--font-display);
+}
+
+.workspace-shell-candidate .candidate-application-stat-grid small{color:var(--muted)}
+
+.workspace-shell-candidate .candidate-application-browser{
+  overflow:hidden;
+  padding:0;
+  border-radius:var(--radius-md);
+}
+
+.workspace-shell-candidate .candidate-application-browser>.section-title{
+  margin:0;
+  padding:var(--space-5) var(--space-6) var(--space-4);
+  border-bottom:1px solid var(--line);
+}
+
+.workspace-shell-candidate .candidate-application-controls{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--space-3);
+  padding:var(--space-3) var(--space-6);
+  border-bottom:1px solid var(--line);
+  background:var(--paper);
+}
+
+.workspace-shell-candidate .candidate-application-filter{
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--space-1);
+}
+
+.workspace-shell-candidate .candidate-application-filter button{
+  min-height:34px;
+  padding-inline:var(--space-3);
+  border:1px solid transparent;
+  border-radius:999px;
+  background:transparent;
+  color:var(--muted);
+  font-weight:650;
+  cursor:pointer;
+}
+
+.workspace-shell-candidate .candidate-application-filter button.selected{
+  border-color:color-mix(in srgb,var(--indigo) 24%,var(--line));
+  background:var(--indigo-soft);
+  color:var(--indigo-deep);
+}
+
+.workspace-shell-candidate .candidate-application-search{
+  display:grid;
+  grid-template-columns:auto minmax(180px,280px);
+  align-items:center;
+  gap:var(--space-2);
+  min-height:40px;
+  padding-inline:var(--space-3);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:var(--cloud);
+}
+
+.workspace-shell-candidate .candidate-application-search input{
+  min-height:38px;
+  border:0;
+  outline:0;
+  background:transparent;
+}
+
+.workspace-shell-candidate .candidate-application-list{
+  display:grid;
+  gap:0;
+}
+
+.workspace-shell-candidate .candidate-application-card{
+  margin:0;
+  padding:var(--space-5) var(--space-6);
+  border:0;
+  border-bottom:1px solid var(--line);
+  border-radius:0;
+  background:var(--cloud);
+  box-shadow:none;
+}
+
+.workspace-shell-candidate .candidate-application-card:last-child{border-bottom:0}
+.workspace-shell-candidate .candidate-application-card:hover{background:color-mix(in srgb,var(--indigo-soft) 22%,var(--cloud))}
+
+.workspace-shell-candidate .candidate-application-card-head{
+  align-items:center;
+}
+
+.workspace-shell-candidate .candidate-application-progress{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:var(--space-2);
+  margin-top:var(--space-4);
+  padding:0;
+}
+
+.workspace-shell-candidate .candidate-application-progress::before{
+  content:"";
+  position:absolute;
+  top:14px;
+  left:5%;
+  right:5%;
+  height:1px;
+  background:var(--line);
+}
+
+.workspace-shell-candidate .candidate-application-progress li{
+  position:relative;
+  z-index:1;
+  display:grid;
+  justify-items:center;
+  gap:var(--space-1);
+  text-align:center;
+}
+
+.workspace-shell-candidate .candidate-application-progress li>span{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:var(--cloud);
+  color:var(--muted);
+  font-size:var(--font-size-xs);
+  font-weight:700;
+}
+
+.workspace-shell-candidate .candidate-application-progress li.completed>span{
+  border-color:var(--indigo);
+  background:var(--indigo);
+  color:var(--cloud);
+}
+
+.workspace-shell-candidate .candidate-application-timeline{
+  margin-top:var(--space-4);
+  padding:var(--space-4);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:var(--paper);
+}
+
+/* Candidate profile: editorial form workspace with sticky roadmap/readiness. */
+.workspace-shell-candidate .candidate-complete-profile{
+  display:grid;
+  gap:var(--space-5);
+  padding-bottom:88px;
+}
+
+.workspace-shell-candidate .candidate-complete-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(300px,.7fr) auto;
+  align-items:center;
+  gap:var(--space-5);
+  padding:var(--space-5) var(--space-6);
+  border-radius:var(--radius-md);
+}
+
+.workspace-shell-candidate .candidate-hero-identity{
+  display:flex;
+  align-items:center;
+  gap:var(--space-4);
+  min-width:0;
+}
+
+.workspace-shell-candidate .candidate-profile-avatar{
+  width:72px;
+  height:72px;
+  flex:0 0 72px;
+  display:grid;
+  place-items:center;
+  border:1px solid color-mix(in srgb,var(--indigo) 20%,var(--line));
+  border-radius:50%;
+  background:var(--indigo-soft);
+  color:var(--indigo-deep);
+  font:700 var(--font-size-lg)/1 var(--font-display);
+}
+
+.workspace-shell-candidate .candidate-hero-identity h2{margin:var(--space-1) 0;font-size:var(--font-size-xl)}
+.workspace-shell-candidate .candidate-hero-identity span,
+.workspace-shell-candidate .candidate-hero-identity small{color:var(--muted)}
+
+.workspace-shell-candidate .candidate-hero-facts{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+
+.workspace-shell-candidate .candidate-hero-facts>div{
+  display:grid;
+  gap:var(--space-1);
+  padding:var(--space-3);
+  border-right:1px solid var(--line);
+}
+
+.workspace-shell-candidate .candidate-hero-facts>div:last-child{border-right:0}
+.workspace-shell-candidate .candidate-hero-facts b{font-family:var(--font-data)}
+.workspace-shell-candidate .candidate-hero-facts span{color:var(--muted);font-size:var(--font-size-xs)}
+
+.workspace-shell-candidate .candidate-profile-roadmap{
+  position:sticky;
+  top:var(--space-2);
+  z-index:12;
+  display:grid;
+  grid-template-columns:minmax(220px,.75fr) minmax(0,2fr);
+  align-items:center;
+  gap:var(--space-4);
+  padding:var(--space-3) var(--space-4);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:color-mix(in srgb,var(--cloud) 96%,transparent);
+  box-shadow:var(--snapshot-shadow);
+  backdrop-filter:blur(10px);
+}
+
+.workspace-shell-candidate .candidate-profile-roadmap>div{display:grid;gap:var(--space-1)}
+.workspace-shell-candidate .candidate-profile-roadmap>div>strong{font-size:var(--font-size-sm)}
+.workspace-shell-candidate .candidate-profile-roadmap ol{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:var(--space-1);
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.workspace-shell-candidate .candidate-profile-roadmap li a{
+  display:flex;
+  align-items:center;
+  gap:var(--space-2);
+  min-height:40px;
+  padding-inline:var(--space-2);
+  border-radius:var(--radius-sm);
+  color:var(--muted);
+  font-size:var(--font-size-xs);
+  font-weight:650;
+  text-decoration:none;
+}
+
+.workspace-shell-candidate .candidate-profile-roadmap li.current a,
+.workspace-shell-candidate .candidate-profile-roadmap li.complete a{
+  background:var(--indigo-soft);
+  color:var(--indigo-deep);
+}
+
+.workspace-shell-candidate .candidate-profile-grid.candidate-complete-layout{
+  grid-template-columns:minmax(0,1fr) 300px;
+  gap:var(--space-5);
+}
+
+.workspace-shell-candidate .candidate-profile-content{
+  display:grid;
+  gap:var(--space-5);
+}
+
+.workspace-shell-candidate .candidate-complete-section{
+  padding:0;
+  overflow:hidden;
+  border-radius:var(--radius-md);
+}
+
+.workspace-shell-candidate .candidate-complete-section>.section-title{
+  margin:0;
+  padding:var(--space-5) var(--space-6) var(--space-3);
+}
+
+.workspace-shell-candidate .candidate-profile-helper{
+  margin:0;
+  padding:0 var(--space-6) var(--space-4);
+  border-bottom:1px solid var(--line);
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.workspace-shell-candidate .candidate-complete-section>.candidate-profile-fields,
+.workspace-shell-candidate .candidate-complete-section>.candidate-profile-field,
+.workspace-shell-candidate .candidate-complete-section>.candidate-choice-group,
+.workspace-shell-candidate .candidate-complete-section>.candidate-tag-editor,
+.workspace-shell-candidate .candidate-complete-section>.candidate-contact-protected,
+.workspace-shell-candidate .candidate-complete-section>.candidate-sensitive-consent,
+.workspace-shell-candidate .candidate-complete-section>.candidate-inclusion-toggles,
+.workspace-shell-candidate .candidate-complete-section>.candidate-subsection{
+  margin-left:var(--space-6);
+  margin-right:var(--space-6);
+}
+
+.workspace-shell-candidate .candidate-complete-section>:last-child{margin-bottom:var(--space-5)}
+.workspace-shell-candidate .candidate-complete-repeater{
+  margin:var(--space-4) var(--space-6);
+  padding:var(--space-4);
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  background:var(--paper);
+}
+
+.workspace-shell-candidate .candidate-profile-aside{
+  position:sticky;
+  top:92px;
+  display:grid;
+  gap:var(--space-3);
+  align-self:start;
+}
+
+.workspace-shell-candidate .candidate-profile-readiness,
+.workspace-shell-candidate .candidate-profile-protection{
+  padding:var(--space-4);
+}
+
+.workspace-shell-candidate .candidate-profile-savebar{
+  position:fixed;
+  z-index:30;
+  left:0;
+  right:0;
+  bottom:0;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:var(--space-4);
+  min-height:64px;
+  padding:var(--space-3) var(--space-6);
+  border-top:1px solid var(--line);
+  background:color-mix(in srgb,var(--cloud) 96%,transparent);
+  box-shadow:0 -4px 16px color-mix(in srgb,var(--ink) 6%,transparent);
+  backdrop-filter:blur(12px);
+}
+
+.workspace-shell-candidate .candidate-profile-savebar>span{
+  margin-right:auto;
+  color:var(--muted);
+  font-size:var(--font-size-sm);
+}
+
+@media(max-width:1199px){
+  .workspace-shell-recruiter [class*="recruiter-pipeline-v2_workspace"]{grid-template-columns:240px minmax(0,1fr)}
+  .workspace-shell-candidate .candidate-complete-hero{grid-template-columns:1fr 1fr}
+  .workspace-shell-candidate .candidate-hero-actions{grid-column:1/-1}
+  .workspace-shell-candidate .candidate-profile-grid.candidate-complete-layout{grid-template-columns:minmax(0,1fr) 260px}
+}
+
+@media(max-width:1023px){
+  .workspace-shell-recruiter [class*="recruiter-pipeline-v2_workspace"]{grid-template-columns:1fr}
+  .workspace-shell-candidate .candidate-profile-roadmap{position:static;grid-template-columns:1fr}
+  .workspace-shell-candidate .candidate-profile-grid.candidate-complete-layout{grid-template-columns:1fr}
+  .workspace-shell-candidate .candidate-profile-aside{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:767px){
+  .workspace-shell-candidate .candidate-applications-hero{grid-template-columns:1fr;padding:var(--space-4)}
+  .workspace-shell-candidate .candidate-application-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .workspace-shell-candidate .candidate-application-browser>.section-title,
+  .workspace-shell-candidate .candidate-application-controls,
+  .workspace-shell-candidate .candidate-application-card{padding-inline:var(--space-4)}
+  .workspace-shell-candidate .candidate-application-controls{align-items:stretch;flex-direction:column}
+  .workspace-shell-candidate .candidate-application-search{grid-template-columns:auto minmax(0,1fr)}
+  .workspace-shell-candidate .candidate-complete-hero{grid-template-columns:1fr;padding:var(--space-4)}
+  .workspace-shell-candidate .candidate-hero-facts{grid-template-columns:1fr}
+  .workspace-shell-candidate .candidate-hero-facts>div{border-right:0;border-bottom:1px solid var(--line)}
+  .workspace-shell-candidate .candidate-hero-facts>div:last-child{border-bottom:0}
+  .workspace-shell-candidate .candidate-profile-roadmap ol{grid-template-columns:1fr 1fr}
+  .workspace-shell-candidate .candidate-complete-section>.section-title{padding:var(--space-4) var(--space-4) var(--space-3)}
+  .workspace-shell-candidate .candidate-profile-helper{padding-inline:var(--space-4)}
+  .workspace-shell-candidate .candidate-complete-section>.candidate-profile-fields,
+  .workspace-shell-candidate .candidate-complete-section>.candidate-profile-field,
+  .workspace-shell-candidate .candidate-complete-section>.candidate-choice-group,
+  .workspace-shell-candidate .candidate-complete-section>.candidate-tag-editor,
+  .workspace-shell-candidate .candidate-complete-section>.candidate-contact-protected,
+  .workspace-shell-candidate .candidate-complete-section>.candidate-sensitive-consent,
+  .workspace-shell-candidate .candidate-complete-section>.candidate-inclusion-toggles,
+  .workspace-shell-candidate .candidate-complete-section>.candidate-subsection,
+  .workspace-shell-candidate .candidate-complete-repeater{margin-left:var(--space-4);margin-right:var(--space-4)}
+  .workspace-shell-candidate .candidate-profile-aside{grid-template-columns:1fr}
+  .workspace-shell-candidate .candidate-profile-savebar{padding-inline:var(--space-4);align-items:stretch;flex-direction:column}
+  .workspace-shell-candidate .candidate-profile-savebar>span{margin-right:0}
+}
+
+@media(max-width:479px){
+  .workspace-shell-candidate .candidate-application-stat-grid{grid-template-columns:1fr}
+  .workspace-shell-candidate .candidate-application-progress{grid-template-columns:repeat(5,72px);overflow-x:auto;justify-content:start;padding-bottom:var(--space-2)}
+  .workspace-shell-candidate .candidate-profile-roadmap ol{grid-template-columns:1fr}
+}
