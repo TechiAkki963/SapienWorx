@@ -7,20 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Server-side permission enforcement for Master Access.
- *
- * Roles remain the maximum permission envelope. Owners retain full access;
- * other administrators can be narrowed to an explicit subset of the
- * permissions allowed by their role. UI toggles are never treated as the
- * enforcement boundary.
- */
 @Service
 @RequiredArgsConstructor
 public class PlatformAdminPermissionService {
@@ -31,8 +24,7 @@ public class PlatformAdminPermissionService {
         PlatformAdministrator administrator = requireActive(actor);
         if (administrator.getAdminRole() == PlatformAdminRole.OWNER) return;
         if (!administrator.effectivePermissions().contains(permission)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Your Master Access permissions do not permit this action.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your Master Access permissions do not permit this action.");
         }
     }
 
@@ -42,8 +34,20 @@ public class PlatformAdminPermissionService {
         if (administrator.getAdminRole() == PlatformAdminRole.OWNER) return;
         List<String> effective = administrator.effectivePermissions();
         for (String permission : permissions) if (effective.contains(permission)) return;
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "Your Master Access permissions do not permit this action.");
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your Master Access permissions do not permit this action.");
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> adminViews(UUID actor) {
+        requirePermission(actor, "platform.read");
+        return administrators.findAll().stream().map(this::adminView).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> adminView(UUID actor, UUID administratorId) {
+        requirePermission(actor, "platform.read");
+        return adminView(administrators.findById(administratorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrator was not found.")));
     }
 
     @Transactional
@@ -52,24 +56,17 @@ public class PlatformAdminPermissionService {
                                                   MasterGovernanceRequests.AdminPermissionsUpdate request) {
         PlatformAdministrator owner = requireActive(actor);
         if (owner.getAdminRole() != PlatformAdminRole.OWNER) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Only an Owner can change administrator permissions.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only an Owner can change administrator permissions.");
         }
         if (actor.equals(administratorId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Use another Owner to review changes to your own access.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Use another Owner to review changes to your own access.");
         }
-
         PlatformAdministrator administrator = administrators.findById(administratorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Administrator was not found."));
-        PlatformAdminRole role = administrator.getAdminRole() == null
-                ? PlatformAdminRole.OWNER : administrator.getAdminRole();
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrator was not found."));
+        PlatformAdminRole role = administrator.getAdminRole() == null ? PlatformAdminRole.OWNER : administrator.getAdminRole();
         if (role == PlatformAdminRole.OWNER) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Owner access is intentionally full and cannot be narrowed with custom permissions.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Owner access is intentionally full and cannot be narrowed with custom permissions.");
         }
-
         Set<String> requested = new LinkedHashSet<>(request.permissions() == null ? List.of() : request.permissions());
         requested.removeIf(value -> value == null || value.isBlank());
         requested.add("platform.read");
@@ -78,20 +75,45 @@ public class PlatformAdminPermissionService {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "One or more permissions fall outside this administrator role. Change the role first if broader access is required.");
         }
-
         administrator.setCustomPermissions(String.join(",", requested.stream().sorted().toList()));
-        PlatformAdministrator saved = administrators.save(administrator);
-        return Map.of(
-                "id", saved.getId().toString(),
-                "role", role.name(),
-                "permissions", saved.effectivePermissions(),
-                "active", saved.isActive()
-        );
+        return adminView(administrators.save(administrator));
+    }
+
+    @Transactional
+    public void normaliseAfterRoleChange(UUID administratorId) {
+        PlatformAdministrator administrator = administrators.findById(administratorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrator was not found."));
+        PlatformAdminRole role = administrator.getAdminRole() == null ? PlatformAdminRole.OWNER : administrator.getAdminRole();
+        if (role == PlatformAdminRole.OWNER || administrator.getCustomPermissions() == null || administrator.getCustomPermissions().isBlank()) {
+            administrator.setCustomPermissions(null);
+            administrators.save(administrator);
+            return;
+        }
+        Set<String> ceiling = Set.copyOf(role.permissions());
+        Set<String> retained = new LinkedHashSet<>(administrator.effectivePermissions());
+        retained.retainAll(ceiling);
+        retained.add("platform.read");
+        administrator.setCustomPermissions(String.join(",", retained.stream().sorted().toList()));
+        administrators.save(administrator);
+    }
+
+    private Map<String, Object> adminView(PlatformAdministrator administrator) {
+        PlatformAdminRole role = administrator.getAdminRole() == null ? PlatformAdminRole.OWNER : administrator.getAdminRole();
+        Map<String, Object> view = new LinkedHashMap<>();
+        view.put("id", administrator.getId().toString());
+        view.put("displayName", administrator.getDisplayName());
+        view.put("email", administrator.getEmail());
+        view.put("role", role.name());
+        view.put("permissions", administrator.effectivePermissions());
+        view.put("permissionCeiling", role.permissions());
+        view.put("customisedPermissions", administrator.getCustomPermissions() != null && !administrator.getCustomPermissions().isBlank());
+        view.put("active", administrator.isActive());
+        view.put("lastSignedInAt", administrator.getLastSignedInAt() == null ? "" : administrator.getLastSignedInAt().toString());
+        return view;
     }
 
     private PlatformAdministrator requireActive(UUID actor) {
         return administrators.findById(actor).filter(PlatformAdministrator::isActive)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "Active Master Access is required."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Active Master Access is required."));
     }
 }
