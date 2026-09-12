@@ -100,7 +100,7 @@
   font-size: var(--font-size-sm);
   font-weight: 750;
 }
-.avatar { background: #dbe1ff; color: var(--portal-accent-deep); border: 1px solid color-mix(in srgb, var(--portal-accent) 24%, var(--line)); }
+.avatar { background: var(--indigo-soft); color: var(--portal-accent-deep); border: 1px solid color-mix(in srgb, var(--portal-accent) 24%, var(--line)); }
 .systemIcon { border: 1px solid var(--line); background: var(--paper); color: var(--muted); font-size: var(--font-size-md); }
 
 .feedCopy { min-width: 0; display: grid; gap: var(--space-1); }
