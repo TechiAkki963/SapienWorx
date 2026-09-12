@@ -17,6 +17,13 @@ public final class WorkflowResponses {
                                    Instant reminderAt, String note, String nextAction, Integer experienceYears, Integer expectedSalaryLakhs,
                                    Integer noticePeriodDays, List<String> skills, boolean emailVerified, boolean mobileVerified,
                                    Instant lastActiveAt, Instant profileUpdatedAt, Instant updatedAt) { }
+    public record RediscoveryMetrics(long totalCandidates, long interviewedCandidates, long finalStageCandidates, long pooledCandidates) { }
+    public record RediscoveryCandidate(UUID candidateId, String fullName, String headline, String location, String currentCompany,
+                                       Integer experienceYears, Integer noticePeriodDays, List<String> skills,
+                                       String latestJobTitle, String latestStage, int applicationCount,
+                                       boolean interviewedBefore, boolean reachedFinalStage, int poolCount,
+                                       Instant lastAppliedAt, Instant lastActiveAt) { }
+    public record RediscoveryWorkspace(RediscoveryMetrics metrics, List<RediscoveryCandidate> candidates) { }
     public record Campaign(UUID id, String name, String subject, RecruitmentCampaignStatus status, int recipientCount, int sentCount,
                            int repliedCount, int optedOutCount, int excludedCount, int replyRate, String jobId, String jobTitle, Instant updatedAt) { }
     public record Interview(UUID id, UUID applicationId, String candidateName, String jobTitle, String platformName, String meetingLink,
