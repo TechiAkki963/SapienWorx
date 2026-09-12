@@ -42,7 +42,7 @@ const navigation: Record<Workspace, NavItem[]> = {
     { id: "jobs", label: "Jobs", href: "/candidate/jobs", icon: "jobs" },
     { id: "applications", label: "Applications", href: "/candidate/applications", icon: "briefcase" },
     { id: "interviews", label: "Interviews", href: "/candidate/interviews", icon: "calendar" },
-    { id: "messages", label: "Messages", href: "/candidate/messages", icon: "message" },
+    { id: "messages", label: "Inbox", href: "/candidate/messages", icon: "message" },
     { id: "profile", label: "Profile", href: "/candidate/profile", icon: "profile" },
   ],
   recruiter: [
@@ -58,7 +58,7 @@ const navigation: Record<Workspace, NavItem[]> = {
   ],
   admin: [
     { id: "dashboard", label: "Platform overview", href: "/admin", icon: "home" },
-    { id: "users", label: "Users & access", href: "/admin#users", icon: "people" },
+    { id: "users", label: "Users & access", href: "/admin/access", icon: "people" },
     { id: "organisations", label: "Organisations & jobs", href: "/admin#governance", icon: "briefcase" },
     { id: "operations", label: "Service operations", href: "/admin#operations", icon: "pipeline" },
     { id: "support", label: "Support & privacy", href: "/admin#support", icon: "message" },
@@ -69,7 +69,7 @@ const navigation: Record<Workspace, NavItem[]> = {
 };
 
 const mobileNavigation: Record<Exclude<Workspace, "admin">, NavItem[]> = {
-  candidate: [navigation.candidate[0], navigation.candidate[1], navigation.candidate[2], navigation.candidate[4], navigation.candidate[5]],
+  candidate: [navigation.candidate[0], navigation.candidate[1], navigation.candidate[2], navigation.candidate[3], navigation.candidate[4]],
   recruiter: [navigation.recruiter[0], navigation.recruiter[1], navigation.recruiter[2], navigation.recruiter[5], navigation.recruiter[7]],
 };
 
@@ -128,9 +128,9 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
   const hydrateAttention = useLiveEventsStore((state) => state.hydrateAttention);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || workspace !== "recruiter") return;
     setSidebarCollapsed(window.localStorage.getItem("sapienworx.recruiter.sidebar") === "collapsed");
-  }, [hydrated]);
+  }, [hydrated, workspace]);
 
   useEffect(() => {
     if (!hydrated || localDemo) return;
@@ -198,6 +198,7 @@ export function WorkspaceShell({ workspace, active, title, description, actions,
           <button ref={accountTriggerRef} className={`avatar avatar-${workspace} account-trigger`} type="button" aria-label={`Account menu · ${initials}`} aria-expanded={accountMenuOpen} aria-controls="workspace-account-menu" onClick={() => setAccountMenuOpen((open) => !open)}>{initials}</button>
           {accountMenuOpen && <div className="account-menu" id="workspace-account-menu" aria-label="Account options">
             <div className="account-menu-identity"><span className={`avatar avatar-${workspace}`}>{initials}</span><div><strong>{workspace === "admin" ? "Master Admin" : workspace === "recruiter" ? "Recruiter account" : "Candidate account"}</strong><small>{workspaceLabels[workspace]}</small></div></div>
+            {workspace === "candidate" && <a className="account-menu-item" href="/candidate/profile" onClick={() => setAccountMenuOpen(false)}><Icon name="profile" size={18}/>Profile</a>}
             {workspace === "candidate" && <a className="account-menu-item" href="/candidate/reports" onClick={() => setAccountMenuOpen(false)}><Icon name="reports" size={18}/>Reports</a>}
             <a aria-current={active === "settings" ? "page" : undefined} className="account-menu-item" href={workspaceSettings[workspace]} onClick={() => setAccountMenuOpen(false)}><Icon name="settings" size={18}/>Settings</a>
             <button className="account-menu-item account-menu-logout" type="button" onClick={() => void signOut()} disabled={loggingOut}><Icon name="logout" size={18}/>{loggingOut ? "Logging out…" : "Log out"}</button>
