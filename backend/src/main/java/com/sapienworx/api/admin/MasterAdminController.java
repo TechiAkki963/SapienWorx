@@ -3,19 +3,24 @@ package com.sapienworx.api.admin;
 import com.sapienworx.api.security.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/master")
 @RequiredArgsConstructor
 public class MasterAdminController {
+    private static final Set<String> APPROVED_INVESTIGATION_PURPOSES = Set.of("SUPPORT", "SECURITY", "COMPLIANCE");
     private final MasterAdminService service;
 
     @GetMapping("/dashboard") public Map<String, Object> dashboard() { return service.dashboard(); }
@@ -40,18 +45,25 @@ public class MasterAdminController {
     @PatchMapping("/privacy-cases/{candidateId}/{type}") public Map<String, Object> updatePrivacyCase(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID candidateId, @PathVariable PrivacyCaseType type, @RequestBody MasterAdminRequests.PrivacyCaseUpdateRequest request) { return service.updatePrivacyCase(actor(user), candidateId, type, request); }
     @PostMapping("/breaches") public Map<String, Object> recordBreach(@AuthenticationPrincipal AuthenticatedUser user, @RequestBody MasterAdminRequests.BreachCreateRequest request) { return service.recordBreach(actor(user), request); }
     @PatchMapping("/breaches/{incidentId}") public Map<String, Object> updateBreach(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID incidentId, @RequestBody MasterAdminRequests.BreachUpdateRequest request) { return service.updateBreach(actor(user), incidentId, request); }
+
     @PostMapping("/user-activity/{type}/{subjectId}/investigate")
     public Map<String, Object> investigateUserActivity(@AuthenticationPrincipal AuthenticatedUser user,
                                                        @PathVariable PlatformSubjectType type,
                                                        @PathVariable UUID subjectId,
                                                        @RequestBody MasterAdminRequests.UserActivityInvestigationRequest request) {
-        return service.investigateUserActivity(actor(user), type, subjectId, request);
+        String purpose = request.purpose() == null ? "" : request.purpose().trim().toUpperCase(Locale.ROOT);
+        if (!APPROVED_INVESTIGATION_PURPOSES.contains(purpose)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Choose Support, Security, or Compliance as the investigation purpose.");
+        }
+        return service.investigateUserActivity(actor(user), type, subjectId,
+                new MasterAdminRequests.UserActivityInvestigationRequest(purpose, request.reason(), request.rangeDays()));
     }
 
     @GetMapping("/reports/platform.csv")
     public ResponseEntity<String> platformReport() {
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sapienworx-platform-report.csv")
-                .contentType(MediaType.parseMediaType("text/csv")) .body(service.reportCsv());
+                .contentType(MediaType.parseMediaType("text/csv")).body(service.reportCsv());
     }
 
     private UUID actor(AuthenticatedUser user) { return user.userId(); }
