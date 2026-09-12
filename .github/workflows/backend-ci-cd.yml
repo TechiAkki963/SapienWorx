@@ -33,7 +33,7 @@ jobs:
 
       # The API compiles for Java 17; CI intentionally matches pom.xml.
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
