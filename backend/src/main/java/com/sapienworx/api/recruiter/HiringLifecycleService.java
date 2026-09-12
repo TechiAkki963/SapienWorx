@@ -27,6 +27,11 @@ public class HiringLifecycleService {
             PipelineStage.APPLIED,
             PipelineStage.SCREENING
     );
+    private static final Set<PipelineStage> INTERVIEW_SCHEDULING_BLOCKED = Set.of(
+            PipelineStage.OFFER,
+            PipelineStage.ONBOARDED,
+            PipelineStage.REJECTED
+    );
 
     private final RecruiterOperationsService operations;
     private final RecruiterRepository recruiters;
@@ -69,15 +74,25 @@ public class HiringLifecycleService {
     /**
      * Scheduling the first interview is one business action: the interview is
      * created and an application still in Applied/Screening advances to
-     * Interviewing in the same transaction. Later-stage applications are not
-     * moved backwards when an additional interview is scheduled.
+     * Interviewing in the same transaction. Later interview-stage applications
+     * remain where they are, while terminal/offer states must be resolved first.
      */
     @Transactional
     public RecruiterDashboardResponse.UpcomingInterview scheduleInterview(UUID recruiterId, InterviewRequest request) {
-        RecruiterDashboardResponse.UpcomingInterview interview = operations.schedule(recruiterId, request);
+        Recruiter recruiter = recruiters.findById(recruiterId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recruiter profile was not found."));
         JobApplication application = applications.findById(request.applicationId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate application was not found."));
+        if (!canManage(application, recruiter)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only the posting recruiter or assigned owner can manage this application.");
+        }
+        if (INTERVIEW_SCHEDULING_BLOCKED.contains(application.getPipelineStage())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Move the application into an active interview stage before scheduling another interview.");
+        }
 
+        RecruiterDashboardResponse.UpcomingInterview interview = operations.schedule(recruiterId, request);
         if (PRE_INTERVIEW_STAGES.contains(application.getPipelineStage())) {
             operations.moveStage(recruiterId, application.getId(), PipelineStage.INTERVIEWING);
         }
