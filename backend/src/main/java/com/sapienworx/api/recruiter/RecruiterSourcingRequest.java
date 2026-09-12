@@ -26,7 +26,7 @@ public record RecruiterSourcingRequest(
         @Size(max = 200) String mastersInstitution,
         @Size(max = 180) String qualification,
         List<@Size(max = 32) String> educationTypes,
-        @Size(max = 20) String gender,
+        @Deprecated @Size(max = 20) String gender,
         @Min(0) @Max(365) Integer maximumNoticePeriodDays,
         ActiveStatusInterval activeStatus,
         DomainCategory domainCategory,
@@ -36,4 +36,13 @@ public record RecruiterSourcingRequest(
         @Min(0) Integer page,
         @Min(20) @Max(160) Integer pageSize
 ) {
+    /**
+     * Kept temporarily so older clients that still send the field do not fail
+     * deserialization. SapienWorx does not filter or rank candidates using a
+     * protected gender attribute.
+     */
+    @Override
+    public String gender() {
+        return "";
+    }
 }
