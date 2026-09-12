@@ -15,6 +15,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,5 +53,23 @@ public class PlatformAdministrator {
     public boolean hasPermission(String permission) {
         List<String> resolved = effectivePermissions();
         return resolved.contains("*") || resolved.contains(permission);
+    }
+
+    /** Compatibility bridge for the invitation workflow while persistence uses the canonical JSONB column. */
+    public String getCustomPermissions() {
+        return permissions == null || permissions.isEmpty() ? null : String.join(",", permissions);
+    }
+
+    public void setCustomPermissions(String value) {
+        if (value == null || value.isBlank()) {
+            permissions = List.of();
+            return;
+        }
+        permissions = Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(item -> !item.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
     }
 }
