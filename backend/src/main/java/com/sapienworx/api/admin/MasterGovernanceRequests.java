@@ -10,6 +10,9 @@ public final class MasterGovernanceRequests {
 
     public record AdminRoleUpdate(PlatformAdminRole role) { }
     public record AdminPermissionsUpdate(List<String> permissions) { }
+    public record AdminInvitationCreate(String displayName, String email, PlatformAdminRole role, List<String> permissions) { }
+    public record AdminInvitationActivate(String token, String password) { }
+    public record AdminInvitationVerify(String activationId, String code) { }
     public record ApprovalCreate(String requestKind, String resourceType, String resourceId, String summary, Map<String, Object> payload) { }
     public record ApprovalDecision(String status, String note) { }
     public record AlertUpdate(String status, String note) { }
