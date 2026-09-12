@@ -27,14 +27,21 @@ public class MasterGovernanceController {
 
     @GetMapping
     public Map<String, Object> summary(@AuthenticationPrincipal AuthenticatedUser user) {
-        permissions.requirePermission(actor(user), "platform.read");
-        return service.summary(actor(user));
+        UUID actor = actor(user);
+        permissions.requirePermission(actor, "platform.read");
+        Map<String, Object> result = service.summary(actor);
+        result.put("admins", permissions.adminViews(actor));
+        result.put("currentAdmin", permissions.adminView(actor, actor));
+        return result;
     }
 
     @PatchMapping("/admins/{administratorId}/role")
     public Map<String, Object> updateAdminRole(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable UUID administratorId,
                                                @RequestBody MasterGovernanceRequests.AdminRoleUpdate request) {
-        return service.updateAdminRole(actor(user), administratorId, request);
+        UUID actor = actor(user);
+        service.updateAdminRole(actor, administratorId, request);
+        permissions.normaliseAfterRoleChange(administratorId);
+        return permissions.adminView(actor, administratorId);
     }
 
     @PutMapping("/admins/{administratorId}/permissions")
