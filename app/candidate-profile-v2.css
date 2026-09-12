@@ -1,0 +1,244 @@
+/* Candidate profile V2 presentation layer.
+   Keeps the existing profile API contract while making the record feel like a professional identity, not one long HR form. */
+
+.workspace-shell-candidate .candidate-complete-profile {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.workspace-shell-candidate .candidate-complete-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) auto auto;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--cloud);
+}
+
+.workspace-shell-candidate .candidate-hero-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.workspace-shell-candidate .candidate-profile-avatar {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--portal-accent-soft);
+  color: var(--portal-accent-deep);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.workspace-shell-candidate .candidate-hero-identity h2 {
+  margin: var(--space-1) 0;
+  font-size: 1.55rem;
+}
+
+.workspace-shell-candidate .candidate-hero-identity p,
+.workspace-shell-candidate .candidate-hero-identity span,
+.workspace-shell-candidate .candidate-hero-identity small {
+  color: var(--muted);
+}
+
+.workspace-shell-candidate .candidate-hero-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(86px, 1fr));
+  gap: var(--space-2);
+}
+.workspace-shell-candidate .candidate-hero-facts > div {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.workspace-shell-candidate .candidate-hero-facts b {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-data);
+  font-size: .9rem;
+}
+.workspace-shell-candidate .candidate-hero-facts span { color: var(--muted); font-size: .68rem; }
+
+.workspace-shell-candidate .candidate-hero-actions {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: stretch;
+}
+.workspace-shell-candidate .candidate-profile-upload {
+  min-height: 44px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-4);
+  background: var(--ink);
+  color: var(--cloud);
+  font-weight: 700;
+}
+.workspace-shell-candidate .candidate-profile-visibility {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--cloud);
+}
+.workspace-shell-candidate .candidate-profile-visibility span { display: grid; gap: 2px; }
+.workspace-shell-candidate .candidate-profile-visibility b { color: var(--ink); font-size: .72rem; }
+.workspace-shell-candidate .candidate-profile-visibility small { color: var(--muted); font-size: .66rem; }
+
+.workspace-shell-candidate .candidate-profile-roadmap {
+  position: sticky;
+  top: 72px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--cloud) 94%, transparent);
+  backdrop-filter: blur(12px);
+}
+.workspace-shell-candidate .candidate-profile-roadmap > div { display: grid; gap: 2px; }
+.workspace-shell-candidate .candidate-profile-roadmap > div strong { font-size: .75rem; }
+.workspace-shell-candidate .candidate-profile-roadmap ol {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+.workspace-shell-candidate .candidate-profile-roadmap li a {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: .7rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.workspace-shell-candidate .candidate-profile-roadmap li.current a,
+.workspace-shell-candidate .candidate-profile-roadmap li.complete a {
+  border-color: color-mix(in srgb, var(--portal-accent) 42%, var(--line));
+  background: var(--portal-accent-soft);
+  color: var(--portal-accent-deep);
+}
+
+.workspace-shell-candidate .candidate-complete-layout {
+  align-items: start;
+}
+.workspace-shell-candidate .candidate-profile-content {
+  display: grid;
+  gap: var(--space-4);
+}
+.workspace-shell-candidate .candidate-profile-content > section,
+.workspace-shell-candidate .candidate-profile-content > .panel {
+  scroll-margin-top: 150px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+  box-shadow: none;
+}
+
+.workspace-shell-candidate .candidate-profile-fields {
+  gap: var(--space-3);
+}
+.workspace-shell-candidate .candidate-profile-fields input,
+.workspace-shell-candidate .candidate-profile-fields select,
+.workspace-shell-candidate .candidate-profile-fields textarea,
+.workspace-shell-candidate .candidate-complete-profile textarea,
+.workspace-shell-candidate .candidate-complete-profile input,
+.workspace-shell-candidate .candidate-complete-profile select {
+  border-color: var(--line);
+  background: var(--cloud);
+}
+.workspace-shell-candidate .candidate-complete-profile input:focus,
+.workspace-shell-candidate .candidate-complete-profile select:focus,
+.workspace-shell-candidate .candidate-complete-profile textarea:focus {
+  border-color: var(--portal-accent);
+}
+
+.workspace-shell-candidate .candidate-contact-protected {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--portal-accent);
+  border-radius: var(--radius-sm);
+  background: var(--portal-accent-soft);
+}
+.workspace-shell-candidate .candidate-contact-protected div { display: grid; gap: 2px; }
+.workspace-shell-candidate .candidate-contact-protected b { font-size: .75rem; }
+.workspace-shell-candidate .candidate-contact-protected small { color: var(--muted); font-size: .68rem; }
+
+.workspace-shell-candidate .candidate-complete-repeater {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--paper) 45%, var(--cloud));
+}
+
+.workspace-shell-candidate .candidate-profile-status {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: .76rem;
+  font-weight: 650;
+}
+.workspace-shell-candidate .candidate-profile-status-success {
+  border: 1px solid color-mix(in srgb, var(--good) 30%, var(--line));
+  background: color-mix(in srgb, var(--good) 9%, var(--cloud));
+  color: var(--good);
+}
+.workspace-shell-candidate .candidate-profile-status-error {
+  border: 1px solid color-mix(in srgb, var(--warn) 30%, var(--line));
+  background: color-mix(in srgb, var(--warn) 8%, var(--cloud));
+  color: var(--warn);
+}
+
+/* Parsed-CV confidence semantics: only style confidence supplied by the existing review surface. */
+.workspace-shell-candidate .confidence.high {
+  border-bottom: 2px solid var(--good);
+  color: var(--good);
+}
+.workspace-shell-candidate .confidence.low,
+.workspace-shell-candidate .confidence.warning {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--amber) 40%, var(--line));
+  border-radius: var(--radius-sm);
+  background: var(--amber-tint);
+  color: var(--amber-deep);
+}
+
+@media (max-width: 1023px) {
+  .workspace-shell-candidate .candidate-complete-hero { grid-template-columns: 1fr; align-items: start; }
+  .workspace-shell-candidate .candidate-hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-shell-candidate .candidate-profile-roadmap { position: static; align-items: flex-start; flex-direction: column; }
+  .workspace-shell-candidate .candidate-profile-roadmap ol { width: 100%; }
+}
+
+@media (max-width: 639px) {
+  .workspace-shell-candidate .candidate-complete-hero { padding: var(--space-4); }
+  .workspace-shell-candidate .candidate-hero-identity { align-items: flex-start; }
+  .workspace-shell-candidate .candidate-profile-avatar { width: 48px; height: 48px; flex-basis: 48px; }
+  .workspace-shell-candidate .candidate-hero-facts { grid-template-columns: 1fr; }
+  .workspace-shell-candidate .candidate-hero-actions { grid-template-columns: 1fr; }
+  .workspace-shell-candidate .candidate-profile-roadmap { padding: var(--space-3); }
+}
