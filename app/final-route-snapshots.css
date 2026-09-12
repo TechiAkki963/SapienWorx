@@ -1,0 +1,90 @@
+/* Final role-route alignment for reports, interview scheduling, onboarding, review and settings-like forms. */
+
+/* Shared report composition */
+.portal-report{display:grid;gap:var(--space-5)}
+.report-actions{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
+.report-range{display:flex;gap:var(--space-1);padding:var(--space-1);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--cloud)}
+.report-range button{min-height:34px;padding-inline:var(--space-3);border:0;border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-weight:650;cursor:pointer}
+.report-range button.selected{background:var(--indigo-soft);color:var(--indigo-deep)}
+.portal-report>.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-3)}
+.portal-report>.workflow-grid.workflow-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+.portal-report>.workflow-grid>.panel,.portal-report>.panel{border-radius:var(--radius-md);box-shadow:var(--snapshot-shadow)}
+.report-funnel{display:grid;gap:var(--space-3);margin-top:var(--space-4)}
+.report-funnel-row{display:grid;gap:var(--space-2)}
+.report-funnel-row>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)}
+.report-funnel-row>div:first-child span,.report-funnel-row small{color:var(--muted);font-size:var(--font-size-xs)}
+.report-track{height:var(--space-3);overflow:hidden;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
+.report-track>span{display:block;height:100%;border-radius:999px;background:var(--indigo)}
+.report-trend{display:flex;align-items:end;gap:var(--space-2);min-height:220px;padding-top:var(--space-5)}
+.report-trend>div{display:grid;grid-template-rows:1fr auto;align-items:end;justify-items:center;gap:var(--space-2);height:210px;min-width:0;flex:1}
+.report-column{display:block;width:min(36px,72%);min-height:var(--space-2);border-radius:var(--radius-sm) var(--radius-sm) 0 0;background:var(--indigo)}
+.report-trend small{max-width:100%;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:var(--font-size-xs);white-space:nowrap}
+.report-kpi-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-3)}
+.report-kpi-strip>article{display:grid;gap:var(--space-2);padding:var(--space-4);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--cloud);box-shadow:var(--snapshot-shadow)}
+.report-kpi-strip span{color:var(--muted);font-size:var(--font-size-xs);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.report-kpi-strip b{font:650 var(--font-size-xl)/1 var(--font-display)}
+.report-table{overflow:hidden;padding:0}
+.report-table>.section-title{margin:0;padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--line)}
+.report-table>article{margin:0;padding:var(--space-3) var(--space-5);border-bottom:1px solid var(--line)}
+.report-table>article:last-of-type{border-bottom:0}
+.report-insights>div{display:grid;grid-template-columns:24px minmax(0,1fr);gap:var(--space-2);padding:var(--space-3) 0;border-top:1px solid var(--line)}
+.report-insights>div span{color:var(--good);font-weight:800}.report-insights>div p{margin:0;color:var(--ink-soft);line-height:1.5}
+.report-recovery{display:flex;align-items:flex-start;gap:var(--space-4);padding:var(--space-5)}
+
+/* Recruiter interview scheduler: form + calendar rail from reference. */
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_layout"]{grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:var(--space-5)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_panel"],
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_aside"]{padding:var(--space-5);border-radius:var(--radius-md);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_aside"]{position:sticky;top:var(--space-4)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_form"]{gap:var(--space-4)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_field"]>span:first-child{color:var(--ink);font-size:var(--font-size-sm);font-weight:650}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_input"],
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_select"]{min-height:42px;background:var(--paper)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_textarea"]{min-height:132px;background:var(--paper)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_notificationNote"]{border-left:4px solid var(--indigo);background:var(--indigo-soft)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_upcomingList"]{gap:0;border-top:1px solid var(--line)}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_upcomingCard"]{padding:var(--space-4) 0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+.workspace-shell-recruiter [class*="recruiter-interviews-v2_providerNote"]{padding:var(--space-4);border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper)}
+
+/* Candidate onboarding / deterministic parser review */
+.onboarding-v1{min-height:100vh;background:var(--paper);color:var(--ink)}
+.onboarding-v1>header{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:auto minmax(220px,460px) auto;align-items:center;min-height:var(--workspace-topbar);padding-inline:var(--space-6);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--cloud) 96%,transparent);backdrop-filter:blur(10px)}
+.onboarding-progress{grid-column:2;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2)}
+.onboarding-progress span{height:var(--space-1);border-radius:999px;background:var(--line)}
+.onboarding-progress span.active{background:var(--indigo)}
+.onboarding-card{width:min(760px,calc(100% - 48px));margin:var(--space-7) auto;padding:var(--space-7);border:1px solid var(--line);border-radius:var(--radius-md);background:var(--cloud);box-shadow:var(--snapshot-shadow)}
+.onboarding-card h1{margin:var(--space-2) 0 var(--space-3);font-size:var(--font-size-2xl)}
+.onboarding-card>p{margin:0 0 var(--space-5);color:var(--muted);line-height:1.65}
+.onboarding-field{display:grid;gap:var(--space-2);margin-top:var(--space-4)}
+.onboarding-field>span{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);color:var(--ink-soft);font-size:var(--font-size-sm);font-weight:650}
+.onboarding-field input,.onboarding-field textarea{width:100%;min-height:44px;padding:var(--space-3);border:1px solid var(--line);background:var(--paper)}
+.onboarding-field textarea{min-height:260px;resize:vertical}
+.confidence-field input{border-bottom:2px solid var(--good)}
+.confidence-field.needs-confirmation input{border-bottom-color:var(--amber-ink)}
+.confidence-state{padding:var(--space-1) var(--space-2);border-radius:999px;background:color-mix(in srgb,var(--good) 9%,var(--cloud));color:var(--good);font-size:var(--font-size-xs)}
+.needs-confirmation .confidence-state{background:var(--amber-tint);color:var(--amber-ink)}
+.onboarding-actions{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin-top:var(--space-6);padding-top:var(--space-4);border-top:1px solid var(--line)}
+.onboarding-summary{margin-top:var(--space-5);padding:var(--space-5);box-shadow:none}
+.candidate-review-page{display:grid;min-height:52vh;place-items:center}.candidate-review-page .editorial-empty-state{width:min(720px,100%);padding:var(--space-7);text-align:left;box-shadow:var(--snapshot-shadow)}
+
+/* Generic role settings/forms: consistent snapshot surfaces across routes not given bespoke mockups. */
+.workspace-shell-candidate .settings-page,.workspace-shell-recruiter .settings-page,.workspace-shell-admin .settings-page{display:grid;gap:var(--space-4)}
+.workspace-shell-candidate .settings-page>.panel,.workspace-shell-recruiter .settings-page>.panel,.workspace-shell-admin .settings-page>.panel{padding:var(--space-5);border-radius:var(--radius-md);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-candidate .workflow-page>.panel,.workspace-shell-recruiter .workflow-page>.panel,.workspace-shell-admin .workflow-page>.panel{border-radius:var(--radius-md);box-shadow:var(--snapshot-shadow)}
+.workspace-shell-candidate .workflow-page .section-title,.workspace-shell-recruiter .workflow-page .section-title,.workspace-shell-admin .workflow-page .section-title{margin-bottom:var(--space-4)}
+
+@media(max-width:1023px){
+  .portal-report>.stat-grid,.report-kpi-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .portal-report>.workflow-grid.workflow-two{grid-template-columns:1fr}
+  .workspace-shell-recruiter [class*="recruiter-interviews-v2_layout"]{grid-template-columns:1fr}
+  .workspace-shell-recruiter [class*="recruiter-interviews-v2_aside"]{position:static;order:-1}
+}
+@media(max-width:639px){
+  .portal-report>.stat-grid,.report-kpi-strip{grid-template-columns:1fr}
+  .report-actions{align-items:stretch;flex-direction:column}.report-range{display:grid;grid-template-columns:repeat(3,1fr)}
+  .report-table>.section-title,.report-table>article{padding-inline:var(--space-4)}
+  .onboarding-v1>header{grid-template-columns:1fr;padding-inline:var(--space-4)}.onboarding-v1>header>*:first-child{display:none}.onboarding-progress{grid-column:1}
+  .onboarding-card{width:calc(100% - 24px);margin:var(--space-4) auto;padding:var(--space-4)}
+  .onboarding-actions{align-items:stretch;flex-direction:column}.onboarding-actions>span{display:none}
+  .candidate-review-page .editorial-empty-state{padding:var(--space-5)}
+}
