@@ -1,0 +1,19 @@
+.hiring-lifecycle-bar{display:grid;gap:var(--space-3);margin-bottom:var(--space-4);padding:var(--space-4) var(--space-5);border:1px solid var(--line);border-left:4px solid var(--indigo);border-radius:var(--radius-md);background:linear-gradient(110deg,var(--indigo-soft),var(--cloud) 46%);box-shadow:var(--shadow-surface)}
+.hiring-lifecycle-heading{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4)}
+.hiring-lifecycle-heading>div{display:grid;gap:var(--space-1);min-width:0}
+.hiring-lifecycle-heading strong{font-size:var(--font-size-lg);font-weight:var(--weight-semibold);color:var(--ink)}
+.hiring-lifecycle-heading small{max-width:760px;color:var(--muted);font-size:var(--font-size-sm);line-height:var(--line-height-normal)}
+.hiring-lifecycle-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-2);margin:0;padding:var(--space-3) 0 0;border-top:1px solid color-mix(in srgb,var(--indigo) 14%,var(--line));list-style:none}
+.hiring-lifecycle-steps li{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:var(--space-2);min-width:0;color:var(--muted);font-size:var(--font-size-xs)}
+.hiring-lifecycle-steps li>span{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line-strong);border-radius:50%;background:var(--cloud);font-family:var(--font-data);font-weight:var(--weight-semibold)}
+.hiring-lifecycle-steps li>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:var(--weight-semibold)}
+.hiring-lifecycle-steps li.complete{color:var(--indigo-deep)}
+.hiring-lifecycle-steps li.complete>span{border-color:var(--indigo);background:var(--indigo);color:var(--cloud)}
+.hiring-lifecycle-steps li.current{color:var(--ink)}
+.hiring-lifecycle-steps li.current>span{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo-deep);box-shadow:inset 0 0 0 2px var(--cloud)}
+.hiring-lifecycle-bar.is-rejected{border-left-color:var(--warn);background:linear-gradient(110deg,color-mix(in srgb,var(--warn) 8%,var(--cloud)),var(--cloud) 46%)}
+.hiring-lifecycle-bar.is-rejected .hiring-lifecycle-steps{opacity:.55}
+.hiring-lifecycle-closed{margin:0;padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:color-mix(in srgb,var(--warn) 7%,var(--cloud));color:var(--ink-soft);font-size:var(--font-size-sm);line-height:var(--line-height-normal)}
+
+@media(max-width:899px){.hiring-lifecycle-bar{padding:var(--space-4)}.hiring-lifecycle-steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:var(--space-3)}}
+@media(max-width:639px){.hiring-lifecycle-heading{align-items:stretch;flex-direction:column}.hiring-lifecycle-heading .button{width:100%;min-height:44px}.hiring-lifecycle-steps{display:flex;overflow-x:auto;padding-bottom:var(--space-1);scrollbar-width:thin}.hiring-lifecycle-steps li{min-width:112px}.hiring-lifecycle-steps li>b{white-space:normal}}
