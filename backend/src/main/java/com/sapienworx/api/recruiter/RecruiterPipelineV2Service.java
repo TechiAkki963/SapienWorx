@@ -57,7 +57,7 @@ public class RecruiterPipelineV2Service {
                 ? null : Instant.now().minus(Math.min(activeWithinDays, 3650), ChronoUnit.DAYS);
         return pipelineRepository.search(recruiterId, stage, query, minimumExperienceYears, maximumExperienceYears,
                         skill, company, education, location, minimumSalaryLakhs, maximumSalaryLakhs,
-                        maximumNoticePeriodDays, activeAfter, careerStage, gender, jobRole, sortBy, sortDirection, pageable)
+                        maximumNoticePeriodDays, activeAfter, careerStage, null, jobRole, sortBy, sortDirection, pageable)
                 .map(application -> response(recruiterId, application));
     }
 
