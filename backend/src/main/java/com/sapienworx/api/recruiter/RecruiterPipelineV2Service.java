@@ -26,7 +26,7 @@ public class RecruiterPipelineV2Service {
     private final RecruiterRepository recruiterRepository;
     private final RecruiterPipelineV2Repository pipelineRepository;
     private final RecruiterNoteRepository recruiterNoteRepository;
-    private final RecruiterOperationsService recruiterOperationsService;
+    private final HiringLifecycleService hiringLifecycleService;
 
     @Transactional(readOnly = true)
     public Page<PipelineCandidateResponse> search(
@@ -65,7 +65,7 @@ public class RecruiterPipelineV2Service {
     public List<PipelineCandidateResponse> bulkMove(UUID recruiterId, BulkPipelineStageRequest request) {
         requireRecruiter(recruiterId);
         return request.applicationIds().stream().distinct().limit(100)
-                .map(applicationId -> recruiterOperationsService.moveStage(recruiterId, applicationId, request.stage()))
+                .map(applicationId -> hiringLifecycleService.moveStage(recruiterId, applicationId, request.stage()))
                 .toList();
     }
 
