@@ -1,3 +1,5 @@
+# CodeQL is intentionally not used in this repository.
+# Keep lightweight dependency review and verified-secret scanning only.
 name: Security assurance
 
 on:
