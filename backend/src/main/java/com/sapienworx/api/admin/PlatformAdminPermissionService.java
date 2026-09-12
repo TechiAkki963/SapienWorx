@@ -23,7 +23,7 @@ public class PlatformAdminPermissionService {
     public void requirePermission(UUID actor, String permission) {
         PlatformAdministrator administrator = requireActive(actor);
         if (administrator.getAdminRole() == PlatformAdminRole.OWNER) return;
-        if (!administrator.effectivePermissions().contains(permission)) {
+        if (!administrator.hasPermission(permission)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your Master Access permissions do not permit this action.");
         }
     }
@@ -32,8 +32,7 @@ public class PlatformAdminPermissionService {
     public void requireAnyPermission(UUID actor, String... permissions) {
         PlatformAdministrator administrator = requireActive(actor);
         if (administrator.getAdminRole() == PlatformAdminRole.OWNER) return;
-        List<String> effective = administrator.effectivePermissions();
-        for (String permission : permissions) if (effective.contains(permission)) return;
+        for (String permission : permissions) if (administrator.hasPermission(permission)) return;
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your Master Access permissions do not permit this action.");
     }
 
@@ -75,7 +74,7 @@ public class PlatformAdminPermissionService {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "One or more permissions fall outside this administrator role. Change the role first if broader access is required.");
         }
-        administrator.setCustomPermissions(String.join(",", requested.stream().sorted().toList()));
+        administrator.setPermissions(requested.stream().sorted().toList());
         return adminView(administrators.save(administrator));
     }
 
@@ -84,21 +83,24 @@ public class PlatformAdminPermissionService {
         PlatformAdministrator administrator = administrators.findById(administratorId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Administrator was not found."));
         PlatformAdminRole role = administrator.getAdminRole() == null ? PlatformAdminRole.OWNER : administrator.getAdminRole();
-        if (role == PlatformAdminRole.OWNER || administrator.getCustomPermissions() == null || administrator.getCustomPermissions().isBlank()) {
-            administrator.setCustomPermissions(null);
+        if (role == PlatformAdminRole.OWNER) {
+            administrator.setPermissions(List.of());
             administrators.save(administrator);
             return;
         }
+        List<String> stored = administrator.getPermissions();
+        if (stored == null || stored.isEmpty()) return;
         Set<String> ceiling = Set.copyOf(role.permissions());
-        Set<String> retained = new LinkedHashSet<>(administrator.effectivePermissions());
+        Set<String> retained = new LinkedHashSet<>(stored);
         retained.retainAll(ceiling);
         retained.add("platform.read");
-        administrator.setCustomPermissions(String.join(",", retained.stream().sorted().toList()));
+        administrator.setPermissions(retained.stream().sorted().toList());
         administrators.save(administrator);
     }
 
     private Map<String, Object> adminView(PlatformAdministrator administrator) {
         PlatformAdminRole role = administrator.getAdminRole() == null ? PlatformAdminRole.OWNER : administrator.getAdminRole();
+        List<String> stored = administrator.getPermissions();
         Map<String, Object> view = new LinkedHashMap<>();
         view.put("id", administrator.getId().toString());
         view.put("displayName", administrator.getDisplayName());
@@ -106,7 +108,7 @@ public class PlatformAdminPermissionService {
         view.put("role", role.name());
         view.put("permissions", administrator.effectivePermissions());
         view.put("permissionCeiling", role.permissions());
-        view.put("customisedPermissions", administrator.getCustomPermissions() != null && !administrator.getCustomPermissions().isBlank());
+        view.put("customisedPermissions", stored != null && !stored.isEmpty());
         view.put("active", administrator.isActive());
         view.put("lastSignedInAt", administrator.getLastSignedInAt() == null ? "" : administrator.getLastSignedInAt().toString());
         return view;
