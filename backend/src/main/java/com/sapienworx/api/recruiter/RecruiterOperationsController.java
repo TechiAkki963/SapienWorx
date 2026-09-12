@@ -33,6 +33,7 @@ import java.util.UUID;
 public class RecruiterOperationsController {
     private final RecruiterOperationsService operations;
     private final RecruiterPipelineV2Service pipelineV2;
+    private final HiringLifecycleService lifecycle;
     private final PortalReportService portalReportService;
 
     @GetMapping("/dashboard")
@@ -121,7 +122,7 @@ public class RecruiterOperationsController {
             @AuthenticationPrincipal AuthenticatedUser user,
             @PathVariable UUID applicationId,
             @Valid @RequestBody PipelineStageRequest request) {
-        return operations.moveStage(recruiterId(user), applicationId, request.stage());
+        return lifecycle.moveStage(recruiterId(user), applicationId, request.stage());
     }
 
     @PostMapping("/pipeline/{applicationId}/notes")
@@ -176,7 +177,7 @@ public class RecruiterOperationsController {
     public RecruiterDashboardResponse.UpcomingInterview schedule(
             @AuthenticationPrincipal AuthenticatedUser user,
             @Valid @RequestBody InterviewRequest request) {
-        return operations.schedule(recruiterId(user), request);
+        return lifecycle.scheduleInterview(recruiterId(user), request);
     }
 
     private UUID recruiterId(AuthenticatedUser user) {
