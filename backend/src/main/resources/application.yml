@@ -54,6 +54,7 @@ management:
       enabled: true
 
 app:
+  public-web-url: ${PUBLIC_WEB_URL:http://localhost:3000}
   queue:
     provider: ${BACKGROUND_QUEUE_PROVIDER:rabbitmq}
     sqs:
