@@ -41,7 +41,6 @@ public record RecruiterSourcingRequest(
      * deserialization. SapienWorx does not filter or rank candidates using a
      * protected gender attribute.
      */
-    @Override
     public String gender() {
         return "";
     }
