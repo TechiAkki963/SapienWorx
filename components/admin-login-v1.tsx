@@ -4,12 +4,11 @@ import { useRef, useState } from "react";
 import { apiClient } from "../lib/api-client";
 import { Button, Logo, useHydrated } from "./ui";
 
-type FieldErrors = { email?: string; password?: string };
+type FieldErrors = { email?: string };
 
 export function AdminLoginV1() {
   const hydrated = useHydrated();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [transaction, setTransaction] = useState("");
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   const digitRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -21,10 +20,9 @@ export function AdminLoginV1() {
   const request = async () => {
     const nextErrors: FieldErrors = {};
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) nextErrors.email = "Enter the approved Master Admin email address.";
-    if (password.length < 8) nextErrors.password = "Enter your password (at least 8 characters).";
     setFieldErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
-      setError("Check the highlighted details before continuing.");
+      setError("Check the highlighted email before continuing.");
       return;
     }
 
@@ -33,7 +31,7 @@ export function AdminLoginV1() {
       setError("");
       const response = await apiClient<{ transactionId: string }>("/api/auth/request-otp", {
         method: "POST",
-        body: JSON.stringify({ flow: "SIGN_IN", role: "SUPER_ADMIN", email: email.trim(), password }),
+        body: JSON.stringify({ flow: "SIGN_IN", role: "SUPER_ADMIN", email: email.trim() }),
       });
       setTransaction(response.transactionId);
       setDigits(["", "", "", "", "", ""]);
@@ -62,11 +60,12 @@ export function AdminLoginV1() {
     try {
       setWorking(true);
       setError("");
-      const response = await apiClient<{ authenticated: boolean; redirectTo: string }>("/api/auth/verify-otp", {
+      const response = await apiClient<{ authenticated: boolean; redirectTo: string | null }>("/api/auth/verify-otp", {
         method: "POST",
         body: JSON.stringify({ transactionId: transaction, channel: "EMAIL", code }),
       });
-      if (response.authenticated) window.location.assign(response.redirectTo);
+      if (!response.authenticated || !response.redirectTo) throw new Error("Email verification is not complete.");
+      window.location.assign(response.redirectTo);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Verification failed.");
     } finally {
@@ -79,16 +78,17 @@ export function AdminLoginV1() {
       <Logo />
       <span className="eyebrow">Super admin only</span>
       <h1>Master Access</h1>
-      <p>Protected platform operations require password and email OTP verification. Administrative activity is audited.</p>
+      <p>Master Access uses verified administrator email plus a time-limited email OTP. Administrative activity is audited.</p>
       {!hydrated ? <p role="status">Preparing secure form…</p> : transaction ? <form onSubmit={(event) => { event.preventDefault(); void verify(); }}>
-        <fieldset className="auth-otp-fieldset"><legend>Email verification code</legend><div className="auth-otp-digits" onPaste={(event) => { event.preventDefault(); pasteDigits(event.clipboardData.getData("text")); }}>{digits.map((digit, index) => <input key={index} ref={(element) => { digitRefs.current[index] = element; }} aria-label={`Verification digit ${index + 1}`} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} maxLength={1} value={digit} onChange={(event) => setDigit(index, event.target.value)} onKeyDown={(event) => { if (event.key === "Backspace" && !digits[index] && index > 0) digitRefs.current[index - 1]?.focus(); }} />)}</div><small>Enter the six-digit code sent to your approved administrator email.</small></fieldset>
+        <button className="back-link" type="button" onClick={() => { setTransaction(""); setDigits(["", "", "", "", "", ""]); setError(""); }}>← Use another email</button>
+        <fieldset className="auth-otp-fieldset"><legend>Email verification code</legend><div className="auth-otp-digits" onPaste={(event) => { event.preventDefault(); pasteDigits(event.clipboardData.getData("text")); }}>{digits.map((digit, index) => <input key={index} ref={(element) => { digitRefs.current[index] = element; }} aria-label={`Verification digit ${index + 1}`} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} maxLength={1} value={digit} onChange={(event) => setDigit(index, event.target.value)} onKeyDown={(event) => { if (event.key === "Backspace" && !digits[index] && index > 0) digitRefs.current[index - 1]?.focus(); }} />)}</div><small>Enter the six-digit code sent to {email}.</small></fieldset>
         {error && <p className="workflow-error" role="alert">{error}</p>}
         <Button type="submit" disabled={code.length !== 6 || working}>{working ? "Verifying…" : "Verify and open Master Access"}</Button>
+        <Button variant="secondary" onClick={() => void request()} disabled={working}>Resend code</Button>
       </form> : <form onSubmit={(event) => { event.preventDefault(); void request(); }} noValidate>
-        <label className="auth-field"><span>Master email</span><input aria-label="Master email" aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? "master-email-error" : undefined} type="email" autoComplete="username" value={email} onChange={(event) => { setEmail(event.target.value); setFieldErrors((current) => ({ ...current, email: undefined })); setError(""); }} />{fieldErrors.email && <small className="auth-field-error" id="master-email-error">{fieldErrors.email}</small>}</label>
-        <label className="auth-field"><span>Password</span><input aria-label="Password" aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? "master-password-error" : undefined} type="password" autoComplete="current-password" value={password} onChange={(event) => { setPassword(event.target.value); setFieldErrors((current) => ({ ...current, password: undefined })); setError(""); }} />{fieldErrors.password && <small className="auth-field-error" id="master-password-error">{fieldErrors.password}</small>}</label>
+        <label className="auth-field"><span>Master email</span><input aria-label="Master email" aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? "master-email-error" : undefined} type="email" autoComplete="email" value={email} onChange={(event) => { setEmail(event.target.value); setFieldErrors((current) => ({ ...current, email: undefined })); setError(""); }} />{fieldErrors.email && <small className="auth-field-error" id="master-email-error">{fieldErrors.email}</small>}</label>
         {error && <p className="workflow-error" role="alert">{error}</p>}
-        <Button type="submit" disabled={working}>{working ? "Preparing secure verification…" : "Continue to OTP →"}</Button>
+        <Button type="submit" disabled={working || !email.trim()}>{working ? "Sending secure verification…" : "Send email code →"}</Button>
       </form>}
     </section>
   </main>;
