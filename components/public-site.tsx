@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Icon, Logo } from "./ui";
 import { PublicJobSave } from "./public-job-save";
 import type { PublicKnowledgePost } from "../lib/backend";
+import { jobLabel as humanJobLabel, jobLocation as displayLocation } from "../lib/job-display";
 
 export type PublicJob = { id: string; company: string; companySlug: string; title: string; tags: string[]; experience: string; location: string; department: string; employmentType: string; workplaceModel: string; postedAt: string | null; verifiedEmployer: boolean; publicPath?: string; mark: string; tone: string };
 type PublicPageMeta = { totalElements: number; totalPages: number; number: number };
@@ -121,7 +122,5 @@ function PublicFooter() { return <footer className="public-footer"><Logo light/>
 /** Demo routes only. Production company discovery is derived from live published jobs. */
 export const companySlugs = localDemo ? [...new Set(publicJobs.map((job) => job.companySlug))] : [];
 
-function humanJobLabel(value: string) { const labels: Record<string, string> = { FULL_TIME: "Full-time", PART_TIME: "Part-time", CONTRACT: "Contract", INTERNSHIP: "Internship", TEMPORARY: "Temporary", FREELANCE: "Freelance", ON_SITE: "On-site", HYBRID: "Hybrid", REMOTE: "Remote" }; return labels[value] ?? value.replace(/_/g, " ").toLowerCase().replace(/^./, (letter) => letter.toUpperCase()); }
-function displayLocation(location: string, workplaceModel: string) { const workplace = humanJobLabel(workplaceModel).toLowerCase(); const parts = location.split("·").map((part) => part.trim()).filter(Boolean).filter((part) => part.toLowerCase() !== workplace); return parts.join(" · ") || location; }
 function postedLabel(publishedAt: string | null) { if (!publishedAt) return "Recently posted"; const elapsedDays = Math.max(0, Math.floor((Date.now() - new Date(publishedAt).getTime()) / 86_400_000)); if (elapsedDays === 0) return "Posted today"; if (elapsedDays === 1) return "Posted yesterday"; return `Posted ${elapsedDays}d ago`; }
 function jobTitleSlug(title: string) { return title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }

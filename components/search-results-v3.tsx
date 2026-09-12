@@ -148,7 +148,7 @@ export function SearchResultsV3() {
   const end = total ? start + (data?.content.length ?? 0) - 1 : 0;
   const criteria = useMemo(() => {
     const rows: Array<[string, string]> = [];
-    if (searchState.anyKeywords) rows.push(["Skills / keywords", searchState.anyKeywords]);
+    if (searchState.anyKeywords) rows.push(["Preferred keywords", searchState.anyKeywords]);
     if (searchState.allKeywords) rows.push(["Must include", searchState.allKeywords]);
     if (searchState.booleanQuery) rows.push(["Boolean", searchState.booleanQuery]);
     if (searchState.designation) rows.push(["Title", searchState.designation]);

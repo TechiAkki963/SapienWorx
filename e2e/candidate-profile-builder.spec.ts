@@ -34,6 +34,11 @@ test("builds a recruiter-searchable profile and persists filter-aligned details"
   await page.getByLabel("Industry").fill("Enterprise software");
   await page.getByLabel("Course type").selectOption("PART_TIME");
   await page.getByLabel("Hometown").fill("Kochi");
+  await expect(page.getByRole("button", { name: "Save section" })).toHaveCount(9);
+  await page.getByRole("button", { name: "Save section" }).first().click();
+
+  await expect(page.getByText("Professional summary saved. You can continue editing the rest of your profile.")).toBeVisible();
+  await expect(page.getByLabel("Department and role")).toHaveValue("Engineering / Data platform");
   await page.getByRole("button", { name: "Save full profile" }).click();
 
   await expect(page.getByText("Profile saved — these are your confirmed details.")).toBeVisible();

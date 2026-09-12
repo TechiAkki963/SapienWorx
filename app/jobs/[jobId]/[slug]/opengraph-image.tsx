@@ -3,6 +3,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getPublicJob } from "../../../../lib/backend";
+import { jobLocation } from "../../../../lib/job-display";
 
 export const alt = "Sapienworx job listing";
 export const size = { width: 1200, height: 630 };
@@ -24,7 +25,7 @@ export default async function OpenGraphImage({ params }: { params: Promise<{ job
   const job = await getPublicJob(jobId);
   const title = compact(job?.title ?? "Career opportunity", 58);
   const company = compact(job?.organisationName ?? "Sapienworx partner", 38);
-  const location = compact(job?.location ?? "Location shared in the role", 42);
+  const location = compact(job ? jobLocation(job.location, job.workplaceModel) : "Location shared in the role", 42);
   const experience = job ? `${job.minimumExperienceYears}–${job.maximumExperienceYears} Yrs Exp` : "View role details";
   const companyInitials = initials(company);
   const companyLogo = job?.verifiedEmployer ? job.organisationLogoUrl : null;

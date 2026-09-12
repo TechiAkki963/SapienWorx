@@ -213,6 +213,30 @@
   color: var(--warn);
 }
 
+.workspace-shell-candidate .candidate-profile-section-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.workspace-shell-candidate .candidate-profile-section-save {
+  min-height: var(--space-7);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--amber-deep);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+  color: var(--amber-deep);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.workspace-shell-candidate .candidate-profile-section-save:focus-visible {
+  outline: var(--space-1) solid var(--focus);
+  outline-offset: var(--space-1);
+}
+
 /* Parsed-CV confidence semantics: only style confidence supplied by the existing review surface. */
 .workspace-shell-candidate .confidence.high {
   border-bottom: 2px solid var(--good);

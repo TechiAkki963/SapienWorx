@@ -83,8 +83,10 @@ html, body { max-width: none; overflow-x: visible; }
   .workspace-mobile-nav .nav-item { min-width: 0; display: grid; justify-items: center; align-content: center; gap: var(--space-1); padding: var(--space-1); text-align: center; font-size: var(--font-size-xs); }
   .workspace-mobile-nav .nav-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .workspace-shell-candidate .workspace-main, .workspace-shell-recruiter .workspace-main, .workspace-shell-admin .workspace-main { padding-bottom: var(--space-9); }
-  .topbar-context, .topbar-search { display: none; }
-  .topbar { padding-inline: var(--space-4); }
+  .topbar-context, .topbar-search, .global-search, .topbar-create-job { display: none; }
+  .topbar { width: 100%; min-width: 0; justify-content: space-between; padding-inline: var(--space-4); }
+  .topbar-actions { min-width: 0; margin-left: auto; }
+  .topbar-actions > .icon-button:first-of-type { display: none; }
   .auth-layout { width: 100%; padding: 0; }
   .auth-card, .auth-aside { border-radius: 0; }
 }

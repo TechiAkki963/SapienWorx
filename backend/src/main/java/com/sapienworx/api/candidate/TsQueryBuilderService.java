@@ -22,6 +22,28 @@ public class TsQueryBuilderService {
     }
 
     /**
+     * Builds the hard eligibility portion of a structured search. Preferred
+     * terms deliberately do not appear here: they affect ordering, not whether
+     * a candidate is allowed into the result set.
+     */
+    public String buildEligibility(List<String> allKeywords, List<String> excludeKeywords) {
+        String all = group(allKeywords, " & ");
+        String exclude = group(excludeKeywords, " | ");
+        return List.of(
+                        all.isEmpty() ? "" : "(" + all + ")",
+                        exclude.isEmpty() ? "" : "!(" + exclude + ")")
+                .stream().filter(part -> !part.isEmpty()).collect(Collectors.joining(" & "));
+    }
+
+    /** All positive terms contribute to relevance without becoming filters. */
+    public String buildRanking(List<String> allKeywords, List<String> anyKeywords) {
+        return group(java.util.stream.Stream.concat(
+                        allKeywords == null ? java.util.stream.Stream.empty() : allKeywords.stream(),
+                        anyKeywords == null ? java.util.stream.Stream.empty() : anyKeywords.stream())
+                .toList(), " | ");
+    }
+
+    /**
      * Converts the deliberately small Boolean syntax exposed in recruiter
      * sourcing into a bound PostgreSQL tsquery. Only terms, quoted phrases,
      * parentheses, AND, OR and NOT are accepted; no database syntax is passed

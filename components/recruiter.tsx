@@ -424,7 +424,8 @@ export function RecruiterJobDetail({ jobId }: { jobId: string }) {
   const [actionNotice, setActionNotice] = useState("");
   const [actionError, setActionError] = useState("");
   const [shareJob, setShareJob] = useState<ShareableJob | null>(null);
-  const previewJob = managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase());
+  const localDemo = process.env.NEXT_PUBLIC_LOCAL_DEMO === "true";
+  const previewJob = localDemo ? managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase()) : undefined;
 
   useEffect(() => {
     const requestedBackPath = new URLSearchParams(window.location.search).get("back");
@@ -445,7 +446,7 @@ export function RecruiterJobDetail({ jobId }: { jobId: string }) {
         if (cancelled) return;
         setWorkspace(null);
         setLoadError(error instanceof Error ? error.message : "The job workspace could not be loaded.");
-        setDataSource(managedJobs.some((item) => item.jobId.toLowerCase() === jobId.toLowerCase()) ? "preview" : "error");
+        setDataSource(previewJob ? "preview" : "error");
       });
     return () => { cancelled = true; };
   }, [jobId, reloadToken]);
@@ -460,7 +461,7 @@ export function RecruiterJobDetail({ jobId }: { jobId: string }) {
   const tabs: RecruiterJobDetailTab[] = ["Overview", "Applicants", "Job Description", "Settings"];
   const pipelinePath = `/recruiter/pipeline?role=${job.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`;
   const interviewActivity = (job.interviewing ?? 0) + (job.finalStage ?? 0);
-  const shareableJob: ShareableJob = { jobId: job.jobId, title: job.title, company: apiJob.organisationName, location: job.location, skills: job.skills, experience: `${job.minimumExperience}–${job.maximumExperience} Yrs Exp` };
+  const shareableJob: ShareableJob = { jobId: job.jobId, title: job.title, company: apiJob.organisationName, location: displayJobLocation(job.location, apiJob.workplaceModel), skills: job.skills, experience: `${job.minimumExperience}–${job.maximumExperience} Yrs Exp` };
   const changeStatus = async (status: "ACTIVE" | "CLOSED" | "ARCHIVED" | "DRAFT", notice: string) => {
     if (dataSource !== "live") return;
     setActionPending(status);
@@ -517,16 +518,16 @@ function displayJobLocation(location: string, workplaceModel: string) { const mo
 function publicJobAge(value: string | null) { if (!value) return "Recently published"; const days = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 86_400_000)); return days === 0 ? "Posted today" : `Posted ${days}d ago`; }
 
 export function PublicJobDetail({ jobId, slug: _slug, fromSearch = false, initialJob, similarJobs = [], referralCode, shareSource }: { jobId: string; slug: string; fromSearch?: boolean; initialJob?: PublicJobDetailData | null; similarJobs?: PublicJobDetailData[]; referralCode?: string; shareSource?: string }) {
-  const managed = managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase());
+  const managed = process.env.NEXT_PUBLIC_LOCAL_DEMO === "true" ? managedJobs.find((item) => item.jobId.toLowerCase() === jobId.toLowerCase()) : undefined;
   const job = initialJob ? {
-    jobId: initialJob.jobId, title: initialJob.title, location: initialJob.location, skills: initialJob.skills,
+    jobId: initialJob.jobId, title: initialJob.title, location: displayJobLocation(initialJob.location, initialJob.workplaceModel), skills: initialJob.skills,
     minimumExperience: String(initialJob.minimumExperienceYears), maximumExperience: String(initialJob.maximumExperienceYears),
     description: initialJob.descriptionHtml, company: initialJob.organisationName, verifiedEmployer: initialJob.verifiedEmployer,
     department: initialJob.department, employmentType: initialJob.employmentType, workplaceModel: initialJob.workplaceModel,
     companyOverview: initialJob.companyOverview, whyJoin: initialJob.whyJoin, responsibilitiesHtml: initialJob.responsibilitiesHtml,
     hiringProcess: initialJob.hiringProcess, publicPath: initialJob.publicPath, publishedAt: initialJob.publishedAt,
   } : managed ? {
-    jobId: managed.jobId, title: managed.title, location: managed.location, skills: managed.skills,
+    jobId: managed.jobId, title: managed.title, location: displayJobLocation(managed.location, managed.location.toLowerCase().includes("remote") ? "REMOTE" : managed.location.toLowerCase().includes("hybrid") ? "HYBRID" : "ON_SITE"), skills: managed.skills,
     minimumExperience: managed.minimumExperience, maximumExperience: managed.maximumExperience, description: managed.description,
     company: "Nexora Technologies", verifiedEmployer: true, department: "General", employmentType: "FULL_TIME",
     workplaceModel: managed.location.toLowerCase().includes("remote") ? "REMOTE" : managed.location.toLowerCase().includes("hybrid") ? "HYBRID" : "ON_SITE",

@@ -27,7 +27,8 @@ public class CandidateSourcingService {
     public Page<CandidateSourcingResult> search(CandidateSourcingCriteria criteria) {
         Objects.requireNonNull(criteria, "Sourcing criteria are required.");
         return candidateRepository.searchVisibleCandidates(
-                buildQuery(criteria),
+                buildEligibilityQuery(criteria),
+                buildRankingQuery(criteria),
                 criteria.minimumExperienceYears(),
                 criteria.maximumExperienceYears(),
                 criteria.minimumSalaryLakhs(),
@@ -56,13 +57,20 @@ public class CandidateSourcingService {
         return value == null ? "" : value.trim();
     }
 
-    private String buildQuery(CandidateSourcingCriteria criteria) {
+    private String buildEligibilityQuery(CandidateSourcingCriteria criteria) {
         if (criteria.booleanQuery() == null || criteria.booleanQuery().isBlank()) {
-            return blankToEmpty(tsQueryBuilderService.build(criteria.anyKeywords(), criteria.allKeywords(), criteria.excludedKeywords()));
+            return blankToEmpty(tsQueryBuilderService.buildEligibility(criteria.allKeywords(), criteria.excludedKeywords()));
         }
         String booleanQuery = tsQueryBuilderService.buildBooleanExpression(criteria.booleanQuery());
         String exclusions = tsQueryBuilderService.build(java.util.List.of(), java.util.List.of(), criteria.excludedKeywords());
         return exclusions.isBlank() ? booleanQuery : "(" + booleanQuery + ") & " + exclusions;
+    }
+
+    private String buildRankingQuery(CandidateSourcingCriteria criteria) {
+        if (criteria.booleanQuery() != null && !criteria.booleanQuery().isBlank()) {
+            return tsQueryBuilderService.buildBooleanExpression(criteria.booleanQuery());
+        }
+        return blankToEmpty(tsQueryBuilderService.buildRanking(criteria.allKeywords(), criteria.anyKeywords()));
     }
 
     private String[] educationTypes(java.util.List<String> values) {

@@ -17,6 +17,14 @@ class TsQueryBuilderServiceTest {
     }
 
     @Test
+    void keepsPreferredTermsOutOfEligibilityAndUsesThemForRanking() {
+        assertThat(service.buildEligibility(List.of("java", "spring boot"), List.of("php")))
+                .isEqualTo("(java & spring<->boot) & !(php)");
+        assertThat(service.buildRanking(List.of("java"), List.of("aws", "kafka")))
+                .isEqualTo("java | aws | kafka");
+    }
+
+    @Test
     void removesOperatorsAndEmptyTermsFromUntrustedInput() {
         assertThat(service.build(List.of("  ", "react; drop table"), List.of(), List.of("<script>")))
                 .isEqualTo("(react<->drop<->table)");

@@ -60,13 +60,15 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                     where engagement.candidate_id = c.id) as profileViewCount,
                    (select count(*) from candidate_profile_engagements engagement
                     where engagement.candidate_id = c.id and engagement.first_downloaded_at is not null) as profileDownloadCount,
-                   ts_rank_cd(sourcing_index.search_vector,
-                       to_tsquery('english', cast(:tsQuery as text))) as relevanceScore
+                   case when cast(:rankingTsQuery as text) = '' then 0
+                        else ts_rank_cd(sourcing_index.search_vector,
+                            to_tsquery('english', cast(:rankingTsQuery as text)))
+                   end as relevanceScore
             from candidates c
             join candidate_sourcing_index sourcing_index on sourcing_index.candidate_id = c.id
             where c.profile_searchable = true
-              and (cast(:tsQuery as text) = ''
-                   or sourcing_index.search_vector @@ to_tsquery('english', cast(:tsQuery as text)))
+              and (cast(:eligibilityTsQuery as text) = ''
+                   or sourcing_index.search_vector @@ to_tsquery('english', cast(:eligibilityTsQuery as text)))
               and (:minimumExperienceYears is null or c.overall_experience_years >= :minimumExperienceYears)
               and (:maximumExperienceYears is null or c.overall_experience_years <= :maximumExperienceYears)
               and (:minimumSalaryLakhs is null or c.expected_salary_lakhs >= :minimumSalaryLakhs)
@@ -112,8 +114,8 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                     from candidates c
                     join candidate_sourcing_index sourcing_index on sourcing_index.candidate_id = c.id
                     where c.profile_searchable = true
-                      and (cast(:tsQuery as text) = ''
-                           or sourcing_index.search_vector @@ to_tsquery('english', cast(:tsQuery as text)))
+                      and (cast(:eligibilityTsQuery as text) = ''
+                           or sourcing_index.search_vector @@ to_tsquery('english', cast(:eligibilityTsQuery as text)))
                       and (:minimumExperienceYears is null or c.overall_experience_years >= :minimumExperienceYears)
                       and (:maximumExperienceYears is null or c.overall_experience_years <= :maximumExperienceYears)
                       and (:minimumSalaryLakhs is null or c.expected_salary_lakhs >= :minimumSalaryLakhs)
@@ -155,7 +157,8 @@ public interface CandidateRepository extends JpaRepository<Candidate, UUID> {
                     """,
             nativeQuery = true)
     Page<CandidateSourcingResult> searchVisibleCandidates(
-            @Param("tsQuery") String tsQuery,
+            @Param("eligibilityTsQuery") String eligibilityTsQuery,
+            @Param("rankingTsQuery") String rankingTsQuery,
             @Param("minimumExperienceYears") Integer minimumExperienceYears,
             @Param("maximumExperienceYears") Integer maximumExperienceYears,
             @Param("minimumSalaryLakhs") Integer minimumSalaryLakhs,

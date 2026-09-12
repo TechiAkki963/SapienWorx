@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "../lib/api-client";
 import { Button, WorkspaceShell } from "./ui";
+import { jobLabel, jobLocation } from "../lib/job-display";
 import styles from "./candidate-jobs-v2.module.css";
 
 type PublicJob = {
@@ -52,7 +53,7 @@ function salaryLabel(job: PublicJob) {
 }
 
 function workMode(job: PublicJob) {
-  return (job.workplaceModel || job.employmentType || "Work arrangement not specified").replaceAll("_", " ").toLowerCase().replace(/^./, (char) => char.toUpperCase());
+  return jobLabel(job.workplaceModel || job.employmentType || "Work arrangement not specified");
 }
 
 export function CandidateJobsV2({ sharedJobId, sharedApplyOutcome }: { sharedJobId?: string; sharedApplyOutcome?: string } = {}) {
@@ -155,7 +156,7 @@ export function CandidateJobsV2({ sharedJobId, sharedApplyOutcome }: { sharedJob
           <div className={styles.resultList}>{!loading && visibleJobs.length === 0 ? <div className={styles.empty}><strong>No roles match those filters.</strong><p>Widen your filters to see more opportunities.</p><button type="button" onClick={() => setFilters(emptyFilters)}>Reset filters</button></div> : visibleJobs.map((job) => <button type="button" className={`${styles.resultCard} ${selectedJob?.jobId === job.jobId ? styles.selected : ""}`} key={job.jobId} onClick={() => setSelectedId(job.jobId)}>
             <div className={styles.resultTop}><span className={styles.logo}>{job.organisationName.slice(0, 1).toUpperCase()}</span><span className={styles.saveButton} role="button" tabIndex={0} onClick={(event) => { event.stopPropagation(); setSaved((current) => current.includes(job.jobId) ? current.filter((id) => id !== job.jobId) : [...current, job.jobId]); }}>{saved.includes(job.jobId) ? "♥" : "♡"}</span></div>
             <h3>{job.title}</h3><p>{job.organisationName}</p>
-            <div className={styles.resultMeta}><span>{job.location}</span><span>{job.minimumExperienceYears}–{job.maximumExperienceYears} years</span><span>{salaryLabel(job)}</span></div>
+            <div className={styles.resultMeta}><span>{jobLocation(job.location, job.workplaceModel)}</span><span>{job.minimumExperienceYears}–{job.maximumExperienceYears} years</span><span>{salaryLabel(job)}</span></div>
             <div className={styles.skillRow}>{job.skills.slice(0, 4).map((skill) => <span key={skill}>{skill}</span>)}</div>
             {typeof job.matchScore === "number" && <div className={styles.verifiedMatch}><strong>{job.matchScore}% match</strong>{job.matchReasons?.slice(0, 2).map((reason) => <span key={reason}>{reason}</span>)}</div>}
             <small>{postedLabel(job.publishedAt)}</small>
@@ -164,7 +165,7 @@ export function CandidateJobsV2({ sharedJobId, sharedApplyOutcome }: { sharedJob
 
         <article className={styles.detail} aria-live="polite">
           {selectedJob ? <>
-            <div className={styles.detailHeader}><div><span className={styles.eyebrow}>{selectedJob.organisationName}</span><h2>{selectedJob.title}</h2><p>{selectedJob.location} · {workMode(selectedJob)}</p></div><span className={styles.detailLogo}>{selectedJob.organisationName.slice(0, 1).toUpperCase()}</span></div>
+            <div className={styles.detailHeader}><div><span className={styles.eyebrow}>{selectedJob.organisationName}</span><h2>{selectedJob.title}</h2><p>{jobLocation(selectedJob.location, selectedJob.workplaceModel)} · {workMode(selectedJob)}</p></div><span className={styles.detailLogo}>{selectedJob.organisationName.slice(0, 1).toUpperCase()}</span></div>
             <div className={styles.factGrid}><div><span>Experience</span><strong>{selectedJob.minimumExperienceYears}–{selectedJob.maximumExperienceYears} years</strong></div><div><span>Salary</span><strong>{salaryLabel(selectedJob)}</strong></div><div><span>Work mode</span><strong>{workMode(selectedJob)}</strong></div><div><span>Posted</span><strong>{postedLabel(selectedJob.publishedAt).replace("Posted ", "")}</strong></div></div>
             {typeof selectedJob.matchScore === "number" && <section className={styles.matchPanel}><span className={styles.eyebrow}>Explainable match</span><h3>{selectedJob.matchScore}% profile match</h3><div>{selectedJob.matchReasons?.length ? selectedJob.matchReasons.map((reason) => <span key={reason}>✓ {reason}</span>) : <p>Match details are not available for this role.</p>}</div></section>}
             <section className={styles.detailSection}><h3>Role overview</h3><div className={styles.description} dangerouslySetInnerHTML={{ __html: selectedJob.descriptionHtml }} /></section>

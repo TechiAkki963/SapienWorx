@@ -32,7 +32,7 @@ class CandidateSourcingServiceTest {
         ));
 
         verify(candidateRepository).searchVisibleCandidates(
-                anyString(), any(), any(), any(), any(), anyString(), eq("StatusNeo"), eq("Senior Consultant"), eq("Engineering / Platform"), eq("Software product"), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
+                eq(""), eq("TypeScript"), any(), any(), any(), any(), anyString(), eq("StatusNeo"), eq("Senior Consultant"), eq("Engineering / Platform"), eq("Software product"), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
                 anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
         );
     }
@@ -44,7 +44,7 @@ class CandidateSourcingServiceTest {
         CandidateSourcingService service = new CandidateSourcingService(candidateRepository, clock, new TsQueryBuilderService());
 
         when(candidateRepository.searchVisibleCandidates(
-                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
+                anyString(), anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(), any(),
                 anyString(), anyBoolean(), anyBoolean(), anyBoolean(), any(Pageable.class)
         )).thenReturn(Page.empty());
 
@@ -56,7 +56,7 @@ class CandidateSourcingServiceTest {
         ArgumentCaptor<Instant> activeSince = ArgumentCaptor.forClass(Instant.class);
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(candidateRepository).searchVisibleCandidates(
-                anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(),
+                anyString(), anyString(), any(), any(), any(), any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), any(), anyString(), any(),
                 activeSince.capture(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(), pageable.capture()
         );
 
