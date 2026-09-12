@@ -15,13 +15,17 @@ type ScheduledInterview = {
   durationMinutes: number;
 };
 
+function hostMatches(host: string, domain: string) {
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
 function providerLabel(value: string) {
   try {
-    const host = new URL(value).hostname.toLowerCase();
-    if (host.includes("meet.google.com")) return "Google Meet";
-    if (host.includes("teams.microsoft.com") || host.includes("teams.live.com")) return "Microsoft Teams";
-    if (host.includes("zoom.us")) return "Zoom";
-    if (host.includes("webex.com")) return "Webex";
+    const host = new URL(value).hostname.toLowerCase().replace(/\.$/, "");
+    if (host === "meet.google.com") return "Google Meet";
+    if (hostMatches(host, "teams.microsoft.com") || hostMatches(host, "teams.live.com")) return "Microsoft Teams";
+    if (hostMatches(host, "zoom.us")) return "Zoom";
+    if (hostMatches(host, "webex.com")) return "Webex";
     return "External meeting";
   } catch {
     return "External meeting";
