@@ -13,6 +13,7 @@ import "./auth-canonical.css";
 // Canonical secondary layers keep deep Candidate, Recruiter and Admin routes in the same product system.
 import "./secondary-routes-canonical.css";
 import "./recruiter-secondary-canonical.css";
+import "./hiring-lifecycle.css";
 
 const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
