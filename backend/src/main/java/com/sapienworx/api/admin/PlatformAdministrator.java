@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -44,6 +46,21 @@ public class PlatformAdministrator {
     @Column(name = "admin_role", nullable = false, length = 32)
     private PlatformAdminRole adminRole = PlatformAdminRole.OWNER;
 
+    @Column(name = "custom_permissions", length = 4000)
+    private String customPermissions;
+
     @Column(name = "last_signed_in_at")
     private Instant lastSignedInAt;
+
+    public List<String> effectivePermissions() {
+        PlatformAdminRole role = adminRole == null ? PlatformAdminRole.OWNER : adminRole;
+        if (role == PlatformAdminRole.OWNER) return List.of("*");
+        if (customPermissions == null || customPermissions.isBlank()) return role.permissions();
+        return Arrays.stream(customPermissions.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
+    }
 }
