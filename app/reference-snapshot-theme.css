@@ -1,40 +1,50 @@
 /* Snapshot-aligned visual layer.
-   Derived from docs/ui_ux_design/stitch_app_ui_ux_design/portal_intelligence/DESIGN.md.
-   Loaded last so existing production components inherit the reference visual language
-   without replacing their real data, permissions, privacy or workflow contracts. */
+   Source of truth: docs/ui_ux_design/stitch_app_ui_ux_design/*/screen.png + code.html
+   and portal_intelligence/DESIGN.md.
+
+   This layer intentionally changes presentation only. Existing application data,
+   permission checks, privacy rules, audited PII reveal, pagination, workflow state,
+   and provider-agnostic interview links remain owned by production components. */
 
 :root {
   --ink: #0b1c30;
+  --ink-strong: #0f172a;
   --ink-soft: #45464d;
   --muted: #76777d;
   --paper: #f8f9ff;
   --cloud: #ffffff;
   --line: #e2e8f0;
+  --line-strong: #c6c6cd;
 
   --indigo: #0051d5;
   --indigo-deep: #003ea8;
   --indigo-soft: #eff4ff;
+  --indigo-active: #dbe1ff;
   --indigo-tint: color-mix(in srgb, var(--indigo) 8%, var(--cloud));
 
   --amber: #f59e0b;
   --amber-deep: #b45309;
   --amber-ink: #78350f;
-  --amber-tint: color-mix(in srgb, var(--amber) 12%, var(--cloud));
+  --amber-tint: color-mix(in srgb, var(--amber) 10%, var(--cloud));
 
   --good: #10b981;
+  --good-deep: #047857;
   --warn: #e11d48;
 
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --content-max: 1440px;
+  --workspace-sidebar: 256px;
+  --workspace-topbar: 64px;
   --focus: var(--indigo);
 
   --portal-accent: var(--indigo);
   --portal-accent-deep: var(--indigo-deep);
   --portal-accent-soft: var(--indigo-soft);
   --portal-accent-ink: var(--cloud);
-  --shadow-surface: 0 2px 4px color-mix(in srgb, var(--ink) 4%, transparent);
+  --shadow-surface: 0 2px 10px color-mix(in srgb, var(--ink) 3%, transparent);
+  --shadow-hover: 0 8px 24px color-mix(in srgb, var(--ink) 7%, transparent);
 }
 
 html,
@@ -45,9 +55,30 @@ body,
   color: var(--ink);
 }
 
+body {
+  font-family: var(--font-ui);
+}
+
+h1,
+h2,
+h3,
+h4,
+.page-heading h1,
+.section-title h2,
+.section-title h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
 .portal-candidate,
+.workspace-shell-candidate {
+  --portal-accent: var(--indigo);
+  --portal-accent-deep: var(--indigo-deep);
+  --portal-accent-soft: var(--indigo-soft);
+  --portal-accent-ink: var(--cloud);
+}
+
 .portal-recruiter,
-.workspace-shell-candidate,
 .workspace-shell-recruiter {
   --portal-accent: var(--indigo);
   --portal-accent-deep: var(--indigo-deep);
@@ -57,10 +88,21 @@ body,
 
 .portal-admin,
 .workspace-shell-admin {
-  --portal-accent: var(--indigo);
-  --portal-accent-deep: var(--indigo-deep);
-  --portal-accent-soft: var(--indigo-soft);
+  --portal-accent: var(--ink-strong);
+  --portal-accent-deep: var(--ink-strong);
+  --portal-accent-soft: color-mix(in srgb, var(--ink-strong) 5%, var(--cloud));
   --portal-accent-ink: var(--cloud);
+}
+
+/* Shared Flat-Plus surface language from the Stitch references. */
+.panel,
+.widget,
+.stat-card,
+.admin-team-card,
+.parser-panel,
+[class*="-card"],
+[class*="-panel"] {
+  border-color: var(--line);
 }
 
 .panel,
@@ -68,7 +110,6 @@ body,
 .stat-card,
 .admin-team-card,
 .parser-panel {
-  border-color: var(--line);
   border-radius: var(--radius-md);
   background: var(--cloud);
   box-shadow: var(--shadow-surface);
@@ -81,10 +122,25 @@ textarea {
   border-radius: var(--radius-sm);
 }
 
+input,
+select,
+textarea {
+  border-color: var(--line-strong);
+  background: var(--cloud);
+  color: var(--ink);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--indigo);
+  outline: 2px solid color-mix(in srgb, var(--indigo) 16%, transparent);
+  outline-offset: 1px;
+}
+
 .button-primary,
 .workspace-shell-candidate .button-primary,
-.workspace-shell-recruiter .button-primary,
-.workspace-shell-admin .button-primary {
+.workspace-shell-recruiter .button-primary {
   background: var(--indigo);
   border-color: var(--indigo);
   color: var(--cloud);
@@ -92,60 +148,79 @@ textarea {
 
 .button-primary:hover,
 .workspace-shell-candidate .button-primary:hover,
-.workspace-shell-recruiter .button-primary:hover,
-.workspace-shell-admin .button-primary:hover {
+.workspace-shell-recruiter .button-primary:hover {
   background: var(--indigo-deep);
   border-color: var(--indigo-deep);
   color: var(--cloud);
 }
 
-.workspace-shell-recruiter,
-.workspace-shell-admin {
-  grid-template-columns: 256px minmax(0, 1fr);
+.workspace-shell-admin .button-primary {
+  background: var(--ink-strong);
+  border-color: var(--ink-strong);
+  color: var(--cloud);
 }
 
-.workspace-shell-recruiter .sidebar,
-.workspace-shell-recruiter .workspace-sidebar,
-.workspace-shell-admin .sidebar,
-.workspace-shell-admin .workspace-sidebar {
-  border-right: 1px solid var(--line);
-  background: var(--cloud);
-  color: var(--ink);
+.workspace-shell-admin .button-primary:hover {
+  background: var(--ink);
+  border-color: var(--ink);
 }
 
-.workspace-shell-recruiter .nav-item,
-.workspace-shell-admin .sidebar .nav-item,
-.workspace-shell-admin .nav-item {
-  min-height: 44px;
-  border-radius: var(--radius-md);
-  color: var(--ink-soft);
+.button-secondary,
+.button-quiet {
+  border-color: var(--line);
 }
 
-.workspace-shell-recruiter .nav-item:hover,
-.workspace-shell-recruiter .nav-item-active,
-.workspace-shell-admin .sidebar .nav-item:hover,
-.workspace-shell-admin .sidebar .nav-item-active,
-.workspace-shell-admin .nav-item:hover,
-.workspace-shell-admin .nav-item-active {
-  background: #dbe1ff;
+.badge {
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.badge-blue,
+.badge-purple {
+  background: var(--indigo-active);
   color: var(--indigo-deep);
 }
 
+.badge-green {
+  background: color-mix(in srgb, var(--good) 10%, var(--cloud));
+  color: var(--good-deep);
+}
+
+.badge-amber {
+  background: var(--amber-tint);
+  color: var(--amber-ink);
+}
+
+.badge-rose {
+  background: color-mix(in srgb, var(--warn) 8%, var(--cloud));
+  color: var(--warn);
+}
+
+/* 64px fixed top chrome: common across candidate, recruiter and master-admin references. */
 .topbar {
-  min-height: 64px;
-  border-color: var(--line);
+  min-height: var(--workspace-topbar);
+  border-color: var(--line-strong);
   background: color-mix(in srgb, var(--cloud) 98%, transparent);
+  box-shadow: none;
   backdrop-filter: blur(10px);
+}
+
+.topbar .logo {
+  font-family: var(--font-display);
+  font-weight: 750;
+  letter-spacing: -0.02em;
 }
 
 .page-heading {
   align-items: center;
+  margin-bottom: var(--space-4);
   padding-block: var(--space-5) var(--space-4);
   border-color: var(--line);
 }
 
 .page-heading h1 {
   color: var(--ink);
+  font-size: var(--font-size-2xl);
   font-weight: 650;
 }
 
@@ -155,10 +230,88 @@ textarea {
   color: var(--muted);
 }
 
+.workspace-main {
+  max-width: var(--content-max);
+  width: 100%;
+}
+
+/* Recruiter: persistent 256px operational rail and dense workbench. */
+.workspace-shell-recruiter,
+.workspace-shell-admin {
+  grid-template-columns: var(--workspace-sidebar) minmax(0, 1fr);
+}
+
+.workspace-shell-recruiter .sidebar,
+.workspace-shell-admin .sidebar,
+.workspace-shell-recruiter .workspace-sidebar,
+.workspace-shell-admin .workspace-sidebar {
+  width: var(--workspace-sidebar);
+  border-right: 1px solid var(--line-strong);
+  background: var(--cloud);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.workspace-shell-recruiter .workspace-name,
+.workspace-shell-admin .workspace-name {
+  min-height: 72px;
+  margin-bottom: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.workspace-shell-recruiter .workspace-name strong,
+.workspace-shell-admin .workspace-name strong {
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.workspace-shell-recruiter .workspace-name small,
+.workspace-shell-admin .workspace-name small {
+  color: var(--muted);
+}
+
+.workspace-shell-recruiter .sidebar nav,
+.workspace-shell-admin .sidebar nav {
+  display: grid;
+  gap: var(--space-1);
+  padding-inline: var(--space-3);
+}
+
+.workspace-shell-recruiter .nav-item,
+.workspace-shell-admin .sidebar .nav-item,
+.workspace-shell-admin .nav-item {
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  color: var(--ink-soft);
+  font-weight: 550;
+}
+
+.workspace-shell-recruiter .nav-item:hover,
+.workspace-shell-recruiter .nav-item-active {
+  background: var(--indigo-active);
+  color: var(--indigo-deep);
+}
+
+.workspace-shell-admin .sidebar .nav-item:hover,
+.workspace-shell-admin .sidebar .nav-item-active,
+.workspace-shell-admin .nav-item:hover,
+.workspace-shell-admin .nav-item-active {
+  background: color-mix(in srgb, var(--ink-strong) 6%, var(--cloud));
+  color: var(--ink-strong);
+}
+
+.workspace-shell-recruiter .workspace-main,
+.workspace-shell-admin .workspace-main {
+  padding-inline: var(--space-6);
+}
+
 .workspace-shell-recruiter .stat-grid,
 .workspace-shell-recruiter .workflow-metrics,
 .workspace-shell-recruiter .report-kpi-strip,
-.workspace-shell-admin .stat-grid {
+.workspace-shell-admin .stat-grid,
+.workspace-shell-admin .workflow-metrics {
   gap: var(--space-3);
   border: 0;
 }
@@ -166,16 +319,27 @@ textarea {
 .workspace-shell-recruiter .stat-grid > *,
 .workspace-shell-recruiter .workflow-metrics > *,
 .workspace-shell-recruiter .report-kpi-strip > *,
-.workspace-shell-admin .stat-grid > * {
+.workspace-shell-admin .stat-grid > *,
+.workspace-shell-admin .workflow-metrics > * {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--cloud);
   box-shadow: var(--shadow-surface);
 }
 
+.workspace-shell-recruiter .panel:hover,
+.workspace-shell-recruiter .widget:hover,
+.workspace-shell-admin .panel:hover,
+.workspace-shell-admin .widget:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* Dense operational tables: 8px-style rhythm, horizontal rules only. */
 .workspace-shell-recruiter table,
 .workspace-shell-admin table {
+  width: 100%;
   border-collapse: collapse;
+  border-spacing: 0;
   background: var(--cloud);
 }
 
@@ -186,6 +350,7 @@ textarea {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .04em;
+  background: color-mix(in srgb, var(--paper) 70%, var(--cloud));
 }
 
 .workspace-shell-recruiter th,
@@ -193,19 +358,81 @@ textarea {
 .workspace-shell-admin th,
 .workspace-shell-admin td {
   padding-block: var(--space-2);
+  border: 0;
   border-bottom: 1px solid var(--line);
+  vertical-align: middle;
 }
 
-.workspace-shell-recruiter tbody tr:hover,
+.workspace-shell-recruiter tbody tr,
+.workspace-shell-admin tbody tr {
+  transition: background .16s ease;
+}
+
+.workspace-shell-recruiter tbody tr:hover {
+  background: color-mix(in srgb, var(--indigo-soft) 58%, var(--cloud));
+}
+
 .workspace-shell-admin tbody tr:hover {
-  background: color-mix(in srgb, var(--indigo-soft) 55%, var(--cloud));
+  background: color-mix(in srgb, var(--ink-strong) 3%, var(--cloud));
 }
 
-.workspace-shell-candidate .panel,
-.workspace-shell-candidate .widget,
-.workspace-shell-candidate .stat-card {
-  border-color: var(--line);
+.workspace-shell-admin code,
+.workspace-shell-admin time,
+.workspace-shell-admin [class*="audit"] small,
+.workspace-shell-admin [class*="audit"] td:first-child {
+  font-family: var(--font-data);
+}
+
+/* Persistent filter rails and list/search surfaces mirror sourcing snapshots. */
+.workspace-shell-recruiter [class*="filter-rail"],
+.workspace-shell-recruiter [class*="filters-rail"],
+.workspace-shell-candidate [class*="filter-rail"],
+.workspace-shell-candidate [class*="filters-rail"] {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
   background: var(--cloud);
+  box-shadow: var(--shadow-surface);
+}
+
+.workspace-shell-recruiter [class*="filter-rail"] label,
+.workspace-shell-recruiter [class*="filters-rail"] label,
+.workspace-shell-candidate [class*="filter-rail"] label,
+.workspace-shell-candidate [class*="filters-rail"] label {
+  color: var(--ink-soft);
+  font-weight: 550;
+}
+
+.workspace-shell-recruiter [class*="result-row"],
+.workspace-shell-recruiter [class*="candidate-row"],
+.workspace-shell-recruiter [class*="job-row"],
+.workspace-shell-candidate [class*="job-row"],
+.workspace-shell-candidate [class*="application-row"] {
+  border-bottom: 1px solid var(--line);
+  background: var(--cloud);
+}
+
+.workspace-shell-recruiter [class*="result-row"]:hover,
+.workspace-shell-recruiter [class*="candidate-row"]:hover,
+.workspace-shell-recruiter [class*="job-row"]:hover,
+.workspace-shell-candidate [class*="job-row"]:hover,
+.workspace-shell-candidate [class*="application-row"]:hover {
+  background: var(--indigo-soft);
+}
+
+/* Candidate: fixed top navigation, warm-efficiency spacing, gentle hierarchy. */
+.workspace-shell-candidate .topbar {
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--cloud);
+}
+
+.workspace-shell-candidate .candidate-desktop-nav {
+  gap: var(--space-1);
+}
+
+.workspace-shell-candidate .candidate-desktop-nav .nav-item {
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  color: var(--ink-soft);
 }
 
 .workspace-shell-candidate .nav-item-active,
@@ -214,7 +441,125 @@ textarea {
   color: var(--indigo-deep);
 }
 
-/* Master Admin reference: dense white management surfaces with inline filters and rows. */
+.workspace-shell-candidate .workspace-main {
+  padding-inline: var(--space-6);
+}
+
+.workspace-shell-candidate .panel,
+.workspace-shell-candidate .widget,
+.workspace-shell-candidate .stat-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+  box-shadow: var(--shadow-surface);
+}
+
+.workspace-shell-candidate .candidate-analytics-layout,
+.workspace-shell-candidate [class*="candidate-"][class*="layout"] {
+  gap: var(--space-6);
+}
+
+.workspace-shell-candidate .candidate-analytics-main,
+.workspace-shell-candidate .candidate-analytics-aside {
+  gap: var(--space-5);
+}
+
+.workspace-shell-candidate .candidate-performance-summary,
+.workspace-shell-candidate .candidate-recruiter-activity,
+.workspace-shell-candidate .candidate-application-snapshot,
+.workspace-shell-candidate .candidate-activity-level,
+.workspace-shell-candidate .candidate-completeness-card {
+  padding: var(--space-5);
+}
+
+.workspace-shell-candidate .candidate-analytics-heading {
+  margin-bottom: var(--space-5);
+}
+
+.workspace-shell-candidate .candidate-analytics-heading h2,
+.workspace-shell-candidate .candidate-analytics-heading h1 {
+  color: var(--ink);
+  font-family: var(--font-display);
+}
+
+.workspace-shell-candidate .candidate-activity-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+  box-shadow: none;
+}
+
+.workspace-shell-candidate .candidate-activity-card:hover {
+  border-color: color-mix(in srgb, var(--indigo) 35%, var(--line));
+  box-shadow: var(--shadow-surface);
+}
+
+.workspace-shell-candidate .meter {
+  background: var(--indigo-soft);
+}
+
+.workspace-shell-candidate .meter-fill,
+.workspace-shell-candidate .meter-blue {
+  background: var(--indigo);
+}
+
+/* Candidate application/status snapshots: timeline first, supporting detail second. */
+.workspace-shell-candidate [class*="application-timeline"],
+.workspace-shell-candidate [class*="status-timeline"],
+.workspace-shell-candidate [class*="application-status"] {
+  position: relative;
+}
+
+.workspace-shell-candidate [class*="timeline"] strong,
+.workspace-shell-candidate [class*="application"] strong {
+  color: var(--ink);
+}
+
+.workspace-shell-candidate [class*="timeline"] small,
+.workspace-shell-candidate [class*="application"] small {
+  color: var(--muted);
+}
+
+/* Message-center snapshots: quiet list + focused conversation pane. */
+.workspace-shell-candidate [class*="inbox"],
+.workspace-shell-candidate [class*="message"],
+.workspace-shell-recruiter [class*="communication"],
+.workspace-shell-recruiter [class*="message"] {
+  border-color: var(--line);
+}
+
+.workspace-shell-candidate [class*="thread"],
+.workspace-shell-recruiter [class*="thread"] {
+  background: var(--cloud);
+}
+
+/* Job creation/profile/parser snapshots favour split panes on wide screens. */
+.workspace-shell-recruiter [class*="preview"],
+.workspace-shell-candidate [class*="preview"],
+.workspace-shell-candidate .parser-panel,
+.workspace-shell-recruiter [class*="scorecard"] {
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+}
+
+.workspace-shell-recruiter [class*="scorecard"],
+.workspace-shell-recruiter [class*="evaluation"] {
+  box-shadow: var(--shadow-surface);
+}
+
+/* Rich applicant workspace: preserve real data while matching the detail snapshots. */
+.workspace-shell-recruiter .applicant-workspace-hero,
+.workspace-shell-recruiter .applicant-workspace-grid {
+  gap: var(--space-4);
+}
+
+.workspace-shell-recruiter .applicant-workspace-grid > *,
+.workspace-shell-recruiter .applicant-workspace-hero > * {
+  border-color: var(--line);
+}
+
+/* Master Admin: neutral command centre, dense ledgers and restrained controls. */
 .workspace-shell-admin .master-stack {
   gap: var(--space-4);
 }
@@ -222,6 +567,10 @@ textarea {
 .workspace-shell-admin .master-wide-list {
   overflow: hidden;
   padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--cloud);
+  box-shadow: var(--shadow-surface);
 }
 
 .workspace-shell-admin .master-wide-list > .section-title {
@@ -245,11 +594,11 @@ textarea {
   padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--line);
   background: var(--cloud);
-  transition: background .2s ease;
+  transition: background .16s ease;
 }
 
 .workspace-shell-admin .master-wide-list > article:hover {
-  background: color-mix(in srgb, var(--indigo-soft) 55%, var(--cloud));
+  background: color-mix(in srgb, var(--ink-strong) 3%, var(--cloud));
 }
 
 .workspace-shell-admin .master-row-title {
@@ -297,7 +646,7 @@ textarea {
 }
 
 .workspace-shell-admin .master-privacy-callout {
-  border: 1px solid #dbe1ff;
+  border: 1px solid var(--indigo-active);
   border-radius: var(--radius-md);
   background: var(--indigo-soft);
 }
@@ -313,36 +662,86 @@ textarea {
   box-shadow: var(--shadow-surface);
 }
 
-.badge-blue,
-.badge-purple {
-  background: #dbe1ff;
-  color: var(--indigo-deep);
+.workspace-shell-admin [class*="audit"],
+.workspace-shell-admin [class*="privacy"],
+.workspace-shell-admin [class*="health"],
+.workspace-shell-admin [class*="organisation"],
+.workspace-shell-admin [class*="organization"] {
+  border-color: var(--line);
 }
 
-.badge-green {
-  background: color-mix(in srgb, var(--good) 10%, var(--cloud));
-  color: #047857;
-}
-
-.badge-amber {
-  background: color-mix(in srgb, var(--amber) 12%, var(--cloud));
-  color: var(--amber-ink);
-}
-
-.badge-rose {
-  background: color-mix(in srgb, var(--warn) 8%, var(--cloud));
-  color: var(--warn);
-}
-
-@media (max-width: 899px) {
+/* Mobile/tablet reflow follows the documented 639 / 1023 breakpoint system. */
+@media (max-width: 1023px) {
   .workspace-shell-recruiter,
   .workspace-shell-admin {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-shell-recruiter .workspace-main,
+  .workspace-shell-admin .workspace-main,
+  .workspace-shell-candidate .workspace-main {
+    padding-inline: var(--space-4);
   }
 
   .workspace-shell-admin .master-wide-list > .section-title,
   .workspace-shell-admin .master-list-tools,
   .workspace-shell-admin .master-wide-list > article {
     padding-inline: var(--space-4);
+  }
+
+  .workspace-shell-recruiter [class*="filter-rail"],
+  .workspace-shell-recruiter [class*="filters-rail"],
+  .workspace-shell-candidate [class*="filter-rail"],
+  .workspace-shell-candidate [class*="filters-rail"] {
+    position: static;
+  }
+}
+
+@media (max-width: 639px) {
+  .page-heading {
+    align-items: flex-start;
+    padding-block: var(--space-4) var(--space-3);
+  }
+
+  .page-heading h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .workspace-shell-recruiter .workspace-main,
+  .workspace-shell-admin .workspace-main,
+  .workspace-shell-candidate .workspace-main {
+    padding-inline: var(--space-3);
+  }
+
+  .workspace-shell-candidate .candidate-performance-summary,
+  .workspace-shell-candidate .candidate-recruiter-activity,
+  .workspace-shell-candidate .candidate-application-snapshot,
+  .workspace-shell-candidate .candidate-activity-level,
+  .workspace-shell-candidate .candidate-completeness-card {
+    padding: var(--space-4);
+  }
+
+  .workspace-shell-recruiter table,
+  .workspace-shell-admin table {
+    min-width: 720px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .workspace-shell-recruiter .workspace-main,
+  .workspace-shell-admin .workspace-main,
+  .workspace-shell-candidate .workspace-main {
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-shell *,
+  .workspace-shell *::before,
+  .workspace-shell *::after {
+    scroll-behavior: auto;
+    transition-duration: .01ms;
+    animation-duration: .01ms;
+    animation-iteration-count: 1;
   }
 }
