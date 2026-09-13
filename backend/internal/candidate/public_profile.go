@@ -30,11 +30,11 @@ func (s *Service) PublicProfile(ctx context.Context, token string) (PublicProfil
 		return PublicProfile{}, err
 	}
 	return PublicProfile{
-		FullName: summary.FullName,
-		Headline: summary.Headline,
-		CurrentLocation: summary.CurrentLocation,
-		PreferredLocations: summary.PreferredLocations,
+		FullName:              summary.FullName,
+		Headline:              summary.Headline,
+		CurrentLocation:       summary.CurrentLocation,
+		PreferredLocations:    summary.PreferredLocations,
 		TotalExperienceMonths: summary.TotalExperienceMonths,
-		PhotoDataURL: summary.PhotoDataURL,
+		PhotoDataURL:          summary.PhotoDataURL,
 	}, nil
 }
