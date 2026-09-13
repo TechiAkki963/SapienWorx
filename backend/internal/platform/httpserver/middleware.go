@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 )
 
 type contextKey string
@@ -141,6 +142,19 @@ func Authenticate(tokens *auth.TokenManager, accessCookieName string) Middleware
 			}
 			ctx := context.WithValue(r.Context(), claimsKey, claims)
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func CandidateActivity(service *candidate.Service, logger *slog.Logger) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if claims, ok := ClaimsFromContext(r.Context()); ok && claims.Role == auth.RoleCandidate {
+				if err := service.MarkActive(r.Context(), claims.Subject); err != nil {
+					logger.Warn("candidate activity update failed", "user_id", claims.Subject, "error", err, "request_id", RequestIDFromContext(r.Context()))
+				}
+			}
+			next.ServeHTTP(w, r)
 		})
 	}
 }
