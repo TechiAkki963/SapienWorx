@@ -11,14 +11,9 @@ import "./ui-v1-final.css";
 import "./canonical-redesign.css";
 import "./auth-canonical.css";
 import "./auth-greenhouse-qa.css";
-// Canonical secondary layers keep deep Candidate, Recruiter and Admin routes in the same product system.
 import "./secondary-routes-canonical.css";
 import "./recruiter-secondary-canonical.css";
 import "./hiring-lifecycle.css";
-// Final typography authority: Source Serif 4 for display hierarchy, Inter for functional UI.
-import "./typography-enforcement.css";
-// Final landing-page authority for approved hero/search/recruiter-band presentation.
-import "./landing-final-overrides.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,7 +45,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      {/* Sapienworx uses a text-only product wordmark; no image brand mark is loaded globally. */}
       <body className={`${inter.variable} ${sourceSerif.variable} ${plexMono.variable}`}>
         {children}
       </body>
