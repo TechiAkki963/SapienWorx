@@ -1,0 +1,12 @@
+.auth-page-admin{--portal-accent:var(--indigo);--portal-accent-deep:var(--indigo-deep);--portal-accent-soft:var(--indigo-soft);--auth-panel-bg:color-mix(in srgb,var(--ink) 88%,var(--indigo-deep));--auth-panel-fg:var(--cloud)}
+.auth-page-admin .auth-card::before{content:"Sapienworx Master Access"}
+.auth-page-admin .auth-aside h1 em{color:color-mix(in srgb,var(--indigo) 58%,var(--cloud))}
+.auth-page-admin .auth-field input:focus,.auth-page-admin .auth-field select:focus,.auth-page-admin .auth-field textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px var(--indigo-soft)}
+.auth-page-admin .button-primary,.auth-page-admin .button.primary{background:var(--ink);border-color:var(--ink);color:var(--cloud)}
+.auth-page-admin .button-secondary,.auth-page-admin .button.secondary{background:var(--cloud);border-color:var(--line-strong);color:var(--ink)}
+.auth-page-admin .auth-microcopy{max-width:500px;color:var(--muted);font-size:var(--font-size-sm);line-height:var(--line-height-relaxed)}
+.auth-page-admin .consent-error,.auth-page-admin .workflow-error{max-width:500px}
+.auth-page-admin .auth-field input[inputmode="numeric"]{font-family:var(--font-data);letter-spacing:.16em}
+@media(min-width:761px){.portal-candidate .auth-layout,.portal-recruiter .auth-layout,.auth-page-admin .auth-layout{align-items:stretch}.portal-candidate .auth-aside,.portal-recruiter .auth-aside,.auth-page-admin .auth-aside{position:sticky;top:0;height:100vh;min-height:100vh;align-self:start}.portal-candidate .auth-card,.portal-recruiter .auth-card,.auth-page-admin .auth-card{align-self:start;margin-block:auto}.portal-candidate .auth-layout:has(.candidate-onboarding-grid) .auth-card,.portal-recruiter .auth-layout:has(.candidate-onboarding-grid) .auth-card{margin-block:var(--space-7)}}
+@media(max-width:760px){.auth-page-admin .auth-aside{min-height:220px}.auth-page-admin .auth-card::before{content:"Sapienworx Master Access"}}
+@media(max-width:480px){.auth-page-admin .auth-aside{min-height:168px}.auth-page-admin .auth-card::before{font-size:var(--font-size-lg)}}
