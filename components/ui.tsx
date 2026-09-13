@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import Image from "next/image";
 import { apiClient } from "../lib/api-client";
 import { WorkspaceLiveEvents } from "./workspace-live-events";
 import { LiveAttentionBadge, LiveEventIndicator, LivePipelineBadge, LiveUpdateNotice } from "./live-event-indicators";
@@ -91,7 +90,7 @@ export function useHydrated() {
 }
 
 export function Logo({ light = false }: { light?: boolean }) {
-  return <a className={`logo ${light ? "logo-light" : ""}`} href="/" aria-label="SapienWorx home"><Image className="logo-mark" src="/brand/sapienworx-mark.jpeg" alt="" width={36} height={36} sizes="36px" /><span>Sapien<span>worx</span></span></a>;
+  return <a className={`logo ${light ? "logo-light" : ""}`} href="/" aria-label="SapienWorx home"><span>SapienWorx</span></a>;
 }
 
 export function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "blue" | "green" | "amber" | "rose" | "purple" }) {
