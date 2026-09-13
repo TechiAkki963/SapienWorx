@@ -48,6 +48,22 @@ export type CandidateProfileDetails = {
   profile_updated_at?: string;
 };
 
+export type CandidateProfileSummary = {
+  full_name: string;
+  headline?: string;
+  email: string;
+  email_verified: boolean;
+  primary_phone?: string;
+  secondary_phone?: string;
+  current_location?: string;
+  preferred_locations: string[];
+  total_experience_months: number;
+  profile_completion: number;
+  photo_data_url?: string;
+  share_token: string;
+  profile_visible: boolean;
+};
+
 export type CandidateApplication = {
   id: string;
   stage: string;
