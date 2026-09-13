@@ -1,0 +1,5 @@
+import Link from "next/link";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { Wordmark } from "@/components/brand/wordmark";
+import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
+export function RecruiterShell({children}:{children:React.ReactNode}){return <div className="min-h-screen bg-[#f6f7fb]"><header className="border-b border-line/70 bg-white"><div className="mx-auto flex min-h-16 max-w-[100rem] items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-8"><Link href="/recruiter" aria-label="Recruiter dashboard"><Wordmark/></Link><div className="flex items-center gap-3"><Link href="/" className="hidden text-sm font-semibold text-ink-muted hover:text-ink sm:inline">Public site</Link><LogoutButton/></div></div></header><div className="mx-auto grid max-w-[100rem] gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[11rem_minmax(0,1fr)] lg:px-8 lg:py-6"><aside className="lg:sticky lg:top-6 lg:self-start"><div className="rounded-2xl border border-line/70 bg-white p-2 shadow-sm"><RecruiterNav/></div></aside><main id="main-content" className="min-w-0">{children}</main></div></div>}
