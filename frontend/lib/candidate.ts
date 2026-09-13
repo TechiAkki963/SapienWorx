@@ -35,6 +35,15 @@ export type CandidateProfile = {
   profile_completion: number;
 };
 
+export type CandidateProfileDetails = {
+  details: Record<string, unknown>;
+  current_salary_amount?: number;
+  current_salary_currency: string;
+  expected_salary_amount?: number;
+  expected_salary_currency: string;
+  cv_original_filename?: string;
+};
+
 export type CandidateApplication = {
   id: string;
   stage: string;
