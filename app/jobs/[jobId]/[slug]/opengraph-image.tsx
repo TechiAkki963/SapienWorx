@@ -1,11 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { getPublicJob } from "../../../../lib/backend";
 import { jobLocation } from "../../../../lib/job-display";
 
-export const alt = "Sapienworx job listing";
+export const alt = "SapienWorx job listing";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -17,14 +15,11 @@ function initials(value: string) {
   return value.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join("") || "SW";
 }
 
-const logoData = await readFile(join(process.cwd(), "public", "brand", "sapienworx-mark.jpeg"), "base64");
-const logoSrc = `data:image/jpeg;base64,${logoData}`;
-
 export default async function OpenGraphImage({ params }: { params: Promise<{ jobId: string; slug: string }> }) {
   const { jobId } = await params;
   const job = await getPublicJob(jobId);
   const title = compact(job?.title ?? "Career opportunity", 58);
-  const company = compact(job?.organisationName ?? "Sapienworx partner", 38);
+  const company = compact(job?.organisationName ?? "SapienWorx partner", 38);
   const location = compact(job ? jobLocation(job.location, job.workplaceModel) : "Location shared in the role", 42);
   const experience = job ? `${job.minimumExperienceYears}–${job.maximumExperienceYears} Yrs Exp` : "View role details";
   const companyInitials = initials(company);
@@ -38,12 +33,18 @@ export default async function OpenGraphImage({ params }: { params: Promise<{ job
   const domainMargin = titleLines === 3 ? 24 : titleLines === 2 ? 32 : 43;
 
   return new ImageResponse(
-    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f1ef", color: "#101010", padding: 8 }}>
+    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#f6f5f1", color: "#101010", padding: 8 }}>
       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", background: "#ffffff", border: "1px solid #e7e7e4", borderRadius: 32, padding: "72px 84px" }}>
-        <div style={{ width: 330, height: 420, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logoSrc} width={205} height={203} alt="" style={{ objectFit: "cover", borderRadius: 20 }} />
-          <div style={{ display: "flex", marginTop: 22, color: "#0d537d", fontFamily: "Arial, sans-serif", fontSize: 31, fontWeight: 800, letterSpacing: "-1.3px" }}>Sapienworx</div>
+        <div style={{ width: 330, height: 420, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "20px 0" }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", color: "#171717", fontFamily: "Arial, sans-serif", fontSize: 34, fontWeight: 700, letterSpacing: "-1.2px" }}>SapienWorx</div>
+            <div style={{ display: "flex", width: 230, marginTop: 15, color: "#66635f", fontFamily: "Arial, sans-serif", fontSize: 18, lineHeight: 1.4 }}>Human-first hiring, intelligently structured.</div>
+          </div>
+          <div style={{ width: 230, height: 230, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #b86a12", borderRadius: 120, color: "#b86a12", fontFamily: "Arial, sans-serif", fontSize: 20 }}>
+            <div style={{ width: 174, height: 174, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #b86a12", borderRadius: 100 }}>
+              <div style={{ width: 116, height: 116, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #b86a12", borderRadius: 70 }}>Human × Work</div>
+            </div>
+          </div>
         </div>
         <div style={{ width: 1, height: 410, display: "flex", background: "#202020", marginLeft: 30 }} />
         <div style={{ flex: 1, height: 410, display: "flex", flexDirection: "column", justifyContent: "center", paddingLeft: 84, fontFamily: "Georgia, serif" }}>
