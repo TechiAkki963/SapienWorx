@@ -45,16 +45,16 @@ export function AdminLoginV1() {
   return <main className="auth-page-admin-v1">
     <section className="admin-auth-layout">
       <aside className="admin-auth-aside">
-        <span className="admin-auth-kicker">Sapienworx Platform Control</span>
-        <h1>Govern with clarity.<br/>Act with evidence.</h1>
-        <p>Secure platform administration for access, compliance, investigations and operational assurance.</p>
-        <div className="admin-auth-assurance"><span>Audited access</span><span>Time-limited verification</span><span>Evidence-led administration</span></div>
+        <span className="admin-auth-kicker">SapienWorx Platform Control</span>
+        <h1>Govern access.<br/>Protect trust.</h1>
+        <p>Secure administration for identity, privacy, organisation access and evidence-led platform operations.</p>
+        <div className="admin-auth-assurance"><span>Audited administrator access</span><span>Time-limited verification</span><span>Evidence-led governance</span></div>
       </aside>
       <section className="admin-login-card" aria-busy={!hydrated}>
         <Logo />
-        <span className="eyebrow">Super admin only</span>
-        <h1>{transaction ? "Verify your identity" : "Master Access"}</h1>
-        <p>{transaction ? `Enter the six-digit verification code sent to ${email}.` : "Sign in with the approved administrator email. Every high-impact action remains auditable."}</p>
+        <span className="eyebrow">Platform access</span>
+        <h1>{transaction ? "Verify your identity" : "Administrator sign in"}</h1>
+        <p>{transaction ? `Enter the six-digit verification code sent to ${email}.` : "Verify your approved administrator email to continue. High-impact actions remain auditable."}</p>
         {!hydrated ? <p role="status">Preparing secure form…</p> : transaction ? <form onSubmit={(event) => { event.preventDefault(); void verify(); }}>
           <button className="back-link" type="button" onClick={() => { setTransaction(""); setDigits(["", "", "", "", "", ""]); setError(""); }}>← Use another email</button>
           <fieldset className="auth-otp-fieldset"><legend>Email verification code</legend><div className="auth-otp-digits" onPaste={(event) => { event.preventDefault(); pasteDigits(event.clipboardData.getData("text")); }}>{digits.map((digit, index) => <input key={index} ref={(element) => { digitRefs.current[index] = element; }} aria-label={`Verification digit ${index + 1}`} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} maxLength={1} value={digit} onChange={(event) => setDigit(index, event.target.value)} onKeyDown={(event) => { if (event.key === "Backspace" && !digits[index] && index > 0) digitRefs.current[index - 1]?.focus(); }} />)}</div><small>Enter the six-digit code sent to {email}.</small></fieldset>
@@ -62,9 +62,9 @@ export function AdminLoginV1() {
           <Button type="submit" disabled={code.length !== 6 || working}>{working ? "Verifying…" : "Verify and continue"}</Button>
           <Button variant="secondary" onClick={() => void request()} disabled={working}>Resend code</Button>
         </form> : <form onSubmit={(event) => { event.preventDefault(); void request(); }} noValidate>
-          <label className="auth-field"><span>Master email</span><input aria-label="Master email" aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? "master-email-error" : undefined} type="email" autoComplete="email" value={email} onChange={(event) => { setEmail(event.target.value); setFieldErrors((current) => ({ ...current, email: undefined })); setError(""); }} />{fieldErrors.email && <small className="auth-field-error" id="master-email-error">{fieldErrors.email}</small>}</label>
+          <label className="auth-field"><span>Admin email</span><input aria-label="Admin email" aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? "master-email-error" : undefined} type="email" autoComplete="email" value={email} onChange={(event) => { setEmail(event.target.value); setFieldErrors((current) => ({ ...current, email: undefined })); setError(""); }} />{fieldErrors.email && <small className="auth-field-error" id="master-email-error">{fieldErrors.email}</small>}</label>
           {error && <p className="workflow-error" role="alert">{error}</p>}
-          <Button type="submit" disabled={working || !email.trim()}>{working ? "Sending secure verification…" : "Continue"}</Button>
+          <Button type="submit" disabled={working || !email.trim()}>{working ? "Sending verification…" : "Send verification code"}</Button>
         </form>}
       </section>
     </section>
