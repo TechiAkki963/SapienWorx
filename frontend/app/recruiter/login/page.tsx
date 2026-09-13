@@ -1,4 +1,25 @@
 import { AuthShell } from "@/components/auth/auth-shell";
 import { LoginForm } from "@/components/auth/login-form";
 
-export default function RecruiterLoginPage() { return <AuthShell eyebrow="For recruiters" title="A focused workspace for people who hire people." description="Securely enter the recruiter workspace using your verified company account." tone="peach"><LoginForm role="recruiter" /></AuthShell>; }
+const recruiterFeatures = [
+  { title: "Run a dense hiring workspace", body: "See active roles, applications, shortlisted candidates, interviews and offers at a glance." },
+  { title: "Manage candidates in lists", body: "Use a table-first pipeline with filters and explicit stage controls — no Kanban." },
+  { title: "Schedule interviews clearly", body: "Store external meeting links, coordinate timing and keep candidate notifications connected." },
+  { title: "Keep company hiring scoped", body: "Work only with jobs, candidates and interviews belonging to your verified company account." },
+];
+
+export default function RecruiterLoginPage() {
+  return (
+    <AuthShell
+      eyebrow="Recruiter sign in"
+      panelLabel="Your hiring workspace"
+      title="A focused place for people who hire people."
+      description="Sign in to manage jobs, candidate pipelines, interview schedules and hiring activity from one verified company workspace."
+      features={recruiterFeatures}
+      image="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1500&q=88"
+      imageAlt="Recruitment team collaborating in a modern office"
+    >
+      <LoginForm role="recruiter" />
+    </AuthShell>
+  );
+}
