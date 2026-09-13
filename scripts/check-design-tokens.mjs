@@ -14,6 +14,7 @@ const inlineStyleBlock = /style\s*=\s*\{\{([\s\S]*?)\}\}/g;
 const inlineSpacingProperty = /\b(margin(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|padding(?:Top|Right|Bottom|Left|Inline|Block|InlineStart|InlineEnd|BlockStart|BlockEnd)?|gap|rowGap|columnGap)\s*:\s*(?:["'`])?(-?\d*\.?\d+)(px|rem|em)?(?:["'`])?/g;
 const runtimeProvidedVariables = new Set([
   "--font-inter",
+  "--font-source-serif-4",
   "--font-space-grotesk",
   "--font-merriweather",
   "--font-nunito-sans",
