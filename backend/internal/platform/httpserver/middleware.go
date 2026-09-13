@@ -116,18 +116,27 @@ func CORS(allowedOrigins []string) Middleware {
 	}
 }
 
-func Authenticate(tokens *auth.TokenManager) Middleware {
+func Authenticate(tokens *auth.TokenManager, accessCookieName string) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token := ""
 			header := strings.TrimSpace(r.Header.Get("Authorization"))
 			parts := strings.SplitN(header, " ", 2)
-			if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") || strings.TrimSpace(parts[1]) == "" {
-				writeError(w, r, http.StatusUnauthorized, "unauthorized", "valid bearer token required")
+			if len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") {
+				token = strings.TrimSpace(parts[1])
+			}
+			if token == "" {
+				if cookie, err := r.Cookie(accessCookieName); err == nil {
+					token = strings.TrimSpace(cookie.Value)
+				}
+			}
+			if token == "" {
+				writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
 				return
 			}
-			claims, err := tokens.Parse(strings.TrimSpace(parts[1]))
+			claims, err := tokens.Parse(token)
 			if err != nil {
-				writeError(w, r, http.StatusUnauthorized, "unauthorized", "valid bearer token required")
+				writeError(w, r, http.StatusUnauthorized, "unauthorized", "valid authentication required")
 				return
 			}
 			ctx := context.WithValue(r.Context(), claimsKey, claims)

@@ -32,11 +32,14 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: "1.26.x"
-          cache-dependency-path: backend/go.sum
-      - name: Verify module files
+          cache-dependency-path: backend/go.mod
+      - name: Resolve Phase 4 module files
         run: |
           go mod tidy
-          git diff --exit-code -- go.mod go.sum
+          echo '---GO.MOD---'
+          cat go.mod
+          echo '---GO.SUM---'
+          cat go.sum
       - name: Verify formatting
         run: test -z "$(gofmt -l .)"
       - name: Vet

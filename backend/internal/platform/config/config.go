@@ -14,6 +14,7 @@ type Config struct {
 	HTTP        HTTPConfig
 	Database    DatabaseConfig
 	Auth        AuthConfig
+	AWS         AWSConfig
 }
 
 type HTTPConfig struct {
@@ -37,16 +38,36 @@ type DatabaseConfig struct {
 }
 
 type AuthConfig struct {
-	Issuer         string
-	Audience       string
-	JWTSecret      string
-	AccessTokenTTL time.Duration
-	ClockSkew      time.Duration
+	Issuer            string
+	Audience          string
+	JWTSecret         string
+	AccessTokenTTL    time.Duration
+	RefreshTokenTTL   time.Duration
+	ClockSkew         time.Duration
+	OTPSecret         string
+	OTPTTL            time.Duration
+	OTPResendInterval time.Duration
+	CookieDomain      string
+	CookieSecure      bool
+	AccessCookieName  string
+	RefreshCookieName string
+}
+
+type AWSConfig struct {
+	Region      string
+	SNSSenderID string
+	SMSEnabled  bool
 }
 
 func Load() (Config, error) {
+	jwtSecret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
+	otpSecret := strings.TrimSpace(os.Getenv("AUTH_OTP_HMAC_SECRET"))
+	if otpSecret == "" {
+		otpSecret = jwtSecret
+	}
+	environment := env("APP_ENV", "development")
 	cfg := Config{
-		Environment: env("APP_ENV", "development"),
+		Environment: environment,
 		HTTP: HTTPConfig{
 			Address:           ":" + env("API_PORT", "8080"),
 			ReadTimeout:       durationEnv("HTTP_READ_TIMEOUT", 15*time.Second),
@@ -66,11 +87,24 @@ func Load() (Config, error) {
 			HealthTimeout:   durationEnv("DB_HEALTH_TIMEOUT", 2*time.Second),
 		},
 		Auth: AuthConfig{
-			Issuer:         env("JWT_ISSUER", "sapienworx-api"),
-			Audience:       env("JWT_AUDIENCE", "sapienworx-web"),
-			JWTSecret:      strings.TrimSpace(os.Getenv("JWT_SECRET")),
-			AccessTokenTTL: durationEnv("JWT_ACCESS_TOKEN_TTL", 15*time.Minute),
-			ClockSkew:      durationEnv("JWT_CLOCK_SKEW", 30*time.Second),
+			Issuer:            env("JWT_ISSUER", "sapienworx-api"),
+			Audience:          env("JWT_AUDIENCE", "sapienworx-web"),
+			JWTSecret:         jwtSecret,
+			AccessTokenTTL:    durationEnv("JWT_ACCESS_TOKEN_TTL", 15*time.Minute),
+			RefreshTokenTTL:   durationEnv("AUTH_REFRESH_TOKEN_TTL", 30*24*time.Hour),
+			ClockSkew:         durationEnv("JWT_CLOCK_SKEW", 30*time.Second),
+			OTPSecret:         otpSecret,
+			OTPTTL:            durationEnv("AUTH_OTP_TTL", 10*time.Minute),
+			OTPResendInterval: durationEnv("AUTH_OTP_RESEND_INTERVAL", 60*time.Second),
+			CookieDomain:      strings.TrimSpace(os.Getenv("AUTH_COOKIE_DOMAIN")),
+			CookieSecure:      boolEnv("AUTH_COOKIE_SECURE", environment == "production"),
+			AccessCookieName:  env("AUTH_ACCESS_COOKIE_NAME", "sw_access"),
+			RefreshCookieName: env("AUTH_REFRESH_COOKIE_NAME", "sw_refresh"),
+		},
+		AWS: AWSConfig{
+			Region:      env("AWS_REGION", "ap-south-1"),
+			SNSSenderID: strings.TrimSpace(os.Getenv("SNS_SENDER_ID")),
+			SMSEnabled:  boolEnv("SNS_SMS_ENABLED", false),
 		},
 	}
 
@@ -88,14 +122,26 @@ func (c Config) Validate() error {
 	if len(c.Auth.JWTSecret) < 32 {
 		problems = append(problems, "JWT_SECRET must be at least 32 bytes")
 	}
+	if len(c.Auth.OTPSecret) < 32 {
+		problems = append(problems, "AUTH_OTP_HMAC_SECRET must be at least 32 bytes or inherit a valid JWT_SECRET")
+	}
 	if c.Database.MinConns < 0 || c.Database.MaxConns < 1 || c.Database.MinConns > c.Database.MaxConns {
 		problems = append(problems, "database pool bounds are invalid")
 	}
 	if c.HTTP.MaxBodyBytes < 1024 {
 		problems = append(problems, "HTTP_MAX_BODY_BYTES must be at least 1024")
 	}
-	if c.Auth.AccessTokenTTL <= 0 {
-		problems = append(problems, "JWT_ACCESS_TOKEN_TTL must be positive")
+	if c.Auth.AccessTokenTTL <= 0 || c.Auth.RefreshTokenTTL <= 0 || c.Auth.OTPTTL <= 0 {
+		problems = append(problems, "authentication token lifetimes must be positive")
+	}
+	if c.Auth.OTPResendInterval < 10*time.Second {
+		problems = append(problems, "AUTH_OTP_RESEND_INTERVAL must be at least 10 seconds")
+	}
+	if c.Auth.AccessCookieName == "" || c.Auth.RefreshCookieName == "" {
+		problems = append(problems, "authentication cookie names are required")
+	}
+	if c.AWS.SMSEnabled && c.AWS.Region == "" {
+		problems = append(problems, "AWS_REGION is required when SNS SMS is enabled")
 	}
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "; "))
@@ -164,6 +210,18 @@ func int32Env(key string, fallback int32) int32 {
 	return int32(parsed)
 }
 
+func boolEnv(key string, fallback bool) bool {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+	parsed, err := strconv.ParseBool(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
+}
+
 func (c Config) String() string {
-	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns)
+	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d sms=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.SMSEnabled)
 }
