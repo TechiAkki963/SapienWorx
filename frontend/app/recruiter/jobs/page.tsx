@@ -1,4 +1,5 @@
-import { CreateJobForm } from "@/components/recruiter/create-job-form";
+import Link from "next/link";
+
 import { JobStatusControl } from "@/components/recruiter/job-status-control";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
@@ -20,7 +21,7 @@ export default async function RecruiterJobsPage() {
             <h1 className="mt-1.5 text-2xl font-bold tracking-[-0.04em] text-navy sm:text-[2rem]">Jobs</h1>
             <p className="mt-1 text-sm text-ink-muted">Openings, applicant volume, deadlines and publishing state in one operational list.</p>
           </div>
-          <div id="post-job"><CreateJobForm /></div>
+          <Link href="/recruiter/jobs/new" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>
         </section>
 
         {items.length ? (
@@ -47,7 +48,7 @@ export default async function RecruiterJobsPage() {
         ) : (
           <div className="rounded-2xl border border-dashed border-line bg-white p-12 text-center">
             <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-500"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-[1.8]"><rect x="3.5" y="7" width="17" height="12" rx="2" /><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" /></svg></div>
-            <h2 className="mt-3 font-bold text-ink">No jobs yet</h2><p className="mt-1 text-sm text-ink-muted">Create your first vacancy and publish it when the details are ready.</p>
+            <h2 className="mt-3 font-bold text-ink">No jobs yet</h2><p className="mt-1 text-sm text-ink-muted">Create your first vacancy and publish it when the details are ready.</p><Link href="/recruiter/jobs/new" className="mt-4 inline-flex rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">Post your first job</Link>
           </div>
         )}
       </div>
