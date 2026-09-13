@@ -14,6 +14,7 @@ type CandidateJobFilters struct {
 	Education        []string
 	MinSalary        *float64
 	MaxSalary        *float64
+	SalaryCurrency   string
 	Page             int
 	Limit            int
 }
@@ -64,6 +65,13 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 	if filters.MaxSalary != nil && *filters.MaxSalary >= 0 {
 		maxSalary = *filters.MaxSalary
 	}
+	salaryCurrency := ""
+	if minSalary >= 0 || maxSalary >= 0 {
+		salaryCurrency = strings.ToUpper(strings.TrimSpace(filters.SalaryCurrency))
+		if len(salaryCurrency) != 3 {
+			salaryCurrency = "INR"
+		}
+	}
 
 	const where = `j.status='active'
 		AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)
@@ -74,14 +82,15 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 		AND ($5 < 0 OR (j.min_experience_months <= $5 AND (j.max_experience_months IS NULL OR j.max_experience_months >= $5)))
 		AND (cardinality($6::text[]) = 0 OR j.education_requirements && $6::text[])
 		AND ($7 < 0 OR j.max_salary_amount IS NULL OR j.max_salary_amount >= $7)
-		AND ($8 < 0 OR j.min_salary_amount IS NULL OR j.min_salary_amount <= $8)`
+		AND ($8 < 0 OR j.min_salary_amount IS NULL OR j.min_salary_amount <= $8)
+		AND ($9='' OR j.salary_currency=$9)`
 
 	var total int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where, query, location, company, workMode, experienceMonths, education, minSalary, maxSalary).Scan(&total); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where, query, location, company, workMode, experienceMonths, education, minSalary, maxSalary, salaryCurrency).Scan(&total); err != nil {
 		return JobList{}, err
 	}
 
-	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY j.published_at DESC NULLS LAST,j.created_at DESC LIMIT $9 OFFSET $10`, query, location, company, workMode, experienceMonths, education, minSalary, maxSalary, filters.Limit, (filters.Page-1)*filters.Limit)
+	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY j.published_at DESC NULLS LAST,j.created_at DESC LIMIT $10 OFFSET $11`, query, location, company, workMode, experienceMonths, education, minSalary, maxSalary, salaryCurrency, filters.Limit, (filters.Page-1)*filters.Limit)
 	if err != nil {
 		return JobList{}, err
 	}
