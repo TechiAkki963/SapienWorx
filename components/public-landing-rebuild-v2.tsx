@@ -3,6 +3,7 @@ import type { PublicKnowledgePost } from "../lib/backend";
 import type { PublicJob } from "./public-site";
 import { HumanSignal } from "./human-signal";
 import styles from "./public-landing-rebuild-v2.module.css";
+import responsive from "./public-landing-responsive.module.css";
 
 type PublicLandingRebuildV2Props = {
   jobs?: PublicJob[];
@@ -31,7 +32,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${responsive.header}`}>
         <Link className={styles.wordmark} href="/" aria-label="SapienWorx home">SapienWorx</Link>
         <nav className={styles.primaryNav} aria-label="Public navigation">
           <Link href="/jobs">Find Jobs</Link>
@@ -56,7 +57,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
         </div>
       </header>
 
-      <section className={styles.hero}>
+      <section className={`${styles.hero} ${responsive.hero}`}>
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
             <span className={styles.eyebrow}>Built around your career, not a hiring workflow.</span>
@@ -79,7 +80,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
               <button type="submit">Explore Jobs</button>
             </form>
 
-            <div className={styles.candidateBenefits} aria-label="Candidate benefits">
+            <div className={responsive.candidateBenefits} aria-label="Candidate benefits">
               <span>Clear application status</span>
               <span>Profile privacy controls</span>
               <span>Relevant opportunities</span>
@@ -121,13 +122,13 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
         </div>
       </section>
 
-      <section className={styles.trust} aria-label="Why candidates use SapienWorx">
+      <section className={`${styles.trust} ${responsive.trust}`} aria-label="Why candidates use SapienWorx">
         <article><span>01</span><h2>Verified employers</h2><p>Know when an employer has completed SapienWorx verification before you engage.</p></article>
         <article><span>02</span><h2>Clear role details</h2><p>Compare skills, experience, location, and work model without digging through vague listings.</p></article>
         <article><span>03</span><h2>Application visibility</h2><p>Follow your recruitment progress without guessing where your application stands.</p></article>
       </section>
 
-      <section className={styles.section}>
+      <section className={`${styles.section} ${responsive.section}`}>
         <header className={styles.sectionHeading}>
           <div><span className={styles.eyebrow}>Verified opportunities</span><h2>Roles worth your attention.</h2><p>Current published opportunities from hiring teams using SapienWorx.</p></div>
           <Link href="/jobs">View all jobs <span aria-hidden="true">→</span></Link>
@@ -153,13 +154,13 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
       </section>
 
       {companies.length ? (
-        <section className={`${styles.section} ${styles.companySection}`}>
+        <section className={`${styles.section} ${styles.companySection} ${responsive.section}`}>
           <header className={styles.sectionHeading}><div><span className={styles.eyebrow}>Hiring companies</span><h2>Explore teams that are hiring.</h2></div><Link href="/companies">Browse companies <span aria-hidden="true">→</span></Link></header>
           <div className={styles.companyGrid}>{companies.map((job) => <Link href={`/companies/${encodeURIComponent(job.companySlug)}`} key={job.companySlug}><span className={styles.companyMark} aria-hidden="true">{job.mark}</span><span><strong>{job.company}</strong><small>{job.verifiedEmployer ? "Verified employer" : "Company profile"}</small></span><b aria-hidden="true">→</b></Link>)}</div>
         </section>
       ) : null}
 
-      <section className={styles.recruiterBand}>
+      <section className={`${styles.recruiterBand} ${responsive.recruiterBand}`}>
         <div className={styles.recruiterBandCopy}>
           <span className={styles.recruiterEyebrow}>Hiring talent?</span>
           <h2>There is a dedicated workspace for recruiters and hiring teams.</h2>
@@ -170,13 +171,13 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
       </section>
 
       {visibleArticles.length ? (
-        <section className={styles.section}>
+        <section className={`${styles.section} ${responsive.section}`}>
           <header className={styles.sectionHeading}><div><span className={styles.eyebrow}>Career resources</span><h2>Useful guidance for real career decisions.</h2></div><Link href="/knowledge">All resources <span aria-hidden="true">→</span></Link></header>
           <div className={styles.articleGrid}>{visibleArticles.map((article) => <article key={article.id}><span>{article.category}</span><h3>{article.title}</h3><p>{article.excerpt}</p><footer><small>{article.readingMinutes} min read</small><Link href={`/knowledge/${article.slug}`}>Read article <span aria-hidden="true">→</span></Link></footer></article>)}</div>
         </section>
       ) : null}
 
-      <footer className={styles.footer}>
+      <footer className={`${styles.footer} ${responsive.footer}`}>
         <div className={styles.footerBrand}><Link className={styles.footerWordmark} href="/">SapienWorx</Link><p>Human-first hiring, intelligently structured.</p></div>
         <div className={styles.footerLinks}>
           <div><strong>Candidates</strong><Link href="/jobs">Find jobs</Link><Link href="/register">Create profile</Link><Link href="/login">Sign in</Link></div>
