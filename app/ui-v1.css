@@ -13,7 +13,7 @@
   --line-strong: #cbc7be;
 
   --amber: #f2a23b;
-  --amber-deep: #b96f12;
+  --amber-deep: #a55f0d;
   --amber-ink: #3f2806;
   --amber-tint: rgba(242, 162, 59, 0.13);
 
@@ -204,6 +204,18 @@ summary,
 ::selection {
   background: var(--indigo-soft);
   color: var(--ink);
+}
+
+@media (any-pointer: coarse) {
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [role="button"],
+  [role="tab"] {
+    min-height: var(--control-height);
+  }
 }
 
 @media (max-width: 639px) {
