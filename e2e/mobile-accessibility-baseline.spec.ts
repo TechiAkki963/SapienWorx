@@ -21,7 +21,7 @@ test("mobile navigation controls remain reachable without clipping", async ({ pa
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 
-  const visibleButtons = page.getByRole("button").filter({ visible: true });
+  const visibleButtons = page.locator("button:visible");
   const count = await visibleButtons.count();
   for (let index = 0; index < Math.min(count, 8); index += 1) {
     const box = await visibleButtons.nth(index).boundingBox();
