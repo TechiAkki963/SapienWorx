@@ -16,7 +16,7 @@ SapienWorx is a candidate-first recruitment platform combining a warm, human-cen
 ```text
 SapienWorx/
 ├── frontend/               # Next.js application (Phase 3+)
-├── backend/                # Go API (Phase 2+)
+├── backend/                # Go API
 │   ├── cmd/api/
 │   └── internal/
 ├── database/               # PostgreSQL migrations and database docs
@@ -28,8 +28,8 @@ SapienWorx/
 
 ## Build phases
 
-1. **Project Initialisation & Architecture** — repository boundaries, domain model, PostgreSQL core schema.
-2. **Backend Setup (Go)** — HTTP server, database connection, JWT authentication middleware.
+1. ✅ **Project Initialisation & Architecture** — repository boundaries, domain model, PostgreSQL core schema.
+2. ✅ **Backend Setup (Go)** — HTTP server, PostgreSQL pool, health model, JWT/password primitives, middleware and CI.
 3. **Frontend Setup & Design System** — Next.js/Tailwind/Framer Motion and reusable visual primitives.
 4. **Authentication Flows** — Candidate, Recruiter, Master Admin auth plus AWS SNS verification.
 5. **Candidate Landing Page & Portal** — candidate-centric discovery/profile/application UX.
@@ -40,6 +40,6 @@ SapienWorx/
 
 No third-party APIs are permitted. AWS SNS is the only SMS provider. Video/meeting URLs are stored as user-supplied external links; SapienWorx does not integrate Google Meet, Microsoft Teams, Google Calendar, Google Auth, Twilio, or external AI APIs.
 
-## Phase 1 status
+## Phase 2 status
 
-Phase 1 establishes the architecture and initial database migration only. It intentionally does **not** implement the Go server, JWT middleware, frontend runtime, or AWS resources yet.
+The Go backend foundation is now implemented. Signup/login business flows and AWS SNS integration remain deliberately deferred to Phase 4 so the backend infrastructure can be reviewed independently first.
