@@ -13,11 +13,12 @@ type AuthShellProps = {
   title: string;
   description: string;
   children: React.ReactNode;
-  features: Feature[];
-  image: string;
-  imageAlt: string;
+  features?: Feature[];
+  image?: string;
+  imageAlt?: string;
   panelLabel?: string;
   reverseOnDesktop?: boolean;
+  tone?: "lavender" | "mint" | "peach";
 };
 
 export function AuthShell({
@@ -25,9 +26,9 @@ export function AuthShell({
   title,
   description,
   children,
-  features,
+  features = [],
   image,
-  imageAlt,
+  imageAlt = "",
   panelLabel = "A more human way to work",
   reverseOnDesktop = false,
 }: AuthShellProps) {
@@ -38,11 +39,15 @@ export function AuthShell({
           className={`${reverseOnDesktop ? "lg:order-2" : ""} relative hidden min-h-[46rem] overflow-hidden bg-[#edf5ff] lg:flex lg:flex-col lg:justify-between`}
           aria-label="SapienWorx product benefits"
         >
-          <div className="absolute inset-0">
-            <img src={image} alt={imageAlt} className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#071d49]/10 via-transparent to-[#071d49]/78" aria-hidden="true" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#071d49]/22 via-transparent to-transparent" aria-hidden="true" />
-          </div>
+          {image ? (
+            <div className="absolute inset-0">
+              <img src={image} alt={imageAlt} className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#071d49]/10 via-transparent to-[#071d49]/78" aria-hidden="true" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#071d49]/22 via-transparent to-transparent" aria-hidden="true" />
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0b67e8] via-[#0b4ba9] to-[#071d49]" aria-hidden="true" />
+          )}
 
           <div className="relative z-10 flex items-center justify-between p-8 xl:p-10">
             <Link href="/" aria-label="SapienWorx home" className="rounded-full bg-white/92 px-4 py-2 shadow-sm backdrop-blur">
@@ -62,15 +67,17 @@ export function AuthShell({
             </h1>
             <p className="mt-5 max-w-lg text-sm leading-7 text-white/76 xl:text-base">{description}</p>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-2">
-              {features.map((feature) => (
-                <div key={feature.title} className="rounded-[1.25rem] border border-white/16 bg-[#061b3a]/38 p-4 backdrop-blur-md">
-                  <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#0866ff] text-xs font-black text-white">✓</div>
-                  <h2 className="text-sm font-bold text-white">{feature.title}</h2>
-                  <p className="mt-1.5 text-xs leading-5 text-white/68">{feature.body}</p>
-                </div>
-              ))}
-            </div>
+            {features.length > 0 && (
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                {features.map((feature) => (
+                  <div key={feature.title} className="rounded-[1.25rem] border border-white/16 bg-[#061b3a]/38 p-4 backdrop-blur-md">
+                    <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-[#0866ff] text-xs font-black text-white">✓</div>
+                    <h2 className="text-sm font-bold text-white">{feature.title}</h2>
+                    <p className="mt-1.5 text-xs leading-5 text-white/68">{feature.body}</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <p className="mt-8 text-xs font-medium text-white/58">People. Work. Forward.</p>
           </div>
