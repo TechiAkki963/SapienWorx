@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Newsreader, Nunito_Sans } from "next/font/google";
+import { IBM_Plex_Mono, Inter, Source_Serif_4 } from "next/font/google";
 import "./ui-v1.css";
 import "./public-auth-v1.css";
 import "./admin-auth-v2.css";
@@ -16,20 +16,18 @@ import "./secondary-routes-canonical.css";
 import "./recruiter-secondary-canonical.css";
 import "./hiring-lifecycle.css";
 
-const nunitoSans = Nunito_Sans({
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-nunito-sans",
+  variable: "--font-inter",
   weight: ["400", "500", "600", "700"],
 });
 
-// Newsreader provides a lighter editorial rhythm for public and auth surfaces.
-// Keep the existing variable name so older token-backed CSS remains compatible.
-const editorialSerif = Newsreader({
+const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-merriweather",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-source-serif-4",
+  weight: ["400", "500", "600"],
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -48,7 +46,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${nunitoSans.variable} ${editorialSerif.variable} ${plexMono.variable}`}>
+      <body className={`${inter.variable} ${sourceSerif.variable} ${plexMono.variable}`}>
         {children}
       </body>
     </html>
