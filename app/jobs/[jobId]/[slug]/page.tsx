@@ -18,12 +18,12 @@ export async function generateMetadata({
 
   if (!job) {
     return {
-      title: "Job unavailable | Sapienworx",
+      title: "Job unavailable | SapienWorx",
       robots: { index: false, follow: false },
     };
   }
 
-  const title = `${job.title} at ${job.organisationName} | Sapienworx`;
+  const title = `${job.title} at ${job.organisationName} | SapienWorx`;
   const description = descriptionFromHtml(job.descriptionHtml) || `${job.title} role at ${job.organisationName}.`;
   const canonicalPath = job.publicPath || `/jobs/${encodeURIComponent(jobId)}/${encodeURIComponent(slug)}`;
 
@@ -36,7 +36,7 @@ export async function generateMetadata({
       title,
       description,
       url: canonicalPath,
-      siteName: "Sapienworx",
+      siteName: "SapienWorx",
       images: [{ url: `${canonicalPath}/opengraph-image`, width: 1200, height: 630, alt: `${job.title} at ${job.organisationName}` }],
     },
     twitter: { card: "summary_large_image", title, description, images: [`${canonicalPath}/opengraph-image`] },
