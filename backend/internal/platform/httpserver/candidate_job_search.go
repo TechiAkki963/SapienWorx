@@ -8,6 +8,18 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 )
 
+func optionalNonNegativeFloat(raw string) *float64 {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
+	value, err := strconv.ParseFloat(raw, 64)
+	if err != nil || value < 0 {
+		return nil
+	}
+	return &value
+}
+
 func (s *Server) candidateJobs(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
@@ -27,6 +39,8 @@ func (s *Server) candidateJobs(w http.ResponseWriter, r *http.Request) {
 		WorkMode:         r.URL.Query().Get("work_mode"),
 		ExperienceMonths: experienceMonths,
 		Education:        r.URL.Query()["education"],
+		MinSalary:        optionalNonNegativeFloat(r.URL.Query().Get("min_salary")),
+		MaxSalary:        optionalNonNegativeFloat(r.URL.Query().Get("max_salary")),
 		Page:             page,
 		Limit:            limit,
 	})
