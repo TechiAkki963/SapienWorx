@@ -35,38 +35,50 @@ function inferAutocomplete(input: HTMLInputElement) {
   return null;
 }
 
+function enhanceInput(input: HTMLInputElement) {
+  if (!input.closest(".auth-page")) return;
+
+  if (!input.autocomplete) {
+    const autocomplete = inferAutocomplete(input);
+    if (autocomplete) input.autocomplete = autocomplete;
+  }
+
+  if (!input.name && input.autocomplete && input.autocomplete !== "off") {
+    input.name = input.autocomplete.replace(/\s+/g, "-");
+  }
+}
+
 function enhanceAuthSemantics(root: ParentNode = document) {
-  const inputs = root.querySelectorAll<HTMLInputElement>(".auth-page input");
-  inputs.forEach((input) => {
-    if (!input.autocomplete) {
-      const autocomplete = inferAutocomplete(input);
-      if (autocomplete) input.autocomplete = autocomplete;
-    }
+  if (root instanceof HTMLInputElement) enhanceInput(root);
+  root.querySelectorAll<HTMLInputElement>(".auth-page input").forEach(enhanceInput);
 
-    if (!input.name && input.autocomplete && input.autocomplete !== "off") {
-      input.name = input.autocomplete.replace(/\s+/g, "-");
-    }
-  });
+  const otpGroups = root instanceof HTMLElement && root.matches(".otp-inputs")
+    ? [root]
+    : [...root.querySelectorAll<HTMLElement>(".otp-inputs")];
 
-  root.querySelectorAll<HTMLElement>(".otp-inputs").forEach((group) => {
+  otpGroups.forEach((group) => {
     const otpInputs = [...group.querySelectorAll<HTMLInputElement>("input")];
     otpInputs.forEach((input, index) => {
       input.autocomplete = index === 0 ? "one-time-code" : "off";
+      if (!input.name && index === 0) input.name = "one-time-code";
     });
   });
 }
 
 function modalBranch(dialog: HTMLElement) {
-  const siblings: HTMLElement[] = [];
+  const siblings = new Set<HTMLElement>();
   let node: HTMLElement | null = dialog;
-  while (node?.parentElement && node.parentElement !== document.body) {
+
+  while (node?.parentElement) {
     const parent = node.parentElement;
     [...parent.children].forEach((child) => {
-      if (child !== node && child instanceof HTMLElement) siblings.push(child);
+      if (child !== node && child instanceof HTMLElement) siblings.add(child);
     });
+    if (parent === document.body) break;
     node = parent;
   }
-  return siblings;
+
+  return [...siblings];
 }
 
 export function InteractionAccessibility() {
@@ -104,6 +116,8 @@ export function InteractionAccessibility() {
 
       activeDialog = dialog;
       previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      if (!dialog.hasAttribute("tabindex")) dialog.tabIndex = -1;
+
       inerted = modalBranch(dialog).map((element) => ({
         element,
         inert: element.inert,
