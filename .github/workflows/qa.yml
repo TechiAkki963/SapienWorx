@@ -73,7 +73,7 @@ jobs:
         run: nohup npm run dev -- --hostname 127.0.0.1 > /tmp/web.log 2>&1 &
       - name: Wait for application
         run: |
-          for i in {1..60}; do curl -fsS http://127.0.0.1:8080/api/v1/health && break || sleep 2; done
+          for i in {1..60}; do curl -fsS http://127.0.0.1:8080/health/ready && break || sleep 2; done
           for i in {1..60}; do curl -fsS http://127.0.0.1:3000/ >/dev/null && break || sleep 2; done
       - name: Smoke and WCAG
         working-directory: qa
@@ -84,6 +84,14 @@ jobs:
           name: qa-playwright-report
           path: qa/playwright-report/
           retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: qa-service-logs
+          path: |
+            /tmp/api.log
+            /tmp/web.log
+          retention-days: 7
 
   database-contracts:
     runs-on: ubuntu-latest
