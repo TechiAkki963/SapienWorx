@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter, Source_Serif_4 } from "next/font/google";
+import { InteractionAccessibility } from "../components/interaction-accessibility";
 import "./ui-v1.css";
 import "./public-auth-v1.css";
 import "./admin-auth-v2.css";
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${inter.variable} ${sourceSerif.variable} ${plexMono.variable}`}>
+        <InteractionAccessibility />
         {children}
       </body>
     </html>
