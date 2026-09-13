@@ -85,7 +85,7 @@ func (s *Service) Recommendations(ctx context.Context, userID string, minimumSco
 	items := make([]RecommendedJob, 0)
 	for rows.Next() {
 		var item RecommendedJob
-		if err := rows.Scan(&item.ID,&item.CompanyName,&item.Title,&item.Department,&item.Description,&item.EmploymentType,&item.WorkMode,&item.City,&item.State,&item.CountryCode,&item.MinExperienceMonths,&item.MaxExperienceMonths,&item.MinSalaryAmount,&item.MaxSalaryAmount,&item.SalaryCurrency,&item.Openings,&item.ApplicationDeadline,&item.PublishedAt,&item.RequiredSkills); err != nil {
+		if err := rows.Scan(&item.ID, &item.CompanyName, &item.Title, &item.Department, &item.Description, &item.EmploymentType, &item.WorkMode, &item.City, &item.State, &item.CountryCode, &item.MinExperienceMonths, &item.MaxExperienceMonths, &item.MinSalaryAmount, &item.MaxSalaryAmount, &item.SalaryCurrency, &item.Openings, &item.ApplicationDeadline, &item.PublishedAt, &item.RequiredSkills); err != nil {
 			return nil, err
 		}
 		matched := 0
