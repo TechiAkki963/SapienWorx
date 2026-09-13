@@ -6,11 +6,13 @@ type HumanSignalProps = {
 };
 
 export function HumanSignal({ className, title = "Human Signal" }: HumanSignalProps) {
+  const decorative = title.trim() === "";
   return (
     <svg
-      aria-label={title}
+      aria-hidden={decorative ? true : undefined}
+      aria-label={decorative ? undefined : title}
       className={cn("h-auto w-full", className)}
-      role="img"
+      role={decorative ? undefined : "img"}
       viewBox="0 0 320 320"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
