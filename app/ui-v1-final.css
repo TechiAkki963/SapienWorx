@@ -1,39 +1,12 @@
-/* Canonical SapienWorx semantic layer. Rebuild-v2 overrides were folded here so active UI has one final normalization layer. */
-:root {
-  --color-app-background: var(--paper);
-  --color-surface: var(--cloud);
-  --color-surface-subtle: color-mix(in srgb, var(--paper) 74%, var(--cloud));
-  --color-border: var(--line);
-  --color-border-strong: color-mix(in srgb, var(--ink) 24%, var(--line));
-  --color-text: var(--ink);
-  --color-text-secondary: var(--ink-soft);
-  --color-text-muted: var(--muted);
-  --color-success: var(--good);
-  --color-warning: var(--amber-deep);
-  --color-danger: var(--warn);
-  --control-height: 44px;
-  --control-height-compact: 36px;
-  --shadow-surface: 0 1px 2px color-mix(in srgb, var(--ink) 7%, transparent);
-  --shadow-dropdown: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
-  --shadow-dialog: 0 24px 64px color-mix(in srgb, var(--ink) 18%, transparent);
-  --z-content: 1;
-  --z-sticky: 20;
-  --z-dropdown: 40;
-  --z-navigation: 60;
-  --z-overlay: 80;
-  --z-dialog: 90;
-  --z-toast: 100;
-  --z-skip-link: 110;
-}
+/* SapienWorx structural shell normalization.
+   Canonical tokens, typography and interaction primitives live in ui-v1.css. */
 
-/* Cancel the old emergency overflow mask. Components must own their actual overflow. */
 html, body { max-width: none; overflow-x: visible; }
 
-:where(a, button, input, select, textarea, summary):focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .workspace-shell :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
 .public-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]),
 .auth-page :is(button,input,select,textarea,summary,[role="button"],[role="tab"]) { min-height: var(--control-height); }
-.workspace-main { min-width: 0; color: var(--color-text); }
+.workspace-main { min-width: 0; color: var(--ink); }
 .workspace-main > * { max-width: var(--content-max); }
 
 .skip-link { position: fixed; z-index: var(--z-skip-link); top: var(--space-2); left: var(--space-2); transform: translateY(-140%); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--ink); color: var(--cloud); }
@@ -52,7 +25,7 @@ html, body { max-width: none; overflow-x: visible; }
 .workspace-name > div { min-width: 0; flex: 1; display: grid; gap: var(--space-1); }
 .workspace-name small { color: var(--muted); }
 .workspace-shell-admin .workspace-name :is(small,strong) { color: var(--cloud); }
-.workspace-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--portal-accent-soft); color: var(--portal-accent-deep); font-family: var(--font-data); font-weight: 600; }
+.workspace-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: var(--radius-sm); background: var(--portal-accent-soft); color: var(--portal-accent-deep); font-family: var(--font-data); font-weight: var(--weight-semibold); }
 .workspace-shell-admin .workspace-icon { background: color-mix(in srgb,var(--cloud) 12%,transparent); color: var(--cloud); }
 .sidebar-collapse { width: var(--control-height); min-width: var(--control-height); border: 1px solid var(--line); border-radius: var(--radius-sm); background: transparent; color: inherit; }
 .sidebar-scroll { height: calc(100vh - 68px); overflow-y: auto; }
@@ -61,9 +34,6 @@ html, body { max-width: none; overflow-x: visible; }
 .recruiter-sidebar-collapsed .sidebar .nav-item { justify-content: center; padding-inline: 0; }
 .workspace-mobile-nav { display: none; }
 .workspace-access-state { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: var(--space-3); padding: var(--space-5); text-align: center; }
-
-.logo .logo-mark { display: none; }
-.logo { gap: 0; font-family: var(--font-display); font-size: var(--font-size-xl); font-weight: 700; letter-spacing: -0.035em; }
 
 .guarded-dialog-backdrop { z-index: var(--z-overlay); }
 .guarded-dialog { z-index: var(--z-dialog); box-shadow: var(--shadow-dialog); }
@@ -97,4 +67,3 @@ html, body { max-width: none; overflow-x: visible; }
   .workspace-shell-recruiter .workspace-name, .workspace-shell-admin .workspace-name { justify-content: center; padding-inline: var(--space-2); }
 }
 @media (min-width: 1440px) { .workspace-main > * { margin-inline: auto; width: min(100%, var(--content-max)); } }
-@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms; animation-iteration-count: 1; transition-duration: .01ms; scroll-behavior: auto; } }
