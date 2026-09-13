@@ -7,8 +7,8 @@ import { PublicHeader } from "@/components/site/public-header";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { getSessionUser } from "@/lib/auth-server";
-import { CandidateJob, experienceLabel, humanize, jobLocation, salaryLabel } from "@/lib/candidate";
-import { BackendResponseError, publicAPI } from "@/lib/candidate-server";
+import { CandidateApplication, CandidateJob, experienceLabel, humanize, jobLocation, salaryLabel } from "@/lib/candidate";
+import { BackendResponseError, candidateAPI, publicAPI } from "@/lib/candidate-server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +17,25 @@ type Props = { params: Promise<{ jobID: string }> };
 export default async function JobDetailPage({ params }: Props) {
   const { jobID } = await params;
   let job: CandidateJob;
-  try { job = await publicAPI<CandidateJob>(`/api/v1/jobs/${jobID}`); } catch (error) { if (error instanceof BackendResponseError && error.status === 404) notFound(); throw error; }
+  try {
+    job = await publicAPI<CandidateJob>(`/api/v1/jobs/${jobID}`);
+  } catch (error) {
+    if (error instanceof BackendResponseError && error.status === 404) notFound();
+    throw error;
+  }
+
   const session = await getSessionUser().catch(() => null);
+  let initialSaved = false;
+  let initialApplied = false;
+  if (session?.role === "candidate") {
+    const [saved, applications] = await Promise.all([
+      candidateAPI<{ items: CandidateJob[] }>("/api/v1/candidate/saved-jobs").catch(() => ({ items: [] })),
+      candidateAPI<{ items: CandidateApplication[] }>("/api/v1/candidate/applications").catch(() => ({ items: [] })),
+    ]);
+    initialSaved = saved.items.some((item) => item.id === job.id);
+    initialApplied = applications.items.some((item) => item.job_id === job.id);
+  }
+
   const salary = salaryLabel(job);
 
   return (
@@ -36,7 +53,7 @@ export default async function JobDetailPage({ params }: Props) {
               <section className="mt-8"><h2 className="text-2xl font-bold tracking-[-0.03em]">About the role</h2><div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-ink-muted">{job.description}</div></section>
             </Surface>
           </article>
-          <aside className="lg:sticky lg:top-24"><Surface className="p-5" tone="mint"><p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">Your next step</p><h2 className="mt-2 text-xl font-bold">Interested in this role?</h2><p className="mt-2 text-sm leading-6 text-ink-muted">Applications are stored once and appear immediately in your candidate tracker.</p><div className="mt-5"><JobActions jobId={job.id} isCandidate={session?.role === "candidate"} /></div></Surface></aside>
+          <aside className="lg:sticky lg:top-24"><Surface className="p-5" tone="mint"><p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">Your next step</p><h2 className="mt-2 text-xl font-bold">Interested in this role?</h2><p className="mt-2 text-sm leading-6 text-ink-muted">Applications are stored once and appear immediately in your candidate tracker.</p><div className="mt-5"><JobActions jobId={job.id} isCandidate={session?.role === "candidate"} initialSaved={initialSaved} initialApplied={initialApplied} /></div></Surface></aside>
         </div>
       </Container>
       <PublicFooter />
