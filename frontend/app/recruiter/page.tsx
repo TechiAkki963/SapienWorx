@@ -32,7 +32,7 @@ export default async function RecruiterDashboardPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href="/recruiter/jobs" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:bg-slate-50">Manage jobs</Link>
-            <Link href="/recruiter/jobs#post-job" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>
+            <Link href="/recruiter/jobs/new" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>
           </div>
         </section>
 
