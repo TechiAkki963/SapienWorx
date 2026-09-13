@@ -6,11 +6,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
 
-export function JobActions({ jobId, isCandidate }: { jobId: string; isCandidate: boolean }) {
+export function JobActions({
+  jobId,
+  isCandidate,
+  initialSaved = false,
+  initialApplied = false,
+}: {
+  jobId: string;
+  isCandidate: boolean;
+  initialSaved?: boolean;
+  initialApplied?: boolean;
+}) {
   const [message, setMessage] = useState("");
   const [applying, setApplying] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = useState(initialSaved);
+  const [applied, setApplied] = useState(initialApplied);
 
   if (!isCandidate) {
     return (
@@ -22,29 +33,38 @@ export function JobActions({ jobId, isCandidate }: { jobId: string; isCandidate:
   }
 
   async function apply() {
-    setApplying(true); setMessage("");
+    if (applied) return;
+    setApplying(true);
+    setMessage("");
     try {
       await apiRequest("/api/v1/candidate/applications", { method: "POST", body: JSON.stringify({ job_id: jobId }) });
+      setApplied(true);
       setMessage("Application added to your tracker.");
     } catch (cause) {
       setMessage(cause instanceof Error ? cause.message : "Could not apply to this role.");
-    } finally { setApplying(false); }
+    } finally {
+      setApplying(false);
+    }
   }
 
   async function save() {
-    setSaving(true); setMessage("");
+    setSaving(true);
+    setMessage("");
     try {
       await apiRequest(`/api/v1/candidate/saved-jobs/${jobId}`, { method: saved ? "DELETE" : "PUT" });
-      setSaved((current) => !current);
-      setMessage(saved ? "Removed from saved jobs." : "Saved for later.");
+      const nextSaved = !saved;
+      setSaved(nextSaved);
+      setMessage(nextSaved ? "Saved for later." : "Removed from saved jobs.");
     } catch (cause) {
       setMessage(cause instanceof Error ? cause.message : "Could not update saved jobs.");
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <div className="grid gap-3">
-      <Button size="lg" onClick={apply} disabled={applying}>{applying ? "Applying…" : "Apply now"}</Button>
+      <Button size="lg" onClick={apply} disabled={applying || applied}>{applied ? "Applied ✓" : applying ? "Applying…" : "Apply now"}</Button>
       <Button size="lg" variant="secondary" onClick={save} disabled={saving}>{saving ? "Updating…" : saved ? "Saved ✓" : "Save job"}</Button>
       {message && <p className="rounded-2xl bg-indigo-soft/45 px-4 py-3 text-sm leading-5 text-ink" role="status">{message}</p>}
     </div>
