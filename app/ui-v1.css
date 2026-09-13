@@ -88,10 +88,19 @@
 
   /* Elevation */
   --shadow-surface: 0 1px 2px color-mix(in srgb, var(--ink) 6%, transparent), 0 12px 36px color-mix(in srgb, var(--ink) 5%, transparent);
+  --shadow-dropdown: 0 12px 32px color-mix(in srgb, var(--ink) 12%, transparent);
   --shadow-dialog: 0 24px 64px color-mix(in srgb, var(--ink) 18%, transparent);
 
+  /* Focus and stacking */
   --focus: var(--indigo);
-  --z-overlay: 100;
+  --z-content: 1;
+  --z-sticky: 20;
+  --z-dropdown: 40;
+  --z-navigation: 60;
+  --z-overlay: 80;
+  --z-dialog: 90;
+  --z-toast: 100;
+  --z-skip-link: 110;
 
   --portal-accent: var(--amber);
   --portal-accent-deep: var(--amber-deep);
@@ -182,6 +191,7 @@ a,
 input,
 select,
 textarea,
+summary,
 [tabindex]:not([tabindex="-1"]) {
   outline-offset: 3px;
 }
