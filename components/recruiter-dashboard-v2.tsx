@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, WorkspaceShell } from "./ui";
+import { HumanSignal } from "./human-signal";
 import styles from "./recruiter-dashboard-v2.module.css";
 
 type RecruiterDashboardData = {
@@ -69,9 +70,9 @@ export function RecruiterDashboardV2({ initialData }: { initialData?: RecruiterD
     actions={<><Button href="/recruiter/pipeline" variant="secondary">Open pipeline</Button><Button href="/recruiter/jobs">+ Create job</Button></>}
   >
     <main className={styles.page}>
-      <section className={styles.attention}>
-        <header className={styles.sectionHeader}><div><span className="eyebrow">Priority queue</span><h2>Needs attention</h2><p>Only actionable items supported by live recruiter data are shown here.</p></div><span className={styles.attentionCount}>{attention.reduce((sum, item) => sum + item.value, 0)} items</span></header>
-        {attention.length ? <div className={styles.attentionGrid}>{attention.map((item) => <a href={item.href} key={item.label} className={styles.attentionCard}><strong>{item.value}</strong><div><b>{item.label}</b><span>{item.detail}</span></div><i>→</i></a>)}</div> : <div className={styles.clearState}><strong>No urgent recruiter actions.</strong><p>Your current application, interview, offer and job-draft queues are clear.</p></div>}
+      <section className={styles.attention} aria-labelledby="recruiter-priority-heading">
+        <header className={styles.sectionHeader}><div><span className="eyebrow">Priority queue</span><h2 id="recruiter-priority-heading">Needs attention</h2><p>Only actionable items supported by live recruiter data are shown here.</p></div><span className={styles.attentionCount}>{attention.reduce((sum, item) => sum + item.value, 0)} items</span></header>
+        {attention.length ? <div className={styles.attentionGrid}>{attention.map((item) => <a href={item.href} key={item.label} className={styles.attentionCard}><strong>{item.value}</strong><div><b>{item.label}</b><span>{item.detail}</span></div><i aria-hidden="true">→</i></a>)}</div> : <div className={styles.clearState}><div><strong>Priority queue is clear.</strong><p>No applications, interviews, offers or drafts currently need urgent action.</p></div><HumanSignal tone="recruiter" compact className={styles.clearSignal} /></div>}
       </section>
 
       <section className={styles.metricStrip} aria-label="Recruitment operations summary">
@@ -84,14 +85,14 @@ export function RecruiterDashboardV2({ initialData }: { initialData?: RecruiterD
       <div className={styles.mainGrid}>
         <section className={styles.panel}>
           <header className={styles.panelHeader}><div><span className="eyebrow">Pipeline</span><h2>Stage distribution</h2></div><a href="/recruiter/pipeline">Open table →</a></header>
-          <div className={styles.stageList}>{stages.map(([label, value], index) => <div className={styles.stageRow} key={label}><span className={styles.stageIndex}>{index + 1}</span><span className={styles.stageName}>{label}</span><div className={styles.stageBar}><i style={{ width: `${activeApplications ? Math.max(4, Math.round((value / activeApplications) * 100)) : 0}%` }} /></div><strong>{value}</strong></div>)}</div>
+          <div className={styles.stageList}>{stages.map(([label, value], index) => <div className={styles.stageRow} key={label}><span className={styles.stageIndex}>{index + 1}</span><span className={styles.stageName}>{label}</span><div className={styles.stageBar} aria-hidden="true"><i style={{ width: `${activeApplications ? Math.max(4, Math.round((value / activeApplications) * 100)) : 0}%` }} /></div><strong>{value}</strong></div>)}</div>
           <footer className={styles.panelFooter}><span><b>{activeApplications}</b> active applications</span><span><b>{interviewing + finalStage}</b> in conversation</span><span><b>{onboarded}</b> hires</span></footer>
         </section>
 
         <aside className={styles.aside}>
           <section className={styles.panel}>
             <header className={styles.panelHeader}><div><span className="eyebrow">Calendar</span><h2>Upcoming interviews</h2></div><a href="/recruiter/interviews">Manage →</a></header>
-            <div className={styles.interviewList}>{upcomingInterviews.length ? upcomingInterviews.slice(0, 6).map((interview) => <article key={`${interview.candidateName}-${interview.scheduledAt}`}><time>{formatInterviewTime(interview.scheduledAt)}</time><div><strong>{interview.candidateName}</strong><span>{interview.jobTitle}</span></div><small>{isHttps(interview.meetingLink) ? interview.platformName : "Meeting link required"}</small></article>) : <div className={styles.emptyMini}><strong>No upcoming interviews.</strong><span>Scheduled interviews will appear here.</span></div>}</div>
+            <div className={styles.interviewList}>{upcomingInterviews.length ? upcomingInterviews.slice(0, 6).map((interview) => <article key={`${interview.candidateName}-${interview.scheduledAt}`}><time>{formatInterviewTime(interview.scheduledAt)}</time><div><strong>{interview.candidateName}</strong><span>{interview.jobTitle}</span></div><small className={!isHttps(interview.meetingLink) ? styles.needsAction : undefined}>{isHttps(interview.meetingLink) ? interview.platformName : "Meeting link required"}</small></article>) : <div className={styles.emptyMini}><strong>No upcoming interviews.</strong><span>Scheduled interviews will appear here.</span></div>}</div>
           </section>
 
           <section className={styles.panel}>
