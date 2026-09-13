@@ -1,0 +1,40 @@
+name: Visual recovery smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "components/**"
+      - "e2e/visual-walkthrough.spec.ts"
+      - ".github/workflows/visual-recovery-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: visual-recovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  critical-screens:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_LOCAL_DEMO: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Render critical screens
+        run: >-
+          npx playwright test e2e/visual-walkthrough.spec.ts --project=chromium
+          --grep "walkthrough (public-home|candidate-login|candidate-register|candidate-home|recruiter-login|recruiter-home|recruiter-pipeline|admin-control-centre)$"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sapienworx-visual-recovery-${{ github.run_id }}
+          path: artifacts/walkthrough/
+          retention-days: 14
+          if-no-files-found: error
