@@ -46,6 +46,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      {/* Sapienworx uses a text-only product wordmark; no image brand mark is loaded globally. */}
       <body className={`${inter.variable} ${sourceSerif.variable} ${plexMono.variable}`}>
         {children}
       </body>
