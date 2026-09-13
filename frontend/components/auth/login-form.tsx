@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,11 @@ import { apiRequest } from "@/lib/api";
 
 type Role = "candidate" | "recruiter" | "master_admin";
 
-export function LoginForm({ role }: { role: Role }) {
+export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string }) {
   const router = useRouter();
-  const params = useSearchParams();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const requested = params.get("next");
-  const safeNext = requested?.startsWith("/") && !requested.startsWith("//") ? requested : null;
-  const destination = role === "candidate" ? safeNext ?? "/candidate" : role === "recruiter" ? "/recruiter" : "/_admin";
+  const destination = role === "candidate" ? nextPath ?? "/candidate" : role === "recruiter" ? "/recruiter" : "/_admin";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
