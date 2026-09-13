@@ -60,7 +60,10 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 	in.Skills = cleanList(in.Skills)
 	in.HiringProcess = cleanList(in.HiringProcess)
 
-	if in.Title == "" || in.Description == "" || in.Responsibilities == "" || !validEnum(in.EmploymentType, "full_time", "part_time", "contract", "internship", "temporary") || !validEnum(in.WorkMode, "onsite", "hybrid", "remote") || in.MinExperienceYears < 0 || len(in.Skills) == 0 {
+	if in.Title == "" || !validEnum(in.EmploymentType, "full_time", "part_time", "contract", "internship", "temporary") || !validEnum(in.WorkMode, "onsite", "hybrid", "remote") || in.MinExperienceYears < 0 {
+		return Job{}, ErrInvalid
+	}
+	if in.Publish && (in.Description == "" || in.Responsibilities == "" || len(in.Skills) == 0 || len(in.HiringProcess) < 3) {
 		return Job{}, ErrInvalid
 	}
 	if in.MaxExperienceYears != nil && *in.MaxExperienceYears < in.MinExperienceYears {
@@ -79,6 +82,10 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 	status := "draft"
 	if in.Publish {
 		status = "active"
+	}
+	description := in.Description
+	if description == "" {
+		description = "Draft role details pending."
 	}
 	minMonths := in.MinExperienceYears * 12
 	var maxMonths any
@@ -109,7 +116,7 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 		$1,$2,$3,lower(regexp_replace($3,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),'IN',
 		$9,$10,$11,$12,'INR',1,$13::job_status,CASE WHEN $13='active' THEN now() ELSE NULL END,
 		$14,NULLIF($15,''),NULLIF($16,''),NULLIF($17,''),NULLIF($18,''),$19
-	) RETURNING id`, companyID, userID, in.Title, in.Department, in.Description, in.EmploymentType, in.WorkMode, in.Location, minMonths, maxMonths, minSalary, maxSalary, status, in.Skills, in.RoleCategory, in.Responsibilities, in.CompanyOverview, in.WhyJoin, in.HiringProcess).Scan(&id)
+	) RETURNING id`, companyID, userID, in.Title, in.Department, description, in.EmploymentType, in.WorkMode, in.Location, minMonths, maxMonths, minSalary, maxSalary, status, in.Skills, in.RoleCategory, in.Responsibilities, in.CompanyOverview, in.WhyJoin, in.HiringProcess).Scan(&id)
 	if err != nil {
 		return Job{}, err
 	}
