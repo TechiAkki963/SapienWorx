@@ -41,6 +41,7 @@ func (s *Server) candidateJobs(w http.ResponseWriter, r *http.Request) {
 		Education:        r.URL.Query()["education"],
 		MinSalary:        optionalNonNegativeFloat(r.URL.Query().Get("min_salary")),
 		MaxSalary:        optionalNonNegativeFloat(r.URL.Query().Get("max_salary")),
+		SalaryCurrency:   r.URL.Query().Get("salary_currency"),
 		Page:             page,
 		Limit:            limit,
 	})
