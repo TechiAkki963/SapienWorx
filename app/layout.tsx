@@ -15,6 +15,8 @@ import "./auth-greenhouse-qa.css";
 import "./secondary-routes-canonical.css";
 import "./recruiter-secondary-canonical.css";
 import "./hiring-lifecycle.css";
+// Final typography authority: Source Serif 4 for display hierarchy, Inter for functional UI.
+import "./typography-enforcement.css";
 
 const inter = Inter({
   subsets: ["latin"],
