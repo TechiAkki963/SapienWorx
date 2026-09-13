@@ -14,6 +14,7 @@ import "./auth-canonical.css";
 import "./secondary-routes-canonical.css";
 import "./recruiter-secondary-canonical.css";
 import "./hiring-lifecycle.css";
+import "./human-signal-refresh.css";
 
 const inter = Inter({
   subsets: ["latin"],
