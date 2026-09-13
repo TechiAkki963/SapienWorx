@@ -4,7 +4,7 @@ SapienWorx is a candidate-first recruitment platform combining a warm, human-cen
 
 ## Target stack
 
-- **Frontend:** Next.js App Router + TypeScript + Tailwind CSS + Framer Motion
+- **Frontend:** Next.js App Router + TypeScript + Tailwind CSS + Motion
 - **Backend:** Go REST API
 - **Database:** PostgreSQL
 - **Storage:** Amazon S3
@@ -15,7 +15,7 @@ SapienWorx is a candidate-first recruitment platform combining a warm, human-cen
 
 ```text
 SapienWorx/
-├── frontend/               # Next.js application (Phase 3+)
+├── frontend/               # Next.js application
 ├── backend/                # Go API
 │   ├── cmd/api/
 │   └── internal/
@@ -30,9 +30,9 @@ SapienWorx/
 
 1. ✅ **Project Initialisation & Architecture** — repository boundaries, domain model, PostgreSQL core schema.
 2. ✅ **Backend Setup (Go)** — HTTP server, PostgreSQL pool, health model, JWT/password primitives, middleware and CI.
-3. **Frontend Setup & Design System** — Next.js/Tailwind/Framer Motion and reusable visual primitives.
-4. **Authentication Flows** — Candidate, Recruiter, Master Admin auth plus AWS SNS verification.
-5. **Candidate Landing Page & Portal** — candidate-centric discovery/profile/application UX.
+3. ✅ **Frontend Setup & Design System** — responsive tokens, human-signal branding and shared primitives.
+4. ✅ **Authentication Flows** — Candidate, Recruiter, Master Admin auth plus AWS SNS verification.
+5. ✅ **Candidate Landing Page & Portal** — public discovery, profile, saved jobs, notifications and application tracking.
 6. **Recruiter Dashboard** — dense sourcing, job and application-management workspace.
 7. **AWS Deployment Strategy** — budget-aware production deployment.
 
@@ -40,6 +40,6 @@ SapienWorx/
 
 No third-party APIs are permitted. AWS SNS is the only SMS provider. Video/meeting URLs are stored as user-supplied external links; SapienWorx does not integrate Google Meet, Microsoft Teams, Google Calendar, Google Auth, Twilio, or external AI APIs.
 
-## Phase 2 status
+## Current product boundary
 
-The Go backend foundation is now implemented. Signup/login business flows and AWS SNS integration remain deliberately deferred to Phase 4 so the backend infrastructure can be reviewed independently first.
+Phase 5 recommendations are deterministic and use location plus recency only. No AI model or external AI service is connected. Candidate applications are table/list-first rather than Kanban. Resume storage/parsing, semantic matching and recruiter workflow mutations remain future-phase work.

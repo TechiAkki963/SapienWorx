@@ -1,6 +1,33 @@
-import { LogoutButton } from "@/components/auth/logout-button";
-import { Wordmark } from "@/components/brand/wordmark";
-import { Surface } from "@/components/ui/surface";
-import { requireRole } from "@/lib/auth-server";
+import Link from "next/link";
 
-export default async function CandidateProtectedPage() { const user = await requireRole("candidate"); return <main className="mx-auto min-h-screen max-w-5xl px-5 py-8"><div className="flex items-center justify-between"><Wordmark/><LogoutButton/></div><Surface tone="mint" className="mt-12 p-8 sm:p-10"><p className="text-sm font-semibold text-indigo">Candidate session active</p><h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-ink">Welcome to your protected candidate space.</h1><p className="mt-4 max-w-2xl text-ink-muted">Authentication is complete for user {user.id}. The full candidate dashboard, job discovery and application experience arrive in Phase 5.</p></Surface></main>; }
+import { JobCard } from "@/components/candidate/job-card";
+import { WorkspaceError } from "@/components/candidate/workspace-error";
+import { Button } from "@/components/ui/button";
+import { Surface } from "@/components/ui/surface";
+import { CandidateDashboard, stageLabel } from "@/lib/candidate";
+import { candidateAPI } from "@/lib/candidate-server";
+
+export default async function CandidateDashboardPage() {
+  let dashboard: CandidateDashboard;
+  try { dashboard = await candidateAPI<CandidateDashboard>("/api/v1/candidate/dashboard"); } catch { return <WorkspaceError />; }
+  const firstName = dashboard.profile.full_name.split(" ")[0] || "there";
+  const metrics = [["Applications", dashboard.application_count], ["Interviews", dashboard.interview_count], ["Offers", dashboard.offer_count], ["Saved jobs", dashboard.saved_count]] as const;
+
+  return (
+    <div className="grid gap-6">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_18rem]">
+        <Surface className="p-6 sm:p-8" tone="lavender"><p className="text-sm font-bold text-indigo">Candidate workspace</p><h1 className="mt-2 text-4xl font-bold tracking-[-0.045em] text-ink">Good to see you, {firstName}.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-ink-muted">Your search, applications and profile progress are in one place. Recommended roles below use location and recency only — no opaque AI score.</p><div className="mt-6 flex flex-wrap gap-3"><Button href="/jobs">Find jobs</Button><Button href="/candidate/profile" variant="secondary">Improve profile</Button></div></Surface>
+        <Surface className="p-5" tone="mint"><div className="flex items-end justify-between"><p className="text-sm font-semibold">Profile strength</p><strong className="text-2xl text-indigo">{dashboard.profile.profile_completion}%</strong></div><div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-indigo" style={{ width: `${dashboard.profile.profile_completion}%` }} /></div><p className="mt-4 text-sm leading-6 text-ink-muted">Add a headline, location, experience and notice period to help recruiters understand your context.</p><Link className="mt-4 inline-block text-sm font-bold text-indigo hover:underline" href="/candidate/profile">Edit profile →</Link></Surface>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Candidate metrics">{metrics.map(([label,value]) => <Surface className="p-5" key={label}><p className="text-sm font-semibold text-ink-muted">{label}</p><p className="mt-2 text-3xl font-bold tracking-tight text-ink">{value}</p></Surface>)}</section>
+
+      <section><div className="flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-ink">Recommended</p><h2 className="mt-2 text-2xl font-bold tracking-[-0.03em]">Roles worth a look</h2></div><Button href="/jobs" variant="ghost" size="sm">View all</Button></div>{dashboard.recommended_jobs.length ? <div className="mt-4 grid gap-4 xl:grid-cols-2">{dashboard.recommended_jobs.map((job) => <JobCard job={job} key={job.id} compact />)}</div> : <Surface className="mt-4 p-6" tone="mint"><p className="font-bold">No active jobs to recommend yet.</p><p className="mt-1 text-sm text-ink-muted">Published recruiter jobs will appear here automatically.</p></Surface>}</section>
+
+      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <section><div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-ink">Recent activity</p><h2 className="mt-2 text-2xl font-bold">Applications</h2></div><Button href="/candidate/applications" variant="ghost" size="sm">Open tracker</Button></div><Surface className="mt-4 overflow-hidden">{dashboard.recent_applications.length ? <div className="divide-y divide-line/60">{dashboard.recent_applications.map((app) => <div className="flex items-center justify-between gap-4 p-4" key={app.id}><div className="min-w-0"><p className="truncate font-bold">{app.job_title}</p><p className="mt-1 truncate text-sm text-ink-muted">{app.company_name}</p></div><span className="shrink-0 rounded-full bg-indigo-soft/60 px-3 py-1 text-xs font-bold text-violet-ink">{stageLabel(app.stage)}</span></div>)}</div> : <div className="p-6 text-sm text-ink-muted">You haven’t applied to a role yet.</div>}</Surface></section>
+        <section><div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-ink">Inbox</p><h2 className="mt-2 text-2xl font-bold">Notifications</h2></div><Button href="/candidate/notifications" variant="ghost" size="sm">View all</Button></div><Surface className="mt-4 overflow-hidden">{dashboard.notifications.length ? <div className="divide-y divide-line/60">{dashboard.notifications.map((note) => <div className="p-4" key={note.id}><div className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${note.read_at ? "bg-line" : "bg-indigo"}`} /><p className="font-bold">{note.title}</p></div><p className="mt-1 pl-4 text-sm leading-5 text-ink-muted">{note.body}</p></div>)}</div> : <div className="p-6 text-sm text-ink-muted">No notifications yet.</div>}</Surface></section>
+      </div>
+    </div>
+  );
+}

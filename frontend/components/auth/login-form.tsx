@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,19 +12,30 @@ type Role = "candidate" | "recruiter" | "master_admin";
 
 export function LoginForm({ role }: { role: Role }) {
   const router = useRouter();
+  const params = useSearchParams();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const destination = role === "candidate" ? "/candidate" : role === "recruiter" ? "/recruiter" : "/_admin";
+  const requested = params.get("next");
+  const safeNext = requested?.startsWith("/") && !requested.startsWith("//") ? requested : null;
+  const destination = role === "candidate" ? safeNext ?? "/candidate" : role === "recruiter" ? "/recruiter" : "/_admin";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(""); setPending(true);
+    setError("");
+    setPending(true);
     const data = new FormData(event.currentTarget);
     try {
-      await apiRequest("/api/v1/auth/login", { method: "POST", body: JSON.stringify({ email: data.get("email"), password: data.get("password"), role }) });
-      router.replace(destination); router.refresh();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Login failed."); }
-    finally { setPending(false); }
+      await apiRequest("/api/v1/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email: data.get("email"), password: data.get("password"), role }),
+      });
+      router.replace(destination);
+      router.refresh();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Login failed.");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
