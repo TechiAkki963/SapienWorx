@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Merriweather, Nunito_Sans } from "next/font/google";
+import { IBM_Plex_Mono, Newsreader, Nunito_Sans } from "next/font/google";
 import "./ui-v1.css";
 import "./public-auth-v1.css";
 import "./admin-auth-v2.css";
@@ -23,11 +23,13 @@ const nunitoSans = Nunito_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
-const merriweather = Merriweather({
+// Newsreader provides a lighter editorial rhythm for public and auth surfaces.
+// Keep the existing variable name so older token-backed CSS remains compatible.
+const editorialSerif = Newsreader({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-merriweather",
-  weight: ["400", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${nunitoSans.variable} ${merriweather.variable} ${plexMono.variable}`}>
+      <body className={`${nunitoSans.variable} ${editorialSerif.variable} ${plexMono.variable}`}>
         {children}
       </body>
     </html>
