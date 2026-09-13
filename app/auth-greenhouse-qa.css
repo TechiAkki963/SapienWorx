@@ -1,12 +1,46 @@
-.auth-page-admin{--portal-accent:var(--indigo);--portal-accent-deep:var(--indigo-deep);--portal-accent-soft:var(--indigo-soft);--auth-panel-bg:color-mix(in srgb,var(--ink) 88%,var(--indigo-deep));--auth-panel-fg:var(--cloud)}
+.auth-page-admin{--portal-accent:var(--indigo);--portal-accent-deep:var(--indigo-deep);--portal-accent-soft:var(--indigo-soft);--auth-panel-bg:color-mix(in srgb,var(--ink) 92%,var(--indigo-deep));--auth-panel-fg:var(--cloud)}
 .auth-page-admin .auth-card::before{content:"Sapienworx Master Access"}
-.auth-page-admin .auth-aside h1 em{color:color-mix(in srgb,var(--indigo) 58%,var(--cloud))}
 .auth-page-admin .auth-field input:focus,.auth-page-admin .auth-field select:focus,.auth-page-admin .auth-field textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px var(--indigo-soft)}
 .auth-page-admin .button-primary,.auth-page-admin .button.primary{background:var(--ink);border-color:var(--ink);color:var(--cloud)}
 .auth-page-admin .button-secondary,.auth-page-admin .button.secondary{background:var(--cloud);border-color:var(--line-strong);color:var(--ink)}
 .auth-page-admin .auth-microcopy{max-width:500px;color:var(--muted);font-size:var(--font-size-sm);line-height:var(--line-height-relaxed)}
 .auth-page-admin .consent-error,.auth-page-admin .workflow-error{max-width:500px}
 .auth-page-admin .auth-field input[inputmode="numeric"]{font-family:var(--font-data);letter-spacing:.16em}
-@media(min-width:761px){.portal-candidate .auth-layout,.portal-recruiter .auth-layout,.auth-page-admin .auth-layout{align-items:stretch}.portal-candidate .auth-aside,.portal-recruiter .auth-aside,.auth-page-admin .auth-aside{position:sticky;top:0;height:100vh;min-height:100vh;align-self:start}.portal-candidate .auth-card,.portal-recruiter .auth-card,.auth-page-admin .auth-card{align-self:start;margin-block:auto}.portal-candidate .auth-layout:has(.candidate-onboarding-grid) .auth-card,.portal-recruiter .auth-layout:has(.candidate-onboarding-grid) .auth-card{margin-block:var(--space-7)}}
-@media(max-width:760px){.auth-page-admin .auth-aside{min-height:220px}.auth-page-admin .auth-card::before{content:"Sapienworx Master Access"}}
-@media(max-width:480px){.auth-page-admin .auth-aside{min-height:168px}.auth-page-admin .auth-card::before{font-size:var(--font-size-lg)}}
+
+@media(min-width:761px){
+.portal-candidate .auth-layout,.portal-recruiter .auth-layout,.auth-page-admin .auth-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;min-height:100vh}
+.portal-candidate .auth-aside,.portal-recruiter .auth-aside,.auth-page-admin .auth-aside{order:1;position:sticky;top:0;height:100vh;min-height:100vh;align-self:start;padding:var(--space-8);justify-content:flex-start}
+.portal-candidate .auth-card,.portal-recruiter .auth-card,.auth-page-admin .auth-card{order:2;align-self:center;justify-self:center;width:min(100%,560px);margin:0;padding:var(--space-8) var(--space-7)}
+.portal-candidate .auth-layout:has(.candidate-onboarding-grid) .auth-card,.portal-recruiter .auth-layout:has(.candidate-onboarding-grid) .auth-card{align-self:start;margin-block:var(--space-7)}
+.auth-aside h1{max-width:520px;margin-top:var(--space-5);color:var(--cloud)}
+.auth-aside h1 em{color:color-mix(in srgb,var(--cloud) 88%,var(--portal-accent));font-style:normal}
+.auth-aside>p{max-width:500px;color:color-mix(in srgb,var(--cloud) 82%,transparent)}
+.auth-aside::before{left:auto;right:8%;top:auto;bottom:18%;width:min(48%,420px);opacity:.9}
+.auth-aside::after{left:auto;right:15%;top:auto;bottom:23%;width:min(32%,280px);opacity:.72}
+.auth-aside>ul,.auth-benefits{max-width:440px;margin-top:auto;color:var(--cloud);background:color-mix(in srgb,var(--cloud) 9%,transparent);border-color:color-mix(in srgb,var(--cloud) 22%,transparent)}
+.portal-candidate .auth-aside{--auth-panel-bg:color-mix(in srgb,var(--amber-ink) 82%,var(--ink))}
+.portal-recruiter .auth-aside{--auth-panel-bg:color-mix(in srgb,var(--indigo-deep) 88%,var(--ink))}
+}
+
+@media(max-width:980px) and (min-width:761px){
+.portal-candidate .auth-aside,.portal-recruiter .auth-aside,.auth-page-admin .auth-aside{padding:var(--space-7)}
+.portal-candidate .auth-card,.portal-recruiter .auth-card,.auth-page-admin .auth-card{padding:var(--space-7) var(--space-6)}
+.auth-aside h1{font-size:var(--font-size-3xl)}
+}
+
+@media(max-width:760px){
+.auth-layout{grid-template-columns:1fr}
+.auth-aside{order:1;min-height:210px;padding:var(--space-5)}
+.auth-card{order:2;width:100%;padding:var(--space-6) var(--space-5)}
+.auth-aside h1{max-width:70%;color:var(--cloud)}
+.auth-aside h1 em{color:var(--cloud)}
+.auth-aside::before{left:auto;right:var(--space-4);top:auto;bottom:var(--space-4);width:150px;opacity:.72}
+.auth-aside::after{left:auto;right:48px;top:auto;bottom:32px;width:92px;opacity:.58}
+.auth-page-admin .auth-card::before{content:"Sapienworx Master Access"}
+}
+
+@media(max-width:480px){
+.auth-aside{min-height:168px;padding:var(--space-4)}
+.auth-card{padding:var(--space-5) var(--space-4)}
+.auth-card::before,.auth-page-admin .auth-card::before{font-size:var(--font-size-lg)}
+}
