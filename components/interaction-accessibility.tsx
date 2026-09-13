@@ -38,13 +38,17 @@ function inferAutocomplete(input: HTMLInputElement) {
 function enhanceInput(input: HTMLInputElement) {
   if (!input.closest(".auth-page")) return;
 
-  if (!input.autocomplete) {
-    const autocomplete = inferAutocomplete(input);
-    if (autocomplete) input.autocomplete = autocomplete;
+  let autocomplete = input.getAttribute("autocomplete") ?? "";
+  if (!autocomplete) {
+    const inferred = inferAutocomplete(input);
+    if (inferred) {
+      input.setAttribute("autocomplete", inferred);
+      autocomplete = inferred;
+    }
   }
 
-  if (!input.name && input.autocomplete && input.autocomplete !== "off") {
-    input.name = input.autocomplete.replace(/\s+/g, "-");
+  if (!input.name && autocomplete && autocomplete !== "off") {
+    input.name = autocomplete.replace(/\s+/g, "-");
   }
 }
 
@@ -59,7 +63,7 @@ function enhanceAuthSemantics(root: ParentNode = document) {
   otpGroups.forEach((group) => {
     const otpInputs = [...group.querySelectorAll<HTMLInputElement>("input")];
     otpInputs.forEach((input, index) => {
-      input.autocomplete = index === 0 ? "one-time-code" : "off";
+      input.setAttribute("autocomplete", index === 0 ? "one-time-code" : "off");
       if (!input.name && index === 0) input.name = "one-time-code";
     });
   });
@@ -70,12 +74,12 @@ function modalBranch(dialog: HTMLElement) {
   let node: HTMLElement | null = dialog;
 
   while (node?.parentElement) {
-    const parent = node.parentElement;
-    [...parent.children].forEach((child) => {
+    const parentElement: HTMLElement = node.parentElement;
+    [...parentElement.children].forEach((child) => {
       if (child !== node && child instanceof HTMLElement) siblings.add(child);
     });
-    if (parent === document.body) break;
-    node = parent;
+    if (parentElement === document.body) break;
+    node = parentElement;
   }
 
   return [...siblings];
