@@ -13,7 +13,7 @@ on:
       - ".github/workflows/backend-ci.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: backend-${{ github.workflow }}-${{ github.ref }}
@@ -32,23 +32,13 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: "1.26.x"
-          cache-dependency-path: backend/go.mod
-      - name: Normalize Phase 4 backend
+          cache-dependency-path: backend/go.sum
+      - name: Verify module files
         run: |
           go mod tidy
-          gofmt -w .
-      - name: Commit normalized backend
-        if: github.event_name == 'push'
-        working-directory: .
-        run: |
-          if git diff --quiet; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add backend/go.mod backend/go.sum backend
-          git commit -m "Phase 4: normalize Go modules and formatting"
-          git push
+          git diff --exit-code -- go.mod go.sum
+      - name: Verify formatting
+        run: test -z "$(gofmt -l .)"
       - name: Vet
         run: go vet ./...
       - name: Test
