@@ -1,0 +1,84 @@
+name: UI Review
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/ui-review.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+      - name: Typecheck
+        working-directory: frontend
+        run: npm run typecheck
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+      - name: Install browser
+        working-directory: frontend
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start production frontend
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:8080
+        run: nohup npm run start -- --hostname 127.0.0.1 > /tmp/ui-web.log 2>&1 &
+      - name: Wait for frontend
+        run: |
+          ready=0
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then ready=1; break; fi
+            sleep 2
+          done
+          test "$ready" = 1
+      - name: Capture desktop and mobile visual review
+        working-directory: frontend
+        run: |
+          mkdir -p ui-review
+          node <<'NODE'
+          const { chromium } = require('@playwright/test');
+          (async () => {
+            const browser = await chromium.launch();
+            const pages = ['/', '/login', '/signup'];
+            const viewports = [
+              ['desktop', { width: 1440, height: 1000 }],
+              ['mobile', { width: 390, height: 844 }],
+            ];
+            for (const [label, viewport] of viewports) {
+              const context = await browser.newContext({ viewport });
+              for (const route of pages) {
+                const page = await context.newPage();
+                await page.goto(`http://127.0.0.1:3000${route}`, { waitUntil: 'networkidle' });
+                await page.screenshot({ path: `ui-review/${route === '/' ? 'home' : route.slice(1)}-${label}.png`, fullPage: true, animations: 'disabled' });
+                await page.close();
+              }
+              await context.close();
+            }
+            await browser.close();
+          })();
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-review-screenshots
+          path: frontend/ui-review/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-review-log
+          path: /tmp/ui-web.log
+          retention-days: 7
