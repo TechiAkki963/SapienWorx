@@ -39,7 +39,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
           <Link href="/knowledge">Career Resources</Link>
         </nav>
         <div className={styles.headerActions}>
-          <Link className={styles.recruiterEntry} href="/recruiters">For Recruiters</Link>
+          <Link className={styles.recruiterEntry} href="/recruiters">Hiring talent?</Link>
           <Link className={styles.signIn} href="/login">Sign In</Link>
           <Link className={styles.candidateCta} href="/register">Create Profile</Link>
           <details className={styles.mobileMenu}>
@@ -48,9 +48,9 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
               <Link href="/jobs">Find Jobs</Link>
               <Link href="/companies">Companies</Link>
               <Link href="/knowledge">Career Resources</Link>
-              <Link href="/recruiters">For Recruiters</Link>
-              <Link href="/login">Sign In</Link>
+              <Link href="/login">Candidate Sign In</Link>
               <Link href="/register">Create Profile</Link>
+              <Link href="/recruiters">Hiring talent? Recruiter Portal</Link>
             </nav>
           </details>
         </div>
@@ -59,9 +59,9 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
       <section className={styles.hero}>
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
-            <span className={styles.eyebrow}>Human-first hiring, intelligently structured.</span>
-            <h1>Where people and work <em>connect with clarity.</em></h1>
-            <p>SapienWorx brings candidates, employers, and structured hiring workflows into one trusted place—from discovery to decision.</p>
+            <span className={styles.eyebrow}>Built around your career, not a hiring workflow.</span>
+            <h1>Your next chapter <em>is closer than you think.</em></h1>
+            <p>Discover meaningful opportunities, show what you can do, and stay in control of your profile while SapienWorx keeps every step clear.</p>
 
             <form className={styles.search} action="/jobs" method="get" aria-label="Search jobs">
               <label className={styles.searchField}>
@@ -76,21 +76,27 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
                 <span>Location</span>
                 <input name="location" placeholder="City or location" />
               </label>
-              <button type="submit">Search Jobs</button>
+              <button type="submit">Explore Jobs</button>
             </form>
 
+            <div className={styles.candidateBenefits} aria-label="Candidate benefits">
+              <span>Clear application status</span>
+              <span>Profile privacy controls</span>
+              <span>Relevant opportunities</span>
+            </div>
+
             <div className={styles.heroActions}>
-              <Link className={styles.secondaryAction} href="/register">Create my profile</Link>
+              <Link className={styles.secondaryAction} href="/register">Build Your Profile</Link>
               <Link className={styles.inlineAction} href="/jobs">Browse all jobs <span aria-hidden="true">→</span></Link>
             </div>
-            <p className={styles.privacyNote}><span aria-hidden="true">✓</span> Your profile visibility and contact preferences stay under your control.</p>
+            <p className={styles.privacyNote}><span aria-hidden="true">✓</span> You decide how visible your profile is and how employers can contact you.</p>
           </div>
 
-          <div className={styles.heroVisual} aria-label="Human potential connected to structured opportunities">
+          <div className={styles.heroVisual} aria-label="Candidate opportunities connected through the SapienWorx Human Signal">
             <HumanSignal tone="candidate" className={styles.heroSignal} />
             <aside className={styles.heroPreview} aria-label="Current opportunities">
               <div className={styles.previewHeading}>
-                <span>Current opportunities</span>
+                <span>Opportunities for you</span>
                 <strong>{jobs.length ? `${jobs.length}+ roles` : "Published roles"}</strong>
               </div>
               {heroJobs.length ? (
@@ -116,9 +122,9 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
       </section>
 
       <section className={styles.trust} aria-label="Why candidates use SapienWorx">
-        <article><span>01</span><h2>Verified employers</h2><p>Trust signals are shown only when employer verification is available.</p></article>
-        <article><span>02</span><h2>Clear requirements</h2><p>Search uses explicit job criteria such as skills, experience, and location.</p></article>
-        <article><span>03</span><h2>Application visibility</h2><p>Follow recruitment progress without guessing where your application stands.</p></article>
+        <article><span>01</span><h2>Verified employers</h2><p>Know when an employer has completed SapienWorx verification before you engage.</p></article>
+        <article><span>02</span><h2>Clear role details</h2><p>Compare skills, experience, location, and work model without digging through vague listings.</p></article>
+        <article><span>03</span><h2>Application visibility</h2><p>Follow your recruitment progress without guessing where your application stands.</p></article>
       </section>
 
       <section className={styles.section}>
@@ -155,10 +161,10 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
 
       <section className={styles.recruiterBand}>
         <div className={styles.recruiterBandCopy}>
-          <span className={styles.recruiterEyebrow}>For hiring teams</span>
-          <h2>Human judgment. Better systems. Stronger hiring.</h2>
-          <p>Source, review, interview, and decide in one structured workspace designed to keep people—not process noise—at the center.</p>
-          <Link className={styles.recruiterCta} href="/recruiters">Explore recruiter workspace</Link>
+          <span className={styles.recruiterEyebrow}>Hiring talent?</span>
+          <h2>There is a dedicated workspace for recruiters and hiring teams.</h2>
+          <p>Source, review, interview, and decide in a structured hiring workspace without changing the candidate-first experience on the public site.</p>
+          <Link className={styles.recruiterCta} href="/recruiters">Go to Recruiter Portal</Link>
         </div>
         <HumanSignal tone="recruiter" className={styles.recruiterSignal}/>
       </section>
