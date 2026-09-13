@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { ProfileForm } from "@/components/candidate/profile-form";
-import { CandidateProfile, CandidateProfileDetails } from "@/lib/candidate";
+import { ProfileSummaryCard } from "@/components/candidate/profile-summary-card";
+import { CandidateProfile, CandidateProfileDetails, CandidateProfileSummary } from "@/lib/candidate";
 
 function formatDateTime(value?: string) {
   if (!value) return "Not recorded yet";
@@ -15,7 +17,8 @@ function formatDateTime(value?: string) {
   }).format(date);
 }
 
-export function ProfileEditor({ profile, extended }: { profile: CandidateProfile; extended: CandidateProfileDetails }) {
+export function ProfileEditor({ profile, extended, summary }: { profile: CandidateProfile; extended: CandidateProfileDetails; summary: CandidateProfileSummary }) {
+  const router = useRouter();
   const initiallySaved = Object.keys(extended.details ?? {}).length > 0;
   const [saved, setSaved] = useState(initiallySaved);
   const [editing, setEditing] = useState(!initiallySaved);
@@ -25,20 +28,31 @@ export function ProfileEditor({ profile, extended }: { profile: CandidateProfile
     const root = wrapperRef.current;
     if (!root) return;
 
+    const experienceInput = root.querySelector<HTMLInputElement>('input[name="total_experience_months"]');
+    if (experienceInput) {
+      experienceInput.readOnly = true;
+      experienceInput.setAttribute("aria-readonly", "true");
+      experienceInput.title = "Calculated automatically from employment history";
+      experienceInput.classList.add("bg-canvas", "cursor-not-allowed");
+    }
+
     const observer = new MutationObserver(() => {
       if (root.textContent?.includes("Profile details saved.")) {
         setSaved(true);
         setEditing(false);
+        router.refresh();
       }
     });
 
     observer.observe(root, { childList: true, subtree: true, characterData: true });
     return () => observer.disconnect();
-  }, []);
+  }, [editing, router]);
 
   return (
     <div className="grid gap-5" ref={wrapperRef}>
-      <section className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6">
+      <ProfileSummaryCard summary={summary} extended={extended} editing={editing} />
+
+      <section className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6 print:hidden">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -73,7 +87,7 @@ export function ProfileEditor({ profile, extended }: { profile: CandidateProfile
         {saved && !editing && <p className="mt-4 text-xs leading-5 text-ink-muted">Your saved profile is read-only. Select Edit profile to make changes.</p>}
       </section>
 
-      <fieldset disabled={!editing} className={!editing ? "opacity-[0.92]" : undefined}>
+      <fieldset disabled={!editing} className={`${!editing ? "opacity-[0.92]" : ""} [&>form>section:first-of-type]:hidden print:opacity-100`}>
         <ProfileForm profile={profile} extended={extended} />
       </fieldset>
     </div>
