@@ -56,7 +56,9 @@ export function Button(props: ButtonProps) {
     );
   }
 
-  const { className: _className, children: _children, size: _size, variant: _variant, ...nativeProps } = props as NativeButtonProps;
+  const { className: _className, children: _children, size: _size, variant: _variant, ...nativeProps } =
+    props as NativeButtonProps;
+
   return (
     <button className={styles} {...nativeProps}>
       {children}
