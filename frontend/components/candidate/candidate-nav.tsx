@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 
 const items = [
   ["Overview", "/candidate"],
-  ["Find jobs", "/jobs"],
+  ["Find jobs", "/candidate/jobs"],
   ["Applications", "/candidate/applications"],
   ["Saved", "/candidate/saved"],
   ["Profile", "/candidate/profile"],
