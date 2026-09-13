@@ -1,21 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #fbfaf7;
+  --color-canvas: #f8fbff;
   --color-surface: #ffffff;
-  --color-ink: #23233b;
-  --color-ink-muted: #69697d;
-  --color-line: #e8e5ee;
-  --color-indigo: #665ee8;
-  --color-indigo-soft: #dedcff;
-  --color-lavender: #ece7ff;
-  --color-mint: #dff5e9;
-  --color-mint-strong: #bce9d2;
-  --color-peach: #ffe4d6;
-  --color-peach-strong: #ffc7ad;
-  --color-violet-ink: #423d91;
-  --shadow-soft: 0 18px 50px rgb(45 43 72 / 0.09);
-  --shadow-card: 0 10px 30px rgb(45 43 72 / 0.10);
+  --color-ink: #10213f;
+  --color-ink-muted: #66758f;
+  --color-line: #dce6f2;
+  --color-indigo: #0866ff;
+  --color-indigo-soft: #eaf3ff;
+  --color-lavender: #edf5ff;
+  --color-mint: #e9f8f2;
+  --color-mint-strong: #cbeee0;
+  --color-peach: #fff0e8;
+  --color-peach-strong: #ffd5c0;
+  --color-violet-ink: #114fba;
+  --color-navy: #071d49;
+  --color-meta-blue: #0866ff;
+  --shadow-soft: 0 22px 60px rgb(10 44 92 / 0.09);
+  --shadow-card: 0 12px 34px rgb(10 44 92 / 0.10);
   --radius-soft: 1.25rem;
   --radius-panel: 1.75rem;
 }
@@ -40,8 +42,8 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 8% 0%, rgb(236 231 255 / 0.9), transparent 31rem),
-    radial-gradient(circle at 92% 14%, rgb(223 245 233 / 0.78), transparent 28rem),
+    radial-gradient(circle at 8% 0%, rgb(234 243 255 / 0.95), transparent 32rem),
+    radial-gradient(circle at 94% 16%, rgb(232 247 255 / 0.86), transparent 30rem),
     var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans-stack);
@@ -51,7 +53,7 @@ body {
 
 ::selection {
   background: var(--color-indigo-soft);
-  color: var(--color-ink);
+  color: var(--color-navy);
 }
 
 button,
@@ -68,7 +70,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid rgb(102 94 232 / 0.35);
+  outline: 3px solid rgb(8 102 255 / 0.28);
   outline-offset: 3px;
 }
 
@@ -79,7 +81,7 @@ a {
   z-index: 100;
   transform: translateY(-200%);
   border-radius: 999px;
-  background: var(--color-ink);
+  background: var(--color-navy);
   color: white;
   padding: 0.75rem 1rem;
   transition: transform 160ms ease;
@@ -91,13 +93,32 @@ a {
 
 .human-grid {
   background-image:
-    linear-gradient(rgb(102 94 232 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(102 94 232 / 0.055) 1px, transparent 1px);
-  background-size: 26px 26px;
+    linear-gradient(rgb(8 102 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(8 102 255 / 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 .organic-mask {
   clip-path: polygon(8% 18%, 28% 5%, 63% 2%, 88% 17%, 98% 48%, 88% 80%, 62% 97%, 30% 92%, 5% 72%, 0 42%);
+}
+
+.hero-human {
+  animation: hero-float 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-orbit {
+  animation: orbit-drift 8s ease-in-out infinite;
+}
+
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes orbit-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  50% { transform: translate3d(8px, -6px, 0) rotate(1deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
