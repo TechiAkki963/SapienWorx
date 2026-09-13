@@ -17,6 +17,8 @@ export type CandidateJob = {
   openings: number;
   application_deadline?: string;
   published_at?: string;
+  required_skills?: string[];
+  match_score?: number;
 };
 
 export type JobList = { items: CandidateJob[]; page: number; limit: number; total: number };
@@ -43,7 +45,7 @@ export type CandidateProfileDetails = {
   expected_salary_currency: string;
   cv_original_filename?: string;
   last_active_at?: string;
-  profile_updated_at: string;
+  profile_updated_at?: string;
 };
 
 export type CandidateApplication = {
