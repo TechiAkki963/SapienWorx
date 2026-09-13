@@ -1,0 +1,30 @@
+{
+  "info": {"name":"SapienWorx API QA","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
+  "variable": [
+    {"key":"baseUrl","value":"http://localhost:8080"},
+    {"key":"recruiterJwt","value":""},
+    {"key":"candidateJwt","value":""},
+    {"key":"jobId","value":"qa-job"},
+    {"key":"candidateId","value":"1"}
+  ],
+  "item": [
+    {"name":"Health","request":{"method":"GET","url":"{{baseUrl}}/api/v1/health"},"event":[{"listen":"test","script":{"exec":["pm.test('200',()=>pm.response.to.have.status(200));","pm.test('healthy',()=>pm.expect(pm.response.json().status).to.be.oneOf(['ok','healthy','up']));"]}}]},
+    {"name":"Jobs","item":[
+      {"name":"Create job","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{recruiterJwt}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"title\":\"QA Go Engineer\",\"location\":\"Mumbai\",\"openings\":1}"},"url":"{{baseUrl}}/api/v1/jobs"},"event":[{"listen":"test","script":{"exec":["pm.test('created',()=>pm.expect(pm.response.code).to.be.oneOf([200,201]));","if(pm.response.code<300){const j=pm.response.json(); pm.collectionVariables.set('jobId', j.id || j.data?.id);}"]}}]},
+      {"name":"List jobs","request":{"method":"GET","url":"{{baseUrl}}/api/v1/jobs?limit=10&offset=0"},"event":[{"listen":"test","script":{"exec":["pm.test('200',()=>pm.response.to.have.status(200));"]}}]},
+      {"name":"Update job","request":{"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{recruiterJwt}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"title\":\"QA Senior Go Engineer\"}"},"url":"{{baseUrl}}/api/v1/jobs/{{jobId}}"}},
+      {"name":"Delete job","request":{"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{recruiterJwt}}"}],"url":"{{baseUrl}}/api/v1/jobs/{{jobId}}"}},
+      {"name":"Invalid method -> 405","request":{"method":"PUT","url":"{{baseUrl}}/api/v1/jobs"},"event":[{"listen":"test","script":{"exec":["pm.test('405',()=>pm.expect(pm.response.code).to.be.oneOf([405,404]));"]}}]}
+    ]},
+    {"name":"Candidates","item":[
+      {"name":"Paginated list","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{recruiterJwt}}"}],"url":"{{baseUrl}}/api/v1/candidates?limit=10&offset=0"},"event":[{"listen":"test","script":{"exec":["pm.test('200',()=>pm.response.to.have.status(200));","const j=pm.response.json(); const a=j.data||j.items||[]; pm.test('max 10',()=>pm.expect(a.length).to.be.at.most(10));"]}}]},
+      {"name":"Malformed JSON -> 400","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":"},"url":"{{baseUrl}}/api/v1/candidates"},"event":[{"listen":"test","script":{"exec":["pm.test('400',()=>pm.expect(pm.response.code).to.be.oneOf([400,401]));"]}}]},
+      {"name":"Invalid email -> 400","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"name\":\"QA\",\"email\":\"bad-email\"}"},"url":"{{baseUrl}}/api/v1/candidates"},"event":[{"listen":"test","script":{"exec":["pm.test('400',()=>pm.expect(pm.response.code).to.be.oneOf([400,401]));"]}}]}
+    ]},
+    {"name":"Security","item":[
+      {"name":"Candidate blocked from recruiter route","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{candidateJwt}}"}],"url":"{{baseUrl}}/api/v1/recruiter/dashboard"},"event":[{"listen":"test","script":{"exec":["pm.test('403',()=>pm.response.to.have.status(403));"]}}]},
+      {"name":"SQLi job title","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{recruiterJwt}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"title\":\"'; DROP TABLE candidates;--\",\"location\":\"Mumbai\"}"},"url":"{{baseUrl}}/api/v1/jobs"},"event":[{"listen":"test","script":{"exec":["pm.test('never 5xx',()=>pm.expect(pm.response.code).to.be.below(500));"]}}]},
+      {"name":"XSS job title","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{recruiterJwt}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"title\":\"<script>alert(1)</script>\",\"location\":\"Mumbai\"}"},"url":"{{baseUrl}}/api/v1/jobs"},"event":[{"listen":"test","script":{"exec":["pm.test('never 5xx',()=>pm.expect(pm.response.code).to.be.below(500));"]}}]}
+    ]}
+  ]
+}
