@@ -10,7 +10,6 @@ import "./complete-v1.css";
 import "./ui-v1-final.css";
 import "./canonical-redesign.css";
 import "./auth-canonical.css";
-import "./auth-greenhouse-qa.css";
 import "./secondary-routes-canonical.css";
 import "./recruiter-secondary-canonical.css";
 import "./hiring-lifecycle.css";
@@ -38,8 +37,8 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SAPIENWORX_PUBLIC_SITE_URL ?? "https://www.sapienworx.com"),
-  title: "Sapienworx | Recruitment that works",
-  description: "A candidate-first recruitment workspace for modern hiring teams.",
+  title: "SapienWorx | Human-first hiring, intelligently structured",
+  description: "SapienWorx connects people, employers and structured hiring workflows in one human-first recruitment platform.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
