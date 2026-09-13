@@ -74,6 +74,13 @@ type JobInput struct {
 	Publish             bool    `json:"publish"`
 }
 
+type PipelineList struct {
+	Items []PipelineRow `json:"items"`
+	Page  int           `json:"page"`
+	Limit int           `json:"limit"`
+	Total int           `json:"total"`
+}
+
 type PipelineRow struct {
 	ApplicationID    string    `json:"application_id"`
 	CandidateID      string    `json:"candidate_id"`
@@ -247,12 +254,42 @@ func (s *Service) SetJobStatus(ctx context.Context, userID, jobID, status string
 	return nil
 }
 
-func (s *Service) Pipeline(ctx context.Context, userID, q, stage, jobID string, limit int) ([]PipelineRow, error) {
+func (s *Service) Pipeline(ctx context.Context, userID, q, stage, jobID string, page, limit int) (PipelineList, error) {
 	companyID, _, _, err := s.recruiterCompany(ctx, userID)
 	if err != nil {
-		return nil, err
+		return PipelineList{}, err
 	}
-	return s.pipeline(ctx, companyID, q, stage, jobID, limit)
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 50 {
+		limit = 10
+	}
+	q = strings.TrimSpace(q)
+	stage = strings.TrimSpace(stage)
+	jobID = strings.TrimSpace(jobID)
+	var total int
+	err = s.db.QueryRow(ctx, `SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id WHERE j.company_id=$1 AND ($2='' OR cp.full_name ILIKE '%'||$2||'%' OR COALESCE(cp.headline,'') ILIKE '%'||$2||'%') AND ($3='' OR a.stage::text=$3) AND ($4='' OR j.id::text=$4)`, companyID, q, stage, jobID).Scan(&total)
+	if err != nil {
+		return PipelineList{}, err
+	}
+	rows, err := s.db.Query(ctx, `SELECT a.id,cp.user_id,cp.full_name,cp.headline,cp.current_city,cp.total_experience_months,cp.notice_period_days,j.id,j.title,a.stage::text,a.applied_at,a.updated_at FROM applications a JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id WHERE j.company_id=$1 AND ($2='' OR cp.full_name ILIKE '%'||$2||'%' OR COALESCE(cp.headline,'') ILIKE '%'||$2||'%') AND ($3='' OR a.stage::text=$3) AND ($4='' OR j.id::text=$4) ORDER BY a.updated_at DESC LIMIT $5 OFFSET $6`, companyID, q, stage, jobID, limit, (page-1)*limit)
+	if err != nil {
+		return PipelineList{}, err
+	}
+	defer rows.Close()
+	items := make([]PipelineRow, 0)
+	for rows.Next() {
+		var row PipelineRow
+		if err := rows.Scan(&row.ApplicationID, &row.CandidateID, &row.CandidateName, &row.Headline, &row.City, &row.ExperienceMonths, &row.NoticePeriodDays, &row.JobID, &row.JobTitle, &row.Stage, &row.AppliedAt, &row.UpdatedAt); err != nil {
+			return PipelineList{}, err
+		}
+		items = append(items, row)
+	}
+	if err := rows.Err(); err != nil {
+		return PipelineList{}, err
+	}
+	return PipelineList{Items: items, Page: page, Limit: limit, Total: total}, nil
 }
 func (s *Service) pipeline(ctx context.Context, companyID, q, stage, jobID string, limit int) ([]PipelineRow, error) {
 	if limit < 1 || limit > 100 {
@@ -281,14 +318,24 @@ func (s *Service) UpdateStage(ctx context.Context, userID, applicationID, stage 
 	if err != nil {
 		return err
 	}
-	tag, err := s.db.Exec(ctx, `UPDATE applications a SET stage=$3::application_stage FROM jobs j WHERE a.id=$1 AND j.id=a.job_id AND j.company_id=$2`, applicationID, companyID, stage)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	if tag.RowsAffected() == 0 {
+	defer tx.Rollback(ctx)
+	var candidateID string
+	err = tx.QueryRow(ctx, `UPDATE applications a SET stage=$3::application_stage FROM jobs j WHERE a.id=$1 AND j.id=a.job_id AND j.company_id=$2 RETURNING a.candidate_id`, applicationID, companyID, stage).Scan(&candidateID)
+	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
-	return nil
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'application_stage','Application status updated',$2,'/candidate/applications')`, candidateID, "Your application moved to "+strings.ReplaceAll(stage, "_", " ")+".")
+	if err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func (s *Service) Interviews(ctx context.Context, userID string) ([]Interview, error) {
@@ -326,12 +373,29 @@ func (s *Service) ScheduleInterview(ctx context.Context, userID string, in Inter
 	if err != nil {
 		return Interview{}, err
 	}
-	var id string
-	err = s.db.QueryRow(ctx, `INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,notes) SELECT a.id,$2,$3,$4,$5,NULLIF($6,'') FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND j.company_id=$7 RETURNING id`, in.ApplicationID, userID, in.ScheduledAt, in.DurationMinutes, strings.TrimSpace(in.MeetingURL), strings.TrimSpace(in.Notes), companyID).Scan(&id)
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return Interview{}, err
+	}
+	defer tx.Rollback(ctx)
+	var candidateID string
+	err = tx.QueryRow(ctx, `SELECT a.candidate_id FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND j.company_id=$2`, in.ApplicationID, companyID).Scan(&candidateID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Interview{}, ErrNotFound
 	}
 	if err != nil {
+		return Interview{}, err
+	}
+	var id string
+	err = tx.QueryRow(ctx, `INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,notes) VALUES($1,$2,$3,$4,$5,NULLIF($6,'')) RETURNING id`, in.ApplicationID, userID, in.ScheduledAt, in.DurationMinutes, strings.TrimSpace(in.MeetingURL), strings.TrimSpace(in.Notes)).Scan(&id)
+	if err != nil {
+		return Interview{}, err
+	}
+	_, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'interview','Interview scheduled',$2,$3)`, candidateID, "An interview has been scheduled. Open the meeting link at the scheduled time.", strings.TrimSpace(in.MeetingURL))
+	if err != nil {
+		return Interview{}, err
+	}
+	if err := tx.Commit(ctx); err != nil {
 		return Interview{}, err
 	}
 	items, err := s.Interviews(ctx, userID)

@@ -43,6 +43,7 @@ export type PipelineRow = {
   applied_at: string;
   updated_at: string;
 };
+export type PipelineList = { items: PipelineRow[]; page: number; limit: number; total: number };
 export type Interview = {
   id: string;
   application_id: string;

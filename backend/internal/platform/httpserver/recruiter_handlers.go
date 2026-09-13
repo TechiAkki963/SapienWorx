@@ -76,13 +76,14 @@ func (s *Server) recruiterPipeline(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	items, err := s.recruiter.Pipeline(r.Context(), id, r.URL.Query().Get("q"), r.URL.Query().Get("stage"), r.URL.Query().Get("job_id"), limit)
+	result, err := s.recruiter.Pipeline(r.Context(), id, r.URL.Query().Get("q"), r.URL.Query().Get("stage"), r.URL.Query().Get("job_id"), page, limit)
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+	writeJSON(w, http.StatusOK, result)
 }
 
 func (s *Server) recruiterApplicationStage(w http.ResponseWriter, r *http.Request) {
