@@ -86,6 +86,19 @@ func (s *Server) recruiterPipeline(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
+func (s *Server) recruiterCandidateDetail(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	result, err := s.recruiter.CandidateDetail(r.Context(), id, r.PathValue("candidateID"))
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
 func (s *Server) recruiterApplicationStage(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
 	if !ok {
@@ -138,6 +151,6 @@ func (s *Server) writeRecruiterError(w http.ResponseWriter, r *http.Request, err
 		writeError(w, r, http.StatusBadRequest, "validation_error", "invalid recruiter workspace input")
 	default:
 		s.logger.Error("recruiter operation failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
-		writeError(w, r, http.StatusInternalServerError, "internal_error", "recruiter operation could not be completed")
+		writeError(w, r, http.StatusInternalServerError, "internal_error", "recruiter operation failed")
 	}
 }
