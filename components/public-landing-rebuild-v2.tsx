@@ -114,7 +114,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
         <div className={styles.jobGrid}>{visibleJobs.map((job) => <Link href={jobHref(job)} className={styles.jobCard} key={job.id}><div><span>{job.company}</span>{job.verifiedEmployer ? <b>✓ Verified</b> : null}</div><h3>{job.title}</h3><p>{jobLocation(job)} · {job.experience}</p><div className={styles.tags}>{job.tags.slice(0, 4).map((tag) => <span key={tag}>{tag}</span>)}</div><strong>View role →</strong></Link>)}</div>
       </section> : null}
 
-      <section className={styles.recruiterBand}>
+      <section className={`${styles.recruiterBand} human-signal-recruiter-band`}>
         <div><span className={styles.eyebrow}>Hiring talent?</span><h2>See the people signal behind every hire.</h2><p>A dedicated workspace for recruiters, consultants, and hiring teams to source, evaluate, collaborate, and decide with more context.</p><Link className={styles.lightAction} href="/recruiters">Go to Recruiter Portal</Link></div>
         <div className={styles.recruiterVisual}><HumanPortrait role="recruiter"/><div className={styles.pipelineCard}><span>Hiring pipeline</span><strong>248</strong><small>Applications</small><strong>64</strong><small>Shortlisted</small></div></div>
       </section>
