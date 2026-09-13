@@ -17,6 +17,8 @@ import "./recruiter-secondary-canonical.css";
 import "./hiring-lifecycle.css";
 // Final typography authority: Source Serif 4 for display hierarchy, Inter for functional UI.
 import "./typography-enforcement.css";
+// Final landing-page authority for approved hero/search/recruiter-band presentation.
+import "./landing-final-overrides.css";
 
 const inter = Inter({
   subsets: ["latin"],
