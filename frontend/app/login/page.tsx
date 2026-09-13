@@ -9,8 +9,28 @@ function safeInternalPath(value: string | string[] | undefined): string | undefi
   return candidate;
 }
 
+const candidateFeatures = [
+  { title: "Discover relevant roles", body: "Search by title, skill, location and experience without losing context." },
+  { title: "Track every application", body: "See each application in a clear stage-based list from submission onward." },
+  { title: "Save what matters", body: "Keep promising jobs in one place and return to them when you are ready." },
+  { title: "Build your candidate story", body: "Maintain a profile that gives recruiters useful context beyond the résumé." },
+];
+
 export default async function CandidateLoginPage({ searchParams }: Props) {
   const params = await searchParams;
   const nextPath = safeInternalPath(params.next);
-  return <AuthShell eyebrow="For candidates" title="Your next opportunity starts with a human signal." description="Access saved jobs, applications and the candidate experience from one secure account." tone="lavender"><LoginForm role="candidate" nextPath={nextPath} /></AuthShell>;
+
+  return (
+    <AuthShell
+      eyebrow="Candidate sign in"
+      panelLabel="Your career, in one place"
+      title="Pick up where your next opportunity left off."
+      description="Sign in to continue your job search, review saved opportunities, follow application progress and keep your profile current."
+      features={candidateFeatures}
+      image="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1500&q=88"
+      imageAlt="Professional woman smiling in a bright workspace"
+    >
+      <LoginForm role="candidate" nextPath={nextPath} />
+    </AuthShell>
+  );
 }
