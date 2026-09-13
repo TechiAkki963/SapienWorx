@@ -14,49 +14,10 @@ import (
 )
 
 type fakeDB struct{ err error }
-
 func (f fakeDB) Ping(context.Context) error { return f.err }
 
-func testConfig() config.Config {
-	return config.Config{
-		HTTP: config.HTTPConfig{
-			Address:           ":0",
-			ReadTimeout:       time.Second,
-			ReadHeaderTimeout: time.Second,
-			WriteTimeout:      time.Second,
-			IdleTimeout:       time.Second,
-			AllowedOrigins:    []string{"http://localhost:3000"},
-			MaxBodyBytes:      1024,
-		},
-		Database: config.DatabaseConfig{HealthTimeout: time.Second},
-	}
-}
+func testConfig() config.Config { return config.Config{HTTP:config.HTTPConfig{Address:":0",ReadTimeout:time.Second,ReadHeaderTimeout:time.Second,WriteTimeout:time.Second,IdleTimeout:time.Second,AllowedOrigins:[]string{"http://localhost:3000"},MaxBodyBytes:1024},Database:config.DatabaseConfig{HealthTimeout:time.Second},Auth:config.AuthConfig{AccessCookieName:"sw_access",RefreshCookieName:"sw_refresh"}} }
+func testTokens(t *testing.T)*auth.TokenManager{t.Helper();manager,err:=auth.NewTokenManager("01234567890123456789012345678901","issuer","audience",15*time.Minute,30*time.Second);if err!=nil{t.Fatal(err)};return manager}
 
-func testTokens(t *testing.T) *auth.TokenManager {
-	t.Helper()
-	manager, err := auth.NewTokenManager("01234567890123456789012345678901", "issuer", "audience", 15*time.Minute, 30*time.Second)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return manager
-}
-
-func TestReadinessFailsWhenDatabaseFails(t *testing.T) {
-	server := New(testConfig(), fakeDB{err: errors.New("down")}, testTokens(t), slog.Default())
-	req := httptest.NewRequest(http.MethodGet, "/health/ready", nil)
-	res := httptest.NewRecorder()
-	server.http.Handler.ServeHTTP(res, req)
-	if res.Code != http.StatusServiceUnavailable {
-		t.Fatalf("status = %d, want %d", res.Code, http.StatusServiceUnavailable)
-	}
-}
-
-func TestProtectedEndpointRejectsMissingToken(t *testing.T) {
-	server := New(testConfig(), fakeDB{}, testTokens(t), slog.Default())
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/me", nil)
-	res := httptest.NewRecorder()
-	server.http.Handler.ServeHTTP(res, req)
-	if res.Code != http.StatusUnauthorized {
-		t.Fatalf("status = %d, want %d", res.Code, http.StatusUnauthorized)
-	}
-}
+func TestReadinessFailsWhenDatabaseFails(t *testing.T){server:=New(testConfig(),fakeDB{err:errors.New("down")},testTokens(t),nil,slog.Default());req:=httptest.NewRequest(http.MethodGet,"/health/ready",nil);res:=httptest.NewRecorder();server.http.Handler.ServeHTTP(res,req);if res.Code!=http.StatusServiceUnavailable{t.Fatalf("status = %d, want %d",res.Code,http.StatusServiceUnavailable)}}
+func TestProtectedEndpointRejectsMissingToken(t *testing.T){server:=New(testConfig(),fakeDB{},testTokens(t),nil,slog.Default());req:=httptest.NewRequest(http.MethodGet,"/api/v1/auth/me",nil);res:=httptest.NewRecorder();server.http.Handler.ServeHTTP(res,req);if res.Code!=http.StatusUnauthorized{t.Fatalf("status = %d, want %d",res.Code,http.StatusUnauthorized)}}
