@@ -55,11 +55,12 @@ type JobList struct {
 }
 
 type JobFilters struct {
-	Query    string
-	Location string
-	WorkMode string
-	Page     int
-	Limit    int
+	Query            string
+	Location         string
+	WorkMode         string
+	ExperienceMonths *int
+	Page             int
+	Limit            int
 }
 
 type Profile struct {
@@ -163,18 +164,24 @@ func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, er
 		workMode = ""
 	}
 
+	experienceMonths := -1
+	if filters.ExperienceMonths != nil && *filters.ExperienceMonths >= 0 {
+		experienceMonths = *filters.ExperienceMonths
+	}
+
 	const where = `j.status='active'
 		AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)
 		AND ($1='' OR j.title ILIKE '%'||$1||'%' OR j.description ILIKE '%'||$1||'%' OR c.display_name ILIKE '%'||$1||'%')
 		AND ($2='' OR COALESCE(j.city,'') ILIKE '%'||$2||'%' OR COALESCE(j.state,'') ILIKE '%'||$2||'%')
-		AND ($3='' OR j.work_mode::text=$3)`
+		AND ($3='' OR j.work_mode::text=$3)
+		AND ($4 < 0 OR (j.min_experience_months <= $4 AND (j.max_experience_months IS NULL OR j.max_experience_months >= $4)))`
 
 	var total int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where, query, location, workMode).Scan(&total); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where, query, location, workMode, experienceMonths).Scan(&total); err != nil {
 		return JobList{}, err
 	}
 
-	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY j.published_at DESC NULLS LAST,j.created_at DESC LIMIT $4 OFFSET $5`, query, location, workMode, filters.Limit, (filters.Page-1)*filters.Limit)
+	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY j.published_at DESC NULLS LAST,j.created_at DESC LIMIT $5 OFFSET $6`, query, location, workMode, experienceMonths, filters.Limit, (filters.Page-1)*filters.Limit)
 	if err != nil {
 		return JobList{}, err
 	}
@@ -260,54 +267,40 @@ func profileCompletion(input ProfileUpdate) int {
 	if input.NoticePeriodDays != nil {
 		score += 20
 	}
-	if score > 100 {
-		return 100
-	}
 	return score
 }
 
 func (s *Service) Applications(ctx context.Context, userID string, limit int) ([]Application, error) {
-	if limit < 1 || limit > 50 {
-		limit = 20
+	if limit < 1 || limit > 100 {
+		limit = 50
 	}
 	rows, err := s.db.Query(ctx, `SELECT a.id,a.stage::text,a.applied_at,a.updated_at,j.id,j.title,c.display_name,j.work_mode::text,j.city FROM applications a JOIN jobs j ON j.id=a.job_id JOIN companies c ON c.id=j.company_id WHERE a.candidate_id=$1 ORDER BY a.updated_at DESC LIMIT $2`, userID, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
 	items := make([]Application, 0)
 	for rows.Next() {
-		var application Application
-		if err := rows.Scan(&application.ID, &application.Stage, &application.AppliedAt, &application.UpdatedAt, &application.JobID, &application.JobTitle, &application.CompanyName, &application.WorkMode, &application.City); err != nil {
+		var item Application
+		if err := rows.Scan(&item.ID, &item.Stage, &item.AppliedAt, &item.UpdatedAt, &item.JobID, &item.JobTitle, &item.CompanyName, &item.WorkMode, &item.City); err != nil {
 			return nil, err
 		}
-		items = append(items, application)
+		items = append(items, item)
 	}
 	return items, rows.Err()
 }
 
 func (s *Service) Apply(ctx context.Context, userID, jobID string) (Application, error) {
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return Application{}, err
-	}
-	defer tx.Rollback(ctx)
-
 	var active bool
-	err = tx.QueryRow(ctx, `SELECT status='active' AND (application_deadline IS NULL OR application_deadline >= current_date) FROM jobs WHERE id=$1`, jobID).Scan(&active)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return Application{}, ErrNotFound
-	}
-	if err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND status='active' AND (application_deadline IS NULL OR application_deadline >= current_date))`, jobID).Scan(&active); err != nil {
 		return Application{}, err
 	}
 	if !active {
 		return Application{}, ErrInactiveJob
 	}
 
-	var applicationID string
-	err = tx.QueryRow(ctx, `INSERT INTO applications(candidate_id,job_id) VALUES($1,$2) RETURNING id`, userID, jobID).Scan(&applicationID)
+	var id string
+	err := s.db.QueryRow(ctx, `INSERT INTO applications(candidate_id,job_id) VALUES($1,$2) RETURNING id`, userID, jobID).Scan(&id)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -315,34 +308,24 @@ func (s *Service) Apply(ctx context.Context, userID, jobID string) (Application,
 		}
 		return Application{}, err
 	}
-
-	_, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'application','Application received','Your application has been added to your tracker.','/candidate/applications')`, userID)
+	apps, err := s.Applications(ctx, userID, 100)
 	if err != nil {
 		return Application{}, err
 	}
-	if err := tx.Commit(ctx); err != nil {
-		return Application{}, err
-	}
-
-	applications, err := s.Applications(ctx, userID, 50)
-	if err != nil {
-		return Application{}, err
-	}
-	for _, application := range applications {
-		if application.ID == applicationID {
-			return application, nil
+	for _, app := range apps {
+		if app.ID == id {
+			return app, nil
 		}
 	}
-	return Application{}, fmt.Errorf("application %s created but not found", applicationID)
+	return Application{}, fmt.Errorf("created application could not be loaded")
 }
 
 func (s *Service) SavedJobs(ctx context.Context, userID string) ([]Job, error) {
-	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM saved_jobs s JOIN jobs j ON j.id=s.job_id JOIN companies c ON c.id=j.company_id WHERE s.candidate_id=$1 ORDER BY s.saved_at DESC`, userID)
+	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM saved_jobs sj JOIN jobs j ON j.id=sj.job_id JOIN companies c ON c.id=j.company_id WHERE sj.candidate_id=$1 AND j.status='active' ORDER BY sj.created_at DESC`, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
 	items := make([]Job, 0)
 	for rows.Next() {
 		var job Job
@@ -355,26 +338,15 @@ func (s *Service) SavedJobs(ctx context.Context, userID string) ([]Job, error) {
 }
 
 func (s *Service) SaveJob(ctx context.Context, userID, jobID string) error {
-	tag, err := s.db.Exec(ctx, `INSERT INTO saved_jobs(candidate_id,job_id) SELECT $1,id FROM jobs WHERE id=$2 AND status='active' AND (application_deadline IS NULL OR application_deadline >= current_date) ON CONFLICT DO NOTHING`, userID, jobID)
-	if err != nil {
+	var active bool
+	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND status='active')`, jobID).Scan(&active); err != nil {
 		return err
 	}
-	if tag.RowsAffected() > 0 {
-		return nil
-	}
-
-	var status string
-	err = s.db.QueryRow(ctx, `SELECT status::text FROM jobs WHERE id=$1`, jobID).Scan(&status)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return ErrNotFound
-	}
-	if err != nil {
-		return err
-	}
-	if status != "active" {
+	if !active {
 		return ErrInactiveJob
 	}
-	return nil
+	_, err := s.db.Exec(ctx, `INSERT INTO saved_jobs(candidate_id,job_id) VALUES($1,$2) ON CONFLICT DO NOTHING`, userID, jobID)
+	return err
 }
 
 func (s *Service) UnsaveJob(ctx context.Context, userID, jobID string) error {
@@ -383,28 +355,27 @@ func (s *Service) UnsaveJob(ctx context.Context, userID, jobID string) error {
 }
 
 func (s *Service) Notifications(ctx context.Context, userID string, limit int) ([]Notification, error) {
-	if limit < 1 || limit > 50 {
-		limit = 10
+	if limit < 1 || limit > 100 {
+		limit = 50
 	}
 	rows, err := s.db.Query(ctx, `SELECT id,kind,title,body,action_url,read_at,created_at FROM candidate_notifications WHERE candidate_id=$1 ORDER BY created_at DESC LIMIT $2`, userID, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
 	items := make([]Notification, 0)
 	for rows.Next() {
-		var notification Notification
-		if err := rows.Scan(&notification.ID, &notification.Kind, &notification.Title, &notification.Body, &notification.ActionURL, &notification.ReadAt, &notification.CreatedAt); err != nil {
+		var item Notification
+		if err := rows.Scan(&item.ID, &item.Kind, &item.Title, &item.Body, &item.ActionURL, &item.ReadAt, &item.CreatedAt); err != nil {
 			return nil, err
 		}
-		items = append(items, notification)
+		items = append(items, item)
 	}
 	return items, rows.Err()
 }
 
-func (s *Service) MarkNotificationRead(ctx context.Context, userID, id string) error {
-	tag, err := s.db.Exec(ctx, `UPDATE candidate_notifications SET read_at=COALESCE(read_at,now()) WHERE id=$1 AND candidate_id=$2`, id, userID)
+func (s *Service) MarkNotificationRead(ctx context.Context, userID, notificationID string) error {
+	tag, err := s.db.Exec(ctx, `UPDATE candidate_notifications SET read_at=COALESCE(read_at,now()) WHERE id=$1 AND candidate_id=$2`, notificationID, userID)
 	if err != nil {
 		return err
 	}
@@ -419,59 +390,37 @@ func (s *Service) Dashboard(ctx context.Context, userID string) (Dashboard, erro
 	if err != nil {
 		return Dashboard{}, err
 	}
-
-	var applicationCount, interviewCount, offerCount, savedCount int
-	err = s.db.QueryRow(ctx, `SELECT count(*),count(*) FILTER(WHERE stage IN('technical_interview','hr_round','final_interview')),count(*) FILTER(WHERE stage='offer') FROM applications WHERE candidate_id=$1`, userID).Scan(&applicationCount, &interviewCount, &offerCount)
+	apps, err := s.Applications(ctx, userID, 5)
 	if err != nil {
 		return Dashboard{}, err
 	}
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM saved_jobs WHERE candidate_id=$1`, userID).Scan(&savedCount); err != nil {
-		return Dashboard{}, err
-	}
-
-	applications, err := s.Applications(ctx, userID, 4)
-	if err != nil {
-		return Dashboard{}, err
-	}
-	notifications, err := s.Notifications(ctx, userID, 5)
-	if err != nil {
-		return Dashboard{}, err
-	}
-	jobs, err := s.recommendedJobs(ctx, profile, 4)
+	notifications, err := s.Notifications(ctx, userID, 4)
 	if err != nil {
 		return Dashboard{}, err
 	}
 
-	return Dashboard{
-		Profile:            profile,
-		ApplicationCount:   applicationCount,
-		InterviewCount:     interviewCount,
-		OfferCount:         offerCount,
-		SavedCount:         savedCount,
-		RecommendedJobs:    jobs,
-		RecentApplications: applications,
-		Notifications:      notifications,
-	}, nil
+	var dashboard Dashboard
+	dashboard.Profile = profile
+	dashboard.RecentApplications = apps
+	dashboard.Notifications = notifications
+	if err := s.db.QueryRow(ctx, `SELECT count(*),count(*) FILTER (WHERE stage IN ('technical_interview','hr_round','final_interview')),count(*) FILTER (WHERE stage='offer') FROM applications WHERE candidate_id=$1`, userID).Scan(&dashboard.ApplicationCount, &dashboard.InterviewCount, &dashboard.OfferCount); err != nil {
+		return Dashboard{}, err
+	}
+	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM saved_jobs WHERE candidate_id=$1`, userID).Scan(&dashboard.SavedCount); err != nil {
+		return Dashboard{}, err
+	}
+
+	jobs, err := s.ListJobs(ctx, JobFilters{Location: valueOrEmpty(profile.CurrentCity), Page: 1, Limit: 4})
+	if err != nil {
+		return Dashboard{}, err
+	}
+	dashboard.RecommendedJobs = jobs.Items
+	return dashboard, nil
 }
 
-func (s *Service) recommendedJobs(ctx context.Context, profile Profile, limit int) ([]Job, error) {
-	location := ""
-	if profile.CurrentCity != nil {
-		location = *profile.CurrentCity
+func valueOrEmpty(value *string) string {
+	if value == nil {
+		return ""
 	}
-	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.status='active' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date) ORDER BY CASE WHEN $1<>'' AND lower(COALESCE(j.city,''))=lower($1) THEN 0 ELSE 1 END,j.published_at DESC NULLS LAST,j.created_at DESC LIMIT $2`, location, limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	items := make([]Job, 0)
-	for rows.Next() {
-		var job Job
-		if err := scanJob(rows, &job); err != nil {
-			return nil, err
-		}
-		items = append(items, job)
-	}
-	return items, rows.Err()
+	return *value
 }
