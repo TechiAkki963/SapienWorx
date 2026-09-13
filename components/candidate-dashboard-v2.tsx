@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, WorkspaceShell } from "./ui";
+import { HumanSignal } from "./human-signal";
 import type { CandidateDashboardData } from "./candidate";
 import styles from "./candidate-dashboard-v2.module.css";
 
@@ -48,7 +49,8 @@ export function CandidateDashboardV2({ initialData }: { initialData: CandidateDa
             <h2>Stay on top of every opportunity.</h2>
             <p>Track applications, interviews and recruiter activity without losing sight of your next move.</p>
           </div>
-          <Button href="/candidate/jobs">Search open roles</Button>
+          <div className={styles.heroActions}><Button href="/candidate/jobs">Search open roles</Button></div>
+          <HumanSignal tone="candidate" compact className={styles.heroSignal} />
         </section>
 
         {hasApplications ? (
@@ -65,6 +67,7 @@ export function CandidateDashboardV2({ initialData }: { initialData: CandidateDa
               <h3>You haven’t applied anywhere yet.</h3>
               <p>Explore open roles and apply when you find a role that fits your experience and preferences.</p>
             </div>
+            <HumanSignal tone="candidate" compact className={styles.zeroSignal} />
             <Button href="/candidate/jobs">Search open roles</Button>
           </section>
         )}
@@ -140,14 +143,14 @@ export function CandidateDashboardV2({ initialData }: { initialData: CandidateDa
               <div className={`${styles.visibilityState} ${profileSearchable ? "" : styles.visibilityStatePrivate}`}>
                 {profileSearchable ? "Recruiter visibility is on" : "Recruiter visibility is off"}
               </div>
-              <div style={{ marginTop: "var(--space-4)" }}><Button href="/candidate/profile" variant="secondary">Review profile</Button></div>
+              <div className={styles.panelAction}><Button href="/candidate/profile" variant="secondary">Review profile</Button></div>
             </section>
 
             <section className={styles.panel}>
               <span className={styles.eyebrow}>Privacy</span>
-              <h3 style={{ marginTop: "var(--space-2)" }}>You control recruiter visibility.</h3>
-              <p className={styles.visibilityCopy} style={{ marginTop: "var(--space-2)" }}>Your professional profile can be discoverable while your personal contact details remain protected by platform controls.</p>
-              <div style={{ marginTop: "var(--space-4)" }}><Button href="/candidate/settings" variant="quiet">Privacy settings →</Button></div>
+              <h3 className={styles.panelHeading}>You control recruiter visibility.</h3>
+              <p className={styles.visibilityCopy}>Your professional profile can be discoverable while your personal contact details remain protected by platform controls.</p>
+              <div className={styles.panelAction}><Button href="/candidate/settings" variant="quiet">Privacy settings →</Button></div>
             </section>
           </aside>
         </section>
