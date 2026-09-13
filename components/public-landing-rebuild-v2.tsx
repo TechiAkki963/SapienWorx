@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { PublicKnowledgePost } from "../lib/backend";
 import type { PublicJob } from "./public-site";
+import { HumanSignal } from "./human-signal";
 import styles from "./public-landing-rebuild-v2.module.css";
 
 type PublicLandingRebuildV2Props = {
@@ -13,12 +14,7 @@ function jobHref(job: PublicJob) {
 }
 
 function humanLabel(value: string) {
-  return value
-    .toLowerCase()
-    .split("_")
-    .filter(Boolean)
-    .map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`)
-    .join(" ");
+  return value.toLowerCase().split("_").filter(Boolean).map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`).join(" ");
 }
 
 function jobLocation(job: PublicJob) {
@@ -36,7 +32,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link className={styles.wordmark} href="/" aria-label="Sapienworx home">Sapienworx</Link>
+        <Link className={styles.wordmark} href="/" aria-label="SapienWorx home">SapienWorx</Link>
         <nav className={styles.primaryNav} aria-label="Public navigation">
           <Link href="/jobs">Find Jobs</Link>
           <Link href="/companies">Companies</Link>
@@ -63,9 +59,9 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
       <section className={styles.hero}>
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
-            <span className={styles.eyebrow}>Work and talent, connected better.</span>
-            <h1>Find the right role.<br/><em>Know where you stand.</em></h1>
-            <p>Search current opportunities with clear criteria, create one reusable profile, and follow every application from submission to interview and offer.</p>
+            <span className={styles.eyebrow}>Human-first hiring, intelligently structured.</span>
+            <h1>Where people and work <em>connect with clarity.</em></h1>
+            <p>SapienWorx brings candidates, employers, and structured hiring workflows into one trusted place—from discovery to decision.</p>
 
             <form className={styles.search} action="/jobs" method="get" aria-label="Search jobs">
               <label className={styles.searchField}>
@@ -74,7 +70,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
               </label>
               <label className={styles.searchField}>
                 <span>Experience</span>
-                <input name="minimumExperienceYears" type="number" min="0" max="60" inputMode="numeric" placeholder="Years of experience" />
+                <input name="minimumExperienceYears" type="number" min="0" max="60" inputMode="numeric" placeholder="Years" />
               </label>
               <label className={styles.searchField}>
                 <span>Location</span>
@@ -90,48 +86,44 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
             <p className={styles.privacyNote}><span aria-hidden="true">✓</span> Your profile visibility and contact preferences stay under your control.</p>
           </div>
 
-          <aside className={styles.heroPreview} aria-label="Current opportunities">
-            <div className={styles.previewHeading}>
-              <span>Current opportunities</span>
-              <strong>{jobs.length ? `${jobs.length}+ published roles` : "Published roles"}</strong>
-            </div>
-            {heroJobs.length ? (
-              <div className={styles.previewList}>
-                {heroJobs.map((job) => (
-                  <Link href={jobHref(job)} className={styles.previewJob} key={job.id}>
-                    <span className={styles.companyMark} aria-hidden="true">{job.mark}</span>
-                    <span>
-                      <strong>{job.title}</strong>
-                      <small>{job.company}</small>
-                      <small>{jobLocation(job)}</small>
-                    </span>
-                    <b aria-hidden="true">→</b>
-                  </Link>
-                ))}
+          <div className={styles.heroVisual} aria-label="Human potential connected to structured opportunities">
+            <HumanSignal tone="candidate" className={styles.heroSignal} />
+            <aside className={styles.heroPreview} aria-label="Current opportunities">
+              <div className={styles.previewHeading}>
+                <span>Current opportunities</span>
+                <strong>{jobs.length ? `${jobs.length}+ roles` : "Published roles"}</strong>
               </div>
-            ) : (
-              <div className={styles.previewEmpty}>
-                <strong>New roles will appear here.</strong>
-                <p>Use the job search to see currently published opportunities.</p>
-              </div>
-            )}
-          </aside>
+              {heroJobs.length ? (
+                <div className={styles.previewList}>
+                  {heroJobs.map((job) => (
+                    <Link href={jobHref(job)} className={styles.previewJob} key={job.id}>
+                      <span className={styles.companyMark} aria-hidden="true">{job.mark}</span>
+                      <span>
+                        <strong>{job.title}</strong>
+                        <small>{job.company}</small>
+                        <small>{jobLocation(job)}</small>
+                      </span>
+                      <b aria-hidden="true">→</b>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.previewEmpty}><strong>New roles will appear here.</strong><p>Search current opportunities when hiring teams publish them.</p></div>
+              )}
+            </aside>
+          </div>
         </div>
       </section>
 
-      <section className={styles.trust} aria-label="Why candidates use Sapienworx">
+      <section className={styles.trust} aria-label="Why candidates use SapienWorx">
         <article><span>01</span><h2>Verified employers</h2><p>Trust signals are shown only when employer verification is available.</p></article>
-        <article><span>02</span><h2>Clear requirements</h2><p>Search uses explicit job criteria such as skills, experience and location.</p></article>
+        <article><span>02</span><h2>Clear requirements</h2><p>Search uses explicit job criteria such as skills, experience, and location.</p></article>
         <article><span>03</span><h2>Application visibility</h2><p>Follow recruitment progress without guessing where your application stands.</p></article>
       </section>
 
       <section className={styles.section}>
         <header className={styles.sectionHeading}>
-          <div>
-            <span className={styles.eyebrow}>Verified opportunities</span>
-            <h2>Roles worth your attention.</h2>
-            <p>Current published opportunities from hiring teams using Sapienworx.</p>
-          </div>
+          <div><span className={styles.eyebrow}>Verified opportunities</span><h2>Roles worth your attention.</h2><p>Current published opportunities from hiring teams using SapienWorx.</p></div>
           <Link href="/jobs">View all jobs <span aria-hidden="true">→</span></Link>
         </header>
         {visibleJobs.length ? (
@@ -142,11 +134,7 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
                 <div className={styles.jobMain}>
                   <p>{job.company}{job.verifiedEmployer ? <span className={styles.verified}>✓ Verified employer</span> : null}</p>
                   <h3>{job.title}</h3>
-                  <div className={styles.meta}>
-                    <span>{jobLocation(job)}</span>
-                    <span>{job.experience}</span>
-                    <span>{humanLabel(job.employmentType)}</span>
-                  </div>
+                  <div className={styles.meta}><span>{jobLocation(job)}</span><span>{job.experience}</span><span>{humanLabel(job.employmentType)}</span></div>
                   {job.tags.length ? <div className={styles.tags}>{job.tags.slice(0, 5).map((tag) => <span key={tag}>{tag}</span>)}</div> : null}
                 </div>
                 <Link className={styles.rowAction} href={jobHref(job)}>View role <span aria-hidden="true">→</span></Link>
@@ -154,83 +142,43 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
             ))}
           </div>
         ) : (
-          <div className={styles.emptyState}>
-            <h3>No published roles right now.</h3>
-            <p>Check again later or create your profile so you are ready when new roles are published.</p>
-            <Link href="/register">Create profile</Link>
-          </div>
+          <div className={styles.emptyState}><HumanSignal tone="candidate" compact/><h3>No published roles right now.</h3><p>Check again later or create your profile so you are ready when new roles are published.</p><Link href="/register">Create profile</Link></div>
         )}
       </section>
 
       {companies.length ? (
         <section className={`${styles.section} ${styles.companySection}`}>
-          <header className={styles.sectionHeading}>
-            <div>
-              <span className={styles.eyebrow}>Hiring companies</span>
-              <h2>Explore teams that are hiring.</h2>
-            </div>
-            <Link href="/companies">Browse companies <span aria-hidden="true">→</span></Link>
-          </header>
-          <div className={styles.companyGrid}>
-            {companies.map((job) => (
-              <Link href={`/companies/${encodeURIComponent(job.companySlug)}`} key={job.companySlug}>
-                <span className={styles.companyMark} aria-hidden="true">{job.mark}</span>
-                <span><strong>{job.company}</strong><small>{job.verifiedEmployer ? "Verified employer" : "Company profile"}</small></span>
-                <b aria-hidden="true">→</b>
-              </Link>
-            ))}
-          </div>
+          <header className={styles.sectionHeading}><div><span className={styles.eyebrow}>Hiring companies</span><h2>Explore teams that are hiring.</h2></div><Link href="/companies">Browse companies <span aria-hidden="true">→</span></Link></header>
+          <div className={styles.companyGrid}>{companies.map((job) => <Link href={`/companies/${encodeURIComponent(job.companySlug)}`} key={job.companySlug}><span className={styles.companyMark} aria-hidden="true">{job.mark}</span><span><strong>{job.company}</strong><small>{job.verifiedEmployer ? "Verified employer" : "Company profile"}</small></span><b aria-hidden="true">→</b></Link>)}</div>
         </section>
       ) : null}
 
       <section className={styles.recruiterBand}>
-        <div>
+        <div className={styles.recruiterBandCopy}>
           <span className={styles.recruiterEyebrow}>For hiring teams</span>
-          <h2>From open role to successful hire — one workspace.</h2>
-          <p>Source, review, communicate, schedule interviews and move candidates through a clear recruitment workflow.</p>
-        </div>
-        <div>
+          <h2>Human judgment. Better systems. Stronger hiring.</h2>
+          <p>Source, review, interview, and decide in one structured workspace designed to keep people—not process noise—at the center.</p>
           <Link className={styles.recruiterCta} href="/recruiters">Explore recruiter workspace</Link>
         </div>
+        <HumanSignal tone="recruiter" className={styles.recruiterSignal}/>
       </section>
 
       {visibleArticles.length ? (
         <section className={styles.section}>
-          <header className={styles.sectionHeading}>
-            <div>
-              <span className={styles.eyebrow}>Career resources</span>
-              <h2>Useful guidance for real career decisions.</h2>
-            </div>
-            <Link href="/knowledge">All resources <span aria-hidden="true">→</span></Link>
-          </header>
-          <div className={styles.articleGrid}>
-            {visibleArticles.map((article) => (
-              <article key={article.id}>
-                <span>{article.category}</span>
-                <h3>{article.title}</h3>
-                <p>{article.excerpt}</p>
-                <footer>
-                  <small>{article.readingMinutes} min read</small>
-                  <Link href={`/knowledge/${article.slug}`}>Read article <span aria-hidden="true">→</span></Link>
-                </footer>
-              </article>
-            ))}
-          </div>
+          <header className={styles.sectionHeading}><div><span className={styles.eyebrow}>Career resources</span><h2>Useful guidance for real career decisions.</h2></div><Link href="/knowledge">All resources <span aria-hidden="true">→</span></Link></header>
+          <div className={styles.articleGrid}>{visibleArticles.map((article) => <article key={article.id}><span>{article.category}</span><h3>{article.title}</h3><p>{article.excerpt}</p><footer><small>{article.readingMinutes} min read</small><Link href={`/knowledge/${article.slug}`}>Read article <span aria-hidden="true">→</span></Link></footer></article>)}</div>
         </section>
       ) : null}
 
       <footer className={styles.footer}>
-        <div className={styles.footerBrand}>
-          <Link className={styles.footerWordmark} href="/">Sapienworx</Link>
-          <p>Work and talent, connected better.</p>
-        </div>
+        <div className={styles.footerBrand}><Link className={styles.footerWordmark} href="/">SapienWorx</Link><p>Human-first hiring, intelligently structured.</p></div>
         <div className={styles.footerLinks}>
           <div><strong>Candidates</strong><Link href="/jobs">Find jobs</Link><Link href="/register">Create profile</Link><Link href="/login">Sign in</Link></div>
           <div><strong>Recruiters</strong><Link href="/recruiters">Recruiter product</Link><Link href="/recruiter/register">Create account</Link><Link href="/recruiter/login">Sign in</Link></div>
           <div><strong>Resources</strong><Link href="/companies">Companies</Link><Link href="/knowledge">Career resources</Link></div>
           <div><strong>Legal</strong><Link href="/privacy">Privacy</Link><Link href="/terms">Terms of use</Link><Link href="/cookies">Cookies</Link></div>
         </div>
-        <small>© 2026 Sapienworx. All rights reserved.</small>
+        <small>© 2026 SapienWorx. All rights reserved.</small>
       </footer>
     </main>
   );
