@@ -1,0 +1,29 @@
+# Environment/secrets
+.env
+.env.*
+!.env.example
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/coverage/
+
+# Go
+backend/bin/
+backend/coverage.out
+backend/*.test
+
+# Local tooling
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+.tmp/
+tmp/
+
+# Infrastructure state
+*.tfstate
+*.tfstate.*
+.terraform/
