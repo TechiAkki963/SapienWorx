@@ -1,33 +1,45 @@
-import Image from "next/image";
+"use client";
 
+import Image from "next/image";
+import { motion } from "motion/react";
 import { cn } from "@/lib/cn";
-import { HumanSignal } from "./human-signal";
 
 type OrganicPortraitProps = {
-  alt?: string;
+  alt: string;
   className?: string;
-  src?: string;
+  src: string;
+  shape?: "blob-a" | "blob-b" | "blob-c";
+  frame?: "clay" | "indigo" | "none";
+  priority?: boolean;
 };
 
-export function OrganicPortrait({ alt = "", className, src }: OrganicPortraitProps) {
+const masks = {
+  "blob-a": "organic-mask-a",
+  "blob-b": "organic-mask-b",
+  "blob-c": "organic-mask-c",
+};
+
+const frames = {
+  clay: "bg-clay/70",
+  indigo: "bg-indigo-soft",
+  none: "hidden",
+};
+
+export function OrganicPortrait({ alt, className, src, shape = "blob-a", frame = "clay", priority = false }: OrganicPortraitProps) {
+  const mask = masks[shape];
   return (
-    <div
-      className={cn(
-        "organic-mask relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-peach via-lavender to-mint shadow-soft",
-        className,
-      )}
+    <motion.figure
+      className={cn("relative aspect-[4/5]", className)}
+      initial={false}
+      whileInView={{ scale: 1.012 }}
+      viewport={{ once: false, amount: 0.35 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      {src ? (
-        <Image alt={alt} className="object-cover" fill sizes="(max-width: 768px) 78vw, 38vw" src={src} />
-      ) : (
-        <div className="absolute inset-0 grid place-items-center" aria-hidden="true">
-          <div className="relative h-[76%] w-[68%]">
-            <div className="absolute left-1/2 top-[9%] h-[30%] w-[43%] -translate-x-1/2 rounded-[48%] bg-ink/88" />
-            <div className="absolute bottom-[-3%] left-1/2 h-[65%] w-[82%] -translate-x-1/2 rounded-t-[48%] bg-ink/88" />
-          </div>
-          <HumanSignal className="absolute -right-[9%] bottom-[-7%] w-[64%] text-indigo/50" />
-        </div>
-      )}
-    </div>
+      <div aria-hidden="true" className={cn("absolute inset-0 translate-x-2 translate-y-2", mask, frames[frame])} />
+      <div className={cn("relative h-full w-full overflow-hidden bg-stone shadow-float", mask)}>
+        <Image alt={alt} className="object-cover" fill priority={priority} sizes="(max-width: 768px) 82vw, 38vw" src={src} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/10 via-transparent to-white/10" />
+      </div>
+    </motion.figure>
   );
 }

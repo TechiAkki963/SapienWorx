@@ -1,24 +1,32 @@
+import { OrganicPortrait } from "@/components/brand/organic-portrait";
 import { HumanSignal } from "@/components/brand/human-signal";
 import { Wordmark } from "@/components/brand/wordmark";
+import { FloatingQuoteCard, FloatingStatCard } from "@/components/product/floating-product-card";
 
 export function AuthShell({ eyebrow, title, description, children, tone = "lavender" }: { eyebrow: string; title: string; description: string; children: React.ReactNode; tone?: "lavender" | "mint" | "peach" }) {
   const toneClass = tone === "mint" ? "bg-mint/45" : tone === "peach" ? "bg-peach/45" : "bg-lavender/55";
+  const shape = tone === "mint" ? "blob-b" as const : tone === "peach" ? "blob-c" as const : "blob-a" as const;
+  const recruiter = eyebrow.toLowerCase().includes("recruit");
+
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-soft lg:grid-cols-[0.95fr_1.05fr]">
-        <section className={`${toneClass} relative hidden overflow-hidden p-10 lg:flex lg:flex-col lg:justify-between`}>
+    <main className="min-h-screen px-3 py-3 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-6xl overflow-hidden rounded-[1.7rem] border border-white/80 bg-white/82 shadow-float sm:min-h-[calc(100vh-3rem)] sm:rounded-[2rem] lg:grid-cols-[0.98fr_1.02fr]">
+        <section className={`${toneClass} relative hidden overflow-hidden p-8 lg:flex lg:flex-col`}>
           <Wordmark />
-          <div className="relative z-10 max-w-md">
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-indigo">{eyebrow}</p>
-            <h1 className="text-5xl font-semibold leading-[1.03] tracking-[-0.04em] text-ink">{title}</h1>
-            <p className="mt-5 max-w-sm text-base leading-7 text-ink-muted">{description}</p>
+          <div className="relative mx-auto mt-8 w-full max-w-[23rem]">
+            <OrganicPortrait alt={recruiter ? "Recruiter reviewing candidate work" : "Candidate working on their next opportunity"} frame={tone === "peach" ? "clay" : "indigo"} shape={shape} src={recruiter ? "/brand/portrait-recruiter.svg" : "/brand/portrait-candidate.svg"} />
+            {recruiter ? <FloatingStatCard className="absolute -bottom-3 -right-5" label="Hiring rhythm" value="3 day shortlist" tone="peach" rotate="right" /> : <FloatingQuoteCard className="absolute -bottom-3 -right-5" quote="I could finally see where my application stood." tone="mint" rotate="right" />}
           </div>
-          <HumanSignal className="absolute -bottom-24 -right-24 h-[34rem] w-[34rem] opacity-55" />
-          <p className="relative z-10 text-xs text-ink-muted">Smarter Hiring. Better Talent. Faster Growth.</p>
+          <div className="relative z-10 mt-auto pt-10">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-indigo">{eyebrow}</p>
+            <h1 className="font-display max-w-lg text-4xl font-bold leading-[1.02] tracking-[-0.035em] text-ink">{title}</h1>
+            <p className="mt-4 max-w-md text-sm leading-6 text-ink-muted">{description}</p>
+          </div>
+          <HumanSignal className="pointer-events-none absolute -bottom-44 -left-36 h-[28rem] w-[28rem] text-indigo opacity-[0.06]" title="" />
         </section>
-        <section className="flex items-center justify-center p-6 sm:p-10 lg:p-14">
+        <section className="flex items-center justify-center p-5 sm:p-10 lg:p-14">
           <div className="w-full max-w-md">
-            <div className="mb-8 lg:hidden"><Wordmark /></div>
+            <div className="mb-7 lg:hidden"><Wordmark /></div>
             {children}
           </div>
         </section>
