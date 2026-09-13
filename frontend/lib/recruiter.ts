@@ -55,6 +55,23 @@ export type Interview = {
   status: string;
   notes?: string;
 };
+export type RecruiterCandidateDetail = {
+  user_id: string;
+  full_name: string;
+  headline?: string;
+  email: string;
+  phone?: string;
+  current_city?: string;
+  current_state?: string;
+  country_code: string;
+  total_experience_months: number;
+  notice_period_days?: number;
+  profile_completion: number;
+  last_active_at?: string;
+  profile_updated_at: string;
+  photo_data_url?: string;
+  details: Record<string, unknown>;
+};
 
 export const stages = ["new_application","screening","shortlisted","technical_interview","hr_round","final_interview","offer","hired","rejected","withdrawn"] as const;
 export const jobStatuses = ["draft","active","paused","closed","expired","archived"] as const;
