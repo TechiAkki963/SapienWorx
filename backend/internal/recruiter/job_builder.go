@@ -6,23 +6,23 @@ import (
 )
 
 type DetailedJobInput struct {
-	Title               string   `json:"title"`
-	Department          string   `json:"department"`
-	EmploymentType      string   `json:"employment_type"`
-	WorkMode            string   `json:"work_mode"`
-	RoleCategory        string   `json:"role_category"`
-	Location            string   `json:"location"`
-	MinExperienceYears  int      `json:"min_experience_years"`
-	MaxExperienceYears  *int     `json:"max_experience_years"`
-	MinSalaryLakhs      *float64 `json:"min_salary_lakhs"`
-	MaxSalaryLakhs      *float64 `json:"max_salary_lakhs"`
-	Skills              []string `json:"skills"`
-	Description         string   `json:"description"`
-	Responsibilities    string   `json:"responsibilities"`
-	CompanyOverview     string   `json:"company_overview"`
-	WhyJoin             string   `json:"why_join"`
-	HiringProcess       []string `json:"hiring_process"`
-	Publish             bool     `json:"publish"`
+	Title              string   `json:"title"`
+	Department         string   `json:"department"`
+	EmploymentType     string   `json:"employment_type"`
+	WorkMode           string   `json:"work_mode"`
+	RoleCategory       string   `json:"role_category"`
+	Location           string   `json:"location"`
+	MinExperienceYears int      `json:"min_experience_years"`
+	MaxExperienceYears *int     `json:"max_experience_years"`
+	MinSalaryLakhs     *float64 `json:"min_salary_lakhs"`
+	MaxSalaryLakhs     *float64 `json:"max_salary_lakhs"`
+	Skills             []string `json:"skills"`
+	Description        string   `json:"description"`
+	Responsibilities   string   `json:"responsibilities"`
+	CompanyOverview    string   `json:"company_overview"`
+	WhyJoin            string   `json:"why_join"`
+	HiringProcess      []string `json:"hiring_process"`
+	Publish            bool     `json:"publish"`
 }
 
 func cleanList(values []string) []string {
