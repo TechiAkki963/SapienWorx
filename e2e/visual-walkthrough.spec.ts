@@ -9,6 +9,37 @@ const viewports=[
   ["desktop",1280,900],
   ["wide",1440,1000],
 ] as const;
-async function prepare(page:Page){await page.addInitScript(()=>{localStorage.setItem("sapienworx.local-candidate-domain","TECH");localStorage.setItem("sapienworx.recruiter.sidebar","expanded");});}
-async function verify(page:Page,route:string,status?:number){expect(status??200,`${route} should render without a server error`).toBeLessThan(500);await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error|This page could not be found/i);}
-for(const[name,route]of routes){test(`walkthrough ${name}`,async({page})=>{await prepare(page);for(const[mode,width,height]of viewports){await page.setViewportSize({width,height});const response=await page.goto(route,{waitUntil:"domcontentloaded"});await page.waitForTimeout(250);await verify(page,route,response?.status());await page.screenshot({path:`artifacts/walkthrough/${mode}/${name}.png`,fullPage:true});}});}
+
+function roleFor(route:string){
+  if(route.startsWith("/admin")&&!route.startsWith("/admin/login")) return "SUPER_ADMIN";
+  if((route.startsWith("/recruiter")&&!route.startsWith("/recruiter/login")&&!route.startsWith("/recruiter/register"))||route.startsWith("/search/results")) return "RECRUITER";
+  if(route.startsWith("/candidate")) return "CANDIDATE";
+  return null;
+}
+
+async function prepare(page:Page,route:string){
+  await page.addInitScript(()=>{localStorage.setItem("sapienworx.local-candidate-domain","TECH");localStorage.setItem("sapienworx.recruiter.sidebar","expanded");});
+  const role=roleFor(route);
+  if(role){
+    await page.route("**/api/auth/session*",async request=>{await request.fulfill({status:200,contentType:"application/json",body:JSON.stringify({userId:"walkthrough-user",role})});});
+  }
+}
+
+async function verify(page:Page,route:string,status?:number){
+  expect(status??200,`${route} should render without a server error`).toBeLessThan(500);
+  await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error|This page could not be found/i);
+  if(roleFor(route)) await expect(page.locator("body")).not.toContainText("Securing your workspace");
+}
+
+for(const[name,route]of routes){
+  test(`walkthrough ${name}`,async({page})=>{
+    await prepare(page,route);
+    for(const[mode,width,height]of viewports){
+      await page.setViewportSize({width,height});
+      const response=await page.goto(route,{waitUntil:"domcontentloaded"});
+      await page.waitForTimeout(650);
+      await verify(page,route,response?.status());
+      await page.screenshot({path:`artifacts/walkthrough/${mode}/${name}.png`,fullPage:true});
+    }
+  });
+}
