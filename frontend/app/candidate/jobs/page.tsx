@@ -44,10 +44,16 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
   const workMode = single(params.work_mode);
   const experience = single(params.experience);
   const education = many(params.education);
+  const minSalary = single(params.min_salary);
+  const maxSalary = single(params.max_salary);
+  const salaryCurrency = single(params.salary_currency) || "INR";
   const page = Math.max(1, Number(single(params.page)) || 1);
   const query = new URLSearchParams({ q, location, company, page: String(page), limit: "10" });
   if (workMode) query.set("work_mode", workMode);
   if (experience) query.set("experience", experience);
+  if (minSalary) query.set("min_salary", minSalary);
+  if (maxSalary) query.set("max_salary", maxSalary);
+  if (minSalary || maxSalary) query.set("salary_currency", salaryCurrency);
   for (const value of education) query.append("education", value);
 
   const [result, recommendationResult] = await Promise.all([
@@ -61,7 +67,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
     nextQuery.set("page", String(next));
     return `/candidate/jobs?${nextQuery.toString()}`;
   };
-  const hasFilters = Boolean(q || location || company || workMode || experience || education.length);
+  const hasFilters = Boolean(q || location || company || workMode || experience || education.length || minSalary || maxSalary);
 
   return (
     <div>
@@ -69,7 +75,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">Candidate job discovery</p>
           <h1 className="mt-2 text-4xl font-bold tracking-[-0.045em] text-navy">Find jobs without leaving your workspace.</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">Search active roles by skills, company, education, experience and location while staying signed in.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-muted">Search active roles by skills, company, education, salary, experience and location while staying signed in.</p>
         </div>
       </div>
 
@@ -97,6 +103,13 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
               <label className="grid gap-1.5 text-sm font-semibold text-ink">Company name<input name="company" defaultValue={company} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15" placeholder="Search company" /></label>
               <label className="grid gap-1.5 text-sm font-semibold text-ink">Location<input name="location" defaultValue={location} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15" placeholder="Mumbai, Pune…" /></label>
               <label className="grid gap-1.5 text-sm font-semibold text-ink">Experience<select name="experience" defaultValue={experience} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any experience</option><option value="0">Fresher / 0 years</option><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="5">5 years</option><option value="8">8 years</option><option value="10">10+ years</option></select></label>
+
+              <div className="rounded-xl border border-line bg-white p-3">
+                <div className="flex items-center justify-between gap-3"><span className="text-sm font-semibold text-ink">Salary range</span><select name="salary_currency" defaultValue={salaryCurrency} className="rounded-lg border border-line bg-canvas px-2 py-1 text-xs font-semibold"><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option></select></div>
+                <div className="mt-3 grid grid-cols-2 gap-2"><label className="grid gap-1 text-[11px] font-bold uppercase tracking-wide text-ink-muted">Min<input name="min_salary" type="number" min="0" step="1000" defaultValue={minSalary} placeholder="e.g. 800000" className="min-h-10 rounded-lg border border-line bg-white px-2 text-sm font-normal normal-case tracking-normal text-ink outline-none focus:border-indigo/40" /></label><label className="grid gap-1 text-[11px] font-bold uppercase tracking-wide text-ink-muted">Max<input name="max_salary" type="number" min="0" step="1000" defaultValue={maxSalary} placeholder="e.g. 1200000" className="min-h-10 rounded-lg border border-line bg-white px-2 text-sm font-normal normal-case tracking-normal text-ink outline-none focus:border-indigo/40" /></label></div>
+                <p className="mt-2 text-[10px] leading-4 text-ink-muted">Enter annual salary amounts. Only disclosed job ranges are compared by currency.</p>
+              </div>
+
               <label className="grid gap-1.5 text-sm font-semibold text-ink">Work mode<select name="work_mode" defaultValue={workMode} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="onsite">On-site</option></select></label>
 
               <details className="rounded-xl border border-line bg-white" open={education.length > 0}>
@@ -121,7 +134,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
 
         <section aria-labelledby="all-jobs-title">
           <div className="flex items-end justify-between gap-3"><h2 id="all-jobs-title" className="text-2xl font-bold text-navy">All active roles</h2>{result && <p className="text-sm font-semibold text-ink-muted">{result.total} roles</p>}</div>
-          {!result ? <Surface className="mt-5 p-8 text-center" tone="peach"><h3 className="font-bold">Jobs are temporarily unavailable.</h3></Surface> : result.items.length ? <div className="mt-5 grid gap-4 xl:grid-cols-2">{result.items.map((job) => <JobCard key={job.id} job={job} hrefBase="/candidate/jobs" />)}</div> : <Surface className="mt-5 p-8 text-center" tone="mint"><h3 className="font-bold">No roles match those filters yet.</h3><p className="mt-2 text-sm text-ink-muted">Try broadening company, education, experience or location filters.</p></Surface>}
+          {!result ? <Surface className="mt-5 p-8 text-center" tone="peach"><h3 className="font-bold">Jobs are temporarily unavailable.</h3></Surface> : result.items.length ? <div className="mt-5 grid gap-4 xl:grid-cols-2">{result.items.map((job) => <JobCard key={job.id} job={job} hrefBase="/candidate/jobs" />)}</div> : <Surface className="mt-5 p-8 text-center" tone="mint"><h3 className="font-bold">No roles match those filters yet.</h3><p className="mt-2 text-sm text-ink-muted">Try broadening company, education, salary, experience or location filters.</p></Surface>}
 
           {result && result.total > result.limit && <nav className="mt-7 flex items-center justify-between gap-4" aria-label="Job result pages"><Button href={pageHref(Math.max(1, page - 1))} variant="secondary" size="sm" className={page <= 1 ? "pointer-events-none opacity-50" : undefined}>← Previous</Button><span className="text-sm font-semibold text-ink-muted">Page {page} of {pageCount}</span><Button href={pageHref(Math.min(pageCount, page + 1))} variant="secondary" size="sm" className={page >= pageCount ? "pointer-events-none opacity-50" : undefined}>Next →</Button></nav>}
         </section>
