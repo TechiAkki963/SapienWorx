@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { PublicKnowledgePost } from "../lib/backend";
 import type { PublicJob } from "./public-site";
 import { HumanPortrait } from "./human-portrait";
-import styles from "./public-landing-rebuild-v2.module.css";
+import styles from "./human-signal-landing.module.css";
 
 type PublicLandingRebuildV2Props = {
   jobs?: PublicJob[];
