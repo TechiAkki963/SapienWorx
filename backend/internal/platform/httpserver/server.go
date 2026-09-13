@@ -42,6 +42,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("POST /api/v1/auth/logout", s.logout)
 	mux.HandleFunc("GET /api/v1/jobs", s.listJobs)
 	mux.HandleFunc("GET /api/v1/jobs/{jobID}", s.getJob)
+	mux.HandleFunc("GET /api/v1/profiles/{token}", s.publicCandidateProfile)
 	protected := Authenticate(tokens, cfg.Auth.AccessCookieName)
 	candidateOnly := RequireRoles(auth.RoleCandidate)
 	recruiterOnly := RequireRoles(auth.RoleRecruiter)
