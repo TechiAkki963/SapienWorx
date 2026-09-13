@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -48,6 +49,15 @@ func intValue(v any) int {
 	}
 }
 
+func monthValue(v any) int {
+	if numeric := intValue(v); numeric >= 1 && numeric <= 12 {
+		return numeric
+	}
+	value := strings.ToLower(strings.TrimSpace(fmt.Sprint(v)))
+	months := map[string]int{"jan": 1, "january": 1, "feb": 2, "february": 2, "mar": 3, "march": 3, "apr": 4, "april": 4, "may": 5, "jun": 6, "june": 6, "jul": 7, "july": 7, "aug": 8, "august": 8, "sep": 9, "sept": 9, "september": 9, "oct": 10, "october": 10, "nov": 11, "november": 11, "dec": 12, "december": 12}
+	return months[value]
+}
+
 func monthIndex(year, month int) int {
 	if year < 1900 || month < 1 || month > 12 {
 		return 0
@@ -55,30 +65,61 @@ func monthIndex(year, month int) int {
 	return year*12 + month - 1
 }
 
+type employmentPeriod struct {
+	start int
+	end   int
+}
+
 func experienceFromDetails(details map[string]any, now time.Time) int {
 	raw, _ := details["employment"].([]any)
-	total := 0
+	periods := make([]employmentPeriod, 0, len(raw))
 	for _, item := range raw {
 		record, ok := item.(map[string]any)
 		if !ok {
 			continue
 		}
-		start := monthIndex(intValue(record["joining_year"]), intValue(record["joining_month"]))
+		start := monthIndex(intValue(record["joining_year"]), monthValue(record["joining_month"]))
 		if start == 0 {
 			continue
 		}
 		current := strings.EqualFold(strings.TrimSpace(fmt.Sprint(record["current_company"])), "yes")
-		end := 0
+		end := monthIndex(intValue(record["end_year"]), monthValue(record["end_month"]))
 		if current {
 			end = monthIndex(now.Year(), int(now.Month()))
-		} else {
-			end = monthIndex(intValue(record["end_year"]), intValue(record["end_month"]))
 		}
-		if end >= start {
-			total += end - start + 1
+		periods = append(periods, employmentPeriod{start: start, end: end})
+	}
+	if len(periods) == 0 {
+		return 0
+	}
+	sort.Slice(periods, func(i, j int) bool { return periods[i].start < periods[j].start })
+	for i := range periods {
+		if periods[i].end == 0 && i+1 < len(periods) {
+			periods[i].end = periods[i+1].start - 1
 		}
 	}
-	return total
+	intervals := make([]employmentPeriod, 0, len(periods))
+	for _, period := range periods {
+		if period.end >= period.start {
+			intervals = append(intervals, period)
+		}
+	}
+	if len(intervals) == 0 {
+		return 0
+	}
+	total := 0
+	start, end := intervals[0].start, intervals[0].end
+	for _, period := range intervals[1:] {
+		if period.start <= end+1 {
+			if period.end > end {
+				end = period.end
+			}
+			continue
+		}
+		total += end - start + 1
+		start, end = period.start, period.end
+	}
+	return total + end - start + 1
 }
 
 func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, error) {
