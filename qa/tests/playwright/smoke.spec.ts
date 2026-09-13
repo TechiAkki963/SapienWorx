@@ -7,9 +7,16 @@ test('landing page is alive', async ({ page }) => {
   await expect(page.locator('body')).toBeVisible();
 });
 
-test('backend health is healthy', async ({ request }) => {
-  const r = await request.get(`${apiURL}/api/v1/health`);
+test('backend liveness is healthy', async ({ request }) => {
+  const r = await request.get(`${apiURL}/health/live`);
   expect(r.ok()).toBeTruthy();
   const body = await r.json();
-  expect(['ok', 'healthy', 'up']).toContain(String(body.status).toLowerCase());
+  expect(String(body.status).toLowerCase()).toBe('ok');
+});
+
+test('backend readiness includes database', async ({ request }) => {
+  const r = await request.get(`${apiURL}/health/ready`);
+  expect(r.status()).toBe(200);
+  const body = await r.json();
+  expect(String(body.status).toLowerCase()).toBe('ready');
 });
