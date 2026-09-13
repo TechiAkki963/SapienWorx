@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -15,6 +16,8 @@ type ProfileDetails struct {
 	ExpectedSalaryAmount   *float64       `json:"expected_salary_amount,omitempty"`
 	ExpectedSalaryCurrency string         `json:"expected_salary_currency"`
 	CVOriginalFilename     *string        `json:"cv_original_filename,omitempty"`
+	LastActiveAt           *time.Time     `json:"last_active_at,omitempty"`
+	ProfileUpdatedAt       time.Time      `json:"profile_updated_at"`
 }
 
 type ProfileDetailsUpdate struct {
@@ -28,13 +31,15 @@ type ProfileDetailsUpdate struct {
 func (s *Service) Details(ctx context.Context, userID string) (ProfileDetails, error) {
 	var result ProfileDetails
 	var raw []byte
-	err := s.db.QueryRow(ctx, `SELECT profile_details,current_salary_amount,current_salary_currency,expected_salary_amount,expected_salary_currency,cv_original_filename FROM candidate_profiles WHERE user_id=$1`, userID).Scan(
+	err := s.db.QueryRow(ctx, `SELECT cp.profile_details,cp.current_salary_amount,cp.current_salary_currency,cp.expected_salary_amount,cp.expected_salary_currency,cp.cv_original_filename,u.last_active_at,cp.updated_at FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
 		&raw,
 		&result.CurrentSalaryAmount,
 		&result.CurrentSalaryCurrency,
 		&result.ExpectedSalaryAmount,
 		&result.ExpectedSalaryCurrency,
 		&result.CVOriginalFilename,
+		&result.LastActiveAt,
+		&result.ProfileUpdatedAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ProfileDetails{}, ErrNotFound
@@ -75,4 +80,9 @@ func (s *Service) UpdateDetails(ctx context.Context, userID string, input Profil
 		return ProfileDetails{}, err
 	}
 	return s.Details(ctx, userID)
+}
+
+func (s *Service) MarkActive(ctx context.Context, userID string) error {
+	_, err := s.db.Exec(ctx, `UPDATE users SET last_active_at=now() WHERE id=$1 AND role='candidate' AND (last_active_at IS NULL OR last_active_at < now() - interval '5 minutes')`, userID)
+	return err
 }
