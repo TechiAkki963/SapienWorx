@@ -19,23 +19,35 @@ import (
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	if err := run(logger); err != nil { logger.Error("api stopped with error", "error", err); os.Exit(1) }
+	if err := run(logger); err != nil {
+		logger.Error("api stopped with error", "error", err)
+		os.Exit(1)
+	}
 }
 
 func run(logger *slog.Logger) error {
 	cfg, err := config.Load()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	logger.Info("starting SapienWorx API", "config", cfg.String())
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM); defer stop()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	db, err := database.Open(ctx, cfg.Database, logger)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	defer db.Close()
 	tokens, err := auth.NewTokenManager(cfg.Auth.JWTSecret, cfg.Auth.Issuer, cfg.Auth.Audience, cfg.Auth.AccessTokenTTL, cfg.Auth.ClockSkew)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	var sender sms.Sender
 	if cfg.AWS.SMSEnabled {
 		sender, err = sms.NewSNSClient(ctx, cfg.AWS.Region, cfg.AWS.SNSSenderID)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 	} else if cfg.Environment == "production" {
 		sender = sms.DisabledSender{}
 	} else {
@@ -44,17 +56,29 @@ func run(logger *slog.Logger) error {
 	authService := auth.NewService(db, tokens, sender, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment != "production"})
 	server := httpserver.New(cfg, db, tokens, authService, logger)
 	errCh := make(chan error, 1)
-	go func() { logger.Info("http server listening", "address", cfg.HTTP.Address); errCh <- server.ListenAndServe() }()
+	go func() {
+		logger.Info("http server listening", "address", cfg.HTTP.Address)
+		errCh <- server.ListenAndServe()
+	}()
 	select {
-	case <-ctx.Done(): logger.Info("shutdown signal received")
+	case <-ctx.Done():
+		logger.Info("shutdown signal received")
 	case err := <-errCh:
-		if !errors.Is(err, http.ErrServerClosed) { return err }
+		if !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
 		return nil
 	}
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.HTTP.ShutdownTimeout); defer cancel()
-	if err := server.Shutdown(shutdownCtx); err != nil { return err }
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.HTTP.ShutdownTimeout)
+	defer cancel()
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		return err
+	}
 	select {
-	case err := <-errCh: if err != nil && !errors.Is(err, http.ErrServerClosed) { return err }
+	case err := <-errCh:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
 	case <-time.After(time.Second):
 	}
 	logger.Info("shutdown complete")

@@ -22,92 +22,156 @@ func decodeJSON(w http.ResponseWriter, r *http.Request, target any) bool {
 
 func (s *Server) registerCandidate(w http.ResponseWriter, r *http.Request) {
 	var input auth.CandidateRegistration
-	if !decodeJSON(w, r, &input) { return }
+	if !decodeJSON(w, r, &input) {
+		return
+	}
 	result, err := s.auth.RegisterCandidate(r.Context(), input)
-	if err != nil { s.writeAuthError(w, r, err); return }
+	if err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusCreated, result)
 }
 
 func (s *Server) registerRecruiter(w http.ResponseWriter, r *http.Request) {
 	var input auth.RecruiterRegistration
-	if !decodeJSON(w, r, &input) { return }
+	if !decodeJSON(w, r, &input) {
+		return
+	}
 	result, err := s.auth.RegisterRecruiter(r.Context(), input)
-	if err != nil { s.writeAuthError(w, r, err); return }
+	if err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusCreated, result)
 }
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	var input auth.LoginInput
-	if !decodeJSON(w, r, &input) { return }
+	if !decodeJSON(w, r, &input) {
+		return
+	}
 	result, err := s.auth.Login(r.Context(), input, r.UserAgent(), r.RemoteAddr)
-	if err != nil { s.writeAuthError(w, r, err); return }
+	if err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	s.setAuthCookies(w, result)
 	writeJSON(w, http.StatusOK, result)
 }
 
 func (s *Server) verifyOTP(w http.ResponseWriter, r *http.Request) {
 	var input auth.OTPInput
-	if !decodeJSON(w, r, &input) { return }
+	if !decodeJSON(w, r, &input) {
+		return
+	}
 	result, err := s.auth.VerifyOTP(r.Context(), input)
-	if err != nil { s.writeAuthError(w, r, err); return }
+	if err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusOK, result)
 }
 
 func (s *Server) resendOTP(w http.ResponseWriter, r *http.Request) {
-	var input struct{ Email string `json:"email"` }
-	if !decodeJSON(w, r, &input) { return }
+	var input struct {
+		Email string `json:"email"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
 	code, err := s.auth.ResendPhoneOTP(r.Context(), input.Email)
-	if err != nil { s.writeAuthError(w, r, err); return }
+	if err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	payload := map[string]any{"accepted": true}
-	if code != "" && s.auth.DebugOTPAllowed() { payload["development_otp"] = code }
+	if code != "" && s.auth.DebugOTPAllowed() {
+		payload["development_otp"] = code
+	}
 	writeJSON(w, http.StatusAccepted, payload)
 }
 
 func (s *Server) forgotPassword(w http.ResponseWriter, r *http.Request) {
-	var input struct{ Email string `json:"email"` }
-	if !decodeJSON(w, r, &input) { return }
+	var input struct {
+		Email string `json:"email"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
 	code, err := s.auth.RequestPasswordReset(r.Context(), input.Email)
-	if err != nil && !errors.Is(err, auth.ErrOTPRateLimited) { s.writeAuthError(w, r, err); return }
+	if err != nil && !errors.Is(err, auth.ErrOTPRateLimited) {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	payload := map[string]any{"accepted": true}
-	if code != "" && s.auth.DebugOTPAllowed() { payload["development_otp"] = code }
+	if code != "" && s.auth.DebugOTPAllowed() {
+		payload["development_otp"] = code
+	}
 	writeJSON(w, http.StatusAccepted, payload)
 }
 
 func (s *Server) resetPassword(w http.ResponseWriter, r *http.Request) {
 	var input auth.ResetPasswordInput
-	if !decodeJSON(w, r, &input) { return }
-	if err := s.auth.ResetPassword(r.Context(), input); err != nil { s.writeAuthError(w, r, err); return }
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if err := s.auth.ResetPassword(r.Context(), input); err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	s.clearAuthCookies(w)
 	writeJSON(w, http.StatusOK, map[string]bool{"reset": true})
 }
 
 func (s *Server) refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(s.cfg.Auth.RefreshCookieName)
-	if err != nil { writeError(w, r, http.StatusUnauthorized, "invalid_refresh", "valid session required"); return }
+	if err != nil {
+		writeError(w, r, http.StatusUnauthorized, "invalid_refresh", "valid session required")
+		return
+	}
 	result, err := s.auth.Refresh(r.Context(), cookie.Value, r.UserAgent(), r.RemoteAddr)
-	if err != nil { s.clearAuthCookies(w); s.writeAuthError(w, r, err); return }
+	if err != nil {
+		s.clearAuthCookies(w)
+		s.writeAuthError(w, r, err)
+		return
+	}
 	s.setAuthCookies(w, result)
 	writeJSON(w, http.StatusOK, result)
 }
 
 func (s *Server) logout(w http.ResponseWriter, r *http.Request) {
-	if cookie, err := r.Cookie(s.cfg.Auth.RefreshCookieName); err == nil { _ = s.auth.Logout(r.Context(), cookie.Value) }
+	if cookie, err := r.Cookie(s.cfg.Auth.RefreshCookieName); err == nil {
+		_ = s.auth.Logout(r.Context(), cookie.Value)
+	}
 	s.clearAuthCookies(w)
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Server) logoutAll(w http.ResponseWriter, r *http.Request) {
 	claims, ok := ClaimsFromContext(r.Context())
-	if !ok { writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required"); return }
-	if err := s.auth.LogoutAll(r.Context(), claims.Subject); err != nil { s.writeAuthError(w, r, err); return }
+	if !ok {
+		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
+		return
+	}
+	if err := s.auth.LogoutAll(r.Context(), claims.Subject); err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	s.clearAuthCookies(w)
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Server) verifyRecruiter(w http.ResponseWriter, r *http.Request) {
 	userID := strings.TrimSpace(r.PathValue("userID"))
-	if userID == "" { writeError(w, r, http.StatusBadRequest, "invalid_request", "recruiter user id is required"); return }
-	if err := s.auth.VerifyRecruiter(r.Context(), userID); err != nil { s.writeAuthError(w, r, err); return }
+	if userID == "" {
+		writeError(w, r, http.StatusBadRequest, "invalid_request", "recruiter user id is required")
+		return
+	}
+	if err := s.auth.VerifyRecruiter(r.Context(), userID); err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusOK, map[string]bool{"verified": true})
 }
 
@@ -121,22 +185,32 @@ func (s *Server) setAuthCookies(w http.ResponseWriter, result auth.SessionResult
 
 func (s *Server) clearAuthCookies(w http.ResponseWriter) {
 	expires := time.Unix(1, 0)
-	for _, cookie := range []struct{name, path string}{{s.cfg.Auth.AccessCookieName, "/"},{s.cfg.Auth.RefreshCookieName, "/api/v1/auth"}} {
+	for _, cookie := range []struct{ name, path string }{{s.cfg.Auth.AccessCookieName, "/"}, {s.cfg.Auth.RefreshCookieName, "/api/v1/auth"}} {
 		http.SetCookie(w, &http.Cookie{Name: cookie.name, Value: "", Path: cookie.path, Domain: s.cfg.Auth.CookieDomain, MaxAge: -1, Expires: expires, HttpOnly: true, Secure: s.cfg.Auth.CookieSecure, SameSite: http.SameSiteLaxMode})
 	}
 }
 
 func (s *Server) writeAuthError(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
-	case errors.Is(err, auth.ErrInvalidCredentials): writeError(w, r, http.StatusUnauthorized, "invalid_credentials", "email or password is incorrect")
-	case errors.Is(err, auth.ErrAccountPending): writeError(w, r, http.StatusForbidden, "account_pending", "account verification is still pending")
-	case errors.Is(err, auth.ErrConflict): writeError(w, r, http.StatusConflict, "account_exists", "an account already exists for these details")
-	case errors.Is(err, auth.ErrInvalidOTP): writeError(w, r, http.StatusBadRequest, "invalid_otp", "verification code is invalid or expired")
-	case errors.Is(err, auth.ErrOTPRateLimited): writeError(w, r, http.StatusTooManyRequests, "otp_rate_limited", "wait before requesting another verification code")
-	case errors.Is(err, auth.ErrInvalidRefresh): writeError(w, r, http.StatusUnauthorized, "invalid_refresh", "valid session required")
-	case errors.Is(err, auth.ErrForbidden): writeError(w, r, http.StatusForbidden, "forbidden", "operation is not permitted")
+	case errors.Is(err, auth.ErrInvalidCredentials):
+		writeError(w, r, http.StatusUnauthorized, "invalid_credentials", "email or password is incorrect")
+	case errors.Is(err, auth.ErrAccountPending):
+		writeError(w, r, http.StatusForbidden, "account_pending", "account verification is still pending")
+	case errors.Is(err, auth.ErrConflict):
+		writeError(w, r, http.StatusConflict, "account_exists", "an account already exists for these details")
+	case errors.Is(err, auth.ErrInvalidOTP):
+		writeError(w, r, http.StatusBadRequest, "invalid_otp", "verification code is invalid or expired")
+	case errors.Is(err, auth.ErrOTPRateLimited):
+		writeError(w, r, http.StatusTooManyRequests, "otp_rate_limited", "wait before requesting another verification code")
+	case errors.Is(err, auth.ErrInvalidRefresh):
+		writeError(w, r, http.StatusUnauthorized, "invalid_refresh", "valid session required")
+	case errors.Is(err, auth.ErrForbidden):
+		writeError(w, r, http.StatusForbidden, "forbidden", "operation is not permitted")
 	default:
-		if strings.Contains(err.Error(), "required") || strings.Contains(err.Error(), "password") || strings.Contains(err.Error(), "email") || strings.Contains(err.Error(), "phone") { writeError(w, r, http.StatusBadRequest, "validation_error", err.Error()); return }
+		if strings.Contains(err.Error(), "required") || strings.Contains(err.Error(), "password") || strings.Contains(err.Error(), "email") || strings.Contains(err.Error(), "phone") {
+			writeError(w, r, http.StatusBadRequest, "validation_error", err.Error())
+			return
+		}
 		s.logger.Error("authentication operation failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
 		writeError(w, r, http.StatusInternalServerError, "internal_error", "authentication operation could not be completed")
 	}

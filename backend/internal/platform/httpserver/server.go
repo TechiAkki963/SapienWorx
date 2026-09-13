@@ -10,7 +10,7 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
 )
 
-type DatabaseHealth interface { Ping(context.Context) error }
+type DatabaseHealth interface{ Ping(context.Context) error }
 
 type Server struct {
 	http      *http.Server
@@ -46,19 +46,29 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	return s
 }
 
-func (s *Server) ListenAndServe() error { return s.http.ListenAndServe() }
+func (s *Server) ListenAndServe() error              { return s.http.ListenAndServe() }
 func (s *Server) Shutdown(ctx context.Context) error { return s.http.Shutdown(ctx) }
 
-func (s *Server) live(w http.ResponseWriter, _ *http.Request) { writeJSON(w, http.StatusOK, map[string]string{"status":"ok","service":"sapienworx-api"}) }
+func (s *Server) live(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "sapienworx-api"})
+}
 
 func (s *Server) ready(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), s.dbTimeout); defer cancel()
-	if err := s.db.Ping(ctx); err != nil { s.logger.Warn("readiness check failed", "error", err, "request_id", RequestIDFromContext(r.Context())); writeError(w, r, http.StatusServiceUnavailable, "not_ready", "service dependencies are not ready"); return }
-	writeJSON(w, http.StatusOK, map[string]string{"status":"ready"})
+	ctx, cancel := context.WithTimeout(r.Context(), s.dbTimeout)
+	defer cancel()
+	if err := s.db.Ping(ctx); err != nil {
+		s.logger.Warn("readiness check failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
+		writeError(w, r, http.StatusServiceUnavailable, "not_ready", "service dependencies are not ready")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 }
 
 func (s *Server) me(w http.ResponseWriter, r *http.Request) {
 	claims, ok := ClaimsFromContext(r.Context())
-	if !ok { writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required"); return }
-	writeJSON(w, http.StatusOK, map[string]any{"id":claims.Subject,"role":claims.Role})
+	if !ok {
+		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"id": claims.Subject, "role": claims.Role})
 }
