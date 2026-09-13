@@ -42,7 +42,7 @@ const sizes: Record<ButtonSize, string> = {
 export function Button(props: ButtonProps) {
   const { children, className, variant = "primary", size = "md" } = props;
   const styles = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition duration-200 focus-visible:outline-none",
+    "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/45 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
     variants[variant],
     sizes[size],
     className,
