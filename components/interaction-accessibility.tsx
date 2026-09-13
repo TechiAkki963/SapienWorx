@@ -87,8 +87,6 @@ function modalBranch(dialog: HTMLElement) {
 
 export function InteractionAccessibility() {
   useEffect(() => {
-    enhanceAuthSemantics();
-
     const semanticObserver = new MutationObserver((records) => {
       for (const record of records) {
         record.addedNodes.forEach((node) => {
@@ -96,7 +94,14 @@ export function InteractionAccessibility() {
         });
       }
     });
-    semanticObserver.observe(document.body, { subtree: true, childList: true });
+
+    // Defer DOM enrichment until hydration has settled. Mutating server-rendered
+    // inputs while nested routes are hydrating produces false React mismatch
+    // warnings and a visible development error badge in visual QA.
+    const semanticTimer = window.setTimeout(() => {
+      enhanceAuthSemantics();
+      semanticObserver.observe(document.body, { subtree: true, childList: true });
+    }, 250);
 
     let activeDialog: HTMLElement | null = null;
     let previousFocus: HTMLElement | null = null;
@@ -183,6 +188,7 @@ export function InteractionAccessibility() {
 
     document.addEventListener("keydown", onKeyDown, true);
     return () => {
+      window.clearTimeout(semanticTimer);
       semanticObserver.disconnect();
       dialogObserver.disconnect();
       document.removeEventListener("keydown", onKeyDown, true);
