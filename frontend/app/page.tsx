@@ -10,175 +10,211 @@ const journey = [
   {
     title: "Discover",
     eyebrow: "Find your fit",
-    body: "Explore real opportunities by role, location and experience — with less noise around the work that matters to you.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000&q=85",
-    alt: "Professional smiling in a bright workspace",
+    body: "Find roles that match your skills, goals and values.",
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=88",
+    alt: "Professional man smiling in a bright workspace",
     tone: "blue" as const,
   },
   {
     title: "Grow",
-    eyebrow: "Build your story",
-    body: "Keep your profile, applications and career context together so every next step can build on the last one.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1000&q=85",
-    alt: "Professional woman smiling in a natural portrait",
+    eyebrow: "Build new skills",
+    body: "Access resources, insights and a community that helps you move forward.",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=88",
+    alt: "Professional woman smiling while working",
     tone: "mint" as const,
   },
   {
     title: "Belong",
-    eyebrow: "People, not profiles",
-    body: "Connect with a more human hiring experience where candidates and recruiters can understand each other clearly.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=85",
-    alt: "Professional woman in a warm candid portrait",
+    eyebrow: "Be part of something",
+    body: "Join a more human professional network built around people, not profiles.",
+    image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=88",
+    alt: "Colleagues talking together in a relaxed workspace",
     tone: "peach" as const,
   },
 ];
 
+const proof = [
+  ["Clear", "application stages"],
+  ["Real", "published opportunities"],
+  ["Human", "candidate profiles"],
+  ["Useful", "recruiter context"],
+];
+
 export default function HomePage() {
   return (
-    <main id="main-content" className="min-h-screen overflow-hidden bg-white/45">
+    <main id="main-content" className="min-h-screen overflow-hidden bg-white">
       <PublicHeader />
 
-      <Container>
-        <section className="grid items-center gap-12 pb-16 pt-10 lg:min-h-[44rem] lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:py-16">
-          <Reveal className="relative z-10">
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-indigo">Real people. Brighter tomorrows.</p>
-            <h1 className="mt-5 max-w-3xl text-balance text-[clamp(3.2rem,7vw,6.3rem)] font-bold leading-[0.91] tracking-[-0.068em] text-navy">
-              Your next opportunity <span className="text-indigo">feels human here.</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-pretty text-base leading-7 text-ink-muted md:text-lg">
-              Discover meaningful work, connect with great companies and build a career that fits your life — with SapienWorx.
-            </p>
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f7fbff_0%,#ffffff_100%)]">
+        <Container>
+          <div className="grid items-center gap-10 pb-10 pt-8 lg:min-h-[41rem] lg:grid-cols-[0.94fr_1.06fr] lg:gap-12 lg:pb-14 lg:pt-10">
+            <Reveal className="relative z-20">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-navy/70">Real people. Brighter tomorrows.</p>
+              <h1 className="mt-5 max-w-[39rem] text-balance font-serif text-[clamp(3.6rem,7vw,6.8rem)] font-semibold leading-[0.88] tracking-[-0.062em] text-navy">
+                Your next opportunity <span className="italic text-indigo">feels human here.</span>
+              </h1>
+              <p className="mt-6 max-w-[35rem] text-[17px] leading-7 text-ink-muted">
+                Discover meaningful work, connect with great companies and build a career that fits your life — with SapienWorx.
+              </p>
 
-            <form action="/jobs" className="mt-8 grid overflow-hidden rounded-[1.4rem] border border-line/80 bg-white p-1.5 shadow-card sm:grid-cols-2 lg:grid-cols-[1.25fr_0.85fr_0.85fr_auto]" role="search">
-              <label className="sr-only" htmlFor="home-q">Job title, skill or company</label>
-              <input id="home-q" name="q" className="min-h-14 rounded-xl bg-transparent px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:bg-indigo-soft/35" placeholder="Job title, skill or company" />
+              <form action="/jobs" className="mt-7 grid overflow-hidden rounded-full border border-line/80 bg-white p-1.5 shadow-[0_15px_40px_rgb(18_54_104_/_0.12)] sm:grid-cols-2 lg:grid-cols-[1.25fr_0.85fr_0.9fr_auto]" role="search">
+                <label className="sr-only" htmlFor="home-q">Job title, skill or company</label>
+                <input id="home-q" name="q" className="min-h-12 rounded-full bg-transparent px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:bg-indigo-soft/35" placeholder="Job title, skills or company" />
 
-              <label className="sr-only" htmlFor="home-experience">Experience</label>
-              <select id="home-experience" name="experience" defaultValue="" className="min-h-14 rounded-xl bg-transparent px-4 text-sm text-ink outline-none focus:bg-indigo-soft/35">
-                <option value="">Experience</option>
-                <option value="0">Fresher / 0 years</option>
-                <option value="1">1 year</option>
-                <option value="2">2 years</option>
-                <option value="3">3 years</option>
-                <option value="5">5 years</option>
-                <option value="8">8 years</option>
-                <option value="10">10+ years</option>
-              </select>
+                <label className="sr-only" htmlFor="home-experience">Experience</label>
+                <select id="home-experience" name="experience" defaultValue="" className="min-h-12 rounded-full bg-transparent px-4 text-sm text-ink outline-none focus:bg-indigo-soft/35">
+                  <option value="">Experience</option>
+                  <option value="0">Fresher / 0 years</option>
+                  <option value="1">1 year</option>
+                  <option value="2">2 years</option>
+                  <option value="3">3 years</option>
+                  <option value="5">5 years</option>
+                  <option value="8">8 years</option>
+                  <option value="10">10+ years</option>
+                </select>
 
-              <label className="sr-only" htmlFor="home-location">Location</label>
-              <input id="home-location" name="location" className="min-h-14 rounded-xl bg-transparent px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:bg-indigo-soft/35" placeholder="Location" />
+                <label className="sr-only" htmlFor="home-location">Location</label>
+                <input id="home-location" name="location" className="min-h-12 rounded-full bg-transparent px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:bg-indigo-soft/35" placeholder="Location" />
 
-              <button className="min-h-14 rounded-xl bg-indigo px-6 text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2" type="submit">
-                Search jobs →
-              </button>
-            </form>
+                <button className="min-h-12 rounded-full bg-indigo px-5 text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2" type="submit" aria-label="Search jobs">→</button>
+              </form>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-muted">
-              <span className="font-semibold text-navy">Popular:</span>
-              <a className="rounded-full bg-indigo-soft px-3 py-1.5 transition hover:bg-[#dceaff]" href="/jobs?q=Software+Engineer">Software Engineer</a>
-              <a className="rounded-full bg-indigo-soft px-3 py-1.5 transition hover:bg-[#dceaff]" href="/jobs?q=Product+Manager">Product Manager</a>
-              <a className="rounded-full bg-indigo-soft px-3 py-1.5 transition hover:bg-[#dceaff]" href="/jobs?q=Data+Analyst">Data Analyst</a>
-              <a className="rounded-full bg-indigo-soft px-3 py-1.5 transition hover:bg-[#dceaff]" href="/jobs?work_mode=remote">Remote</a>
-            </div>
-          </Reveal>
-
-          <Reveal className="relative mx-auto w-full max-w-[37rem]" delay={0.08}>
-            <div className="relative isolate min-h-[34rem] lg:min-h-[39rem]">
-              <div className="hero-orbit absolute -left-10 top-10 h-60 w-60 rounded-full bg-indigo-soft/80 blur-2xl" aria-hidden="true" />
-              <div className="absolute -right-16 bottom-10 h-56 w-56 rounded-full bg-[#dff4ff] blur-2xl" aria-hidden="true" />
-              <HumanSignal className="pointer-events-none absolute -left-8 top-4 z-10 w-40 text-indigo/20" title="" />
-
-              <div className="hero-human organic-mask absolute inset-x-0 bottom-0 top-4 overflow-hidden bg-[#edf5ff] shadow-soft">
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=88"
-                  alt="Professional woman smiling in a bright workspace"
-                  className="h-full w-full object-cover object-center"
-                  fetchPriority="high"
-                />
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-muted">
+                <span>Popular searches:</span>
+                <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?q=Software+Engineer">Software Engineer</a>
+                <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?q=Product+Manager">Product Manager</a>
+                <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?q=Data+Analyst">Data Analyst</a>
+                <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?work_mode=remote">Remote</a>
               </div>
 
-              <div className="absolute right-0 top-[24%] z-20 max-w-[13rem] rounded-[1.35rem] border border-white/80 bg-white/92 p-4 shadow-card backdrop-blur md:-right-5">
-                <p className="text-lg font-bold tracking-[-0.025em] text-navy">A more human way to work</p>
-                <div className="mt-4 grid gap-2 text-xs leading-5 text-ink-muted">
-                  <span>✓ Clear opportunities</span>
-                  <span>✓ Transparent applications</span>
-                  <span>✓ Tools to grow</span>
+              <div className="mt-9 flex items-center gap-4">
+                <div className="flex -space-x-2" aria-hidden="true">
+                  {["photo-1494790108377-be9c29b29330", "photo-1500648767791-00dcc994a43e", "photo-1534528741775-53994a69daeb", "photo-1506794778202-cad84cf45f1d"].map((id) => (
+                    <img key={id} src={`https://images.unsplash.com/${id}?auto=format&fit=crop&w=120&q=80`} alt="" className="h-9 w-9 rounded-full border-2 border-white object-cover shadow-sm" loading="lazy" />
+                  ))}
+                </div>
+                <p className="max-w-[14rem] text-xs leading-5 text-ink-muted"><span className="font-bold text-navy">A growing candidate community</span><br />built around clearer career journeys.</p>
+              </div>
+            </Reveal>
+
+            <Reveal className="relative mx-auto w-full max-w-[43rem]" delay={0.08}>
+              <div className="relative isolate min-h-[35rem] sm:min-h-[39rem] lg:min-h-[42rem]">
+                <div className="hero-orbit absolute -left-10 top-8 h-56 w-56 rounded-full bg-[#ddecff] blur-3xl" aria-hidden="true" />
+                <div className="absolute right-0 top-10 h-60 w-60 rounded-full bg-[#dff4ff] blur-3xl" aria-hidden="true" />
+                <div className="absolute inset-x-[4%] bottom-0 top-2 overflow-hidden rounded-[42%_35%_42%_35%/32%_30%_44%_42%] bg-[#eaf3ff] shadow-soft">
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1400&q=90"
+                    alt="Professional woman smiling in a bright workspace"
+                    className="hero-human h-full w-full object-cover object-center"
+                    fetchPriority="high"
+                  />
+                </div>
+
+                <div className="absolute left-1 top-[17%] z-20 hidden -rotate-6 font-serif text-[1.55rem] italic leading-tight text-navy/75 sm:block">Human<br />Potential<br />Real Progress</div>
+                <HumanSignal className="pointer-events-none absolute left-[40%] top-12 z-10 w-32 text-indigo/22" title="" />
+
+                <div className="absolute right-0 top-[24%] z-20 w-[13rem] rounded-[1.35rem] border border-white/80 bg-white/95 p-4 shadow-card backdrop-blur md:-right-2">
+                  <p className="text-sm font-bold text-navy">Product Designer</p>
+                  <p className="mt-1 text-[11px] text-ink-muted">At a growing product team</p>
+                  <div className="mt-4 grid gap-2 text-xs text-ink-muted">
+                    <span>▣ 3–5 years</span>
+                    <span>⌖ Hybrid opportunity</span>
+                  </div>
+                  <a href="/jobs" className="mt-4 inline-flex min-h-9 w-full items-center justify-center rounded-full bg-indigo px-4 text-xs font-bold text-white transition hover:bg-navy">Explore role</a>
+                </div>
+
+                <div className="absolute bottom-5 right-1 z-20 hidden -rotate-3 rounded-[2rem] bg-white/75 px-5 py-4 font-serif text-[1.25rem] italic leading-tight text-navy shadow-sm backdrop-blur sm:block">
+                  Good people.<br />Great work.<br />Brighter futures.
                 </div>
               </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
 
-              <div className="absolute bottom-8 left-0 z-20 rounded-full border border-white/80 bg-white/92 px-4 py-2 text-xs font-bold text-navy shadow-card backdrop-blur md:-left-5">
-                People first. Always.
-              </div>
-            </div>
-          </Reveal>
-        </section>
-      </Container>
-
-      <section id="how-it-works" className="border-y border-line/70 bg-white py-20 sm:py-24" aria-labelledby="journey-title">
+      <section className="border-y border-line/70 bg-white py-7" aria-label="Platform principles">
         <Container>
-          <Reveal className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-extrabold uppercase tracking-[0.19em] text-indigo">Your career, in motion</p>
-            <h2 id="journey-title" className="mt-4 text-balance text-[clamp(2.8rem,5vw,4.6rem)] font-bold leading-[0.98] tracking-[-0.055em] text-navy">
-              More than a job board. A career partner.
-            </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-muted">
-              From your first job to your next big move, SapienWorx is designed to support the human journey behind every application.
-            </p>
-          </Reveal>
-
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
-            {journey.map((item, index) => (
-              <HumanJourneyCard key={item.title} {...item} delay={index * 0.1} />
+          <p className="text-center text-[10px] font-extrabold uppercase tracking-[0.22em] text-navy/55">Built for people building extraordinary careers</p>
+          <div className="mt-5 grid grid-cols-2 gap-3 text-center sm:grid-cols-4 lg:grid-cols-8">
+            {["Discover", "Profile", "Applications", "Saved Jobs", "Recruiters", "Interviews", "Offers", "Growth"].map((label) => (
+              <div key={label} className="rounded-xl px-2 py-2 text-xs font-bold text-navy/55">{label}</div>
             ))}
           </div>
         </Container>
       </section>
 
-      <section className="py-20 sm:py-24" aria-labelledby="people-title">
+      <section id="how-it-works" className="relative bg-[linear-gradient(180deg,#ffffff_0%,#f9fcff_100%)] py-20 sm:py-24" aria-labelledby="journey-title">
         <Container>
-          <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-            <Reveal className="relative">
-              <div className="overflow-hidden rounded-[2.2rem] bg-indigo-soft shadow-soft">
-                <img
-                  src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1100&q=86"
-                  alt="Professional smiling in a candid portrait"
-                  className="aspect-[4/4.5] h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <HumanSignal className="pointer-events-none absolute -bottom-12 -right-10 w-44 text-indigo/18" title="" />
-            </Reveal>
+          <Reveal className="mx-auto max-w-4xl text-center">
+            <h2 id="journey-title" className="text-balance font-serif text-[clamp(3rem,5vw,5rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-navy">
+              More than a job board.<br />A career partner.
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-muted">From your first job to your next big move, SapienWorx is built to support your journey at every step.</p>
+            <a href="#about" className="mt-3 inline-flex text-sm font-bold text-indigo underline-offset-4 hover:underline">See how it works →</a>
+          </Reveal>
 
-            <Reveal delay={0.08}>
-              <p className="text-xs font-extrabold uppercase tracking-[0.19em] text-indigo">People moving forward</p>
-              <h2 id="people-title" className="mt-4 max-w-xl text-balance text-4xl font-bold leading-tight tracking-[-0.045em] text-navy sm:text-5xl">
-                Hiring works better when the person is visible behind the résumé.
-              </h2>
-              <p className="mt-5 max-w-xl text-base leading-7 text-ink-muted">
-                That is the experience we are building: useful job discovery for candidates, clear application progress, and recruiter tools that keep context without turning people into rows of data.
-              </p>
-              <div className="mt-7 flex flex-wrap gap-3">
-                <Button href="/signup">Create your profile</Button>
-                <Button href="/jobs" variant="secondary">Explore jobs →</Button>
+          <div className="mt-12 grid gap-8 md:grid-cols-3">
+            {journey.map((item, index) => <HumanJourneyCard key={item.title} {...item} delay={index * 0.1} />)}
+          </div>
+        </Container>
+      </section>
+
+      <section id="about" className="relative overflow-hidden bg-[#f8fbff] py-20 sm:py-24" aria-labelledby="people-title">
+        <div className="pointer-events-none absolute -left-16 top-24 h-48 w-48 rounded-full bg-[#deedff] blur-2xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-12 bottom-14 h-56 w-56 rounded-full bg-[#e9f5ff] blur-2xl" aria-hidden="true" />
+        <Container>
+          <Reveal className="mx-auto max-w-4xl text-center">
+            <p className="font-serif text-lg italic text-indigo">Real stories. Real progress.</p>
+            <h2 id="people-title" className="mt-4 text-balance font-serif text-[clamp(2.9rem,5vw,4.8rem)] font-semibold leading-[0.96] tracking-[-0.052em] text-navy">People moving forward<br />with SapienWorx</h2>
+          </Reveal>
+
+          <Reveal className="mx-auto mt-10 max-w-4xl" delay={0.08}>
+            <div className="rounded-[2rem] border border-line/80 bg-white px-6 py-7 shadow-soft sm:px-9 sm:py-8">
+              <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=180&q=85" alt="Candidate portrait" className="h-20 w-20 rounded-full object-cover" loading="lazy" />
+                <div>
+                  <p className="font-serif text-xl italic leading-8 text-navy">“The best hiring experiences feel clear, respectful and human from the first search to the final conversation.”</p>
+                  <p className="mt-4 text-sm font-bold text-navy">The SapienWorx product principle</p>
+                  <p className="text-sm text-ink-muted">Candidate-first by design</p>
+                </div>
               </div>
-            </Reveal>
+            </div>
+          </Reveal>
+
+          <div className="mt-6 flex justify-center gap-1.5" aria-hidden="true"><span className="h-2 w-5 rounded-full bg-indigo" /><span className="h-2 w-2 rounded-full bg-line" /><span className="h-2 w-2 rounded-full bg-line" /></div>
+        </Container>
+      </section>
+
+      <section className="bg-white py-12 sm:py-14" aria-label="SapienWorx product principles">
+        <Container>
+          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+            {proof.map(([value, label]) => (
+              <Reveal key={value}>
+                <div className="text-center lg:text-left">
+                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-soft text-sm font-bold text-indigo lg:mx-0">✓</div>
+                  <p className="text-3xl font-extrabold tracking-[-0.04em] text-navy">{value}</p>
+                  <p className="mt-1 text-sm text-ink-muted">{label}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </Container>
       </section>
 
       <Container>
-        <section className="pb-16 sm:pb-20">
+        <section className="pb-14 pt-5 sm:pb-16">
           <Reveal>
-            <div className="relative grid overflow-hidden rounded-[2.3rem] bg-navy text-white shadow-soft lg:grid-cols-[1fr_0.72fr]">
-              <div className="relative z-10 p-8 sm:p-12">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#79b8ff]">Your next chapter starts here</p>
-                <h2 className="mt-3 max-w-2xl text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Find work that fits the person you are becoming.</h2>
-                <p className="mt-4 max-w-xl text-sm leading-6 text-white/70">Create a free candidate profile, search by your experience and location, and keep your opportunities together in one place.</p>
-                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup" className="bg-white text-navy hover:bg-indigo-soft">Create account →</Button><Button href="/jobs" variant="secondary">Explore jobs</Button></div>
+            <div className="relative grid min-h-[21rem] overflow-hidden rounded-[2.1rem] bg-[linear-gradient(110deg,#0a5fe8_0%,#073a8f_100%)] text-white shadow-soft lg:grid-cols-[0.78fr_1.22fr]">
+              <div className="relative min-h-[18rem] overflow-hidden lg:min-h-full">
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000&q=88" alt="Professional looking ahead" className="absolute inset-0 h-full w-full object-cover object-center" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0a5fe8]/10 via-transparent to-[#073a8f]/75" aria-hidden="true" />
               </div>
-              <div className="relative hidden min-h-80 overflow-hidden lg:block">
-                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=86" alt="Professional looking ahead" className="absolute inset-0 h-full w-full object-cover opacity-90" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/35 to-transparent" aria-hidden="true" />
+              <div className="relative z-10 flex flex-col justify-center p-8 sm:p-12">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">Your next chapter starts here.</p>
+                <h2 className="mt-3 max-w-xl font-serif text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Your next chapter starts here.</h2>
+                <p className="mt-4 max-w-lg text-sm leading-6 text-white/78">Create your free account and get one step closer to a more meaningful career.</p>
+                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup" className="bg-white text-navy hover:bg-indigo-soft">Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
+                <p className="absolute bottom-6 right-7 hidden -rotate-5 font-serif text-xl italic leading-tight text-white/75 sm:block">Same people.<br />Bigger possibilities.</p>
               </div>
             </div>
           </Reveal>
