@@ -7,6 +7,25 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
 import { RecruiterJob } from "@/lib/recruiter";
 
+const educationOptions = [
+  "Any Postgraduate",
+  "Post Graduation Not Required",
+  "M.Tech",
+  "MCA",
+  "MS/M.Sc(Science)",
+  "MBA/PGDM",
+  "LLM",
+  "PG Diploma",
+  "Any Graduate",
+  "B.Tech / B.E.",
+  "B.Sc",
+  "B.C.A.",
+  "Graduation Not Required",
+  "B.A - Bachelor of Arts",
+  "B.Com",
+  "Diploma",
+];
+
 export function CreateJobForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -22,9 +41,15 @@ export function CreateJobForm() {
       .split(",")
       .map((skill) => skill.trim())
       .filter(Boolean);
+    const education = data.getAll("education_requirements").map(String).filter(Boolean);
 
     if (!skills.length) {
       setError("Add at least one required skill so SapienWorx can match suitable candidates.");
+      setBusy(false);
+      return;
+    }
+    if (!education.length) {
+      setError("Select at least one education requirement.");
       setBusy(false);
       return;
     }
@@ -47,10 +72,16 @@ export function CreateJobForm() {
           publish: data.get("publish") === "on",
         }),
       });
-      await apiRequest(`/api/v1/recruiter/jobs/${job.id}/skills`, {
-        method: "PATCH",
-        body: JSON.stringify({ skills }),
-      });
+      await Promise.all([
+        apiRequest(`/api/v1/recruiter/jobs/${job.id}/skills`, {
+          method: "PATCH",
+          body: JSON.stringify({ skills }),
+        }),
+        apiRequest(`/api/v1/recruiter/jobs/${job.id}/education`, {
+          method: "PATCH",
+          body: JSON.stringify({ education }),
+        }),
+      ]);
       setOpen(false);
       router.refresh();
     } catch (cause) {
@@ -67,7 +98,7 @@ export function CreateJobForm() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="font-bold">Create job</h2>
-          <p className="mt-1 text-xs text-ink-muted">Required skills power the candidate recommendation score.</p>
+          <p className="mt-1 text-xs text-ink-muted">Required skills power matching; education requirements power candidate search filters.</p>
         </div>
         <button type="button" onClick={() => setOpen(false)} className="text-sm font-semibold text-ink-muted hover:text-ink">Close</button>
       </div>
@@ -83,6 +114,17 @@ export function CreateJobForm() {
         <input name="openings" type="number" min="1" defaultValue="1" className="rounded-xl border border-line bg-white px-3 py-2.5" />
         <input name="application_deadline" type="date" className="rounded-xl border border-line bg-white px-3 py-2.5 md:col-span-2" />
         <input name="required_skills" required placeholder="Required skills, comma separated — Java, Spring Boot, PostgreSQL" className="rounded-xl border border-line bg-white px-3 py-2.5 md:col-span-2" />
+        <fieldset className="rounded-xl border border-line bg-white p-4 md:col-span-2">
+          <legend className="px-1 text-sm font-bold text-navy">Education requirements</legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {educationOptions.map((option) => (
+              <label key={option} className="flex items-center gap-2 text-xs font-semibold text-ink-muted">
+                <input type="checkbox" name="education_requirements" value={option} className="h-4 w-4 rounded border-line" />
+                {option}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <textarea name="description" required rows={5} placeholder="Job description" className="rounded-xl border border-line bg-white px-3 py-2.5 md:col-span-2" />
       </div>
       <label className="mt-3 flex items-center gap-2 text-sm font-semibold"><input type="checkbox" name="publish" />Publish immediately</label>
