@@ -1,4 +1,4 @@
-import { ProfileForm } from "@/components/candidate/profile-form";
+import { ProfileEditor } from "@/components/candidate/profile-editor";
 import { WorkspaceError } from "@/components/candidate/workspace-error";
 import { CandidateProfile, CandidateProfileDetails } from "@/lib/candidate";
 import { candidateAPI } from "@/lib/candidate-server";
@@ -25,7 +25,7 @@ export default async function CandidateProfilePage() {
           Keep your complete candidate record accurate. Recruiters only see information according to your profile visibility and platform permissions.
         </p>
       </div>
-      <ProfileForm profile={profile} extended={extended} />
+      <ProfileEditor profile={profile} extended={extended} />
     </div>
   );
 }
