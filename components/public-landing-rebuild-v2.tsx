@@ -72,19 +72,10 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
                 <span>Job title or skills</span>
                 <input name="keywords" placeholder="e.g. Java, Product Designer" />
               </label>
-              <fieldset className={styles.experience}>
-                <legend>Experience</legend>
-                <div>
-                  <label>
-                    <span>Min</span>
-                    <input name="minimumExperienceYears" type="number" min="0" max="60" inputMode="numeric" placeholder="0" />
-                  </label>
-                  <label>
-                    <span>Max</span>
-                    <input name="maximumExperienceYears" type="number" min="0" max="60" inputMode="numeric" placeholder="Any" />
-                  </label>
-                </div>
-              </fieldset>
+              <label className={styles.searchField}>
+                <span>Experience</span>
+                <input name="minimumExperienceYears" type="number" min="0" max="60" inputMode="numeric" placeholder="Years of experience" />
+              </label>
               <label className={styles.searchField}>
                 <span>Location</span>
                 <input name="location" placeholder="City or location" />
@@ -200,7 +191,6 @@ export function PublicLandingRebuildV2({ jobs = [], articles = [] }: PublicLandi
         </div>
         <div>
           <Link className={styles.recruiterCta} href="/recruiters">Explore recruiter workspace</Link>
-          <Link className={styles.recruiterSignIn} href="/recruiter/login">Recruiter sign in</Link>
         </div>
       </section>
 
