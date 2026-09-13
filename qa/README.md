@@ -9,7 +9,7 @@ This directory is the executable quality gate for SapienWorx. It complements the
 - **Integration:** PostgreSQL FK/cascade/isolation, query/index, migration idempotency.
 - **Contract/API:** malformed payloads, routing/methods, pagination, RBAC, injection resilience.
 - **Browser:** Playwright smoke, responsive visual regression, accessibility and state-preserving journeys.
-- **Performance:** k6 candidate search and recruiter bulk-update scenarios.
+- **Performance:** k6 candidate search and concurrent recruiter stage-update scenarios.
 - **Manual:** release, UX, security, upload and observability checks.
 
 ## Local prerequisites
@@ -44,7 +44,7 @@ npm run test:regression
 
 ```bash
 cd qa/tests/go
-go mod download
+go mod tidy
 go test ./... -v -count=1
 ```
 
@@ -58,20 +58,22 @@ Set `API_URL` plus role-specific JWTs when routes require authorization:
 API_URL=http://127.0.0.1:8080 \
 RECRUITER_JWT='...' \
 CANDIDATE_JWT='...' \
-go test ./... -run 'TestMalformed|TestUnsupported|TestCandidate|TestInjection' -v
+go test ./... -run 'TestMalformed|TestUnsupported|TestCandidate|TestStandard|TestRecruiter|TestInjection' -v
 ```
 
 ## Performance
 
+Populate recruiter-owned application IDs, then run:
+
 ```bash
 cd qa
 API_URL=http://127.0.0.1:8080 \
-CANDIDATE_JWT='...' \
 RECRUITER_JWT='...' \
+APPLICATION_IDS='id1,id2,id3' \
 k6 run performance/load_test.js
 ```
 
-CI fails when candidate search p95 is >=300ms or request/error rates are >=1%.
+The suite fails when candidate search p95 is >=300ms, global/scenario error rates are >=1%, or recruiter stage-update p95 is >=1000ms.
 
 ## Stable selector contract
 
