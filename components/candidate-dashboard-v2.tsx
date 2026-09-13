@@ -45,30 +45,20 @@ export function CandidateDashboardV2({ initialData }: { initialData: CandidateDa
       <main className={styles.dashboard}>
         <section className={styles.hero}>
           <div className={styles.heroCopy}>
-            <span className={styles.eyebrow}>Your job search</span>
-            <h2>Stay on top of every opportunity.</h2>
-            <p>Track applications, interviews and recruiter activity without losing sight of your next move.</p>
+            <span className={styles.eyebrow}>{hasApplications ? "Your job search" : "Start your search"}</span>
+            <h2>{hasApplications ? "Stay on top of every opportunity." : "Find the next role worth your time."}</h2>
+            <p>{hasApplications ? "Track applications, interviews and recruiter activity without losing sight of your next move." : "Explore open roles, build a complete profile, and apply when the opportunity matches your experience and preferences."}</p>
           </div>
           <div className={styles.heroActions}><Button href="/candidate/jobs">Search open roles</Button></div>
           <HumanSignal tone="candidate" compact className={styles.heroSignal} />
         </section>
 
-        {hasApplications ? (
+        {hasApplications && (
           <section className={styles.stats} aria-label="Application summary">
             <Stat value={applications.length} label="Total applications" />
             <Stat value={activeApplications.length} label="Active process" />
             <Stat value={interviews.length} label="Interviews scheduled" />
             <Stat value={offers.length} label="Offers received" />
-          </section>
-        ) : (
-          <section className={styles.zeroState}>
-            <div className={styles.zeroStateCopy}>
-              <span className={styles.eyebrow}>Start your search</span>
-              <h3>You haven’t applied anywhere yet.</h3>
-              <p>Explore open roles and apply when you find a role that fits your experience and preferences.</p>
-            </div>
-            <HumanSignal tone="candidate" compact className={styles.zeroSignal} />
-            <Button href="/candidate/jobs">Search open roles</Button>
           </section>
         )}
 
@@ -93,9 +83,9 @@ export function CandidateDashboardV2({ initialData }: { initialData: CandidateDa
               <div className={styles.sectionHeading}>
                 <div>
                   <span className={styles.eyebrow}>Applications</span>
-                  <h3>Applications in progress</h3>
+                  <h3>{hasApplications ? "Applications in progress" : "Your applications will appear here"}</h3>
                 </div>
-                <Button href="/candidate/applications" variant="quiet">View all applications →</Button>
+                {hasApplications && <Button href="/candidate/applications" variant="quiet">View all applications →</Button>}
               </div>
 
               {activeApplications.length ? (
@@ -120,8 +110,8 @@ export function CandidateDashboardV2({ initialData }: { initialData: CandidateDa
                 </div>
               ) : (
                 <div className={styles.zeroStateCopy}>
-                  <h3>No active applications right now.</h3>
-                  <p>Closed, withdrawn or completed applications remain available in your application history.</p>
+                  <p>{hasApplications ? "Closed, withdrawn or completed applications remain available in your application history." : "When you apply for a role, its latest stage and recruiter updates will be shown here."}</p>
+                  {!hasApplications && <div className={styles.panelAction}><Button href="/candidate/jobs" variant="secondary">Browse jobs</Button></div>}
                 </div>
               )}
             </section>
