@@ -51,7 +51,7 @@ func run(logger *slog.Logger) error {
 		if senderErr != nil {
 			return senderErr
 		}
-		sender = sms.NewMeteredSender(snsSender, db)
+		sender = sms.NewMeteredSender(snsSender, db, logger)
 	} else if cfg.Environment == "production" {
 		sender = sms.DisabledSender{}
 	} else {
