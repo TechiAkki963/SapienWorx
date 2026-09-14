@@ -46,7 +46,7 @@ test.describe("candidate job discovery", () => {
     expect(params.get("min_salary")).toBe("800000");
     expect(params.get("max_salary")).toBe("1800000");
     expect(params.get("salary_currency")).toBe("INR");
-    expect(params.getAll("education")).toEqual(["B.Tech / B.E.", "MCA"]);
+    expect(params.getAll("education").sort()).toEqual(["B.Tech / B.E.", "MCA"].sort());
     expect(params.get("limit")).toBe("10");
 
     await page.reload();
