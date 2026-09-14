@@ -7,7 +7,7 @@ test.describe("Master Admin command centre", () => {
 
   test("enters through the hidden gateway and fetches platform metrics server-side", async ({ page, request }) => {
     await page.goto("/swx-command-centre");
-    await expect(page.getByText("Restricted gateway")).toBeVisible();
+    await expect(page.getByText("Restricted gateway").first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Enter the command centre" })).toBeVisible();
 
     await login(page, "master_admin");
