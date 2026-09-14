@@ -7,8 +7,9 @@ import (
 )
 
 type Client struct {
-	Conn *websocket.Conn
-	Send chan ChatMessage
+	Conn   *websocket.Conn
+	UserID string
+	Send   chan WebSocketEvent
 }
 
 type Hub struct {
@@ -64,13 +65,34 @@ func (h *Hub) Unregister(threadID string, client *Client) {
 	}
 }
 
-func (h *Hub) Broadcast(threadID string, message ChatMessage) {
+func (h *Hub) Broadcast(threadID string, event WebSocketEvent) {
+	h.broadcast(threadID, event, "", "")
+}
+
+// BroadcastExceptUser is used for transient presence signals such as typing.
+// It avoids echoing the signal back to any of the sender's open tabs.
+func (h *Hub) BroadcastExceptUser(threadID, excludedUserID string, event WebSocketEvent) {
+	h.broadcast(threadID, event, excludedUserID, "")
+}
+
+// BroadcastToUser targets delivery receipts to the original message sender.
+func (h *Hub) BroadcastToUser(threadID, userID string, event WebSocketEvent) {
+	h.broadcast(threadID, event, "", userID)
+}
+
+func (h *Hub) broadcast(threadID string, event WebSocketEvent, excludedUserID, targetUserID string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	members := h.clients[threadID]
 	for client := range members {
+		if excludedUserID != "" && client.UserID == excludedUserID {
+			continue
+		}
+		if targetUserID != "" && client.UserID != targetUserID {
+			continue
+		}
 		select {
-		case client.Send <- message:
+		case client.Send <- event:
 		default:
 			delete(members, client)
 			close(client.Send)
