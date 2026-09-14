@@ -5,17 +5,21 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var (
-	messagingService *messaging.Service
-	messageHub       = messaging.NewHub(512, 8)
-)
+type messagingRuntime struct {
+	service *messaging.Service
+	hub     *messaging.Hub
+}
 
-func bootstrapMessaging(db DatabaseHealth) {
-	messageHub = messaging.NewHub(512, 8)
-	pool, ok := db.(*pgxpool.Pool)
-	if !ok {
-		messagingService = nil
-		return
+func newMessagingRuntime(db DatabaseHealth) *messagingRuntime {
+	runtime := &messagingRuntime{hub: messaging.NewHub(512, 8)}
+	if pool, ok := db.(*pgxpool.Pool); ok {
+		runtime.service = messaging.NewService(pool)
 	}
-	messagingService = messaging.NewService(pool)
+	return runtime
+}
+
+func (m *messagingRuntime) Close() {
+	if m != nil && m.hub != nil {
+		m.hub.Close()
+	}
 }
