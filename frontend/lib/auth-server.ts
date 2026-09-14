@@ -20,7 +20,11 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
 export async function requireRole(role: Role): Promise<SessionUser> {
   const session = await getSessionUser();
-  if (!session) redirect(role === "recruiter" ? "/recruiter/login" : role === "master_admin" ? "/_admin/login" : "/login");
-  if (session.role !== role) redirect(session.role === "recruiter" ? "/recruiter" : session.role === "master_admin" ? "/_admin" : "/candidate");
+  if (!session) {
+    redirect(role === "recruiter" ? "/recruiter/login" : role === "master_admin" ? "/swx-command-centre" : "/login");
+  }
+  if (session.role !== role) {
+    redirect(session.role === "recruiter" ? "/recruiter" : session.role === "master_admin" ? "/swx-command-centre/overview" : "/candidate");
+  }
   return session;
 }
