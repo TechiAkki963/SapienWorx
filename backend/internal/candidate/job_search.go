@@ -3,6 +3,7 @@ package candidate
 import (
 	"context"
 	"strings"
+	"time"
 )
 
 type CandidateJobFilters struct {
@@ -17,6 +18,36 @@ type CandidateJobFilters struct {
 	SalaryCurrency   string
 	Page             int
 	Limit            int
+}
+
+type CandidateJobCard struct {
+	ID                  string     `json:"id"`
+	CompanyName         string     `json:"company_name"`
+	CompanyLogoURL      *string    `json:"company_logo_url,omitempty"`
+	Title               string     `json:"title"`
+	Department          *string    `json:"department,omitempty"`
+	Description         string     `json:"description"`
+	EmploymentType      string     `json:"employment_type"`
+	WorkMode            string     `json:"work_mode"`
+	City                *string    `json:"city,omitempty"`
+	State               *string    `json:"state,omitempty"`
+	CountryCode         string     `json:"country_code"`
+	MinExperienceMonths int        `json:"min_experience_months"`
+	MaxExperienceMonths *int       `json:"max_experience_months,omitempty"`
+	MinSalaryAmount     *float64   `json:"min_salary_amount,omitempty"`
+	MaxSalaryAmount     *float64   `json:"max_salary_amount,omitempty"`
+	SalaryCurrency      string     `json:"salary_currency"`
+	Openings            int        `json:"openings"`
+	ApplicationDeadline *time.Time `json:"application_deadline,omitempty"`
+	PublishedAt         *time.Time `json:"published_at,omitempty"`
+	RequiredSkills      []string   `json:"required_skills"`
+}
+
+type CandidateJobList struct {
+	Items []CandidateJobCard `json:"items"`
+	Page  int                `json:"page"`
+	Limit int                `json:"limit"`
+	Total int                `json:"total"`
 }
 
 func normalizeEducation(values []string) []string {
@@ -36,7 +67,7 @@ func normalizeEducation(values []string) []string {
 	return result
 }
 
-func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters) (JobList, error) {
+func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters) (CandidateJobList, error) {
 	if filters.Page < 1 {
 		filters.Page = 1
 	}
@@ -87,25 +118,25 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 
 	var total int
 	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where, query, location, company, workMode, experienceMonths, education, minSalary, maxSalary, salaryCurrency).Scan(&total); err != nil {
-		return JobList{}, err
+		return CandidateJobList{}, err
 	}
 
-	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY j.published_at DESC NULLS LAST,j.created_at DESC LIMIT $10 OFFSET $11`, query, location, company, workMode, experienceMonths, education, minSalary, maxSalary, salaryCurrency, filters.Limit, (filters.Page-1)*filters.Limit)
+	rows, err := s.db.Query(ctx, `SELECT j.id,c.display_name,c.logo_url,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY j.published_at DESC NULLS LAST,j.created_at DESC LIMIT $10 OFFSET $11`, query, location, company, workMode, experienceMonths, education, minSalary, maxSalary, salaryCurrency, filters.Limit, (filters.Page-1)*filters.Limit)
 	if err != nil {
-		return JobList{}, err
+		return CandidateJobList{}, err
 	}
 	defer rows.Close()
 
-	items := make([]Job, 0)
+	items := make([]CandidateJobCard, 0)
 	for rows.Next() {
-		var job Job
-		if err := scanJob(rows, &job); err != nil {
-			return JobList{}, err
+		var job CandidateJobCard
+		if err := rows.Scan(&job.ID, &job.CompanyName, &job.CompanyLogoURL, &job.Title, &job.Department, &job.Description, &job.EmploymentType, &job.WorkMode, &job.City, &job.State, &job.CountryCode, &job.MinExperienceMonths, &job.MaxExperienceMonths, &job.MinSalaryAmount, &job.MaxSalaryAmount, &job.SalaryCurrency, &job.Openings, &job.ApplicationDeadline, &job.PublishedAt, &job.RequiredSkills); err != nil {
+			return CandidateJobList{}, err
 		}
 		items = append(items, job)
 	}
 	if err := rows.Err(); err != nil {
-		return JobList{}, err
+		return CandidateJobList{}, err
 	}
-	return JobList{Items: items, Page: filters.Page, Limit: filters.Limit, Total: total}, nil
+	return CandidateJobList{Items: items, Page: filters.Page, Limit: filters.Limit, Total: total}, nil
 }
