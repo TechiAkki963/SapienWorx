@@ -16,9 +16,10 @@ export default function RecruiterSignupPage() {
       title="Bring your team into a more focused recruiting workflow."
       description="Register with your official company email, verify your mobile number and request access to the SapienWorx recruiter workspace."
       features={recruiterFeatures}
-      image="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1500&q=88"
-      imageAlt="Recruiting team collaborating around a table"
+      image="/images/people/auth-recruiter.webp"
+      imageAlt="Recruiting professionals collaborating in a softly lit office"
       reverseOnDesktop
+      tone="peach"
     >
       <SignupForm recruiter />
     </AuthShell>
