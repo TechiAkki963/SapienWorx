@@ -54,6 +54,11 @@ func MasterAdminOnly(tokens *auth.TokenManager, accessCookieName string, service
 				writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
 				return
 			}
+			if service == nil {
+				logger.Error("master admin service unavailable", "request_id", RequestIDFromContext(r.Context()))
+				writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+				return
+			}
 
 			allowed, authErr := service.AuthorizeMasterAdmin(r.Context(), claims.Subject)
 			if authErr != nil {
@@ -75,6 +80,9 @@ func MasterAdminOnly(tokens *auth.TokenManager, accessCookieName string, service
 }
 
 func auditAdminDenied(ctx context.Context, service *admin.Service, logger *slog.Logger, r *http.Request, adminID *string, reason string, extra map[string]any) {
+	if service == nil {
+		return
+	}
 	metadata := map[string]any{
 		"reason": reason,
 		"path":   r.URL.Path,
