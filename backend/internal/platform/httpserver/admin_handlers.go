@@ -71,9 +71,74 @@ func (s *Server) adminRejectCompany(w http.ResponseWriter, r *http.Request) {
 	s.adminReviewCompany(w, r, "rejected")
 }
 
+func (s *Server) adminRegistrationDocument(w http.ResponseWriter, r *http.Request) {
+	adminUserID, ok := adminClaimsID(r)
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+		return
+	}
+	url, err := s.admin.RegistrationDocument(r.Context(), strings.TrimSpace(r.PathValue("verificationID")), adminUserID, clientIP(r.RemoteAddr), RequestIDFromContext(r.Context()))
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"url": url})
+}
+
 func (s *Server) adminUsers(w http.ResponseWriter, r *http.Request) {
 	page, limit := parseAdminPage(r)
 	result, err := s.admin.Users(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("role"), r.URL.Query().Get("status"), page, limit)
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
+func (s *Server) adminJobs(w http.ResponseWriter, r *http.Request) {
+	page, limit := parseAdminPage(r)
+	result, err := s.admin.Jobs(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("status"), page, limit)
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
+func (s *Server) adminAuditLogs(w http.ResponseWriter, r *http.Request) {
+	page, limit := parseAdminPage(r)
+	result, err := s.admin.AuditLogs(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("action"), r.URL.Query().Get("target_type"), page, limit)
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
+func (s *Server) adminBudgetSettings(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		result, err := s.admin.BudgetSettings(r.Context())
+		if err != nil {
+			s.writeAdminError(w, r, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, result)
+		return
+	}
+
+	adminUserID, ok := adminClaimsID(r)
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+		return
+	}
+	var input struct {
+		WarningCount  int `json:"sns_sms_warning_count"`
+		CriticalCount int `json:"sns_sms_critical_count"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	result, err := s.admin.UpdateBudgetSettings(r.Context(), adminUserID, input.WarningCount, input.CriticalCount, clientIP(r.RemoteAddr), RequestIDFromContext(r.Context()))
 	if err != nil {
 		s.writeAdminError(w, r, err)
 		return
