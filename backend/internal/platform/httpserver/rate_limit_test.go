@@ -3,6 +3,8 @@ package httpserver
 import (
 	"net/http"
 	"net/http/httptest"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -49,6 +51,46 @@ func TestIPRateLimiterResetsWindow(t *testing.T) {
 	now = now.Add(time.Minute + time.Second)
 	if allowed, _ := limiter.Allow("login:203.0.113.10"); !allowed {
 		t.Fatal("request after window reset should be allowed")
+	}
+}
+
+func TestIPRateLimiterConcurrentContention(t *testing.T) {
+	const (
+		goroutines = 1000
+		limit      = 250
+	)
+
+	limiter := NewIPRateLimiter(limit, time.Minute)
+	fixed := time.Date(2026, 9, 14, 8, 0, 0, 0, time.UTC)
+	limiter.now = func() time.Time { return fixed }
+
+	var allowed atomic.Int64
+	var blocked atomic.Int64
+	var wg sync.WaitGroup
+	wg.Add(goroutines)
+
+	start := make(chan struct{})
+	for i := 0; i < goroutines; i++ {
+		go func() {
+			defer wg.Done()
+			<-start
+			ok, _ := limiter.Allow("otp:203.0.113.10")
+			if ok {
+				allowed.Add(1)
+				return
+			}
+			blocked.Add(1)
+		}()
+	}
+
+	close(start)
+	wg.Wait()
+
+	if got := allowed.Load(); got != limit {
+		t.Fatalf("allowed = %d, want %d", got, limit)
+	}
+	if got := blocked.Load(); got != goroutines-limit {
+		t.Fatalf("blocked = %d, want %d", got, goroutines-limit)
 	}
 }
 
