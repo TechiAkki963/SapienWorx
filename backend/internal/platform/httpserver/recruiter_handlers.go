@@ -45,7 +45,7 @@ func (s *Server) recruiterJobs(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	item, err := s.recruiter.CreateJob(r.Context(), id, input)
+	item, err := s.recruiter.CreateJobEfficient(r.Context(), id, input)
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
@@ -135,7 +135,7 @@ func (s *Server) recruiterInterviews(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	item, err := s.recruiter.ScheduleInterview(r.Context(), id, input)
+	item, err := s.recruiter.ScheduleInterviewEfficient(r.Context(), id, input)
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
