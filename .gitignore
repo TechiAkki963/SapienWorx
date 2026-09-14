@@ -17,6 +17,11 @@ backend/bin/
 backend/coverage.out
 backend/*.test
 
+# Performance testing
+performance/summary.json
+performance/*tokens*.txt
+performance/*.tokens
+
 # Local tooling
 .DS_Store
 Thumbs.db
