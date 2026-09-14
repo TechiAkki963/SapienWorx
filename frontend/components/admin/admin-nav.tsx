@@ -4,36 +4,30 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
-  { href: "/swx-command-centre/overview", label: "Overview", icon: "grid" },
-  { href: "/swx-command-centre/tenants", label: "Tenant governance", icon: "building" },
-  { href: "/swx-command-centre/users", label: "Users & moderation", icon: "users" },
-  { href: "/swx-command-centre/system", label: "System health", icon: "pulse" },
+  ["/swx-command-centre/overview", "Overview"],
+  ["/swx-command-centre/tenants", "Tenant governance"],
+  ["/swx-command-centre/users", "Users & moderation"],
+  ["/swx-command-centre/jobs", "Job moderation"],
+  ["/swx-command-centre/audit", "Audit logs"],
+  ["/swx-command-centre/system", "System health"],
 ] as const;
 
-function Icon({ name }: { name: (typeof items)[number]["icon"] }) {
-  if (name === "grid") return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>;
-  if (name === "building") return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d="M5 20V6l7-3 7 3v14M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1M3 20h18"/></svg>;
-  if (name === "users") return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-3.2 2.6-5 5.5-5s4.8 1.8 5.5 5M16 5.5a2.7 2.7 0 0 1 0 5.2M16.5 14c2.2.4 3.6 1.9 4 4.2"/></svg>;
-  return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d="M3 12h4l2-5 4 10 2-5h6"/><path d="M4 4h16v16H4z" opacity=".25"/></svg>;
+function Icon({ index }: { index: number }) {
+  const paths = [
+    "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
+    "M5 20V6l7-3 7 3v14M3 20h18M9 9h1M14 9h1M9 14h1M14 14h1",
+    "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.5 20c.6-4 2.5-6 5.5-6s4.9 2 5.5 6M16 7a3 3 0 0 1 0 5M16.5 15c2.2.5 3.5 2 4 4.5",
+    "M5 5h14v14H5zM8 9h8M8 13h6M8 17h4",
+    "M6 3h12v18H6zM9 8h6M9 12h6M9 16h4",
+    "M3 12h4l2-5 4 10 2-5h6",
+  ];
+  return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d={paths[index]} /></svg>;
 }
 
 export function AdminNav() {
   const pathname = usePathname();
-  return (
-    <nav aria-label="Master Admin navigation" className="grid gap-1">
-      {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}
-          >
-            <span className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon name={item.icon} /></span>
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
-  );
+  return <nav aria-label="Master Admin navigation" className="grid gap-1">{items.map(([href, label], index) => {
+    const active = pathname === href || pathname.startsWith(`${href}/`);
+    return <Link key={href} href={href} className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon index={index} /></span><span>{label}</span></Link>;
+  })}</nav>;
 }
