@@ -32,6 +32,7 @@ type Server struct {
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, logger *slog.Logger) *Server {
 	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, cfg: cfg}
+	bootstrapMessaging(db)
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health/live", s.live)
 	mux.HandleFunc("GET /health/ready", s.ready)
@@ -100,6 +101,18 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/recruiter/applications/{applicationID}/stage", Chain(http.HandlerFunc(s.recruiterApplicationStage), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
+	mux.Handle("DELETE /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/inmail", Chain(http.HandlerFunc(s.recruiterInitiateInMail), protected, recruiterOnly))
+
+	messagingUsers := RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)
+	mux.Handle("GET /api/v1/messaging/threads", Chain(http.HandlerFunc(s.messagingThreads), protected, messagingUsers, candidateActivity))
+	mux.Handle("GET /api/v1/messaging/threads/{threadID}/messages", Chain(http.HandlerFunc(s.messagingMessages), protected, messagingUsers, candidateActivity))
+	mux.Handle("POST /api/v1/messaging/threads/{threadID}/messages", Chain(http.HandlerFunc(s.messagingMessages), protected, messagingUsers, candidateActivity))
+	mux.Handle("PATCH /api/v1/messaging/threads/{threadID}/read", Chain(http.HandlerFunc(s.messagingRead), protected, messagingUsers, candidateActivity))
+	mux.Handle("GET /api/v1/messaging/threads/{threadID}/ws", Chain(http.HandlerFunc(s.messagingSocket), protected, messagingUsers, candidateActivity))
 
 	mux.Handle("GET /api/v1/admin/metrics", Chain(http.HandlerFunc(s.adminMetrics), adminOnly))
 	mux.Handle("GET /api/v1/admin/company-verifications", Chain(http.HandlerFunc(s.adminCompanyVerifications), adminOnly))
@@ -122,7 +135,10 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 
 func (s *Server) SetObjectStorage(presigner storage.Presigner) { s.objectStorage = presigner }
 func (s *Server) ListenAndServe() error                        { return s.http.ListenAndServe() }
-func (s *Server) Shutdown(ctx context.Context) error           { return s.http.Shutdown(ctx) }
+func (s *Server) Shutdown(ctx context.Context) error {
+	messageHub.Close()
+	return s.http.Shutdown(ctx)
+}
 
 func (s *Server) live(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "sapienworx-api"})
