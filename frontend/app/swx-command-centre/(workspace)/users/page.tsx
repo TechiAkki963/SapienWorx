@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { JobTakedownForm, UserModerationActions } from "@/components/admin/admin-actions";
+import { UserModerationActions } from "@/components/admin/admin-actions";
 import { adminAPI } from "@/lib/admin-server";
 import type { AdminUserList } from "@/lib/admin";
 
@@ -45,8 +45,6 @@ export default async function AdminUsersPage({ searchParams }: Props) {
       </div>
 
       <div className="flex items-center justify-between text-sm text-slate-500"><span>{data.total.toLocaleString("en-IN")} users</span><div className="flex items-center gap-2"><Link href={pageHref(Math.max(1,page-1))} className={`rounded-lg border border-slate-200 px-3 py-2 font-semibold ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-white"}`}>Previous</Link><span className="px-2 text-xs font-bold">Page {page} of {pages}</span><Link href={pageHref(Math.min(pages,page+1))} className={`rounded-lg border border-slate-200 px-3 py-2 font-semibold ${page >= pages ? "pointer-events-none opacity-40" : "hover:bg-white"}`}>Next</Link></div></div>
-
-      <div className="rounded-[1.35rem] border border-red-100 bg-white p-5 shadow-[0_10px_30px_rgba(127,29,29,0.035)]"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-red-600">Content moderation</p><h2 className="mt-2 text-lg font-bold text-slate-950">Direct job takedown</h2><p className="mt-1 mb-4 text-sm text-slate-500">Use when a known job posting requires immediate removal. A searchable job-moderation index is not part of the current backend contract.</p><JobTakedownForm /></div>
     </section>
   );
 }
