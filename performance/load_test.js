@@ -4,13 +4,23 @@ import { Rate, Trend } from 'k6/metrics';
 
 const BASE_URL = (__ENV.BASE_URL || 'http://127.0.0.1:8080').replace(/\/$/, '');
 const ACCESS_TOKEN = (__ENV.ACCESS_TOKEN || '').trim();
-const CANDIDATE_TOKENS = (__ENV.CANDIDATE_TOKENS || '')
-  .split(',')
-  .map((token) => token.trim())
-  .filter(Boolean);
 
-const TOKENS = CANDIDATE_TOKENS.length > 0 ? CANDIDATE_TOKENS : ACCESS_TOKEN ? [ACCESS_TOKEN] : [];
+function loadTokenPool() {
+  if (__ENV.TOKENS_FILE) {
+    return open(__ENV.TOKENS_FILE)
+      .split(/\r?\n/)
+      .map((token) => token.trim())
+      .filter(Boolean);
+  }
+  const fromEnv = (__ENV.CANDIDATE_TOKENS || '')
+    .split(',')
+    .map((token) => token.trim())
+    .filter(Boolean);
+  if (fromEnv.length > 0) return fromEnv;
+  return ACCESS_TOKEN ? [ACCESS_TOKEN] : [];
+}
 
+const TOKENS = loadTokenPool();
 const searchFailures = new Rate('candidate_search_failures');
 const payloadFailures = new Rate('candidate_search_payload_failures');
 const searchLatency = new Trend('candidate_search_latency', true);
@@ -48,8 +58,10 @@ export const options = {
 
 const queries = ['golang', 'java', 'react', 'devops', 'data engineer', 'cloud', 'python', 'backend'];
 const locations = ['Mumbai', 'Pune', 'Bengaluru', 'Hyderabad', 'Chennai', 'Remote'];
+const companies = ['', '', '', 'tech', 'systems'];
 const workModes = ['', 'onsite', 'hybrid', 'remote'];
-const experienceMonths = [0, 12, 24, 36, 60, 84];
+const experienceYears = [0, 1, 2, 3, 5, 7];
+const education = ['', '', 'B.Tech / B.E.', 'Any Graduate', 'MCA'];
 const pages = [1, 1, 1, 2, 3];
 
 function choose(items, seedOffset = 0) {
@@ -59,24 +71,28 @@ function choose(items, seedOffset = 0) {
 
 function candidateToken() {
   if (TOKENS.length === 0) {
-    fail('Set CANDIDATE_TOKENS (comma-separated JWTs; preferred) or ACCESS_TOKEN before running the load test.');
+    fail('Set TOKENS_FILE (preferred), CANDIDATE_TOKENS, or ACCESS_TOKEN before running the load test.');
   }
   return TOKENS[(__VU - 1) % TOKENS.length];
 }
 
+function addParam(parts, key, value) {
+  if (value === '' || value === undefined || value === null) return;
+  parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
+}
+
 function buildSearchURL() {
-  const params = new URLSearchParams();
-  params.set('q', choose(queries, 1));
-  params.set('location', choose(locations, 2));
+  const parts = [];
+  addParam(parts, 'q', choose(queries, 1));
+  addParam(parts, 'location', choose(locations, 2));
+  addParam(parts, 'company', choose(companies, 3));
+  addParam(parts, 'work_mode', choose(workModes, 4));
+  addParam(parts, 'experience', choose(experienceYears, 5));
+  addParam(parts, 'education', choose(education, 6));
+  addParam(parts, 'page', choose(pages, 7));
+  addParam(parts, 'limit', 10);
 
-  const mode = choose(workModes, 3);
-  if (mode) params.set('work_mode', mode);
-
-  params.set('experience_months', String(choose(experienceMonths, 4)));
-  params.set('page', String(choose(pages, 5)));
-  params.set('limit', '10');
-
-  return `${BASE_URL}/api/v1/candidate/jobs?${params.toString()}`;
+  return `${BASE_URL}/api/v1/candidate/jobs?${parts.join('&')}`;
 }
 
 export function setup() {
@@ -87,13 +103,16 @@ export function setup() {
   if (PEAK_VUS >= 1000 && TOKENS.length < 1000) {
     console.warn(
       `PEAK_VUS=${PEAK_VUS}, but only ${TOKENS.length} candidate token(s) supplied. ` +
-        'For a production-representative 1,000-candidate test, provide 1,000 distinct JWTs via CANDIDATE_TOKENS.',
+        'For a production-representative 1,000-candidate test, provide 1,000 distinct JWTs using TOKENS_FILE.',
     );
   }
 
-  const health = http.get(`${BASE_URL}/healthz`, { timeout: '3s', tags: { name: 'health-preflight' } });
+  const health = http.get(`${BASE_URL}/health/ready`, {
+    timeout: '3s',
+    tags: { name: 'readiness-preflight' },
+  });
   if (health.status !== 200) {
-    fail(`API preflight failed: ${BASE_URL}/healthz returned HTTP ${health.status}`);
+    fail(`API preflight failed: ${BASE_URL}/health/ready returned HTTP ${health.status}`);
   }
 
   return { baseURL: BASE_URL, tokenCount: TOKENS.length };
@@ -123,7 +142,11 @@ export function candidateSearch() {
   if (response.status === 200) {
     try {
       const body = response.json();
-      payloadOK = Array.isArray(body.items) && Number.isInteger(body.page) && Number.isInteger(body.limit) && typeof body.total === 'number';
+      payloadOK =
+        Array.isArray(body.items) &&
+        Number.isInteger(body.page) &&
+        Number.isInteger(body.limit) &&
+        typeof body.total === 'number';
     } catch (_) {
       payloadOK = false;
     }
@@ -135,9 +158,11 @@ export function candidateSearch() {
 }
 
 export function handleSummary(data) {
-  const p95 = data.metrics.candidate_search_latency?.values?.['p(95)'];
-  const p99 = data.metrics.candidate_search_latency?.values?.['p(99)'];
-  const failureRate = data.metrics.candidate_search_failures?.values?.rate;
+  const values = data.metrics.candidate_search_latency ? data.metrics.candidate_search_latency.values : {};
+  const failureValues = data.metrics.candidate_search_failures ? data.metrics.candidate_search_failures.values : {};
+  const p95 = values['p(95)'];
+  const p99 = values['p(99)'];
+  const failureRate = failureValues.rate;
 
   console.log(
     `SapienWorx candidate-search peak: ${PEAK_VUS} VUs | ` +
@@ -147,7 +172,6 @@ export function handleSummary(data) {
   );
 
   return {
-    stdout: JSON.stringify(data, null, 2),
-    'performance/results/summary.json': JSON.stringify(data, null, 2),
+    'performance/summary.json': JSON.stringify(data, null, 2),
   };
 }
