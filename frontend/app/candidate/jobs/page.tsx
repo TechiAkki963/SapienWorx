@@ -56,10 +56,12 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
   if (minSalary || maxSalary) query.set("salary_currency", salaryCurrency);
   for (const value of education) query.append("education", value);
 
-  const [result, recommendationResult] = await Promise.all([
+  const [result, recommendationResult, savedResult] = await Promise.all([
     candidateAPI<JobList>(`/api/v1/candidate/jobs?${query.toString()}`).catch(() => null),
     candidateAPI<{ items: CandidateJob[]; minimum_match: number }>("/api/v1/candidate/recommendations").catch(() => ({ items: [], minimum_match: 65 })),
+    candidateAPI<{ items: CandidateJob[] }>("/api/v1/candidate/saved-jobs").catch(() => ({ items: [] })),
   ]);
+  const savedIds = new Set(savedResult.items.map((item) => item.id));
 
   const pageCount = result ? Math.max(1, Math.ceil(result.total / result.limit)) : 1;
   const pageHref = (next: number) => {
@@ -89,7 +91,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
             <p className="text-xs font-semibold text-ink-muted">Based only on your saved IT skills and each job&apos;s required skills.</p>
           </div>
           <div className="mt-4 grid gap-4 xl:grid-cols-2">
-            {recommendationResult.items.map((job) => <JobCard key={job.id} job={job} hrefBase="/candidate/jobs" />)}
+            {recommendationResult.items.map((job) => <JobCard key={job.id} job={job} hrefBase="/candidate/jobs" initialSaved={savedIds.has(job.id)} />)}
           </div>
         </section>
       )}
@@ -134,7 +136,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
 
         <section aria-labelledby="all-jobs-title">
           <div className="flex items-end justify-between gap-3"><h2 id="all-jobs-title" className="text-2xl font-bold text-navy">All active roles</h2>{result && <p className="text-sm font-semibold text-ink-muted">{result.total} roles</p>}</div>
-          {!result ? <Surface className="mt-5 p-8 text-center" tone="peach"><h3 className="font-bold">Jobs are temporarily unavailable.</h3></Surface> : result.items.length ? <div className="mt-5 grid gap-4 xl:grid-cols-2">{result.items.map((job) => <JobCard key={job.id} job={job} hrefBase="/candidate/jobs" />)}</div> : <Surface className="mt-5 p-8 text-center" tone="mint"><h3 className="font-bold">No roles match those filters yet.</h3><p className="mt-2 text-sm text-ink-muted">Try broadening company, education, salary, experience or location filters.</p></Surface>}
+          {!result ? <Surface className="mt-5 p-8 text-center" tone="peach"><h3 className="font-bold">Jobs are temporarily unavailable.</h3></Surface> : result.items.length ? <div className="mt-5 grid gap-4 xl:grid-cols-2">{result.items.map((job) => <JobCard key={job.id} job={job} hrefBase="/candidate/jobs" initialSaved={savedIds.has(job.id)} />)}</div> : <Surface className="mt-5 p-8 text-center" tone="mint"><h3 className="font-bold">No roles match those filters yet.</h3><p className="mt-2 text-sm text-ink-muted">Try broadening company, education, salary, experience or location filters.</p></Surface>}
 
           {result && result.total > result.limit && <nav className="mt-7 flex items-center justify-between gap-4" aria-label="Job result pages"><Button href={pageHref(Math.max(1, page - 1))} variant="secondary" size="sm" className={page <= 1 ? "pointer-events-none opacity-50" : undefined}>← Previous</Button><span className="text-sm font-semibold text-ink-muted">Page {page} of {pageCount}</span><Button href={pageHref(Math.min(pageCount, page + 1))} variant="secondary" size="sm" className={page >= pageCount ? "pointer-events-none opacity-50" : undefined}>Next →</Button></nav>}
         </section>
