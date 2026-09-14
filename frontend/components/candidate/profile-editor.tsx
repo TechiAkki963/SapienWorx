@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { CVManager } from "@/components/candidate/cv-manager";
 import { ProfileForm } from "@/components/candidate/profile-form";
 import { ProfileSummaryCard } from "@/components/candidate/profile-summary-card";
 import { CandidateProfile, CandidateProfileDetails, CandidateProfileSummary } from "@/lib/candidate";
@@ -51,6 +52,7 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
   return (
     <div className="grid gap-5" ref={wrapperRef}>
       <ProfileSummaryCard summary={summary} extended={extended} editing={editing} />
+      <CVManager currentFilename={extended.cv_original_filename} />
 
       <section className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6 print:hidden">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
