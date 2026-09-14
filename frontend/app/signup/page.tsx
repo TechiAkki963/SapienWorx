@@ -16,9 +16,10 @@ export default function CandidateSignupPage() {
       title="Build a profile that represents the person behind the résumé."
       description="Create your SapienWorx candidate account, verify your mobile number and start a more thoughtful job search."
       features={candidateFeatures}
-      image="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=1500&q=88"
-      imageAlt="Professional smiling in a modern workspace"
+      image="/images/people/auth-candidate.webp"
+      imageAlt="Candidate professional in a softly lit modern workplace"
       reverseOnDesktop
+      tone="mint"
     >
       <SignupForm />
     </AuthShell>
