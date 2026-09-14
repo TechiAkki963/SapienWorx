@@ -2,14 +2,14 @@ package messaging
 
 import "time"
 
-type ThreadStatus string
+type ThreadStatus = string
 
 const (
 	ThreadStatusOpen   ThreadStatus = "open"
 	ThreadStatusClosed ThreadStatus = "closed"
 )
 
-type SenderType string
+type SenderType = string
 
 const (
 	SenderTypeCandidate SenderType = "candidate"
