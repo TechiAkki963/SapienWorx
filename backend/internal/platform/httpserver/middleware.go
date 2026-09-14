@@ -147,9 +147,10 @@ func Authenticate(tokens *auth.TokenManager, accessCookieName string) Middleware
 }
 
 func CandidateActivity(service *candidate.Service, logger *slog.Logger) Middleware {
+	gate := newCandidateActivityGate(5 * time.Minute)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if claims, ok := ClaimsFromContext(r.Context()); ok && claims.Role == auth.RoleCandidate {
+			if claims, ok := ClaimsFromContext(r.Context()); ok && claims.Role == auth.RoleCandidate && gate.ShouldMark(claims.Subject) {
 				if err := service.MarkActive(r.Context(), claims.Subject); err != nil {
 					logger.Warn("candidate activity update failed", "user_id", claims.Subject, "error", err, "request_id", RequestIDFromContext(r.Context()))
 				}
