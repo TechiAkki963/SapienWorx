@@ -1,6 +1,7 @@
 export type CandidateJob = {
   id: string;
   company_name: string;
+  company_logo_url?: string;
   title: string;
   department?: string;
   description: string;
