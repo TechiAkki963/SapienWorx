@@ -11,8 +11,10 @@ var (
 )
 
 func bootstrapMessaging(db DatabaseHealth) {
+	messageHub = messaging.NewHub(512, 8)
 	pool, ok := db.(*pgxpool.Pool)
 	if !ok {
+		messagingService = nil
 		return
 	}
 	messagingService = messaging.NewService(pool)
