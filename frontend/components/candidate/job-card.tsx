@@ -31,7 +31,7 @@ export function JobCard({
   compact = false,
   hrefBase = "/jobs",
   initialSaved = false,
-  canSave = false,
+  canSave,
 }: {
   job: CandidateJob;
   compact?: boolean;
@@ -41,6 +41,7 @@ export function JobCard({
 }) {
   const detailHref = `${hrefBase}/${job.id}`;
   const skills = job.required_skills?.slice(0, 5) ?? [];
+  const allowSave = canSave ?? hrefBase.startsWith("/candidate/");
 
   return (
     <Surface className="group relative h-full overflow-hidden border-line/80 bg-white p-5 shadow-[0_8px_28px_rgba(16,33,63,0.05)] transition duration-200 hover:-translate-y-0.5 hover:border-indigo/20 hover:shadow-card">
@@ -82,7 +83,7 @@ export function JobCard({
 
       <div className="relative z-10 mt-5 flex items-center justify-between gap-3 border-t border-line/60 pt-3">
         <span className="text-xs font-semibold text-ink-muted">{postedAgo(job.published_at)}</span>
-        {canSave ? <JobSaveButton jobId={job.id} initialSaved={initialSaved} /> : <span className="text-xs font-bold text-indigo">View role ↗</span>}
+        {allowSave ? <JobSaveButton jobId={job.id} initialSaved={initialSaved} /> : <span className="text-xs font-bold text-indigo">View role ↗</span>}
       </div>
     </Surface>
   );
