@@ -36,4 +36,10 @@ CREATE TRIGGER trg_talent_pool_memberships_updated_at
 BEFORE UPDATE ON talent_pool_memberships
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
+-- One candidate receives at most one alert for a given watched-company job.
+-- action_url is the stable job identity used by the current notification model.
+CREATE UNIQUE INDEX ux_candidate_notifications_company_watch_job
+  ON candidate_notifications (candidate_id, kind, action_url)
+  WHERE kind='company_watch_job' AND action_url IS NOT NULL;
+
 COMMIT;
