@@ -1,13 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { API_URL, apiRequest } from "@/lib/api";
-import type { ChatMessage, MessageListResponse, MessagingThread, SocketMessageEvent } from "@/lib/messaging";
-
-function wsBase() {
-  return API_URL.replace(/^http:/, "ws:").replace(/^https:/, "wss:");
-}
+import { useSapienChat } from "@/hooks/use-sapien-chat";
+import type { ChatMessage, MessagingThread } from "@/lib/messaging";
 
 function formatTime(value: string) {
   return new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
@@ -24,131 +20,47 @@ function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
 }
 
-function mergeMessage(list: ChatMessage[], incoming: ChatMessage) {
-  if (list.some((message) => message.id === incoming.id)) return list;
-  return [...list, incoming].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-}
-
 export function CandidateInbox({ initialThreads }: { initialThreads: MessagingThread[] }) {
   const [threads, setThreads] = useState(initialThreads);
   const [activeThreadID, setActiveThreadID] = useState(initialThreads[0]?.id ?? "");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
-  const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const [socketState, setSocketState] = useState<"offline" | "connecting" | "live">("offline");
-  const socketRef = useRef<WebSocket | null>(null);
-  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const reconnectAttemptsRef = useRef(0);
+  const [sendError, setSendError] = useState("");
   const endRef = useRef<HTMLDivElement | null>(null);
 
   const activeThread = useMemo(() => threads.find((thread) => thread.id === activeThreadID), [threads, activeThreadID]);
 
-  useEffect(() => {
-    if (!activeThreadID) {
-      setMessages([]);
-      return;
-    }
-
-    let cancelled = false;
-    setLoadingMessages(true);
-    setError("");
-    apiRequest<MessageListResponse>(`/api/v1/messaging/threads/${activeThreadID}/messages?limit=100`)
-      .then((result) => {
-        if (!cancelled) setMessages(result.items ?? []);
-      })
-      .catch((cause) => {
-        if (!cancelled) setError(cause instanceof Error ? cause.message : "Could not load conversation.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingMessages(false);
-      });
-
-    apiRequest<void>(`/api/v1/messaging/threads/${activeThreadID}/read`, { method: "PATCH" })
-      .then(() => {
-        if (!cancelled) {
-          setThreads((current) => current.map((thread) => thread.id === activeThreadID ? { ...thread, unread_count: 0 } : thread));
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
+  const handleMessage = useCallback((message: ChatMessage) => {
+    setThreads((current) => current.map((thread) => thread.id === message.thread_id ? {
+      ...thread,
+      last_message: message.content,
+      updated_at: message.created_at,
+      unread_count: thread.id === activeThreadID && message.sender_type === "recruiter" ? thread.unread_count + 1 : thread.unread_count,
+    } : thread));
   }, [activeThreadID]);
 
-  useEffect(() => {
-    if (!activeThreadID) return;
-    let disposed = false;
-
-    function clearReconnectTimer() {
-      if (reconnectTimerRef.current) {
-        clearTimeout(reconnectTimerRef.current);
-        reconnectTimerRef.current = null;
-      }
-    }
-
-    async function refreshAfterReconnect() {
-      try {
-        const result = await apiRequest<MessageListResponse>(`/api/v1/messaging/threads/${activeThreadID}/messages?limit=100`);
-        if (!disposed) setMessages(result.items ?? []);
-      } catch {}
-    }
-
-    function connect() {
-      if (disposed) return;
-      clearReconnectTimer();
-      setSocketState("connecting");
-      const socket = new WebSocket(`${wsBase()}/api/v1/messaging/threads/${activeThreadID}/ws`);
-      socketRef.current = socket;
-
-      socket.onopen = () => {
-        if (disposed) return;
-        const wasReconnect = reconnectAttemptsRef.current > 0;
-        reconnectAttemptsRef.current = 0;
-        setSocketState("live");
-        if (wasReconnect) void refreshAfterReconnect();
-        socket.send(JSON.stringify({ type: "read" }));
-      };
-
-      socket.onmessage = (event) => {
-        try {
-          const payload = JSON.parse(String(event.data)) as SocketMessageEvent;
-          if (payload.type !== "message" || !payload.message) return;
-          setMessages((current) => mergeMessage(current, payload.message));
-          setThreads((current) => current.map((thread) => thread.id === activeThreadID ? {
-            ...thread,
-            last_message: payload.message.content,
-            updated_at: payload.message.created_at,
-            unread_count: 0,
-          } : thread));
-          if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: "read" }));
-        } catch {}
-      };
-
-      socket.onerror = () => {
-        socket.close();
-      };
-
-      socket.onclose = () => {
-        if (disposed) return;
-        setSocketState("offline");
-        reconnectAttemptsRef.current += 1;
-        const delay = Math.min(10000, 750 * 2 ** Math.min(reconnectAttemptsRef.current, 4));
-        reconnectTimerRef.current = setTimeout(connect, delay);
-      };
-    }
-
-    connect();
-    return () => {
-      disposed = true;
-      clearReconnectTimer();
-      reconnectAttemptsRef.current = 0;
-      socketRef.current?.close();
-      socketRef.current = null;
-    };
+  const handleVisibleRead = useCallback((messageIDs: string[]) => {
+    if (messageIDs.length === 0) return;
+    setThreads((current) => current.map((thread) => thread.id === activeThreadID ? {
+      ...thread,
+      unread_count: Math.max(0, thread.unread_count - messageIDs.length),
+    } : thread));
   }, [activeThreadID]);
+
+  const {
+    messages,
+    loading: loadingMessages,
+    error: loadError,
+    connectionState,
+    sendMessage,
+    emitTyping,
+    observeMessage,
+  } = useSapienChat({
+    threadID: activeThreadID,
+    currentSenderType: "candidate",
+    onMessage: handleMessage,
+    onVisibleRead: handleVisibleRead,
+  });
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -157,42 +69,27 @@ export function CandidateInbox({ initialThreads }: { initialThreads: MessagingTh
   function selectThread(threadID: string) {
     setActiveThreadID(threadID);
     setDraft("");
-    setError("");
+    setSendError("");
   }
 
-  async function sendMessage(event: FormEvent) {
+  async function submitMessage(event: FormEvent) {
     event.preventDefault();
     const content = draft.trim();
     if (!content || !activeThreadID || sending) return;
 
     setSending(true);
-    setError("");
+    setSendError("");
     try {
-      let message: ChatMessage;
-      const socket = socketRef.current;
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: "message", content }));
-        setDraft("");
-        return;
-      }
-
-      message = await apiRequest<ChatMessage>(`/api/v1/messaging/threads/${activeThreadID}/messages`, {
-        method: "POST",
-        body: JSON.stringify({ content }),
-      });
-      setMessages((current) => mergeMessage(current, message));
-      setThreads((current) => current.map((thread) => thread.id === activeThreadID ? {
-        ...thread,
-        last_message: message.content,
-        updated_at: message.created_at,
-      } : thread));
+      await sendMessage(content);
       setDraft("");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not send message.");
+      setSendError(cause instanceof Error ? cause.message : "Could not send message.");
     } finally {
       setSending(false);
     }
   }
+
+  const error = sendError || loadError;
 
   return (
     <section className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-[0_24px_70px_rgba(49,46,129,0.10)] backdrop-blur-xl">
@@ -246,8 +143,8 @@ export function CandidateInbox({ initialThreads }: { initialThreads: MessagingTh
                   <p className="mt-0.5 truncate text-xs text-ink-muted">{activeThread.counterparty_name}{activeThread.job_title ? ` · ${activeThread.job_title}` : ""}</p>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] font-bold">
-                  <span className={`h-2 w-2 rounded-full ${socketState === "live" ? "bg-emerald-400" : socketState === "connecting" ? "bg-amber-400" : "bg-slate-300"}`} />
-                  <span className="text-ink-muted">{socketState === "live" ? "Live" : socketState === "connecting" ? "Connecting" : "Reconnecting"}</span>
+                  <span className={`h-2 w-2 rounded-full ${connectionState === "live" ? "bg-emerald-400" : connectionState === "connecting" ? "bg-amber-400" : "bg-slate-300"}`} />
+                  <span className="text-ink-muted">{connectionState === "live" ? "Live" : connectionState === "connecting" ? "Connecting" : "Reconnecting"}</span>
                 </div>
               </header>
 
@@ -261,7 +158,12 @@ export function CandidateInbox({ initialThreads }: { initialThreads: MessagingTh
                     {messages.map((message) => {
                       const mine = message.sender_type === "candidate";
                       return (
-                        <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                        <div
+                          key={message.id}
+                          ref={(node) => observeMessage(message, node)}
+                          data-message-id={message.id}
+                          className={`flex ${mine ? "justify-end" : "justify-start"}`}
+                        >
                           <div className={`max-w-[82%] rounded-[1.35rem] px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.05)] sm:max-w-[72%] ${mine ? "rounded-br-md border border-emerald-100 bg-emerald-50 text-emerald-950" : "rounded-bl-md border border-violet-100 bg-violet-50 text-violet-950"}`}>
                             <p className="whitespace-pre-wrap break-words text-sm leading-6">{message.content}</p>
                             <p className={`mt-1 text-right text-[10px] font-semibold ${mine ? "text-emerald-700/70" : "text-violet-700/70"}`}>{formatTime(message.created_at)}</p>
@@ -274,12 +176,15 @@ export function CandidateInbox({ initialThreads }: { initialThreads: MessagingTh
                 )}
               </div>
 
-              <form onSubmit={sendMessage} className="border-t border-line/70 bg-white/80 p-3 sm:p-4">
+              <form onSubmit={submitMessage} className="border-t border-line/70 bg-white/80 p-3 sm:p-4">
                 {error && <p role="alert" className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{error}</p>}
                 <div className="flex items-end gap-2 rounded-2xl border border-indigo-100 bg-white p-2 shadow-[0_10px_28px_rgba(79,70,229,0.08)] focus-within:ring-4 focus-within:ring-indigo-100/60">
                   <textarea
                     value={draft}
-                    onChange={(event) => setDraft(event.target.value)}
+                    onChange={(event) => {
+                      setDraft(event.target.value);
+                      if (event.target.value.trim()) emitTyping();
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" && !event.shiftKey) {
                         event.preventDefault();
