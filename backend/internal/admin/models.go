@@ -41,14 +41,14 @@ type AuditLog struct {
 func (AuditLog) TableName() string { return "admin_audit_logs" }
 
 type PlatformMetrics struct {
-	MetricDate            time.Time `json:"metric_date" gorm:"type:date;primaryKey"`
-	TotalActiveUsers      int64     `json:"total_active_users" gorm:"not null;default:0"`
-	ActiveJobs            int64     `json:"active_jobs" gorm:"not null;default:0"`
-	TotalCandidates       int64     `json:"total_candidates" gorm:"not null;default:0"`
-	JobsPostedToday       int64     `json:"jobs_posted_today" gorm:"not null;default:0"`
-	SNSSMSSent            int64     `json:"sns_sms_sent" gorm:"not null;default:0"`
+	MetricDate           time.Time  `json:"metric_date" gorm:"type:date;primaryKey"`
+	TotalActiveUsers     int64      `json:"total_active_users" gorm:"not null;default:0"`
+	ActiveJobs           int64      `json:"active_jobs" gorm:"not null;default:0"`
+	TotalCandidates      int64      `json:"total_candidates" gorm:"not null;default:0"`
+	JobsPostedToday      int64      `json:"jobs_posted_today" gorm:"not null;default:0"`
+	SNSSMSSent           int64      `json:"sns_sms_sent" gorm:"not null;default:0"`
 	SNSBillingCycleStart *time.Time `json:"sns_billing_cycle_start,omitempty" gorm:"type:date"`
-	ComputedAt            time.Time `json:"computed_at" gorm:"type:timestamptz;not null"`
+	ComputedAt           time.Time  `json:"computed_at" gorm:"type:timestamptz;not null"`
 }
 
 func (PlatformMetrics) TableName() string { return "platform_metrics_daily" }
