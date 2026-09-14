@@ -193,15 +193,14 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 		_ = conn.Close()
 		return
 	}
+	defer conn.Close()
 	defer messageHub.Unregister(threadID, client)
 
 	conn.SetReadLimit(8 << 10)
 	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	conn.SetPongHandler(func(string) error { return conn.SetReadDeadline(time.Now().Add(60 * time.Second)) })
 
-	done := make(chan struct{})
 	go func() {
-		defer close(done)
 		ticker := time.NewTicker(25 * time.Second)
 		defer ticker.Stop()
 		for {
@@ -229,15 +228,13 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 			Content string `json:"content"`
 		}
 		if err := conn.ReadJSON(&event); err != nil {
-			break
+			return
 		}
 		switch strings.ToLower(strings.TrimSpace(event.Type)) {
 		case "message":
 			message, err := messagingService.SendMessage(r.Context(), threadID, claims.Subject, sender, event.Content)
 			if err != nil {
 				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "message rejected"), time.Now().Add(time.Second))
-				_ = conn.Close()
-				<-done
 				return
 			}
 			messageHub.Broadcast(threadID, message)
@@ -245,13 +242,9 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 			_ = messagingService.MarkRead(r.Context(), threadID, claims.Subject)
 		default:
 			_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "unsupported event"), time.Now().Add(time.Second))
-			_ = conn.Close()
-			<-done
 			return
 		}
 	}
-	_ = conn.Close()
-	<-done
 }
 
 func (s *Server) writeMessagingError(w http.ResponseWriter, r *http.Request, err error) {
