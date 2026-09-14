@@ -14,11 +14,12 @@ type rateWindow struct {
 }
 
 type IPRateLimiter struct {
-	mu     sync.Mutex
-	limit  int
-	window time.Duration
-	now    func() time.Time
-	items  map[string]rateWindow
+	mu       sync.Mutex
+	limit    int
+	window   time.Duration
+	now      func() time.Time
+	items    map[string]rateWindow
+	requests uint64
 }
 
 func NewIPRateLimiter(limit int, window time.Duration) *IPRateLimiter {
@@ -29,6 +30,15 @@ func (l *IPRateLimiter) Allow(key string) (bool, time.Duration) {
 	now := l.now().UTC()
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
+	l.requests++
+	if l.requests%256 == 0 || len(l.items) > 4096 {
+		for itemKey, item := range l.items {
+			if !item.reset.After(now) {
+				delete(l.items, itemKey)
+			}
+		}
+	}
 
 	entry, ok := l.items[key]
 	if !ok || !entry.reset.After(now) {
@@ -46,7 +56,7 @@ func (l *IPRateLimiter) Allow(key string) (bool, time.Duration) {
 func (l *IPRateLimiter) Middleware(scope string) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ip := clientIP(r)
+			ip := requestPeerIP(r)
 			allowed, retry := l.Allow(scope + ":" + ip)
 			if !allowed {
 				seconds := int(retry.Seconds())
@@ -62,7 +72,7 @@ func (l *IPRateLimiter) Middleware(scope string) Middleware {
 	}
 }
 
-func clientIP(r *http.Request) string {
+func requestPeerIP(r *http.Request) string {
 	// Trust only the socket peer here. A deployment proxy may normalize RemoteAddr;
 	// untrusted X-Forwarded-For values must not bypass abuse controls.
 	host, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
