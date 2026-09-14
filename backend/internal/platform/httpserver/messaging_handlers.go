@@ -1,6 +1,8 @@
 package httpserver
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -92,7 +94,7 @@ func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request)
 		s.writeMessagingError(w, r, err)
 		return
 	}
-	s.messages.hub.Broadcast(result.Thread.ID, result.Message)
+	s.messages.hub.Broadcast(result.Thread.ID, messaging.NewMessageEvent(result.Message))
 	writeJSON(w, http.StatusCreated, result)
 }
 
@@ -148,7 +150,7 @@ func (s *Server) messagingMessages(w http.ResponseWriter, r *http.Request) {
 		s.writeMessagingError(w, r, err)
 		return
 	}
-	s.messages.hub.Broadcast(threadID, message)
+	s.messages.hub.Broadcast(threadID, messaging.NewMessageEvent(message))
 	writeJSON(w, http.StatusCreated, message)
 }
 
@@ -158,7 +160,7 @@ func (s *Server) messagingRead(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
-	if err := s.messages.service.MarkRead(r.Context(), r.PathValue("threadID"), claims.Subject); err != nil {
+	if err := s.messages.service.MarkThreadRead(r.Context(), r.PathValue("threadID"), claims.Subject); err != nil {
 		s.writeMessagingError(w, r, err)
 		return
 	}
@@ -187,7 +189,7 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	client := &messaging.Client{Conn: conn, Send: make(chan messaging.ChatMessage, 16)}
+	client := &messaging.Client{Conn: conn, UserID: claims.Subject, Send: make(chan messaging.WebSocketEvent, 16)}
 	if !s.messages.hub.Register(threadID, client) {
 		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseTryAgainLater, "messaging capacity reached"), time.Now().Add(time.Second))
 		_ = conn.Close()
@@ -205,12 +207,12 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 		defer ticker.Stop()
 		for {
 			select {
-			case message, ok := <-client.Send:
+			case event, ok := <-client.Send:
 				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 				if !ok {
 					return
 				}
-				if err := conn.WriteJSON(map[string]any{"type": "message", "message": message}); err != nil {
+				if err := conn.WriteJSON(event); err != nil {
 					return
 				}
 			case <-ticker.C:
@@ -223,23 +225,85 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	for {
-		var event struct {
-			Type    string `json:"type"`
-			Content string `json:"content"`
+		// Content is accepted temporarily so the existing Step 4 client remains
+		// usable until Step 2 moves it fully to the Payload envelope.
+		var inbound struct {
+			messaging.WebSocketEvent
+			Content string `json:"content,omitempty"`
 		}
-		if err := conn.ReadJSON(&event); err != nil {
+		if err := conn.ReadJSON(&inbound); err != nil {
 			return
 		}
-		switch strings.ToLower(strings.TrimSpace(event.Type)) {
-		case "message":
-			message, err := s.messages.service.SendMessage(r.Context(), threadID, claims.Subject, sender, event.Content)
+		if inbound.ThreadID != "" && inbound.ThreadID != threadID {
+			_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "thread mismatch"), time.Now().Add(time.Second))
+			return
+		}
+
+		switch messaging.EventType(strings.ToLower(strings.TrimSpace(string(inbound.Type)))) {
+		case messaging.EventTypeMessage:
+			var payload messaging.MessageInputPayload
+			if len(inbound.Payload) > 0 {
+				if err := json.Unmarshal(inbound.Payload, &payload); err != nil {
+					_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "invalid message payload"), time.Now().Add(time.Second))
+					return
+				}
+			} else {
+				payload.Content = inbound.Content
+			}
+			message, err := s.messages.service.SendMessage(r.Context(), threadID, claims.Subject, sender, payload.Content)
 			if err != nil {
 				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "message rejected"), time.Now().Add(time.Second))
 				return
 			}
-			s.messages.hub.Broadcast(threadID, message)
-		case "read":
-			_ = s.messages.service.MarkRead(r.Context(), threadID, claims.Subject)
+			s.messages.hub.Broadcast(threadID, messaging.NewMessageEvent(message))
+
+		case messaging.EventTypeTyping:
+			var payload messaging.TypingPayload
+			if len(inbound.Payload) == 0 || json.Unmarshal(inbound.Payload, &payload) != nil {
+				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "invalid typing payload"), time.Now().Add(time.Second))
+				return
+			}
+			// Typing is deliberately transient: no service method and no database I/O.
+			s.messages.hub.BroadcastExceptUser(threadID, claims.Subject, messaging.NewTypingEvent(threadID, claims.Subject, payload.IsTyping))
+
+		case messaging.EventTypeRead:
+			var payload messaging.ReadPayload
+			if len(inbound.Payload) > 0 && json.Unmarshal(inbound.Payload, &payload) != nil {
+				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "invalid read payload"), time.Now().Add(time.Second))
+				return
+			}
+
+			if len(payload.MessageIDs) == 0 {
+				// Compatibility bridge for the Step 4 whole-thread read event. Step 2
+				// will switch the client to explicit viewport message IDs.
+				go func() {
+					ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+					defer cancel()
+					if err := s.messages.service.MarkThreadRead(ctx, threadID, claims.Subject); err != nil {
+						s.logger.Warn("legacy websocket read update failed", "error", err, "thread_id", threadID)
+					}
+				}()
+				continue
+			}
+
+			if len(payload.MessageIDs) > messaging.MaxReadReceiptBatch {
+				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "read receipt batch too large"), time.Now().Add(time.Second))
+				return
+			}
+			messageIDs := append([]string(nil), payload.MessageIDs...)
+			go func() {
+				ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+				defer cancel()
+				results, err := s.messages.service.MarkMessagesRead(ctx, threadID, claims.Subject, messageIDs)
+				if err != nil {
+					s.logger.Warn("websocket read receipt update failed", "error", err, "thread_id", threadID)
+					return
+				}
+				for _, result := range results {
+					s.messages.hub.BroadcastToUser(threadID, result.SenderID, messaging.NewReadEvent(threadID, claims.Subject, result.MessageIDs))
+				}
+			}()
+
 		default:
 			_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "unsupported event"), time.Now().Add(time.Second))
 			return
