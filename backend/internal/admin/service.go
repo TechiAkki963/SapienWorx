@@ -64,16 +64,16 @@ type UserList struct {
 }
 
 type MetricsSnapshot struct {
-	MetricDate              time.Time `json:"metric_date"`
-	TotalActiveUsers        int64     `json:"total_active_users"`
-	ActiveJobs              int64     `json:"active_jobs"`
-	TotalCandidates         int64     `json:"total_candidates"`
-	JobsPostedToday         int64     `json:"jobs_posted_today"`
-	SNSSMSSentToday         int64     `json:"sns_sms_sent_today"`
-	SNSSMSSentBillingCycle  int64     `json:"sns_sms_sent_billing_cycle"`
-	SNSBillingCycleStart    time.Time `json:"sns_billing_cycle_start"`
-	PendingCompanyReviews   int64     `json:"pending_company_reviews"`
-	ComputedAt              time.Time `json:"computed_at"`
+	MetricDate             time.Time `json:"metric_date"`
+	TotalActiveUsers       int64     `json:"total_active_users"`
+	ActiveJobs             int64     `json:"active_jobs"`
+	TotalCandidates        int64     `json:"total_candidates"`
+	JobsPostedToday        int64     `json:"jobs_posted_today"`
+	SNSSMSSentToday        int64     `json:"sns_sms_sent_today"`
+	SNSSMSSentBillingCycle int64     `json:"sns_sms_sent_billing_cycle"`
+	SNSBillingCycleStart   time.Time `json:"sns_billing_cycle_start"`
+	PendingCompanyReviews  int64     `json:"pending_company_reviews"`
+	ComputedAt             time.Time `json:"computed_at"`
 }
 
 func normalizePage(page, limit int) (int, int) {
