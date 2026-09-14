@@ -25,12 +25,12 @@ func senderTypeFromClaims(role auth.Role) (messaging.SenderType, bool) {
 
 func (s *Server) recruiterMessageTemplates(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
-	if messagingService == nil {
+	if s.messages == nil || s.messages.service == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
 	if r.Method == http.MethodGet {
-		items, err := messagingService.Templates(r.Context(), claims.Subject)
+		items, err := s.messages.service.Templates(r.Context(), claims.Subject)
 		if err != nil {
 			s.writeMessagingError(w, r, err)
 			return
@@ -42,7 +42,7 @@ func (s *Server) recruiterMessageTemplates(w http.ResponseWriter, r *http.Reques
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	item, err := messagingService.CreateTemplate(r.Context(), claims.Subject, input)
+	item, err := s.messages.service.CreateTemplate(r.Context(), claims.Subject, input)
 	if err != nil {
 		s.writeMessagingError(w, r, err)
 		return
@@ -52,13 +52,13 @@ func (s *Server) recruiterMessageTemplates(w http.ResponseWriter, r *http.Reques
 
 func (s *Server) recruiterMessageTemplate(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
-	if messagingService == nil {
+	if s.messages == nil || s.messages.service == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
 	id := r.PathValue("templateID")
 	if r.Method == http.MethodDelete {
-		if err := messagingService.DeleteTemplate(r.Context(), claims.Subject, id); err != nil {
+		if err := s.messages.service.DeleteTemplate(r.Context(), claims.Subject, id); err != nil {
 			s.writeMessagingError(w, r, err)
 			return
 		}
@@ -69,7 +69,7 @@ func (s *Server) recruiterMessageTemplate(w http.ResponseWriter, r *http.Request
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	item, err := messagingService.UpdateTemplate(r.Context(), claims.Subject, id, input)
+	item, err := s.messages.service.UpdateTemplate(r.Context(), claims.Subject, id, input)
 	if err != nil {
 		s.writeMessagingError(w, r, err)
 		return
@@ -79,7 +79,7 @@ func (s *Server) recruiterMessageTemplate(w http.ResponseWriter, r *http.Request
 
 func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
-	if messagingService == nil {
+	if s.messages == nil || s.messages.service == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
@@ -87,12 +87,12 @@ func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request)
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	result, err := messagingService.Initiate(r.Context(), claims.Subject, input)
+	result, err := s.messages.service.Initiate(r.Context(), claims.Subject, input)
 	if err != nil {
 		s.writeMessagingError(w, r, err)
 		return
 	}
-	messageHub.Broadcast(result.Thread.ID, result.Message)
+	s.messages.hub.Broadcast(result.Thread.ID, result.Message)
 	writeJSON(w, http.StatusCreated, result)
 }
 
@@ -103,11 +103,11 @@ func (s *Server) messagingThreads(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
 		return
 	}
-	if messagingService == nil {
+	if s.messages == nil || s.messages.service == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
-	items, err := messagingService.Threads(r.Context(), claims.Subject, sender)
+	items, err := s.messages.service.Threads(r.Context(), claims.Subject, sender)
 	if err != nil {
 		s.writeMessagingError(w, r, err)
 		return
@@ -122,14 +122,14 @@ func (s *Server) messagingMessages(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
 		return
 	}
-	if messagingService == nil {
+	if s.messages == nil || s.messages.service == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
 	threadID := r.PathValue("threadID")
 	if r.Method == http.MethodGet {
 		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-		items, err := messagingService.Messages(r.Context(), threadID, claims.Subject, limit)
+		items, err := s.messages.service.Messages(r.Context(), threadID, claims.Subject, limit)
 		if err != nil {
 			s.writeMessagingError(w, r, err)
 			return
@@ -143,22 +143,22 @@ func (s *Server) messagingMessages(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	message, err := messagingService.SendMessage(r.Context(), threadID, claims.Subject, sender, input.Content)
+	message, err := s.messages.service.SendMessage(r.Context(), threadID, claims.Subject, sender, input.Content)
 	if err != nil {
 		s.writeMessagingError(w, r, err)
 		return
 	}
-	messageHub.Broadcast(threadID, message)
+	s.messages.hub.Broadcast(threadID, message)
 	writeJSON(w, http.StatusCreated, message)
 }
 
 func (s *Server) messagingRead(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
-	if messagingService == nil {
+	if s.messages == nil || s.messages.service == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
-	if err := messagingService.MarkRead(r.Context(), r.PathValue("threadID"), claims.Subject); err != nil {
+	if err := s.messages.service.MarkRead(r.Context(), r.PathValue("threadID"), claims.Subject); err != nil {
 		s.writeMessagingError(w, r, err)
 		return
 	}
@@ -172,12 +172,12 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
 		return
 	}
-	if messagingService == nil {
+	if s.messages == nil || s.messages.service == nil || s.messages.hub == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
 		return
 	}
 	threadID := r.PathValue("threadID")
-	if _, err := messagingService.Messages(r.Context(), threadID, claims.Subject, 1); err != nil {
+	if _, err := s.messages.service.Messages(r.Context(), threadID, claims.Subject, 1); err != nil {
 		s.writeMessagingError(w, r, err)
 		return
 	}
@@ -188,13 +188,13 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	client := &messaging.Client{Conn: conn, Send: make(chan messaging.ChatMessage, 16)}
-	if !messageHub.Register(threadID, client) {
+	if !s.messages.hub.Register(threadID, client) {
 		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseTryAgainLater, "messaging capacity reached"), time.Now().Add(time.Second))
 		_ = conn.Close()
 		return
 	}
 	defer conn.Close()
-	defer messageHub.Unregister(threadID, client)
+	defer s.messages.hub.Unregister(threadID, client)
 
 	conn.SetReadLimit(8 << 10)
 	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
@@ -232,14 +232,14 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 		}
 		switch strings.ToLower(strings.TrimSpace(event.Type)) {
 		case "message":
-			message, err := messagingService.SendMessage(r.Context(), threadID, claims.Subject, sender, event.Content)
+			message, err := s.messages.service.SendMessage(r.Context(), threadID, claims.Subject, sender, event.Content)
 			if err != nil {
 				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "message rejected"), time.Now().Add(time.Second))
 				return
 			}
-			messageHub.Broadcast(threadID, message)
+			s.messages.hub.Broadcast(threadID, message)
 		case "read":
-			_ = messagingService.MarkRead(r.Context(), threadID, claims.Subject)
+			_ = s.messages.service.MarkRead(r.Context(), threadID, claims.Subject)
 		default:
 			_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "unsupported event"), time.Now().Add(time.Second))
 			return
