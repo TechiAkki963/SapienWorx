@@ -51,7 +51,7 @@ func run(logger *slog.Logger) error {
 		if senderErr != nil {
 			return senderErr
 		}
-		sender = sms.NewMeteredSender(snsSender, db, logger)
+		sender = sms.NewMeteredSender(snsSender, db, logger, cfg.AWS.SMSDailyLimit)
 	} else if cfg.Environment == "production" {
 		sender = sms.DisabledSender{}
 	} else {
