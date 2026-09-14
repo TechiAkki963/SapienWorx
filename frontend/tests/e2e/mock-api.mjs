@@ -196,6 +196,19 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { items, page, limit: 10, total: 24 });
   }
 
+  if (url.pathname === "/api/v1/recruiter/dashboard" && req.method === "GET") return json(res, 200, {
+    recruiter_name: "Riya Recruiter",
+    company_name: "Sapien Labs India",
+    active_jobs: 12,
+    applications: 1000,
+    shortlisted: 85,
+    upcoming_interviews: 14,
+    offers: 7,
+    hires: 5,
+    placement_rate: 5.8,
+    recent_applications: pipelineRows().slice(0, 6),
+    needs_attention: [],
+  });
   if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") return json(res, 200, { items: [{ ...job(), applications: 1000, status: "active", updated_at: now() }] });
   if (url.pathname === "/api/v1/recruiter/pipeline" && req.method === "GET") {
     const page = Number(url.searchParams.get("page") ?? 1);
