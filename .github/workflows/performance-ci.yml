@@ -1,0 +1,39 @@
+name: Performance Script CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "performance/**"
+      - ".github/workflows/performance-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "performance/**"
+      - ".github/workflows/performance-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: performance-script-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.x"
+      - name: Validate k6 script syntax
+        run: node --check performance/load_test.js
+      - name: Verify Phase D load contract
+        run: |
+          grep -q '/health/ready' performance/load_test.js
+          grep -q 'PEAK_VUS || 1000' performance/load_test.js
+          grep -q '/api/v1/candidate/jobs' performance/load_test.js
+          grep -q 'TOKENS_FILE' performance/load_test.js
