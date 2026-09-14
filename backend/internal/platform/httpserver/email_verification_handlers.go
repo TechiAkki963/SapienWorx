@@ -24,9 +24,9 @@ func (s *Server) requestEmailVerification(w http.ResponseWriter, r *http.Request
 		return
 	}
 	payload := map[string]any{
-		"accepted":             true,
-		"delivery_configured":  s.auth.DebugOTPAllowed(),
-		"already_verified":     s.auth.EmailVerified(r.Context(), input.Email),
+		"accepted":            true,
+		"delivery_configured": s.auth.DebugOTPAllowed(),
+		"already_verified":    s.auth.EmailVerified(r.Context(), input.Email),
 	}
 	if code != "" && s.auth.DebugOTPAllowed() {
 		payload["development_code"] = code
