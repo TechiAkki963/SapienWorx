@@ -45,9 +45,10 @@ type UseSapienChatOptions = {
   currentSenderType: MessagingSenderType;
   onMessage?: (message: ChatMessage) => void;
   onRead?: (messageIDs: string[]) => void;
+  onVisibleRead?: (messageIDs: string[]) => void;
 };
 
-export function useSapienChat({ threadID, currentSenderType, onMessage, onRead }: UseSapienChatOptions) {
+export function useSapienChat({ threadID, currentSenderType, onMessage, onRead, onVisibleRead }: UseSapienChatOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -229,15 +230,21 @@ export function useSapienChat({ threadID, currentSenderType, onMessage, onRead }
     if (ids.length === 0 || !threadID) return;
     ids.forEach((id) => readQueueRef.current.delete(id));
 
+    const idSet = new Set(ids);
+    setMessages((current) => current.map((message) => idSet.has(message.id) ? { ...message, is_read: true } : message));
+    onVisibleRead?.(ids);
+
     const sent = sendEvent({ type: "read", thread_id: threadID, payload: { message_ids: ids } });
     if (!sent) {
-      apiRequest<void>(`/api/v1/messaging/threads/${threadID}/read`, { method: "PATCH" }).catch(() => {});
+      apiRequest<void>(`/api/v1/messaging/threads/${threadID}/read`, { method: "PATCH" }).catch(() => {
+        void refreshHistory();
+      });
     }
 
     if (readQueueRef.current.size > 0) {
       readFlushTimerRef.current = setTimeout(flushReadQueue, READ_BATCH_DELAY_MS);
     }
-  }, [sendEvent, threadID]);
+  }, [onVisibleRead, refreshHistory, sendEvent, threadID]);
 
   useEffect(() => {
     if (!threadID || typeof IntersectionObserver === "undefined") return;
