@@ -52,11 +52,11 @@ func TestIPRateLimiterResetsWindow(t *testing.T) {
 	}
 }
 
-func TestClientIPDoesNotTrustForwardedHeader(t *testing.T) {
+func TestRequestPeerIPDoesNotTrustForwardedHeader(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/login", nil)
 	req.RemoteAddr = "198.51.100.20:44321"
 	req.Header.Set("X-Forwarded-For", "203.0.113.99")
-	if got := clientIP(req); got != "198.51.100.20" {
-		t.Fatalf("clientIP() = %q, want socket peer", got)
+	if got := requestPeerIP(req); got != "198.51.100.20" {
+		t.Fatalf("requestPeerIP() = %q, want socket peer", got)
 	}
 }
