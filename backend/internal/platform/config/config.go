@@ -80,10 +80,10 @@ func Load() (Config, error) {
 		},
 		Database: DatabaseConfig{
 			URL:             strings.TrimSpace(os.Getenv("DATABASE_URL")),
-			MaxConns:        int32Env("DB_MAX_CONNS", 10),
-			MinConns:        int32Env("DB_MIN_CONNS", 1),
-			MaxConnLifetime: durationEnv("DB_MAX_CONN_LIFETIME", 30*time.Minute),
-			MaxConnIdleTime: durationEnv("DB_MAX_CONN_IDLE_TIME", 5*time.Minute),
+			MaxConns:        int32Env("DB_MAX_CONNS", 6),
+			MinConns:        int32Env("DB_MIN_CONNS", 0),
+			MaxConnLifetime: durationEnv("DB_MAX_CONN_LIFETIME", 20*time.Minute),
+			MaxConnIdleTime: durationEnv("DB_MAX_CONN_IDLE_TIME", 2*time.Minute),
 			HealthTimeout:   durationEnv("DB_HEALTH_TIMEOUT", 2*time.Second),
 		},
 		Auth: AuthConfig{
@@ -127,6 +127,12 @@ func (c Config) Validate() error {
 	}
 	if c.Database.MinConns < 0 || c.Database.MaxConns < 1 || c.Database.MinConns > c.Database.MaxConns {
 		problems = append(problems, "database pool bounds are invalid")
+	}
+	if c.Database.MaxConns > 8 {
+		problems = append(problems, "DB_MAX_CONNS must not exceed 8 on the micro-instance deployment profile")
+	}
+	if c.Database.MinConns > 2 {
+		problems = append(problems, "DB_MIN_CONNS must not exceed 2 on the micro-instance deployment profile")
 	}
 	if c.HTTP.MaxBodyBytes < 1024 {
 		problems = append(problems, "HTTP_MAX_BODY_BYTES must be at least 1024")
