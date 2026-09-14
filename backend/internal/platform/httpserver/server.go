@@ -26,13 +26,13 @@ type Server struct {
 	candidate     *candidate.Service
 	recruiter     *recruiter.Service
 	admin         *admin.Service
+	messages      *messagingRuntime
 	objectStorage storage.Presigner
 	cfg           config.Config
 }
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, logger *slog.Logger) *Server {
-	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, cfg: cfg}
-	bootstrapMessaging(db)
+	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, messages: newMessagingRuntime(db), cfg: cfg}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health/live", s.live)
 	mux.HandleFunc("GET /health/ready", s.ready)
@@ -136,7 +136,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 func (s *Server) SetObjectStorage(presigner storage.Presigner) { s.objectStorage = presigner }
 func (s *Server) ListenAndServe() error                        { return s.http.ListenAndServe() }
 func (s *Server) Shutdown(ctx context.Context) error {
-	messageHub.Close()
+	s.messages.Close()
 	return s.http.Shutdown(ctx)
 }
 
