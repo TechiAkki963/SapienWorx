@@ -25,96 +25,175 @@ func senderTypeFromClaims(role auth.Role) (messaging.SenderType, bool) {
 
 func (s *Server) recruiterMessageTemplates(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
+	if messagingService == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
 	if r.Method == http.MethodGet {
-		items, err := s.messaging.Templates(r.Context(), claims.Subject)
-		if err != nil { s.writeMessagingError(w, r, err); return }
+		items, err := messagingService.Templates(r.Context(), claims.Subject)
+		if err != nil {
+			s.writeMessagingError(w, r, err)
+			return
+		}
 		writeJSON(w, http.StatusOK, map[string]any{"items": items})
 		return
 	}
 	var input messaging.TemplateInput
-	if !decodeJSON(w, r, &input) { return }
-	item, err := s.messaging.CreateTemplate(r.Context(), claims.Subject, input)
-	if err != nil { s.writeMessagingError(w, r, err); return }
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	item, err := messagingService.CreateTemplate(r.Context(), claims.Subject, input)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusCreated, item)
 }
 
 func (s *Server) recruiterMessageTemplate(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
+	if messagingService == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
 	id := r.PathValue("templateID")
 	if r.Method == http.MethodDelete {
-		if err := s.messaging.DeleteTemplate(r.Context(), claims.Subject, id); err != nil { s.writeMessagingError(w, r, err); return }
+		if err := messagingService.DeleteTemplate(r.Context(), claims.Subject, id); err != nil {
+			s.writeMessagingError(w, r, err)
+			return
+		}
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 	var input messaging.TemplateInput
-	if !decodeJSON(w, r, &input) { return }
-	item, err := s.messaging.UpdateTemplate(r.Context(), claims.Subject, id, input)
-	if err != nil { s.writeMessagingError(w, r, err); return }
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	item, err := messagingService.UpdateTemplate(r.Context(), claims.Subject, id, input)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusOK, item)
 }
 
 func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
+	if messagingService == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
 	var input messaging.InitiateInput
-	if !decodeJSON(w, r, &input) { return }
-	result, err := s.messaging.Initiate(r.Context(), claims.Subject, input)
-	if err != nil { s.writeMessagingError(w, r, err); return }
-	s.messageHub.Broadcast(result.Thread.ID, result.Message)
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	result, err := messagingService.Initiate(r.Context(), claims.Subject, input)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
+	messageHub.Broadcast(result.Thread.ID, result.Message)
 	writeJSON(w, http.StatusCreated, result)
 }
 
 func (s *Server) messagingThreads(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
 	sender, ok := senderTypeFromClaims(claims.Role)
-	if !ok { writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters"); return }
-	items, err := s.messaging.Threads(r.Context(), claims.Subject, sender)
-	if err != nil { s.writeMessagingError(w, r, err); return }
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
+		return
+	}
+	if messagingService == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	items, err := messagingService.Threads(r.Context(), claims.Subject, sender)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items})
 }
 
 func (s *Server) messagingMessages(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
 	sender, ok := senderTypeFromClaims(claims.Role)
-	if !ok { writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters"); return }
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
+		return
+	}
+	if messagingService == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
 	threadID := r.PathValue("threadID")
 	if r.Method == http.MethodGet {
 		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-		items, err := s.messaging.Messages(r.Context(), threadID, claims.Subject, limit)
-		if err != nil { s.writeMessagingError(w, r, err); return }
+		items, err := messagingService.Messages(r.Context(), threadID, claims.Subject, limit)
+		if err != nil {
+			s.writeMessagingError(w, r, err)
+			return
+		}
 		writeJSON(w, http.StatusOK, map[string]any{"items": items})
 		return
 	}
-	var input struct { Content string `json:"content"` }
-	if !decodeJSON(w, r, &input) { return }
-	message, err := s.messaging.SendMessage(r.Context(), threadID, claims.Subject, sender, input.Content)
-	if err != nil { s.writeMessagingError(w, r, err); return }
-	s.messageHub.Broadcast(threadID, message)
+	var input struct {
+		Content string `json:"content"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	message, err := messagingService.SendMessage(r.Context(), threadID, claims.Subject, sender, input.Content)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
+	messageHub.Broadcast(threadID, message)
 	writeJSON(w, http.StatusCreated, message)
 }
 
 func (s *Server) messagingRead(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
-	if err := s.messaging.MarkRead(r.Context(), r.PathValue("threadID"), claims.Subject); err != nil { s.writeMessagingError(w, r, err); return }
+	if messagingService == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	if err := messagingService.MarkRead(r.Context(), r.PathValue("threadID"), claims.Subject); err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
 	sender, ok := senderTypeFromClaims(claims.Role)
-	if !ok { writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters"); return }
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
+		return
+	}
+	if messagingService == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
 	threadID := r.PathValue("threadID")
-	if _, err := s.messaging.Messages(r.Context(), threadID, claims.Subject, 1); err != nil { s.writeMessagingError(w, r, err); return }
+	if _, err := messagingService.Messages(r.Context(), threadID, claims.Subject, 1); err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
 
 	upgrader := websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024, CheckOrigin: func(_ *http.Request) bool { return true }}
 	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil { return }
+	if err != nil {
+		return
+	}
 	client := &messaging.Client{Conn: conn, Send: make(chan messaging.ChatMessage, 16)}
-	if !s.messageHub.Register(threadID, client) {
+	if !messageHub.Register(threadID, client) {
 		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseTryAgainLater, "messaging capacity reached"), time.Now().Add(time.Second))
 		_ = conn.Close()
 		return
 	}
-	defer s.messageHub.Unregister(threadID, client)
+	defer messageHub.Unregister(threadID, client)
 
 	conn.SetReadLimit(8 << 10)
 	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
@@ -129,27 +208,41 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 			select {
 			case message, ok := <-client.Send:
 				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-				if !ok { return }
-				if err := conn.WriteJSON(map[string]any{"type": "message", "message": message}); err != nil { return }
+				if !ok {
+					return
+				}
+				if err := conn.WriteJSON(map[string]any{"type": "message", "message": message}); err != nil {
+					return
+				}
 			case <-ticker.C:
 				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-				if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil { return }
+				if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
 			}
 		}
 	}()
 
 	for {
-		var event struct { Type string `json:"type"`; Content string `json:"content"` }
-		if err := conn.ReadJSON(&event); err != nil { break }
+		var event struct {
+			Type    string `json:"type"`
+			Content string `json:"content"`
+		}
+		if err := conn.ReadJSON(&event); err != nil {
+			break
+		}
 		switch strings.ToLower(strings.TrimSpace(event.Type)) {
 		case "message":
-			message, err := s.messaging.SendMessage(r.Context(), threadID, claims.Subject, sender, event.Content)
-			if err != nil { _ = conn.WriteJSON(map[string]any{"type":"error","code":"message_rejected"}); continue }
-			s.messageHub.Broadcast(threadID, message)
+			message, err := messagingService.SendMessage(r.Context(), threadID, claims.Subject, sender, event.Content)
+			if err != nil {
+				_ = conn.WriteJSON(map[string]any{"type": "error", "code": "message_rejected"})
+				continue
+			}
+			messageHub.Broadcast(threadID, message)
 		case "read":
-			_ = s.messaging.MarkRead(r.Context(), threadID, claims.Subject)
+			_ = messagingService.MarkRead(r.Context(), threadID, claims.Subject)
 		default:
-			_ = conn.WriteJSON(map[string]any{"type":"error","code":"unsupported_event"})
+			_ = conn.WriteJSON(map[string]any{"type": "error", "code": "unsupported_event"})
 		}
 	}
 	_ = conn.Close()
