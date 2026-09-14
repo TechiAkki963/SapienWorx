@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 )
 
 var ErrUnavailable = errors.New("private object storage is unavailable")
@@ -87,6 +87,9 @@ func (p *S3Presigner) presign(ctx context.Context, method, key, contentType, fil
 	}
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
+	}
+	if method == http.MethodPut {
+		req.Header.Set("X-Amz-Server-Side-Encryption", "AES256")
 	}
 	creds, err := p.credentials.Retrieve(ctx)
 	if err != nil {
