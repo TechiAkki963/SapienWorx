@@ -3,6 +3,7 @@ package httpserver
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -11,10 +12,19 @@ import (
 )
 
 func decodeJSON(w http.ResponseWriter, r *http.Request, target any) bool {
+	if contentType := strings.TrimSpace(strings.Split(r.Header.Get("Content-Type"), ";")[0]); contentType != "" && contentType != "application/json" {
+		writeError(w, r, http.StatusUnsupportedMediaType, "invalid_content_type", "Content-Type must be application/json")
+		return false
+	}
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(target); err != nil {
 		writeError(w, r, http.StatusBadRequest, "invalid_request", "request body is invalid")
+		return false
+	}
+	var extra any
+	if err := decoder.Decode(&extra); !errors.Is(err, io.EOF) {
+		writeError(w, r, http.StatusBadRequest, "invalid_request", "request body must contain exactly one JSON value")
 		return false
 	}
 	return true
@@ -81,7 +91,7 @@ func (s *Server) resendOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	code, err := s.auth.ResendPhoneOTP(r.Context(), input.Email)
-	if err != nil {
+	if err != nil && !errors.Is(err, auth.ErrOTPRateLimited) {
 		s.writeAuthError(w, r, err)
 		return
 	}
