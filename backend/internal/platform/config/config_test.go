@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestValidateRejectsMissingSecrets(t *testing.T) {
 	cfg := Config{}
@@ -33,10 +36,10 @@ func TestValidateRejectsOversizedMicroPool(t *testing.T) {
 		Auth: AuthConfig{
 			JWTSecret:         "01234567890123456789012345678901",
 			OTPSecret:         "01234567890123456789012345678901",
-			AccessTokenTTL:    1,
-			RefreshTokenTTL:   1,
-			OTPTTL:            1,
-			OTPResendInterval: 10,
+			AccessTokenTTL:    15 * time.Minute,
+			RefreshTokenTTL:   24 * time.Hour,
+			OTPTTL:            10 * time.Minute,
+			OTPResendInterval: 60 * time.Second,
 			AccessCookieName:  "sw_access",
 			RefreshCookieName: "sw_refresh",
 		},
