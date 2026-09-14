@@ -43,6 +43,7 @@ jobs:
           if [ -n "$unformatted" ]; then
             echo "The following Go files are not gofmt-formatted:"
             echo "$unformatted"
+            gofmt -d $unformatted
             exit 1
           fi
       - name: Vet
