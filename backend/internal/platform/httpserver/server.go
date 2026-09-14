@@ -11,21 +11,23 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/storage"
 )
 
 type DatabaseHealth interface{ Ping(context.Context) error }
 
 type Server struct {
-	http      *http.Server
-	db        DatabaseHealth
-	dbTimeout time.Duration
-	logger    *slog.Logger
-	tokens    *auth.TokenManager
-	auth      *auth.Service
-	candidate *candidate.Service
-	recruiter *recruiter.Service
-	admin     *admin.Service
-	cfg       config.Config
+	http          *http.Server
+	db            DatabaseHealth
+	dbTimeout     time.Duration
+	logger        *slog.Logger
+	tokens        *auth.TokenManager
+	auth          *auth.Service
+	candidate     *candidate.Service
+	recruiter     *recruiter.Service
+	admin         *admin.Service
+	objectStorage storage.Presigner
+	cfg           config.Config
 }
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, logger *slog.Logger) *Server {
@@ -71,6 +73,9 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/candidate/profile/photo", Chain(http.HandlerFunc(s.candidateProfilePhoto), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/profile/details", Chain(http.HandlerFunc(s.candidateProfileDetails), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/profile/details", Chain(http.HandlerFunc(s.candidateProfileDetails), protected, candidateOnly, candidateActivity))
+	mux.Handle("POST /api/v1/candidate/cv/presign", Chain(http.HandlerFunc(s.candidateCVPresign), protected, candidateOnly, candidateActivity))
+	mux.Handle("POST /api/v1/candidate/cv/complete", Chain(http.HandlerFunc(s.candidateCVComplete), protected, candidateOnly, candidateActivity))
+	mux.Handle("GET /api/v1/candidate/cv", Chain(http.HandlerFunc(s.candidateCVDownload), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/recommendations", Chain(http.HandlerFunc(s.candidateRecommendations), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/applications", Chain(http.HandlerFunc(s.candidateApplications), protected, candidateOnly, candidateActivity))
 	mux.Handle("POST /api/v1/candidate/applications", Chain(http.HandlerFunc(s.candidateApplications), protected, candidateOnly, candidateActivity))
@@ -91,6 +96,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/education", Chain(http.HandlerFunc(s.recruiterJobEducation), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/pipeline", Chain(http.HandlerFunc(s.recruiterPipeline), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/candidates/{candidateID}", Chain(http.HandlerFunc(s.recruiterCandidateDetail), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/candidates/{candidateID}/cv", Chain(http.HandlerFunc(s.recruiterCandidateCVDownload), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/applications/{applicationID}/stage", Chain(http.HandlerFunc(s.recruiterApplicationStage), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
@@ -114,8 +120,9 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	return s
 }
 
-func (s *Server) ListenAndServe() error              { return s.http.ListenAndServe() }
-func (s *Server) Shutdown(ctx context.Context) error { return s.http.Shutdown(ctx) }
+func (s *Server) SetObjectStorage(presigner storage.Presigner) { s.objectStorage = presigner }
+func (s *Server) ListenAndServe() error                        { return s.http.ListenAndServe() }
+func (s *Server) Shutdown(ctx context.Context) error           { return s.http.Shutdown(ctx) }
 
 func (s *Server) live(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "sapienworx-api"})
