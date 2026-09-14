@@ -45,6 +45,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const [composerOpen, setComposerOpen] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
   const [selectedTemplateID, setSelectedTemplateID] = useState("");
   const [selectedJobID, setSelectedJobID] = useState("");
   const [subject, setSubject] = useState("");
@@ -64,12 +65,14 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const canSend = subject.trim().length > 0 && body.trim().length > 0 && !unresolvedJobVariable && !sending;
 
   useEffect(() => {
-    if (!composerOpen || templates.length > 0 || templatesLoading) return;
+    if (!composerOpen || templatesLoaded || templatesLoading) return;
     let active = true;
     setTemplatesLoading(true);
     apiRequest<{ items: Template[] }>("/api/v1/recruiter/message-templates")
       .then((result) => {
-        if (active) setTemplates(result.items ?? []);
+        if (!active) return;
+        setTemplates(result.items ?? []);
+        setTemplatesLoaded(true);
       })
       .catch((cause) => {
         if (active) setError(cause instanceof Error ? cause.message : "Could not load message templates.");
@@ -80,7 +83,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     return () => {
       active = false;
     };
-  }, [composerOpen, templates.length, templatesLoading]);
+  }, [composerOpen, templatesLoaded, templatesLoading]);
 
   function renderSelectedTemplate(template: Template | undefined, jobTitle: string) {
     if (!template) return;
@@ -94,6 +97,13 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     setSelectedTemplateID(templateID);
     setSentThreadID("");
     setError("");
+    if (!templateID) {
+      setSubject("");
+      setBody("");
+      setSubjectDirty(false);
+      setBodyDirty(false);
+      return;
+    }
     renderSelectedTemplate(templates.find((template) => template.id === templateID), selectedJob?.title ?? "");
   }
 
@@ -157,7 +167,9 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
             <m.section
               layout
               transition={spring}
-              className={composerOpen ? "min-w-0 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1" : "min-w-0"}
+              className={composerOpen
+                ? "min-w-0 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1 [&_.candidate-profile-header]:!flex-col [&_.candidate-profile-header]:!items-stretch [&_.candidate-profile-two-column]:!grid-cols-1"
+                : "min-w-0"}
               aria-label="Candidate profile context"
             >
               {children}
@@ -208,6 +220,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
                             {templates.map((template) => <option key={template.id} value={template.id}>{template.title}</option>)}
                           </select>
                           {templatesLoading && <span className="font-medium text-ink-muted">Loading templates…</span>}
+                          {templatesLoaded && templates.length === 0 && <span className="font-medium text-ink-muted">No saved templates yet. You can write this message from scratch.</span>}
                         </label>
 
                         <label className="grid gap-1.5 text-xs font-bold text-ink">
