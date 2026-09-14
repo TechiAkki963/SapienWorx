@@ -9,18 +9,6 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/admin"
 )
 
-func adminID(r *http.Request) (string, bool) {
-	claims, ok := ClaimsFromContext(r.Context())
-	if !ok || strings.TrimSpace(claims.Subject) == "" {
-		writeError(r.Context().Value(responseWriterKey{}).(http.ResponseWriter), r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
-		return "", false
-	}
-	return claims.Subject, true
-}
-
-// responseWriterKey is intentionally unused outside adminID compatibility. Handlers validate claims directly.
-type responseWriterKey struct{}
-
 func adminClaimsID(r *http.Request) (string, bool) {
 	claims, ok := ClaimsFromContext(r.Context())
 	return claims.Subject, ok && strings.TrimSpace(claims.Subject) != ""
