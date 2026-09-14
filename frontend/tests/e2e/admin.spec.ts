@@ -44,6 +44,6 @@ test.describe("Master Admin command centre", () => {
     await page.getByRole("link", { name: "Approved" }).click();
     await expect(page).toHaveURL(/status=approved/);
     await expect(page.getByText("Acme Hiring India")).toBeVisible();
-    await expect(page.getByText("approved", { exact: true })).toBeVisible();
+    await expect(page.getByRole("cell", { name: "approved" })).toBeVisible();
   });
 });
