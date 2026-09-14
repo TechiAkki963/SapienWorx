@@ -75,7 +75,9 @@ func (h *Hub) Broadcast(threadID string, message ChatMessage) {
 			delete(members, client)
 			close(client.Send)
 			h.total--
-			_ = client.Conn.Close()
+			if client.Conn != nil {
+				_ = client.Conn.Close()
+			}
 		}
 	}
 	if len(members) == 0 {
@@ -93,7 +95,9 @@ func (h *Hub) Close() {
 	for threadID, members := range h.clients {
 		for client := range members {
 			close(client.Send)
-			_ = client.Conn.Close()
+			if client.Conn != nil {
+				_ = client.Conn.Close()
+			}
 		}
 		delete(h.clients, threadID)
 	}
