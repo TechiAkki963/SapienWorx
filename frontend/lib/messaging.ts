@@ -1,5 +1,6 @@
 export type MessagingSenderType = "candidate" | "recruiter";
 export type MessagingThreadStatus = "open" | "closed";
+export type SapienChatEventType = "message" | "typing" | "read";
 
 export type MessagingThread = {
   id: string;
@@ -29,7 +30,17 @@ export type ChatMessage = {
 export type ThreadListResponse = { items: MessagingThread[] };
 export type MessageListResponse = { items: ChatMessage[] };
 
-export type SocketMessageEvent = {
-  type: "message";
-  message: ChatMessage;
+export type MessageEventPayload = { message: ChatMessage };
+export type MessageInputPayload = { content: string };
+export type TypingEventPayload = { is_typing: boolean };
+export type ReadEventPayload = { message_ids: string[] };
+
+export type SapienChatEvent = {
+  type: SapienChatEventType;
+  thread_id: string;
+  sender_id: string;
+  payload: MessageEventPayload | TypingEventPayload | ReadEventPayload;
+  message?: ChatMessage;
 };
+
+export type SocketMessageEvent = SapienChatEvent;
