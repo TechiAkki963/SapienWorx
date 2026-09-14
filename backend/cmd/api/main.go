@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/TechiAkki963/SapienWorx/backend/internal/admin"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
@@ -26,6 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 }
+
 func run(logger *slog.Logger) error {
 	cfg, err := config.Load()
 	if err != nil {
@@ -45,10 +47,11 @@ func run(logger *slog.Logger) error {
 	}
 	var sender sms.Sender
 	if cfg.AWS.SMSEnabled {
-		sender, err = sms.NewSNSClient(ctx, cfg.AWS.Region, cfg.AWS.SNSSenderID)
-		if err != nil {
-			return err
+		snsSender, senderErr := sms.NewSNSClient(ctx, cfg.AWS.Region, cfg.AWS.SNSSenderID)
+		if senderErr != nil {
+			return senderErr
 		}
+		sender = sms.NewMeteredSender(snsSender, db)
 	} else if cfg.Environment == "production" {
 		sender = sms.DisabledSender{}
 	} else {
@@ -57,7 +60,8 @@ func run(logger *slog.Logger) error {
 	authService := auth.NewService(db, tokens, sender, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment != "production"})
 	candidateService := candidate.NewService(db)
 	recruiterService := recruiter.NewService(db)
-	server := httpserver.New(cfg, db, tokens, authService, candidateService, recruiterService, logger)
+	adminService := admin.NewService(db)
+	server := httpserver.New(cfg, db, tokens, authService, candidateService, recruiterService, adminService, logger)
 	errCh := make(chan error, 1)
 	go func() {
 		logger.Info("http server listening", "address", cfg.HTTP.Address)
