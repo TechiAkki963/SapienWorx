@@ -18,15 +18,16 @@ test.describe("recruiter pipeline", () => {
     await expect(table.getByRole("row")).toHaveCount(11);
     await expect(table.locator("thead th")).toContainText(["Candidate", "Job", "Experience", "Notice", "Location", "Applied", "Stage"]);
 
-    await page.getByLabel("Candidate").fill("Candidate 005");
+    const candidateFilter = page.getByRole("textbox", { name: "Candidate", exact: true });
+    await candidateFilter.fill("Candidate 005");
     await page.getByRole("button", { name: "Apply filters" }).click();
     await expect(page).toHaveURL(/q=Candidate(?:\+|%20)005/);
-    await expect(page.getByLabel("Candidate")).toHaveValue("Candidate 005");
+    await expect(candidateFilter).toHaveValue("Candidate 005");
     await expect(table.getByRole("row")).toHaveCount(2);
     await expect(table.getByText("Candidate 005")).toBeVisible();
 
     await page.reload();
-    await expect(page.getByLabel("Candidate")).toHaveValue("Candidate 005");
+    await expect(page.getByRole("textbox", { name: "Candidate", exact: true })).toHaveValue("Candidate 005");
     await expect(table.getByText("Candidate 005")).toBeVisible();
   });
 
