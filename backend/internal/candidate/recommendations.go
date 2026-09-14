@@ -12,6 +12,7 @@ import (
 type RecommendedJob struct {
 	ID                  string     `json:"id"`
 	CompanyName         string     `json:"company_name"`
+	CompanyLogoURL      *string    `json:"company_logo_url,omitempty"`
 	Title               string     `json:"title"`
 	Department          *string    `json:"department,omitempty"`
 	Description         string     `json:"description"`
@@ -76,7 +77,7 @@ func (s *Service) Recommendations(ctx context.Context, userID string, minimumSco
 		return []RecommendedJob{}, nil
 	}
 
-	rows, err := s.db.Query(ctx, `SELECT j.id,c.display_name,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.status='active' AND cardinality(j.required_skills)>0 AND (j.application_deadline IS NULL OR j.application_deadline>=current_date) ORDER BY j.published_at DESC NULLS LAST`)
+	rows, err := s.db.Query(ctx, `SELECT j.id,c.display_name,c.logo_url,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.status='active' AND cardinality(j.required_skills)>0 AND (j.application_deadline IS NULL OR j.application_deadline>=current_date) ORDER BY j.published_at DESC NULLS LAST`)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +86,7 @@ func (s *Service) Recommendations(ctx context.Context, userID string, minimumSco
 	items := make([]RecommendedJob, 0)
 	for rows.Next() {
 		var item RecommendedJob
-		if err := rows.Scan(&item.ID, &item.CompanyName, &item.Title, &item.Department, &item.Description, &item.EmploymentType, &item.WorkMode, &item.City, &item.State, &item.CountryCode, &item.MinExperienceMonths, &item.MaxExperienceMonths, &item.MinSalaryAmount, &item.MaxSalaryAmount, &item.SalaryCurrency, &item.Openings, &item.ApplicationDeadline, &item.PublishedAt, &item.RequiredSkills); err != nil {
+		if err := rows.Scan(&item.ID, &item.CompanyName, &item.CompanyLogoURL, &item.Title, &item.Department, &item.Description, &item.EmploymentType, &item.WorkMode, &item.City, &item.State, &item.CountryCode, &item.MinExperienceMonths, &item.MaxExperienceMonths, &item.MinSalaryAmount, &item.MaxSalaryAmount, &item.SalaryCurrency, &item.Openings, &item.ApplicationDeadline, &item.PublishedAt, &item.RequiredSkills); err != nil {
 			return nil, err
 		}
 		matched := 0
