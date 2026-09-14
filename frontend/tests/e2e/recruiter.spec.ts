@@ -16,10 +16,7 @@ test.describe("recruiter pipeline", () => {
     const table = page.getByRole("table");
     await expect(table).toBeVisible();
     await expect(table.getByRole("row")).toHaveCount(11);
-    await expect(table.getByRole("columnheader", { name: "Candidate" })).toBeVisible();
-    await expect(table.getByRole("columnheader", { name: "Experience" })).toBeVisible();
-    await expect(table.getByRole("columnheader", { name: "Notice" })).toBeVisible();
-    await expect(table.getByRole("columnheader", { name: "Location" })).toBeVisible();
+    await expect(table.locator("thead th")).toContainText(["Candidate", "Job", "Experience", "Notice", "Location", "Applied", "Stage"]);
 
     await page.getByLabel("Candidate").fill("Candidate 005");
     await page.getByRole("button", { name: "Apply filters" }).click();
