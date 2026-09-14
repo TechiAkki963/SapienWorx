@@ -1,13 +1,12 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence } from "motion/react";
 
+import { MessageBubble } from "@/components/messaging/message-bubble";
+import { TypingIndicator } from "@/components/messaging/typing-indicator";
 import { useSapienChat } from "@/hooks/use-sapien-chat";
 import type { ChatMessage, MessagingThread } from "@/lib/messaging";
-
-function formatTime(value: string) {
-  return new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
-}
 
 function formatThreadTime(value: string) {
   const date = new Date(value);
@@ -52,6 +51,7 @@ export function CandidateInbox({ initialThreads }: { initialThreads: MessagingTh
     loading: loadingMessages,
     error: loadError,
     connectionState,
+    counterpartyTyping,
     sendMessage,
     emitTyping,
     observeMessage,
@@ -64,7 +64,7 @@ export function CandidateInbox({ initialThreads }: { initialThreads: MessagingTh
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, activeThreadID]);
+  }, [messages.length, counterpartyTyping, activeThreadID]);
 
   function selectThread(threadID: string) {
     setActiveThreadID(threadID);
@@ -151,26 +151,26 @@ export function CandidateInbox({ initialThreads }: { initialThreads: MessagingTh
               <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
                 {loadingMessages ? (
                   <div className="grid gap-3"><div className="h-16 animate-pulse rounded-2xl bg-slate-100" /><div className="ml-auto h-20 w-3/4 animate-pulse rounded-2xl bg-slate-100" /></div>
-                ) : messages.length === 0 ? (
+                ) : messages.length === 0 && !counterpartyTyping ? (
                   <div className="grid min-h-56 place-items-center text-center"><div><p className="font-bold text-navy">No messages yet</p><p className="mt-1 text-sm text-ink-muted">Start the conversation below.</p></div></div>
                 ) : (
                   <div className="grid gap-3">
-                    {messages.map((message) => {
-                      const mine = message.sender_type === "candidate";
-                      return (
-                        <div
-                          key={message.id}
-                          ref={(node) => observeMessage(message, node)}
-                          data-message-id={message.id}
-                          className={`flex ${mine ? "justify-end" : "justify-start"}`}
-                        >
-                          <div className={`max-w-[82%] rounded-[1.35rem] px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.05)] sm:max-w-[72%] ${mine ? "rounded-br-md border border-emerald-100 bg-emerald-50 text-emerald-950" : "rounded-bl-md border border-violet-100 bg-violet-50 text-violet-950"}`}>
-                            <p className="whitespace-pre-wrap break-words text-sm leading-6">{message.content}</p>
-                            <p className={`mt-1 text-right text-[10px] font-semibold ${mine ? "text-emerald-700/70" : "text-violet-700/70"}`}>{formatTime(message.created_at)}</p>
-                          </div>
+                    {messages.map((message) => (
+                      <MessageBubble
+                        key={message.id}
+                        message={message}
+                        currentSenderType="candidate"
+                        observe={observeMessage}
+                      />
+                    ))}
+
+                    <AnimatePresence initial={false}>
+                      {counterpartyTyping && (
+                        <div className="flex justify-start">
+                          <TypingIndicator senderType="recruiter" />
                         </div>
-                      );
-                    })}
+                      )}
+                    </AnimatePresence>
                     <div ref={endRef} />
                   </div>
                 )}
