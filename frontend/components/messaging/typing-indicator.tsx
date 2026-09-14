@@ -25,7 +25,7 @@ const dot = {
     opacity: [0.45, 1, 0.45],
     transition: {
       duration: 0.72,
-      ease: [0.34, 1.56, 0.64, 1],
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -48,7 +48,6 @@ export function TypingIndicator({ senderType }: TypingIndicatorProps) {
           <m.span variants={container} initial="initial" animate="animate" className="flex items-center gap-1.5">
             {[0, 1, 2].map((index) => (
               <m.span
-                // index is stable for the fixed three-dot sequence.
                 key={index}
                 variants={dot}
                 className={`h-1.5 w-1.5 rounded-full ${candidate ? "bg-emerald-500/70" : "bg-violet-500/70"}`}
