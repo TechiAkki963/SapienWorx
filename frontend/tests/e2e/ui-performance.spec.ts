@@ -34,8 +34,11 @@ test.describe("public UI stability", () => {
   test("honours reduced-motion preference", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
-    const duration = await page.locator(".hero-human").evaluate((element) => getComputedStyle(element).animationDuration);
-    expect(duration).toBe("0.01ms");
+    const durationSeconds = await page.locator(".hero-human").evaluate((element) => {
+      const value = getComputedStyle(element).animationDuration;
+      return value.endsWith("ms") ? Number.parseFloat(value) / 1000 : Number.parseFloat(value);
+    });
+    expect(durationSeconds).toBeLessThanOrEqual(0.00001);
   });
 
   test.skip("exercises a mounted Framer Motion spring interaction", async () => {
