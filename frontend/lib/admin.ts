@@ -51,3 +51,54 @@ export type AdminUserList = {
   limit: number;
   total: number;
 };
+
+export type AdminAuditRecord = {
+  id: string;
+  admin_id?: string | null;
+  admin_name?: string | null;
+  action_type: string;
+  target_entity_type?: string | null;
+  target_entity_id?: string | null;
+  ip_address?: string | null;
+  request_id?: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+};
+
+export type AdminAuditList = {
+  items: AdminAuditRecord[];
+  page: number;
+  limit: number;
+  total: number;
+};
+
+export type AdminJob = {
+  id: string;
+  title: string;
+  company_id: string;
+  company_name: string;
+  recruiter_user_id: string;
+  recruiter_name: string;
+  status: "draft" | "active" | "paused" | "closed" | "expired" | "archived";
+  work_mode: "onsite" | "hybrid" | "remote";
+  city?: string | null;
+  country_code: string;
+  published_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  application_count: number;
+};
+
+export type AdminJobList = {
+  items: AdminJob[];
+  page: number;
+  limit: number;
+  total: number;
+};
+
+export type AdminBudgetSettings = {
+  sns_sms_warning_count: number;
+  sns_sms_critical_count: number;
+  updated_at: string;
+  updated_by?: string | null;
+};
