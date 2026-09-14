@@ -11,7 +11,7 @@ test.describe("recruiter pipeline", () => {
 
     await expect(page.getByRole("heading", { name: "Pipeline" })).toBeVisible();
     await expect(page.getByText("10 candidates per page")).toBeVisible();
-    await expect(page.getByText(/Showing 1–10 of 1,000 candidates/)).toBeVisible();
+    await expect(page.getByText("Showing 1–10 of 1000 candidates")).toBeVisible();
 
     const table = page.getByRole("table");
     await expect(table).toBeVisible();
