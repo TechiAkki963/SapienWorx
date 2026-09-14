@@ -36,6 +36,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("POST /api/v1/auth/login", s.login)
 	mux.HandleFunc("POST /api/v1/auth/otp/verify", s.verifyOTP)
 	mux.HandleFunc("POST /api/v1/auth/otp/resend", s.resendOTP)
+	mux.HandleFunc("POST /api/v1/auth/email/request", s.requestEmailVerification)
+	mux.HandleFunc("POST /api/v1/auth/email/verify", s.verifyEmail)
 	mux.HandleFunc("POST /api/v1/auth/password/forgot", s.forgotPassword)
 	mux.HandleFunc("POST /api/v1/auth/password/reset", s.resetPassword)
 	mux.HandleFunc("POST /api/v1/auth/refresh", s.refresh)
