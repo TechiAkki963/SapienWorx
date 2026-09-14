@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { MetricStrip } from "@/components/recruiter/metric-strip";
@@ -24,15 +25,28 @@ export default async function RecruiterDashboardPage() {
   return (
     <RecruiterShell>
       <div className="grid gap-5">
-        <section className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-indigo">{data.company_name}</p>
-            <h1 className="mt-1.5 text-2xl font-bold tracking-[-0.04em] text-navy sm:text-[2rem]">Hiring workspace</h1>
-            <p className="mt-1 text-sm text-ink-muted">Welcome back, {firstName}. Here&apos;s what needs movement today.</p>
+        <section className="grid gap-4 rounded-2xl border border-[#dedcf0] bg-[linear-gradient(120deg,#ffffff_0%,#f7f3ff_48%,#eef9f3_100%)] p-4 shadow-[0_8px_28px_rgba(41,55,89,0.06)] sm:p-5 xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-center">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-indigo">{data.company_name}</p>
+              <h1 className="mt-1.5 text-2xl font-bold tracking-[-0.04em] text-navy sm:text-[2rem]">Hiring workspace</h1>
+              <p className="mt-1 text-sm text-ink-muted">Welcome back, {firstName}. Here&apos;s what needs movement today.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/recruiter/jobs" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:bg-slate-50">Manage jobs</Link>
+              <Link href="/recruiter/jobs/new" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/recruiter/jobs" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:bg-slate-50">Manage jobs</Link>
-            <Link href="/recruiter/jobs/new" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>
+
+          <div className="relative hidden h-28 overflow-hidden rounded-[34%_66%_60%_40%/45%_38%_62%_55%] xl:block">
+            <Image
+              src="/images/people/recruiter-review.webp"
+              alt="Recruiter reviewing hiring work in a modern office"
+              fill
+              sizes="18rem"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-100/16 via-transparent to-emerald-100/16 mix-blend-overlay" aria-hidden="true" />
           </div>
         </section>
 
