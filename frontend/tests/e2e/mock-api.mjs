@@ -43,24 +43,25 @@ function initialState() {
 
 let state = initialState();
 
+const corsHeaders = {
+  "access-control-allow-origin": webOrigin,
+  "access-control-allow-credentials": "true",
+  "access-control-allow-headers": "content-type",
+  "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
+};
+
 function json(res, status, body, headers = {}) {
   res.writeHead(status, {
     "content-type": "application/json; charset=utf-8",
     "cache-control": "no-store",
-    "access-control-allow-origin": webOrigin,
-    "access-control-allow-credentials": "true",
-    "access-control-allow-headers": "content-type",
-    "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
+    ...corsHeaders,
     ...headers,
   });
   res.end(JSON.stringify(body));
 }
 
 function noContent(res) {
-  res.writeHead(204, {
-    "access-control-allow-origin": webOrigin,
-    "access-control-allow-credentials": "true",
-  });
+  res.writeHead(204, corsHeaders);
   res.end();
 }
 
