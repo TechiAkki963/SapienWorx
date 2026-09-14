@@ -49,7 +49,7 @@ type UserRecord struct {
 	Status             string     `json:"status"`
 	Name               string     `json:"name"`
 	Email              string     `json:"email"`
-	Phone               *string    `json:"phone,omitempty"`
+	Phone              *string    `json:"phone,omitempty"`
 	EmailVerifiedAt    *time.Time `json:"email_verified_at,omitempty"`
 	PhoneVerifiedAt    *time.Time `json:"phone_verified_at,omitempty"`
 	ForcePasswordReset bool       `json:"force_password_reset"`
