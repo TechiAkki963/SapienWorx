@@ -33,13 +33,16 @@ test.describe("candidate profile", () => {
     });
 
     await expect(page.getByRole("button", { name: "Edit profile" })).toBeVisible();
-    await expect(page.locator("fieldset")).toBeDisabled();
+    await expect(page.locator("fieldset")).toHaveAttribute("disabled", "");
+    await expect(page.getByLabel("Resume headline")).toBeDisabled();
 
     await page.reload();
     await expect(page.getByText(/Your saved profile is read-only/)).toBeVisible();
-    await expect(page.locator("fieldset")).toBeDisabled();
+    await expect(page.locator("fieldset")).toHaveAttribute("disabled", "");
+    await expect(page.getByLabel("Resume headline")).toBeDisabled();
     await page.getByRole("button", { name: "Edit profile" }).click();
-    await expect(page.locator("fieldset")).toBeEnabled();
+    await expect(page.locator("fieldset")).not.toHaveAttribute("disabled", "");
+    await expect(page.getByLabel("Resume headline")).toBeEnabled();
     await expect(page.getByLabel("Resume headline")).toHaveValue("Go platform engineer building high-scale systems");
     await expect(page.getByLabel("Current city")).toHaveValue("Mumbai");
   });
