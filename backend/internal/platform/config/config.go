@@ -47,6 +47,10 @@ type AuthConfig struct {
 	OTPSecret         string
 	OTPTTL            time.Duration
 	OTPResendInterval time.Duration
+	OTPIPLimit        int
+	OTPIPWindow       time.Duration
+	LoginIPLimit      int
+	LoginIPWindow     time.Duration
 	CookieDomain      string
 	CookieSecure      bool
 	AccessCookieName  string
@@ -54,9 +58,12 @@ type AuthConfig struct {
 }
 
 type AWSConfig struct {
-	Region      string
-	SNSSenderID string
-	SMSEnabled  bool
+	Region        string
+	SNSSenderID   string
+	SMSEnabled    bool
+	SMSDailyLimit int
+	S3Bucket      string
+	S3PresignTTL  time.Duration
 }
 
 func Load() (Config, error) {
@@ -96,15 +103,22 @@ func Load() (Config, error) {
 			OTPSecret:         otpSecret,
 			OTPTTL:            durationEnv("AUTH_OTP_TTL", 10*time.Minute),
 			OTPResendInterval: durationEnv("AUTH_OTP_RESEND_INTERVAL", 60*time.Second),
+			OTPIPLimit:        intEnv("AUTH_OTP_IP_LIMIT", 8),
+			OTPIPWindow:       durationEnv("AUTH_OTP_IP_WINDOW", 10*time.Minute),
+			LoginIPLimit:      intEnv("AUTH_LOGIN_IP_LIMIT", 12),
+			LoginIPWindow:     durationEnv("AUTH_LOGIN_IP_WINDOW", 5*time.Minute),
 			CookieDomain:      strings.TrimSpace(os.Getenv("AUTH_COOKIE_DOMAIN")),
 			CookieSecure:      boolEnv("AUTH_COOKIE_SECURE", environment == "production"),
 			AccessCookieName:  env("AUTH_ACCESS_COOKIE_NAME", "sw_access"),
 			RefreshCookieName: env("AUTH_REFRESH_COOKIE_NAME", "sw_refresh"),
 		},
 		AWS: AWSConfig{
-			Region:      env("AWS_REGION", "ap-south-1"),
-			SNSSenderID: strings.TrimSpace(os.Getenv("SNS_SENDER_ID")),
-			SMSEnabled:  boolEnv("SNS_SMS_ENABLED", false),
+			Region:        env("AWS_REGION", "ap-south-1"),
+			SNSSenderID:   strings.TrimSpace(os.Getenv("SNS_SENDER_ID")),
+			SMSEnabled:    boolEnv("SNS_SMS_ENABLED", false),
+			SMSDailyLimit: intEnv("SNS_SMS_DAILY_LIMIT", 100),
+			S3Bucket:      strings.TrimSpace(os.Getenv("S3_BUCKET")),
+			S3PresignTTL:  durationEnv("S3_PRESIGN_TTL", 5*time.Minute),
 		},
 	}
 
@@ -143,11 +157,20 @@ func (c Config) Validate() error {
 	if c.Auth.OTPResendInterval < 10*time.Second {
 		problems = append(problems, "AUTH_OTP_RESEND_INTERVAL must be at least 10 seconds")
 	}
+	if c.Auth.OTPIPLimit < 1 || c.Auth.OTPIPWindow < time.Minute || c.Auth.LoginIPLimit < 1 || c.Auth.LoginIPWindow < time.Minute {
+		problems = append(problems, "authentication rate-limit settings are invalid")
+	}
 	if c.Auth.AccessCookieName == "" || c.Auth.RefreshCookieName == "" {
 		problems = append(problems, "authentication cookie names are required")
 	}
 	if c.AWS.SMSEnabled && c.AWS.Region == "" {
 		problems = append(problems, "AWS_REGION is required when SNS SMS is enabled")
+	}
+	if c.AWS.SMSEnabled && c.AWS.SMSDailyLimit < 1 {
+		problems = append(problems, "SNS_SMS_DAILY_LIMIT must be positive when SNS SMS is enabled")
+	}
+	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
+		problems = append(problems, "S3_PRESIGN_TTL must be between 1m and 15m")
 	}
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "; "))
@@ -216,6 +239,18 @@ func int32Env(key string, fallback int32) int32 {
 	return int32(parsed)
 }
 
+func intEnv(key string, fallback int) int {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
+}
+
 func boolEnv(key string, fallback bool) bool {
 	value := strings.TrimSpace(os.Getenv(key))
 	if value == "" {
@@ -229,5 +264,5 @@ func boolEnv(key string, fallback bool) bool {
 }
 
 func (c Config) String() string {
-	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d sms=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.SMSEnabled)
+	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d sms=%t s3=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.SMSEnabled, c.AWS.S3Bucket != "")
 }
