@@ -18,6 +18,7 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/sms"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/storage"
 )
 
 func main() {
@@ -62,6 +63,13 @@ func run(logger *slog.Logger) error {
 	recruiterService := recruiter.NewService(db)
 	adminService := admin.NewService(db)
 	server := httpserver.New(cfg, db, tokens, authService, candidateService, recruiterService, adminService, logger)
+	if cfg.AWS.S3Bucket != "" {
+		presigner, presignErr := storage.NewS3Presigner(ctx, cfg.AWS.Region, cfg.AWS.S3Bucket, cfg.AWS.S3PresignTTL)
+		if presignErr != nil {
+			return presignErr
+		}
+		server.SetObjectStorage(presigner)
+	}
 	errCh := make(chan error, 1)
 	go func() {
 		logger.Info("http server listening", "address", cfg.HTTP.Address)
