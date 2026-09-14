@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { HumanSignal } from "@/components/brand/human-signal";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
@@ -6,29 +8,37 @@ import { PublicFooter } from "@/components/site/public-footer";
 import { PublicHeader } from "@/components/site/public-header";
 import { Button } from "@/components/ui/button";
 
+const people = {
+  hero: "/images/people/sapien-hero-candidate.webp",
+  recruiter: "/images/people/sapien-recruiter.webp",
+  talent: "/images/people/sapien-talent.webp",
+  workplace: "/images/people/sapien-workplace.webp",
+  employer: "/images/people/sapien-employer.webp",
+};
+
 const journey = [
   {
     title: "Discover",
     eyebrow: "Find your fit",
     body: "Find roles that match your skills, goals and values.",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=88",
-    alt: "Professional man smiling in a bright workspace",
+    image: people.recruiter,
+    alt: "Approachable professional in a softly lit modern workplace",
     tone: "blue" as const,
   },
   {
     title: "Grow",
     eyebrow: "Build new skills",
     body: "Access resources, insights and a community that helps you move forward.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=88",
-    alt: "Professional woman smiling while working",
+    image: people.talent,
+    alt: "Professional smiling in a pastel modern office",
     tone: "mint" as const,
   },
   {
     title: "Belong",
     eyebrow: "Be part of something",
     body: "Join a more human professional network built around people, not profiles.",
-    image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=88",
-    alt: "Colleagues talking together in a relaxed workspace",
+    image: people.workplace,
+    alt: "Warm professional portrait in a collaborative workplace",
     tone: "peach" as const,
   },
 ];
@@ -39,6 +49,8 @@ const proof = [
   ["Human", "candidate profiles"],
   ["Useful", "recruiter context"],
 ];
+
+const communityPeople = [people.hero, people.recruiter, people.talent, people.employer];
 
 export default function HomePage() {
   return (
@@ -89,8 +101,17 @@ export default function HomePage() {
 
               <div className="mt-9 flex items-center gap-4">
                 <div className="flex -space-x-2" aria-hidden="true">
-                  {["photo-1494790108377-be9c29b29330", "photo-1500648767791-00dcc994a43e", "photo-1534528741775-53994a69daeb", "photo-1506794778202-cad84cf45f1d"].map((id) => (
-                    <img key={id} src={`https://images.unsplash.com/${id}?auto=format&fit=crop&w=120&q=80`} alt="" className="h-9 w-9 rounded-full border-2 border-white object-cover shadow-sm" loading="lazy" />
+                  {communityPeople.map((src, index) => (
+                    <Image
+                      key={src}
+                      src={src}
+                      alt=""
+                      width={36}
+                      height={36}
+                      sizes="36px"
+                      className="h-9 w-9 border-2 border-white object-cover shadow-sm"
+                      style={{ borderRadius: `${42 + index}% ${58 - index}% 54% 46% / 48% 43% 57% 52%` }}
+                    />
                   ))}
                 </div>
                 <p className="max-w-[14rem] text-xs leading-5 text-ink-muted"><span className="font-bold text-navy">A growing candidate community</span><br />built around clearer career journeys.</p>
@@ -102,12 +123,15 @@ export default function HomePage() {
                 <div className="hero-orbit absolute -left-10 top-8 h-56 w-56 rounded-full bg-[#ddecff] blur-3xl" aria-hidden="true" />
                 <div className="absolute right-0 top-10 h-60 w-60 rounded-full bg-[#dff4ff] blur-3xl" aria-hidden="true" />
                 <div className="absolute inset-x-[4%] bottom-0 top-2 overflow-hidden rounded-[42%_35%_42%_35%/32%_30%_44%_42%] bg-[#eaf3ff] shadow-soft">
-                  <img
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1400&q=90"
-                    alt="Professional woman smiling in a bright workspace"
-                    className="hero-human h-full w-full object-cover object-center"
-                    fetchPriority="high"
+                  <Image
+                    src={people.hero}
+                    alt="Warm professional smiling in a softly lit modern office"
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="hero-human object-cover object-center"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-200/16 via-transparent to-emerald-100/20 mix-blend-overlay" aria-hidden="true" />
                 </div>
 
                 <div className="absolute left-1 top-[17%] z-20 hidden -rotate-6 font-serif text-[1.55rem] italic leading-tight text-navy/75 sm:block">Human<br />Potential<br />Real Progress</div>
@@ -171,7 +195,15 @@ export default function HomePage() {
           <Reveal className="mx-auto mt-10 max-w-4xl" delay={0.08}>
             <div className="rounded-[2rem] border border-line/80 bg-white px-6 py-7 shadow-soft sm:px-9 sm:py-8">
               <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=180&q=85" alt="Candidate portrait" className="h-20 w-20 rounded-full object-cover" loading="lazy" />
+                <Image
+                  src={people.employer}
+                  alt="Professional portrait representing the SapienWorx candidate-first experience"
+                  width={80}
+                  height={80}
+                  sizes="80px"
+                  className="h-20 w-20 object-cover shadow-sm"
+                  style={{ borderRadius: "44% 56% 51% 49% / 47% 42% 58% 53%" }}
+                />
                 <div>
                   <p className="font-serif text-xl italic leading-8 text-navy">“The best hiring experiences feel clear, respectful and human from the first search to the final conversation.”</p>
                   <p className="mt-4 text-sm font-bold text-navy">The SapienWorx product principle</p>
@@ -206,7 +238,13 @@ export default function HomePage() {
           <Reveal>
             <div className="relative grid min-h-[21rem] overflow-hidden rounded-[2.1rem] bg-[linear-gradient(110deg,#0a5fe8_0%,#073a8f_100%)] text-white shadow-soft lg:grid-cols-[0.78fr_1.22fr]">
               <div className="relative min-h-[18rem] overflow-hidden lg:min-h-full">
-                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000&q=88" alt="Professional looking ahead" className="absolute inset-0 h-full w-full object-cover object-center" loading="lazy" />
+                <Image
+                  src={people.recruiter}
+                  alt="Professional looking confidently ahead"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                  className="object-cover object-center"
+                />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0a5fe8]/10 via-transparent to-[#073a8f]/75" aria-hidden="true" />
               </div>
               <div className="relative z-10 flex flex-col justify-center p-8 sm:p-12">
