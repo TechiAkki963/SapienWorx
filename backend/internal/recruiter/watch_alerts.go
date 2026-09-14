@@ -8,8 +8,8 @@ import (
 )
 
 // NotifyCompanyWatchers creates one durable in-app notification per watcher when
-// a job is first published. The unique EXISTS guard prevents duplicate alerts if
-// a recruiter repeatedly toggles a job between paused and active.
+// a job is published. The database unique index makes repeated publish attempts
+// idempotent for the same candidate and job.
 func (s *Service) NotifyCompanyWatchers(ctx context.Context, recruiterID, jobID string) (int64, error) {
 	companyID, _, companyName, err := s.recruiterCompany(ctx, recruiterID)
 	if err != nil {
@@ -38,13 +38,7 @@ func (s *Service) NotifyCompanyWatchers(ctx context.Context, recruiterID, jobID 
 		       '/candidate/jobs/' || $1::text
 		FROM company_watchers cw
 		WHERE cw.company_id=$2
-		  AND NOT EXISTS (
-		    SELECT 1
-		    FROM candidate_notifications cn
-		    WHERE cn.candidate_id=cw.candidate_id
-		      AND cn.kind='company_watch_job'
-		      AND cn.action_url='/candidate/jobs/' || $1::text
-		  )
+		ON CONFLICT DO NOTHING
 	`, jobID, companyID, companyName+" posted a new role", title+" is now open for applications.")
 	if err != nil {
 		return 0, err
