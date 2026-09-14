@@ -1,11 +1,6 @@
 package messaging
 
-import (
-	"context"
-	"errors"
-
-	"github.com/jackc/pgx/v5"
-)
+import "context"
 
 // MarkMessagesRead performs one bounded UPDATE for a viewport batch and returns
 // only rows that actually transitioned false -> true. This keeps read receipts
@@ -51,20 +46,12 @@ func (s *Service) MarkMessagesRead(ctx context.Context, threadID, readerID strin
 	return results, nil
 }
 
-// MarkThreadRead preserves the REST endpoint semantics while avoiding a second
-// authorization round-trip. It updates only unread messages from the other
-// participant.
+// MarkThreadRead preserves the REST endpoint semantics. It updates only unread
+// messages from the other participant.
 func (s *Service) MarkThreadRead(ctx context.Context, threadID, readerID string) error {
-	thread, err := s.authorizeThread(ctx, threadID, readerID)
-	if err != nil {
+	if _, err := s.authorizeThread(ctx, threadID, readerID); err != nil {
 		return err
 	}
-	if readerID != thread.RecruiterID && readerID != thread.CandidateID {
-		return ErrForbidden
-	}
-	_, err = s.db.Exec(ctx, `UPDATE chat_messages SET is_read=true WHERE thread_id=$1 AND sender_id<>$2 AND is_read=false`, threadID, readerID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil
-	}
+	_, err := s.db.Exec(ctx, `UPDATE chat_messages SET is_read=true WHERE thread_id=$1 AND sender_id<>$2 AND is_read=false`, threadID, readerID)
 	return err
 }
