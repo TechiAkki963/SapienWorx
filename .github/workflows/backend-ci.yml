@@ -50,5 +50,7 @@ jobs:
         run: go vet ./...
       - name: Test
         run: go test -race ./...
+      - name: High-contention concurrency guards
+        run: go test -race ./internal/platform/httpserver -run 'Test(IPRateLimiterConcurrentContention|CandidateActivityGate)' -count=10
       - name: Faceted job search benchmark smoke
         run: go test ./internal/platform/httpserver -run '^$' -bench '^BenchmarkCandidateJobsEndpoint$' -benchtime=100x -benchmem
