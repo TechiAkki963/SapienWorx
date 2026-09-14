@@ -1,0 +1,11 @@
+BEGIN;
+DROP TRIGGER IF EXISTS trg_message_template_touch ON message_templates;
+DROP FUNCTION IF EXISTS touch_message_template();
+DROP TRIGGER IF EXISTS trg_chat_message_touch_thread ON chat_messages;
+DROP FUNCTION IF EXISTS touch_chat_thread_from_message();
+DROP TABLE IF EXISTS chat_messages;
+DROP TABLE IF EXISTS chat_threads;
+DROP TABLE IF EXISTS message_templates;
+DROP TYPE IF EXISTS chat_sender_type;
+DROP TYPE IF EXISTS chat_thread_status;
+COMMIT;
