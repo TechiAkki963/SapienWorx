@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,5 +32,48 @@ func TestAuthenticateAcceptsAccessCookie(t *testing.T) {
 	handler.ServeHTTP(res, req)
 	if res.Code != http.StatusNoContent {
 		t.Fatalf("status = %d", res.Code)
+	}
+}
+
+func TestRequireRolesRejectsCandidateFromRecruiterRoute(t *testing.T) {
+	handler := RequireRoles(auth.RoleRecruiter)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	claims := auth.Claims{Subject: "candidate-1", Role: auth.RoleCandidate}
+	req := httptest.NewRequest(http.MethodGet, "/recruiter", nil)
+	req = req.WithContext(context.WithValue(req.Context(), claimsKey, claims))
+	res := httptest.NewRecorder()
+
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden)
+	}
+}
+
+func TestRequireRolesAcceptsRecruiterForRecruiterRoute(t *testing.T) {
+	handler := RequireRoles(auth.RoleRecruiter)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	claims := auth.Claims{Subject: "recruiter-1", Role: auth.RoleRecruiter}
+	req := httptest.NewRequest(http.MethodGet, "/recruiter", nil)
+	req = req.WithContext(context.WithValue(req.Context(), claimsKey, claims))
+	res := httptest.NewRecorder()
+
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent)
+	}
+}
+
+func TestRequireRolesRejectsMissingClaims(t *testing.T) {
+	handler := RequireRoles(auth.RoleCandidate)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	req := httptest.NewRequest(http.MethodGet, "/candidate", nil)
+	res := httptest.NewRecorder()
+
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusUnauthorized {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusUnauthorized)
 	}
 }
