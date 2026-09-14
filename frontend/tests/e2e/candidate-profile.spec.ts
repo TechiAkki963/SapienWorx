@@ -47,17 +47,33 @@ test.describe("candidate profile", () => {
     await expect(page.getByLabel("Current city")).toHaveValue("Mumbai");
   });
 
-  test("exposes the current CV-upload capability gap explicitly", async ({ page }) => {
+  test("uploads a private CV through a signed request and restores its filename after reload", async ({ page }) => {
     await login(page, "candidate");
     await page.goto("/candidate/profile");
 
-    const upload = page.getByRole("button", { name: "Upload CV", includeHidden: true });
-    await expect(upload).toHaveCount(1);
-    await expect(upload).toBeDisabled();
-    await expect(page.locator("text=CV upload will activate with resume storage.")).toHaveCount(1);
-  });
+    await expect(page.getByRole("button", { name: "Upload CV" })).toBeEnabled();
 
-  test.skip("uploads a CV and restores its filename after reload", async () => {
-    // Contract gap: resume upload/storage is not implemented in the current repository.
+    const presign = page.waitForRequest((request) => request.url().endsWith("/api/v1/candidate/cv/presign") && request.method() === "POST");
+    const directUpload = page.waitForRequest((request) => request.url().endsWith("/__e2e/cv-upload") && request.method() === "PUT");
+    const complete = page.waitForRequest((request) => request.url().endsWith("/api/v1/candidate/cv/complete") && request.method() === "POST");
+
+    await page.locator('input[type="file"][accept*="pdf"]').setInputFiles({
+      name: "Aarav-Candidate-CV.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("%PDF-1.4 e2e candidate resume"),
+    });
+
+    const [presignRequest, uploadRequest] = await Promise.all([presign, directUpload]);
+    await complete;
+
+    expect(presignRequest.postDataJSON()).toEqual({ filename: "Aarav-Candidate-CV.pdf", content_type: "application/pdf" });
+    expect(uploadRequest.headers()["content-type"]).toBe("application/pdf");
+    expect(uploadRequest.headers()["x-amz-server-side-encryption"]).toBe("AES256");
+    await expect(page.getByText("Resume uploaded securely.")).toBeVisible();
+
+    await page.reload();
+    await expect(page.getByText("Current CV: Aarav-Candidate-CV.pdf")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Replace CV" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Open CV" })).toBeEnabled();
   });
 });
