@@ -31,11 +31,13 @@ export function JobCard({
   compact = false,
   hrefBase = "/jobs",
   initialSaved = false,
+  canSave = false,
 }: {
   job: CandidateJob;
   compact?: boolean;
   hrefBase?: string;
   initialSaved?: boolean;
+  canSave?: boolean;
 }) {
   const detailHref = `${hrefBase}/${job.id}`;
   const skills = job.required_skills?.slice(0, 5) ?? [];
@@ -80,7 +82,7 @@ export function JobCard({
 
       <div className="relative z-10 mt-5 flex items-center justify-between gap-3 border-t border-line/60 pt-3">
         <span className="text-xs font-semibold text-ink-muted">{postedAgo(job.published_at)}</span>
-        <JobSaveButton jobId={job.id} initialSaved={initialSaved} />
+        {canSave ? <JobSaveButton jobId={job.id} initialSaved={initialSaved} /> : <span className="text-xs font-bold text-indigo">View role ↗</span>}
       </div>
     </Surface>
   );
