@@ -31,20 +31,20 @@ type AuditList struct {
 }
 
 type JobModerationRecord struct {
-	ID                 string     `json:"id"`
-	Title              string     `json:"title"`
-	CompanyID          string     `json:"company_id"`
-	CompanyName        string     `json:"company_name"`
-	RecruiterUserID    string     `json:"recruiter_user_id"`
-	RecruiterName      string     `json:"recruiter_name"`
-	Status             string     `json:"status"`
-	WorkMode           string     `json:"work_mode"`
-	City               *string    `json:"city,omitempty"`
-	CountryCode        string     `json:"country_code"`
-	PublishedAt        *time.Time `json:"published_at,omitempty"`
-	CreatedAt          time.Time  `json:"created_at"`
-	UpdatedAt          time.Time  `json:"updated_at"`
-	ApplicationCount   int64      `json:"application_count"`
+	ID               string     `json:"id"`
+	Title            string     `json:"title"`
+	CompanyID        string     `json:"company_id"`
+	CompanyName      string     `json:"company_name"`
+	RecruiterUserID  string     `json:"recruiter_user_id"`
+	RecruiterName    string     `json:"recruiter_name"`
+	Status           string     `json:"status"`
+	WorkMode         string     `json:"work_mode"`
+	City             *string    `json:"city,omitempty"`
+	CountryCode      string     `json:"country_code"`
+	PublishedAt      *time.Time `json:"published_at,omitempty"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
+	ApplicationCount int64      `json:"application_count"`
 }
 
 type JobModerationList struct {
