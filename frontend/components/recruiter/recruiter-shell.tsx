@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -37,7 +38,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
 
             <details className="relative">
               <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-line bg-white py-1.5 pl-1.5 pr-2.5 transition hover:bg-slate-50">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-[10px] font-extrabold text-white">{initials(recruiterName)}</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-[44%_56%_58%_42%/48%_42%_58%_52%] bg-navy text-[10px] font-extrabold text-white">{initials(recruiterName)}</span>
                 <span className="hidden max-w-36 text-left lg:block">
                   <span className="block truncate text-xs font-bold text-ink">{recruiterName}</span>
                   <span className="block truncate text-[10px] text-ink-muted">{companyName}</span>
@@ -60,6 +61,24 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
       <div className="mx-auto grid max-w-[108rem] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:px-8 lg:py-6">
         <aside className="lg:sticky lg:top-[5.75rem] lg:self-start">
           <div className="rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]"><RecruiterNav /></div>
+
+          <div className="relative mt-3 hidden overflow-hidden rounded-2xl border border-[#ddd8f2] bg-[linear-gradient(145deg,#f6f2ff_0%,#eff9f3_100%)] p-2.5 shadow-[0_10px_30px_rgba(41,55,89,0.08)] lg:block">
+            <div className="relative aspect-[1.08/1] overflow-hidden rounded-[38%_62%_54%_46%/42%_38%_62%_58%]">
+              <Image
+                src="/images/people/recruiter-workspace.webp"
+                alt="Recruiter working in a calm modern workspace"
+                fill
+                sizes="13rem"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-100/12 via-transparent to-emerald-100/20 mix-blend-overlay" aria-hidden="true" />
+            </div>
+            <div className="px-1.5 pb-1 pt-3">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Human hiring</p>
+              <p className="mt-1 text-xs font-bold leading-5 text-navy">Keep context close to every decision.</p>
+              <p className="mt-1 text-[10px] leading-4 text-ink-muted">People first. Data where it helps.</p>
+            </div>
+          </div>
         </aside>
         <main id="main-content" className="min-w-0">{children}</main>
       </div>
