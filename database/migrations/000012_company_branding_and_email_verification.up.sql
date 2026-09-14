@@ -27,4 +27,20 @@ CREATE INDEX ix_email_verification_pending
 -- Preserve access for already-active accounts while making verification mandatory for new signups.
 UPDATE users SET email_verified_at = COALESCE(email_verified_at, created_at) WHERE status = 'active';
 
+CREATE OR REPLACE FUNCTION enforce_verified_email_before_activation()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.status = 'active' AND NEW.email_verified_at IS NULL THEN
+    NEW.status := 'pending_verification';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_users_verified_email_before_activation
+BEFORE INSERT OR UPDATE OF status, email_verified_at ON users
+FOR EACH ROW EXECUTE FUNCTION enforce_verified_email_before_activation();
+
 COMMIT;
