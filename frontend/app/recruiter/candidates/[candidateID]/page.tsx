@@ -10,7 +10,6 @@ import { recruiterAPI } from "@/lib/recruiter-server";
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ candidateID: string }> };
-
 type RecordItem = Record<string, unknown>;
 
 function text(details: Record<string, unknown>, key: string) {
@@ -60,7 +59,7 @@ export default async function RecruiterCandidatePage({ params }: Props) {
         >
           <div className="grid gap-5">
             <section className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-6">
-              <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+              <div className="candidate-profile-header flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div className="flex items-start gap-4">
                   {candidate.photo_data_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -88,7 +87,7 @@ export default async function RecruiterCandidatePage({ params }: Props) {
               </div>
             </section>
 
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="candidate-profile-two-column grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
               <div className="grid gap-5">
                 <section className="rounded-2xl border border-line/70 bg-white p-5">
                   <h2 className="text-base font-bold text-navy">Professional summary</h2>
