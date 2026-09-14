@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "motion/react";
 
 import { cn } from "@/lib/cn";
@@ -42,16 +43,22 @@ export function HumanJourneyCard({
         whileHover={{ y: -5 }}
         transition={{ duration: 0.25 }}
       >
-        <motion.img
-          src={image}
-          alt={alt}
-          className="h-full w-full object-cover"
-          loading="lazy"
+        <motion.div
+          className="absolute inset-0"
           initial={{ scale: 1.075 }}
           whileInView={{ scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.9, delay: delay + 0.04, ease: [0.22, 1, 0.36, 1] }}
-        />
+        >
+          <Image
+            src={image}
+            alt={alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-100/10 via-transparent to-emerald-100/10 mix-blend-overlay" aria-hidden="true" />
+        </motion.div>
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#071d49]/30 to-transparent" aria-hidden="true" />
         <motion.span
           className="absolute bottom-4 left-4 rounded-full border border-white/80 bg-white/94 px-4 py-2 text-xs font-bold text-navy shadow-card backdrop-blur"
