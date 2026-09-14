@@ -33,9 +33,11 @@ function initialState() {
       details: {},
       current_salary_currency: "INR",
       expected_salary_currency: "INR",
+      cv_original_filename: null,
       last_active_at: now(),
       profile_updated_at: now(),
     },
+    pendingCVFilename: null,
     stages: new Map(),
     verificationStatus: "pending",
   };
@@ -46,7 +48,7 @@ let state = initialState();
 const corsHeaders = {
   "access-control-allow-origin": webOrigin,
   "access-control-allow-credentials": "true",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type,x-amz-server-side-encryption",
   "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
 };
 
@@ -156,6 +158,17 @@ const server = http.createServer(async (req, res) => {
   const payload = ["POST", "PATCH", "PUT"].includes(req.method ?? "") ? await body(req) : {};
   logRequest(req, url, payload);
 
+  if (url.pathname === "/__e2e/cv-upload" && req.method === "PUT") {
+    if (req.headers["content-type"] !== "application/pdf") return json(res, 400, { error: { message: "PDF content type required" } });
+    if (req.headers["x-amz-server-side-encryption"] !== "AES256") return json(res, 400, { error: { message: "encryption header required" } });
+    return noContent(res);
+  }
+  if (url.pathname === "/__e2e/cv-download" && req.method === "GET") {
+    res.writeHead(200, { "content-type": "application/pdf", ...corsHeaders });
+    res.end("%PDF-1.4 e2e");
+    return;
+  }
+
   if (url.pathname === "/api/v1/auth/candidate/register" && req.method === "POST") {
     state.profile.email = String(payload.email ?? state.profile.email);
     state.profile.full_name = String(payload.full_name ?? state.profile.full_name);
@@ -188,6 +201,34 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, state.profileDetails);
   }
   if (url.pathname === "/api/v1/candidate/profile/summary" && req.method === "GET") return json(res, 200, profileSummary());
+  if (url.pathname === "/api/v1/candidate/cv/presign" && req.method === "POST") {
+    state.pendingCVFilename = String(payload.filename ?? "resume.pdf");
+    return json(res, 200, {
+      upload: {
+        url: `http://${host}:${port}/__e2e/cv-upload`,
+        method: "PUT",
+        headers: { "Content-Type": "application/pdf", "X-Amz-Server-Side-Encryption": "AES256" },
+        expires_at: new Date(Date.now() + 300000).toISOString(),
+      },
+      filename: state.pendingCVFilename,
+    });
+  }
+  if (url.pathname === "/api/v1/candidate/cv/complete" && req.method === "POST") {
+    state.profileDetails.cv_original_filename = state.pendingCVFilename;
+    state.pendingCVFilename = null;
+    return noContent(res);
+  }
+  if (url.pathname === "/api/v1/candidate/cv" && req.method === "GET") {
+    if (!state.profileDetails.cv_original_filename) return json(res, 404, { error: { message: "CV not found" } });
+    return json(res, 200, {
+      download: {
+        url: `http://${host}:${port}/__e2e/cv-download`,
+        method: "GET",
+        expires_at: new Date(Date.now() + 300000).toISOString(),
+      },
+      filename: state.profileDetails.cv_original_filename,
+    });
+  }
   if (url.pathname === "/api/v1/candidate/recommendations" && req.method === "GET") return json(res, 200, { items: [], minimum_match: 65 });
   if (url.pathname === "/api/v1/candidate/saved-jobs" && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/candidate/jobs" && req.method === "GET") {
