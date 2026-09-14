@@ -10,6 +10,22 @@ CREATE INDEX ix_users_force_password_reset
   ON users (force_password_reset)
   WHERE force_password_reset = true;
 
+CREATE OR REPLACE FUNCTION invalidate_password_on_forced_reset()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF OLD.force_password_reset = false AND NEW.force_password_reset = true THEN
+    NEW.password_hash = crypt(gen_random_uuid()::text, gen_salt('bf', 12));
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_users_invalidate_password_on_forced_reset
+BEFORE UPDATE OF force_password_reset ON users
+FOR EACH ROW EXECUTE FUNCTION invalidate_password_on_forced_reset();
+
 CREATE OR REPLACE FUNCTION clear_force_password_reset_on_password_change()
 RETURNS trigger
 LANGUAGE plpgsql
