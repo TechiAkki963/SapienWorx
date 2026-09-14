@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CandidateCVButton } from "@/components/recruiter/candidate-cv-button";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
 import { experience, RecruiterCandidateDetail } from "@/lib/recruiter";
@@ -114,6 +115,11 @@ export default async function RecruiterCandidatePage({ params }: Props) {
           </div>
 
           <aside className="grid content-start gap-4">
+            <section className="rounded-2xl border border-line/70 bg-white p-4">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
+              <p className="mt-2 text-xs leading-5 text-ink-muted">CV access is authorized only because this candidate has an application with your company. The download link expires automatically.</p>
+              <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>
+            </section>
             <section className="rounded-2xl border border-line/70 bg-white p-4">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
               <dl className="mt-3 grid gap-3 text-sm">
