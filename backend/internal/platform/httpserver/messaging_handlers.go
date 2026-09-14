@@ -235,14 +235,19 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 		case "message":
 			message, err := messagingService.SendMessage(r.Context(), threadID, claims.Subject, sender, event.Content)
 			if err != nil {
-				_ = conn.WriteJSON(map[string]any{"type": "error", "code": "message_rejected"})
-				continue
+				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "message rejected"), time.Now().Add(time.Second))
+				_ = conn.Close()
+				<-done
+				return
 			}
 			messageHub.Broadcast(threadID, message)
 		case "read":
 			_ = messagingService.MarkRead(r.Context(), threadID, claims.Subject)
 		default:
-			_ = conn.WriteJSON(map[string]any{"type": "error", "code": "unsupported_event"})
+			_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "unsupported event"), time.Now().Add(time.Second))
+			_ = conn.Close()
+			<-done
+			return
 		}
 	}
 	_ = conn.Close()
