@@ -22,10 +22,16 @@ type AuthShellProps = {
   tone?: "lavender" | "mint" | "peach";
 };
 
-const toneOverlay = {
-  lavender: "from-violet-200/20 via-transparent to-indigo-100/20",
-  mint: "from-emerald-100/22 via-transparent to-cyan-100/14",
-  peach: "from-orange-100/22 via-transparent to-rose-100/14",
+const toneSurface = {
+  lavender: "bg-[#f2f5ff]",
+  mint: "bg-[#eef9f5]",
+  peach: "bg-[#fff5ef]",
+};
+
+const toneAccent = {
+  lavender: "bg-[#e5eaff] text-[#4251b8]",
+  mint: "bg-[#dff4ea] text-[#17684d]",
+  peach: "bg-[#ffe7da] text-[#a14c2f]",
 };
 
 export function AuthShell({
@@ -41,65 +47,63 @@ export function AuthShell({
   tone = "lavender",
 }: AuthShellProps) {
   return (
-    <main className="min-h-screen bg-[#f6f9fe] p-3 sm:p-5 lg:p-6">
-      <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[96rem] overflow-hidden rounded-[2rem] border border-[#e3edf8] bg-white shadow-[0_24px_80px_rgba(8,43,91,0.10)] sm:min-h-[calc(100vh-2.5rem)] lg:grid-cols-2">
+    <main className="min-h-screen bg-[#f5f8fd] p-3 sm:p-5 lg:p-6">
+      <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[96rem] overflow-hidden rounded-[2rem] border border-[#dfe8f4] bg-white shadow-[0_28px_90px_rgba(8,43,91,0.11)] sm:min-h-[calc(100vh-2.5rem)] lg:grid-cols-[1.04fr_0.96fr]">
         <section
-          className={`${reverseOnDesktop ? "lg:order-2" : ""} relative hidden min-h-[46rem] overflow-hidden bg-[#edf5ff] lg:flex lg:flex-col lg:justify-between`}
+          className={`${reverseOnDesktop ? "lg:order-2" : ""} ${toneSurface[tone]} relative hidden min-h-[46rem] overflow-hidden lg:grid lg:grid-rows-[minmax(25rem,58vh)_1fr]`}
           aria-label="SapienWorx product benefits"
         >
-          {image ? (
-            <div className="absolute inset-0 overflow-hidden bg-[linear-gradient(145deg,#eef5ff_0%,#f3eefc_52%,#edf9f4_100%)]">
-              <div className="absolute -left-16 top-8 h-64 w-64 rounded-full bg-[#dff5ea] blur-3xl" aria-hidden="true" />
-              <div className="absolute -right-12 bottom-16 h-72 w-72 rounded-full bg-[#e8ddfb] blur-3xl" aria-hidden="true" />
-              <div className="absolute inset-5 overflow-hidden rounded-[42%_58%_62%_38%/35%_46%_54%_65%] shadow-[0_28px_70px_rgba(35,52,91,0.18)] xl:inset-7">
-                <Image
-                  src={image}
-                  alt={imageAlt}
-                  fill
-                  priority
-                  sizes="50vw"
-                  className="object-cover object-center"
-                />
-                <div className={`absolute inset-0 bg-gradient-to-br ${toneOverlay[tone]} mix-blend-overlay`} aria-hidden="true" />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#071d49]/5 via-transparent to-[#071d49]/76" aria-hidden="true" />
-              </div>
-            </div>
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[#0b67e8] via-[#0b4ba9] to-[#071d49]" aria-hidden="true" />
-          )}
+          <div className="relative min-h-0 overflow-hidden bg-[#eaf2fb]">
+            {image ? (
+              <Image
+                src={image}
+                alt={imageAlt}
+                fill
+                priority
+                sizes="(min-width: 1024px) 52vw, 100vw"
+                className="object-cover object-center [image-rendering:auto]"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0b67e8] via-[#0b4ba9] to-[#071d49]" aria-hidden="true" />
+            )}
 
-          <div className="relative z-10 flex items-center justify-between p-8 xl:p-10">
-            <Link href="/" aria-label="SapienWorx home" className="rounded-full bg-white/92 px-4 py-2 shadow-sm backdrop-blur">
-              <Wordmark className="text-lg" />
-            </Link>
-            <span className="rounded-full border border-white/55 bg-white/22 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-white shadow-sm backdrop-blur-md">
-              {eyebrow}
-            </span>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#071d49]/18 to-transparent" aria-hidden="true" />
+
+            <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-4 p-7 xl:p-9">
+              <Link href="/" aria-label="SapienWorx home" className="rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-[0_8px_28px_rgba(7,29,73,0.10)]">
+                <Wordmark className="text-lg" />
+              </Link>
+              <span className="rounded-full border border-white/75 bg-white/95 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-navy shadow-[0_8px_28px_rgba(7,29,73,0.10)]">
+                {eyebrow}
+              </span>
+            </div>
+
+            <HumanSignal className="pointer-events-none absolute -right-10 bottom-3 z-10 w-40 text-white/28" title="" />
           </div>
 
-          <HumanSignal className="pointer-events-none absolute -right-12 top-24 z-10 w-48 text-white/16" title="" />
-
-          <div className="relative z-10 p-8 text-white xl:p-10">
-            <div className="max-w-[38rem] rounded-[2rem] border border-white/16 bg-[#071d49]/36 p-6 shadow-[0_18px_44px_rgba(7,29,73,0.18)] backdrop-blur-md xl:p-7">
-              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#cfe2ff]">{panelLabel}</p>
-              <h1 className="mt-4 max-w-xl text-balance text-[clamp(2.75rem,4vw,4.8rem)] font-bold leading-[0.98] tracking-[-0.055em]">
+          <div className="relative flex min-h-0 flex-col justify-center px-8 py-8 xl:px-11 xl:py-10">
+            <div className="max-w-[42rem]">
+              <span className={`inline-flex rounded-full px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.16em] ${toneAccent[tone]}`}>
+                {panelLabel}
+              </span>
+              <h1 className="mt-4 max-w-[40rem] text-balance font-serif text-[clamp(2.35rem,3.4vw,4rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-navy">
                 {title}
               </h1>
-              <p className="mt-5 max-w-lg text-sm leading-7 text-white/78 xl:text-base">{description}</p>
+              <p className="mt-4 max-w-[38rem] text-sm leading-6 text-ink-muted xl:text-[15px] xl:leading-7">{description}</p>
 
               {features.length > 0 && (
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <div className="mt-6 grid gap-x-6 gap-y-4 sm:grid-cols-2">
                   {features.map((feature) => (
-                    <div key={feature.title} className="rounded-[1.25rem] border border-white/16 bg-white/10 p-4 backdrop-blur-md">
-                      <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/92 text-xs font-black text-indigo">✓</div>
-                      <h2 className="text-sm font-bold text-white">{feature.title}</h2>
-                      <p className="mt-1.5 text-xs leading-5 text-white/70">{feature.body}</p>
+                    <div key={feature.title} className="grid grid-cols-[auto_1fr] gap-3 border-t border-[#d8e3f0] pt-4">
+                      <div className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[10px] font-black text-indigo shadow-sm">✓</div>
+                      <div>
+                        <h2 className="text-[13px] font-extrabold text-navy">{feature.title}</h2>
+                        <p className="mt-1 text-[12px] leading-5 text-ink-muted">{feature.body}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
-
-              <p className="mt-8 text-xs font-medium text-white/64">People. Work. Forward.</p>
             </div>
           </div>
         </section>
