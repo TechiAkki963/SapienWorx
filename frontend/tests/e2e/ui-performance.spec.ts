@@ -15,6 +15,15 @@ test.describe("public UI stability", () => {
     await expect(human).toBeVisible();
     await expect(orbit).toBeVisible();
 
+    // Visibility alone is not enough: a broken image can still occupy layout space.
+    // Confirm the browser actually decoded the committed human portrait.
+    await expect.poll(async () =>
+      human.evaluate((element) => {
+        const image = element as HTMLImageElement;
+        return image.complete && image.naturalWidth > 0 && image.naturalHeight > 0;
+      }),
+    ).toBe(true);
+
     expect(await human.evaluate((element) => getComputedStyle(element).animationName)).toBe("hero-float");
     expect(await orbit.evaluate((element) => getComputedStyle(element).animationName)).toBe("orbit-drift");
 
