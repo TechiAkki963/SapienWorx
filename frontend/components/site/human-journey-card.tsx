@@ -33,39 +33,33 @@ export function HumanJourneyCard({
   return (
     <motion.article
       className="group"
-      initial={{ opacity: 0, y: 34 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.24 }}
-      transition={{ duration: 0.62, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       <motion.div
         className={cn("relative aspect-[1.06/1] overflow-hidden rounded-[1.65rem] shadow-[0_14px_40px_rgb(16_44_86_/_0.08)]", toneClasses[tone])}
-        whileHover={{ y: -5 }}
-        transition={{ duration: 0.25 }}
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.22 }}
       >
-        <motion.div
-          className="absolute inset-0"
-          initial={{ scale: 1.075 }}
-          whileInView={{ scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, delay: delay + 0.04, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div className="absolute inset-0">
           <Image
             src={image}
             alt={alt}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover"
+            className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-100/10 via-transparent to-emerald-100/10 mix-blend-overlay" aria-hidden="true" />
-        </motion.div>
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#071d49]/30 to-transparent" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-100/5 via-transparent to-emerald-100/5" aria-hidden="true" />
+        </div>
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#071d49]/24 to-transparent" aria-hidden="true" />
         <motion.span
-          className="absolute bottom-4 left-4 rounded-full border border-white/80 bg-white/94 px-4 py-2 text-xs font-bold text-navy shadow-card backdrop-blur"
-          initial={{ opacity: 0, y: 10 }}
+          className="absolute bottom-4 left-4 rounded-full border border-white/80 bg-white/95 px-4 py-2 text-xs font-bold text-navy shadow-card"
+          initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.42, delay: delay + 0.28 }}
+          transition={{ duration: 0.36, delay: delay + 0.18 }}
         >
           {eyebrow}
         </motion.span>
