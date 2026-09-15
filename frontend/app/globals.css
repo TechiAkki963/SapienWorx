@@ -102,23 +102,74 @@ a {
   clip-path: polygon(8% 18%, 28% 5%, 63% 2%, 88% 17%, 98% 48%, 88% 80%, 62% 97%, 30% 92%, 5% 72%, 0 42%);
 }
 
+/* Keep photography raster-sharp. Decorative movement belongs around the photo,
+   not on the image bitmap itself, which avoids GPU resampling softness. */
 .hero-human {
-  animation: hero-float 7s ease-in-out infinite;
-  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .hero-orbit {
   animation: orbit-drift 8s ease-in-out infinite;
 }
 
-@keyframes hero-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+/* Landing search: a compact form surface on phones, not one oversized pill. */
+form[role="search"]:has(#home-q) {
+  border-radius: 1.25rem !important;
+  gap: 0.5rem;
+  overflow: visible !important;
+  padding: 0.5rem !important;
+}
+
+form[role="search"]:has(#home-q) #home-q,
+form[role="search"]:has(#home-q) #home-experience,
+form[role="search"]:has(#home-q) #home-location,
+form[role="search"]:has(#home-q) button[type="submit"] {
+  border-radius: 0.85rem !important;
+}
+
+form[role="search"]:has(#home-q) #home-q,
+form[role="search"]:has(#home-q) #home-experience,
+form[role="search"]:has(#home-q) #home-location {
+  border: 1px solid #e4ebf4;
+  background: #f8fafc;
+}
+
+form[role="search"]:has(#home-q) button[type="submit"] {
+  min-width: 3.25rem;
+}
+
+/* Final landing CTA: remove the duplicated eyebrow and make the primary action
+   deliberately high-contrast instead of another white capsule. */
+section.pb-14.pt-5 .relative.z-10 > p:first-child {
+  display: none;
+}
+
+main#main-content a[href="/signup"].bg-white {
+  background: #ffd5c0 !important;
+  color: #071d49 !important;
+  box-shadow: 0 10px 28px rgb(7 29 73 / 0.18);
+}
+
+main#main-content a[href="/signup"].bg-white:hover {
+  background: #ffc6a8 !important;
 }
 
 @keyframes orbit-drift {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
   50% { transform: translate3d(8px, -6px, 0) rotate(1deg); }
+}
+
+@media (max-width: 639px) {
+  form[role="search"]:has(#home-q) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    box-shadow: 0 12px 34px rgb(18 54 104 / 0.10) !important;
+  }
+
+  form[role="search"]:has(#home-q) button[type="submit"] {
+    width: 100%;
+    min-height: 3rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
