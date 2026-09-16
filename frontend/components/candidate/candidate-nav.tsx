@@ -9,6 +9,7 @@ const items = [
   ["Overview", "/candidate"],
   ["Find jobs", "/candidate/jobs"],
   ["Applications", "/candidate/applications"],
+  ["Interviews", "/candidate/interviews"],
   ["Inbox", "/candidate/inbox"],
   ["Saved", "/candidate/saved"],
   ["Profile", "/candidate/profile"],
