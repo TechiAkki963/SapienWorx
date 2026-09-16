@@ -12,8 +12,9 @@ export function VerifyEmailForm() {
   const params = useSearchParams();
   const email = params.get("email") ?? "";
   const role = params.get("role") ?? "candidate";
-  const [code, setCode] = useState("");
-  const [message, setMessage] = useState("");
+  const developmentCode = params.get("dev_otp") ?? "";
+  const [code, setCode] = useState(developmentCode);
+  const [message, setMessage] = useState(developmentCode ? `Development email code: ${developmentCode}` : "A verification challenge was created when your account was registered. Check your email for the code.");
   const [error, setError] = useState("");
   const [requesting, setRequesting] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -34,7 +35,7 @@ export function VerifyEmailForm() {
       } else if (result.delivery_configured === false) {
         setMessage("Email verification is required, but production email delivery has not been configured yet. Connect an approved email provider before launch.");
       } else {
-        setMessage("A verification code was sent to your email address.");
+        setMessage("A new verification code was sent to your email address.");
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not request email verification.");
@@ -51,7 +52,7 @@ export function VerifyEmailForm() {
     try {
       const result = await apiRequest<{ status: string }>("/api/v1/auth/email/verify", { method: "POST", body: JSON.stringify({ email, code: data.get("code") }) });
       if (role === "recruiter" && result.status !== "active") {
-        setMessage("Email verified. Your recruiter account is now awaiting SapienWorx administrator approval before workspace access.");
+        setMessage("Email verified. Your recruiter account is awaiting SapienWorx administrator approval before workspace access.");
         return;
       }
       router.replace(role === "recruiter" ? "/recruiter/login?verified=1" : "/login?verified=1");
@@ -71,9 +72,11 @@ export function VerifyEmailForm() {
       </div>
       {error && <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
       {message && <p className="rounded-2xl bg-blue-50 p-3 text-sm leading-6 text-ink" role="status">{message}</p>}
-      <Button type="button" variant="secondary" size="lg" onClick={requestCode} disabled={requesting}>{requesting ? "Requesting…" : "Send verification code"}</Button>
       <Input label="Email verification code" name="code" value={code} onChange={(event) => setCode(event.target.value)} inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" required />
-      <Button type="submit" size="lg" disabled={verifying}>{verifying ? "Verifying…" : "Verify email"}</Button>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Button type="submit" size="lg" disabled={verifying}>{verifying ? "Verifying…" : "Verify email"}</Button>
+        <Button type="button" variant="secondary" size="lg" onClick={requestCode} disabled={requesting}>{requesting ? "Requesting…" : "Send new code"}</Button>
+      </div>
     </form>
   );
 }
