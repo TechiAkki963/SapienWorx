@@ -127,11 +127,12 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 		return Interview{}, err
 	}
 
+	notificationBody := "Your interview for " + jobTitle + " is scheduled for " + in.ScheduledAt.Format("02 Jan 2006 at 03:04 PM MST") + ". Open the meeting link at the scheduled time."
 	_, err = tx.Exec(ctx, `
 		INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url)
 		VALUES($1,'interview','Interview scheduled',$2,$3)`,
 		candidateID,
-		"An interview has been scheduled. Open the meeting link at the scheduled time.",
+		notificationBody,
 		item.MeetingURL,
 	)
 	if err != nil {
