@@ -52,7 +52,7 @@ export function SignupForm({ recruiter = false }: { recruiter?: boolean }) {
       <Input label="Full name" name="full_name" autoComplete="name" required />
       {recruiter && <><Input label="Company name" name="company_name" required /><Input label="Designation" name="designation" /></>}
       <Input label={recruiter ? "Official work email" : "Email"} name="email" type="email" autoComplete="email" hint={recruiter ? "Public email providers such as Gmail or Yahoo are not accepted." : undefined} required />
-      <Input label="Mobile number" name="phone" type="tel" autoComplete="tel" placeholder="+919876543210" hint="Contact detail only. Account verification uses email OTP, not SMS." required />
+      <Input label="Mobile number" name="phone" type="tel" autoComplete="tel" placeholder="+919876543210" hint="Contact detail only; it is not used for account verification." required />
       <Input label="Password" name="password" type="password" autoComplete="new-password" hint="Minimum 12 characters." minLength={12} required />
 
       <fieldset className="grid gap-3 rounded-2xl border border-line bg-slate-50/70 p-4">
