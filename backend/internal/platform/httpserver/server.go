@@ -98,6 +98,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/recruiter/jobs", Chain(http.HandlerFunc(s.recruiterJobs), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/jobs/builder", Chain(http.HandlerFunc(s.recruiterJobBuilder), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/status", Chain(http.HandlerFunc(s.recruiterJobStatus), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/compensation", Chain(http.HandlerFunc(s.recruiterJobCompensation), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/skills", Chain(http.HandlerFunc(s.recruiterJobSkills), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/education", Chain(http.HandlerFunc(s.recruiterJobEducation), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/pipeline", Chain(http.HandlerFunc(s.recruiterPipeline), protected, recruiterOnly))
@@ -143,17 +144,31 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 
 func (s *Server) SetObjectStorage(presigner storage.Presigner) { s.objectStorage = presigner }
 func (s *Server) ListenAndServe() error                        { return s.http.ListenAndServe() }
-func (s *Server) Shutdown(ctx context.Context) error { s.messages.Close(); return s.http.Shutdown(ctx) }
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.messages.Close()
+	return s.http.Shutdown(ctx)
+}
 
-func (s *Server) live(w http.ResponseWriter, _ *http.Request) { writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "sapienworx-api"}) }
+func (s *Server) live(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "sapienworx-api"})
+}
 
 func (s *Server) ready(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), s.dbTimeout); defer cancel()
-	if err := s.db.Ping(ctx); err != nil { s.logger.Warn("readiness check failed", "error", err, "request_id", RequestIDFromContext(r.Context())); writeError(w, r, http.StatusServiceUnavailable, "not_ready", "service dependencies are not ready"); return }
+	ctx, cancel := context.WithTimeout(r.Context(), s.dbTimeout)
+	defer cancel()
+	if err := s.db.Ping(ctx); err != nil {
+		s.logger.Warn("readiness check failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
+		writeError(w, r, http.StatusServiceUnavailable, "not_ready", "service dependencies are not ready")
+		return
+	}
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 }
 
 func (s *Server) me(w http.ResponseWriter, r *http.Request) {
-	claims, ok := ClaimsFromContext(r.Context()); if !ok { writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required"); return }
+	claims, ok := ClaimsFromContext(r.Context())
+	if !ok {
+		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
+		return
+	}
 	writeJSON(w, http.StatusOK, map[string]any{"id": claims.Subject, "role": claims.Role})
 }
