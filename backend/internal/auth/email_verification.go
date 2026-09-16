@@ -83,25 +83,18 @@ func (s *Service) VerifyEmail(ctx context.Context, emailValue, code string) (Reg
 		return RegistrationResult{}, err
 	}
 
-	status := "pending_phone_verification"
+	status := "active"
 	if role == RoleCandidate {
-		var phoneVerified bool
-		if err = tx.QueryRow(ctx, `SELECT phone_verified_at IS NOT NULL FROM users WHERE id=$1`, userID).Scan(&phoneVerified); err != nil {
+		if _, err = tx.Exec(ctx, `UPDATE users SET status='active' WHERE id=$1`, userID); err != nil {
 			return RegistrationResult{}, err
 		}
-		if phoneVerified {
-			if _, err = tx.Exec(ctx, `UPDATE users SET status='active' WHERE id=$1`, userID); err != nil {
-				return RegistrationResult{}, err
-			}
-			status = "active"
-		}
 	} else if role == RoleRecruiter {
-		var phoneVerified, recruiterVerified bool
-		if err = tx.QueryRow(ctx, `SELECT u.phone_verified_at IS NOT NULL,r.verification_status='verified' FROM users u JOIN recruiter_profiles r ON r.user_id=u.id WHERE u.id=$1`, userID).Scan(&phoneVerified, &recruiterVerified); err != nil {
+		var recruiterVerified bool
+		if err = tx.QueryRow(ctx, `SELECT verification_status='verified' FROM recruiter_profiles WHERE user_id=$1`, userID).Scan(&recruiterVerified); err != nil {
 			return RegistrationResult{}, err
 		}
 		status = "pending_admin_verification"
-		if phoneVerified && recruiterVerified {
+		if recruiterVerified {
 			if _, err = tx.Exec(ctx, `UPDATE users SET status='active' WHERE id=$1`, userID); err != nil {
 				return RegistrationResult{}, err
 			}
@@ -111,7 +104,6 @@ func (s *Service) VerifyEmail(ctx context.Context, emailValue, code string) (Reg
 		if _, err = tx.Exec(ctx, `UPDATE users SET status='active' WHERE id=$1`, userID); err != nil {
 			return RegistrationResult{}, err
 		}
-		status = "active"
 	}
 
 	if err = tx.Commit(ctx); err != nil {
