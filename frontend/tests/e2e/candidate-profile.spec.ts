@@ -72,7 +72,9 @@ test.describe("candidate profile", () => {
     await expect(page.getByText("Resume uploaded securely.")).toBeVisible();
 
     await page.reload();
-    await expect(page.getByText("Current CV: Aarav-Candidate-CV.pdf")).toBeVisible();
+    const currentCVLabels = page.getByText("Current CV: Aarav-Candidate-CV.pdf", { exact: true });
+    await expect(currentCVLabels).toHaveCount(2);
+    await expect(currentCVLabels.first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Replace CV" })).toBeEnabled();
     await expect(page.getByRole("button", { name: "Open CV" })).toBeEnabled();
   });
