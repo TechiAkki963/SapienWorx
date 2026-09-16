@@ -21,14 +21,14 @@ type TalentPoolMembership struct {
 }
 
 type TalentPoolCandidate struct {
-	CandidateID     string    `json:"candidate_id"`
-	FullName        string    `json:"full_name"`
-	Headline        *string   `json:"headline,omitempty"`
-	CurrentCity     *string   `json:"current_city,omitempty"`
-	ExperienceMonths int      `json:"experience_months"`
-	NoticePeriodDays *int     `json:"notice_period_days,omitempty"`
-	Tags            []string  `json:"tags"`
-	SavedAt         time.Time `json:"saved_at"`
+	CandidateID      string    `json:"candidate_id"`
+	FullName         string    `json:"full_name"`
+	Headline         *string   `json:"headline,omitempty"`
+	CurrentCity      *string   `json:"current_city,omitempty"`
+	ExperienceMonths int       `json:"experience_months"`
+	NoticePeriodDays *int      `json:"notice_period_days,omitempty"`
+	Tags             []string  `json:"tags"`
+	SavedAt          time.Time `json:"saved_at"`
 }
 
 func normalizeTags(tags []string) []string {
