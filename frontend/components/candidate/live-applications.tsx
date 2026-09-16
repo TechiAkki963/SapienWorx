@@ -9,6 +9,11 @@ import { CandidateApplication, humanize, stageLabel } from "@/lib/candidate";
 
 const terminalStages = new Set(["withdrawn", "rejected", "hired"]);
 
+type StageChangeDetail = {
+  application_id: string;
+  stage: string;
+};
+
 export function LiveApplications({ initialItems }: { initialItems: CandidateApplication[] }) {
   const [items, setItems] = useState(initialItems);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
@@ -28,11 +33,23 @@ export function LiveApplications({ initialItems }: { initialItems: CandidateAppl
         // Keep the last known state visible when a background refresh fails.
       }
     }
-    const timer = window.setInterval(refresh, 10000);
+    const timer = window.setInterval(refresh, 30000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
     };
+  }, []);
+
+  useEffect(() => {
+    const onStageChange = (event: Event) => {
+      const detail = (event as CustomEvent<StageChangeDetail>).detail;
+      if (!detail?.application_id || !detail.stage) return;
+      const now = new Date();
+      setItems((current) => current.map((item) => item.id === detail.application_id ? { ...item, stage: detail.stage, updated_at: now.toISOString() } : item));
+      setLastSynced(now);
+    };
+    window.addEventListener("sapienworx:stage-change", onStageChange);
+    return () => window.removeEventListener("sapienworx:stage-change", onStageChange);
   }, []);
 
   async function withdraw(applicationID: string) {
@@ -54,7 +71,7 @@ export function LiveApplications({ initialItems }: { initialItems: CandidateAppl
 
   return (
     <div className="mt-6">
-      <div className="mb-2 flex items-center justify-end gap-2 text-xs font-semibold text-ink-muted"><span className="h-2 w-2 rounded-full bg-emerald-500" />Live sync every 10 seconds{lastSynced ? ` · ${lastSynced.toLocaleTimeString("en-IN")}` : ""}</div>
+      <div className="mb-2 flex items-center justify-end gap-2 text-xs font-semibold text-ink-muted"><span className="h-2 w-2 rounded-full bg-emerald-500" />Realtime stage updates with 30-second recovery sync{lastSynced ? ` · ${lastSynced.toLocaleTimeString("en-IN")}` : ""}</div>
       {error && <p role="alert" className="mb-3 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-700">{error}</p>}
       <Surface className="overflow-x-auto">
         <table className="w-full min-w-[60rem] text-left text-sm">
