@@ -12,18 +12,18 @@ import (
 )
 
 var (
-	ErrInvalid   = errors.New("invalid privacy request")
-	ErrNotFound  = errors.New("privacy resource not found")
-	ErrReview    = errors.New("privacy request requires review")
+	ErrInvalid  = errors.New("invalid privacy request")
+	ErrNotFound = errors.New("privacy resource not found")
+	ErrReview   = errors.New("privacy request requires review")
 )
 
 var SafeExportSections = map[string]struct{}{
-	"account":      {},
-	"profile":      {},
-	"applications": {},
-	"saved_jobs":   {},
+	"account":       {},
+	"profile":       {},
+	"applications":  {},
+	"saved_jobs":    {},
 	"notifications": {},
-	"messages":     {},
+	"messages":      {},
 }
 
 type Service struct{ db *pgxpool.Pool }
@@ -55,12 +55,16 @@ func (s *Service) CreateRequest(ctx context.Context, userID, requestType string)
 
 func (s *Service) Requests(ctx context.Context, userID string) ([]Request, error) {
 	rows, err := s.db.Query(ctx, `SELECT id,request_type,status,due_at,completed_at,created_at FROM privacy_requests WHERE user_id=$1 ORDER BY created_at DESC LIMIT 100`, userID)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 	items := make([]Request, 0)
 	for rows.Next() {
 		var item Request
-		if err := rows.Scan(&item.ID, &item.RequestType, &item.Status, &item.DueAt, &item.CompletedAt, &item.CreatedAt); err != nil { return nil, err }
+		if err := rows.Scan(&item.ID, &item.RequestType, &item.Status, &item.DueAt, &item.CompletedAt, &item.CreatedAt); err != nil {
+			return nil, err
+		}
 		items = append(items, item)
 	}
 	return items, rows.Err()
@@ -71,23 +75,35 @@ func (s *Service) Requests(ctx context.Context, userID string) ([]Request, error
 // placed behind a review gate rather than violating referential or retention rules.
 func (s *Service) EraseAccount(ctx context.Context, userID string) (bool, error) {
 	tx, err := s.db.Begin(ctx)
-	if err != nil { return false, err }
+	if err != nil {
+		return false, err
+	}
 	defer tx.Rollback(ctx)
 
 	var role string
 	if err := tx.QueryRow(ctx, `SELECT role::text FROM users WHERE id=$1 AND is_active=true FOR UPDATE`, userID).Scan(&role); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) { return false, ErrNotFound }
+		if errors.Is(err, pgx.ErrNoRows) {
+			return false, ErrNotFound
+		}
 		return false, err
 	}
 
 	var requestID string
 	err = tx.QueryRow(ctx, `INSERT INTO privacy_requests(user_id,request_type,status,due_at) VALUES($1,'erasure','in_progress',$2) ON CONFLICT (user_id,request_type) WHERE status IN ('received','in_progress','awaiting_review') DO UPDATE SET status='in_progress',updated_at=now() RETURNING id`, userID, privacyDueAt(time.Now())).Scan(&requestID)
-	if err != nil { return false, err }
+	if err != nil {
+		return false, err
+	}
 
 	if role != "candidate" {
-		if _, err := tx.Exec(ctx, `UPDATE privacy_requests SET status='awaiting_review',result_manifest=jsonb_build_object('reason','role_retention_review') WHERE id=$1`, requestID); err != nil { return false, err }
-		if _, err := tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'erasure_review',$2,'awaiting_review',jsonb_build_object('role',$3)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "erasure-review:"+requestID, role); err != nil { return false, err }
-		if err := tx.Commit(ctx); err != nil { return false, err }
+		if _, err := tx.Exec(ctx, `UPDATE privacy_requests SET status='awaiting_review',result_manifest=jsonb_build_object('reason','role_retention_review') WHERE id=$1`, requestID); err != nil {
+			return false, err
+		}
+		if _, err := tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'erasure_review',$2,'awaiting_review',jsonb_build_object('role',$3)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "erasure-review:"+requestID, role); err != nil {
+			return false, err
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return false, err
+		}
 		return true, nil
 	}
 
@@ -96,22 +112,38 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (bool, error)
 
 	// Messaging identity is removed first; deleting candidate-owned threads also
 	// cascades their messages. Messages authored in any remaining thread are removed.
-	if _, err := tx.Exec(ctx, `DELETE FROM chat_messages WHERE sender_id=$1`, userID); err != nil { return false, err }
-	if _, err := tx.Exec(ctx, `DELETE FROM chat_threads WHERE candidate_id=$1`, userID); err != nil { return false, err }
-	if _, err := tx.Exec(ctx, `DELETE FROM candidate_profiles WHERE user_id=$1`, userID); err != nil { return false, err }
-	if _, err := tx.Exec(ctx, `UPDATE refresh_sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE user_id=$1 AND revoked_at IS NULL`, userID); err != nil { return false, err }
+	if _, err := tx.Exec(ctx, `DELETE FROM chat_messages WHERE sender_id=$1`, userID); err != nil {
+		return false, err
+	}
+	if _, err := tx.Exec(ctx, `DELETE FROM chat_threads WHERE candidate_id=$1`, userID); err != nil {
+		return false, err
+	}
+	if _, err := tx.Exec(ctx, `DELETE FROM candidate_profiles WHERE user_id=$1`, userID); err != nil {
+		return false, err
+	}
+	if _, err := tx.Exec(ctx, `UPDATE refresh_sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE user_id=$1 AND revoked_at IS NULL`, userID); err != nil {
+		return false, err
+	}
 
 	anonymisedEmail := fmt.Sprintf("deleted+%s@erased.invalid", userID)
-	if _, err := tx.Exec(ctx, `UPDATE users SET email=$2,password_hash='ERASED',phone_e164=NULL,email_verified_at=NULL,phone_verified_at=NULL,is_active=false,status='disabled' WHERE id=$1`, userID, anonymisedEmail); err != nil { return false, err }
+	if _, err := tx.Exec(ctx, `UPDATE users SET email=$2,password_hash='ERASED',phone_e164=NULL,email_verified_at=NULL,phone_verified_at=NULL,is_active=false,status='disabled' WHERE id=$1`, userID, anonymisedEmail); err != nil {
+		return false, err
+	}
 
 	manifest := `{"account":"anonymised","candidate_profile":"deleted","messaging":"deleted","sessions":"revoked"}`
-	if _, err := tx.Exec(ctx, `UPDATE privacy_requests SET status='fulfilled',result_manifest=$2::jsonb,completed_at=now() WHERE id=$1`, requestID, manifest); err != nil { return false, err }
+	if _, err := tx.Exec(ctx, `UPDATE privacy_requests SET status='fulfilled',result_manifest=$2::jsonb,completed_at=now() WHERE id=$1`, requestID, manifest); err != nil {
+		return false, err
+	}
 	if cvKey != nil && strings.TrimSpace(*cvKey) != "" {
 		// Storage deletion is a separate fulfilment job so database erasure is not
 		// falsely reported as object deletion. The job remains pending until a
 		// configured private-object deleter confirms removal.
-		if _, err := tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'delete_private_cv_object',$2,'pending',jsonb_build_object('object_key',$3)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "cv-delete:"+requestID, *cvKey); err != nil { return false, err }
+		if _, err := tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'delete_private_cv_object',$2,'pending',jsonb_build_object('object_key',$3)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "cv-delete:"+requestID, *cvKey); err != nil {
+			return false, err
+		}
 	}
-	if err := tx.Commit(ctx); err != nil { return false, err }
+	if err := tx.Commit(ctx); err != nil {
+		return false, err
+	}
 	return false, nil
 }
