@@ -7,12 +7,17 @@ function repoSource(relative: string) {
 }
 
 test.describe("GDPR/DPDP and security source contracts", () => {
-  test("signup requires separate unticked processing and SMS consent controls", async () => {
+  test("signup requires unticked privacy acknowledgement and uses email OTP only", async () => {
     const signup = repoSource("frontend/components/auth/signup-form.tsx");
+    const server = repoSource("backend/internal/platform/httpserver/server.go");
+    const verification = repoSource("frontend/app/verify-email/page.tsx");
     expect(signup).toMatch(/type=["']checkbox["']/);
     expect(signup).toMatch(/data[_-]?processing|privacy|personal data/i);
-    expect(signup).toMatch(/sms|text message/i);
     expect(signup).not.toMatch(/defaultChecked|checked\s*=\s*\{?true/);
+    expect(signup).toMatch(/verify-email/);
+    expect(verification).toMatch(/email OTP/i);
+    expect(server).not.toMatch(/POST \/api\/v1\/auth\/otp\/verify/);
+    expect(server).not.toMatch(/POST \/api\/v1\/auth\/otp\/resend/);
   });
 
   test("account-erasure route is registered", async () => {
@@ -20,12 +25,11 @@ test.describe("GDPR/DPDP and security source contracts", () => {
     expect(server).toMatch(/DELETE \/api\/v1\/user\/account/);
   });
 
-  test("anonymous pitch mode redacts identifying fields before candidate DOM output", async () => {
-    const profile = repoSource("frontend/components/recruiter/candidate-profile-view.tsx");
-    const pipeline = repoSource("frontend/components/recruiter/pipeline-candidate-card.tsx");
-    const combined = `${profile}\n${pipeline}`;
-    expect(combined).toMatch(/anonymous.?pitch/i);
-    expect(combined).toMatch(/redact|anonymous candidate|hidden identity/i);
+  test("anonymous pitch is redacted server-side before any candidate DOM output", async () => {
+    const pitch = repoSource("backend/internal/recruiter/anonymous_pitch.go");
+    expect(pitch).toMatch(/AnonymousPitch/);
+    expect(pitch).toMatch(/never loaded|cannot be.*leak|identity|contact/i);
+    expect(pitch).not.toMatch(/json:\"(?:full_name|email|phone|photo|date_of_birth|current_company)/i);
   });
 
   test("role middleware rejects unauthorised roles with 403", async () => {
@@ -52,16 +56,20 @@ test.describe("GDPR/DPDP and security source contracts", () => {
 
 test.describe("functional enterprise contracts", () => {
   test("bulk InMail backend enforces fourteen-day anti-spam and reports skipped recipients", async () => {
-    const service = repoSource("backend/internal/messaging/service.go");
-    const handlers = repoSource("backend/internal/platform/httpserver/messaging_handlers.go");
-    const combined = `${service}\n${handlers}`;
+    const bulk = repoSource("backend/internal/messaging/bulk.go");
+    const guard = repoSource("database/migrations/000022_inmail_cooldown_guard.up.sql");
+    const handler = repoSource("backend/internal/platform/httpserver/bulk_inmail_handler.go");
+    const combined = `${bulk}\n${guard}\n${handler}`;
     expect(combined).toMatch(/14\s*\*\s*24\s*\*\s*time\.Hour|14 days|interval ['"]14 days['"]/i);
     expect(combined).toMatch(/skipped/i);
-    expect(combined).toMatch(/batch|bulk/i);
+    expect(combined).toMatch(/bulk/i);
+    expect(combined).toMatch(/StatusAccepted/);
   });
 
-  test("event bus exposes a pipeline stage-change event", async () => {
-    const events = repoSource("backend/internal/messaging/events.go");
+  test("event bus exposes an authenticated pipeline stage-change event", async () => {
+    const events = repoSource("backend/internal/messaging/realtime_events.go");
+    const server = repoSource("backend/internal/platform/httpserver/server.go");
     expect(events).toMatch(/STAGE_CHANGE|stage_change/i);
+    expect(server).toMatch(/GET \/api\/v1\/events\/ws/);
   });
 });
