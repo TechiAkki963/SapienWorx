@@ -3,7 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 const web = process.env.AUDIT_WEB_URL ?? "http://127.0.0.1:3000";
 
 export default defineConfig({
-  testDir: "./tests/audit",
+  testDir: "./tests",
+  testMatch: ["audit/**/*.spec.ts", "ui/**/*.spec.ts"],
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
