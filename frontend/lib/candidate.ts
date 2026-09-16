@@ -77,6 +77,18 @@ export type CandidateApplication = {
   city?: string;
 };
 
+export type CandidateInterview = {
+  id: string;
+  application_id: string;
+  job_id: string;
+  job_title: string;
+  company_name: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  meeting_url: string;
+  status: string;
+};
+
 export type CandidateNotification = {
   id: string;
   kind: string;
