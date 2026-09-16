@@ -4,7 +4,7 @@ import { Trend, Rate } from "k6/metrics";
 
 const WEB_URL = __ENV.AUDIT_WEB_URL || "http://127.0.0.1:3000";
 const API_URL = __ENV.AUDIT_API_URL || "http://127.0.0.1:8080";
-const AUTH = __ENV.AUDIT_RECRUITER_TOKEN || "";
+const AUTH = __ENV.AUDIT_CANDIDATE_TOKEN || "";
 
 const searchLatency = new Trend("faceted_search_latency", true);
 const searchFailures = new Rate("faceted_search_failures");
