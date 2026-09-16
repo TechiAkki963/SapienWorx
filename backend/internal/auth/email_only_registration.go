@@ -39,6 +39,13 @@ func normalizePrivacyVersion(value string) string {
 	return value
 }
 
+func limitText(value string, max int) string {
+	if max < 1 || len(value) <= max {
+		return value
+	}
+	return value[:max]
+}
+
 func (s *Service) RegisterCandidateEmailOnly(ctx context.Context, input EmailOnlyCandidateRegistration, userAgent string) (RegistrationResult, error) {
 	email, err := normalizeEmail(input.Email)
 	if err != nil { return RegistrationResult{}, err }
@@ -60,7 +67,7 @@ func (s *Service) RegisterCandidateEmailOnly(ctx context.Context, input EmailOnl
 	err = tx.QueryRow(ctx, `INSERT INTO users(email,password_hash,role,status,phone_e164) VALUES($1,$2,'candidate','pending_verification',NULLIF($3,'')) RETURNING id`, email, passwordHash, phone).Scan(&userID)
 	if err != nil { return RegistrationResult{}, mapConflict(err) }
 	if _, err = tx.Exec(ctx, `INSERT INTO candidate_profiles(user_id,full_name) VALUES($1,$2)`, userID, strings.TrimSpace(input.FullName)); err != nil { return RegistrationResult{}, err }
-	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'account_and_recruitment_processing',$2,true,'web_signup',$3,jsonb_build_object('age_confirmed',true,'channel','email_otp'))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), truncate(userAgent, 512)); err != nil { return RegistrationResult{}, err }
+	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'account_and_recruitment_processing',$2,true,'web_signup',$3,jsonb_build_object('age_confirmed',true,'channel','email_otp'))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil { return RegistrationResult{}, err }
 	if err = tx.Commit(ctx); err != nil { return RegistrationResult{}, err }
 	code, err := s.RequestEmailVerification(ctx, email)
 	if err != nil { return RegistrationResult{}, err }
@@ -96,8 +103,8 @@ func (s *Service) RegisterRecruiterEmailOnly(ctx context.Context, input EmailOnl
 	var userID string
 	err = tx.QueryRow(ctx, `INSERT INTO users(email,password_hash,role,status,phone_e164) VALUES($1,$2,'recruiter','pending_verification',NULLIF($3,'')) RETURNING id`, email, passwordHash, phone).Scan(&userID)
 	if err != nil { return RegistrationResult{}, mapConflict(err) }
-	if _, err = tx.Exec(ctx, `INSERT INTO recruiter_profiles(user_id,company_id,full_name,designation) VALUES($1,$2,$3,$4)`, userID, companyID, strings.TrimSpace(input.FullName), nullable(strings.TrimSpace(input.Designation))); err != nil { return RegistrationResult{}, err }
-	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'account_and_recruitment_processing',$2,true,'web_signup',$3,jsonb_build_object('channel','email_otp','official_email',true))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), truncate(userAgent, 512)); err != nil { return RegistrationResult{}, err }
+	if _, err = tx.Exec(ctx, `INSERT INTO recruiter_profiles(user_id,company_id,full_name,designation) VALUES($1,$2,$3,NULLIF($4,''))`, userID, companyID, strings.TrimSpace(input.FullName), strings.TrimSpace(input.Designation)); err != nil { return RegistrationResult{}, err }
+	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'account_and_recruitment_processing',$2,true,'web_signup',$3,jsonb_build_object('channel','email_otp','official_email',true))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil { return RegistrationResult{}, err }
 	if err = tx.Commit(ctx); err != nil { return RegistrationResult{}, err }
 	code, err := s.RequestEmailVerification(ctx, email)
 	if err != nil { return RegistrationResult{}, err }
