@@ -56,6 +56,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("GET /api/v1/jobs", s.listJobs)
 	mux.HandleFunc("GET /api/v1/jobs/{jobID}", s.getJob)
 	mux.HandleFunc("GET /api/v1/profiles/{token}", s.publicCandidateProfile)
+	mux.HandleFunc("GET /api/v1/privacy/subprocessors", s.publicSubprocessors)
 
 	protected := Authenticate(tokens, cfg.Auth.AccessCookieName)
 	candidateOnly := RequireRoles(auth.RoleCandidate)
@@ -119,7 +120,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
 	mux.Handle("DELETE /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
-	mux.Handle("POST /api/v1/recruiter/inmail", Chain(http.HandlerFunc(s.recruiterInitiateInMail), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/inmail", Chain(http.HandlerFunc(s.recruiterInitiateInMailWithCooldown), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/inmail/bulk", Chain(http.HandlerFunc(s.recruiterBulkInMail), protected, recruiterOnly))
 
 	messagingUsers := RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)
@@ -142,6 +143,10 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/audit-logs", Chain(http.HandlerFunc(s.adminAuditLogs), adminOnly))
 	mux.Handle("GET /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminOnly))
 	mux.Handle("PATCH /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminOnly))
+	mux.Handle("GET /api/v1/admin/privacy/requests", Chain(http.HandlerFunc(s.adminPrivacyRequests), adminOnly))
+	mux.Handle("GET /api/v1/admin/privacy/incidents", Chain(http.HandlerFunc(s.adminPrivacyIncidents), adminOnly))
+	mux.Handle("GET /api/v1/admin/privacy/subprocessors", Chain(http.HandlerFunc(s.adminPrivacySubprocessors), adminOnly))
+	mux.Handle("GET /api/v1/admin/privacy/processing-activities", Chain(http.HandlerFunc(s.adminPrivacyProcessingActivities), adminOnly))
 
 	handler := Chain(mux, RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), MaxBodyBytes(cfg.HTTP.MaxBodyBytes))
 	s.http = &http.Server{Addr: cfg.HTTP.Address, Handler: handler, ReadTimeout: cfg.HTTP.ReadTimeout, ReadHeaderTimeout: cfg.HTTP.ReadHeaderTimeout, WriteTimeout: cfg.HTTP.WriteTimeout, IdleTimeout: cfg.HTTP.IdleTimeout}
