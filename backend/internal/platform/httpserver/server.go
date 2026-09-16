@@ -80,6 +80,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/candidate/recommendations", Chain(http.HandlerFunc(s.candidateRecommendations), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/applications", Chain(http.HandlerFunc(s.candidateApplications), protected, candidateOnly, candidateActivity))
 	mux.Handle("POST /api/v1/candidate/applications", Chain(http.HandlerFunc(s.candidateApplications), protected, candidateOnly, candidateActivity))
+	mux.Handle("POST /api/v1/candidate/applications/{applicationID}/withdraw", Chain(http.HandlerFunc(s.candidateApplicationWithdraw), protected, candidateOnly, candidateActivity))
+	mux.Handle("GET /api/v1/candidate/interviews", Chain(http.HandlerFunc(s.candidateInterviews), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/saved-jobs", Chain(http.HandlerFunc(s.candidateSavedJobs), protected, candidateOnly, candidateActivity))
 	mux.Handle("PUT /api/v1/candidate/saved-jobs/{jobID}", Chain(http.HandlerFunc(s.candidateSavedJob), protected, candidateOnly, candidateActivity))
 	mux.Handle("DELETE /api/v1/candidate/saved-jobs/{jobID}", Chain(http.HandlerFunc(s.candidateSavedJob), protected, candidateOnly, candidateActivity))
@@ -141,31 +143,17 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 
 func (s *Server) SetObjectStorage(presigner storage.Presigner) { s.objectStorage = presigner }
 func (s *Server) ListenAndServe() error                        { return s.http.ListenAndServe() }
-func (s *Server) Shutdown(ctx context.Context) error {
-	s.messages.Close()
-	return s.http.Shutdown(ctx)
-}
+func (s *Server) Shutdown(ctx context.Context) error { s.messages.Close(); return s.http.Shutdown(ctx) }
 
-func (s *Server) live(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "sapienworx-api"})
-}
+func (s *Server) live(w http.ResponseWriter, _ *http.Request) { writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "sapienworx-api"}) }
 
 func (s *Server) ready(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), s.dbTimeout)
-	defer cancel()
-	if err := s.db.Ping(ctx); err != nil {
-		s.logger.Warn("readiness check failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
-		writeError(w, r, http.StatusServiceUnavailable, "not_ready", "service dependencies are not ready")
-		return
-	}
+	ctx, cancel := context.WithTimeout(r.Context(), s.dbTimeout); defer cancel()
+	if err := s.db.Ping(ctx); err != nil { s.logger.Warn("readiness check failed", "error", err, "request_id", RequestIDFromContext(r.Context())); writeError(w, r, http.StatusServiceUnavailable, "not_ready", "service dependencies are not ready"); return }
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 }
 
 func (s *Server) me(w http.ResponseWriter, r *http.Request) {
-	claims, ok := ClaimsFromContext(r.Context())
-	if !ok {
-		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
-		return
-	}
+	claims, ok := ClaimsFromContext(r.Context()); if !ok { writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required"); return }
 	writeJSON(w, http.StatusOK, map[string]any{"id": claims.Subject, "role": claims.Role})
 }
