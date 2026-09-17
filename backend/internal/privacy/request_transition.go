@@ -58,6 +58,10 @@ func validPrivacyRequestTransition(from, to string) bool {
 	return ok
 }
 
+func terminalPrivacyRequestStatus(status string) bool {
+	return status == "fulfilled" || status == "rejected" || status == "cancelled"
+}
+
 func (s *Service) TransitionRequestStatus(ctx context.Context, requestID, targetStatus, actorUserID string) error {
 	requestID = strings.TrimSpace(requestID)
 	targetStatus = strings.TrimSpace(targetStatus)
@@ -91,10 +95,39 @@ func (s *Service) TransitionRequestStatus(ctx context.Context, requestID, target
 		return ErrInvalidPrivacyRequestTransition
 	}
 
+	// A review-gated erasure can be declined/cancelled by resolving only its
+	// review gate. Approval is deliberately not implied here: moving back to
+	// in_progress still requires the review job to be explicitly resolved by
+	// the role-specific fulfilment path, preventing a false erasure completion.
+	if currentStatus == "awaiting_review" && (targetStatus == "rejected" || targetStatus == "cancelled") {
+		if _, err = tx.Exec(ctx, `
+			UPDATE privacy_fulfilment_jobs
+			SET status='succeeded', completed_at=now(), last_error=NULL,
+				result=result || jsonb_build_object('review_decision',$2,'reviewed_by',$3)
+			WHERE request_id=$1 AND job_type='erasure_review' AND status='awaiting_review'`,
+			requestID, targetStatus, actorUserID); err != nil {
+			return err
+		}
+	}
+
+	// Leaving review for active work is permitted only after every review gate
+	// has been resolved. This avoids bypassing a role-retention/legal review.
+	if currentStatus == "awaiting_review" && targetStatus == "in_progress" {
+		var unresolvedReview int
+		if err = tx.QueryRow(ctx, `
+			SELECT count(*) FROM privacy_fulfilment_jobs
+			WHERE request_id=$1 AND status='awaiting_review'`, requestID).Scan(&unresolvedReview); err != nil {
+			return err
+		}
+		if unresolvedReview > 0 {
+			return ErrPrivacyRequestJobsIncomplete
+		}
+	}
+
 	// Terminal transitions are allowed only when no fulfilment work remains.
 	// This prevents an administrator from marking a partial export/erasure as
 	// completed, rejected or cancelled while a worker can still mutate data.
-	if targetStatus == "fulfilled" || targetStatus == "rejected" || targetStatus == "cancelled" {
+	if terminalPrivacyRequestStatus(targetStatus) {
 		var incomplete int
 		if err = tx.QueryRow(ctx, `
 			SELECT count(*)
@@ -108,7 +141,7 @@ func (s *Service) TransitionRequestStatus(ctx context.Context, requestID, target
 	}
 
 	completedExpr := "NULL"
-	if targetStatus == "fulfilled" {
+	if terminalPrivacyRequestStatus(targetStatus) {
 		completedExpr = "now()"
 	}
 	query := `UPDATE privacy_requests SET status=$2, completed_at=` + completedExpr + `, error_message=NULL WHERE id=$1`
