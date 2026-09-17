@@ -8,6 +8,7 @@ const items = [
   ["/swx-command-centre/tenants", "Tenant governance"],
   ["/swx-command-centre/users", "Users & moderation"],
   ["/swx-command-centre/jobs", "Job moderation"],
+  ["/swx-command-centre/privacy", "Privacy operations"],
   ["/swx-command-centre/audit", "Audit logs"],
   ["/swx-command-centre/system", "System health"],
 ] as const;
@@ -18,6 +19,7 @@ function Icon({ index }: { index: number }) {
     "M5 20V6l7-3 7 3v14M3 20h18M9 9h1M14 9h1M9 14h1M14 14h1",
     "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.5 20c.6-4 2.5-6 5.5-6s4.9 2 5.5 6M16 7a3 3 0 0 1 0 5M16.5 15c2.2.5 3.5 2 4 4.5",
     "M5 5h14v14H5zM8 9h8M8 13h6M8 17h4",
+    "M12 3 5 6v5c0 4.5 2.7 8 7 10 4.3-2 7-5.5 7-10V6l-7-3Zm-2 9 1.5 1.5L15 10",
     "M6 3h12v18H6zM9 8h6M9 12h6M9 16h4",
     "M3 12h4l2-5 4 10 2-5h6",
   ];

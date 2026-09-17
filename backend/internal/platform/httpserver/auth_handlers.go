@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
-	"github.com/TechiAkki963/SapienWorx/backend/internal/sms"
 )
 
 func decodeJSON(w http.ResponseWriter, r *http.Request, target any) bool {
@@ -32,11 +31,11 @@ func decodeJSON(w http.ResponseWriter, r *http.Request, target any) bool {
 }
 
 func (s *Server) registerCandidate(w http.ResponseWriter, r *http.Request) {
-	var input auth.CandidateRegistration
+	var input auth.EmailOnlyCandidateRegistration
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	result, err := s.auth.RegisterCandidate(r.Context(), input)
+	result, err := s.auth.RegisterCandidateEmailOnly(r.Context(), input, r.UserAgent())
 	if err != nil {
 		s.writeAuthError(w, r, err)
 		return
@@ -45,11 +44,11 @@ func (s *Server) registerCandidate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) registerRecruiter(w http.ResponseWriter, r *http.Request) {
-	var input auth.RecruiterRegistration
+	var input auth.EmailOnlyRecruiterRegistration
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	result, err := s.auth.RegisterRecruiter(r.Context(), input)
+	result, err := s.auth.RegisterRecruiterEmailOnly(r.Context(), input, r.UserAgent())
 	if err != nil {
 		s.writeAuthError(w, r, err)
 		return
@@ -71,68 +70,24 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
+// Legacy phone/SMS OTP endpoints intentionally return Gone. SapienWorx uses
+// email OTP only in the current product phase.
 func (s *Server) verifyOTP(w http.ResponseWriter, r *http.Request) {
-	var input auth.OTPInput
-	if !decodeJSON(w, r, &input) {
-		return
-	}
-	result, err := s.auth.VerifyOTP(r.Context(), input)
-	if err != nil {
-		s.writeAuthError(w, r, err)
-		return
-	}
-	writeJSON(w, http.StatusOK, result)
+	writeError(w, r, http.StatusGone, "sms_otp_disabled", "SMS OTP verification is not enabled; use email verification")
 }
 
 func (s *Server) resendOTP(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Email string `json:"email"`
-	}
-	if !decodeJSON(w, r, &input) {
-		return
-	}
-	code, err := s.auth.ResendPhoneOTP(r.Context(), input.Email)
-	if err != nil && !errors.Is(err, auth.ErrOTPRateLimited) {
-		s.writeAuthError(w, r, err)
-		return
-	}
-	payload := map[string]any{"accepted": true}
-	if code != "" && s.auth.DebugOTPAllowed() {
-		payload["development_otp"] = code
-	}
-	writeJSON(w, http.StatusAccepted, payload)
+	writeError(w, r, http.StatusGone, "sms_otp_disabled", "SMS OTP verification is not enabled; use email verification")
 }
 
+// Password reset must not fall back to SMS. Until the approved production email
+// delivery adapter is connected, fail closed rather than silently sending texts.
 func (s *Server) forgotPassword(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Email string `json:"email"`
-	}
-	if !decodeJSON(w, r, &input) {
-		return
-	}
-	code, err := s.auth.RequestPasswordReset(r.Context(), input.Email)
-	if err != nil && !errors.Is(err, auth.ErrOTPRateLimited) {
-		s.writeAuthError(w, r, err)
-		return
-	}
-	payload := map[string]any{"accepted": true}
-	if code != "" && s.auth.DebugOTPAllowed() {
-		payload["development_otp"] = code
-	}
-	writeJSON(w, http.StatusAccepted, payload)
+	writeError(w, r, http.StatusServiceUnavailable, "email_password_reset_unavailable", "password reset by email is temporarily unavailable")
 }
 
 func (s *Server) resetPassword(w http.ResponseWriter, r *http.Request) {
-	var input auth.ResetPasswordInput
-	if !decodeJSON(w, r, &input) {
-		return
-	}
-	if err := s.auth.ResetPassword(r.Context(), input); err != nil {
-		s.writeAuthError(w, r, err)
-		return
-	}
-	s.clearAuthCookies(w)
-	writeJSON(w, http.StatusOK, map[string]bool{"reset": true})
+	writeError(w, r, http.StatusServiceUnavailable, "email_password_reset_unavailable", "password reset by email is temporarily unavailable")
 }
 
 func (s *Server) refresh(w http.ResponseWriter, r *http.Request) {
@@ -179,7 +134,7 @@ func (s *Server) verifyRecruiter(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusBadRequest, "invalid_request", "recruiter user id is required")
 		return
 	}
-	if err := s.auth.VerifyRecruiter(r.Context(), userID); err != nil {
+	if err := s.auth.VerifyRecruiterEmailOnly(r.Context(), userID); err != nil {
 		s.writeAuthError(w, r, err)
 		return
 	}
@@ -213,14 +168,12 @@ func (s *Server) writeAuthError(w http.ResponseWriter, r *http.Request, err erro
 		writeError(w, r, http.StatusBadRequest, "invalid_otp", "verification code is invalid or expired")
 	case errors.Is(err, auth.ErrOTPRateLimited):
 		writeError(w, r, http.StatusTooManyRequests, "otp_rate_limited", "wait before requesting another verification code")
-	case errors.Is(err, sms.ErrDailyLimit):
-		writeError(w, r, http.StatusServiceUnavailable, "sms_capacity_reached", "verification messaging is temporarily unavailable")
 	case errors.Is(err, auth.ErrInvalidRefresh):
 		writeError(w, r, http.StatusUnauthorized, "invalid_refresh", "valid session required")
 	case errors.Is(err, auth.ErrForbidden):
 		writeError(w, r, http.StatusForbidden, "forbidden", "operation is not permitted")
 	default:
-		if strings.Contains(err.Error(), "required") || strings.Contains(err.Error(), "password") || strings.Contains(err.Error(), "email") || strings.Contains(err.Error(), "phone") {
+		if strings.Contains(err.Error(), "required") || strings.Contains(err.Error(), "password") || strings.Contains(err.Error(), "email") || strings.Contains(err.Error(), "phone") || strings.Contains(err.Error(), "consent") || strings.Contains(err.Error(), "18+") {
 			writeError(w, r, http.StatusBadRequest, "validation_error", err.Error())
 			return
 		}
