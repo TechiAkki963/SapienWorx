@@ -17,9 +17,9 @@ func TestRandomOTPShape(t *testing.T) {
 
 func TestOTPHashIsPurposeBound(t *testing.T) {
 	secret := []byte("01234567890123456789012345678901")
-	phoneHash := otpHash(secret, "user", PurposePhoneVerification, "123456")
+	verificationHash := otpHash(secret, "user", emailVerificationPurpose, "123456")
 	resetHash := otpHash(secret, "user", PurposePasswordReset, "123456")
-	if bytes.Equal(phoneHash, resetHash) {
+	if bytes.Equal(verificationHash, resetHash) {
 		t.Fatal("OTP hashes must differ by purpose")
 	}
 }
