@@ -17,7 +17,6 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/database"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
-	"github.com/TechiAkki963/SapienWorx/backend/internal/sms"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/storage"
 )
 
@@ -47,11 +46,7 @@ func run(logger *slog.Logger) error {
 		return err
 	}
 
-	// SapienWorx uses email OTP only in the current product phase. Keep the
-	// legacy Sender dependency fail-closed so SMS cannot be re-enabled through
-	// deployment configuration or an AWS flag by accident.
-	sender := sms.DisabledSender{}
-	authService := auth.NewService(db, tokens, sender, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment != "production"})
+	authService := auth.NewService(db, tokens, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment != "production"})
 	candidateService := candidate.NewService(db)
 	recruiterService := recruiter.NewService(db)
 	adminService := admin.NewService(db)
@@ -62,6 +57,28 @@ func run(logger *slog.Logger) error {
 			return presignErr
 		}
 		server.SetObjectStorage(presigner)
+		if _, err := server.RunPrivacyFulfilmentPass(ctx); err != nil {
+			logger.Warn("initial privacy fulfilment pass failed", "error", err)
+		}
+		go func() {
+			ticker := time.NewTicker(time.Minute)
+			defer ticker.Stop()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					passCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+					processed, passErr := server.RunPrivacyFulfilmentPass(passCtx)
+					cancel()
+					if passErr != nil {
+						logger.Warn("privacy fulfilment pass failed", "error", passErr)
+					} else if processed > 0 {
+						logger.Info("privacy fulfilment jobs processed", "count", processed)
+					}
+				}
+			}
+		}()
 	}
 	errCh := make(chan error, 1)
 	go func() {
