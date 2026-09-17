@@ -68,6 +68,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/auth/logout-all", Chain(http.HandlerFunc(s.logoutAll), protected))
 	mux.Handle("GET /api/v1/user/privacy/requests", Chain(http.HandlerFunc(s.userPrivacyRequests), protected))
 	mux.Handle("POST /api/v1/user/privacy/requests", Chain(http.HandlerFunc(s.userPrivacyRequests), protected))
+	mux.Handle("GET /api/v1/user/privacy/export", Chain(http.HandlerFunc(s.userPrivacyExport), protected))
 	mux.Handle("DELETE /api/v1/user/account", Chain(http.HandlerFunc(s.userAccountErasure), protected))
 
 	mux.Handle("GET /api/v1/candidate/dashboard", Chain(http.HandlerFunc(s.candidateDashboard), protected, candidateOnly, candidateActivity))
