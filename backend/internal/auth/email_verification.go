@@ -26,7 +26,7 @@ func (s *Service) RequestEmailVerification(ctx context.Context, emailValue strin
 	}
 
 	var lastSent time.Time
-	err = s.db.QueryRow(ctx, `SELECT last_sent_at FROM email_verification_challenges WHERE user_id=$1 ORDER BY created_at DESC LIMIT 1`, userID).Scan(&lastSent)
+	err = s.db.QueryRow(ctx, `SELECT last_sent_at FROM email_verification_challenges WHERE user_id=$1 AND purpose=$2 ORDER BY created_at DESC LIMIT 1`, userID, emailVerificationPurpose).Scan(&lastSent)
 	if err == nil && s.now().UTC().Sub(lastSent) < s.cfg.OTPResend {
 		return "", ErrOTPRateLimited
 	}
@@ -38,7 +38,7 @@ func (s *Service) RequestEmailVerification(ctx context.Context, emailValue strin
 	if err != nil {
 		return "", err
 	}
-	_, err = s.db.Exec(ctx, `INSERT INTO email_verification_challenges(user_id,email,code_hash,expires_at) VALUES($1,$2,$3,$4)`, userID, email, otpHash([]byte(s.cfg.OTPSecret), userID, emailVerificationPurpose, code), s.now().UTC().Add(s.cfg.OTPTTL))
+	_, err = s.db.Exec(ctx, `INSERT INTO email_verification_challenges(user_id,email,purpose,code_hash,expires_at) VALUES($1,$2,$3,$4,$5)`, userID, email, emailVerificationPurpose, otpHash([]byte(s.cfg.OTPSecret), userID, emailVerificationPurpose, code), s.now().UTC().Add(s.cfg.OTPTTL))
 	if err != nil {
 		return "", err
 	}
@@ -65,7 +65,7 @@ func (s *Service) VerifyEmail(ctx context.Context, emailValue, code string) (Reg
 	var storedHash []byte
 	var attempts, maxAttempts int
 	var expiresAt time.Time
-	err = tx.QueryRow(ctx, `SELECT c.id,c.user_id,u.role::text,c.code_hash,c.attempts,c.max_attempts,c.expires_at FROM email_verification_challenges c JOIN users u ON u.id=c.user_id WHERE lower(c.email)=lower($1) AND c.consumed_at IS NULL ORDER BY c.created_at DESC LIMIT 1 FOR UPDATE`, email).Scan(&challengeID, &userID, &role, &storedHash, &attempts, &maxAttempts, &expiresAt)
+	err = tx.QueryRow(ctx, `SELECT c.id,c.user_id,u.role::text,c.code_hash,c.attempts,c.max_attempts,c.expires_at FROM email_verification_challenges c JOIN users u ON u.id=c.user_id WHERE lower(c.email)=lower($1) AND c.purpose=$2 AND c.consumed_at IS NULL ORDER BY c.created_at DESC LIMIT 1 FOR UPDATE`, email, emailVerificationPurpose).Scan(&challengeID, &userID, &role, &storedHash, &attempts, &maxAttempts, &expiresAt)
 	if err != nil || attempts >= maxAttempts || !expiresAt.After(s.now().UTC()) {
 		return RegistrationResult{}, ErrInvalidOTP
 	}
