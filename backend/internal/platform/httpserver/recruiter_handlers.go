@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/TechiAkki963/SapienWorx/backend/internal/messaging"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 )
 
@@ -126,9 +127,19 @@ func (s *Server) recruiterApplicationStage(w http.ResponseWriter, r *http.Reques
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	if err := s.recruiter.UpdateStage(r.Context(), id, r.PathValue("applicationID"), strings.TrimSpace(input.Stage)); err != nil {
+	stage := strings.TrimSpace(input.Stage)
+	applicationID := r.PathValue("applicationID")
+	if err := s.recruiter.UpdateStage(r.Context(), id, applicationID, stage); err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
+	}
+	if s.messages != nil && s.messages.events != nil {
+		details, err := s.recruiter.StageEventDetails(r.Context(), id, applicationID)
+		if err != nil {
+			s.logger.Warn("stage updated but event details unavailable", "application_id", applicationID, "error", err)
+		} else {
+			s.messages.events.Broadcast("user:"+details.CandidateID, messaging.NewStageChangeEvent(applicationID, details.CandidateID, details.JobID, stage))
+		}
 	}
 	w.WriteHeader(http.StatusNoContent)
 }

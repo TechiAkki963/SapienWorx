@@ -2,11 +2,13 @@ import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
+import { CandidateEventBridge } from "@/components/candidate/candidate-event-bridge";
 import { CandidateNav } from "@/components/candidate/candidate-nav";
 
 export function CandidateShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f6f8fc] text-ink">
+      <CandidateEventBridge />
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/95">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[96rem] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/candidate" aria-label="Candidate dashboard"><Wordmark /></Link>
