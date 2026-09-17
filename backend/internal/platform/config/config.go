@@ -58,12 +58,9 @@ type AuthConfig struct {
 }
 
 type AWSConfig struct {
-	Region        string
-	SNSSenderID   string
-	SMSEnabled    bool
-	SMSDailyLimit int
-	S3Bucket      string
-	S3PresignTTL  time.Duration
+	Region       string
+	S3Bucket     string
+	S3PresignTTL time.Duration
 }
 
 func Load() (Config, error) {
@@ -113,12 +110,9 @@ func Load() (Config, error) {
 			RefreshCookieName: env("AUTH_REFRESH_COOKIE_NAME", "sw_refresh"),
 		},
 		AWS: AWSConfig{
-			Region:        env("AWS_REGION", "ap-south-1"),
-			SNSSenderID:   strings.TrimSpace(os.Getenv("SNS_SENDER_ID")),
-			SMSEnabled:    boolEnv("SNS_SMS_ENABLED", false),
-			SMSDailyLimit: intEnv("SNS_SMS_DAILY_LIMIT", 100),
-			S3Bucket:      strings.TrimSpace(os.Getenv("S3_BUCKET")),
-			S3PresignTTL:  durationEnv("S3_PRESIGN_TTL", 5*time.Minute),
+			Region:       env("AWS_REGION", "ap-south-1"),
+			S3Bucket:     strings.TrimSpace(os.Getenv("S3_BUCKET")),
+			S3PresignTTL: durationEnv("S3_PRESIGN_TTL", 5*time.Minute),
 		},
 	}
 
@@ -162,12 +156,6 @@ func (c Config) Validate() error {
 	}
 	if c.Auth.AccessCookieName == "" || c.Auth.RefreshCookieName == "" {
 		problems = append(problems, "authentication cookie names are required")
-	}
-	if c.AWS.SMSEnabled && c.AWS.Region == "" {
-		problems = append(problems, "AWS_REGION is required when SNS SMS is enabled")
-	}
-	if c.AWS.SMSEnabled && c.AWS.SMSDailyLimit < 1 {
-		problems = append(problems, "SNS_SMS_DAILY_LIMIT must be positive when SNS SMS is enabled")
 	}
 	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
 		problems = append(problems, "S3_PRESIGN_TTL must be between 1m and 15m")
@@ -264,5 +252,5 @@ func boolEnv(key string, fallback bool) bool {
 }
 
 func (c Config) String() string {
-	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d sms=%t s3=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.SMSEnabled, c.AWS.S3Bucket != "")
+	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d s3=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.S3Bucket != "")
 }
