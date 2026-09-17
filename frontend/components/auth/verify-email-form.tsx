@@ -66,7 +66,7 @@ export function VerifyEmailForm() {
   return (
     <form className="grid gap-5" onSubmit={submit}>
       <div>
-        <p className="text-sm font-semibold text-indigo">Step 2 of 2 · Verify email</p>
+        <p className="text-sm font-semibold text-indigo">Email verification · Required</p>
         <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-ink">Confirm your email address</h2>
         <p className="mt-3 text-sm leading-6 text-ink-muted">Workspace access stays locked until <strong>{email || "your email"}</strong> is verified.</p>
       </div>
