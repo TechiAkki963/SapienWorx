@@ -61,6 +61,7 @@ Authorization: Bearer <access-token>
 - Access tokens verify signature, algorithm, issuer, audience, role, expiry, not-before and issued-at timestamps.
 - Password verification exposes a single invalid-credentials error.
 - Default access-token lifetime is 15 minutes.
+- Email OTP is the only OTP verification channel in the current product phase; SMS/mobile OTP is intentionally not implemented.
 - Request bodies are capped globally (2 MiB by default).
 - CORS uses an explicit origin allowlist; wildcard credentials are not used.
 - Panic recovery does not disclose stack traces to clients.
@@ -68,6 +69,6 @@ Authorization: Bearer <access-token>
 - Readiness checks verify PostgreSQL; liveness does not depend on external services.
 - Graceful shutdown drains the HTTP server on SIGINT/SIGTERM.
 
-## Deferred to Phase 4
+## Deferred
 
-Signup/login handlers, refresh-token/session persistence, mobile OTP issuance/verification, recruiter-company verification workflows and AWS SNS calls are intentionally not implemented in Phase 2.
+Additional authentication factors and external messaging verification channels remain out of scope until explicitly approved for a future phase.
