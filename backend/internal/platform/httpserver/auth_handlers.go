@@ -70,8 +70,6 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
-// Legacy phone/SMS OTP endpoints intentionally return Gone. SapienWorx uses
-// email OTP only in the current product phase.
 func (s *Server) verifyOTP(w http.ResponseWriter, r *http.Request) {
 	writeError(w, r, http.StatusGone, "sms_otp_disabled", "SMS OTP verification is not enabled; use email verification")
 }
@@ -80,14 +78,35 @@ func (s *Server) resendOTP(w http.ResponseWriter, r *http.Request) {
 	writeError(w, r, http.StatusGone, "sms_otp_disabled", "SMS OTP verification is not enabled; use email verification")
 }
 
-// Password reset must not fall back to SMS. Until the approved production email
-// delivery adapter is connected, fail closed rather than silently sending texts.
 func (s *Server) forgotPassword(w http.ResponseWriter, r *http.Request) {
-	writeError(w, r, http.StatusServiceUnavailable, "email_password_reset_unavailable", "password reset by email is temporarily unavailable")
+	var input struct {
+		Email string `json:"email"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	code, err := s.auth.RequestPasswordReset(r.Context(), input.Email)
+	if err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
+	payload := map[string]any{"accepted": true}
+	if code != "" && s.auth.DebugOTPAllowed() {
+		payload["development_code"] = code
+	}
+	writeJSON(w, http.StatusAccepted, payload)
 }
 
 func (s *Server) resetPassword(w http.ResponseWriter, r *http.Request) {
-	writeError(w, r, http.StatusServiceUnavailable, "email_password_reset_unavailable", "password reset by email is temporarily unavailable")
+	var input auth.ResetPasswordInput
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if err := s.auth.ResetPassword(r.Context(), input); err != nil {
+		s.writeAuthError(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Server) refresh(w http.ResponseWriter, r *http.Request) {
