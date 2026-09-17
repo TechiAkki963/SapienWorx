@@ -46,18 +46,11 @@ func run(logger *slog.Logger) error {
 	if err != nil {
 		return err
 	}
-	var sender sms.Sender
-	if cfg.AWS.SMSEnabled {
-		snsSender, senderErr := sms.NewSNSClient(ctx, cfg.AWS.Region, cfg.AWS.SNSSenderID)
-		if senderErr != nil {
-			return senderErr
-		}
-		sender = sms.NewMeteredSender(snsSender, db, logger, cfg.AWS.SMSDailyLimit)
-	} else if cfg.Environment == "production" {
-		sender = sms.DisabledSender{}
-	} else {
-		sender = sms.NewLogSender(logger)
-	}
+
+	// SapienWorx uses email OTP only in the current product phase. Keep the
+	// legacy Sender dependency fail-closed so SMS cannot be re-enabled through
+	// deployment configuration or an AWS flag by accident.
+	sender := sms.DisabledSender{}
 	authService := auth.NewService(db, tokens, sender, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment != "production"})
 	candidateService := candidate.NewService(db)
 	recruiterService := recruiter.NewService(db)
