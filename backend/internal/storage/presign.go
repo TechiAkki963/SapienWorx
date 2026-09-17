@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -26,6 +27,7 @@ type PresignedRequest struct {
 type Presigner interface {
 	PresignGet(context.Context, string, string) (PresignedRequest, error)
 	PresignPut(context.Context, string, string) (PresignedRequest, error)
+	DeleteObject(context.Context, string) error
 }
 
 type S3Presigner struct {
@@ -61,6 +63,37 @@ func (p *S3Presigner) PresignGet(ctx context.Context, key, filename string) (Pre
 
 func (p *S3Presigner) PresignPut(ctx context.Context, key, contentType string) (PresignedRequest, error) {
 	return p.presign(ctx, http.MethodPut, key, contentType, "")
+}
+
+func (p *S3Presigner) DeleteObject(ctx context.Context, key string) error {
+	key = strings.TrimSpace(strings.TrimPrefix(key, "/"))
+	if key == "" || strings.Contains(key, "..") {
+		return errors.New("invalid object key")
+	}
+	endpoint := &url.URL{Scheme: "https", Host: p.bucket + ".s3." + p.region + ".amazonaws.com", Path: "/" + key}
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, endpoint.String(), nil)
+	if err != nil {
+		return err
+	}
+	creds, err := p.credentials.Retrieve(ctx)
+	if err != nil {
+		return err
+	}
+	if err = p.signer.SignHTTP(ctx, creds, req, "UNSIGNED-PAYLOAD", "s3", p.region, p.now().UTC(), func(options *v4.SignerOptions) {
+		options.DisableURIPathEscaping = true
+	}); err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 32<<10))
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return nil
+	}
+	return errors.New("private object deletion failed with status " + resp.Status)
 }
 
 func (p *S3Presigner) presign(ctx context.Context, method, key, contentType, filename string) (PresignedRequest, error) {
