@@ -63,8 +63,11 @@ func (s *Service) RegisterCandidateEmailOnly(ctx context.Context, input EmailOnl
 	if err := validatePassword(input.Password); err != nil {
 		return RegistrationResult{}, err
 	}
+	// privacy_consent remains the wire name for backwards-compatible clients,
+	// but the evidence represents acknowledgement of the privacy notice. Core
+	// account/recruitment processing is not presented as optional marketing consent.
 	if !input.PrivacyConsent {
-		return RegistrationResult{}, errors.New("privacy consent is required")
+		return RegistrationResult{}, errors.New("privacy notice acknowledgement is required")
 	}
 	if !input.AgeConfirmed {
 		return RegistrationResult{}, errors.New("18+ age confirmation is required")
@@ -87,7 +90,7 @@ func (s *Service) RegisterCandidateEmailOnly(ctx context.Context, input EmailOnl
 	if _, err = tx.Exec(ctx, `INSERT INTO candidate_profiles(user_id,full_name) VALUES($1,$2)`, userID, strings.TrimSpace(input.FullName)); err != nil {
 		return RegistrationResult{}, err
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'account_and_recruitment_processing',$2,true,'web_signup',$3,jsonb_build_object('age_confirmed',true,'channel','email_otp'))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'privacy_notice_acknowledgement',$2,true,'web_signup',$3,jsonb_build_object('evidence_type','notice_acknowledgement','processing_basis','contract_legal_obligation_legitimate_interests_as_applicable','age_confirmed',true,'verification_channel','email_otp'))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil {
 		return RegistrationResult{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -125,7 +128,7 @@ func (s *Service) RegisterRecruiterEmailOnly(ctx context.Context, input EmailOnl
 		return RegistrationResult{}, err
 	}
 	if !input.PrivacyConsent {
-		return RegistrationResult{}, errors.New("privacy consent is required")
+		return RegistrationResult{}, errors.New("privacy notice acknowledgement is required")
 	}
 	passwordHash, err := HashPassword(input.Password)
 	if err != nil {
@@ -154,7 +157,7 @@ func (s *Service) RegisterRecruiterEmailOnly(ctx context.Context, input EmailOnl
 	if _, err = tx.Exec(ctx, `INSERT INTO recruiter_profiles(user_id,company_id,full_name,designation) VALUES($1,$2,$3,NULLIF($4,''))`, userID, companyID, strings.TrimSpace(input.FullName), strings.TrimSpace(input.Designation)); err != nil {
 		return RegistrationResult{}, err
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'account_and_recruitment_processing',$2,true,'web_signup',$3,jsonb_build_object('channel','email_otp','official_email',true))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'privacy_notice_acknowledgement',$2,true,'web_signup',$3,jsonb_build_object('evidence_type','notice_acknowledgement','processing_basis','contract_legal_obligation_legitimate_interests_as_applicable','verification_channel','email_otp','official_email',true))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil {
 		return RegistrationResult{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
