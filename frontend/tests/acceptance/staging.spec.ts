@@ -83,7 +83,7 @@ test.describe.serial("deployed staging acceptance", () => {
     await signIn(candidatePage, "candidate");
     await candidatePage.goto("/candidate/inbox");
     await expect(candidatePage.getByText(subject).first()).toBeVisible();
-    await expect(candidatePage.getByText("Staging acceptance message from the deployed recruiter flow.")).toBeVisible();
+    await expect(candidatePage.getByRole("paragraph").filter({ hasText: "Staging acceptance message from the deployed recruiter flow." })).toBeVisible();
     await expect(candidatePage.getByText("Live", { exact: true })).toBeVisible();
 
     const reply = "Candidate staging acceptance reply.";
