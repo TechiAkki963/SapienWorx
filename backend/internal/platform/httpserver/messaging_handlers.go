@@ -98,6 +98,24 @@ func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request)
 	writeJSON(w, http.StatusCreated, result)
 }
 
+func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
+	claims, _ := ClaimsFromContext(r.Context())
+	if s.messages == nil || s.messages.service == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	var input messaging.BulkInMailInput
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	result, err := s.messages.service.BulkInMail(r.Context(), claims.Subject, input)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
 func (s *Server) messagingThreads(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
 	sender, ok := senderTypeFromClaims(claims.Role)

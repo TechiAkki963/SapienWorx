@@ -12,8 +12,19 @@ type MessageTemplate = {
   body_template: string;
 };
 
+type RecruiterJob = {
+  id: string;
+  title: string;
+  status: string;
+};
+
 type BulkAccepted = {
+  requested_count: number;
   recipient_count: number;
+  sent_count: number;
+  skipped_count: number;
+  skipped_candidate_ids: string[];
+  cooldown_days: number;
   status: string;
 };
 
@@ -51,15 +62,22 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
   const [candidateIDs, setCandidateIDs] = useState<string[]>([]);
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [templateID, setTemplateID] = useState("");
+  const [jobs, setJobs] = useState<RecruiterJob[]>([]);
+  const [jobID, setJobID] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [loadingJobs, setLoadingJobs] = useState(false);
+  const [jobsLoaded, setJobsLoaded] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const recipientCount = candidateIDs.length;
   const selectedTemplate = useMemo(() => templates.find((template) => template.id === templateID), [templateID, templates]);
+  const activeJobs = useMemo(() => jobs.filter((job) => job.status === "active"), [jobs]);
+  const usesJobTitle = /\{\{\s*JobTitle\s*\}\}/.test(subject) || /\{\{\s*JobTitle\s*\}\}/.test(body);
 
   useEffect(() => {
     function handleOpen(event: Event) {
@@ -77,7 +95,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
   }, []);
 
   useEffect(() => {
-    if (!open || templates.length > 0 || loadingTemplates) return;
+    if (!open || templatesLoaded || loadingTemplates) return;
 
     let cancelled = false;
     setLoadingTemplates(true);
@@ -90,13 +108,41 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "Could not load message templates.");
       })
       .finally(() => {
-        if (!cancelled) setLoadingTemplates(false);
+        if (!cancelled) {
+          setLoadingTemplates(false);
+          setTemplatesLoaded(true);
+        }
       });
 
     return () => {
       cancelled = true;
     };
-  }, [loadingTemplates, open, templates.length]);
+  }, [loadingTemplates, open, templatesLoaded]);
+
+  useEffect(() => {
+    if (!open || jobsLoaded || loadingJobs) return;
+
+    let cancelled = false;
+    setLoadingJobs(true);
+
+    apiRequest<{ items: RecruiterJob[] }>("/api/v1/recruiter/jobs")
+      .then(({ items }) => {
+        if (!cancelled) setJobs(items ?? []);
+      })
+      .catch((cause) => {
+        if (!cancelled) setError(cause instanceof Error ? cause.message : "Could not load active jobs.");
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingJobs(false);
+          setJobsLoaded(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [jobsLoaded, loadingJobs, open]);
 
   useEffect(() => {
     if (!selectedTemplate) return;
@@ -132,6 +178,14 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
       setError("Choose recipients and complete both the subject and message before sending.");
       return;
     }
+    if (recipientCount > 200) {
+      setError("Bulk InMail supports up to 200 candidates at a time.");
+      return;
+    }
+    if (usesJobTitle && !jobID) {
+      setError("Select an active job before using the {{JobTitle}} variable.");
+      return;
+    }
 
     setSending(true);
     setError("");
@@ -142,6 +196,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
         candidate_ids: candidateIDs,
       };
 
+      if (jobID) payload.job_id = jobID;
       if (templateID) payload.template_id = templateID;
       else {
         payload.subject = subject.trim();
@@ -153,14 +208,20 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
         body: JSON.stringify(payload),
       });
 
-      const sentCount = result.recipient_count || recipientCount;
-      setSuccess(`${sentCount} InMail${sentCount === 1 ? "" : "s"} queued successfully.`);
+      const sentCount = result.sent_count ?? result.recipient_count ?? 0;
+      const skippedCount = result.skipped_count ?? 0;
+      if (skippedCount > 0) {
+        setSuccess(`Sent ${sentCount} InMail${sentCount === 1 ? "" : "s"}. ${skippedCount} candidate${skippedCount === 1 ? "" : "s"} skipped by the ${result.cooldown_days || 14}-day anti-spam cooldown.`);
+      } else {
+        setSuccess(`Sent ${sentCount} InMail${sentCount === 1 ? "" : "s"} successfully.`);
+      }
       onSent();
 
       window.setTimeout(() => {
         setOpen(false);
         setCandidateIDs([]);
         setTemplateID("");
+        setJobID("");
         setSubject("");
         setBody("");
         setSuccess("");
@@ -239,6 +300,25 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
                   <p className="mt-2 text-[11px] leading-5 text-ink-muted">
                     {loadingTemplates ? "Loading saved templates…" : templates.length ? "Saved templates keep outreach consistent while personalisation variables are resolved per candidate." : "No saved templates yet. You can still write a custom message."}
                   </p>
+
+                  <div className="mt-4 border-t border-line/70 pt-4">
+                    <label htmlFor="bulk-job" className="text-xs font-extrabold uppercase tracking-[0.12em] text-navy">Job context</label>
+                    <select
+                      id="bulk-job"
+                      value={jobID}
+                      disabled={loadingJobs || sending}
+                      onChange={(event) => setJobID(event.target.value)}
+                      className="mt-2 min-h-11 w-full rounded-xl border border-line bg-white px-3 text-sm font-semibold text-navy outline-none transition focus:border-indigo/40 focus:ring-4 focus:ring-indigo-soft/70 disabled:opacity-60"
+                    >
+                      <option value="">{usesJobTitle ? "Select an active job (required)" : "No job context"}</option>
+                      {activeJobs.map((job) => (
+                        <option key={job.id} value={job.id}>{job.title}</option>
+                      ))}
+                    </select>
+                    <p className="mt-2 text-[11px] leading-5 text-ink-muted">
+                      {loadingJobs ? "Loading active jobs…" : usesJobTitle ? "Required because this message uses {{JobTitle}}." : "Optional unless the message uses {{JobTitle}}."}
+                    </p>
+                  </div>
                 </section>
 
                 <section className="space-y-4 rounded-2xl border border-[#e1e3f4] bg-white/88 p-4 shadow-[0_8px_24px_rgba(81,85,170,0.05)]">
@@ -300,10 +380,10 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
 
               <div className="border-t border-line/70 bg-white/90 px-5 py-4 backdrop-blur-xl sm:px-6">
                 <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-[11px] leading-5 text-ink-muted">Messages are queued after the database transaction commits, so this screen does not wait for notification delivery.</p>
+                  <p className="text-[11px] leading-5 text-ink-muted">Up to 200 recipients per send. Candidates you contacted within the last 14 days are skipped automatically; messages and inbox notifications are committed atomically.</p>
                   <div className="flex shrink-0 gap-2">
                     <button type="button" onClick={closeDrawer} disabled={sending} className="min-h-11 rounded-xl border border-line bg-white px-4 text-sm font-bold text-ink-muted transition hover:bg-slate-50 hover:text-navy disabled:opacity-50">Cancel</button>
-                    <button type="submit" disabled={sending || recipientCount === 0 || !subject.trim() || !body.trim()} className="inline-flex min-h-11 min-w-[10.5rem] items-center justify-center gap-2 rounded-xl bg-[#24A47F] px-5 text-sm font-extrabold text-white shadow-[0_10px_26px_rgba(36,164,127,0.24)] transition hover:bg-[#1d8d6d] disabled:cursor-not-allowed disabled:opacity-50">
+                    <button type="submit" disabled={sending || recipientCount === 0 || recipientCount > 200 || !subject.trim() || !body.trim() || (usesJobTitle && !jobID)} className="inline-flex min-h-11 min-w-[10.5rem] items-center justify-center gap-2 rounded-xl bg-[#24A47F] px-5 text-sm font-extrabold text-white shadow-[0_10px_26px_rgba(36,164,127,0.24)] transition hover:bg-[#1d8d6d] disabled:cursor-not-allowed disabled:opacity-50">
                       {sending && <Spinner />}
                       {sending ? "Sending…" : `Send to ${recipientCount}`}
                     </button>
@@ -324,7 +404,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
                   <div className="flex items-center gap-3">
                     <motion.span initial={{ scale: 0.4, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 420, damping: 18 }} className="flex h-9 w-9 items-center justify-center rounded-full bg-[#24A47F] text-base font-black text-white">✓</motion.span>
                     <div>
-                      <p className="text-sm font-extrabold text-[#155f4b]">Bulk InMail accepted</p>
+                      <p className="text-sm font-extrabold text-[#155f4b]">Bulk InMail processed</p>
                       <p className="mt-0.5 text-xs font-semibold text-[#397666]">{success}</p>
                     </div>
                   </div>
