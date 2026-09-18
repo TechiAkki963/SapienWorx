@@ -1,0 +1,110 @@
+name: Deployment CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "database/migrations/**"
+      - "database/Dockerfile.migrate"
+      - "database/migrate.sh"
+      - "deploy/**"
+      - ".github/workflows/deployment-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "database/migrations/**"
+      - "database/Dockerfile.migrate"
+      - "database/migrate.sh"
+      - "deploy/**"
+      - ".github/workflows/deployment-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deployment-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  container-stack:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Create isolated CI environment
+        shell: bash
+        run: |
+          cat > /tmp/sapienworx-test.env <<'EOF'
+          APP_ENV=staging
+          GATEWAY_PORT=8080
+          PUBLIC_ORIGIN=http://localhost:8080
+          POSTGRES_PASSWORD=ci-postgres-password-2026
+          JWT_SECRET=ci-jwt-secret-012345678901234567890123456789
+          AUTH_OTP_HMAC_SECRET=ci-otp-secret-abcdefghijklmnopqrstuvwxyz123456
+          AUTH_COOKIE_SECURE=false
+          AUTH_COOKIE_DOMAIN=
+          AWS_REGION=ap-south-1
+          S3_BUCKET=
+          DB_MAX_CONNS=6
+          DB_MIN_CONNS=0
+          EOF
+
+      - name: Validate Compose configuration
+        run: docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml config --quiet
+
+      - name: Build deployment images
+        run: docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml build --pull
+
+      - name: Start deployment stack
+        run: docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml up -d
+
+      - name: Wait for gateway readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:8080/health/ready >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Deployment stack did not become ready." >&2
+          docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml ps
+          exit 1
+
+      - name: Smoke same-origin deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error http://127.0.0.1:8080/health/live | grep -q '"status":"ok"'
+          curl --fail --silent --show-error http://127.0.0.1:8080/health/ready | grep -q '"status":"ready"'
+          curl --fail --silent --show-error http://127.0.0.1:8080/ | grep -q 'SapienWorx'
+          curl --fail --silent --show-error http://127.0.0.1:8080/jobs | grep -q 'Find your next role'
+          docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml ps
+
+      - name: Verify migration ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml exec -T postgres psql -U sapienworx -d sapienworx -Atc 'SELECT count(*) FROM schema_migrations;')"
+          expected="$(find database/migrations -maxdepth 1 -name '*.up.sql' | wc -l | tr -d ' ')"
+          test "$count" = "$expected" || {
+            echo "Expected $expected applied migrations, found $count."
+            exit 1
+          }
+
+      - name: Container status and logs
+        if: failure()
+        run: |
+          docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml ps
+          docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml logs --no-color --tail=250
+
+      - name: Tear down
+        if: always()
+        run: docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml down -v --remove-orphans
