@@ -1,0 +1,190 @@
+name: Step 5 Launch Readiness Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: "Commit SHA, tag, or branch to validate"
+        required: true
+        default: "main"
+        type: string
+      staging_mode:
+        description: "Staging performance mode"
+        required: true
+        default: "smoke"
+        type: choice
+        options:
+          - smoke
+          - full
+      confirm_staging_only:
+        description: "Type STAGING to confirm this workflow must not target production"
+        required: true
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: step5-launch-readiness
+  cancel-in-progress: false
+
+jobs:
+  source-and-build:
+    name: Source, backend, frontend
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Confirm staging-only intent
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ inputs.confirm_staging_only }}" = "STAGING" || {
+            echo "Launch gate refused: confirm_staging_only must equal STAGING."
+            exit 1
+          }
+      - name: Check out requested release ref
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 1
+      - name: Record validated commit
+        run: git rev-parse HEAD
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: backend/go.sum
+      - name: Backend module integrity
+        working-directory: backend
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+      - name: Backend format, vet, tests and vulnerability scan
+        working-directory: backend
+        run: |
+          unformatted="$(gofmt -l .)"
+          test -z "$unformatted" || { echo "$unformatted"; exit 1; }
+          go vet ./...
+          go test -race ./...
+          go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.x"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Frontend deterministic install and audit
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+      - name: Frontend typecheck and production build
+        working-directory: frontend
+        run: |
+          npm run typecheck
+          npm run build
+          npm run bundle:report
+
+  database-round-trip:
+    name: PostgreSQL migration round-trip
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: sapienworx_launch_gate
+          POSTGRES_USER: sapienworx
+          POSTGRES_PASSWORD: sapienworx_launch_gate
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sapienworx -d sapienworx_launch_gate"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGPASSWORD: sapienworx_launch_gate
+    steps:
+      - name: Check out requested release ref
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 1
+      - name: Apply and rollback complete schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          for up in database/migrations/*.up.sql; do
+            down="${up%.up.sql}.down.sql"
+            test -f "$down" || { echo "Missing down migration for $up"; exit 1; }
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_launch_gate -f "$up"
+          done
+          while IFS= read -r down; do
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_launch_gate -f "$down"
+          done < <(printf '%s\n' database/migrations/*.down.sql | sort -r)
+
+  staging-performance:
+    name: Staging performance gate
+    needs: [source-and-build, database-round-trip]
+    runs-on: ubuntu-24.04
+    env:
+      BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+      ACCESS_TOKEN: ${{ secrets.STAGING_CANDIDATE_TOKEN }}
+      CANDIDATE_TOKENS: ${{ secrets.STAGING_CANDIDATE_TOKENS }}
+    steps:
+      - name: Check out requested release ref
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 1
+      - name: Validate staging credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$BASE_URL" || { echo "Missing STAGING_BASE_URL secret."; exit 1; }
+          case "$BASE_URL" in
+            http://localhost*|http://127.0.0.1*) ;;
+            https://*) ;;
+            *) echo "STAGING_BASE_URL must use HTTPS (or localhost for a dedicated test runner)."; exit 1 ;;
+          esac
+          test "${{ inputs.confirm_staging_only }}" = "STAGING" || exit 1
+          if [ "${{ inputs.staging_mode }}" = "smoke" ]; then
+            test -n "$ACCESS_TOKEN" || { echo "Missing STAGING_CANDIDATE_TOKEN secret."; exit 1; }
+          else
+            test -n "$CANDIDATE_TOKENS" || { echo "Missing STAGING_CANDIDATE_TOKENS secret."; exit 1; }
+            token_count="$(printf '%s' "$CANDIDATE_TOKENS" | tr ',' '\n' | sed '/^[[:space:]]*$/d' | wc -l)"
+            test "$token_count" -ge 1000 || {
+              echo "Full mode requires at least 1000 comma-separated staging candidate JWTs."
+              exit 1
+            }
+          fi
+      - name: Set up Grafana k6
+        uses: grafana/setup-k6-action@v1
+      - name: Readiness preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 5 "$BASE_URL/health/ready" >/dev/null
+      - name: Run staging smoke
+        if: ${{ inputs.staging_mode == 'smoke' }}
+        env:
+          PEAK_VUS: "20"
+          RAMP_1: "10s"
+          RAMP_2: "10s"
+          RAMP_3: "10s"
+          HOLD: "30s"
+          RAMP_DOWN: "10s"
+        run: k6 run performance/load_test.js
+      - name: Run 1000-user staging gate
+        if: ${{ inputs.staging_mode == 'full' }}
+        env:
+          PEAK_VUS: "1000"
+        run: k6 run performance/load_test.js
+      - name: Upload k6 summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step5-k6-${{ inputs.staging_mode }}-${{ github.run_id }}
+          path: performance/summary.json
+          if-no-files-found: ignore
+          retention-days: 14
