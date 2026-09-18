@@ -11,8 +11,6 @@ CREATE TABLE platform_admin_settings (
 INSERT INTO platform_admin_settings(singleton) VALUES (true)
 ON CONFLICT (singleton) DO NOTHING;
 
-CREATE INDEX ix_admin_audit_logs_action_created
-  ON admin_audit_logs (action_type, created_at DESC);
 
 CREATE INDEX ix_jobs_admin_moderation
   ON jobs (status, updated_at DESC, company_id);
