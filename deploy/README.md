@@ -68,3 +68,10 @@ Do not expose PostgreSQL or the backend service publicly.
 ## Production promotion
 
 This stack is deliberately a test-deployment gate, not the final AWS topology. Production should promote the same application images, use RDS PostgreSQL with TLS, S3 with least-privilege IAM, TLS at the edge, centralized logs, backups, monitoring and GitHub branch protection.
+
+
+## Trusted proxy boundary
+
+The API only accepts `X-Real-IP` from socket peers inside `HTTP_TRUSTED_PROXY_CIDRS`. This keeps login/session IP hashing and abuse rate limits tied to the real client without allowing arbitrary callers to spoof forwarding headers.
+
+For this isolated Docker rehearsal stack, `172.16.0.0/12` covers the private Docker bridge. In production, replace it with the narrow CIDR(s) of the actual load balancer or reverse proxy network.

@@ -148,7 +148,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/privacy/subprocessors", Chain(http.HandlerFunc(s.adminPrivacySubprocessors), adminOnly))
 	mux.Handle("GET /api/v1/admin/privacy/processing-activities", Chain(http.HandlerFunc(s.adminPrivacyProcessingActivities), adminOnly))
 
-	handler := Chain(mux, RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), MaxBodyBytes(cfg.HTTP.MaxBodyBytes))
+	handler := Chain(mux, TrustedProxyRemoteAddr(cfg.HTTP.TrustedProxyCIDRs), RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), MaxBodyBytes(cfg.HTTP.MaxBodyBytes))
 	s.http = &http.Server{Addr: cfg.HTTP.Address, Handler: handler, ReadTimeout: cfg.HTTP.ReadTimeout, ReadHeaderTimeout: cfg.HTTP.ReadHeaderTimeout, WriteTimeout: cfg.HTTP.WriteTimeout, IdleTimeout: cfg.HTTP.IdleTimeout}
 	return s
 }

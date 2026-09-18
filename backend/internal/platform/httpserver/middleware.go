@@ -5,7 +5,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"log/slog"
+	"net"
 	"net/http"
+	"net/netip"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -28,6 +30,36 @@ func Chain(handler http.Handler, middleware ...Middleware) http.Handler {
 		handler = middleware[i](handler)
 	}
 	return handler
+}
+
+func TrustedProxyRemoteAddr(cidrs []string) Middleware {
+	prefixes := make([]netip.Prefix, 0, len(cidrs))
+	for _, cidr := range cidrs {
+		if prefix, err := netip.ParsePrefix(strings.TrimSpace(cidr)); err == nil {
+			prefixes = append(prefixes, prefix)
+		}
+	}
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			peerIP := requestPeerIP(r)
+			peer, err := netip.ParseAddr(peerIP)
+			if err == nil {
+				trusted := false
+				for _, prefix := range prefixes {
+					if prefix.Contains(peer) {
+						trusted = true
+						break
+					}
+				}
+				if trusted {
+					if client, parseErr := netip.ParseAddr(strings.TrimSpace(r.Header.Get("X-Real-IP"))); parseErr == nil {
+						r.RemoteAddr = net.JoinHostPort(client.String(), "0")
+					}
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func RequestID(next http.Handler) http.Handler {

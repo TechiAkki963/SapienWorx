@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"net/netip"
 	"net/url"
 	"os"
 	"strconv"
@@ -27,6 +28,7 @@ type HTTPConfig struct {
 	ShutdownTimeout   time.Duration
 	AllowedOrigins    []string
 	MaxBodyBytes      int64
+	TrustedProxyCIDRs []string
 }
 
 type DatabaseConfig struct {
@@ -82,6 +84,7 @@ func Load() (Config, error) {
 			ShutdownTimeout:   durationEnv("HTTP_SHUTDOWN_TIMEOUT", 15*time.Second),
 			AllowedOrigins:    csvEnv("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
 			MaxBodyBytes:      int64Env("HTTP_MAX_BODY_BYTES", 2<<20),
+			TrustedProxyCIDRs: csvEnv("HTTP_TRUSTED_PROXY_CIDRS", nil),
 		},
 		Database: DatabaseConfig{
 			URL:             strings.TrimSpace(os.Getenv("DATABASE_URL")),
@@ -145,6 +148,12 @@ func (c Config) Validate() error {
 	}
 	if c.HTTP.MaxBodyBytes < 1024 {
 		problems = append(problems, "HTTP_MAX_BODY_BYTES must be at least 1024")
+	}
+	for _, cidr := range c.HTTP.TrustedProxyCIDRs {
+		if _, err := netip.ParsePrefix(strings.TrimSpace(cidr)); err != nil {
+			problems = append(problems, "HTTP_TRUSTED_PROXY_CIDRS must contain only valid CIDR prefixes")
+			break
+		}
 	}
 	if c.Auth.AccessTokenTTL <= 0 || c.Auth.RefreshTokenTTL <= 0 || c.Auth.OTPTTL <= 0 {
 		problems = append(problems, "authentication token lifetimes must be positive")

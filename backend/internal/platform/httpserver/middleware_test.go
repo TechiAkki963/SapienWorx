@@ -98,3 +98,37 @@ func TestOriginAllowedRequiresExplicitTrustedOrigin(t *testing.T) {
 		})
 	}
 }
+
+func TestTrustedProxyRemoteAddr(t *testing.T) {
+	handler := TrustedProxyRemoteAddr([]string{"10.0.0.0/8"})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := requestPeerIP(r); got != "203.0.113.25" {
+			t.Fatalf("requestPeerIP = %q, want 203.0.113.25", got)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.RemoteAddr = "10.1.2.3:4321"
+	req.Header.Set("X-Real-IP", "203.0.113.25")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent)
+	}
+}
+
+func TestTrustedProxyRemoteAddrRejectsSpoofFromUntrustedPeer(t *testing.T) {
+	handler := TrustedProxyRemoteAddr([]string{"10.0.0.0/8"})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := requestPeerIP(r); got != "198.51.100.9" {
+			t.Fatalf("requestPeerIP = %q, want original peer", got)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.RemoteAddr = "198.51.100.9:4321"
+	req.Header.Set("X-Real-IP", "203.0.113.25")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent)
+	}
+}
