@@ -58,7 +58,7 @@ func validProductionConfig() Config {
 			MinConns: 0,
 		},
 		HTTP: HTTPConfig{
-			MaxBodyBytes:   2 << 20,
+			MaxBodyBytes:      2 << 20,
 			AllowedOrigins:    []string{"https://app.sapienworx.com"},
 			TrustedProxyCIDRs: []string{"10.0.0.0/8"},
 		},
