@@ -17,3 +17,9 @@ Source set used for this integration:
 Before replacing these images in a future brand-art pass, preserve the
 existing filenames or update every consuming page and the UI regression
 tests together.
+
+## Validation invariant
+
+The public UI regression suite expects the hero portrait to decode at at least
+1000×600. Step 3 keeps every role source at 3840px wide so large desktop crops
+and HiDPI displays remain crisp while the existing responsive layouts stay stable.
