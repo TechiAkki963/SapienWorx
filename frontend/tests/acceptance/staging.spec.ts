@@ -89,7 +89,7 @@ test.describe.serial("deployed staging acceptance", () => {
     const reply = "Candidate staging acceptance reply.";
     await candidatePage.getByPlaceholder("Write a reply…").fill(reply);
     await candidatePage.getByRole("button", { name: "Send" }).click();
-    await expect(candidatePage.getByText(reply)).toBeVisible();
+    await expect(candidatePage.getByRole("paragraph").filter({ hasText: reply })).toBeVisible();
     await candidateContext.close();
   });
 });
