@@ -1,7 +1,10 @@
 package httpserver
 
 import (
+	"bufio"
+	"errors"
 	"log/slog"
+	"net"
 	"net/http"
 	"time"
 )
@@ -13,6 +16,20 @@ type responseRecorder struct {
 }
 
 func (r *responseRecorder) Unwrap() http.ResponseWriter { return r.ResponseWriter }
+
+func (r *responseRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	hijacker, ok := r.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, errors.New("response writer does not support hijacking")
+	}
+	return hijacker.Hijack()
+}
+
+func (r *responseRecorder) Flush() {
+	if flusher, ok := r.ResponseWriter.(http.Flusher); ok {
+		flusher.Flush()
+	}
+}
 
 func (r *responseRecorder) WriteHeader(status int) {
 	if r.status != 0 {

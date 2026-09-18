@@ -321,7 +321,7 @@ func (s *Service) Apply(ctx context.Context, userID, jobID string) (Application,
 }
 
 func (s *Service) SavedJobs(ctx context.Context, userID string) ([]Job, error) {
-	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM saved_jobs sj JOIN jobs j ON j.id=sj.job_id JOIN companies c ON c.id=j.company_id WHERE sj.candidate_id=$1 AND j.status='active' ORDER BY sj.created_at DESC`, userID)
+	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM saved_jobs sj JOIN jobs j ON j.id=sj.job_id JOIN companies c ON c.id=j.company_id WHERE sj.candidate_id=$1 AND j.status='active' ORDER BY sj.saved_at DESC`, userID)
 	if err != nil {
 		return nil, err
 	}
