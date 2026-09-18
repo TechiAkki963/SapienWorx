@@ -34,10 +34,10 @@ export const options = {
   scenarios: {
     candidate_search: {
       executor: 'ramping-vus',
-      startVUs: 50,
+      startVUs: Math.min(50, PEAK_VUS),
       stages: [
-        { duration: __ENV.RAMP_1 || '1m', target: Math.max(100, Math.floor(PEAK_VUS * 0.25)) },
-        { duration: __ENV.RAMP_2 || '2m', target: Math.max(250, Math.floor(PEAK_VUS * 0.5)) },
+        { duration: __ENV.RAMP_1 || '1m', target: Math.max(1, Math.floor(PEAK_VUS * 0.25)) },
+        { duration: __ENV.RAMP_2 || '2m', target: Math.max(1, Math.floor(PEAK_VUS * 0.5)) },
         { duration: __ENV.RAMP_3 || '2m', target: PEAK_VUS },
         { duration: __ENV.HOLD || '5m', target: PEAK_VUS },
         { duration: __ENV.RAMP_DOWN || '1m', target: 0 },
