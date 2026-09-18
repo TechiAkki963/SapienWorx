@@ -1,0 +1,67 @@
+name: Database Migration CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "database/migrations/**"
+      - ".github/workflows/migration-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "database/migrations/**"
+      - ".github/workflows/migration-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrations-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  round-trip:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: sapienworx_ci
+          POSTGRES_USER: sapienworx
+          POSTGRES_PASSWORD: sapienworx_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sapienworx -d sapienworx_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGPASSWORD: sapienworx_ci
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+      - name: Verify migration pairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for up in database/migrations/*.up.sql; do
+            down="${up%.up.sql}.down.sql"
+            test -f "$down" || { echo "Missing down migration for $up"; exit 1; }
+          done
+      - name: Apply all forward migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          for migration in database/migrations/*.up.sql; do
+            echo "Applying $migration"
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -f "$migration"
+          done
+      - name: Roll back all migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r migration; do
+            echo "Rolling back $migration"
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -f "$migration"
+          done < <(printf '%s\n' database/migrations/*.down.sql | sort -r)
