@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "bundle:report": "node scripts/bundle-report.mjs",
     "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "test:audit": "playwright test -c playwright.audit.config.ts"
   },
   "dependencies": {
     "motion": "13.1.1",
