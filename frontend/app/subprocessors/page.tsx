@@ -1,9 +1,22 @@
 import { Container } from "@/components/layout/container";
 import { PublicFooter } from "@/components/site/public-footer";
 import { PublicHeader } from "@/components/site/public-header";
-import { SubprocessorRegister } from "@/components/site/subprocessor-register";
+import { Subprocessor, SubprocessorRegister } from "@/components/site/subprocessor-register";
+import { publicAPI } from "@/lib/candidate-server";
 
-export default function SubprocessorsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SubprocessorsPage() {
+  let items: Subprocessor[] = [];
+  let error = "";
+
+  try {
+    const result = await publicAPI<{ items: Subprocessor[] }>("/api/v1/privacy/subprocessors");
+    items = result.items ?? [];
+  } catch {
+    error = "The current subprocessor register could not be loaded. Please try again later.";
+  }
+
   return (
     <main className="min-h-screen bg-[#f8fbff] text-ink">
       <PublicHeader />
@@ -12,7 +25,7 @@ export default function SubprocessorsPage() {
           <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-indigo">Transparency register</p>
           <h1 className="mt-4 font-serif text-5xl font-semibold tracking-[-0.05em] text-navy sm:text-6xl">SapienWorx subprocessors</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-ink-muted">This register lists active service providers recorded as processing personal data on behalf of SapienWorx, including their purpose, relevant data categories and processing locations.</p>
-          <div className="mt-10"><SubprocessorRegister /></div>
+          <div className="mt-10"><SubprocessorRegister items={items} error={error} /></div>
         </section>
       </Container>
       <PublicFooter />
