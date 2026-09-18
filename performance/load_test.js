@@ -34,7 +34,7 @@ export const options = {
   scenarios: {
     candidate_search: {
       executor: 'ramping-vus',
-      startVUs: Math.min(50, PEAK_VUS),
+      startVUs: Math.min(Number(__ENV.START_VUS || 1), PEAK_VUS),
       stages: [
         { duration: __ENV.RAMP_1 || '1m', target: Math.max(1, Math.floor(PEAK_VUS * 0.25)) },
         { duration: __ENV.RAMP_2 || '2m', target: Math.max(1, Math.floor(PEAK_VUS * 0.5)) },
