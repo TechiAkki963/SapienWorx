@@ -14,7 +14,7 @@ SQL
 for migration in /migrations/*.up.sql; do
   version="$(basename "$migration" .up.sql)"
   checksum="$(sha256sum "$migration" | awk '{print $1}')"
-  applied_checksum="$(psql "$DATABASE_URL" -At -v ON_ERROR_STOP=1 -v version="$version" -c "SELECT checksum FROM schema_migrations WHERE version = :'version';")"
+  applied_checksum="$(psql "$DATABASE_URL" -At -v ON_ERROR_STOP=1 -c "SELECT checksum FROM schema_migrations WHERE version = '$version';")"
 
   if [ -n "$applied_checksum" ]; then
     if [ "$applied_checksum" != "$checksum" ]; then
@@ -27,10 +27,7 @@ for migration in /migrations/*.up.sql; do
 
   echo "Applying migration $version"
   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$migration"
-  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v version="$version" -v checksum="$checksum" <<'SQL'
-INSERT INTO schema_migrations(version, checksum)
-VALUES (:'version', :'checksum');
-SQL
+  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "INSERT INTO schema_migrations(version, checksum) VALUES ('$version', '$checksum');"
 done
 
 echo "Database migrations are current."
