@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { API_URL } from "@/lib/api";
+import { SERVER_API_URL } from "@/lib/server-api-url";
 
 export type Role = "candidate" | "recruiter" | "master_admin";
 export type SessionUser = { id: string; role: Role };
@@ -10,7 +10,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
   if (!cookieHeader) return null;
-  const response = await fetch(`${API_URL}/api/v1/auth/me`, {
+  const response = await fetch(`${SERVER_API_URL}/api/v1/auth/me`, {
     headers: { cookie: cookieHeader },
     cache: "no-store",
   });

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-import { API_URL } from "@/lib/api";
+import { SERVER_API_URL } from "@/lib/server-api-url";
 
 export class AdminBackendError extends Error {
   constructor(message: string, public status: number) {
@@ -19,7 +19,7 @@ async function parseMessage(response: Response) {
 
 export async function adminAPI<T>(path: string): Promise<T> {
   const store = await cookies();
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${SERVER_API_URL}${path}`, {
     headers: { cookie: store.toString() },
     cache: "no-store",
   });

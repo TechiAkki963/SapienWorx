@@ -1,4 +1,7 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const configuredPublicAPI = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+export const API_URL =
+  configuredPublicAPI || (process.env.NODE_ENV === "production" ? "" : "http://localhost:8080");
 
 export type APIError = { error?: { code?: string; message?: string; request_id?: string } };
 

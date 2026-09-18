@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-import { API_URL } from "@/lib/api";
+import { SERVER_API_URL } from "@/lib/server-api-url";
 
 export class BackendResponseError extends Error {
   constructor(
@@ -21,14 +21,14 @@ async function parseError(response: Response): Promise<string> {
 }
 
 export async function publicAPI<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, { cache: "no-store" });
+  const response = await fetch(`${SERVER_API_URL}${path}`, { cache: "no-store" });
   if (!response.ok) throw new BackendResponseError(await parseError(response), response.status);
   return (await response.json()) as T;
 }
 
 export async function candidateAPI<T>(path: string): Promise<T> {
   const cookieStore = await cookies();
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${SERVER_API_URL}${path}`, {
     headers: { cookie: cookieStore.toString() },
     cache: "no-store",
   });

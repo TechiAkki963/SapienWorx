@@ -18,7 +18,8 @@ const TYPING_IDLE_MS = 2000;
 const MAX_READ_BATCH = 100;
 
 function wsBase() {
-  return API_URL.replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+  const base = API_URL || (typeof window !== "undefined" ? window.location.origin : "");
+  return base.replace(/^http:/, "ws:").replace(/^https:/, "wss:");
 }
 
 function mergeMessage(list: ChatMessage[], incoming: ChatMessage) {
