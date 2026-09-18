@@ -12,33 +12,33 @@ import (
 
 const (
 	MaxBulkInMailRecipients = 200
-	BulkInMailCooldownDays   = 14
+	BulkInMailCooldownDays  = 14
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$`)
 
 type BulkInMailInput struct {
-	CandidateIDs []string	`json:"candidate_ids"`
-	JobID        string	`json:"job_id,omitempty"`
-	TemplateID   string	`json:"template_id,omitempty"`
-	Subject      string	`json:"subject,omitempty"`
-	Body         string	`json:"body,omitempty"`
+	CandidateIDs []string `json:"candidate_ids"`
+	JobID        string   `json:"job_id,omitempty"`
+	TemplateID   string   `json:"template_id,omitempty"`
+	Subject      string   `json:"subject,omitempty"`
+	Body         string   `json:"body,omitempty"`
 }
 
 type BulkInMailResult struct {
-	RequestedCount      int	`json:"requested_count"`
-	RecipientCount      int	`json:"recipient_count"`
-	SentCount           int	`json:"sent_count"`
-	SkippedCount        int	`json:"skipped_count"`
-	SkippedCandidateIDs []string	`json:"skipped_candidate_ids"`
-	CooldownDays        int	`json:"cooldown_days"`
-	Status              string	`json:"status"`
+	RequestedCount      int      `json:"requested_count"`
+	RecipientCount      int      `json:"recipient_count"`
+	SentCount           int      `json:"sent_count"`
+	SkippedCount        int      `json:"skipped_count"`
+	SkippedCandidateIDs []string `json:"skipped_candidate_ids"`
+	CooldownDays        int      `json:"cooldown_days"`
+	Status              string   `json:"status"`
 }
 
 type bulkRecipientPayload struct {
-	CandidateID string	`json:"candidate_id"`
-	Subject     string	`json:"subject"`
-	Content     string	`json:"content"`
+	CandidateID string `json:"candidate_id"`
+	Subject     string `json:"subject"`
+	Content     string `json:"content"`
 }
 
 func normalizeBulkCandidateIDs(candidateIDs []string) ([]string, error) {
