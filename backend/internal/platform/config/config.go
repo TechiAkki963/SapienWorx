@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -159,6 +160,24 @@ func (c Config) Validate() error {
 	}
 	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
 		problems = append(problems, "S3_PRESIGN_TTL must be between 1m and 15m")
+	}
+	if strings.EqualFold(strings.TrimSpace(c.Environment), "production") {
+		if !c.Auth.CookieSecure {
+			problems = append(problems, "AUTH_COOKIE_SECURE must be true in production")
+		}
+		if c.Auth.JWTSecret == c.Auth.OTPSecret {
+			problems = append(problems, "AUTH_OTP_HMAC_SECRET must be distinct from JWT_SECRET in production")
+		}
+		for _, origin := range c.HTTP.AllowedOrigins {
+			parsed, err := url.Parse(strings.TrimSpace(origin))
+			if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+				problems = append(problems, "CORS_ALLOWED_ORIGINS must contain only valid https origins in production")
+				break
+			}
+		}
+		if parsed, err := url.Parse(c.Database.URL); err == nil && strings.EqualFold(parsed.Query().Get("sslmode"), "disable") {
+			problems = append(problems, "DATABASE_URL must not disable TLS in production")
+		}
 	}
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "; "))

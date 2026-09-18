@@ -77,3 +77,24 @@ func TestRequireRolesRejectsMissingClaims(t *testing.T) {
 		t.Fatalf("status = %d, want %d", res.Code, http.StatusUnauthorized)
 	}
 }
+
+func TestOriginAllowedRequiresExplicitTrustedOrigin(t *testing.T) {
+	allowed := []string{"https://app.sapienworx.com", "http://localhost:3000"}
+
+	for _, test := range []struct {
+		name   string
+		origin string
+		want   bool
+	}{
+		{name: "production origin", origin: "https://app.sapienworx.com", want: true},
+		{name: "local development origin", origin: "http://localhost:3000", want: true},
+		{name: "missing origin", origin: "", want: false},
+		{name: "untrusted origin", origin: "https://evil.example", want: false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if got := originAllowed(test.origin, allowed); got != test.want {
+				t.Fatalf("originAllowed(%q) = %v, want %v", test.origin, got, test.want)
+			}
+		})
+	}
+}

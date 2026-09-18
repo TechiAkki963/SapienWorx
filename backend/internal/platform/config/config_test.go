@@ -48,3 +48,62 @@ func TestValidateRejectsOversizedMicroPool(t *testing.T) {
 		t.Fatal("expected oversized DB pool to be rejected")
 	}
 }
+
+func validProductionConfig() Config {
+	return Config{
+		Environment: "production",
+		Database: DatabaseConfig{
+			URL:      "postgres://db.example/sapienworx?sslmode=require",
+			MaxConns: 6,
+			MinConns: 0,
+		},
+		HTTP: HTTPConfig{
+			MaxBodyBytes:   2 << 20,
+			AllowedOrigins: []string{"https://app.sapienworx.com"},
+		},
+		Auth: AuthConfig{
+			JWTSecret:         "01234567890123456789012345678901",
+			OTPSecret:         "abcdefghijklmnopqrstuvwxyzABCDEF",
+			AccessTokenTTL:    15 * time.Minute,
+			RefreshTokenTTL:   30 * 24 * time.Hour,
+			OTPTTL:            10 * time.Minute,
+			OTPResendInterval: 60 * time.Second,
+			OTPIPLimit:        8,
+			OTPIPWindow:       10 * time.Minute,
+			LoginIPLimit:      12,
+			LoginIPWindow:     5 * time.Minute,
+			CookieSecure:      true,
+			AccessCookieName:  "sw_access",
+			RefreshCookieName: "sw_refresh",
+		},
+		AWS: AWSConfig{S3PresignTTL: 5 * time.Minute},
+	}
+}
+
+func TestValidateProductionSecurityBaseline(t *testing.T) {
+	cfg := validProductionConfig()
+	if err := cfg.Validate(); err != nil {
+		t.Fatalf("valid production config rejected: %v", err)
+	}
+}
+
+func TestValidateRejectsInsecureProductionSettings(t *testing.T) {
+	tests := []struct {
+		name   string
+		mutate func(*Config)
+	}{
+		{name: "insecure cookie", mutate: func(cfg *Config) { cfg.Auth.CookieSecure = false }},
+		{name: "shared auth secrets", mutate: func(cfg *Config) { cfg.Auth.OTPSecret = cfg.Auth.JWTSecret }},
+		{name: "http cors origin", mutate: func(cfg *Config) { cfg.HTTP.AllowedOrigins = []string{"http://app.sapienworx.com"} }},
+		{name: "database tls disabled", mutate: func(cfg *Config) { cfg.Database.URL = "postgres://db.example/sapienworx?sslmode=disable" }},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cfg := validProductionConfig()
+			test.mutate(&cfg)
+			if err := cfg.Validate(); err == nil {
+				t.Fatal("expected insecure production config to be rejected")
+			}
+		})
+	}
+}

@@ -89,16 +89,25 @@ func MaxBodyBytes(limit int64) Middleware {
 	}
 }
 
-func CORS(allowedOrigins []string) Middleware {
-	allowed := make(map[string]struct{}, len(allowedOrigins))
-	for _, origin := range allowedOrigins {
-		allowed[origin] = struct{}{}
+func originAllowed(origin string, allowedOrigins []string) bool {
+	origin = strings.TrimSpace(origin)
+	if origin == "" {
+		return false
 	}
+	for _, allowed := range allowedOrigins {
+		if origin == strings.TrimSpace(allowed) {
+			return true
+		}
+	}
+	return false
+}
+
+func CORS(allowedOrigins []string) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			origin := r.Header.Get("Origin")
+			origin := strings.TrimSpace(r.Header.Get("Origin"))
 			if origin != "" {
-				if _, ok := allowed[origin]; !ok {
+				if !originAllowed(origin, allowedOrigins) {
 					writeError(w, r, http.StatusForbidden, "origin_not_allowed", "origin is not allowed")
 					return
 				}

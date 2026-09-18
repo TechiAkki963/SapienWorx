@@ -202,7 +202,13 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	upgrader := websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024, CheckOrigin: func(_ *http.Request) bool { return true }}
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(request *http.Request) bool {
+			return originAllowed(request.Header.Get("Origin"), s.cfg.HTTP.AllowedOrigins)
+		},
+	}
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
