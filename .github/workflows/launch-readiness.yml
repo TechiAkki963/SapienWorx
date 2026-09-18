@@ -1,6 +1,10 @@
 name: Step 5 Launch Readiness Gate
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/launch-readiness.yml"
   workflow_dispatch:
     inputs:
       release_ref:
@@ -35,6 +39,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Confirm staging-only intent
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -45,7 +50,7 @@ jobs:
       - name: Check out requested release ref
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.release_ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_ref || github.sha }}
           fetch-depth: 1
       - name: Record validated commit
         run: git rev-parse HEAD
@@ -108,7 +113,7 @@ jobs:
       - name: Check out requested release ref
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.release_ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_ref || github.sha }}
           fetch-depth: 1
       - name: Apply and rollback complete schema
         shell: bash
@@ -125,6 +130,7 @@ jobs:
 
   staging-performance:
     name: Staging performance gate
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     needs: [source-and-build, database-round-trip]
     runs-on: ubuntu-24.04
     env:
@@ -135,7 +141,7 @@ jobs:
       - name: Check out requested release ref
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.release_ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_ref || github.sha }}
           fetch-depth: 1
       - name: Validate staging credentials
         shell: bash
