@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  generate-lockfile:
+  refresh-lockfile:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out main
@@ -26,19 +26,21 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22.x"
-      - name: Generate deterministic npm lockfile
+      - name: Upgrade Playwright and refresh lockfile
         working-directory: frontend
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-      - name: Commit lockfile
+        run: |
+          npm pkg set devDependencies.@playwright/test=1.63.0
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit dependency refresh
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "SapienWorx Release Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add frontend/package-lock.json
+          git add frontend/package.json frontend/package-lock.json
           if git diff --cached --quiet; then
-            echo "Lockfile already present."
+            echo "Dependency state already current."
             exit 0
           fi
-          git commit -m "Add deterministic frontend dependency lockfile"
+          git commit -m "Upgrade Playwright to patched release"
           git push origin HEAD:main
