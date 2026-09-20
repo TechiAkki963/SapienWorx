@@ -108,10 +108,23 @@ if [ -f "$CONF_FILE" ]; then
 fi
 export ECR_REGISTRY="$registry" IMAGE_TAG AWS_REGION="$REGION" S3_BUCKET="$s3_bucket"
 
+docker_config_dir="$(mktemp -d "${RUNTIME_DIR}/docker-config.XXXXXX")"
+chmod 0700 "$docker_config_dir"
+cleanup_registry_auth() {
+  docker logout "$registry" >/dev/null 2>&1 || true
+  rm -rf -- "$docker_config_dir"
+}
+trap cleanup_registry_auth EXIT INT TERM
+export DOCKER_CONFIG="$docker_config_dir"
+
 aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$registry" >/dev/null
 
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull backend frontend
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" --profile migration pull migration
+
+cleanup_registry_auth
+trap - EXIT INT TERM
+unset DOCKER_CONFIG
 
 if [ "${SKIP_MIGRATIONS:-false}" != "true" ]; then
   docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" --profile migration run --rm migration

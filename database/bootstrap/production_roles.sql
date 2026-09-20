@@ -28,6 +28,12 @@
   \quit
 \endif
 
+-- These trusted extensions require database-level CREATE and are therefore
+-- installed once by the controlled RDS administrator, never by the runtime
+-- application role. Later migrations keep IF NOT EXISTS for local setups.
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 SELECT format(
   'CREATE ROLE sapienworx_migrator LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD %L',
   :'migration_password'
