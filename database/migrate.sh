@@ -1,4 +1,5 @@
 #!/bin/sh
+# This file must retain LF line endings because it is a Linux container entrypoint.
 set -eu
 
 : "${DATABASE_URL:?DATABASE_URL is required}"

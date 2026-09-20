@@ -59,7 +59,7 @@ func validProductionConfig() Config {
 		},
 		HTTP: HTTPConfig{
 			MaxBodyBytes:      2 << 20,
-			AllowedOrigins:    []string{"https://app.sapienworx.com"},
+			AllowedOrigins:    []string{"https://sapienworx.com"},
 			TrustedProxyCIDRs: []string{"10.0.0.0/8"},
 		},
 		Auth: AuthConfig{
@@ -95,7 +95,7 @@ func TestValidateRejectsInsecureProductionSettings(t *testing.T) {
 	}{
 		{name: "insecure cookie", mutate: func(cfg *Config) { cfg.Auth.CookieSecure = false }},
 		{name: "shared auth secrets", mutate: func(cfg *Config) { cfg.Auth.OTPSecret = cfg.Auth.JWTSecret }},
-		{name: "http cors origin", mutate: func(cfg *Config) { cfg.HTTP.AllowedOrigins = []string{"http://app.sapienworx.com"} }},
+		{name: "http cors origin", mutate: func(cfg *Config) { cfg.HTTP.AllowedOrigins = []string{"http://sapienworx.com"} }},
 		{name: "database tls disabled", mutate: func(cfg *Config) { cfg.Database.URL = "postgres://db.example/sapienworx?sslmode=disable" }},
 		{name: "invalid trusted proxy", mutate: func(cfg *Config) { cfg.HTTP.TrustedProxyCIDRs = []string{"not-a-cidr"} }},
 	}

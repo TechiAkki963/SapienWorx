@@ -1,0 +1,6 @@
+aws_region  = "ap-south-1"
+aws_profile = "sapienworx_admin"
+project_name = "sapienworx"
+
+# Normally leave null so the account ID and region make the bucket globally unique.
+state_bucket_name = null

@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sapienworx.com"),
   title: {
     default: "SapienWorx",
     template: "%s · SapienWorx",

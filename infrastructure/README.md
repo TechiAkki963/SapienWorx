@@ -1,12 +1,10 @@
-# Infrastructure
+# SapienWorx production infrastructure
 
-Phase 7 will define the production AWS deployment with the explicit goal of keeping the initial monthly infrastructure footprint at or below USD 50 plus taxes where regional pricing and usage permit.
+The production AWS design is declared under `terraform/` and intentionally split into two states:
 
-Allowed target services from the current product constraint:
+- `bootstrap/` creates only the private, versioned state bucket using local state.
+- `production/` creates the reviewed production VPC, compute, database, storage, image registries, least-privilege identities, monitoring, and runtime placeholders.
 
-- EC2 (`t3.micro` or `t4g.micro`, architecture compatibility permitting)
-- RDS PostgreSQL (`db.t4g.micro` target)
-- S3
-- SNS for SMS
+No Terraform command in this repository should target the AWS default VPC. The design has no NAT Gateway, load balancer, Kubernetes cluster, cache, Multi-AZ database, or WAF in order to stay near the approved initial budget.
 
-No infrastructure-as-code is added in Phase 1 because final deployment choices should follow application sizing and current AWS pricing verification in Phase 7.
+Read both Terraform READMEs and `docs/deployment/` before provisioning. Planning is safe; applying requires explicit product-owner approval.

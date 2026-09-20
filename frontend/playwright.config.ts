@@ -8,7 +8,9 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // The journey suite intentionally shares one stateful mock API. Running it
+  // serially prevents one test from clearing another test's request ledger.
+  workers: 1,
   timeout: 45_000,
   expect: { timeout: 8_000 },
   reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : [["list"], ["html", { open: "never" }]],
@@ -34,7 +36,7 @@ export default defineConfig({
       timeout: 20_000,
     },
     {
-      command: `NEXT_PUBLIC_API_URL=${mockAPI} npm run dev -- --hostname 127.0.0.1 --port 3000`,
+      command: "node tests/e2e/start-web.mjs",
       url: web,
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,

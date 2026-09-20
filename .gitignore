@@ -11,11 +11,18 @@ frontend/coverage/
 frontend/playwright-report/
 frontend/test-results/
 frontend/blob-report/
+frontend/tsconfig.tsbuildinfo
+/node_modules/
+/.next/
+/test-results/
+/next-env.d.ts
+/tsconfig.tsbuildinfo
 
 # Go
 backend/bin/
 backend/coverage.out
 backend/*.test
+backend/target/
 
 # Performance testing
 performance/summary.json
@@ -30,8 +37,15 @@ Thumbs.db
 *.log
 .tmp/
 tmp/
+deploy/production/runtime/
 
 # Infrastructure state
 *.tfstate
 *.tfstate.*
+*.tfvars
+!*.tfvars.example
+*.tfplan
+backend.hcl
+crash.log
+crash.*.log
 .terraform/

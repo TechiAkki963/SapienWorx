@@ -1,0 +1,30 @@
+{
+	email {$ACME_EMAIL}
+	admin off
+}
+
+http://127.0.0.1:2019 {
+	respond /healthz 200
+}
+
+www.sapienworx.com {
+	redir https://sapienworx.com{uri} permanent
+}
+
+sapienworx.com {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	@backend path /api/* /health/*
+	reverse_proxy @backend backend:8080 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	reverse_proxy frontend:3000
+}

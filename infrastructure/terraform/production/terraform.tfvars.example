@@ -1,0 +1,27 @@
+aws_region  = "ap-south-1"
+aws_profile = "sapienworx_admin"
+
+project_name = "sapienworx"
+environment  = "production"
+
+vpc_cidr                = "10.42.0.0/16"
+public_subnet_cidrs      = ["10.42.0.0/24", "10.42.1.0/24"]
+private_db_subnet_cidrs  = ["10.42.10.0/24", "10.42.11.0/24"]
+availability_zones       = ["ap-south-1a", "ap-south-1b"]
+
+ec2_instance_type      = "m6g.medium"
+ec2_root_volume_size   = 20
+rds_instance_class     = "db.t3.micro"
+rds_engine_version     = "17.11"
+rds_allocated_storage  = 20
+rds_max_allocated_storage = 30
+rds_backup_retention   = 7
+
+# Leave null to avoid creating an email subscription during the first plan.
+alert_email = null
+
+domain_name       = "sapienworx.com"
+www_domain_name   = "www.sapienworx.com"
+github_repository = "TechiAkki963/SapienWorx"
+
+# This example intentionally contains no secret values.

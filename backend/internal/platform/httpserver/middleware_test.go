@@ -79,14 +79,14 @@ func TestRequireRolesRejectsMissingClaims(t *testing.T) {
 }
 
 func TestOriginAllowedRequiresExplicitTrustedOrigin(t *testing.T) {
-	allowed := []string{"https://app.sapienworx.com", "http://localhost:3000"}
+	allowed := []string{"https://sapienworx.com", "http://localhost:3000"}
 
 	for _, test := range []struct {
 		name   string
 		origin string
 		want   bool
 	}{
-		{name: "production origin", origin: "https://app.sapienworx.com", want: true},
+		{name: "production origin", origin: "https://sapienworx.com", want: true},
 		{name: "local development origin", origin: "http://localhost:3000", want: true},
 		{name: "missing origin", origin: "", want: false},
 		{name: "untrusted origin", origin: "https://evil.example", want: false},

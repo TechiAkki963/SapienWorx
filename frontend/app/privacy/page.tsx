@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Container } from "@/components/layout/container";
 import { PublicFooter } from "@/components/site/public-footer";
 import { PublicHeader } from "@/components/site/public-header";
+
+export const metadata: Metadata = {
+  title: "Privacy",
+  alternates: { canonical: "/privacy" },
+};
 
 const sections = [
   ["What SapienWorx processes", "Account identifiers, contact details, candidate profile and CV information, applications, recruiter hiring activity, interview records and messages needed to operate the recruitment platform."],

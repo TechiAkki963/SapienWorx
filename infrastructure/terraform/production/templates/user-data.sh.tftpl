@@ -1,0 +1,51 @@
+#!/bin/bash
+set -euo pipefail
+
+exec > >(tee /var/log/sapienworx-bootstrap.log | logger -t sapienworx-bootstrap -s 2>/dev/console) 2>&1
+
+dnf update -y
+# Amazon Linux 2023 ships curl-minimal, which provides the curl CLI and
+# conflicts with the full curl package. Keep the preinstalled minimal package.
+dnf install -y docker jq amazon-cloudwatch-agent util-linux-core
+
+systemctl enable --now docker
+systemctl enable --now amazon-ssm-agent
+
+install -d -m 0755 /usr/local/lib/docker/cli-plugins
+compose_asset="docker-compose-linux-aarch64"
+compose_base="https://github.com/docker/compose/releases/download/${docker_compose_version}"
+curl -fsSL "$${compose_base}/$${compose_asset}" -o "/usr/local/lib/docker/cli-plugins/docker-compose"
+curl -fsSL "$${compose_base}/checksums.txt" -o /tmp/docker-compose-checksums.txt
+expected_checksum="$(grep -E " \\*$${compose_asset}$" /tmp/docker-compose-checksums.txt | cut -d' ' -f1)"
+actual_checksum="$(sha256sum /usr/local/lib/docker/cli-plugins/docker-compose | cut -d' ' -f1)"
+test -n "$${expected_checksum}"
+test "$${expected_checksum}" = "$${actual_checksum}"
+chmod 0755 /usr/local/lib/docker/cli-plugins/docker-compose
+rm -f /tmp/docker-compose-checksums.txt
+
+install -d -m 0750 /opt/sapienworx /opt/sapienworx/runtime /opt/sapienworx/runtime/caddy-data /opt/sapienworx/runtime/caddy-config
+
+printf '%s' '${compose_file_b64}' | base64 -d > /opt/sapienworx/compose.production.yml
+printf '%s' '${caddyfile_b64}' | base64 -d > /opt/sapienworx/Caddyfile
+printf '%s' '${deploy_script_b64}' | base64 -d > /opt/sapienworx/deploy.sh
+printf '%s' '${rollback_script_b64}' | base64 -d > /opt/sapienworx/rollback.sh
+printf '%s' '${health_script_b64}' | base64 -d > /opt/sapienworx/health-check.sh
+chmod 0640 /opt/sapienworx/compose.production.yml /opt/sapienworx/Caddyfile
+chmod 0750 /opt/sapienworx/deploy.sh /opt/sapienworx/rollback.sh /opt/sapienworx/health-check.sh
+
+cat >/opt/sapienworx/runtime/deployment.conf <<'EOF'
+# Keep false until GoDaddy A/WWW records resolve to the EC2 Elastic IP.
+CADDY_ENABLED=false
+ACME_EMAIL=info@sapienworx.com
+EOF
+chmod 0600 /opt/sapienworx/runtime/deployment.conf
+
+printf '%s' '${cloudwatch_config_b64}' | base64 -d > /opt/aws/amazon-cloudwatch-agent/etc/sapienworx.json
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config \
+  -m ec2 \
+  -s \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/sapienworx.json
+
+docker compose version
+echo "SapienWorx host bootstrap completed; application deployment remains disabled until an approved Git SHA is sent through SSM."

@@ -1,0 +1,244 @@
+name: Production image release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full 40-character commit SHA from main to release
+        required: true
+        type: string
+      confirm_production:
+        description: Type RELEASE to confirm the production environment gate
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sapienworx-production-release
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-south-1
+
+jobs:
+  validate:
+    name: Validate release source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: sapienworx_release
+          POSTGRES_USER: sapienworx
+          POSTGRES_PASSWORD: sapienworx_release
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sapienworx -d sapienworx_release"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - name: Validate release request
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${{ inputs.release_sha }}" =~ ^[0-9a-f]{40}$ ]] || { echo "A full lowercase Git SHA is required."; exit 1; }
+          test "${{ inputs.confirm_production }}" = "RELEASE" || { echo "confirm_production must equal RELEASE."; exit 1; }
+
+      - name: Check out immutable release
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 1
+
+      - name: Verify commit belongs to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ inputs.release_sha }}"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor "${{ inputs.release_sha }}" origin/main || {
+            echo "Release SHA is not part of origin/main."
+            exit 1
+          }
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.x
+          cache-dependency-path: backend/go.sum
+
+      - name: Test backend
+        working-directory: backend
+        run: |
+          go vet ./...
+          go test ./...
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Test frontend production build
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm run build
+
+      - name: Run candidate and recruiter browser journeys
+        working-directory: frontend
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+
+      - name: Exercise forward migrations on PostgreSQL 17
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build -f database/Dockerfile.migrate -t sapienworx-migration:release database
+          docker run --rm --network host \
+            -e DATABASE_URL='postgres://sapienworx:sapienworx_release@127.0.0.1:5432/sapienworx_release?sslmode=disable' \
+            sapienworx-migration:release
+
+      - name: Exercise complete application stack
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/sapienworx-release.env <<'EOF'
+          APP_ENV=staging
+          GATEWAY_PORT=8080
+          PUBLIC_ORIGIN=http://localhost:8080
+          POSTGRES_PASSWORD=release-postgres-password-2026
+          JWT_SECRET=release-jwt-secret-012345678901234567890123456789
+          AUTH_OTP_HMAC_SECRET=release-otp-secret-abcdefghijklmnopqrstuvwxyz123456
+          AUTH_COOKIE_SECURE=false
+          AUTH_COOKIE_DOMAIN=
+          AWS_REGION=ap-south-1
+          S3_BUCKET=
+          DB_MAX_CONNS=6
+          DB_MIN_CONNS=0
+          EOF
+          docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml config --quiet
+          docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml up -d --build
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --max-time 3 http://127.0.0.1:8080/health/ready >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Release stack did not become ready after $attempt attempts." >&2
+          docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml logs --no-color --tail=200
+          exit 1
+
+      - name: Verify release stack and migration ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent http://127.0.0.1:8080/health/live | grep -q '"status":"ok"'
+          curl --fail --silent http://127.0.0.1:8080/health/ready | grep -q '"status":"ready"'
+          count="$(docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml exec -T postgres psql -U sapienworx -d sapienworx -Atc 'SELECT count(*) FROM schema_migrations;')"
+          expected="$(find database/migrations -maxdepth 1 -name '*.up.sql' | wc -l | tr -d ' ')"
+          test "$count" = "$expected"
+
+      - name: Tear down release stack
+        if: always()
+        run: docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml down -v --remove-orphans
+
+  release:
+    name: Build, push and deploy immutable images
+    needs: validate
+    runs-on: ubuntu-24.04
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out immutable release
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 1
+
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: mode=max
+          sbom: true
+          tags: ${{ steps.ecr.outputs.registry }}/sapienworx/backend:${{ inputs.release_sha }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          file: frontend/Dockerfile
+          platforms: linux/arm64
+          push: true
+          provenance: mode=max
+          sbom: true
+          build-args: NEXT_PUBLIC_API_URL=
+          tags: ${{ steps.ecr.outputs.registry }}/sapienworx/frontend:${{ inputs.release_sha }}
+
+      - name: Build and push migration runner
+        uses: docker/build-push-action@v6
+        with:
+          context: database
+          file: database/Dockerfile.migrate
+          platforms: linux/arm64
+          push: true
+          provenance: mode=max
+          sbom: true
+          tags: ${{ steps.ecr.outputs.registry }}/sapienworx/migration:${{ inputs.release_sha }}
+
+      - name: Deploy through Systems Manager
+        id: deploy
+        shell: bash
+        env:
+          INSTANCE_ID: ${{ vars.PRODUCTION_INSTANCE_ID }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$INSTANCE_ID" =~ ^i-[0-9a-f]+$ ]] || { echo "PRODUCTION_INSTANCE_ID is missing or invalid."; exit 1; }
+          command_id="$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --comment "Deploy SapienWorx $RELEASE_SHA" \
+            --parameters "{\"commands\":[\"sudo /opt/sapienworx/deploy.sh $RELEASE_SHA\"]}" \
+            --query Command.CommandId \
+            --output text)"
+          echo "command_id=$command_id" >> "$GITHUB_OUTPUT"
+          aws ssm wait command-executed --command-id "$command_id" --instance-id "$INSTANCE_ID"
+          status="$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query Status --output text)"
+          test "$status" = "Success" || {
+            aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query StandardErrorContent --output text
+            exit 1
+          }
+
+      - name: Report deployed release
+        run: echo "Deployed immutable release ${{ inputs.release_sha }} through SSM command ${{ steps.deploy.outputs.command_id }}."
