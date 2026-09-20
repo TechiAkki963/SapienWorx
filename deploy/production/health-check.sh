@@ -13,19 +13,32 @@ set -a
 [ ! -f "$CONF_FILE" ] || . "$CONF_FILE"
 set +a
 
-healthy() {
+wait_until_healthy() {
   service="$1"
-  container_id="$(docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps -q "$service")"
-  [ -n "$container_id" ] || { echo "$service is not running" >&2; return 1; }
-  status="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_id")"
-  [ "$status" = "healthy" ] || { echo "$service health is $status" >&2; return 1; }
+  attempt=1
+  while [ "$attempt" -le 24 ]; do
+    container_id="$(docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps -q "$service")"
+    if [ -n "$container_id" ]; then
+      status="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_id")"
+      [ "$status" = "healthy" ] && return 0
+    else
+      status="not running"
+    fi
+    sleep 5
+    attempt=$((attempt + 1))
+  done
+
+  echo "$service did not become healthy within 120 seconds (last status: $status)" >&2
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps "$service" >&2 || true
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" logs --no-color --tail=100 "$service" >&2 || true
+  return 1
 }
 
-healthy backend
-healthy frontend
+wait_until_healthy backend
+wait_until_healthy frontend
 
 if [ "${CADDY_ENABLED:-false}" = "true" ]; then
-  healthy caddy
+  wait_until_healthy caddy
   wget -qO- --timeout=10 "https://sapienworx.com/health/ready" >/dev/null
 fi
 
