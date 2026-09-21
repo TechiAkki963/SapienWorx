@@ -17,6 +17,8 @@ type AuthShellProps = {
   features?: Feature[];
   image?: string;
   imageAlt?: string;
+  imageMode?: "cover" | "contain";
+  showImageOnMobile?: boolean;
   panelLabel?: string;
   reverseOnDesktop?: boolean;
   tone?: "lavender" | "mint" | "peach";
@@ -42,6 +44,8 @@ export function AuthShell({
   features = [],
   image,
   imageAlt = "",
+  imageMode = "cover",
+  showImageOnMobile = false,
   panelLabel = "A more human way to work",
   reverseOnDesktop = false,
   tone = "lavender",
@@ -61,7 +65,9 @@ export function AuthShell({
                 fill
                 priority
                 sizes="(min-width: 1024px) 52vw, 100vw"
-                className="object-cover object-center [image-rendering:auto]"
+                className={imageMode === "contain"
+                  ? "object-contain object-bottom px-8 pt-20 [image-rendering:auto] xl:px-12 xl:pt-24"
+                  : "object-cover object-center [image-rendering:auto]"}
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-[#0b67e8] via-[#0b4ba9] to-[#071d49]" aria-hidden="true" />
@@ -114,6 +120,11 @@ export function AuthShell({
               <Link href="/" aria-label="SapienWorx home"><Wordmark /></Link>
               <span className="rounded-full bg-indigo-soft px-3 py-1.5 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-indigo">{eyebrow}</span>
             </div>
+            {showImageOnMobile && image && (
+              <div className={`${toneSurface[tone]} relative mb-7 h-32 overflow-hidden rounded-3xl lg:hidden`}>
+                <Image src={image} alt={imageAlt} fill sizes="(max-width: 1023px) 28rem, 0px" loading="eager" className="object-contain object-center" />
+              </div>
+            )}
             {children}
           </div>
         </section>

@@ -17,8 +17,8 @@ export function CandidateShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <div className="mx-auto grid max-w-[96rem] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:px-8 lg:py-6">
-        <aside className="lg:sticky lg:top-[5.75rem] lg:self-start">
-          <div className="rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]">
+        <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
+          <div className="min-w-0 rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]">
             <CandidateNav />
           </div>
         </aside>

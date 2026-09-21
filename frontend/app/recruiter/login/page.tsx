@@ -16,8 +16,9 @@ export default function RecruiterLoginPage() {
       title="A focused place for people who hire people."
       description="Sign in to manage jobs, candidate pipelines, interview schedules and hiring activity from one verified company workspace."
       features={recruiterFeatures}
-      image="/images/people/auth-recruiter.webp"
-      imageAlt="Recruiting professionals collaborating in a softly lit office"
+      image="/images/people/recruiter-login.webp"
+      imageAlt="Recruitment leader reviewing his hiring workspace"
+      imageMode="contain"
       tone="lavender"
     >
       <LoginForm role="recruiter" />

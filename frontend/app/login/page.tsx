@@ -27,8 +27,9 @@ export default async function CandidateLoginPage({ searchParams }: Props) {
       title="Pick up where your next opportunity left off."
       description="Sign in to continue your job search, review saved opportunities, follow application progress and keep your profile current."
       features={candidateFeatures}
-      image="/images/people/auth-candidate.webp"
-      imageAlt="Candidate professional in a softly lit modern workplace"
+      image="/images/people/candidate-login.webp"
+      imageAlt="Candidate working confidently from a laptop"
+      imageMode="contain"
       tone="lavender"
     >
       <LoginForm role="candidate" nextPath={nextPath} />

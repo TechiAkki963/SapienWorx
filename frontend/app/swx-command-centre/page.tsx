@@ -24,6 +24,11 @@ export default async function CommandCentreGateway() {
       title="Govern the platform without exposing the doorway."
       description="This non-advertised gateway is reserved for directly provisioned Master Admin accounts. There is no administrator registration flow."
       features={features}
+      image="/images/people/admin-login-dog.webp"
+      imageAlt="SapienWorx golden retriever wearing a fingerprint bandana"
+      imageMode="contain"
+      showImageOnMobile
+      tone="lavender"
     >
       <LoginForm role="master_admin" />
     </AuthShell>
