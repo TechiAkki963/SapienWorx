@@ -14,24 +14,13 @@ func (s *Server) requestEmailVerification(w http.ResponseWriter, r *http.Request
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	code, err := s.auth.RequestEmailVerification(r.Context(), input.Email)
+	_, err := s.auth.RequestEmailVerification(r.Context(), input.Email)
 	if err != nil && !errors.Is(err, auth.ErrOTPRateLimited) {
 		s.writeAuthError(w, r, err)
 		return
 	}
-	if errors.Is(err, auth.ErrOTPRateLimited) {
-		s.writeAuthError(w, r, err)
-		return
-	}
-	payload := map[string]any{
-		"accepted":            true,
-		"delivery_configured": s.auth.DebugOTPAllowed(),
-		"already_verified":    s.auth.EmailVerified(r.Context(), input.Email),
-	}
-	if code != "" && s.auth.DebugOTPAllowed() {
-		payload["development_code"] = code
-	}
-	writeJSON(w, http.StatusAccepted, payload)
+	// Do not disclose account existence or verification state on public resend.
+	writeJSON(w, http.StatusAccepted, map[string]bool{"accepted": true})
 }
 
 func (s *Server) verifyEmail(w http.ResponseWriter, r *http.Request) {

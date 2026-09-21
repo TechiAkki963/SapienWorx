@@ -18,8 +18,11 @@ func (s *Service) RequestPasswordReset(ctx context.Context, emailValue string) (
 
 	var userID string
 	err = s.db.QueryRow(ctx, `SELECT id FROM users WHERE lower(email)=lower($1) AND is_active=true`, email).Scan(&userID)
-	if err != nil {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return "", nil
+	}
+	if err != nil {
+		return "", err
 	}
 
 	var lastSent time.Time
@@ -74,7 +77,12 @@ func (s *Service) ResetPassword(ctx context.Context, input ResetPasswordInput) e
 		return ErrInvalidOTP
 	}
 	if !hmac.Equal(storedHash, otpHash([]byte(s.cfg.OTPSecret), userID, PurposePasswordReset, code)) {
-		_, _ = tx.Exec(ctx, `UPDATE email_verification_challenges SET attempts=attempts+1 WHERE id=$1`, challengeID)
+		if _, err = tx.Exec(ctx, `UPDATE email_verification_challenges SET attempts=attempts+1 WHERE id=$1`, challengeID); err != nil {
+			return err
+		}
+		if err = tx.Commit(ctx); err != nil {
+			return err
+		}
 		return ErrInvalidOTP
 	}
 	if _, err = tx.Exec(ctx, `UPDATE email_verification_challenges SET consumed_at=now(),attempts=attempts+1 WHERE id=$1`, challengeID); err != nil {

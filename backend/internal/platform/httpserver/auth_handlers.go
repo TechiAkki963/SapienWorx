@@ -86,7 +86,7 @@ func (s *Server) forgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	code, err := s.auth.RequestPasswordReset(r.Context(), input.Email)
-	if err != nil {
+	if err != nil && !errors.Is(err, auth.ErrOTPRateLimited) {
 		s.writeAuthError(w, r, err)
 		return
 	}
@@ -179,8 +179,14 @@ func (s *Server) writeAuthError(w http.ResponseWriter, r *http.Request, err erro
 	switch {
 	case errors.Is(err, auth.ErrInvalidCredentials):
 		writeError(w, r, http.StatusUnauthorized, "invalid_credentials", "email or password is incorrect")
+	case errors.Is(err, auth.ErrEmailUnverified):
+		writeError(w, r, http.StatusForbidden, "email_unverified", "registration email verification is incomplete")
+	case errors.Is(err, auth.ErrRecruiterPending):
+		writeError(w, r, http.StatusForbidden, "recruiter_approval_pending", "recruiter approval is pending")
+	case errors.Is(err, auth.ErrAccountUnavailable):
+		writeError(w, r, http.StatusForbidden, "account_unavailable", "account access is unavailable")
 	case errors.Is(err, auth.ErrAccountPending):
-		writeError(w, r, http.StatusForbidden, "account_pending", "account verification is still pending")
+		writeError(w, r, http.StatusForbidden, "account_pending", "account access is pending")
 	case errors.Is(err, auth.ErrConflict):
 		writeError(w, r, http.StatusConflict, "account_exists", "an account already exists for these details")
 	case errors.Is(err, auth.ErrInvalidOTP):
