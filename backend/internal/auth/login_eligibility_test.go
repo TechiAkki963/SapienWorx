@@ -9,9 +9,9 @@ import (
 func TestLoginEligibility(t *testing.T) {
 	now := time.Now()
 	tests := []struct {
-		name string
+		name   string
 		record loginRecord
-		want error
+		want   error
 	}{
 		{"verified candidate", loginRecord{Role: RoleCandidate, Status: "active", IsActive: true, EmailVerifiedAt: &now}, nil},
 		{"unverified candidate", loginRecord{Role: RoleCandidate, Status: "pending_verification", IsActive: true}, ErrEmailUnverified},
