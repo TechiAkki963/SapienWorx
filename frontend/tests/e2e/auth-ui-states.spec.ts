@@ -14,19 +14,19 @@ async function submit(page: import("@playwright/test").Page, role: "candidate" |
 
 test("incorrect credentials never invite email verification", async ({ page }) => {
   await submit(page, "candidate", "invalid_credentials");
-  await expect(page.getByRole("alert")).toContainText("Email or password is incorrect.");
+  await expect(page.locator("form").getByRole("alert")).toContainText("Email or password is incorrect.");
   await expect(page.getByRole("link", { name: /Verify email/ })).toHaveCount(0);
 });
 
 test("valid credentials for an unverified email offer verification", async ({ page }) => {
   await submit(page, "candidate", "email_unverified");
-  await expect(page.getByRole("alert")).toContainText("Registration email verification is incomplete.");
+  await expect(page.locator("form").getByRole("alert")).toContainText("Registration email verification is incomplete.");
   await expect(page.getByRole("link", { name: /Verify email/ })).toHaveAttribute("href", /verify-email/);
 });
 
 test("recruiter awaiting approval is not asked for another OTP", async ({ page }) => {
   await submit(page, "recruiter", "recruiter_approval_pending");
-  await expect(page.getByRole("alert")).toContainText("awaiting administrator approval");
+  await expect(page.locator("form").getByRole("alert")).toContainText("awaiting administrator approval");
   await expect(page.getByRole("link", { name: /Verify email/ })).toHaveCount(0);
 });
 
