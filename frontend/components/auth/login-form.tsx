@@ -6,7 +6,7 @@ import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiRequest } from "@/lib/api";
+import { apiRequest, APIRequestError } from "@/lib/api";
 
 type Role = "candidate" | "recruiter" | "master_admin";
 
@@ -15,11 +15,13 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [attemptedEmail, setAttemptedEmail] = useState("");
+  const [verificationNeeded, setVerificationNeeded] = useState(false);
   const destination = role === "candidate" ? nextPath ?? "/candidate" : role === "recruiter" ? "/recruiter" : "/swx-command-centre/overview";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setVerificationNeeded(false);
     setPending(true);
     const data = new FormData(event.currentTarget);
     const email = String(data.get("email") ?? "");
@@ -32,7 +34,27 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
       router.replace(destination);
       router.refresh();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Login failed.");
+      if (cause instanceof APIRequestError) {
+        switch (cause.code) {
+          case "invalid_credentials":
+            setError("Email or password is incorrect.");
+            break;
+          case "email_unverified":
+            setVerificationNeeded(true);
+            setError("Registration email verification is incomplete.");
+            break;
+          case "recruiter_approval_pending":
+            setError("Your email is verified. Your recruiter account is awaiting administrator approval.");
+            break;
+          case "account_unavailable":
+            setError("Account access is unavailable. Contact SapienWorx support if you believe this is an error.");
+            break;
+          default:
+            setError("Sign-in could not be completed. Please try again.");
+        }
+      } else {
+        setError("Sign-in could not be completed. Please try again.");
+      }
     } finally {
       setPending(false);
     }
@@ -50,7 +72,7 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
       {error && (
         <div className="rounded-2xl bg-red-50 p-3 text-sm text-red-700" role="alert">
           <p>{error}</p>
-          {role !== "master_admin" && attemptedEmail && <Link href={verificationHref} className="mt-2 inline-block font-bold text-indigo hover:underline">Verify email address →</Link>}
+          {role !== "master_admin" && verificationNeeded && attemptedEmail && <Link href={verificationHref} className="mt-2 inline-block font-bold text-indigo hover:underline">Verify email address →</Link>}
         </div>
       )}
       <Input label={role === "recruiter" ? "Work email" : "Email"} name="email" type="email" autoComplete="email" required />

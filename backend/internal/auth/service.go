@@ -16,6 +16,8 @@ import (
 
 var (
 	ErrAccountPending     = errors.New("account verification is pending")
+	ErrEmailUnverified    = errors.New("email verification is pending")
+	ErrRecruiterPending   = errors.New("recruiter approval is pending")
 	ErrAccountUnavailable = errors.New("account is unavailable")
 	ErrConflict           = errors.New("account already exists")
 	ErrInvalidOTP         = errors.New("invalid or expired verification code")
@@ -99,6 +101,8 @@ type loginRecord struct {
 	Role                  Role
 	Status                string
 	RecruiterVerification string
+	EmailVerifiedAt       *time.Time
+	IsActive              bool
 }
 
 func NewService(db *pgxpool.Pool, tokens *TokenManager, cfg ServiceConfig) *Service {
@@ -111,20 +115,33 @@ func (s *Service) Login(ctx context.Context, input LoginInput, userAgent, remote
 		return SessionResult{}, ErrInvalidCredentials
 	}
 	var record loginRecord
-	err = s.db.QueryRow(ctx, `SELECT u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,'') FROM users u LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE lower(u.email)=lower($1) AND u.is_active=true`, email).Scan(&record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification)
+	err = s.db.QueryRow(ctx, `SELECT u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,''),u.email_verified_at,u.is_active FROM users u LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE lower(u.email)=lower($1)`, email).Scan(&record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification, &record.EmailVerifiedAt, &record.IsActive)
 	if err != nil || VerifyPassword(record.PasswordHash, input.Password) != nil {
 		return SessionResult{}, ErrInvalidCredentials
 	}
 	if input.Role != "" && input.Role != record.Role {
 		return SessionResult{}, ErrInvalidCredentials
 	}
-	if record.Status != "active" {
-		return SessionResult{}, ErrAccountPending
-	}
-	if record.Role == RoleRecruiter && record.RecruiterVerification != "verified" {
-		return SessionResult{}, ErrAccountPending
+	if err := loginEligibility(record); err != nil {
+		return SessionResult{}, err
 	}
 	return s.createSession(ctx, record, userAgent, remoteAddr, "")
+}
+
+func loginEligibility(record loginRecord) error {
+	if !record.IsActive || record.Status == "suspended" || record.Status == "disabled" {
+		return ErrAccountUnavailable
+	}
+	if (record.Role == RoleCandidate || record.Role == RoleRecruiter) && record.EmailVerifiedAt == nil {
+		return ErrEmailUnverified
+	}
+	if record.Role == RoleRecruiter && (record.RecruiterVerification != "verified" || record.Status != "active") {
+		return ErrRecruiterPending
+	}
+	if record.Status != "active" {
+		return ErrAccountPending
+	}
+	return nil
 }
 
 func (s *Service) Refresh(ctx context.Context, refreshToken, userAgent, remoteAddr string) (SessionResult, error) {
@@ -138,8 +155,8 @@ func (s *Service) Refresh(ctx context.Context, refreshToken, userAgent, remoteAd
 	defer tx.Rollback(ctx)
 	var record loginRecord
 	var oldSessionID string
-	err = tx.QueryRow(ctx, `SELECT rs.id,u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,'') FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE rs.token_hash=$1 AND rs.revoked_at IS NULL AND rs.expires_at>now() AND u.is_active=true FOR UPDATE`, tokenHash(refreshToken)).Scan(&oldSessionID, &record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification)
-	if err != nil || record.Status != "active" || (record.Role == RoleRecruiter && record.RecruiterVerification != "verified") {
+	err = tx.QueryRow(ctx, `SELECT rs.id,u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,''),u.email_verified_at,u.is_active FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE rs.token_hash=$1 AND rs.revoked_at IS NULL AND rs.expires_at>now() AND u.is_active=true FOR UPDATE OF rs, u`, tokenHash(refreshToken)).Scan(&oldSessionID, &record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification, &record.EmailVerifiedAt, &record.IsActive)
+	if err != nil || loginEligibility(record) != nil {
 		return SessionResult{}, ErrInvalidRefresh
 	}
 	if _, err = tx.Exec(ctx, `UPDATE refresh_sessions SET revoked_at=now(),last_used_at=now() WHERE id=$1`, oldSessionID); err != nil {

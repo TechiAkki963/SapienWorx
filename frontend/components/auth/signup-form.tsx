@@ -36,7 +36,6 @@ export function SignupForm({ recruiter = false }: { recruiter?: boolean }) {
         { method: "POST", body: JSON.stringify(payload) },
       );
       const query = new URLSearchParams({ email: result.email, role: recruiter ? "recruiter" : "candidate" });
-      if (result.development_otp) query.set("dev_otp", result.development_otp);
       router.push(`/verify-email?${query.toString()}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Account creation failed.");

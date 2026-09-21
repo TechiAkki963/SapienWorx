@@ -20,9 +20,12 @@ func (s *Service) RequestEmailVerification(ctx context.Context, emailValue strin
 
 	var userID string
 	var verifiedAt *time.Time
-	err = s.db.QueryRow(ctx, `SELECT id,email_verified_at FROM users WHERE lower(email)=lower($1) AND is_active=true`, email).Scan(&userID, &verifiedAt)
-	if err != nil || verifiedAt != nil {
+	err = s.db.QueryRow(ctx, `SELECT id,email_verified_at FROM users WHERE lower(email)=lower($1) AND is_active=true AND status='pending_verification'`, email).Scan(&userID, &verifiedAt)
+	if errors.Is(err, pgx.ErrNoRows) || verifiedAt != nil {
 		return "", nil
+	}
+	if err != nil {
+		return "", err
 	}
 
 	var lastSent time.Time
@@ -65,14 +68,19 @@ func (s *Service) VerifyEmail(ctx context.Context, emailValue, code string) (Reg
 	var storedHash []byte
 	var attempts, maxAttempts int
 	var expiresAt time.Time
-	err = tx.QueryRow(ctx, `SELECT c.id,c.user_id,u.role::text,c.code_hash,c.attempts,c.max_attempts,c.expires_at FROM email_verification_challenges c JOIN users u ON u.id=c.user_id WHERE lower(c.email)=lower($1) AND c.purpose=$2 AND c.consumed_at IS NULL ORDER BY c.created_at DESC LIMIT 1 FOR UPDATE`, email, emailVerificationPurpose).Scan(&challengeID, &userID, &role, &storedHash, &attempts, &maxAttempts, &expiresAt)
+	err = tx.QueryRow(ctx, `SELECT c.id,c.user_id,u.role::text,c.code_hash,c.attempts,c.max_attempts,c.expires_at FROM email_verification_challenges c JOIN users u ON u.id=c.user_id WHERE lower(c.email)=lower($1) AND c.purpose=$2 AND c.consumed_at IS NULL AND u.is_active=true AND u.email_verified_at IS NULL AND u.status='pending_verification' ORDER BY c.created_at DESC LIMIT 1 FOR UPDATE`, email, emailVerificationPurpose).Scan(&challengeID, &userID, &role, &storedHash, &attempts, &maxAttempts, &expiresAt)
 	if err != nil || attempts >= maxAttempts || !expiresAt.After(s.now().UTC()) {
 		return RegistrationResult{}, ErrInvalidOTP
 	}
 
 	expected := otpHash([]byte(s.cfg.OTPSecret), userID, emailVerificationPurpose, strings.TrimSpace(code))
 	if !hmac.Equal(storedHash, expected) {
-		_, _ = tx.Exec(ctx, `UPDATE email_verification_challenges SET attempts=attempts+1 WHERE id=$1`, challengeID)
+		if _, err = tx.Exec(ctx, `UPDATE email_verification_challenges SET attempts=attempts+1 WHERE id=$1`, challengeID); err != nil {
+			return RegistrationResult{}, err
+		}
+		if err = tx.Commit(ctx); err != nil {
+			return RegistrationResult{}, err
+		}
 		return RegistrationResult{}, ErrInvalidOTP
 	}
 	if _, err = tx.Exec(ctx, `UPDATE email_verification_challenges SET consumed_at=now(),attempts=attempts+1 WHERE id=$1`, challengeID); err != nil {
