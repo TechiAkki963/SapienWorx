@@ -152,7 +152,7 @@ data "aws_iam_policy_document" "github_assume_role" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:environment:production"]
+      values   = ["repo:TechiAkki963@57339768/SapienWorx@1340540005:environment:production"]
     }
   }
 }
