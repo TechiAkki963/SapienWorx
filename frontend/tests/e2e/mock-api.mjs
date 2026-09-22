@@ -6,6 +6,23 @@ const port = 18080;
 const webOrigin = "http://127.0.0.1:3000";
 
 const now = () => new Date().toISOString();
+function seedKnowledge() {
+  const starters = [
+    ["build-a-resume-that-tells-your-story", "Build a résumé that tells your story", "Resume & Profile", "/images/people/candidate-signup.webp", "Professional preparing career profile"],
+    ["prepare-for-an-interview-with-confidence", "Prepare for an interview with confidence", "Interview Preparation", "/images/people/recruiter-review.webp", "Professional reviewing interview notes"],
+    ["make-a-practical-skill-growth-plan", "Make a practical skill-growth plan", "Skills & Career Growth", "/images/people/candidate-login.webp", "Professional learning career skills"],
+    ["humans-and-ai-working-better-together", "Humans and AI working better together", "Humans & AI at Work", "/images/people/recruiter-workspace.webp", "Professional team collaborating"],
+  ];
+  return starters.map(([slug,title,category,image_path,image_alt], index) => ({
+    id: `90000000-0000-4000-8000-${String(index+1).padStart(12,"0")}`,
+    slug,title,category,image_path,image_alt,
+    excerpt: "Practical advice for your next career milestone, from the SapienWorx editorial team.",
+    body: "Start with your current goal and break it into manageable actions. Review what you have learned, then refine your next step based on clear evidence rather than assumptions.",
+    author_name: "SapienWorx Editorial", status: "published", featured_order: index+1, revision:1,
+    published_at:now(),created_at:now(),updated_at:now(),
+  }));
+}
+
 const candidateID = "10000000-0000-4000-8000-000000000001";
 const recruiterID = "20000000-0000-4000-8000-000000000001";
 const adminID = "30000000-0000-4000-8000-000000000001";
@@ -40,6 +57,7 @@ function initialState() {
     pendingCVFilename: null,
     stages: new Map(),
     verificationStatus: "pending",
+    knowledge: seedKnowledge(),
   };
 }
 
@@ -188,6 +206,41 @@ const server = http.createServer(async (req, res) => {
     if (!role) return json(res, 401, { error: { message: "authentication required" } });
     const id = role === "candidate" ? candidateID : role === "recruiter" ? recruiterID : adminID;
     return json(res, 200, { id, role });
+  }
+
+  if (url.pathname === "/api/v1/knowledge" && req.method === "GET") {
+    const category = url.searchParams.get("category");
+    const items = state.knowledge.filter(article => article.status === "published" && (!category || article.category === category))
+      .sort((a,b) => a.featured_order - b.featured_order);
+    return json(res,200,{items,total:items.length});
+  }
+  const publicKnowledge = url.pathname.match(/^\\/api\\/v1\\/knowledge\\/([a-z0-9-]+)$/);
+  if (publicKnowledge && req.method === "GET") {
+    const article = state.knowledge.find(a => a.slug === publicKnowledge[1] && a.status === "published");
+    return article ? json(res,200,article) : json(res,404,{error:{message:"Article not found"}});
+  }
+  if (url.pathname === "/api/v1/admin/knowledge" || url.pathname.startsWith("/api/v1/admin/knowledge/")) {
+    if (roleFromCookie(req) !== "master_admin") return json(res,403,{error:{message:"Admin access denied"}});
+    if (url.pathname === "/api/v1/admin/knowledge" && req.method === "GET") {
+      return json(res,200,{items:[...state.knowledge].sort((a,b)=>b.updated_at.localeCompare(a.updated_at)),total:state.knowledge.length});
+    }
+    if (url.pathname === "/api/v1/admin/knowledge" && req.method === "POST") {
+      const article = {...payload,id:`90000000-0000-4000-8000-${String(state.knowledge.length+1).padStart(12,"0")}`,revision:1,
+        published_at:payload.status === "published" ? now() : null,created_at:now(),updated_at:now()};
+      if (state.knowledge.some(a=>a.slug===article.slug)) return json(res,400,{error:{message:"Slug already exists"}});
+      state.knowledge.unshift(article);
+      return json(res,201,article);
+    }
+    const match = url.pathname.match(/^\\/api\\/v1\\/admin\\/knowledge\\/([^/]+)$/);
+    if (match && req.method === "PUT") {
+      const article = state.knowledge.find(a=>a.id===match[1]);
+      if (!article) return json(res,404,{error:{message:"Article not found"}});
+      if (article.revision !== payload.revision) return json(res,409,{error:{message:"This article changed; reload before saving"}});
+      const next = {...article,...payload,revision:article.revision+1,updated_at:now(),
+        published_at:payload.status === "published" ? (article.published_at ?? now()) : null};
+      Object.assign(article,next);
+      return json(res,200,article);
+    }
   }
 
   if (url.pathname === "/api/v1/candidate/profile" && req.method === "GET") return json(res, 200, state.profile);
