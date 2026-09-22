@@ -18,7 +18,8 @@ const images = [
   ["/images/people/sapien-employer.webp", "Professional portrait"],
 ] as const;
 
-const newArticle = {
+const newArticle: KnowledgeArticle = {
+  id: "", published_at: null, created_at: "", updated_at: "",
   slug: "", title: "", category: KNOWLEDGE_CATEGORIES[0],
   excerpt: "", body: "", image_path: images[0][0], image_alt: images[0][1],
   author_name: "SapienWorx Editorial", status: "draft" as const, featured_order: 10, revision: 0,
