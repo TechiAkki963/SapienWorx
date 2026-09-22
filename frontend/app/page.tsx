@@ -69,7 +69,7 @@ export default function HomePage() {
                 Discover meaningful work, connect with great companies and build a career that fits your life — with SapienWorx.
               </p>
 
-              <form action="/jobs" className="mt-7 grid overflow-hidden rounded-full border border-line/80 bg-white p-1.5 shadow-[0_15px_40px_rgb(18_54_104_/_0.12)] sm:grid-cols-2 lg:grid-cols-[1.25fr_0.85fr_0.9fr_auto]" role="search">
+              <form action="/jobs" className="landing-search mt-7 grid min-w-0 border border-line/80 bg-white shadow-[0_15px_40px_rgb(18_54_104_/_0.12)] sm:grid-cols-2 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)_minmax(0,0.9fr)_auto]" role="search">
                 <label className="sr-only" htmlFor="home-q">Job title, skill or company</label>
                 <input id="home-q" name="q" className="min-h-12 rounded-full bg-transparent px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:bg-indigo-soft/35" placeholder="Job title, skills or company" />
 
@@ -88,7 +88,7 @@ export default function HomePage() {
                 <label className="sr-only" htmlFor="home-location">Location</label>
                 <input id="home-location" name="location" className="min-h-12 rounded-full bg-transparent px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:bg-indigo-soft/35" placeholder="Location" />
 
-                <button className="min-h-12 rounded-full bg-indigo px-5 text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2" type="submit" aria-label="Search jobs">→</button>
+                <button className="min-h-12 rounded-full bg-indigo px-5 text-sm font-bold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2" type="submit">Search jobs <span aria-hidden="true">→</span></button>
               </form>
 
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-muted">
@@ -119,7 +119,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal className="relative mx-auto w-full max-w-[43rem]" delay={0.08}>
-              <div className="relative isolate min-h-[35rem] sm:min-h-[39rem] lg:min-h-[42rem]">
+              <div className="relative isolate min-h-[24rem] sm:min-h-[39rem] lg:min-h-[42rem]">
                 <div className="hero-orbit absolute -left-10 top-8 h-56 w-56 rounded-full bg-[#ddecff] blur-3xl" aria-hidden="true" />
                 <div className="absolute right-0 top-10 h-60 w-60 rounded-full bg-[#dff4ff] blur-3xl" aria-hidden="true" />
                 <div className="absolute inset-x-[4%] bottom-0 top-2 overflow-hidden rounded-[42%_35%_42%_35%/32%_30%_44%_42%] bg-[#eaf3ff] shadow-soft">
@@ -248,10 +248,10 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0a5fe8]/10 via-transparent to-[#073a8f]/75" aria-hidden="true" />
               </div>
               <div className="relative z-10 flex flex-col justify-center p-8 sm:p-12">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">Your next chapter starts here.</p>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">Ready for what’s next?</p>
                 <h2 className="mt-3 max-w-xl font-serif text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Your next chapter starts here.</h2>
                 <p className="mt-4 max-w-lg text-sm leading-6 text-white/78">Create your free account and get one step closer to a more meaningful career.</p>
-                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup" className="bg-white text-navy hover:bg-indigo-soft">Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
+                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup" className="landing-final-cta">Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
                 <p className="absolute bottom-6 right-7 hidden -rotate-5 font-serif text-xl italic leading-tight text-white/75 sm:block">Same people.<br />Bigger possibilities.</p>
               </div>
             </div>
