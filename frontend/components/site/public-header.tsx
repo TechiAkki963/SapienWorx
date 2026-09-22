@@ -21,7 +21,7 @@ export function PublicHeader() {
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           <Link className="hidden min-h-10 items-center justify-center rounded-full border border-indigo/35 bg-white px-4 text-sm font-bold text-navy transition hover:border-indigo hover:bg-indigo-soft lg:inline-flex" href="/recruiter/login">For Recruiters <span className="ml-1.5" aria-hidden="true">→</span></Link>
-          <Button href="/login" size="sm" variant="ghost" className="hidden sm:inline-flex">Log in</Button>
+          <Button href="/login" size="sm" variant="ghost" className="hidden md:inline-flex">Log in</Button>
           <Button href="/signup" size="sm" className="px-3 sm:px-5"><span className="sm:hidden">Join</span><span className="hidden sm:inline">Create Account</span><span aria-hidden="true">→</span></Button>
           <details className="group relative lg:hidden">
             <summary className="flex min-h-10 cursor-pointer list-none items-center rounded-full border border-line bg-white px-3 text-sm font-semibold text-navy hover:bg-indigo-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo">Menu <span className="ml-1.5 text-xs transition-transform group-open:rotate-180" aria-hidden="true">▾</span></summary>
