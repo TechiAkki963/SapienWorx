@@ -9,11 +9,35 @@ import (
 	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 var knowledgeSlug = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
-var knowledgeImage = regexp.MustCompile(`^/images/people/[a-z0-9-]+[.]webp$`)
+var knowledgeUUID = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}package admin
+
+import (
+	"context"
+	"errors"
+	"regexp"
+	"strings"
+	"time"
+	"unicode/utf8"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+)
+
+var knowledgeSlug = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
+)
+var knowledgeImages = map[string]bool{
+	"/images/people/candidate-signup.webp": true,
+	"/images/people/recruiter-review.webp": true,
+	"/images/people/candidate-login.webp": true,
+	"/images/people/recruiter-workspace.webp": true,
+	"/images/people/candidate-dashboard.webp": true,
+	"/images/people/recruiter-team.webp": true,
+	"/images/people/sapien-employer.webp": true,
+}
 var knowledgeCategories = map[string]bool{
 	"Resume & Profile":       true,
 	"Interview Preparation":  true,
@@ -81,7 +105,7 @@ func validateKnowledge(in KnowledgeInput) (KnowledgeInput, error) {
 		!knowledgeCategories[in.Category] ||
 		utf8.RuneCountInString(in.Excerpt) < 20 || utf8.RuneCountInString(in.Excerpt) > 350 ||
 		utf8.RuneCountInString(in.Body) < 100 || utf8.RuneCountInString(in.Body) > 30000 ||
-		!knowledgeImage.MatchString(in.ImagePath) || utf8.RuneCountInString(in.ImagePath) > 220 ||
+		!knowledgeImages[in.ImagePath] || utf8.RuneCountInString(in.ImagePath) > 220 ||
 		utf8.RuneCountInString(in.ImageAlt) < 5 || utf8.RuneCountInString(in.ImageAlt) > 220 ||
 		utf8.RuneCountInString(in.AuthorName) > 120 ||
 		in.FeaturedOrder < 0 || in.FeaturedOrder > 1000 {
@@ -160,6 +184,10 @@ func (s *Service) CreateKnowledge(ctx context.Context, in KnowledgeInput, adminI
  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,CASE WHEN $9='published' THEN now() ELSE NULL END,$11,$11) RETURNING `+knowledgeColumns,
 		in.Slug, in.Title, in.Category, in.Excerpt, in.Body, in.ImagePath, in.ImageAlt, in.AuthorName, in.Status, in.FeaturedOrder, adminID))
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return KnowledgeArticle{}, ErrKnowledgeConflict
+		}
 		return KnowledgeArticle{}, err
 	}
 	id := a.ID
@@ -178,7 +206,7 @@ func (s *Service) UpdateKnowledge(ctx context.Context, id string, in KnowledgeIn
 	if err != nil {
 		return KnowledgeArticle{}, err
 	}
-	if in.Revision < 1 {
+	if in.Revision < 1 || !knowledgeUUID.MatchString(id) {
 		return KnowledgeArticle{}, ErrInvalid
 	}
 	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
@@ -201,6 +229,10 @@ func (s *Service) UpdateKnowledge(ctx context.Context, id string, in KnowledgeIn
  published_at=CASE WHEN $10='published' THEN COALESCE(published_at,now()) ELSE NULL END WHERE id=$1::uuid RETURNING `+knowledgeColumns,
 		id, in.Slug, in.Title, in.Category, in.Excerpt, in.Body, in.ImagePath, in.ImageAlt, in.AuthorName, in.Status, in.FeaturedOrder, adminID))
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return KnowledgeArticle{}, ErrKnowledgeConflict
+		}
 		return KnowledgeArticle{}, err
 	}
 	id = a.ID
@@ -214,5 +246,3 @@ func (s *Service) UpdateKnowledge(ctx context.Context, id string, in KnowledgeIn
 	return a, nil
 }
 
-// DBPool lets migrations and integration tests exercise the production store without an alternate CMS.
-func KnowledgePool(db *pgxpool.Pool) *Service { return NewService(db) }
