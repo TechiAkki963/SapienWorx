@@ -54,7 +54,7 @@ Choose three or four examples from your work, studies or projects. For each, rem
 Prepare questions about how success is measured, what the team is building and the steps in the hiring process. For a virtual interview, check your connection, microphone and meeting link in advance. For an in-person meeting, confirm the location and travel time.
 
 Afterward, write down what you learned. If the process is still open, follow up respectfully through the agreed channel rather than guessing what silence means.',
- '/images/people/recruiter-review.webp',
+ '/images/people/recruiter-signup.webp',
  'Professional reviewing notes before a job interview',2,'published',now()),
 ('make-a-practical-skill-growth-plan',
  'Make a practical skill-growth plan',
@@ -80,7 +80,7 @@ Check important claims against primary information, especially when a recommenda
 Build skills that complement automation: clear communication, domain understanding, problem framing and the ability to notice when an answer is incomplete. Practise explaining not just what a tool produced, but why you accepted or rejected it.
 
 The goal is not to predict which jobs will disappear. It is to understand how your own work changes and make deliberate choices about where to build expertise.',
- '/images/people/recruiter-workspace.webp',
+ '/images/people/auth-recruiter.webp',
  'Professional team discussing work and technology together',4,'published',now())
 ON CONFLICT (slug) DO NOTHING;
 
