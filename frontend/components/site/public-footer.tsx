@@ -9,6 +9,7 @@ const groups = [
     links: [
       ["Find Jobs", "/jobs"],
       ["Create Profile", "/signup"],
+      ["Knowledge Hub", "/knowledge-hub"],
       ["Applications", "/candidate/applications"],
       ["Saved Jobs", "/candidate/saved"],
     ],
@@ -26,6 +27,7 @@ const groups = [
     links: [
       ["About", "/#about"],
       ["How it works", "/#how-it-works"],
+      ["Career resources", "/knowledge-hub"],
       ["Candidate Login", "/login"],
     ],
   },
