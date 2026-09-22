@@ -16,8 +16,18 @@ function seedKnowledge() {
   return starters.map(([slug,title,category,image_path,image_alt], index) => ({
     id: `90000000-0000-4000-8000-${String(index+1).padStart(12,"0")}`,
     slug,title,category,image_path,image_alt,
-    excerpt: "Practical advice for your next career milestone, from the SapienWorx editorial team.",
-    body: "Start with your current goal and break it into manageable actions. Review what you have learned, then refine your next step based on clear evidence rather than assumptions.",
+    excerpt: [
+      "A clear, specific résumé helps a recruiter understand the work you have actually done.",
+      "Prepare real examples, useful questions and a calm plan for the interview day.",
+      "Turn an ambitious career goal into small, verifiable learning milestones.",
+      "A practical way to use AI tools while keeping human judgment and accountability central.",
+    ][index],
+    body: [
+      "Start with the role you want. Highlight the work you actually did, the problem and the outcome. Keep headings, dates and contact information easy to find.",
+      "Review the role, prepare examples of your contributions and ask how success will be measured. Confirm the interview time and meeting details.",
+      "Choose a target role, identify the most important skill gaps, build a small project and seek feedback. Track what you learned rather than collecting random courses.",
+      "Use AI for clearly defined tasks, verify consequential claims and protect confidential information. Combine technical tools with human judgment and communication.",
+    ][index],
     author_name: "SapienWorx Editorial", status: "published", featured_order: index+1, revision:1,
     published_at:now(),created_at:now(),updated_at:now(),
   }));
