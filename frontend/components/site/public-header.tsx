@@ -19,8 +19,8 @@ export function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Button href="/login" size="sm" variant="ghost" className="hidden sm:inline-flex">Log in</Button>
-          <Button href="/recruiter/login" size="sm" variant="secondary" className="hidden border-indigo/25 bg-white text-indigo hover:border-indigo hover:bg-indigo-soft/60 lg:inline-flex">For Recruiters <span aria-hidden="true">→</span></Button>
+          <span className="hidden sm:block"><Button href="/login" size="sm" variant="ghost">Log in</Button></span>
+          <span className="hidden lg:block"><Button href="/recruiter/login" size="sm" variant="secondary" className="border-indigo/25 bg-white text-indigo hover:border-indigo hover:bg-indigo-soft/60">For Recruiters <span aria-hidden="true">→</span></Button></span>
           <Button href="/signup" size="sm" className="px-3 sm:px-5"><span className="sm:hidden">Join</span><span className="hidden sm:inline">Create Account</span><span aria-hidden="true">→</span></Button>
           <details className="group relative lg:hidden">
             <summary className="flex min-h-10 cursor-pointer list-none items-center rounded-full border border-line bg-white px-3 text-sm font-semibold text-navy hover:bg-indigo-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo">Menu <span className="ml-1.5 text-xs transition-transform group-open:rotate-180" aria-hidden="true">▾</span></summary>
