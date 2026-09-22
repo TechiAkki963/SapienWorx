@@ -1,6 +1,9 @@
 import Image from "next/image";
 
 import { Container } from "@/components/layout/container";
+import { KnowledgeCard } from "@/components/site/knowledge-card";
+import { publicAPI } from "@/lib/candidate-server";
+import type { KnowledgeList } from "@/lib/knowledge";
 import { HumanJourneyCard } from "@/components/site/human-journey-card";
 import { PublicFooter } from "@/components/site/public-footer";
 import { PublicHeader } from "@/components/site/public-header";
@@ -27,16 +30,16 @@ const journey = [
     title: "Grow",
     eyebrow: "Build new skills",
     body: "Access resources, insights and a community that helps you move forward.",
-    image: people.talent,
-    alt: "Professional smiling in a pastel modern office",
+    image: "/images/people/candidate-dashboard.webp",
+    alt: "Professional working with a computer in a bright workspace",
     tone: "mint" as const,
   },
   {
     title: "Belong",
     eyebrow: "Be part of something",
     body: "Join a more human professional network built around people, not profiles.",
-    image: people.workplace,
-    alt: "Warm professional portrait in a collaborative workplace",
+    image: "/images/people/recruiter-team.webp",
+    alt: "Professional team in a collaborative workplace",
     tone: "peach" as const,
   },
 ];
@@ -50,7 +53,11 @@ const proof = [
 
 const communityPeople = [people.hero, people.recruiter, people.talent, people.employer];
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  let knowledge: KnowledgeList | null = null;
+  try { knowledge = await publicAPI<KnowledgeList>("/api/v1/knowledge"); } catch {}
   return (
     <main id="main-content" className="min-h-screen overflow-hidden bg-white">
       <PublicHeader />
@@ -159,12 +166,27 @@ export default function HomePage() {
               More than a job board.<br />A career partner.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-muted">From your first job to your next big move, SapienWorx is built to support your journey at every step.</p>
-            <a href="#about" className="mt-3 inline-flex text-sm font-bold text-indigo underline-offset-4 hover:underline">See how it works →</a>
+            <a href="/knowledge-hub" className="mt-3 inline-flex text-sm font-bold text-indigo underline-offset-4 hover:underline">Explore career resources →</a>
           </div>
 
           <div className="mt-12 grid gap-8 md:grid-cols-3">
             {journey.map((item, index) => <HumanJourneyCard key={item.title} {...item} delay={index * 0.1} />)}
           </div>
+        </Container>
+      </section>
+
+      <section id="knowledge-hub" className="border-y border-line/70 bg-[linear-gradient(130deg,#eef6ff_0%,#fff_55%,#eefaf5_100%)] py-16 sm:py-24" aria-labelledby="knowledge-title">
+        <Container>
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-indigo">SapienWorx Knowledge Hub</p>
+              <h2 id="knowledge-title" className="mt-4 max-w-3xl text-balance font-serif text-[clamp(2.6rem,5vw,4.4rem)] font-semibold leading-tight tracking-[-0.05em] text-navy">More than finding your next job. Be ready for it.</h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-ink-muted">Practical guidance on résumés, interviews, building skills and working alongside AI.</p>
+            </div>
+            <a href="/knowledge-hub" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-indigo/30 bg-white px-5 text-sm font-bold text-indigo transition hover:bg-indigo-soft">Explore Knowledge Hub →</a>
+          </div>
+          {knowledge && knowledge.items.length > 0 && <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">{knowledge.items.slice(0,4).map(article => <KnowledgeCard key={article.id} article={article} />)}</div>}
+          {!knowledge && <p className="mt-8 text-sm text-ink-muted" role="status">Articles are temporarily unavailable. Visit the Knowledge Hub again shortly.</p>}
         </Container>
       </section>
 
