@@ -93,14 +93,28 @@ test.describe("public UI stability", () => {
   });
 
   for (const width of [360, 390, 768, 1024, 1280, 1440]) {
-    test(`landing page does not overflow horizontally at ${width}px`, async ({ page }) => {
+    test(`landing page does not overflow horizontally at ${width}px`, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
       await expect(page.getByRole("heading", { name: /Find work that feels right for you/i })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
+      await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true, animations: "disabled" });
     });
   }
+
+  test("submits keyword, experience and location through the public jobs route", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("Role or skill").fill("Software Engineer");
+    await page.getByLabel("Experience", { exact: true }).selectOption("3");
+    await page.getByLabel("Location", { exact: true }).fill("Mumbai");
+    await page.getByRole("button", { name: /Search jobs/ }).click();
+    await expect(page).toHaveURL(/\\/jobs\\?/);
+    const params = new URL(page.url()).searchParams;
+    expect(params.get("q")).toBe("Software Engineer");
+    expect(params.get("experience")).toBe("3");
+    expect(params.get("location")).toBe("Mumbai");
+  });
 
   test.skip("exercises a mounted Framer Motion spring interaction", async () => {
     // Coverage gap: the reusable spring-driven FloatingProductCard is not mounted in the current landing composition.
