@@ -67,7 +67,7 @@ Choose one important skill to work on first. Set a manageable weekly practice bl
 Keep a short record of the decisions you made and the problems you solved. Employers can discuss a real example more meaningfully than a long list of untested claims.
 
 You do not have to master everything at once. Reassess your plan as the role, technology and your interests evolve.',
- '/images/people/candidate-dashboard.webp',
+ '/images/people/candidate-login.webp',
  'Professional planning skills and career growth at a computer',3,'published',now()),
 ('humans-and-ai-working-better-together',
  'Humans and AI working better together',
@@ -80,7 +80,7 @@ Check important claims against primary information, especially when a recommenda
 Build skills that complement automation: clear communication, domain understanding, problem framing and the ability to notice when an answer is incomplete. Practise explaining not just what a tool produced, but why you accepted or rejected it.
 
 The goal is not to predict which jobs will disappear. It is to understand how your own work changes and make deliberate choices about where to build expertise.',
- '/images/people/recruiter-team.webp',
+ '/images/people/recruiter-workspace.webp',
  'Professional team discussing work and technology together',4,'published',now())
 ON CONFLICT (slug) DO NOTHING;
 
