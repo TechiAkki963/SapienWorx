@@ -15,13 +15,13 @@ import (
 var knowledgeSlug = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 var knowledgeUUID = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 var knowledgeImages = map[string]bool{
-	"/images/people/candidate-signup.webp":   true,
+	"/images/people/candidate-signup.webp":    true,
 	"/images/people/recruiter-review.webp":    true,
-	"/images/people/candidate-login.webp":    true,
+	"/images/people/candidate-login.webp":     true,
 	"/images/people/recruiter-workspace.webp": true,
 	"/images/people/candidate-dashboard.webp": true,
-	"/images/people/recruiter-team.webp":     true,
-	"/images/people/sapien-employer.webp":    true,
+	"/images/people/recruiter-team.webp":      true,
+	"/images/people/sapien-employer.webp":     true,
 }
 var knowledgeCategories = map[string]bool{
 	"Resume & Profile":       true,
@@ -230,4 +230,3 @@ func (s *Service) UpdateKnowledge(ctx context.Context, id string, in KnowledgeIn
 	}
 	return a, nil
 }
-
