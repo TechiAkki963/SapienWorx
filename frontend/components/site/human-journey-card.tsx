@@ -33,7 +33,7 @@ export function HumanJourneyCard({
   return (
     <motion.article
       className="group"
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 1, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.24 }}
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
@@ -56,7 +56,7 @@ export function HumanJourneyCard({
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#071d49]/24 to-transparent" aria-hidden="true" />
         <motion.span
           className="absolute bottom-4 left-4 rounded-full border border-white/80 bg-white/95 px-4 py-2 text-xs font-bold text-navy shadow-card"
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 1, y: 4 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.36, delay: delay + 0.18 }}
