@@ -9,11 +9,11 @@ test.describe("public UI stability", () => {
     await installCLSObserver(page);
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Find work that feels right for you/i })).toBeVisible();
     const human = page.locator(".hero-human");
-    const orbit = page.locator(".hero-orbit");
     await expect(human).toBeVisible();
-    await expect(orbit).toBeVisible();
+    await expect(page.getByRole("link", { name: /For Recruiters/ }).first()).toHaveAttribute("href", "/recruiter/login");
+    await expect(page.getByRole("button", { name: /Search jobs/ })).toBeVisible();
 
     // Visibility alone is not enough: a broken image can still occupy layout space.
     // Confirm the browser actually decoded the human portrait at a useful source size.
@@ -27,7 +27,8 @@ test.describe("public UI stability", () => {
     // Keep decorative motion around the photography instead of resampling the
     // image bitmap itself, which can make portraits visibly soft on HiDPI screens.
     expect(await human.evaluate((element) => getComputedStyle(element).animationName)).toBe("none");
-    expect(await orbit.evaluate((element) => getComputedStyle(element).animationName)).toBe("orbit-drift");
+    await expect(page.locator(".hero-orbit")).toHaveCount(0);
+    await expect(page.getByText("Product Designer", { exact: true })).toHaveCount(0);
 
     const organicMask = await page.evaluate(() => {
       const element = document.createElement("div");
@@ -42,7 +43,7 @@ test.describe("public UI stability", () => {
     await expectStableLayout(page, 0.1);
   });
 
-  test("keeps the landing search compact on a phone viewport", async ({ page }) => {
+  test("keeps the landing search legible and accessible on a phone viewport", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
 
@@ -65,13 +66,15 @@ test.describe("public UI stability", () => {
     expect(queryBox!.height).toBeLessThanOrEqual(56);
     expect(locationBox!.height).toBeLessThanOrEqual(56);
     expect(buttonBox!.width).toBeGreaterThan(300);
-    expect(searchBox!.height).toBeLessThan(260);
+    expect(searchBox!.height).toBeLessThan(430);
+    await expect(page.getByLabel("Experience", { exact: true })).toBeVisible();
+    await expect(page.getByLabel("Experience", { exact: true })).toHaveValue("");
   });
 
   test("honours reduced-motion preference", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
-    const durationSeconds = await page.locator(".hero-orbit").evaluate((element) => {
+    const durationSeconds = await page.locator(".hero-human").evaluate((element) => {
       const value = getComputedStyle(element).animationDuration;
       return value.endsWith("ms") ? Number.parseFloat(value) / 1000 : Number.parseFloat(value);
     });
@@ -93,7 +96,7 @@ test.describe("public UI stability", () => {
     test(`landing page does not overflow horizontally at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
-      await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
+      await expect(page.getByRole("heading", { name: /Find work that feels right for you/i })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
     });
