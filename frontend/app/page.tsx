@@ -1,7 +1,6 @@
 import Image from "next/image";
 
 import { Container } from "@/components/layout/container";
-import { Reveal } from "@/components/motion/reveal";
 import { HumanJourneyCard } from "@/components/site/human-journey-card";
 import { PublicFooter } from "@/components/site/public-footer";
 import { PublicHeader } from "@/components/site/public-header";
@@ -59,7 +58,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f7fbff_0%,#ffffff_78%,#ffffff_100%)]">
         <Container>
           <div className="grid items-center gap-10 pb-6 pt-10 lg:grid-cols-[0.98fr_1.02fr] lg:gap-16 lg:pt-14">
-            <Reveal className="relative z-20 max-w-[42rem]">
+            <div className="relative z-20 max-w-[42rem]">
               <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-indigo">People. Work. Forward.</p>
               <h1 className="mt-5 text-balance font-serif text-[clamp(3.25rem,6vw,5.9rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-navy">
                 Find work that feels <span className="italic text-indigo">right for you.</span>
@@ -74,9 +73,9 @@ export default function HomePage() {
               <p className="mt-5 text-sm text-ink-muted">
                 Recruiter or hiring team? <a className="font-bold text-navy underline decoration-indigo/30 underline-offset-4 hover:text-indigo" href="/recruiter/login">Go to Recruiter Workspace →</a>
               </p>
-            </Reveal>
+            </div>
 
-            <Reveal className="relative mx-auto w-full max-w-[39rem]" delay={0.08}>
+            <div className="relative mx-auto w-full max-w-[39rem]">
               <div className="relative min-h-[28rem] sm:min-h-[34rem] lg:min-h-[37rem]">
                 <div className="absolute inset-x-[7%] bottom-0 top-0 overflow-hidden rounded-[2.75rem] bg-[#eaf3ff] shadow-soft">
                   <Image
@@ -95,7 +94,7 @@ export default function HomePage() {
                   <p className="mt-2 text-xs leading-5 text-ink-muted">Search, apply and track your progress in one place.</p>
                 </div>
               </div>
-            </Reveal>
+            </div>
           </div>
 
           <div className="relative z-30 pb-12 lg:pb-14">
@@ -155,13 +154,13 @@ export default function HomePage() {
 
       <section id="how-it-works" className="relative bg-[linear-gradient(180deg,#ffffff_0%,#f9fcff_100%)] py-20 sm:py-24" aria-labelledby="journey-title">
         <Container>
-          <Reveal className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-4xl text-center">
             <h2 id="journey-title" className="text-balance font-serif text-[clamp(3rem,5vw,5rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-navy">
               More than a job board.<br />A career partner.
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-muted">From your first job to your next big move, SapienWorx is built to support your journey at every step.</p>
             <a href="#about" className="mt-3 inline-flex text-sm font-bold text-indigo underline-offset-4 hover:underline">See how it works →</a>
-          </Reveal>
+          </div>
 
           <div className="mt-12 grid gap-8 md:grid-cols-3">
             {journey.map((item, index) => <HumanJourneyCard key={item.title} {...item} delay={index * 0.1} />)}
@@ -173,12 +172,12 @@ export default function HomePage() {
         <div className="pointer-events-none absolute -left-16 top-24 h-48 w-48 rounded-full bg-[#deedff] blur-2xl" aria-hidden="true" />
         <div className="pointer-events-none absolute -right-12 bottom-14 h-56 w-56 rounded-full bg-[#e9f5ff] blur-2xl" aria-hidden="true" />
         <Container>
-          <Reveal className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-4xl text-center">
             <p className="font-serif text-lg italic text-indigo">Real stories. Real progress.</p>
             <h2 id="people-title" className="mt-4 text-balance font-serif text-[clamp(2.9rem,5vw,4.8rem)] font-semibold leading-[0.96] tracking-[-0.052em] text-navy">People moving forward<br />with SapienWorx</h2>
-          </Reveal>
+          </div>
 
-          <Reveal className="mx-auto mt-10 max-w-4xl" delay={0.08}>
+          <div className="mx-auto mt-10 max-w-4xl">
             <div className="rounded-[2rem] border border-line/80 bg-white px-6 py-7 shadow-soft sm:px-9 sm:py-8">
               <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
                 <Image
@@ -197,7 +196,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          </Reveal>
+          </div>
 
           <div className="mt-6 flex justify-center gap-1.5" aria-hidden="true"><span className="h-2 w-5 rounded-full bg-indigo" /><span className="h-2 w-2 rounded-full bg-line" /><span className="h-2 w-2 rounded-full bg-line" /></div>
         </Container>
@@ -207,13 +206,13 @@ export default function HomePage() {
         <Container>
           <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
             {proof.map(([value, label]) => (
-              <Reveal key={value}>
+              <div key={value}>
                 <div className="text-center lg:text-left">
                   <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-soft text-sm font-bold text-indigo lg:mx-0">✓</div>
                   <p className="text-3xl font-extrabold tracking-[-0.04em] text-navy">{value}</p>
                   <p className="mt-1 text-sm text-ink-muted">{label}</p>
                 </div>
-              </Reveal>
+              </div>
             ))}
           </div>
         </Container>
@@ -221,7 +220,7 @@ export default function HomePage() {
 
       <Container>
         <section className="pb-14 pt-5 sm:pb-16">
-          <Reveal>
+          <div>
             <div className="relative grid min-h-[21rem] overflow-hidden rounded-[2.1rem] bg-[linear-gradient(110deg,#0a5fe8_0%,#073a8f_100%)] text-white shadow-soft lg:grid-cols-[0.78fr_1.22fr]">
               <div className="relative min-h-[18rem] overflow-hidden lg:min-h-full">
                 <Image
@@ -241,7 +240,7 @@ export default function HomePage() {
                 <p className="absolute bottom-6 right-7 hidden -rotate-5 font-serif text-xl italic leading-tight text-white/75 sm:block">Same people.<br />Bigger possibilities.</p>
               </div>
             </div>
-          </Reveal>
+          </div>
         </section>
       </Container>
 
