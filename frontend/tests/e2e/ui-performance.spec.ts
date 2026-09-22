@@ -78,6 +78,27 @@ test.describe("public UI stability", () => {
     expect(durationSeconds).toBeLessThanOrEqual(0.00001);
   });
 
+  test("keeps mobile navigation and candidate signup reachable", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 780 });
+    await page.goto("/");
+    await page.getByText("Menu", { exact: false }).click();
+    const nav = page.getByRole("navigation", { name: "Mobile navigation" });
+    await expect(nav.getByRole("link", { name: "Find Jobs" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Log in" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "For Recruiters" })).toHaveAttribute("href", "/recruiter/login");
+    await expect(page.getByRole("link", { name: /Join/ })).toHaveAttribute("href", "/signup");
+  });
+
+  for (const width of [360, 390, 768, 1024, 1280, 1440]) {
+    test(`landing page does not overflow horizontally at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+    });
+  }
+
   test.skip("exercises a mounted Framer Motion spring interaction", async () => {
     // Coverage gap: the reusable spring-driven FloatingProductCard is not mounted in the current landing composition.
   });
