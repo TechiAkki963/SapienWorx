@@ -14,13 +14,13 @@ export function PublicHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/jobs">Find Jobs</Link>
-          <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/recruiter/login">For Recruiters</Link>
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/#how-it-works">Resources</Link>
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/#about">About</Link>
         </nav>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <Button href="/login" size="sm" variant="ghost" className="hidden sm:inline-flex">Log in</Button>
+          <span className="hidden sm:block"><Button href="/login" size="sm" variant="ghost">Log in</Button></span>
+          <span className="hidden lg:block"><Button href="/recruiter/login" size="sm" variant="secondary" className="border-indigo/25 bg-white text-indigo hover:border-indigo hover:bg-indigo-soft/60">For Recruiters <span aria-hidden="true">→</span></Button></span>
           <Button href="/signup" size="sm" className="px-3 sm:px-5"><span className="sm:hidden">Join</span><span className="hidden sm:inline">Create Account</span><span aria-hidden="true">→</span></Button>
           <details className="group relative lg:hidden">
             <summary className="flex min-h-10 cursor-pointer list-none items-center rounded-full border border-line bg-white px-3 text-sm font-semibold text-navy hover:bg-indigo-soft/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo">Menu <span className="ml-1.5 text-xs transition-transform group-open:rotate-180" aria-hidden="true">▾</span></summary>

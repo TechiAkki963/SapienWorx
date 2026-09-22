@@ -40,6 +40,15 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run Playwright E2E
         run: npm run test:e2e
+      - name: Upload responsive visual review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-visual-review
+          path: frontend/test-results/visual/
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
