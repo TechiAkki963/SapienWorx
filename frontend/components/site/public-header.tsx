@@ -14,12 +14,13 @@ export function PublicHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/jobs">Find Jobs</Link>
-          <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/recruiter/login">For Recruiters</Link>
+          
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/#how-it-works">Resources</Link>
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/#about">About</Link>
         </nav>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
+          <Link className="hidden min-h-10 items-center justify-center rounded-full border border-indigo/35 bg-white px-4 text-sm font-bold text-navy transition hover:border-indigo hover:bg-indigo-soft lg:inline-flex" href="/recruiter/login">For Recruiters <span className="ml-1.5" aria-hidden="true">→</span></Link>
           <Button href="/login" size="sm" variant="ghost" className="hidden sm:inline-flex">Log in</Button>
           <Button href="/signup" size="sm" className="px-3 sm:px-5"><span className="sm:hidden">Join</span><span className="hidden sm:inline">Create Account</span><span aria-hidden="true">→</span></Button>
           <details className="group relative lg:hidden">
