@@ -98,7 +98,7 @@ export default function HomePage() {
             </Reveal>
           </div>
 
-          <Reveal className="relative z-30 pb-12 lg:pb-14" delay={0.12}>
+          <div className="relative z-30 pb-12 lg:pb-14">
             <form action="/jobs" className="landing-search-panel grid gap-3 rounded-[1.6rem] border border-line/80 bg-white p-3 shadow-[0_18px_50px_rgb(18_54_104_/_0.11)] md:grid-cols-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)_minmax(0,0.95fr)_auto]" role="search">
               <div className="min-w-0">
                 <label className="mb-1.5 block px-1 text-[11px] font-extrabold uppercase tracking-[0.12em] text-navy/60" htmlFor="home-q">Role or skill</label>
@@ -138,7 +138,7 @@ export default function HomePage() {
               <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?q=Data+Analyst">Data Analyst</a>
               <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?work_mode=remote">Remote</a>
             </div>
-          </Reveal>
+          </div>
         </Container>
       </section>
 
