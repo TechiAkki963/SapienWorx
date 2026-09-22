@@ -10,9 +10,9 @@ import { KNOWLEDGE_CATEGORIES, type KnowledgeArticle } from "@/lib/knowledge";
 
 const images = [
   ["/images/people/candidate-signup.webp", "Candidate preparing profile"],
-  ["/images/people/recruiter-review.webp", "Professional preparing for interview"],
+  ["/images/people/recruiter-signup.webp", "Professional preparing for interview"],
   ["/images/people/candidate-login.webp", "Professional growing career"],
-  ["/images/people/recruiter-workspace.webp", "Professionals working together"],
+  ["/images/people/auth-recruiter.webp", "Professionals working together"],
   ["/images/people/candidate-dashboard.webp", "Professional studying"],
   ["/images/people/recruiter-team.webp", "Collaborative team"],
   ["/images/people/sapien-employer.webp", "Professional portrait"],
