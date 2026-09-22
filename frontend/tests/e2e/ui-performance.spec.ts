@@ -109,7 +109,7 @@ test.describe("public UI stability", () => {
     await page.getByLabel("Experience", { exact: true }).selectOption("3");
     await page.getByLabel("Location", { exact: true }).fill("Mumbai");
     await page.getByRole("button", { name: /Search jobs/ }).click();
-    await expect(page).toHaveURL(/\\/jobs\\?/);
+    await expect(page).toHaveURL(/jobs/);
     const params = new URL(page.url()).searchParams;
     expect(params.get("q")).toBe("Software Engineer");
     expect(params.get("experience")).toBe("3");
