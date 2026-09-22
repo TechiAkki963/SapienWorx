@@ -12,7 +12,7 @@ const people = {
   hero: "/images/people/sapien-hero-candidate.webp",
   recruiter: "/images/people/sapien-recruiter.webp",
   talent: "/images/people/sapien-talent.webp",
-  workplace: "/images/people/sapien-workplace.webp",
+  workplace: "/images/people/candidate-dashboard.webp",
   employer: "/images/people/sapien-employer.webp",
 };
 
@@ -38,7 +38,7 @@ const journey = [
     eyebrow: "Be part of something",
     body: "Join a more human professional network built around people, not profiles.",
     image: people.workplace,
-    alt: "Warm professional portrait in a collaborative workplace",
+    alt: "Professional representing connection and career growth",
     tone: "peach" as const,
   },
 ];
