@@ -15,7 +15,7 @@ export function PublicHeader() {
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/jobs">Find Jobs</Link>
           
-          <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/#how-it-works">Resources</Link>
+          <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/knowledge-hub">Knowledge Hub</Link>
           <Link className="rounded-full px-3.5 py-2 text-[13px] font-semibold text-navy/78 transition hover:bg-indigo-soft/55 hover:text-navy" href="/#about">About</Link>
         </nav>
 
@@ -28,7 +28,7 @@ export function PublicHeader() {
             <nav aria-label="Mobile navigation" className="absolute right-0 top-full z-50 mt-2 grid w-52 gap-1 rounded-2xl border border-line bg-white p-2 shadow-card">
               <Link className="rounded-lg px-3 py-2.5 text-sm font-semibold text-navy hover:bg-indigo-soft" href="/jobs">Find Jobs</Link>
               <Link className="rounded-lg px-3 py-2.5 text-sm font-semibold text-navy hover:bg-indigo-soft" href="/login">Log in</Link>
-              <Link className="rounded-lg px-3 py-2.5 text-sm font-semibold text-navy hover:bg-indigo-soft" href="/#how-it-works">How it works</Link>
+              <Link className="rounded-lg px-3 py-2.5 text-sm font-semibold text-navy hover:bg-indigo-soft" href="/knowledge-hub">Knowledge Hub</Link>
               <Link className="rounded-lg px-3 py-2.5 text-sm font-semibold text-navy hover:bg-indigo-soft" href="/#about">About</Link>
               <div className="my-1 border-t border-line" />
               <Link className="rounded-lg px-3 py-2.5 text-sm font-semibold text-indigo hover:bg-indigo-soft" href="/recruiter/login">For Recruiters</Link>
