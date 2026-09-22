@@ -237,7 +237,7 @@ export default function HomePage() {
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">Ready for what’s next?</p>
                 <h2 className="mt-3 max-w-xl font-serif text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Your next chapter starts here.</h2>
                 <p className="mt-4 max-w-lg text-sm leading-6 text-white/78">Create your free account and get one step closer to a more meaningful career.</p>
-                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup">Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
+                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup" className="landing-cta-inverse">Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
                 <p className="absolute bottom-6 right-7 hidden -rotate-5 font-serif text-xl italic leading-tight text-white/75 sm:block">Same people.<br />Bigger possibilities.</p>
               </div>
             </div>
