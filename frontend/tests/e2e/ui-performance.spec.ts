@@ -49,6 +49,7 @@ test.describe("public UI stability", () => {
 
     const search = page.locator('form[role="search"]').filter({ has: page.locator("#home-q") });
     await expect(search).toBeVisible();
+    await expect(search).toHaveCSS("opacity", "1");
 
     const searchBox = await search.boundingBox();
     const queryBox = await page.locator("#home-q").boundingBox();
@@ -99,6 +100,18 @@ test.describe("public UI stability", () => {
       await expect(page.getByRole("heading", { name: /Find work that feels right for you/i })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
+      // Reveal sections animate when scrolled into view. Visit the full document
+      // before taking a full-page screenshot to avoid blank off-screen sections.
+      await page.evaluate(async () => {
+        const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+        const step = Math.max(500, window.innerHeight * 0.8);
+        for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+          window.scrollTo(0, y);
+          await pause(55);
+        }
+        window.scrollTo(0, 0);
+        await pause(450);
+      });
       await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true, animations: "disabled" });
     });
   }
