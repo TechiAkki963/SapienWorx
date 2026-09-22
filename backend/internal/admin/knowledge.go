@@ -17,9 +17,9 @@ var knowledgeUUID = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-
 
 var knowledgeImages = map[string]bool{
 	"/images/people/candidate-signup.webp":    true,
-	"/images/people/recruiter-review.webp":    true,
+	"/images/people/recruiter-signup.webp":    true,
 	"/images/people/candidate-login.webp":     true,
-	"/images/people/recruiter-workspace.webp": true,
+	"/images/people/auth-recruiter.webp":     true,
 	"/images/people/candidate-dashboard.webp": true,
 	"/images/people/recruiter-team.webp":      true,
 	"/images/people/sapien-employer.webp":     true,
