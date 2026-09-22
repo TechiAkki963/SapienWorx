@@ -110,10 +110,11 @@ export default function HomePage() {
                 <select id="home-experience" name="experience" defaultValue="" className="min-h-12 w-full rounded-xl border border-line bg-[#f8fbff] px-4 text-sm text-ink outline-none focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10">
                   <option value="">Any experience</option>
                   <option value="0">Fresher / 0 years</option>
-                  <option value="1">1–2 years</option>
-                  <option value="3">3–5 years</option>
-                  <option value="5">5–8 years</option>
-                  <option value="8">8–10 years</option>
+                  <option value="1">1 year</option>
+                  <option value="2">2 years</option>
+                  <option value="3">3 years</option>
+                  <option value="5">5 years</option>
+                  <option value="8">8 years</option>
                   <option value="10">10+ years</option>
                 </select>
               </div>
@@ -236,7 +237,7 @@ export default function HomePage() {
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">Ready for what’s next?</p>
                 <h2 className="mt-3 max-w-xl font-serif text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Your next chapter starts here.</h2>
                 <p className="mt-4 max-w-lg text-sm leading-6 text-white/78">Create your free account and get one step closer to a more meaningful career.</p>
-                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup" >Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
+                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup">Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
                 <p className="absolute bottom-6 right-7 hidden -rotate-5 font-serif text-xl italic leading-tight text-white/75 sm:block">Same people.<br />Bigger possibilities.</p>
               </div>
             </div>
