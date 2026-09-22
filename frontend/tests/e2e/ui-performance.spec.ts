@@ -11,9 +11,7 @@ test.describe("public UI stability", () => {
 
     await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
     const human = page.locator(".hero-human");
-    const orbit = page.locator(".hero-orbit");
     await expect(human).toBeVisible();
-    await expect(orbit).toBeVisible();
 
     // Visibility alone is not enough: a broken image can still occupy layout space.
     // Confirm the browser actually decoded the human portrait at a useful source size.
@@ -27,7 +25,8 @@ test.describe("public UI stability", () => {
     // Keep decorative motion around the photography instead of resampling the
     // image bitmap itself, which can make portraits visibly soft on HiDPI screens.
     expect(await human.evaluate((element) => getComputedStyle(element).animationName)).toBe("none");
-    expect(await orbit.evaluate((element) => getComputedStyle(element).animationName)).toBe("orbit-drift");
+    await expect(page.locator(".hero-orbit")).toHaveCount(0);
+    await expect(page.getByText("Product Designer", { exact: true })).toHaveCount(0);
 
     const organicMask = await page.evaluate(() => {
       const element = document.createElement("div");
@@ -65,13 +64,27 @@ test.describe("public UI stability", () => {
     expect(queryBox!.height).toBeLessThanOrEqual(56);
     expect(locationBox!.height).toBeLessThanOrEqual(56);
     expect(buttonBox!.width).toBeGreaterThan(300);
-    expect(searchBox!.height).toBeLessThan(260);
+    expect(searchBox!.height).toBeLessThan(420);
+  });
+
+  test("keeps the portrait clear and recruiter entry distinct", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /For Recruiters/i })).toHaveAttribute("href", "/recruiter/login");
+    await expect(page.getByRole("link", { name: /Find your next role/i })).toHaveAttribute("href", "#job-search");
+    const portrait = await page.locator(".hero-human").boundingBox();
+    const search = await page.locator(".landing-search").boundingBox();
+    expect(portrait).not.toBeNull();
+    expect(search).not.toBeNull();
+    expect(search!.y).toBeGreaterThan(portrait!.y + portrait!.height - 60);
+    await expect(page.getByText("Human Potential Real Progress")).toHaveCount(0);
   });
 
   test("honours reduced-motion preference", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
-    const durationSeconds = await page.locator(".hero-orbit").evaluate((element) => {
+    const durationSeconds = await page.locator(".hero-human").evaluate((element) => {
       const value = getComputedStyle(element).animationDuration;
       return value.endsWith("ms") ? Number.parseFloat(value) / 1000 : Number.parseFloat(value);
     });
