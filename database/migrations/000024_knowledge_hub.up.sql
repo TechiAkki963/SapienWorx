@@ -12,6 +12,7 @@ CREATE TABLE knowledge_articles (
   author_name varchar(120) NOT NULL DEFAULT 'SapienWorx Editorial',
   status varchar(12) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published')),
   featured_order integer NOT NULL DEFAULT 0 CHECK (featured_order >= 0),
+  revision integer NOT NULL DEFAULT 1 CHECK (revision > 0),
   published_at timestamptz,
   created_by uuid REFERENCES users(id) ON DELETE SET NULL,
   updated_by uuid REFERENCES users(id) ON DELETE SET NULL,
