@@ -57,6 +57,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("GET /api/v1/jobs/{jobID}", s.getJob)
 	mux.HandleFunc("GET /api/v1/profiles/{token}", s.publicCandidateProfile)
 	mux.HandleFunc("GET /api/v1/privacy/subprocessors", s.publicSubprocessors)
+	mux.HandleFunc("GET /api/v1/knowledge", s.knowledgeIndex)
+	mux.HandleFunc("GET /api/v1/knowledge/{slug}", s.knowledgeArticle)
 
 	protected := Authenticate(tokens, cfg.Auth.AccessCookieName)
 	candidateOnly := RequireRoles(auth.RoleCandidate)
@@ -140,6 +142,9 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/jobs", Chain(http.HandlerFunc(s.adminJobs), adminOnly))
 	mux.Handle("POST /api/v1/admin/jobs/{jobID}/takedown", Chain(http.HandlerFunc(s.adminTakedownJob), adminOnly))
 	mux.Handle("GET /api/v1/admin/audit-logs", Chain(http.HandlerFunc(s.adminAuditLogs), adminOnly))
+	mux.Handle("GET /api/v1/admin/knowledge", Chain(http.HandlerFunc(s.adminKnowledge), adminOnly))
+	mux.Handle("POST /api/v1/admin/knowledge", Chain(http.HandlerFunc(s.adminKnowledge), adminOnly))
+	mux.Handle("PUT /api/v1/admin/knowledge/{articleID}", Chain(http.HandlerFunc(s.adminKnowledgeArticle), adminOnly))
 	mux.Handle("GET /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminOnly))
 	mux.Handle("PATCH /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminOnly))
 	mux.Handle("GET /api/v1/admin/privacy/requests", Chain(http.HandlerFunc(s.adminPrivacyRequests), adminOnly))
