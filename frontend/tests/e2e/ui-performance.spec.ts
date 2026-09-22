@@ -94,6 +94,8 @@ test.describe("public UI stability", () => {
   test("keeps mobile navigation and candidate signup reachable", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto("/");
+    await expect(page.getByRole("link", { name: /Join/ })).toBeVisible();
+    await expect(page.getByText("Menu", { exact: false })).toBeVisible();
     await page.getByText("Menu", { exact: false }).click();
     const nav = page.getByRole("navigation", { name: "Mobile navigation" });
     await expect(nav.getByRole("link", { name: "Find Jobs" })).toBeVisible();
@@ -109,6 +111,16 @@ test.describe("public UI stability", () => {
       await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
+      // Motion sections render on intersection; scroll through the document before
+      // taking the full-page visual review screenshot so no sections are blank.
+      await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
+      const height = await page.evaluate(() => document.documentElement.scrollHeight);
+      for (let y = 0; y < height; y += 650) {
+        await page.evaluate((offset) => window.scrollTo(0, offset), y);
+        await page.waitForTimeout(65);
+      }
+      await page.waitForTimeout(750);
+      await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: `test-results/visual/landing-${width}.png`, fullPage: true });
     });
   }
