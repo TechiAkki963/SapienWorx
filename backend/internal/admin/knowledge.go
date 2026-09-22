@@ -14,15 +14,17 @@ import (
 
 var knowledgeSlug = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 var knowledgeUUID = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+
 var knowledgeImages = map[string]bool{
-	"/images/people/candidate-signup.webp":    true,
-	"/images/people/recruiter-review.webp":    true,
-	"/images/people/candidate-login.webp":     true,
-	"/images/people/recruiter-workspace.webp": true,
-	"/images/people/candidate-dashboard.webp": true,
-	"/images/people/recruiter-team.webp":      true,
-	"/images/people/sapien-employer.webp":     true,
+	"/images/people/candidate-signup.webp":     true,
+	"/images/people/recruiter-review.webp":     true,
+	"/images/people/candidate-login.webp":      true,
+	"/images/people/recruiter-workspace.webp":  true,
+	"/images/people/candidate-dashboard.webp":  true,
+	"/images/people/recruiter-team.webp":       true,
+	"/images/people/sapien-employer.webp":      true,
 }
+
 var knowledgeCategories = map[string]bool{
 	"Resume & Profile":       true,
 	"Interview Preparation":  true,
@@ -79,6 +81,7 @@ func validateKnowledge(in KnowledgeInput) (KnowledgeInput, error) {
 	in.ImageAlt = strings.TrimSpace(in.ImageAlt)
 	in.AuthorName = strings.TrimSpace(in.AuthorName)
 	in.Status = strings.TrimSpace(in.Status)
+
 	if in.AuthorName == "" {
 		in.AuthorName = "SapienWorx Editorial"
 	}
@@ -103,7 +106,11 @@ const knowledgeColumns = `id::text,slug,title,category,excerpt,body,image_path,i
 
 func scanKnowledge(row pgx.Row) (KnowledgeArticle, error) {
 	var a KnowledgeArticle
-	err := row.Scan(&a.ID, &a.Slug, &a.Title, &a.Category, &a.Excerpt, &a.Body, &a.ImagePath, &a.ImageAlt, &a.AuthorName, &a.Status, &a.FeaturedOrder, &a.Revision, &a.PublishedAt, &a.CreatedAt, &a.UpdatedAt)
+	err := row.Scan(
+		&a.ID, &a.Slug, &a.Title, &a.Category, &a.Excerpt, &a.Body, &a.ImagePath,
+		&a.ImageAlt, &a.AuthorName, &a.Status, &a.FeaturedOrder, &a.Revision,
+		&a.PublishedAt, &a.CreatedAt, &a.UpdatedAt,
+	)
 	return a, err
 }
 
@@ -135,6 +142,7 @@ func (s *Service) PublishedKnowledge(ctx context.Context, category string) (Know
 }
 
 func (s *Service) PublishedKnowledgeArticle(ctx context.Context, slug string) (KnowledgeArticle, error) {
+	slug = strings.TrimSpace(slug)
 	if !knowledgeSlug.MatchString(slug) {
 		return KnowledgeArticle{}, ErrNotFound
 	}
@@ -165,9 +173,11 @@ func (s *Service) CreateKnowledge(ctx context.Context, in KnowledgeInput, adminI
 		return KnowledgeArticle{}, err
 	}
 	defer tx.Rollback(ctx)
+
 	a, err := scanKnowledge(tx.QueryRow(ctx, `INSERT INTO knowledge_articles(slug,title,category,excerpt,body,image_path,image_alt,author_name,status,featured_order,published_at,created_by,updated_by)
  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,CASE WHEN $9='published' THEN now() ELSE NULL END,$11,$11) RETURNING `+knowledgeColumns,
-		in.Slug, in.Title, in.Category, in.Excerpt, in.Body, in.ImagePath, in.ImageAlt, in.AuthorName, in.Status, in.FeaturedOrder, adminID))
+		in.Slug, in.Title, in.Category, in.Excerpt, in.Body, in.ImagePath, in.ImageAlt,
+		in.AuthorName, in.Status, in.FeaturedOrder, adminID))
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -175,9 +185,13 @@ func (s *Service) CreateKnowledge(ctx context.Context, in KnowledgeInput, adminI
 		}
 		return KnowledgeArticle{}, err
 	}
+
 	id := a.ID
-	err = insertAuditTx(ctx, tx, AuditInput{AdminID: &adminID, ActionType: "knowledge.created", TargetEntityType: "knowledge_article", TargetEntityID: &id, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"slug": a.Slug, "status": a.Status}})
-	if err != nil {
+	if err = insertAuditTx(ctx, tx, AuditInput{
+		AdminID: &adminID, ActionType: "knowledge.created", TargetEntityType: "knowledge_article",
+		TargetEntityID: &id, IPAddress: ip, RequestID: requestID,
+		Metadata: map[string]any{"slug": a.Slug, "status": a.Status},
+	}); err != nil {
 		return KnowledgeArticle{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -191,14 +205,17 @@ func (s *Service) UpdateKnowledge(ctx context.Context, id string, in KnowledgeIn
 	if err != nil {
 		return KnowledgeArticle{}, err
 	}
+	id = strings.TrimSpace(id)
 	if in.Revision < 1 || !knowledgeUUID.MatchString(id) {
 		return KnowledgeArticle{}, ErrInvalid
 	}
+
 	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return KnowledgeArticle{}, err
 	}
 	defer tx.Rollback(ctx)
+
 	var oldRevision int
 	err = tx.QueryRow(ctx, `SELECT revision FROM knowledge_articles WHERE id=$1::uuid FOR UPDATE`, id).Scan(&oldRevision)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -210,9 +227,11 @@ func (s *Service) UpdateKnowledge(ctx context.Context, id string, in KnowledgeIn
 	if oldRevision != in.Revision {
 		return KnowledgeArticle{}, ErrKnowledgeConflict
 	}
+
 	a, err := scanKnowledge(tx.QueryRow(ctx, `UPDATE knowledge_articles SET slug=$2,title=$3,category=$4,excerpt=$5,body=$6,image_path=$7,image_alt=$8,author_name=$9,status=$10,featured_order=$11,revision=revision+1,updated_by=$12,
  published_at=CASE WHEN $10='published' THEN COALESCE(published_at,now()) ELSE NULL END WHERE id=$1::uuid RETURNING `+knowledgeColumns,
-		id, in.Slug, in.Title, in.Category, in.Excerpt, in.Body, in.ImagePath, in.ImageAlt, in.AuthorName, in.Status, in.FeaturedOrder, adminID))
+		id, in.Slug, in.Title, in.Category, in.Excerpt, in.Body, in.ImagePath, in.ImageAlt,
+		in.AuthorName, in.Status, in.FeaturedOrder, adminID))
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -220,9 +239,13 @@ func (s *Service) UpdateKnowledge(ctx context.Context, id string, in KnowledgeIn
 		}
 		return KnowledgeArticle{}, err
 	}
+
 	id = a.ID
-	err = insertAuditTx(ctx, tx, AuditInput{AdminID: &adminID, ActionType: "knowledge.updated", TargetEntityType: "knowledge_article", TargetEntityID: &id, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"slug": a.Slug, "status": a.Status, "revision": a.Revision}})
-	if err != nil {
+	if err = insertAuditTx(ctx, tx, AuditInput{
+		AdminID: &adminID, ActionType: "knowledge.updated", TargetEntityType: "knowledge_article",
+		TargetEntityID: &id, IPAddress: ip, RequestID: requestID,
+		Metadata: map[string]any{"slug": a.Slug, "status": a.Status, "revision": a.Revision},
+	}); err != nil {
 		return KnowledgeArticle{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
