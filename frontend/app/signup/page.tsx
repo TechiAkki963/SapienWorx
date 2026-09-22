@@ -14,7 +14,7 @@ export default function CandidateSignupPage() {
       eyebrow="Candidate registration"
       panelLabel="Start your next chapter"
       title="Build a profile that represents the person behind the résumé."
-      description="Create your SapienWorx candidate account, verify your mobile number and start a more thoughtful job search."
+      description="Create your SapienWorx candidate account, verify your email address and start a more thoughtful job search."
       features={candidateFeatures}
       image="/images/people/candidate-signup.webp"
       imageAlt="Candidate getting ready to build her professional profile"
