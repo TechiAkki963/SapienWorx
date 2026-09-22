@@ -214,7 +214,7 @@ const server = http.createServer(async (req, res) => {
       .sort((a,b) => a.featured_order - b.featured_order);
     return json(res,200,{items,total:items.length});
   }
-  const publicKnowledge = url.pathname.match(/^\\/api\\/v1\\/knowledge\\/([a-z0-9-]+)$/);
+  const publicKnowledge = url.pathname.match(/^\/api\/v1\/knowledge\/([a-z0-9-]+)$/);
   if (publicKnowledge && req.method === "GET") {
     const article = state.knowledge.find(a => a.slug === publicKnowledge[1] && a.status === "published");
     return article ? json(res,200,article) : json(res,404,{error:{message:"Article not found"}});
@@ -231,7 +231,7 @@ const server = http.createServer(async (req, res) => {
       state.knowledge.unshift(article);
       return json(res,201,article);
     }
-    const match = url.pathname.match(/^\\/api\\/v1\\/admin\\/knowledge\\/([^/]+)$/);
+    const match = url.pathname.match(/^\/api\/v1\/admin\/knowledge\/([^/]+)$/);
     if (match && req.method === "PUT") {
       const article = state.knowledge.find(a=>a.id===match[1]);
       if (!article) return json(res,404,{error:{message:"Article not found"}});
