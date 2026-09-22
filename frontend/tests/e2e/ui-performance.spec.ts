@@ -107,11 +107,16 @@ test.describe("public UI stability", () => {
         const step = Math.max(500, window.innerHeight * 0.8);
         for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
           window.scrollTo(0, y);
-          await pause(55);
+          await pause(185);
         }
         window.scrollTo(0, 0);
         await pause(450);
       });
+      // Detect incomplete/lazy-loaded editorial covers instead of accepting
+      // blank screenshot cards as a successful visual regression capture.
+      await expect.poll(async () => page.locator("#knowledge-hub article img").evaluateAll(images =>
+        images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0),
+      )).toBe(true);
       await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true, animations: "disabled" });
     });
   }
