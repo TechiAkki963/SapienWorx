@@ -109,6 +109,7 @@ test.describe("public UI stability", () => {
       await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
+      await page.screenshot({ path: `test-results/visual/landing-${width}.png`, fullPage: true });
     });
   }
 
