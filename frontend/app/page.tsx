@@ -1,238 +1,186 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import { Container } from "@/components/layout/container";
 import { KnowledgeCard } from "@/components/site/knowledge-card";
-import { publicAPI } from "@/lib/candidate-server";
-import type { KnowledgeList } from "@/lib/knowledge";
+import { CareerPreview } from "@/components/site/career-preview";
 import { HumanJourneyCard } from "@/components/site/human-journey-card";
 import { PublicFooter } from "@/components/site/public-footer";
 import { PublicHeader } from "@/components/site/public-header";
 import { Button } from "@/components/ui/button";
+import { publicAPI } from "@/lib/candidate-server";
+import type { KnowledgeList } from "@/lib/knowledge";
 
-const people = {
+const images = {
   hero: "/images/people/sapien-hero-candidate.webp",
-  recruiter: "/images/people/sapien-recruiter.webp",
-  talent: "/images/people/sapien-talent.webp",
-  workplace: "/images/people/sapien-workplace.webp",
-  employer: "/images/people/sapien-employer.webp",
+  discover: "/images/people/sapien-recruiter.webp",
+  grow: "/images/people/candidate-dashboard.webp",
+  belong: "/images/people/recruiter-team.webp",
 };
 
 const journey = [
   {
-    title: "Discover",
-    eyebrow: "Find your fit",
+    title: "Discover", eyebrow: "Find your fit",
     body: "Find roles that match your skills, goals and values.",
-    image: people.recruiter,
-    alt: "Approachable professional in a softly lit modern workplace",
-    tone: "blue" as const,
+    image: images.discover, alt: "Professional exploring career opportunities",
+    href: "/jobs", action: "Explore jobs", tone: "blue" as const,
   },
   {
-    title: "Grow",
-    eyebrow: "Build new skills",
-    body: "Access resources, insights and a community that helps you move forward.",
-    image: "/images/people/candidate-dashboard.webp",
-    alt: "Professional working with a computer in a bright workspace",
-    tone: "mint" as const,
+    title: "Grow", eyebrow: "Build new skills",
+    body: "Access resources, insights and guidance that help you move forward.",
+    image: images.grow, alt: "Professional working on career skills",
+    href: "/knowledge-hub", action: "Build new skills", tone: "mint" as const,
   },
   {
-    title: "Belong",
-    eyebrow: "Be part of something",
+    title: "Belong", eyebrow: "Be part of something",
     body: "Join a more human professional network built around people, not profiles.",
-    image: "/images/people/recruiter-team.webp",
-    alt: "Professional team in a collaborative workplace",
-    tone: "peach" as const,
+    image: images.belong, alt: "Professional team collaborating in a bright office",
+    href: "/signup", action: "Be part of something", tone: "peach" as const,
   },
 ];
 
-const proof = [
-  ["Clear", "application stages"],
-  ["Real", "published opportunities"],
-  ["Human", "candidate profiles"],
-  ["Useful", "recruiter context"],
+const capabilities = [
+  { icon: "⌕", title: "Find relevant jobs", body: "Explore opportunities that match your ambitions." },
+  { icon: "♙", title: "Build your profile", body: "Showcase your experience, skills and projects." },
+  { icon: "◷", title: "Track applications", body: "Stay informed as your journey progresses." },
+  { icon: "▤", title: "Keep learning", body: "Explore practical guides in the Knowledge Hub." },
 ];
-
-const communityPeople = [people.hero, people.recruiter, people.talent, people.employer];
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   let knowledge: KnowledgeList | null = null;
-  try { knowledge = await publicAPI<KnowledgeList>("/api/v1/knowledge"); } catch {}
+  try {
+    knowledge = await publicAPI<KnowledgeList>("/api/v1/knowledge");
+  } catch {
+    // Do not fabricate articles when the live publishing service is unavailable.
+  }
+  const articles = knowledge?.items ?? [];
+  const featured = articles[0];
+  const remaining = articles.slice(1, 4);
+
   return (
-    <main id="main-content" className="min-h-screen overflow-hidden bg-white">
+    <main id="main-content" className="min-h-screen overflow-x-clip bg-white">
       <PublicHeader />
 
-      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f7fbff_0%,#ffffff_78%,#ffffff_100%)]">
+      <section className="relative bg-[linear-gradient(125deg,#eff7ff_0%,#ffffff_58%,#eaf4ff_100%)]" aria-labelledby="home-title">
         <Container>
-          <div className="grid items-center gap-10 pb-6 pt-10 lg:grid-cols-[0.98fr_1.02fr] lg:gap-16 lg:pt-14">
-            <div className="relative z-20 max-w-[42rem]">
-              <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-indigo">People. Work. Forward.</p>
-              <h1 className="mt-5 text-balance font-serif text-[clamp(3.25rem,6vw,5.9rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-navy">
+          <div className="grid min-w-0 gap-x-8 pb-12 pt-9 sm:pt-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center lg:gap-x-12 lg:pb-14 lg:pt-16">
+            <div className="order-1 relative z-20 min-w-0 lg:self-start lg:pt-9">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-indigo">People. Work. Forward.</p>
+              <h1 id="home-title" className="mt-4 max-w-[38rem] text-balance font-serif text-[clamp(3.1rem,6.1vw,5.7rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-navy">
                 Find work that feels <span className="italic text-indigo">right for you.</span>
               </h1>
-              <p className="mt-6 max-w-[36rem] text-[17px] leading-7 text-ink-muted">
+              <p className="mt-5 max-w-[33rem] text-[15px] leading-7 text-ink-muted sm:text-[17px]">
                 Search meaningful opportunities, understand the role clearly and move through your career journey with more confidence.
               </p>
-              <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Button href="/jobs" size="lg">Explore jobs <span aria-hidden="true">→</span></Button>
-                <Button href="/signup" size="lg" variant="secondary">Create your profile</Button>
-              </div>
-              <p className="mt-5 text-sm text-ink-muted">
-                Recruiter or hiring team? <a className="font-bold text-navy underline decoration-indigo/30 underline-offset-4 hover:text-indigo" href="/recruiter/login">Go to Recruiter Workspace →</a>
-              </p>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[39rem]">
-              <div className="relative min-h-[28rem] sm:min-h-[34rem] lg:min-h-[37rem]">
-                <div className="absolute inset-x-[7%] bottom-0 top-0 overflow-hidden rounded-[2.75rem] bg-[#eaf3ff] shadow-soft">
-                  <Image
-                    src={people.hero}
-                    alt="Professional smiling in a softly lit modern office"
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 100vw, 48vw"
-                    className="hero-human object-cover object-center"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#071d49]/12 via-transparent to-white/8" aria-hidden="true" />
-                </div>
-                <div className="absolute bottom-5 left-0 z-20 max-w-[14rem] rounded-2xl border border-white/90 bg-white/95 p-4 shadow-card backdrop-blur">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Candidate-first</p>
-                  <p className="mt-2 font-serif text-xl font-semibold leading-tight text-navy">Clear opportunities. Less noise.</p>
-                  <p className="mt-2 text-xs leading-5 text-ink-muted">Search, apply and track your progress in one place.</p>
-                </div>
+            <div className="order-3 relative mt-6 min-w-0 lg:order-2 lg:col-start-2 lg:row-start-1 lg:mt-0">
+              <div className="relative h-[18rem] w-full overflow-hidden rounded-[1.5rem] bg-[#dcecff] shadow-soft sm:h-[24rem] lg:h-[29rem] xl:h-[32rem]">
+                <Image
+                  src={images.hero}
+                  alt="Smiling professional in a softly lit workplace"
+                  fill priority sizes="(max-width: 1023px) 100vw, 52vw"
+                  className="hero-human object-cover object-[50%_38%]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071d49]/10 via-transparent to-transparent" aria-hidden="true" />
+              </div>
+              <div className="absolute bottom-4 left-4 z-20 max-w-[13.5rem] rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:bottom-6 sm:left-6 lg:bottom-10">
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">A more human way</span>
+                <p className="mt-1 font-serif text-lg font-semibold leading-tight text-navy">Real opportunities. A brighter you.</p>
+                <p className="mt-1 text-xs leading-[1.4] text-ink-muted">Find roles, grow skills and build the career you want.</p>
               </div>
             </div>
-          </div>
 
-          <div className="relative z-30 pb-12 lg:pb-14">
-            <form action="/jobs" className="landing-search-panel grid gap-3 rounded-[1.6rem] border border-line/80 bg-white p-3 shadow-[0_18px_50px_rgb(18_54_104_/_0.11)] md:grid-cols-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)_minmax(0,0.95fr)_auto]" role="search">
-              <div className="min-w-0">
-                <label className="mb-1.5 block px-1 text-[11px] font-extrabold uppercase tracking-[0.12em] text-navy/60" htmlFor="home-q">Role or skill</label>
-                <input id="home-q" name="q" className="min-h-12 w-full rounded-xl border border-line bg-[#f8fbff] px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="e.g. Software Engineer" />
-              </div>
-
-              <div className="min-w-0">
-                <label className="mb-1.5 block px-1 text-[11px] font-extrabold uppercase tracking-[0.12em] text-navy/60" htmlFor="home-experience">Experience</label>
-                <select id="home-experience" name="experience" defaultValue="" className="min-h-12 w-full rounded-xl border border-line bg-[#f8fbff] px-4 text-sm text-ink outline-none focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10">
-                  <option value="">Any experience</option>
-                  <option value="0">Fresher / 0 years</option>
-                  <option value="1">1 year</option>
-                  <option value="2">2 years</option>
-                  <option value="3">3 years</option>
-                  <option value="5">5 years</option>
-                  <option value="8">8 years</option>
-                  <option value="10">10+ years</option>
-                </select>
-              </div>
-
-              <div className="min-w-0">
-                <label className="mb-1.5 block px-1 text-[11px] font-extrabold uppercase tracking-[0.12em] text-navy/60" htmlFor="home-location">Location</label>
-                <input id="home-location" name="location" className="min-h-12 w-full rounded-xl border border-line bg-[#f8fbff] px-4 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="City, country or remote" />
-              </div>
-
-              <div className="flex items-end">
-                <button className="min-h-12 w-full rounded-xl bg-indigo px-6 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2 xl:w-auto" type="submit">
+            <div className="order-2 relative z-30 mt-6 min-w-0 lg:order-3 lg:col-span-2 lg:-mt-20 lg:max-w-[56rem]">
+              <form action="/jobs" className="landing-search-panel grid min-w-0 gap-3 rounded-2xl border border-line/80 bg-white p-3 shadow-[0_17px_48px_rgb(18_54_104_/_0.13)] sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_auto] lg:items-end" role="search">
+                <div className="min-w-0">
+                  <label className="mb-1.5 block px-1 text-[11px] font-extrabold text-navy/70" htmlFor="home-q">Role or skill</label>
+                  <input id="home-q" name="q" className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-[#f8fbff] px-3 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="e.g. Software Engineer" />
+                </div>
+                <div className="min-w-0">
+                  <label className="mb-1.5 block px-1 text-[11px] font-extrabold text-navy/70" htmlFor="home-experience">Experience</label>
+                  <select id="home-experience" name="experience" defaultValue="" className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-[#f8fbff] px-3 text-sm text-ink outline-none focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10">
+                    <option value="">Any experience</option>
+                    {Array.from({ length: 10 }, (_, year) => <option key={year} value={year}>{year === 0 ? "Fresher / 0 years" : year === 1 ? "1 year" : year + " years"}</option>)}
+                    <option value="10">10+ years</option>
+                  </select>
+                </div>
+                <div className="min-w-0">
+                  <label className="mb-1.5 block px-1 text-[11px] font-extrabold text-navy/70" htmlFor="home-location">Location</label>
+                  <input id="home-location" name="location" className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-[#f8fbff] px-3 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="City or country" />
+                </div>
+                <button className="min-h-12 w-full rounded-xl bg-indigo px-6 text-sm font-bold text-white shadow-sm transition hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2 sm:col-span-2 lg:col-span-1 lg:w-auto" type="submit">
                   Search jobs <span aria-hidden="true">→</span>
                 </button>
+              </form>
+              <nav className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-muted" aria-label="Popular job searches">
+                <span>Popular:</span>
+                <Link className="rounded-full border border-line bg-white px-3 py-1.5 hover:border-indigo/40 hover:bg-indigo-soft" href="/jobs?q=Software+Engineer">Software Engineer</Link>
+                <Link className="rounded-full border border-line bg-white px-3 py-1.5 hover:border-indigo/40 hover:bg-indigo-soft" href="/jobs?q=Product+Manager">Product Manager</Link>
+                <Link className="rounded-full border border-line bg-white px-3 py-1.5 hover:border-indigo/40 hover:bg-indigo-soft" href="/jobs?q=Data+Analyst">Data Analyst</Link>
+                <Link className="rounded-full border border-line bg-white px-3 py-1.5 hover:border-indigo/40 hover:bg-indigo-soft" href="/jobs?work_mode=remote">Remote</Link>
+              </nav>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section id="how-it-works" className="bg-white py-14 sm:py-20" aria-labelledby="journey-title">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-indigo">More than a job board</p>
+            <h2 id="journey-title" className="mt-3 text-balance font-serif text-[clamp(2.45rem,4.6vw,4rem)] font-semibold leading-[1.05] tracking-[-0.05em] text-navy">A career partner for what&apos;s next.</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-ink-muted sm:text-base">From your first job to your next big move, SapienWorx is built to support your journey at every step.</p>
+          </div>
+          <div className="mt-8 grid gap-5 md:grid-cols-3 lg:mt-10">
+            {journey.map((item, index) => <HumanJourneyCard key={item.title} {...item} delay={index * 0.06} />)}
+          </div>
+        </Container>
+      </section>
+
+      <section id="knowledge-hub" className="border-y border-line/60 bg-[linear-gradient(135deg,#f0f7ff_0%,#f6fbff_55%,#edf8f5_100%)] py-14 sm:py-20" aria-labelledby="knowledge-title">
+        <Container>
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div className="min-w-0">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-indigo">SapienWorx Knowledge Hub</p>
+              <h2 id="knowledge-title" className="mt-3 max-w-3xl text-balance font-serif text-[clamp(2.3rem,4.5vw,4rem)] font-semibold leading-[1.06] tracking-[-0.05em] text-navy">Practical advice for a brighter career.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-muted sm:text-base">Guidance on résumés, interviews, building skills and working alongside AI.</p>
+            </div>
+            <Link href="/knowledge-hub" className="inline-flex min-h-11 shrink-0 items-center justify-center self-start rounded-full border border-indigo/30 bg-white px-5 text-sm font-bold text-indigo transition hover:bg-indigo-soft md:self-auto">Explore Knowledge Hub <span className="ml-1.5" aria-hidden="true">→</span></Link>
+          </div>
+          {featured && (
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr_1fr]" aria-label="Featured career guides">
+              <KnowledgeCard article={featured} featured />
+              {remaining.map(article => <KnowledgeCard key={article.id} article={article} />)}
+            </div>
+          )}
+          {!featured && <div role="status" className="mt-8 rounded-xl border border-line bg-white p-6 text-sm text-ink-muted">Career guides are temporarily unavailable. Please check back shortly.</div>}
+        </Container>
+      </section>
+
+      <section id="about" className="overflow-hidden bg-[linear-gradient(120deg,#eff7ff_0%,#ffffff_55%,#eaf4ff_100%)] py-14 sm:py-20" aria-labelledby="product-title">
+        <Container>
+          <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12">
+            <div className="min-w-0">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-indigo">Built for your next chapter</p>
+              <h2 id="product-title" className="mt-3 max-w-[35rem] text-balance font-serif text-[clamp(2.5rem,4.6vw,4.4rem)] font-semibold leading-[1.04] tracking-[-0.05em] text-navy">Your career journey, all in one place.</h2>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-ink-muted sm:text-base">More than job search. Discover opportunities, build your profile, follow your progress and keep learning — all with SapienWorx.</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button href="/signup">Create Account <span aria-hidden="true">→</span></Button>
+                <Button href="/jobs" variant="secondary">Explore Jobs</Button>
               </div>
-            </form>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-muted">
-              <span>Popular:</span>
-              <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?q=Software+Engineer">Software Engineer</a>
-              <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?q=Product+Manager">Product Manager</a>
-              <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?q=Data+Analyst">Data Analyst</a>
-              <a className="rounded-full border border-line bg-white px-3 py-1.5 transition hover:border-indigo/30 hover:bg-indigo-soft/55" href="/jobs?work_mode=remote">Remote</a>
             </div>
+            <CareerPreview />
           </div>
-        </Container>
-      </section>
-
-      <section className="border-y border-line/70 bg-white py-7" aria-label="Platform principles">
-        <Container>
-          <p className="text-center text-[10px] font-extrabold uppercase tracking-[0.22em] text-navy/55">Built for people building extraordinary careers</p>
-          <div className="mt-5 grid grid-cols-2 gap-3 text-center sm:grid-cols-4 lg:grid-cols-8">
-            {["Discover", "Profile", "Applications", "Saved Jobs", "Recruiters", "Interviews", "Offers", "Growth"].map((label) => (
-              <div key={label} className="rounded-xl px-2 py-2 text-xs font-bold text-navy/55">{label}</div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      <section id="how-it-works" className="relative bg-[linear-gradient(180deg,#ffffff_0%,#f9fcff_100%)] py-20 sm:py-24" aria-labelledby="journey-title">
-        <Container>
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 id="journey-title" className="text-balance font-serif text-[clamp(3rem,5vw,5rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-navy">
-              More than a job board.<br />A career partner.
-            </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-muted">From your first job to your next big move, SapienWorx is built to support your journey at every step.</p>
-            <a href="/knowledge-hub" className="mt-3 inline-flex text-sm font-bold text-indigo underline-offset-4 hover:underline">Explore career resources →</a>
-          </div>
-
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
-            {journey.map((item, index) => <HumanJourneyCard key={item.title} {...item} delay={index * 0.1} />)}
-          </div>
-        </Container>
-      </section>
-
-      <section id="knowledge-hub" className="border-y border-line/70 bg-[linear-gradient(130deg,#eef6ff_0%,#fff_55%,#eefaf5_100%)] py-16 sm:py-24" aria-labelledby="knowledge-title">
-        <Container>
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-indigo">SapienWorx Knowledge Hub</p>
-              <h2 id="knowledge-title" className="mt-4 max-w-3xl text-balance font-serif text-[clamp(2.6rem,5vw,4.4rem)] font-semibold leading-tight tracking-[-0.05em] text-navy">More than finding your next job. Be ready for it.</h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-ink-muted">Practical guidance on résumés, interviews, building skills and working alongside AI.</p>
-            </div>
-            <a href="/knowledge-hub" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-indigo/30 bg-white px-5 text-sm font-bold text-indigo transition hover:bg-indigo-soft">Explore Knowledge Hub →</a>
-          </div>
-          {knowledge && knowledge.items.length > 0 && <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">{knowledge.items.slice(0,4).map(article => <KnowledgeCard key={article.id} article={article} />)}</div>}
-          {!knowledge && <p className="mt-8 text-sm text-ink-muted" role="status">Articles are temporarily unavailable. Visit the Knowledge Hub again shortly.</p>}
-        </Container>
-      </section>
-
-      <section id="about" className="relative overflow-hidden bg-[#f8fbff] py-20 sm:py-24" aria-labelledby="people-title">
-        <div className="pointer-events-none absolute -left-16 top-24 h-48 w-48 rounded-full bg-[#deedff] blur-2xl" aria-hidden="true" />
-        <div className="pointer-events-none absolute -right-12 bottom-14 h-56 w-56 rounded-full bg-[#e9f5ff] blur-2xl" aria-hidden="true" />
-        <Container>
-          <div className="mx-auto max-w-4xl text-center">
-            <p className="font-serif text-lg italic text-indigo">Real stories. Real progress.</p>
-            <h2 id="people-title" className="mt-4 text-balance font-serif text-[clamp(2.9rem,5vw,4.8rem)] font-semibold leading-[0.96] tracking-[-0.052em] text-navy">People moving forward<br />with SapienWorx</h2>
-          </div>
-
-          <div className="mx-auto mt-10 max-w-4xl">
-            <div className="rounded-[2rem] border border-line/80 bg-white px-6 py-7 shadow-soft sm:px-9 sm:py-8">
-              <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
-                <Image
-                  src={people.employer}
-                  alt="Professional portrait representing the SapienWorx candidate-first experience"
-                  width={80}
-                  height={80}
-                  sizes="80px"
-                  className="h-20 w-20 object-cover shadow-sm"
-                  style={{ borderRadius: "44% 56% 51% 49% / 47% 42% 58% 53%" }}
-                />
+          <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {capabilities.map(item => (
+              <div key={item.title} className="flex items-start gap-3 rounded-xl border border-line/70 bg-white/90 p-4">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-soft text-lg text-indigo" aria-hidden="true">{item.icon}</span>
                 <div>
-                  <p className="font-serif text-xl italic leading-8 text-navy">“The best hiring experiences feel clear, respectful and human from the first search to the final conversation.”</p>
-                  <p className="mt-4 text-sm font-bold text-navy">The SapienWorx product principle</p>
-                  <p className="text-sm text-ink-muted">Candidate-first by design</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-center gap-1.5" aria-hidden="true"><span className="h-2 w-5 rounded-full bg-indigo" /><span className="h-2 w-2 rounded-full bg-line" /><span className="h-2 w-2 rounded-full bg-line" /></div>
-        </Container>
-      </section>
-
-      <section className="bg-white py-12 sm:py-14" aria-label="SapienWorx product principles">
-        <Container>
-          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
-            {proof.map(([value, label]) => (
-              <div key={value}>
-                <div className="text-center lg:text-left">
-                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-soft text-sm font-bold text-indigo lg:mx-0">✓</div>
-                  <p className="text-3xl font-extrabold tracking-[-0.04em] text-navy">{value}</p>
-                  <p className="mt-1 text-sm text-ink-muted">{label}</p>
+                  <h3 className="text-sm font-bold text-navy">{item.title}</h3>
+                  <p className="mt-1 text-xs leading-5 text-ink-muted">{item.body}</p>
                 </div>
               </div>
             ))}
@@ -241,26 +189,19 @@ export default async function HomePage() {
       </section>
 
       <Container>
-        <section className="pb-14 pt-5 sm:pb-16">
-          <div>
-            <div className="relative grid min-h-[21rem] overflow-hidden rounded-[2.1rem] bg-[linear-gradient(110deg,#0a5fe8_0%,#073a8f_100%)] text-white shadow-soft lg:grid-cols-[0.78fr_1.22fr]">
-              <div className="relative min-h-[18rem] overflow-hidden lg:min-h-full">
-                <Image
-                  src={people.recruiter}
-                  alt="Professional looking confidently ahead"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0a5fe8]/10 via-transparent to-[#073a8f]/75" aria-hidden="true" />
+        <section className="py-10 sm:py-14" aria-labelledby="final-cta-title">
+          <div className="relative overflow-hidden rounded-[1.8rem] bg-[linear-gradient(110deg,#0a5fe8_0%,#073a8f_100%)] px-6 py-10 text-white shadow-soft sm:px-10 sm:py-12 lg:px-14">
+            <div className="relative z-10 max-w-[43rem]">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/80">Ready for what&apos;s next?</p>
+              <h2 id="final-cta-title" className="mt-3 font-serif text-[clamp(2.1rem,4vw,3.6rem)] font-semibold leading-[1.05] tracking-[-0.045em]">Your next chapter starts here.</h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/85">Create your free account and get one step closer to a more meaningful career.</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button href="/signup" className="landing-cta-inverse">Create Account <span aria-hidden="true">→</span></Button>
+                <Button href="/jobs" className="border border-white/60 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button>
               </div>
-              <div className="relative z-10 flex flex-col justify-center p-8 sm:p-12">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">Ready for what’s next?</p>
-                <h2 className="mt-3 max-w-xl font-serif text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">Your next chapter starts here.</h2>
-                <p className="mt-4 max-w-lg text-sm leading-6 text-white/78">Create your free account and get one step closer to a more meaningful career.</p>
-                <div className="mt-7 flex flex-wrap gap-3"><Button href="/signup" className="landing-cta-inverse">Create Account →</Button><Button href="/jobs" className="border border-white/45 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button></div>
-                <p className="absolute bottom-6 right-7 hidden -rotate-5 font-serif text-xl italic leading-tight text-white/75 sm:block">Same people.<br />Bigger possibilities.</p>
-              </div>
+            </div>
+            <div className="pointer-events-none absolute -bottom-20 -right-16 hidden h-[22rem] w-[19rem] overflow-hidden rounded-full opacity-35 lg:block" aria-hidden="true">
+              <Image src={images.hero} alt="" fill sizes="304px" className="object-cover" />
             </div>
           </div>
         </section>
