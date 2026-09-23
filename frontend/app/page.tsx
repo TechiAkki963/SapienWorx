@@ -76,7 +76,7 @@ export default function HomePage() {
       </section>
 
       <section id="about" className="swx-section swx-journey" aria-labelledby="journey-title">
-        <Container>
+        <Container><span id="how-it-works" className="sr-only">How it works</span>
           <Reveal className="swx-section-heading">
             <p className="swx-eyebrow">More than a job board</p>
             <h2 id="journey-title" className="swx-display">A career partner for what’s next.</h2>
@@ -124,11 +124,11 @@ export default function HomePage() {
             <Reveal className="swx-product-copy">
               <p className="swx-eyebrow">Your journey, simplified</p>
               <h2 id="product-title" className="swx-display">Your career journey,<br />all in one place.</h2>
-              <p>Track your applications, save jobs, build new skills, and get personalized recommendations — everything you need to create the career you want.</p>
+              <p>Track your applications, save jobs, build new skills, and discover suggested opportunities — everything you need to create the career you want.</p>
               <div className="swx-actions"><Button href="/signup">Create Account <span aria-hidden="true">→</span></Button><Button href="/jobs" variant="secondary">Explore Jobs</Button></div>
             </Reveal>
             <Reveal className="swx-dashboard-wrap" delay={0.06}>
-              <div className="swx-dashboard" aria-label="Illustrative candidate workspace">
+              <div className="swx-dashboard" aria-label="Illustrative candidate workspace with sample data">
                 <div className="swx-dashboard-top"><strong><span>S</span> SapienWorx</strong><small>Good morning, Alex 👋</small></div>
                 <div className="swx-dashboard-grid">
                   <aside aria-hidden="true"><b>Overview</b><span>My Jobs</span><span>Applications</span><span>Saved</span><span>Learning</span><span>Profile</span></aside>
