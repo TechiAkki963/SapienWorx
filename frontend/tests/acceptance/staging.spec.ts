@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
 
 const candidate = {
   email: "candidate.demo@sapienworx.local",
@@ -19,6 +20,33 @@ async function signIn(page: import("@playwright/test").Page, role: "candidate" |
 }
 
 test.describe.serial("deployed staging acceptance", () => {
+  test("captures visual review of landing at phone, tablet and desktop sizes", async ({ page }) => {
+    await mkdir("visual-review", { recursive: true });
+    for (const width of [390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      const response = await page.goto("/");
+      expect(response?.status()).toBe(200);
+      await expect(page.getByRole("heading", { name: /Find work that feels right for you/i })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Knowledge Hub" })).toBeVisible();
+      const photographs = page.locator('img[src*="ChatGPT%20Image"]');
+      await expect(photographs).toHaveCount(8);
+      for (const photo of await photographs.all()) {
+        await photo.scrollIntoViewIfNeeded();
+        await expect.poll(() => photo.evaluate((image) => {
+          const element = image as HTMLImageElement;
+          return element.complete && element.naturalWidth >= 800 && element.naturalHeight >= 500;
+        })).toBe(true);
+      }
+      const overflow = await page.evaluate(() =>
+        document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+      await page.screenshot({ path: `visual-review/landing-${width}.jpg`, fullPage: true, type: "jpeg", quality: 82, animations: "disabled" });
+    }
+    await page.goto("/resources/build-a-resume");
+    await expect(page.getByRole("heading", { name: "Build a résumé that sounds like you" })).toBeVisible();
+    await page.screenshot({ path: "visual-review/knowledge-hub-guide.jpg", fullPage: true, type: "jpeg", quality: 82, animations: "disabled" });
+  });
+
   test("serves public SSR and seeded job data through the gateway", async ({ page }) => {
     const home = await page.goto("/");
     expect(home?.status()).toBe(200);

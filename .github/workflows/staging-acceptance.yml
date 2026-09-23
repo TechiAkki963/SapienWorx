@@ -143,6 +143,7 @@ jobs:
           path: |
             frontend/playwright-report/acceptance
             frontend/test-results
+            frontend/visual-review/
             performance/summary.json
             staging-container-status.txt
             staging-failure.log
