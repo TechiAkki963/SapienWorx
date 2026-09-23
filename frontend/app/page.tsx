@@ -68,7 +68,7 @@ export default async function HomePage() {
           <div className="grid min-w-0 gap-x-8 pb-12 pt-9 sm:pt-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center lg:gap-x-12 lg:pb-14 lg:pt-16">
             <div className="order-1 relative z-20 min-w-0 lg:self-start lg:pt-9">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-indigo">People. Work. Forward.</p>
-              <h1 id="home-title" className="mt-4 max-w-[38rem] text-balance font-serif text-[clamp(3.1rem,6.1vw,5.7rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-navy">
+              <h1 id="home-title" className="mt-4 max-w-[38rem] text-balance font-serif text-[clamp(3rem,5vw,4.7rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-navy">
                 Find work that feels <span className="italic text-indigo">right for you.</span>
               </h1>
               <p className="mt-5 max-w-[33rem] text-[15px] leading-7 text-ink-muted sm:text-[17px]">
@@ -77,7 +77,7 @@ export default async function HomePage() {
             </div>
 
             <div className="order-3 relative mt-6 min-w-0 lg:order-2 lg:col-start-2 lg:row-start-1 lg:mt-0">
-              <div className="relative h-[18rem] w-full overflow-hidden rounded-[1.5rem] bg-[#dcecff] shadow-soft sm:h-[24rem] lg:h-[29rem] xl:h-[32rem]">
+              <div className="relative h-[22rem] w-full overflow-hidden rounded-[1.5rem] bg-[#dcecff] shadow-soft sm:h-[24rem] lg:h-[29rem] xl:h-[32rem]">
                 <Image
                   src={images.hero}
                   alt="Smiling professional in a softly lit workplace"
@@ -90,10 +90,10 @@ export default async function HomePage() {
                 A more<br />human way<br />to work
                 <span className="mt-1 block h-0.5 w-8 rotate-[-5deg] bg-indigo/80" />
               </p>
-              <div className="absolute bottom-4 left-4 z-20 max-w-[13.5rem] rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:bottom-6 sm:left-6 lg:bottom-8 lg:left-auto lg:right-4">
+              <div className="absolute bottom-3 left-3 z-20 max-w-[12rem] rounded-2xl border border-white/90 bg-white/95 px-3 py-2.5 shadow-card backdrop-blur sm:bottom-6 sm:left-6 sm:max-w-[13.5rem] sm:px-4 sm:py-3 lg:bottom-8 lg:left-auto lg:right-4">
                 <span className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-soft text-indigo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><rect x="3.5" y="7" width="17" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3.5 12h17M10 12v2h4v-2"/></svg></span>
-                <p className="font-serif text-lg font-semibold leading-tight text-navy">Real opportunities.<br />A brighter you.</p>
-                <p className="mt-1.5 text-xs leading-[1.45] text-ink-muted">Find roles, grow your skills and build the career you want.</p>
+                <p className="font-serif text-base font-semibold leading-tight text-navy sm:text-lg">Real opportunities.<br />A brighter you.</p>
+                <p className="mt-1.5 hidden text-xs leading-[1.45] text-ink-muted sm:block">Find roles, grow your skills and build the career you want.</p>
               </div>
             </div>
 
