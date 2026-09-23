@@ -50,6 +50,15 @@ test.describe("public UI stability", () => {
     await expectStableLayout(page, 0.1);
   });
 
+  test("tablet header uses menu instead of wrapping desktop navigation", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.goto("/");
+    await expect(page.locator("header summary").getByText("Menu")).toBeVisible();
+    await expect(page.locator("header").getByRole("navigation", { name: "Primary navigation" })).toBeHidden();
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await expect(page.locator("header").getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
+  });
+
   test("desktop search does not cover the hero supporting card", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
