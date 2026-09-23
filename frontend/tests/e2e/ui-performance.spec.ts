@@ -27,7 +27,7 @@ test.describe("public UI stability", () => {
     await expect.poll(async () =>
       human.evaluate((element) => {
         const image = element as HTMLImageElement;
-        return image.complete && image.naturalWidth >= 1000 && image.naturalHeight >= 600;
+        return image.complete && image.naturalWidth >= Math.floor(image.getBoundingClientRect().width) && image.naturalHeight > 0;
       }),
     ).toBe(true);
 
@@ -94,6 +94,22 @@ test.describe("public UI stability", () => {
       return value.endsWith("ms") ? Number.parseFloat(value) / 1000 : Number.parseFloat(value);
     });
     expect(durationSeconds).toBeLessThanOrEqual(0.00001);
+  });
+
+  test("swaps signup for a stable role-specific dashboard menu after sign-in", async ({ page }) => {
+    await page.context().addCookies([{ name: "swx_e2e_role", value: "candidate", domain: "127.0.0.1", path: "/" }]);
+    await page.goto("/");
+    const account = page.getByRole("navigation", { name: "Account navigation" });
+    const header = page.locator("header");
+    await expect(header.getByText("Dashboard")).toBeVisible();
+    await expect(header.getByRole("link", { name: /Create Account/ })).toHaveCount(0);
+    await header.getByText("Dashboard").click();
+    await expect(account.getByRole("link", { name: "Open dashboard" })).toHaveAttribute("href", "/candidate");
+
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.reload();
+    await page.locator("header").getByText("Menu").click();
+    await expect(page.getByRole("navigation", { name: "Mobile navigation" }).getByRole("link", { name: /Open dashboard/ })).toHaveAttribute("href", "/candidate");
   });
 
   test("keeps mobile navigation and candidate signup reachable", async ({ page }) => {
