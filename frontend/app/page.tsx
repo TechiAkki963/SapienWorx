@@ -97,7 +97,7 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="order-2 relative z-30 mt-6 min-w-0 lg:order-3 lg:col-span-2 lg:-mt-20 lg:max-w-[56rem]">
+            <div className="order-2 relative z-30 mt-6 min-w-0 lg:order-3 lg:col-span-2 lg:-mt-20 lg:max-w-[60rem]">
               <form action="/jobs" className="landing-search-panel grid min-w-0 gap-3 rounded-2xl border border-line/80 bg-white p-3 shadow-[0_17px_48px_rgb(18_54_104_/_0.13)] sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_auto] lg:items-end" role="search">
                 <div className="min-w-0">
                   <label className="mb-1.5 block px-1 text-[11px] font-extrabold text-navy/70" htmlFor="home-q">Role or skill</label>
