@@ -80,8 +80,8 @@ Check important claims against primary information, especially when a recommenda
 Build skills that complement automation: clear communication, domain understanding, problem framing and the ability to notice when an answer is incomplete. Practise explaining not just what a tool produced, but why you accepted or rejected it.
 
 The goal is not to predict which jobs will disappear. It is to understand how your own work changes and make deliberate choices about where to build expertise.',
- '/images/people/auth-recruiter.webp',
- 'Professional team discussing work and technology together',4,'published',now())
+ '/images/people/sapien-employer.webp',
+ 'Professional exploring technology at work',4,'published',now())
 ON CONFLICT (slug) DO NOTHING;
 
 COMMIT;

@@ -50,18 +50,18 @@ export function HumanJourneyCard({
         aria-label={`${title}: ${action}`}
         className="flex h-full flex-col overflow-hidden rounded-[1.35rem] border border-line/70 bg-white shadow-[0_12px_32px_rgb(16_44_86_/_0.065)] transition duration-200 hover:-translate-y-1 hover:shadow-card focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-indigo"
       >
-        <div className={cn("relative aspect-[1.55/1] overflow-hidden", toneClasses[tone])}>
-          <Image src={image} alt={alt} fill sizes="(max-width: 767px) 100vw, 33vw" className="object-cover object-center transition duration-300 group-hover:scale-[1.025]" />
+        <div className={cn("relative aspect-[2.35/1] overflow-hidden sm:aspect-[1.55/1]", toneClasses[tone])}>
+          <Image src={image} alt={alt} fill sizes="(max-width: 767px) 100vw, 33vw" className="object-cover object-[center_38%] transition duration-300 group-hover:scale-[1.025]" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#071d49]/20 to-transparent" aria-hidden="true" />
-          <span className="absolute bottom-4 left-4 grid h-10 w-10 place-items-center rounded-full border border-white/90 bg-white text-indigo shadow-card" aria-hidden="true">
+          <span className="absolute bottom-3 left-3 grid h-9 w-9 sm:bottom-4 sm:left-4 sm:h-10 sm:w-10 place-items-center rounded-full border border-white/90 bg-white text-indigo shadow-card" aria-hidden="true">
             <JourneyIcon title={title} />
           </span>
         </div>
-        <div className="flex flex-1 flex-col px-5 pb-5 pt-4 sm:px-6 sm:pb-6 sm:pt-5">
+        <div className="flex flex-1 flex-col px-4 pb-4 pt-3 sm:px-6 sm:pb-6 sm:pt-5">
           <span className="sr-only">{eyebrow}</span>
-          <h3 className="font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.035em] text-navy">{title}</h3>
-          <p className="mt-3 text-sm leading-6 text-ink-muted">{body}</p>
-          <span className="mt-auto inline-flex items-center pt-5 text-sm font-bold text-indigo">{action} <span aria-hidden="true" className="ml-1.5">→</span></span>
+          <h3 className="font-serif text-[1.6rem] font-semibold sm:text-[1.9rem] leading-none tracking-[-0.035em] text-navy">{title}</h3>
+          <p className="mt-2 text-sm leading-5 text-ink-muted sm:mt-3 sm:leading-6">{body}</p>
+          <span className="mt-auto inline-flex items-center pt-3 text-sm font-bold text-indigo sm:pt-5">{action} <span aria-hidden="true" className="ml-1.5">→</span></span>
         </div>
       </Link>
     </motion.article>

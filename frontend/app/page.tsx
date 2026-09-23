@@ -64,7 +64,7 @@ export default async function HomePage() {
     <main id="main-content" className="min-h-screen overflow-x-clip bg-white">
       <PublicHeader />
 
-      <section className="relative bg-[linear-gradient(125deg,#eff7ff_0%,#ffffff_58%,#eaf4ff_100%)]" aria-labelledby="home-title">
+      <section className="landing-hero relative" aria-labelledby="home-title">
         <Container>
           <div className="grid min-w-0 gap-x-8 pb-12 pt-9 sm:pt-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center lg:gap-x-12 lg:pb-14 lg:pt-16">
             <div className="order-1 relative z-20 min-w-0 lg:self-start lg:pt-9">
@@ -78,14 +78,14 @@ export default async function HomePage() {
             </div>
 
             <div className="order-3 relative mt-6 min-w-0 lg:order-2 lg:col-start-2 lg:row-start-1 lg:mt-0">
-              <div className="relative h-[22rem] w-full overflow-hidden rounded-[1.5rem] bg-[#dcecff] shadow-soft sm:h-[24rem] lg:h-[29rem] xl:h-[32rem]">
+              <div className="relative h-[21rem] w-full overflow-hidden rounded-[2rem] bg-[#e5f1ff] shadow-soft sm:h-[24rem] sm:rounded-[2.5rem] lg:h-[29rem] xl:h-[32rem]">
                 <Image
                   src={images.hero}
                   alt="Smiling professional in a softly lit workplace"
                   fill priority sizes="(max-width: 1023px) 100vw, 52vw"
-                  className="hero-human object-cover object-[50%_38%]"
+                  className="hero-human object-cover object-[50%_38%] brightness-[1.06] saturate-[0.96]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071d49]/10 via-transparent to-transparent" aria-hidden="true" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071d49]/[0.07] via-transparent to-transparent" aria-hidden="true" />
               </div>
               <HumanAnnotation variant="human" className="pointer-events-none absolute right-2 top-12 hidden w-28 -rotate-6 xl:block" />
               <div className="absolute bottom-3 left-3 z-20 max-w-[12rem] rounded-2xl border border-white/90 bg-white/95 px-3 py-2.5 shadow-card backdrop-blur sm:bottom-6 sm:left-6 sm:max-w-[13.5rem] sm:px-4 sm:py-3 lg:bottom-32 lg:left-4 lg:right-auto xl:bottom-8 xl:left-auto xl:right-4">

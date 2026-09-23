@@ -50,6 +50,25 @@ test.describe("public UI stability", () => {
     await expectStableLayout(page, 0.1);
   });
 
+  test("keeps the mobile career cards compact and every editorial cover distinct", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    for (const title of ["Discover", "Grow", "Belong"]) {
+      const card = page.getByRole("article").filter({ has: page.getByRole("heading", { name: title, exact: true }) });
+      const box = await card.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.height, `${title} should not consume an entire phone viewport`).toBeLessThan(355);
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const images = page.locator("#knowledge-hub article img");
+    await expect(images).toHaveCount(4);
+    const sources = await images.evaluateAll(nodes => nodes.map(node =>
+      new URL((node as HTMLImageElement).currentSrc || (node as HTMLImageElement).src).searchParams.get("url")
+      || (node as HTMLImageElement).getAttribute("src"),
+    ));
+    expect(new Set(sources).size).toBe(4);
+  });
+
   test("keeps the landing search legible and accessible on a phone viewport", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");

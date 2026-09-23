@@ -91,6 +91,14 @@ a {
   transform: translateY(0);
 }
 
+/* A warm accent differentiates the candidate-first hero from the cooler
+   editorial and product sections without baking gradients into photography. */
+.landing-hero {
+  background:
+    radial-gradient(ellipse at 1% 6%, rgb(255 238 227 / 0.78), transparent 35rem),
+    linear-gradient(125deg, #f4f9ff 0%, #ffffff 52%, #eaf4ff 100%);
+}
+
 .human-grid {
   background-image:
     linear-gradient(rgb(8 102 255 / 0.045) 1px, transparent 1px),

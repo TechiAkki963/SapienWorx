@@ -11,7 +11,7 @@ function seedKnowledge() {
     ["build-a-resume-that-tells-your-story", "Build a résumé that tells your story", "Resume & Profile", "/images/people/candidate-signup.webp", "Professional preparing career profile"],
     ["prepare-for-an-interview-with-confidence", "Prepare for an interview with confidence", "Interview Preparation", "/images/people/recruiter-signup.webp", "Professional reviewing interview notes"],
     ["make-a-practical-skill-growth-plan", "Make a practical skill-growth plan", "Skills & Career Growth", "/images/people/candidate-login.webp", "Professional learning career skills"],
-    ["humans-and-ai-working-better-together", "Humans and AI working better together", "Humans & AI at Work", "/images/people/auth-recruiter.webp", "Professional team collaborating"],
+    ["humans-and-ai-working-better-together", "Humans and AI working better together", "Humans & AI at Work", "/images/people/sapien-employer.webp", "Professional exploring technology at work"],
   ];
   return starters.map(([slug,title,category,image_path,image_alt], index) => ({
     id: `90000000-0000-4000-8000-${String(index+1).padStart(12,"0")}`,
