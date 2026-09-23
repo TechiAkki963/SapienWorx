@@ -4,9 +4,9 @@ import { Wordmark } from "@/components/brand/wordmark";
 
 const columns = [
   { title:"For Candidates", links:[["Find Jobs","/jobs"],["Knowledge Hub","/#knowledge-hub"],["Career Resources","/#knowledge-hub"],["Create Account","/signup"]] },
-  { title:"For Recruiters", links:[["Post a Job","/recruiter/login"],["Talent Solutions","/recruiter/login"],["Pricing","/recruiter/login"],["Contact Sales","/recruiter/signup"]] },
-  { title:"Company", links:[["About Us","/#about"],["Careers","/jobs"],["Press","/#about"],["Blog","/#knowledge-hub"]] },
-  { title:"Legal", links:[["Privacy Policy","/privacy"],["Subprocessors","/subprocessors"],["Candidate login","/login"],["Recruiter login","/recruiter/login"]] },
+  { title:"For Recruiters", links:[["Post a Job","/recruiter/login"],["Recruiter Signup","/recruiter/signup"],["Recruiter Login","/recruiter/login"],["Recruiter Workspace","/recruiter"]] },
+  { title:"Company", links:[["About Us","/#about"],["Find Jobs","/jobs"],["Knowledge Hub","/resources"],["Candidate Login","/login"]] },
+  { title:"Legal", links:[["Privacy Policy","/privacy"],["Subprocessors","/subprocessors"]] },
 ];
 
 export function LandingFooter() {
