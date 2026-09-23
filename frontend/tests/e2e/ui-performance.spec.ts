@@ -17,6 +17,9 @@ test.describe("public UI stability", () => {
     await expect(page.getByRole("heading", { name: /Your career journey, all in one place/i })).toBeVisible();
     await expect(page.getByText("Illustrative candidate workspace")).toBeVisible();
     await expect(page.getByRole("heading", { name: /Practical advice for a brighter career/i })).toBeVisible();
+    const ctaPortrait = page.locator(".landing-cta-person");
+    await expect(ctaPortrait).toHaveAttribute("src", /candidate-signup\.webp/);
+    await expect.poll(async () => ctaPortrait.evaluate(node => (node as HTMLImageElement).complete && (node as HTMLImageElement).naturalWidth > 0)).toBe(true);
     for (const label of ["Discover", "Grow", "Belong"]) {
       await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
     }
@@ -195,8 +198,8 @@ test.describe("public UI stability", () => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
       });
-      await page.screenshot({ path: testInfo.outputPath(`landing-top-${width}.png`), fullPage: false, animations: "disabled" });
-      await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true, animations: "disabled" });
+      await page.screenshot({ path: testInfo.outputPath(`landing-top-${width}.png`), fullPage: false, animations: "disabled", style: "nextjs-portal{display:none!important}" });
+      await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true, animations: "disabled", style: "nextjs-portal{display:none!important}" });
     });
   }
 

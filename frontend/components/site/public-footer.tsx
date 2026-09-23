@@ -67,7 +67,7 @@ export function PublicFooter() {
         </div>
         <div className="flex flex-col gap-3 pt-6 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 SapienWorx. All rights reserved.</p>
-          <p>Social updates: <Link href="/knowledge-hub" className="font-semibold text-indigo hover:underline">Knowledge Hub</Link> · A more human way to work.</p>
+          <p>Career updates: <Link href="/knowledge-hub" className="font-semibold text-indigo hover:underline">Knowledge Hub</Link> · A more human way to work.</p>
         </div>
       </Container>
     </footer>

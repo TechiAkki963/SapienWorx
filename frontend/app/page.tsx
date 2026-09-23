@@ -78,7 +78,7 @@ export default async function HomePage() {
             </div>
 
             <div className="order-3 relative mt-6 min-w-0 lg:order-2 lg:col-start-2 lg:row-start-1 lg:mt-0">
-              <div className="relative h-[21rem] w-full overflow-hidden rounded-[2rem] bg-[#e5f1ff] shadow-soft sm:h-[24rem] sm:rounded-[2.5rem] lg:h-[29rem] xl:h-[32rem]">
+              <div className="relative h-[19rem] w-full overflow-hidden rounded-[2rem] bg-[#e5f1ff] shadow-soft sm:h-[24rem] sm:rounded-[2.5rem] lg:h-[29rem] xl:h-[32rem]">
                 <Image
                   src={images.hero}
                   alt="Smiling professional in a softly lit workplace"
@@ -99,7 +99,7 @@ export default async function HomePage() {
               <form action="/jobs" className="landing-search-panel grid min-w-0 gap-3 rounded-2xl border border-line/80 bg-white p-3 shadow-[0_17px_48px_rgb(18_54_104_/_0.13)] sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_auto] lg:items-end" role="search">
                 <div className="min-w-0">
                   <label className="mb-1.5 block px-1 text-[11px] font-extrabold text-navy/70" htmlFor="home-q">Role or skill</label>
-                  <input id="home-q" name="q" className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-[#f8fbff] px-3 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="e.g. Software Engineer" />
+                  <input id="home-q" name="q" className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-[#f8fbff] px-3 text-sm text-ink outline-none placeholder:text-[#64748b] focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="e.g. Software Engineer" />
                 </div>
                 <div className="min-w-0">
                   <label className="mb-1.5 block px-1 text-[11px] font-extrabold text-navy/70" htmlFor="home-experience">Experience</label>
@@ -111,7 +111,7 @@ export default async function HomePage() {
                 </div>
                 <div className="min-w-0">
                   <label className="mb-1.5 block px-1 text-[11px] font-extrabold text-navy/70" htmlFor="home-location">Location</label>
-                  <input id="home-location" name="location" className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-[#f8fbff] px-3 text-sm text-ink outline-none placeholder:text-ink-muted/70 focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="City or country" />
+                  <input id="home-location" name="location" className="min-h-12 w-full min-w-0 rounded-xl border border-line bg-[#f8fbff] px-3 text-sm text-ink outline-none placeholder:text-[#64748b] focus:border-indigo/45 focus:bg-white focus:ring-4 focus:ring-indigo/10" placeholder="City or country" />
                 </div>
                 <button className="min-h-12 w-full rounded-xl bg-indigo px-6 text-sm font-bold text-white shadow-sm transition hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2 sm:col-span-2 lg:col-span-1 lg:w-auto" type="submit">
                   Search jobs <span aria-hidden="true">→</span>
@@ -208,7 +208,7 @@ export default async function HomePage() {
               </div>
               <div className="relative hidden h-[10rem] min-w-[11rem] lg:block">
                 <div className="absolute -bottom-10 right-0 h-[15rem] w-[12rem] overflow-hidden rounded-t-[6rem] opacity-85" aria-hidden="true">
-                  <Image src={images.hero} alt="" fill sizes="192px" className="object-cover object-[55%_30%]" />
+                  <Image src="/images/people/candidate-signup.webp" alt="" fill sizes="192px" className="landing-cta-person object-cover object-[55%_30%]" />
                 </div>
                 <p className="absolute bottom-2 right-0 z-10 -rotate-6 text-right font-serif text-base italic leading-tight text-white/90">Same people.<br />Bigger possibilities.</p>
               </div>
