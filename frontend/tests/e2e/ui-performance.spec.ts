@@ -104,7 +104,7 @@ test.describe("public UI stability", () => {
     await expect(nav.getByRole("link", { name: "Find Jobs" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Log in" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "For Recruiters" })).toHaveAttribute("href", "/recruiter/login");
-    await expect(page.locator("header").getByRole("link", { name: /Join/ })).toHaveAttribute("href", "/signup");
+    await expect(nav.getByRole("link", { name: /Create Account/ })).toHaveAttribute("href", "/signup");
   });
 
   for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1920]) {
