@@ -48,6 +48,9 @@ test.describe.serial("deployed staging acceptance", () => {
         window.scrollTo(0, 0);
       });
       await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      // Scrolling lazy images during validation also scrolls the mobile carousel.
+      // Restore its initial visible card before capturing the reference screenshot.
+      await page.locator(".swx-guide-grid").evaluate((element) => { element.scrollLeft = 0; });
       const overflow = await page.evaluate(() =>
         document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
