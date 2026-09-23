@@ -86,7 +86,7 @@ export default async function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#071d49]/10 via-transparent to-transparent" aria-hidden="true" />
               </div>
-              <div className="absolute bottom-4 left-4 z-20 max-w-[13.5rem] rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:bottom-6 sm:left-6 lg:bottom-10">
+              <div className="absolute bottom-4 left-4 z-20 max-w-[13.5rem] lg:bottom-32 lg:left-auto lg:right-4 rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:bottom-6 sm:left-6 lg:bottom-10">
                 <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">A more human way</span>
                 <p className="mt-1 font-serif text-lg font-semibold leading-tight text-navy">Real opportunities. A brighter you.</p>
                 <p className="mt-1 text-xs leading-[1.4] text-ink-muted">Find roles, grow skills and build the career you want.</p>
@@ -153,7 +153,7 @@ export default async function HomePage() {
           {featured && (
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr_1fr]" aria-label="Featured career guides">
               <KnowledgeCard article={featured} featured />
-              {remaining.map(article => <KnowledgeCard key={article.id} article={article} />)}
+              {remaining.map(article => <div key={article.id} className="hidden md:block"><KnowledgeCard article={article} /></div>)}
             </div>
           )}
           {!featured && <div role="status" className="mt-8 rounded-xl border border-line bg-white p-6 text-sm text-ink-muted">Career guides are temporarily unavailable. Please check back shortly.</div>}
