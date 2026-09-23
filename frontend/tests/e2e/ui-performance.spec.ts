@@ -70,6 +70,33 @@ test.describe("public UI stability", () => {
     expect(searchBox!.height).toBeLessThan(260);
   });
 
+  test("submits the public job search and opens a real Knowledge Hub guide", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("#home-q").fill("Go developer");
+    await page.locator("#home-experience").selectOption("3");
+    await page.locator("#home-location").fill("Mumbai");
+    await page.locator('.swx-search button[type="submit"]').click();
+    await expect(page).toHaveURL(/\/jobs\?/);
+    const params = new URL(page.url()).searchParams;
+    expect(params.get("q")).toBe("Go developer");
+    expect(params.get("experience")).toBe("3");
+    expect(params.get("location")).toBe("Mumbai");
+
+    await page.goto("/");
+    await page.getByRole("link", { name: "Read Build a résumé that sounds like you" }).click();
+    await expect(page).toHaveURL(/\/resources\/build-a-resume$/);
+    await expect(page.getByRole("heading", { name: "Build a résumé that sounds like you" })).toBeVisible();
+  });
+
+  test("mobile Knowledge Hub guide dots navigate the horizontal rail", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    const rail = page.locator(".swx-guide-grid");
+    await page.getByRole("button", { name: /Show guide 2:/ }).click();
+    await expect(page.getByRole("button", { name: /Show guide 2:/ })).toHaveAttribute("aria-pressed", "true");
+    await expect.poll(() => rail.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+  });
+
   test("honours reduced-motion preference", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
