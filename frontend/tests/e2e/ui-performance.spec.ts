@@ -18,7 +18,7 @@ test.describe("public UI stability", () => {
     await expect(page.getByText("Illustrative candidate workspace")).toBeVisible();
     await expect(page.getByRole("heading", { name: /Practical advice for a brighter career/i })).toBeVisible();
     const ctaPortrait = page.locator(".landing-cta-person");
-    await expect(ctaPortrait).toHaveAttribute("src", /sapien-hero-candidate\.webp/);
+    await expect(ctaPortrait).toHaveAttribute("src", /\/images\/landing\/final-cta\.webp/);
     await ctaPortrait.scrollIntoViewIfNeeded();
     await expect.poll(async () => ctaPortrait.evaluate(node => (node as HTMLImageElement).complete && (node as HTMLImageElement).naturalWidth > 0)).toBe(true);
     for (const label of ["Discover", "Grow", "Belong"]) {

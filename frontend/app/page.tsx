@@ -13,32 +13,31 @@ import { publicAPI } from "@/lib/candidate-server";
 import type { KnowledgeList } from "@/lib/knowledge";
 
 const images = {
-  hero: "/images/people/sapien-hero-candidate.webp",
-  discover: "/images/people/sapien-recruiter.webp",
-  grow: "/images/people/candidate-dashboard.webp",
-  belong: "/images/people/recruiter-team.webp",
-  // The reference intentionally bookends the page with the same human portrait.
-  // This is a deliberate repeat; Discover/Grow/Belong and editorial covers must differ.
-  finalCta: "/images/people/sapien-hero-candidate.webp",
+  // Landing-specific copies isolate the approved art direction from role/auth imagery.
+  hero: "/images/landing/hero-candidate.webp",
+  discover: "/images/landing/discover.webp",
+  grow: "/images/landing/grow.webp",
+  belong: "/images/landing/belong.webp",
+  finalCta: "/images/landing/final-cta.webp",
 };
 
 const journey = [
   {
     title: "Discover", eyebrow: "Find your fit",
     body: "Find roles that match your skills, goals and values.",
-    image: images.discover, alt: "Professional exploring career opportunities",
+    image: images.discover, alt: "Smiling candidate working on a laptop",
     href: "/jobs", action: "Explore jobs", tone: "blue" as const,
   },
   {
     title: "Grow", eyebrow: "Build new skills",
     body: "Access resources, insights and guidance that help you move forward.",
-    image: images.grow, alt: "Professional working on career skills",
+    image: images.grow, alt: "Smiling professional reflecting on his next career move",
     href: "/knowledge-hub", action: "Build new skills", tone: "mint" as const,
   },
   {
     title: "Belong", eyebrow: "Be part of something",
     body: "Join a more human professional network built around people, not profiles.",
-    image: images.belong, alt: "Professional team collaborating in a bright office",
+    image: images.belong, alt: "Professional with glasses working from a laptop",
     href: "/signup", action: "Be part of something", tone: "peach" as const,
   },
 ];
