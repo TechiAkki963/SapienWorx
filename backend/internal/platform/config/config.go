@@ -54,6 +54,9 @@ type AuthConfig struct {
 	OTPIPWindow       time.Duration
 	LoginIPLimit      int
 	LoginIPWindow     time.Duration
+	ApplicationIPLimit int
+	ApplicationIPWindow time.Duration
+	ApplicationUserLimit int
 	CookieDomain      string
 	CookieSecure      bool
 	AccessCookieName  string
@@ -108,6 +111,9 @@ func Load() (Config, error) {
 			OTPIPWindow:       durationEnv("AUTH_OTP_IP_WINDOW", 10*time.Minute),
 			LoginIPLimit:      intEnv("AUTH_LOGIN_IP_LIMIT", 12),
 			LoginIPWindow:     durationEnv("AUTH_LOGIN_IP_WINDOW", 5*time.Minute),
+			ApplicationIPLimit: intEnv("AUTH_APPLICATION_IP_LIMIT", 60),
+			ApplicationIPWindow: durationEnv("AUTH_APPLICATION_IP_WINDOW", 5*time.Minute),
+			ApplicationUserLimit: intEnv("AUTH_APPLICATION_USER_LIMIT", 12),
 			CookieDomain:      strings.TrimSpace(os.Getenv("AUTH_COOKIE_DOMAIN")),
 			CookieSecure:      boolEnv("AUTH_COOKIE_SECURE", environment == "production"),
 			AccessCookieName:  env("AUTH_ACCESS_COOKIE_NAME", "sw_access"),
@@ -160,6 +166,9 @@ func (c Config) Validate() error {
 	}
 	if c.Auth.OTPResendInterval < 10*time.Second {
 		problems = append(problems, "AUTH_OTP_RESEND_INTERVAL must be at least 10 seconds")
+	}
+	if c.Auth.ApplicationIPLimit < 1 || c.Auth.ApplicationUserLimit < 1 || c.Auth.ApplicationIPWindow < time.Minute {
+		problems = append(problems, "application rate-limit settings are invalid")
 	}
 	if c.Auth.OTPIPLimit < 1 || c.Auth.OTPIPWindow < time.Minute || c.Auth.LoginIPLimit < 1 || c.Auth.LoginIPWindow < time.Minute {
 		problems = append(problems, "authentication rate-limit settings are invalid")

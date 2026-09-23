@@ -102,3 +102,58 @@ func TestRequestPeerIPDoesNotTrustForwardedHeader(t *testing.T) {
 		t.Fatalf("requestPeerIP() = %q, want socket peer", got)
 	}
 }
+
+func TestCandidateApplicationGuardLimitsPerAccount(t *testing.T) {
+	guard := CandidateApplicationGuard(100, 2, time.Minute)
+	var served int
+	handler := guard(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		served++
+		w.WriteHeader(http.StatusCreated)
+	}))
+	tokens := testTokens(t)
+	authenticate := Authenticate(tokens, "sw_access")
+	candidateOnly := RequireRoles("candidate")
+	protected := Chain(handler, authenticate, candidateOnly)
+	for index := 0; index < 3; index++ {
+		token, err := tokens.Issue("candidate-one", "candidate", "session")
+		if err != nil {
+			t.Fatal(err)
+		}
+		req := httptest.NewRequest(http.MethodPost, "/api/v1/candidate/applications", nil)
+		req.RemoteAddr = "198.51.100.20:1234"
+		req.Header.Set("Authorization", "Bearer "+token)
+		res := httptest.NewRecorder()
+		protected.ServeHTTP(res, req)
+		want := http.StatusCreated
+		if index == 2 {
+			want = http.StatusTooManyRequests
+			if res.Header().Get("Retry-After") == "" {
+				t.Fatal("missing Retry-After")
+			}
+		}
+		if res.Code != want {
+			t.Fatalf("request %d status = %d, want %d", index, res.Code, want)
+		}
+	}
+	if served != 2 {
+		t.Fatalf("downstream calls = %d, want 2", served)
+	}
+}
+
+func TestCandidateOnlyRejectsRecruiterBeforeApplicationGuard(t *testing.T) {
+	tokens := testTokens(t)
+	token, err := tokens.Issue("recruiter-one", "recruiter", "session")
+	if err != nil {
+		t.Fatal(err)
+	}
+	protected := Chain(CandidateApplicationGuard(20, 10, time.Minute)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+	})), Authenticate(tokens, "sw_access"), RequireRoles("candidate"))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/candidate/applications", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	res := httptest.NewRecorder()
+	protected.ServeHTTP(res, req)
+	if res.Code != http.StatusForbidden {
+		t.Fatalf("recruiter status = %d, want 403", res.Code)
+	}
+}
