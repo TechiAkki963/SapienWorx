@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Reveal } from "@/components/motion/reveal";
 import { LandingFooter } from "@/components/site/landing-footer";
+import { LandingGuideCarousel } from "@/components/site/landing-guide-carousel";
 import { LandingHeader } from "@/components/site/landing-header";
 import { Button } from "@/components/ui/button";
 import { guides } from "@/lib/knowledge-hub";
@@ -101,20 +102,7 @@ export default function HomePage() {
             <div><p className="swx-eyebrow">Knowledge Hub</p><h2 id="knowledge-title" className="swx-display">Practical advice for a brighter career.</h2><p>Expert insights, actionable tips, and real stories to help you grow with confidence.</p></div>
             <Link href="/#knowledge-hub" className="swx-outline-link">Explore Knowledge Hub <span aria-hidden="true">→</span></Link>
           </Reveal>
-          <div className="swx-guide-grid">
-            {guides.map((guide, index) => (
-              <Reveal key={guide.slug} className="h-full" delay={index * 0.05}>
-                <article className="swx-guide-card">
-                  <Link href={`/resources/${guide.slug}`} className="swx-guide-image" aria-label={`Read ${guide.title}`}>
-                    <Image src={photo(guide.image)} alt={guide.alt} fill sizes="(max-width: 640px) 88vw, (max-width: 900px) 46vw, 280px" className="object-cover object-center" />
-                    {index === 0 && <span className="swx-featured">Career essentials</span>}
-                  </Link>
-                  <div className="swx-guide-body"><p className="swx-guide-category">{guide.category}</p><h3 className="swx-display"><Link href={`/resources/${guide.slug}`}>{guide.title}</Link></h3><p>{index === 0 ? "Showcase your unique value and stand out to employers." : guide.dek}</p><Link href={`/resources/${guide.slug}`}>Read article <span aria-hidden="true">→</span></Link></div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-          <div className="swx-guide-dots" aria-hidden="true"><b /><i /><i /><i /></div>
+          <LandingGuideCarousel guides={guides} />
         </Container>
       </section>
 
