@@ -37,6 +37,17 @@ test.describe.serial("deployed staging acceptance", () => {
           return element.complete && element.naturalWidth >= 800 && element.naturalHeight >= 500;
         })).toBe(true);
       }
+      // Full-page capture alone does not trip IntersectionObserver for offscreen Reveal components.
+      // Scroll through the real page first and verify the dashboard and final CTA are painted.
+      await page.getByRole("heading", { name: "See your journey clearly." }).scrollIntoViewIfNeeded();
+      await expect(page.getByRole("heading", { name: "See your journey clearly." })).toBeVisible();
+      await page.getByRole("heading", { name: "Your next chapter starts here." }).scrollIntoViewIfNeeded();
+      await expect(page.getByRole("heading", { name: "Your next chapter starts here." })).toBeVisible();
+      await page.evaluate(() => {
+        document.documentElement.style.scrollBehavior = "auto";
+        window.scrollTo(0, 0);
+      });
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
       const overflow = await page.evaluate(() =>
         document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
