@@ -86,10 +86,14 @@ export default async function HomePage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#071d49]/10 via-transparent to-transparent" aria-hidden="true" />
               </div>
-              <div className="absolute bottom-4 left-4 z-20 max-w-[13.5rem] lg:bottom-32 lg:left-auto lg:right-4 rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:bottom-6 sm:left-6 lg:bottom-10">
-                <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">A more human way</span>
-                <p className="mt-1 font-serif text-lg font-semibold leading-tight text-navy">Real opportunities. A brighter you.</p>
-                <p className="mt-1 text-xs leading-[1.4] text-ink-muted">Find roles, grow skills and build the career you want.</p>
+              <p className="pointer-events-none absolute right-6 top-16 hidden -rotate-6 font-serif text-lg italic leading-5 text-navy/70 xl:block" aria-hidden="true">
+                A more<br />human way<br />to work
+                <span className="mt-1 block h-0.5 w-8 rotate-[-5deg] bg-indigo/80" />
+              </p>
+              <div className="absolute bottom-4 left-4 z-20 max-w-[13.5rem] rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:bottom-6 sm:left-6 lg:bottom-8 lg:left-auto lg:right-4">
+                <span className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-soft text-indigo" aria-hidden="true">▣</span>
+                <p className="font-serif text-lg font-semibold leading-tight text-navy">Real opportunities.<br />A brighter you.</p>
+                <p className="mt-1.5 text-xs leading-[1.45] text-ink-muted">Find roles, grow your skills and build the career you want.</p>
               </div>
             </div>
 
@@ -174,13 +178,13 @@ export default async function HomePage() {
             </div>
             <CareerPreview />
           </div>
-          <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-7 grid gap-2 lg:hidden">
             {capabilities.map(item => (
-              <div key={item.title} className="flex items-start gap-3 rounded-xl border border-line/70 bg-white/90 p-4">
-                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-soft text-lg text-indigo" aria-hidden="true">{item.icon}</span>
+              <div key={item.title} className="flex items-start gap-3 rounded-xl border border-line/70 bg-white/90 p-3.5">
+                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-soft text-base text-indigo" aria-hidden="true">{item.icon}</span>
                 <div>
                   <h3 className="text-sm font-bold text-navy">{item.title}</h3>
-                  <p className="mt-1 text-xs leading-5 text-ink-muted">{item.body}</p>
+                  <p className="mt-0.5 text-xs leading-5 text-ink-muted">{item.body}</p>
                 </div>
               </div>
             ))}
@@ -190,18 +194,23 @@ export default async function HomePage() {
 
       <Container>
         <section className="py-10 sm:py-14" aria-labelledby="final-cta-title">
-          <div className="relative overflow-hidden rounded-[1.8rem] bg-[linear-gradient(110deg,#0a5fe8_0%,#073a8f_100%)] px-6 py-10 text-white shadow-soft sm:px-10 sm:py-12 lg:px-14">
-            <div className="relative z-10 max-w-[43rem]">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/80">Ready for what&apos;s next?</p>
-              <h2 id="final-cta-title" className="mt-3 font-serif text-[clamp(2.1rem,4vw,3.6rem)] font-semibold leading-[1.05] tracking-[-0.045em]">Your next chapter starts here.</h2>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-white/85">Create your free account and get one step closer to a more meaningful career.</p>
-              <div className="mt-6 flex flex-wrap gap-3">
+          <div className="relative overflow-hidden rounded-[1.8rem] bg-[linear-gradient(110deg,#0a5fe8_0%,#073a8f_100%)] px-6 py-9 text-white shadow-soft sm:px-10 lg:min-h-[13rem] lg:px-12 lg:py-10">
+            <div className="relative z-10 grid items-center gap-6 lg:grid-cols-[minmax(0,1.3fr)_auto_minmax(10rem,0.55fr)]">
+              <div className="max-w-[40rem]">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/80">Ready for what&apos;s next?</p>
+                <h2 id="final-cta-title" className="mt-3 font-serif text-[clamp(2.1rem,4vw,3.5rem)] font-semibold leading-[1.02] tracking-[-0.045em]">Your next chapter starts here.</h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-white/85">Create your free account and get one step closer to a more meaningful career.</p>
+              </div>
+              <div className="flex flex-wrap gap-3 lg:justify-center">
                 <Button href="/signup" className="landing-cta-inverse">Create Account <span aria-hidden="true">→</span></Button>
                 <Button href="/jobs" className="border border-white/60 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button>
               </div>
-            </div>
-            <div className="pointer-events-none absolute -bottom-20 -right-16 hidden h-[22rem] w-[19rem] overflow-hidden rounded-full opacity-35 lg:block" aria-hidden="true">
-              <Image src={images.hero} alt="" fill sizes="304px" className="object-cover" />
+              <div className="relative hidden h-[10rem] min-w-[11rem] lg:block">
+                <div className="absolute -bottom-10 right-0 h-[15rem] w-[12rem] overflow-hidden rounded-t-[6rem] opacity-85" aria-hidden="true">
+                  <Image src={images.hero} alt="" fill sizes="192px" className="object-cover object-[55%_30%]" />
+                </div>
+                <p className="absolute bottom-2 right-0 z-10 -rotate-6 text-right font-serif text-base italic leading-tight text-white/90">Same people.<br />Bigger possibilities.</p>
+              </div>
             </div>
           </div>
         </section>
