@@ -90,7 +90,7 @@ export default async function HomePage() {
                 A more<br />human way<br />to work
                 <span className="mt-1 block h-0.5 w-8 rotate-[-5deg] bg-indigo/80" />
               </p>
-              <div className="absolute bottom-3 left-3 z-20 max-w-[12rem] rounded-2xl border border-white/90 bg-white/95 px-3 py-2.5 shadow-card backdrop-blur sm:bottom-6 sm:left-6 sm:max-w-[13.5rem] sm:px-4 sm:py-3 lg:bottom-8 lg:left-auto lg:right-4">
+              <div className="absolute bottom-3 left-3 z-20 max-w-[12rem] rounded-2xl border border-white/90 bg-white/95 px-3 py-2.5 shadow-card backdrop-blur sm:bottom-6 sm:left-6 sm:max-w-[13.5rem] sm:px-4 sm:py-3 lg:bottom-32 lg:left-4 lg:right-auto xl:bottom-8 xl:left-auto xl:right-4">
                 <span className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-soft text-indigo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><rect x="3.5" y="7" width="17" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3.5 12h17M10 12v2h4v-2"/></svg></span>
                 <p className="font-serif text-base font-semibold leading-tight text-navy sm:text-lg">Real opportunities.<br />A brighter you.</p>
                 <p className="mt-1.5 hidden text-xs leading-[1.45] text-ink-muted sm:block">Find roles, grow your skills and build the career you want.</p>
