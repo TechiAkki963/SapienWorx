@@ -6,9 +6,12 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
-    // Step 3 keeps role photography inside the app instead of relying on
-    // external runtime rewrites. Assets are local 3840px WebP sources.
-    unoptimized: true,
+    // Responsive variants of the bundled 3840px WebP portraits are served
+    // through the self-hosted Next.js image optimizer; no third-party CDN.
+    deviceSizes: [320, 420, 640, 768, 1024, 1280, 1600],
+    imageSizes: [64, 96, 192, 384],
+    formats: ["image/webp"],
+    qualities: [75],
   },
   experimental: {
     optimizePackageImports: ["motion"],
