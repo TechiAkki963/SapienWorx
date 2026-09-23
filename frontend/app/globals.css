@@ -260,3 +260,116 @@ a {
 
 /* Reviewed: CTA white title must override the scoped display type colour. */
 .swx-landing .swx-cta-copy h2{color:#fff}
+
+/* ===== SapienWorx landing reference pass ===== */
+.swx-landing{--swx4-blue:#0866ff;--swx4-navy:#071d49;--swx4-text:#536987;--swx4-line:#d8e6f5;background:#fff}
+.swx-landing .swx-display{font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:-.047em;color:var(--swx4-navy)}
+.swx-landing .swx-eyebrow{font-size:.67rem;letter-spacing:.17em}
+.swx-landing .swx-header{min-height:68px}
+.swx-landing .swx-header-inner{min-height:68px;gap:2rem}
+.swx-landing .swx-hero{background:radial-gradient(circle at 78% 7%,rgba(194,224,255,.68),transparent 27rem),radial-gradient(circle at 3% 82%,rgba(255,226,207,.68),transparent 24rem),linear-gradient(138deg,#fff 0%,#f8fbff 58%,#edf6ff 100%)}
+.swx-landing .swx-hero-grid{grid-template-columns:minmax(0,.94fr) minmax(430px,1.06fr);grid-template-areas:"copy visual" "search search";column-gap:3.5rem;min-height:600px;padding:3.9rem 0 4.2rem}
+.swx-landing .swx-hero-title{font-size:clamp(3.35rem,5vw,5.4rem);line-height:.95}
+.swx-landing .swx-hero-title em{display:block;color:#0866ff}
+.swx-landing .swx-lead{font-size:.97rem;line-height:1.62}
+.swx-landing .swx-hero-visual{min-height:470px}
+.swx-landing .swx-hero-photo{height:470px;width:min(100%,565px);border-radius:58px 58px 30px 30px}
+.swx-landing .swx-hero-note{left:-1rem;top:7rem}
+.swx-landing .swx-opportunity-card{right:-.2rem;bottom:2.2rem;width:230px;border-radius:18px}
+.swx-landing .swx-search-wrap{left:var(--page-gutter);bottom:2.7rem;width:min(820px,68vw)}
+.swx-landing .swx-search{grid-template-columns:1.2fr .88fr 1fr auto;padding:.68rem;border-radius:16px}
+.swx-landing .swx-field{height:42px;border-radius:9px}
+.swx-landing .swx-search button{min-height:42px;border-radius:9px}
+.swx-landing .swx-section{padding:4.7rem 0}
+.swx-landing .swx-section-heading{margin-bottom:2.25rem}
+.swx-landing .swx-journey-grid{gap:1.25rem}
+.swx-landing .swx-journey-card{border-radius:18px}
+.swx-landing .swx-journey-image{aspect-ratio:1.5}
+.swx-landing .swx-journey-body{padding:1.08rem 1.15rem 1.18rem}
+.swx-landing .swx-journey-body h3{font-size:1.45rem}
+.swx-landing .swx-journey-body p{font-size:.79rem}
+.swx-landing .swx-knowledge{background:linear-gradient(135deg,#edf7ff 0%,#f2fbff 54%,#f3fbf8 100%)}
+.swx-landing .swx-knowledge-head{align-items:end;margin-bottom:1.6rem}
+.swx-landing .swx-knowledge-head h2{font-size:clamp(2.55rem,4.15vw,4.05rem)}
+.swx-landing .swx-guide-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}
+.swx-landing .swx-guide-card{border-radius:15px}
+.swx-landing .swx-guide-image{aspect-ratio:1.5}
+.swx-landing .swx-guide-body{min-height:208px;padding:.9rem 1rem 1rem}
+.swx-landing .swx-guide-body h3{font-size:1.2rem}
+.swx-landing .swx-product{background:radial-gradient(circle at 86% 24%,rgba(191,226,255,.35),transparent 20rem),linear-gradient(135deg,#f8fcff,#edf6ff)}
+.swx-landing .swx-product-grid{grid-template-columns:minmax(0,.78fr) minmax(520px,1.22fr);gap:4rem}
+.swx-landing .swx-product-copy h2{font-size:clamp(3rem,4.5vw,4.6rem)}
+.swx-landing .swx-dashboard-wrap{padding-right:4.5rem}
+.swx-landing .swx-final-cta{grid-template-columns:minmax(0,1fr) auto 300px;min-height:188px;border-radius:22px;background:linear-gradient(105deg,#052862 0%,#075ee7 62%,#3b81ee 100%)}
+.swx-landing .swx-cta-copy{padding:2rem 1rem 2rem 2.3rem}
+.swx-landing .swx-cta-copy h2{font-size:2.55rem}
+.swx-landing .swx-cta-person{min-height:188px}
+.swx-landing .swx-footer{padding:2.7rem 0 1.4rem}
+.swx-landing .swx-footer-grid{grid-template-columns:1.25fr repeat(4,1fr);gap:2rem}
+.swx-landing .swx-footer-bottom{margin-top:2rem}
+
+@media (max-width:900px){
+  .swx-landing .swx-recruiter-link{display:none}
+  .swx-landing .swx-hero-grid{grid-template-columns:minmax(0,.9fr) minmax(330px,1.1fr);column-gap:1.5rem;min-height:520px;padding-top:3.2rem}
+  .swx-landing .swx-hero-photo{height:390px}
+  .swx-landing .swx-hero-visual{min-height:390px}
+  .swx-landing .swx-search-wrap{bottom:2rem;width:min(660px,76vw)}
+  .swx-landing .swx-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .swx-landing .swx-product-grid{grid-template-columns:.82fr 1.18fr;gap:1.6rem}
+  .swx-landing .swx-product-copy h2{font-size:2.7rem}
+  .swx-landing .swx-dashboard-wrap{padding-right:2.6rem}
+  .swx-landing .swx-final-cta{grid-template-columns:minmax(0,1fr) auto 210px}
+  .swx-landing .swx-footer-grid{grid-template-columns:1.2fr repeat(2,1fr)}
+}
+@media (max-width:720px){
+  .swx-landing .swx-header-inner{min-height:58px}
+  .swx-landing .swx-desktop-nav,.swx-landing .swx-recruiter-link,.swx-landing .swx-login-link,.swx-landing .swx-create-link{display:none}
+  .swx-landing .swx-header-actions{margin-left:auto}
+  .swx-landing .swx-mobile-menu{display:block}
+  .swx-landing .swx-hero-grid{display:flex;min-height:0;flex-direction:column;padding:2.2rem 0 2.4rem}
+  .swx-landing .swx-hero-copy{width:100%;padding:0}
+  .swx-landing .swx-hero-title{max-width:390px;font-size:2.55rem;line-height:.94}
+  .swx-landing .swx-hero-title em{display:inline}
+  .swx-landing .swx-lead{font-size:.82rem}
+  .swx-landing .swx-hero-visual{width:100%;min-height:0;margin-top:1.35rem;padding-top:71%}
+  .swx-landing .swx-hero-photo{inset:0;width:100%;height:100%;border-radius:20px}
+  .swx-landing .swx-opportunity-card{right:.65rem;bottom:.65rem;width:185px;padding:.72rem}
+  .swx-landing .swx-opportunity-card p{display:none}
+  .swx-landing .swx-search-wrap{position:static;width:100%;margin-top:.9rem}
+  .swx-landing .swx-search{grid-template-columns:1fr;gap:.42rem;padding:.55rem;border-radius:13px}
+  .swx-landing .swx-search button{width:100%}
+  .swx-landing .swx-section{padding:3.2rem 0}
+  .swx-landing .swx-section-heading h2{font-size:2.05rem}
+  .swx-landing .swx-journey-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem}
+  .swx-landing .swx-journey-card{border-radius:12px}
+  .swx-landing .swx-journey-image{aspect-ratio:1.13}
+  .swx-landing .swx-journey-body{padding:.72rem .6rem}
+  .swx-landing .swx-journey-body h3{font-size:1.05rem}
+  .swx-landing .swx-journey-body p{min-height:0;font-size:.58rem}
+  .swx-landing .swx-knowledge-head{display:grid;gap:.8rem;margin-bottom:1rem}
+  .swx-landing .swx-knowledge-head h2{font-size:2.08rem}
+  .swx-landing .swx-guide-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:.75rem;margin:0 calc(-1 * var(--page-gutter));padding:0 var(--page-gutter) .3rem}
+  .swx-landing .swx-guide-grid::-webkit-scrollbar{display:none}
+  .swx-landing .swx-guide-grid>div{flex:0 0 min(88vw,390px);scroll-snap-align:start}
+  .swx-landing .swx-guide-body{min-height:0}
+  .swx-landing .swx-guide-dots{display:flex;justify-content:center;gap:.35rem;margin-top:.8rem}
+  .swx-landing .swx-guide-dots button{width:6px;height:6px;border:0;border-radius:50%;padding:0;background:#b9c7d9}
+  .swx-landing .swx-guide-dots button[aria-pressed="true"]{width:16px;border-radius:999px;background:#0866ff}
+  .swx-landing .swx-product-grid{display:flex;flex-direction:column;gap:1.6rem}
+  .swx-landing .swx-product-copy h2{font-size:2.35rem}
+  .swx-landing .swx-dashboard-wrap{width:100%;padding:0}
+  .swx-landing .swx-final-cta{display:grid;grid-template-columns:minmax(0,1fr) 118px;min-height:178px;border-radius:17px}
+  .swx-landing .swx-cta-copy{padding:1.25rem .5rem 1rem 1.1rem}
+  .swx-landing .swx-cta-copy h2{font-size:1.75rem}
+  .swx-landing .swx-cta-actions{grid-column:1;padding:0 0 1.2rem 1.1rem;align-self:end}
+  .swx-landing .swx-cta-person{grid-column:2;grid-row:1 / span 2;min-height:178px}
+  .swx-landing .swx-footer-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem 1.2rem}
+  .swx-landing .swx-footer-brand{grid-column:1 / -1}
+}
+@media (max-width:430px){
+  .swx-landing .swx-hero-title{font-size:2.25rem}
+  .swx-landing .swx-section-heading h2,.swx-landing .swx-knowledge-head h2{font-size:1.8rem}
+  .swx-landing .swx-journey-body h3{font-size:.92rem}
+  .swx-landing .swx-journey-body p{font-size:.53rem}
+  .swx-landing .swx-product-copy h2{font-size:2.05rem}
+}
