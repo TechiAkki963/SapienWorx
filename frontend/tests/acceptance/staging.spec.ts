@@ -22,12 +22,12 @@ async function signIn(page: import("@playwright/test").Page, role: "candidate" |
 test.describe.serial("deployed staging acceptance", () => {
   test("captures visual review of landing at phone, tablet and desktop sizes", async ({ page }) => {
     await mkdir("visual-review", { recursive: true });
-    for (const width of [390, 768, 1440]) {
+    for (const width of [430, 1024, 1280, 1920]) {
       await page.setViewportSize({ width, height: 900 });
       const response = await page.goto("/");
       expect(response?.status()).toBe(200);
       await expect(page.getByRole("heading", { name: /Find work that feels right for you/i })).toBeVisible();
-      await expect(page.getByRole("heading", { name: "Knowledge Hub" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Practical advice for a brighter career." })).toBeVisible();
       const photographs = page.locator('img[src*="ChatGPT%20Image"]');
       await expect(photographs).toHaveCount(8);
       for (const photo of await photographs.all()) {
@@ -39,8 +39,8 @@ test.describe.serial("deployed staging acceptance", () => {
       }
       // Full-page capture alone does not trip IntersectionObserver for offscreen Reveal components.
       // Scroll through the real page first and verify the dashboard and final CTA are painted.
-      await page.getByRole("heading", { name: "See your journey clearly." }).scrollIntoViewIfNeeded();
-      await expect(page.getByRole("heading", { name: "See your journey clearly." })).toBeVisible();
+      await page.getByRole("heading", { name: /Your career journey,/ }).scrollIntoViewIfNeeded();
+      await expect(page.getByRole("heading", { name: /Your career journey,/ })).toBeVisible();
       await page.getByRole("heading", { name: "Your next chapter starts here." }).scrollIntoViewIfNeeded();
       await expect(page.getByRole("heading", { name: "Your next chapter starts here." })).toBeVisible();
       await page.evaluate(() => {

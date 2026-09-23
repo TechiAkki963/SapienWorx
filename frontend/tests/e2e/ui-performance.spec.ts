@@ -39,7 +39,7 @@ test.describe("public UI stability", () => {
     });
     expect(organicMask).toContain("polygon");
 
-    await expect(page.getByRole("heading", { name: "Knowledge Hub" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Practical advice for a brighter career." })).toBeVisible();
     await expect(page.getByRole("link", { name: "Read Build a résumé that sounds like you" })).toHaveAttribute("href", "/resources/build-a-resume");
     await expectStableLayout(page, 0.1);
   });
@@ -83,15 +83,15 @@ test.describe("public UI stability", () => {
   test("keeps mobile navigation and candidate signup reachable", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
     await page.goto("/");
-    await page.getByText("Menu", { exact: false }).click();
+    await page.locator('summary[aria-label="Open navigation"]').click();
     const nav = page.getByRole("navigation", { name: "Mobile navigation" });
     await expect(nav.getByRole("link", { name: "Find Jobs" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Log in" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "For Recruiters" })).toHaveAttribute("href", "/recruiter/login");
-    await expect(page.getByRole("link", { name: /Join/ })).toHaveAttribute("href", "/signup");
+    await expect(nav.getByRole("link", { name: "Create Account" })).toHaveAttribute("href", "/signup");
   });
 
-  for (const width of [360, 390, 768, 1024, 1280, 1440]) {
+  for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
     test(`landing page does not overflow horizontally at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
