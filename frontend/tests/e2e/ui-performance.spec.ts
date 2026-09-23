@@ -50,6 +50,18 @@ test.describe("public UI stability", () => {
     await expectStableLayout(page, 0.1);
   });
 
+  test("desktop search does not cover the hero supporting card", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const search = await page.locator(".landing-search-panel").boundingBox();
+    const card = await page.locator(".hero-supporting-card").boundingBox();
+    expect(search).not.toBeNull();
+    expect(card).not.toBeNull();
+    const horizontalOverlap = Math.min(search!.x + search!.width, card!.x + card!.width) - Math.max(search!.x, card!.x);
+    const verticalOverlap = Math.min(search!.y + search!.height, card!.y + card!.height) - Math.max(search!.y, card!.y);
+    expect(horizontalOverlap <= 0 || verticalOverlap <= 0, "search panel must never cover supporting-card text").toBe(true);
+  });
+
   test("keeps the mobile career cards compact and every editorial cover distinct", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
