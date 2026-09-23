@@ -178,3 +178,70 @@ a {
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* Landing-only styling; recruiter and candidate workspaces retain their existing density. */
+.landing-home {
+  background: #fffcf8;
+}
+
+.landing-hero {
+  background:
+    radial-gradient(ellipse at 81% 18%, rgb(222 236 255 / 0.8), transparent 44%),
+    radial-gradient(ellipse at 94% 85%, rgb(255 221 203 / 0.7), transparent 36%),
+    linear-gradient(140deg, #fffcf8 7%, #f6faff 67%, #fff8f2 100%);
+}
+
+.landing-home .landing-search {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.375rem;
+  padding: 0.75rem;
+  border-radius: 1.4rem;
+}
+
+.landing-home .landing-search input,
+.landing-home .landing-search select,
+.landing-home .landing-search button[type="submit"] {
+  height: 2.75rem;
+  min-height: 2.75rem;
+  border-radius: 0.8rem;
+}
+
+.landing-home .landing-search input,
+.landing-home .landing-search select {
+  border-color: #e2eaf4;
+  background: #f9fbff;
+}
+
+.landing-home .landing-search input:focus,
+.landing-home .landing-search select:focus {
+  border-color: #0866ff;
+  outline: 2px solid rgb(8 102 255 / 0.14);
+  outline-offset: 1px;
+}
+
+.landing-handwriting {
+  font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+  font-style: italic;
+  letter-spacing: -0.04em;
+}
+
+.landing-glass {
+  border: 1px solid rgb(255 255 255 / 0.87);
+  background: rgb(255 255 255 / 0.91);
+  box-shadow: 0 16px 50px rgb(18 54 104 / 0.16);
+  backdrop-filter: blur(14px);
+}
+
+.landing-dashboard {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 639px) {
+  .landing-home .landing-search {
+    box-shadow: 0 15px 38px rgb(18 54 104 / 0.1);
+  }
+  .landing-home .landing-search button[type="submit"] {
+    width: 100%;
+  }
+}

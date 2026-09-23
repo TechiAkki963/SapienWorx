@@ -9,7 +9,7 @@ test.describe("public UI stability", () => {
     await installCLSObserver(page);
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Find work that feels/i })).toBeVisible();
     const human = page.locator(".hero-human");
     const orbit = page.locator(".hero-orbit");
     await expect(human).toBeVisible();
@@ -39,6 +39,8 @@ test.describe("public UI stability", () => {
     });
     expect(organicMask).toContain("polygon");
 
+    await expect(page.getByRole("heading", { name: "Knowledge Hub" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Read Build a résumé that sounds like you" })).toHaveAttribute("href", "/resources/build-a-resume");
     await expectStableLayout(page, 0.1);
   });
 
@@ -93,7 +95,7 @@ test.describe("public UI stability", () => {
     test(`landing page does not overflow horizontally at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
-      await expect(page.getByRole("heading", { name: /Your next opportunity/i })).toBeVisible();
+      await expect(page.getByRole("heading", { name: /Find work that feels/i })).toBeVisible();
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
     });
