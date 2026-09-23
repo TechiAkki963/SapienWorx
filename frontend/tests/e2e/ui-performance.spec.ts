@@ -18,7 +18,7 @@ test.describe("public UI stability", () => {
     await expect(page.getByText("Illustrative candidate workspace")).toBeVisible();
     await expect(page.getByRole("heading", { name: /Practical advice for a brighter career/i })).toBeVisible();
     const ctaPortrait = page.locator(".landing-cta-person");
-    await expect(ctaPortrait).toHaveAttribute("src", /candidate-signup\.webp/);
+    await expect(ctaPortrait).toHaveAttribute("src", /sapien-hero-candidate\.webp/);
     await ctaPortrait.scrollIntoViewIfNeeded();
     await expect.poll(async () => ctaPortrait.evaluate(node => (node as HTMLImageElement).complete && (node as HTMLImageElement).naturalWidth > 0)).toBe(true);
     for (const label of ["Discover", "Grow", "Belong"]) {
@@ -73,6 +73,22 @@ test.describe("public UI stability", () => {
     const horizontalOverlap = Math.min(search!.x + search!.width, card!.x + card!.width) - Math.max(search!.x, card!.x);
     const verticalOverlap = Math.min(search!.y + search!.height, card!.y + card!.height) - Math.max(search!.y, card!.y);
     expect(horizontalOverlap <= 0 || verticalOverlap <= 0, "search panel must never cover supporting-card text").toBe(true);
+  });
+
+  test("visually distinct journey images, with an intentional hero-to-CTA bookend", async ({ page }) => {
+    await page.goto("/");
+    const heroSource = await page.locator(".hero-human").getAttribute("src");
+    const ctaSource = await page.locator(".landing-cta-person").getAttribute("src");
+    const images = page.locator("#how-it-works article img");
+    await expect(images).toHaveCount(3);
+    const sources = await images.evaluateAll(nodes => nodes.map(node => {
+      const image = node as HTMLImageElement;
+      return new URL(image.currentSrc || image.src).searchParams.get("url") || image.getAttribute("src");
+    }));
+    expect(new Set(sources).size, "Discover, Grow and Belong need three different images").toBe(3);
+    const hero = heroSource && (new URL(heroSource, page.url()).searchParams.get("url") || heroSource);
+    const cta = ctaSource && (new URL(ctaSource, page.url()).searchParams.get("url") || ctaSource);
+    expect(cta, "The final CTA should reuse the reference's hero photography").toBe(hero);
   });
 
   test("keeps the mobile career cards compact and every editorial cover distinct", async ({ page }) => {

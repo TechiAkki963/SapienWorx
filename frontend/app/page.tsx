@@ -17,6 +17,9 @@ const images = {
   discover: "/images/people/sapien-recruiter.webp",
   grow: "/images/people/candidate-dashboard.webp",
   belong: "/images/people/recruiter-team.webp",
+  // The reference intentionally bookends the page with the same human portrait.
+  // This is a deliberate repeat; Discover/Grow/Belong and editorial covers must differ.
+  finalCta: "/images/people/sapien-hero-candidate.webp",
 };
 
 const journey = [
@@ -207,8 +210,8 @@ export default async function HomePage() {
                 <Button href="/jobs" className="border border-white/60 bg-transparent text-white shadow-none hover:bg-white/10">Explore Jobs</Button>
               </div>
               <div className="relative hidden h-[10rem] min-w-[11rem] lg:block">
-                <div className="absolute -bottom-10 right-0 h-[15rem] w-[12rem] overflow-hidden rounded-t-[6rem] opacity-85" aria-hidden="true">
-                  <Image src="/images/people/candidate-signup.webp" alt="" fill sizes="192px" className="landing-cta-person object-cover object-[55%_30%]" />
+                <div className="absolute -bottom-10 right-0 h-[15rem] w-[12rem] overflow-hidden rounded-t-[6rem] opacity-90" aria-hidden="true">
+                  <Image src={images.finalCta} alt="" fill sizes="(max-width: 1023px) 1px, 240px" className="landing-cta-person object-cover object-[52%_34%]" />
                 </div>
                 <p className="absolute bottom-2 right-0 z-10 -rotate-6 text-right font-serif text-base italic leading-tight text-white/90">Same people.<br />Bigger possibilities.</p>
               </div>
