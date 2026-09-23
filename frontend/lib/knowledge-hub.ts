@@ -34,7 +34,7 @@ export const guides = [
     title: "Make a practical skill-growth plan",
     category: "Growth",
     dek: "A manageable plan to learn deliberately and build momentum.",
-    image: "ChatGPT Image Sep 23, 2026, 06_05_56 PM (7).png",
+    image: "ChatGPT Image Sep 23, 2026, 06_05_57 PM (7).png",
     alt: "Woman taking handwritten notes beside her laptop",
     intro: "Skill growth does not have to mean collecting endless courses. A smaller plan that you can repeat is often easier to sustain.",
     steps: [
