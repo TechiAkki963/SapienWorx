@@ -100,7 +100,7 @@ export default function HomePage() {
         <Container>
           <Reveal className="swx-knowledge-head">
             <div><p className="swx-eyebrow">Knowledge Hub</p><h2 id="knowledge-title" className="swx-display">Practical advice for a brighter career.</h2><p>Expert insights, actionable tips, and real stories to help you grow with confidence.</p></div>
-            <Link href="/#knowledge-hub" className="swx-outline-link">Explore Knowledge Hub <span aria-hidden="true">→</span></Link>
+            <Link href="/resources" className="swx-outline-link">Explore Knowledge Hub <span aria-hidden="true">→</span></Link>
           </Reveal>
           <LandingGuideCarousel guides={guides} />
         </Container>
