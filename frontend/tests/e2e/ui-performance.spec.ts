@@ -135,6 +135,11 @@ test.describe("public UI stability", () => {
         return visible.length > 0 && visible.every(image =>
           (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0);
       })).toBe(true);
+      await page.evaluate(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      });
+      await page.screenshot({ path: testInfo.outputPath(`landing-top-${width}.png`), fullPage: false, animations: "disabled" });
       await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true, animations: "disabled" });
     });
   }
