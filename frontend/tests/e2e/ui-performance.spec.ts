@@ -104,10 +104,10 @@ test.describe("public UI stability", () => {
     await expect(nav.getByRole("link", { name: "Find Jobs" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Log in" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "For Recruiters" })).toHaveAttribute("href", "/recruiter/login");
-    await expect(page.getByRole("link", { name: /Join/ })).toHaveAttribute("href", "/signup");
+    await expect(page.locator("header").getByRole("link", { name: /Join/ })).toHaveAttribute("href", "/signup");
   });
 
-  for (const width of [360, 390, 768, 1024, 1280, 1440]) {
+  for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1920]) {
     test(`landing page does not overflow horizontally at ${width}px`, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
