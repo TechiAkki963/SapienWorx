@@ -101,9 +101,9 @@ test.describe("public UI stability", () => {
     await page.goto("/");
     const account = page.getByRole("navigation", { name: "Account navigation" });
     const header = page.locator("header");
-    await expect(header.getByText("Dashboard")).toBeVisible();
+    await expect(header.locator("summary").filter({ hasText: "Dashboard" })).toBeVisible();
     await expect(header.getByRole("link", { name: /Create Account/ })).toHaveCount(0);
-    await header.getByText("Dashboard").click();
+    await header.locator("summary").filter({ hasText: "Dashboard" }).click();
     await expect(account.getByRole("link", { name: "Open dashboard" })).toHaveAttribute("href", "/candidate");
 
     await page.setViewportSize({ width: 375, height: 812 });

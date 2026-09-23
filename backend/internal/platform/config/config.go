@@ -41,26 +41,26 @@ type DatabaseConfig struct {
 }
 
 type AuthConfig struct {
-	Issuer            string
-	Audience          string
-	JWTSecret         string
-	AccessTokenTTL    time.Duration
-	RefreshTokenTTL   time.Duration
-	ClockSkew         time.Duration
-	OTPSecret         string
-	OTPTTL            time.Duration
-	OTPResendInterval time.Duration
-	OTPIPLimit        int
-	OTPIPWindow       time.Duration
-	LoginIPLimit      int
-	LoginIPWindow     time.Duration
-	ApplicationIPLimit int
-	ApplicationIPWindow time.Duration
+	Issuer               string
+	Audience             string
+	JWTSecret            string
+	AccessTokenTTL       time.Duration
+	RefreshTokenTTL      time.Duration
+	ClockSkew            time.Duration
+	OTPSecret            string
+	OTPTTL               time.Duration
+	OTPResendInterval    time.Duration
+	OTPIPLimit           int
+	OTPIPWindow          time.Duration
+	LoginIPLimit         int
+	LoginIPWindow        time.Duration
+	ApplicationIPLimit   int
+	ApplicationIPWindow  time.Duration
 	ApplicationUserLimit int
-	CookieDomain      string
-	CookieSecure      bool
-	AccessCookieName  string
-	RefreshCookieName string
+	CookieDomain         string
+	CookieSecure         bool
+	AccessCookieName     string
+	RefreshCookieName    string
 }
 
 type AWSConfig struct {
@@ -98,26 +98,26 @@ func Load() (Config, error) {
 			HealthTimeout:   durationEnv("DB_HEALTH_TIMEOUT", 2*time.Second),
 		},
 		Auth: AuthConfig{
-			Issuer:            env("JWT_ISSUER", "sapienworx-api"),
-			Audience:          env("JWT_AUDIENCE", "sapienworx-web"),
-			JWTSecret:         jwtSecret,
-			AccessTokenTTL:    durationEnv("JWT_ACCESS_TOKEN_TTL", 15*time.Minute),
-			RefreshTokenTTL:   durationEnv("AUTH_REFRESH_TOKEN_TTL", 30*24*time.Hour),
-			ClockSkew:         durationEnv("JWT_CLOCK_SKEW", 30*time.Second),
-			OTPSecret:         otpSecret,
-			OTPTTL:            durationEnv("AUTH_OTP_TTL", 10*time.Minute),
-			OTPResendInterval: durationEnv("AUTH_OTP_RESEND_INTERVAL", 60*time.Second),
-			OTPIPLimit:        intEnv("AUTH_OTP_IP_LIMIT", 8),
-			OTPIPWindow:       durationEnv("AUTH_OTP_IP_WINDOW", 10*time.Minute),
-			LoginIPLimit:      intEnv("AUTH_LOGIN_IP_LIMIT", 12),
-			LoginIPWindow:     durationEnv("AUTH_LOGIN_IP_WINDOW", 5*time.Minute),
-			ApplicationIPLimit: intEnv("AUTH_APPLICATION_IP_LIMIT", 60),
-			ApplicationIPWindow: durationEnv("AUTH_APPLICATION_IP_WINDOW", 5*time.Minute),
+			Issuer:               env("JWT_ISSUER", "sapienworx-api"),
+			Audience:             env("JWT_AUDIENCE", "sapienworx-web"),
+			JWTSecret:            jwtSecret,
+			AccessTokenTTL:       durationEnv("JWT_ACCESS_TOKEN_TTL", 15*time.Minute),
+			RefreshTokenTTL:      durationEnv("AUTH_REFRESH_TOKEN_TTL", 30*24*time.Hour),
+			ClockSkew:            durationEnv("JWT_CLOCK_SKEW", 30*time.Second),
+			OTPSecret:            otpSecret,
+			OTPTTL:               durationEnv("AUTH_OTP_TTL", 10*time.Minute),
+			OTPResendInterval:    durationEnv("AUTH_OTP_RESEND_INTERVAL", 60*time.Second),
+			OTPIPLimit:           intEnv("AUTH_OTP_IP_LIMIT", 8),
+			OTPIPWindow:          durationEnv("AUTH_OTP_IP_WINDOW", 10*time.Minute),
+			LoginIPLimit:         intEnv("AUTH_LOGIN_IP_LIMIT", 12),
+			LoginIPWindow:        durationEnv("AUTH_LOGIN_IP_WINDOW", 5*time.Minute),
+			ApplicationIPLimit:   intEnv("AUTH_APPLICATION_IP_LIMIT", 60),
+			ApplicationIPWindow:  durationEnv("AUTH_APPLICATION_IP_WINDOW", 5*time.Minute),
 			ApplicationUserLimit: intEnv("AUTH_APPLICATION_USER_LIMIT", 12),
-			CookieDomain:      strings.TrimSpace(os.Getenv("AUTH_COOKIE_DOMAIN")),
-			CookieSecure:      boolEnv("AUTH_COOKIE_SECURE", environment == "production"),
-			AccessCookieName:  env("AUTH_ACCESS_COOKIE_NAME", "sw_access"),
-			RefreshCookieName: env("AUTH_REFRESH_COOKIE_NAME", "sw_refresh"),
+			CookieDomain:         strings.TrimSpace(os.Getenv("AUTH_COOKIE_DOMAIN")),
+			CookieSecure:         boolEnv("AUTH_COOKIE_SECURE", environment == "production"),
+			AccessCookieName:     env("AUTH_ACCESS_COOKIE_NAME", "sw_access"),
+			RefreshCookieName:    env("AUTH_REFRESH_COOKIE_NAME", "sw_refresh"),
 		},
 		AWS: AWSConfig{
 			Region:       env("AWS_REGION", "ap-south-1"),
