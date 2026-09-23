@@ -6,7 +6,7 @@ const columns = [
   { title:"For Candidates", links:[["Find Jobs","/jobs"],["Knowledge Hub","/#knowledge-hub"],["Career Resources","/#knowledge-hub"],["Create Account","/signup"]] },
   { title:"For Recruiters", links:[["Post a Job","/recruiter/login"],["Talent Solutions","/recruiter/login"],["Pricing","/recruiter/login"],["Contact Sales","/recruiter/signup"]] },
   { title:"Company", links:[["About Us","/#about"],["Careers","/jobs"],["Press","/#about"],["Blog","/#knowledge-hub"]] },
-  { title:"Legal", links:[["Privacy Policy","/privacy"],["Terms of Service","/privacy"],["Cookie Preferences","/privacy"],["Accessibility","/#about"]] },
+  { title:"Legal", links:[["Privacy Policy","/privacy"],["Subprocessors","/subprocessors"],["Candidate login","/login"],["Recruiter login","/recruiter/login"]] },
 ];
 
 export function LandingFooter() {
