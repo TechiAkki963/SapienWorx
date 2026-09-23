@@ -6,7 +6,7 @@ import { Container } from "@/components/layout/container";
 
 export function PublicHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/60 bg-white/82 backdrop-blur-xl supports-[backdrop-filter]:bg-white/74">
+    <header className="sticky top-0 z-50 border-b border-white/60 bg-white/95 backdrop-blur-xl supports-[backdrop-filter]:bg-white/92">
       <Container className="flex min-h-[64px] items-center justify-between gap-3 py-2 sm:min-h-[72px] sm:gap-4 sm:py-3">
         <Link href="/" aria-label="SapienWorx home" className="shrink-0">
           <Wordmark className="text-sm sm:text-lg" />
