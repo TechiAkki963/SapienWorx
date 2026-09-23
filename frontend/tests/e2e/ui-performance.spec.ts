@@ -18,7 +18,10 @@ test.describe("public UI stability", () => {
     await expect(page.getByText("Illustrative candidate workspace")).toBeVisible();
     await expect(page.getByRole("heading", { name: /Practical advice for a brighter career/i })).toBeVisible();
     const ctaPortrait = page.locator(".landing-cta-person");
-    await expect(ctaPortrait).toHaveAttribute("src", /\/images\/landing\/final-cta\.webp/);
+    await expect.poll(async () => ctaPortrait.evaluate(node => {
+      const source = (node as HTMLImageElement).currentSrc || (node as HTMLImageElement).src;
+      return new URL(source).searchParams.get("url") || new URL(source).pathname;
+    })).toBe("/images/landing/final-cta.webp");
     await ctaPortrait.scrollIntoViewIfNeeded();
     await expect.poll(async () => ctaPortrait.evaluate(node => (node as HTMLImageElement).complete && (node as HTMLImageElement).naturalWidth > 0)).toBe(true);
     for (const label of ["Discover", "Grow", "Belong"]) {
@@ -88,7 +91,13 @@ test.describe("public UI stability", () => {
     expect(new Set(sources).size, "Discover, Grow and Belong need three different images").toBe(3);
     const hero = heroSource && (new URL(heroSource, page.url()).searchParams.get("url") || heroSource);
     const cta = ctaSource && (new URL(ctaSource, page.url()).searchParams.get("url") || ctaSource);
-    expect(cta, "The final CTA should reuse the reference's hero photography").toBe(hero);
+    expect(hero).toBe("/images/landing/hero-candidate.webp");
+    expect(cta).toBe("/images/landing/final-cta.webp");
+    expect(sources.every(source => source?.includes("/images/landing/"))).toBe(true);
+    for (const image of await images.all()) {
+      await image.scrollIntoViewIfNeeded();
+      await expect.poll(async () => image.evaluate(node => (node as HTMLImageElement).complete && (node as HTMLImageElement).naturalWidth > 0)).toBe(true);
+    }
   });
 
   test("keeps the mobile career cards compact and every editorial cover distinct", async ({ page }) => {
