@@ -128,9 +128,13 @@ test.describe("public UI stability", () => {
       });
       // Detect incomplete/lazy-loaded editorial covers instead of accepting
       // blank screenshot cards as a successful visual regression capture.
-      await expect.poll(async () => page.locator("#knowledge-hub article img").evaluateAll(images =>
-        images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0),
-      )).toBe(true);
+      await expect.poll(async () => page.locator("#knowledge-hub article img").evaluateAll(images => {
+        // Supporting articles are intentionally hidden on phones; Next/Image
+        // does not eagerly decode hidden images. Check visible editorial art.
+        const visible = images.filter(image => image.getClientRects().length > 0);
+        return visible.length > 0 && visible.every(image =>
+          (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0);
+      })).toBe(true);
       await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true, animations: "disabled" });
     });
   }
