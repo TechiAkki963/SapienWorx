@@ -14,6 +14,13 @@ test.describe("public UI stability", () => {
     await expect(human).toBeVisible();
     await expect(page.getByRole("link", { name: /For Recruiters/ }).first()).toHaveAttribute("href", "/recruiter/login");
     await expect(page.getByRole("button", { name: /Search jobs/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Your career journey, all in one place/i })).toBeVisible();
+    await expect(page.getByText("Illustrative candidate workspace")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Practical advice for a brighter career/i })).toBeVisible();
+    for (const label of ["Discover", "Grow", "Belong"]) {
+      await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
+    }
+
 
     // Visibility alone is not enough: a broken image can still occupy layout space.
     // Confirm the browser actually decoded the human portrait at a useful source size.
@@ -50,6 +57,13 @@ test.describe("public UI stability", () => {
     const search = page.locator('form[role="search"]').filter({ has: page.locator("#home-q") });
     await expect(search).toBeVisible();
     await expect(search).toHaveCSS("opacity", "1");
+    const searchTop = await search.boundingBox();
+    const heroPortrait = await page.locator(".hero-human").boundingBox();
+    expect(searchTop).not.toBeNull();
+    expect(heroPortrait).not.toBeNull();
+    // The approved mobile mockup puts search before the portrait.
+    expect(searchTop!.y + searchTop!.height).toBeLessThan(heroPortrait!.y);
+
 
     const searchBox = await search.boundingBox();
     const queryBox = await page.locator("#home-q").boundingBox();
