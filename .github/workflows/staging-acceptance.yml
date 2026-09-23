@@ -10,6 +10,14 @@ on:
       - "database/**"
       - "performance/load_test.js"
       - ".github/workflows/staging-acceptance.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "deploy/**"
+      - "backend/**"
+      - "frontend/**"
+      - "database/**"
+      - ".github/workflows/staging-acceptance.yml"
   workflow_dispatch:
 
 permissions:
@@ -93,6 +101,7 @@ jobs:
         run: npx playwright test --config=playwright.acceptance.config.ts
 
       - name: Authenticate load-test candidate
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
@@ -106,9 +115,11 @@ jobs:
           echo "ACCEPTANCE_ACCESS_TOKEN=$token" >> "$GITHUB_ENV"
 
       - name: Set up Grafana k6
+        if: github.event_name != 'pull_request'
         uses: grafana/setup-k6-action@v1
 
       - name: Run controlled 20-VU staging smoke
+        if: github.event_name != 'pull_request'
         env:
           BASE_URL: http://localhost:8080
           ACCESS_TOKEN: ${{ env.ACCEPTANCE_ACCESS_TOKEN }}

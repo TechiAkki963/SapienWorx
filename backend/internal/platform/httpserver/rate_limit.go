@@ -72,6 +72,39 @@ func (l *IPRateLimiter) Middleware(scope string) Middleware {
 	}
 }
 
+// CandidateApplicationGuard combines a coarse per-IP throttle with a
+// per-account limit after authentication. The latter avoids punishing all
+// legitimate candidates behind one shared office/mobile network.
+func CandidateApplicationGuard(ipLimit, userLimit int, window time.Duration) Middleware {
+	ipLimiter := NewIPRateLimiter(ipLimit, window)
+	userLimiter := NewIPRateLimiter(userLimit, window)
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			claims, ok := ClaimsFromContext(r.Context())
+			if !ok {
+				writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
+				return
+			}
+			ipAllowed, ipRetry := ipLimiter.Allow("application:ip:" + requestPeerIP(r))
+			userAllowed, userRetry := userLimiter.Allow("application:user:" + claims.Subject)
+			if !ipAllowed || !userAllowed {
+				retry := ipRetry
+				if userRetry > retry {
+					retry = userRetry
+				}
+				seconds := int(retry.Seconds())
+				if seconds < 1 {
+					seconds = 1
+				}
+				w.Header().Set("Retry-After", strconvItoa(seconds))
+				writeError(w, r, http.StatusTooManyRequests, "rate_limited", "too many applications; try again later")
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func requestPeerIP(r *http.Request) string {
 	// Trust only the socket peer here. A deployment proxy may normalize RemoteAddr;
 	// untrusted X-Forwarded-For values must not bypass abuse controls.

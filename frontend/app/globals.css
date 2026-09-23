@@ -4,7 +4,7 @@
   --color-canvas: #f8fbff;
   --color-surface: #ffffff;
   --color-ink: #10213f;
-  --color-ink-muted: #66758f;
+  --color-ink-muted: #475569;
   --color-line: #dce6f2;
   --color-indigo: #0866ff;
   --color-indigo-soft: #eaf3ff;
@@ -91,6 +91,14 @@ a {
   transform: translateY(0);
 }
 
+/* A warm accent differentiates the candidate-first hero from the cooler
+   editorial and product sections without baking gradients into photography. */
+.landing-hero {
+  background:
+    radial-gradient(ellipse at 1% 6%, rgb(255 238 227 / 0.78), transparent 35rem),
+    linear-gradient(125deg, #f4f9ff 0%, #ffffff 52%, #eaf4ff 100%);
+}
+
 .human-grid {
   background-image:
     linear-gradient(rgb(8 102 255 / 0.045) 1px, transparent 1px),
@@ -109,59 +117,16 @@ a {
   backface-visibility: hidden;
 }
 
-.hero-orbit {
-  animation: orbit-drift 8s ease-in-out infinite;
-}
-
-/* Component-scoped landing search layout, no global href overrides. */
-.landing-search {
-  border-radius: 1.25rem;
-  gap: 0.5rem;
-  padding: 0.5rem;
-}
-
-.landing-search input,
-.landing-search select,
-.landing-search button[type="submit"] {
-  min-width: 0;
-  border-radius: 0.85rem;
-}
-
-.landing-search input,
-.landing-search select {
-  border: 1px solid #e4ebf4;
-  background: #f8fafc;
-}
-
-.landing-search button[type="submit"] {
-  white-space: nowrap;
-}
-
-.landing-final-cta {
-  background: #ffd5c0;
-  color: #071d49;
+/* Inverse primary action for the dark blue landing CTA. */
+.landing-cta-inverse {
+  background: #ffffff;
+  color: #0866ff;
   box-shadow: 0 10px 28px rgb(7 29 73 / 0.18);
 }
 
-.landing-final-cta:hover {
-  background: #ffc6a8;
-}
-
-@keyframes orbit-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
-  50% { transform: translate3d(8px, -6px, 0) rotate(1deg); }
-}
-
-@media (max-width: 639px) {
-  .landing-search {
-    grid-template-columns: minmax(0, 1fr);
-    box-shadow: 0 12px 34px rgb(18 54 104 / 0.10);
-  }
-
-  .landing-search button[type="submit"] {
-    width: 100%;
-    min-height: 3rem;
-  }
+.landing-cta-inverse:hover {
+  background: #eaf3ff;
+  color: #071d49;
 }
 
 @media (prefers-reduced-motion: reduce) {

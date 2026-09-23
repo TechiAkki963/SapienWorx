@@ -52,6 +52,28 @@ jobs:
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
       - name: Test
         run: go test -race ./...
+      - name: Compare Go test coverage with main
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          go test -coverprofile=coverage.out ./...
+          current="$(go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/,"",$3);print $3}')"
+          test -n "$current"
+          git fetch --no-tags --depth=1 origin main
+          git worktree add --detach "$RUNNER_TEMP/swx-coverage-base" FETCH_HEAD
+          (
+            cd "$RUNNER_TEMP/swx-coverage-base/backend"
+            go test -coverprofile=coverage.out ./...
+            baseline="$(go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/,"",$3);print $3}')"
+            test -n "$baseline"
+            echo "Base coverage: $baseline%; PR coverage: $current%"
+            awk -v base="$baseline" -v pr="$current" 'BEGIN {if (pr + 0.01 < base) exit 1}' || {
+              echo "::error::Go test coverage decreased compared with main."
+              exit 1
+            }
+          )
+
       - name: High-contention concurrency guards
         run: go test -race ./internal/platform/httpserver -run 'Test(IPRateLimiterConcurrentContention|CandidateActivityGate)' -count=10
       - name: Faceted job search benchmark smoke
