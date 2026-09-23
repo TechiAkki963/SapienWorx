@@ -30,6 +30,28 @@ test.describe.serial("deployed staging acceptance", () => {
     await expect(page.getByText("Frontend Engineer").first()).toBeVisible();
   });
 
+  test("enforces public and API security headers", async ({ request }) => {
+    for (const route of ["/", "/api/v1/jobs"]) {
+      const response = await request.get(route);
+      expect(response.ok(), route).toBeTruthy();
+      const headers = response.headers();
+      expect(headers["x-content-type-options"]).toBe("nosniff");
+      expect(headers["x-frame-options"]).toBe("DENY");
+      expect(headers["referrer-policy"]).toBe("no-referrer");
+      expect(headers["permissions-policy"]).toContain("camera=()");
+    }
+  });
+
+  test("candidate applies to an available job and sees it in the tracker", async ({ page }) => {
+    await signIn(page, "candidate");
+    await page.goto("/jobs/40000000-0000-4000-8000-000000000002");
+    await expect(page.getByRole("heading", { name: "Frontend Engineer" })).toBeVisible();
+    await page.getByRole("button", { name: "Apply now" }).click();
+    await expect(page.getByRole("button", { name: /Applied/ })).toBeDisabled();
+    await page.goto("/candidate/applications");
+    await expect(page.getByText("Frontend Engineer").first()).toBeVisible();
+  });
+
   test("authenticates candidate and recruiter through real cookies and SSR", async ({ browser }) => {
     const candidateContext = await browser.newContext();
     const candidatePage = await candidateContext.newPage();
