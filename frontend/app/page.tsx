@@ -91,7 +91,7 @@ export default async function HomePage() {
                 <span className="mt-1 block h-0.5 w-8 rotate-[-5deg] bg-indigo/80" />
               </p>
               <div className="absolute bottom-4 left-4 z-20 max-w-[13.5rem] rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-card backdrop-blur sm:bottom-6 sm:left-6 lg:bottom-8 lg:left-auto lg:right-4">
-                <span className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-soft text-indigo" aria-hidden="true">▣</span>
+                <span className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-soft text-indigo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4"><rect x="3.5" y="7" width="17" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3.5 12h17M10 12v2h4v-2"/></svg></span>
                 <p className="font-serif text-lg font-semibold leading-tight text-navy">Real opportunities.<br />A brighter you.</p>
                 <p className="mt-1.5 text-xs leading-[1.45] text-ink-muted">Find roles, grow your skills and build the career you want.</p>
               </div>
