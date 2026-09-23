@@ -6,7 +6,7 @@ test.describe("Knowledge Hub and editorial Control Centre", () => {
 
   test("shows four seeded articles and hides drafts from the public", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: /More than finding your next job/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Practical advice for a brighter career/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /Build a résumé that tells your story/ })).toBeVisible();
 
     await page.goto("/knowledge-hub");
