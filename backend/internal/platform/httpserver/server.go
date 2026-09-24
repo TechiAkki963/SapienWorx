@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
@@ -29,7 +30,7 @@ type Server struct {
 	admin         *admin.Service
 	privacy       *privacy.Service
 	messages      *messagingRuntime
-	objectStorage storage.Presigner
+	objectStorage storage.ObjectStore
 	cfg           config.Config
 }
 
@@ -65,6 +66,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	adminOnly := MasterAdminOnly(tokens, cfg.Auth.AccessCookieName, adminService, logger)
 
 	mux.Handle("GET /api/v1/auth/me", Chain(http.HandlerFunc(s.me), protected))
+	mux.Handle("POST /api/v1/users/profile-image", Chain(http.HandlerFunc(s.uploadUserProfileImage), protected))
+	mux.Handle("GET /api/v1/users/profile-image", Chain(http.HandlerFunc(s.getUserProfileImage), protected))
 	mux.Handle("POST /api/v1/auth/logout-all", Chain(http.HandlerFunc(s.logoutAll), protected))
 	mux.Handle("GET /api/v1/user/privacy/requests", Chain(http.HandlerFunc(s.userPrivacyRequests), protected))
 	mux.Handle("POST /api/v1/user/privacy/requests", Chain(http.HandlerFunc(s.userPrivacyRequests), protected))
@@ -153,8 +156,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	return s
 }
 
-func (s *Server) SetObjectStorage(presigner storage.Presigner) { s.objectStorage = presigner }
-func (s *Server) ListenAndServe() error                        { return s.http.ListenAndServe() }
+func (s *Server) SetObjectStorage(objectStore storage.ObjectStore) { s.objectStorage = objectStore }
+func (s *Server) ListenAndServe() error                            { return s.http.ListenAndServe() }
 func (s *Server) Shutdown(ctx context.Context) error {
 	s.messages.Close()
 	return s.http.Shutdown(ctx)
@@ -181,5 +184,19 @@ func (s *Server) me(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"id": claims.Subject, "role": claims.Role})
+	profile, err := s.auth.SessionProfile(r.Context(), claims.Subject)
+	if err != nil {
+		if errors.Is(err, auth.ErrAccountUnavailable) {
+			writeError(w, r, http.StatusUnauthorized, "session_unavailable", "session is no longer available")
+			return
+		}
+		s.logger.Error("session profile lookup failed", "request_id", RequestIDFromContext(r.Context()))
+		writeError(w, r, http.StatusServiceUnavailable, "profile_unavailable", "profile information is temporarily unavailable")
+		return
+	}
+	if profile.Role != claims.Role {
+		writeError(w, r, http.StatusUnauthorized, "session_invalid", "session is no longer valid")
+		return
+	}
+	writeJSON(w, http.StatusOK, profile)
 }

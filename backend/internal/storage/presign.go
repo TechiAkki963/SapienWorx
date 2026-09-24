@@ -1,7 +1,10 @@
 package storage
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"io"
 	"net/http"
@@ -28,6 +31,11 @@ type Presigner interface {
 	PresignGet(context.Context, string, string) (PresignedRequest, error)
 	PresignPut(context.Context, string, string) (PresignedRequest, error)
 	DeleteObject(context.Context, string) error
+}
+
+type ObjectStore interface {
+	Presigner
+	PutObject(context.Context, string, string, []byte) error
 }
 
 type S3Presigner struct {
@@ -94,6 +102,40 @@ func (p *S3Presigner) DeleteObject(ctx context.Context, key string) error {
 		return nil
 	}
 	return errors.New("private object deletion failed with status " + resp.Status)
+}
+
+func (p *S3Presigner) PutObject(ctx context.Context, key, contentType string, body []byte) error {
+	key = strings.TrimSpace(strings.TrimPrefix(key, "/"))
+	if key == "" || strings.Contains(key, "..") || contentType == "" || len(body) == 0 {
+		return errors.New("invalid object upload")
+	}
+	endpoint := &url.URL{Scheme: "https", Host: p.bucket + ".s3." + p.region + ".amazonaws.com", Path: "/" + key}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, endpoint.String(), bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("X-Amz-Server-Side-Encryption", "AES256")
+	payload := sha256.Sum256(body)
+	creds, err := p.credentials.Retrieve(ctx)
+	if err != nil {
+		return err
+	}
+	if err = p.signer.SignHTTP(ctx, creds, req, hex.EncodeToString(payload[:]), "s3", p.region, p.now().UTC(), func(options *v4.SignerOptions) {
+		options.DisableURIPathEscaping = true
+	}); err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 32<<10))
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return nil
+	}
+	return errors.New("profile image storage failed with status " + resp.Status)
 }
 
 func (p *S3Presigner) presign(ctx context.Context, method, key, contentType, filename string) (PresignedRequest, error) {

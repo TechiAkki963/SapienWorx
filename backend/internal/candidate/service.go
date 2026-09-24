@@ -2,6 +2,7 @@ package candidate
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -213,7 +214,9 @@ func (s *Service) Job(ctx context.Context, id string) (Job, error) {
 
 func (s *Service) Profile(ctx context.Context, userID string) (Profile, error) {
 	var profile Profile
-	err := s.db.QueryRow(ctx, `SELECT cp.user_id,u.email,u.phone_e164,cp.full_name,cp.headline,cp.current_city,cp.current_state,cp.country_code,cp.total_experience_months,cp.notice_period_days,cp.profile_completion FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
+	var rawDetails []byte
+	var cvUploadedAt *time.Time
+	err := s.db.QueryRow(ctx, `SELECT cp.user_id,u.email,u.phone_e164,cp.full_name,cp.headline,cp.current_city,cp.current_state,cp.country_code,cp.total_experience_months,cp.notice_period_days,cp.profile_completion,cp.profile_details,cp.cv_uploaded_at FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
 		&profile.UserID,
 		&profile.Email,
 		&profile.Phone,
@@ -225,11 +228,26 @@ func (s *Service) Profile(ctx context.Context, userID string) (Profile, error) {
 		&profile.TotalExperienceMonths,
 		&profile.NoticePeriodDays,
 		&profile.ProfileCompletion,
+		&rawDetails,
+		&cvUploadedAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Profile{}, ErrNotFound
 	}
-	return profile, err
+	if err != nil {
+		return Profile{}, err
+	}
+	var details map[string]any
+	if len(rawDetails) > 0 {
+		if err := json.Unmarshal(rawDetails, &details); err != nil {
+			return Profile{}, err
+		}
+	}
+	profile.ProfileCompletion = calculateProfileCompletion(profile, details, cvUploadedAt != nil)
+	if _, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET profile_completion=$2 WHERE user_id=$1 AND profile_completion<>$2`, userID, profile.ProfileCompletion); err != nil {
+		return Profile{}, err
+	}
+	return profile, nil
 }
 
 func (s *Service) UpdateProfile(ctx context.Context, userID string, input ProfileUpdate) (Profile, error) {
@@ -244,30 +262,11 @@ func (s *Service) UpdateProfile(ctx context.Context, userID string, input Profil
 	if len(countryCode) != 2 {
 		countryCode = "IN"
 	}
-	completion := profileCompletion(input)
-
-	_, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET full_name=$2,headline=NULLIF($3,''),current_city=NULLIF($4,''),current_state=NULLIF($5,''),country_code=$6,total_experience_months=$7,notice_period_days=$8,profile_completion=$9 WHERE user_id=$1`, userID, strings.TrimSpace(input.FullName), strings.TrimSpace(input.Headline), strings.TrimSpace(input.CurrentCity), strings.TrimSpace(input.CurrentState), countryCode, input.TotalExperienceMonths, input.NoticePeriodDays, completion)
+	_, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET full_name=$2,headline=NULLIF($3,''),current_city=NULLIF($4,''),current_state=NULLIF($5,''),country_code=$6,total_experience_months=$7,notice_period_days=$8 WHERE user_id=$1`, userID, strings.TrimSpace(input.FullName), strings.TrimSpace(input.Headline), strings.TrimSpace(input.CurrentCity), strings.TrimSpace(input.CurrentState), countryCode, input.TotalExperienceMonths, input.NoticePeriodDays)
 	if err != nil {
 		return Profile{}, err
 	}
 	return s.Profile(ctx, userID)
-}
-
-func profileCompletion(input ProfileUpdate) int {
-	score := 25
-	if strings.TrimSpace(input.Headline) != "" {
-		score += 20
-	}
-	if strings.TrimSpace(input.CurrentCity) != "" {
-		score += 20
-	}
-	if input.TotalExperienceMonths > 0 {
-		score += 15
-	}
-	if input.NoticePeriodDays != nil {
-		score += 20
-	}
-	return score
 }
 
 func (s *Service) Applications(ctx context.Context, userID string, limit int) ([]Application, error) {

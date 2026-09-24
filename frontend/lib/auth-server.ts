@@ -4,7 +4,14 @@ import { redirect } from "next/navigation";
 import { SERVER_API_URL } from "@/lib/server-api-url";
 
 export type Role = "candidate" | "recruiter" | "master_admin";
-export type SessionUser = { id: string; role: Role };
+export type SessionUser = {
+  id: string;
+  role: Role;
+  first_name: string;
+  last_name: string;
+  headline: string;
+  profile_image_url?: string | null;
+};
 
 export async function getSessionUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();

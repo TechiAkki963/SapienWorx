@@ -75,12 +75,13 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		return CandidateDetail{}, err
 	}
 
-	detail.Details = map[string]any{}
+	var storedDetails map[string]any
 	if len(raw) > 0 {
-		if err := json.Unmarshal(raw, &detail.Details); err != nil {
+		if err := json.Unmarshal(raw, &storedDetails); err != nil {
 			return CandidateDetail{}, err
 		}
 	}
+	detail.Details = recruiterVisibleCandidateDetails(storedDetails)
 	if len(photo) > 0 && photoMime != nil {
 		detail.PhotoDataURL = "data:" + *photoMime + ";base64," + base64.StdEncoding.EncodeToString(photo)
 	}

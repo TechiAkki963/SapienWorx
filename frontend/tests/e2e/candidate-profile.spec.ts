@@ -5,15 +5,17 @@ import { login, resetE2E } from "./helpers";
 test.describe("candidate profile", () => {
   test.beforeEach(async ({ request }) => resetE2E(request));
 
-  test("saves professional details, persists state, and becomes read-only until edited", async ({ page }) => {
+  test("saves professional details, persists state, and returns to the profile view", async ({ page }) => {
     await login(page, "candidate");
     await page.goto("/candidate/profile");
 
-    await expect(page.getByRole("heading", { name: "Your professional profile" })).toBeVisible();
-    await expect(page.locator("fieldset[disabled]")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Your professional identity" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Edit profile" })).toBeVisible();
+    await page.getByRole("button", { name: "Edit profile" }).click();
     await page.getByLabel("Full name").fill("Aarav Candidate");
     await page.getByLabel("Resume headline").fill("Go platform engineer building high-scale systems");
     await page.getByLabel("Current designation").fill("Platform Engineer");
+    await page.getByLabel("Professional summary").fill("Builds reliable backend platforms and accessible product experiences.");
     await page.getByLabel("Current city").fill("Mumbai");
     await page.getByLabel("State").fill("Maharashtra");
     await page.getByLabel("Preferred locations").fill("Mumbai, Pune, Remote");
@@ -24,7 +26,7 @@ test.describe("candidate profile", () => {
 
     const coreSave = page.waitForRequest((request) => request.url().endsWith("/api/v1/candidate/profile") && request.method() === "PATCH");
     const detailSave = page.waitForRequest((request) => request.url().endsWith("/api/v1/candidate/profile/details") && request.method() === "PATCH");
-    await page.getByRole("button", { name: "Save full profile" }).click();
+    await page.getByRole("button", { name: "Save & finish" }).click();
     const [coreRequest, detailRequest] = await Promise.all([coreSave, detailSave]);
 
     expect(coreRequest.postDataJSON()).toMatchObject({ current_city: "Mumbai", current_state: "Maharashtra", notice_period_days: 15 });
@@ -33,18 +35,15 @@ test.describe("candidate profile", () => {
     });
 
     await expect(page.getByRole("button", { name: "Edit profile" })).toBeVisible();
-    await expect(page.locator("fieldset")).toHaveAttribute("disabled", "");
-    await expect(page.getByLabel("Resume headline")).toBeDisabled();
+    await expect(page.getByText("Builds reliable backend platforms and accessible product experiences.")).toBeVisible();
 
     await page.reload();
-    await expect(page.getByText(/Your saved profile is read-only/)).toBeVisible();
-    await expect(page.locator("fieldset")).toHaveAttribute("disabled", "");
-    await expect(page.getByLabel("Resume headline")).toBeDisabled();
+    await expect(page.getByText("Builds reliable backend platforms and accessible product experiences.")).toBeVisible();
     await page.getByRole("button", { name: "Edit profile" }).click();
-    await expect(page.locator("fieldset")).not.toHaveAttribute("disabled", "");
     await expect(page.getByLabel("Resume headline")).toBeEnabled();
     await expect(page.getByLabel("Resume headline")).toHaveValue("Go platform engineer building high-scale systems");
     await expect(page.getByLabel("Current city")).toHaveValue("Mumbai");
+    await expect(page.getByLabel("Professional summary")).toHaveValue("Builds reliable backend platforms and accessible product experiences.");
   });
 
   test("uploads a private CV through a signed request and restores its filename after reload", async ({ page }) => {
@@ -73,7 +72,7 @@ test.describe("candidate profile", () => {
 
     await page.reload();
     const currentCVLabels = page.getByText("Current CV: Aarav-Candidate-CV.pdf", { exact: true });
-    await expect(currentCVLabels).toHaveCount(2);
+    await expect(currentCVLabels).toHaveCount(1);
     await expect(currentCVLabels.first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Replace CV" })).toBeEnabled();
     await expect(page.getByRole("button", { name: "Open CV" })).toBeEnabled();

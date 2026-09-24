@@ -1,6 +1,8 @@
 "use client";
 
-import { FormEvent, ReactNode, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
@@ -11,6 +13,7 @@ type Details = Record<string, unknown>;
 type ProfileFormProps = {
   profile: CandidateProfile;
   extended: CandidateProfileDetails;
+  onSaved?: () => void;
 };
 
 const inputClass = "min-h-11 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink outline-none transition focus:border-indigo/50 focus:ring-2 focus:ring-indigo/10";
@@ -31,9 +34,9 @@ function records(details: Details, key: string): Record<string, unknown>[] {
   return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object") : [];
 }
 
-function Section({ eyebrow, title, description, children }: { eyebrow: string; title: string; description?: string; children: ReactNode }) {
+function Section({ id, eyebrow, title, description, children }: { id?: string; eyebrow: string; title: string; description?: string; children: ReactNode }) {
   return (
-    <section className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6">
+    <section id={id} className="scroll-mt-24 rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-5">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-indigo">{eyebrow}</p>
         <h2 className="mt-1 text-xl font-bold tracking-[-0.025em] text-navy">{title}</h2>
@@ -55,7 +58,12 @@ function Choice({ name, value, label, defaultChecked = false, type = "radio" }: 
   );
 }
 
-export function ProfileForm({ profile, extended }: ProfileFormProps) {
+export function ProfileForm({ profile, extended, onSaved }: ProfileFormProps) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const saveTimer = useRef<number | null>(null);
+  const savingRef = useRef(false);
+  const changedWhileSaving = useRef(false);
   const initial = extended.details ?? {};
   const initialEmployment = records(initial, "employment");
   const initialSkills = records(initial, "it_skills");
@@ -65,10 +73,24 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
   const [current, setCurrent] = useState(profile);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [employmentCount, setEmploymentCount] = useState(Math.max(1, initialEmployment.length));
   const [skillCount, setSkillCount] = useState(Math.max(1, initialSkills.length));
   const [educationCount, setEducationCount] = useState(Math.max(1, initialEducation.length));
   const [languageCount, setLanguageCount] = useState(Math.max(1, initialLanguages.length));
+
+  useEffect(() => () => {
+    if (saveTimer.current != null) window.clearTimeout(saveTimer.current);
+  }, []);
+
+  function queueAutosave() {
+    changedWhileSaving.current = true;
+    setDirty(true);
+    setMessage("Unsaved changes");
+    if (saveTimer.current != null) window.clearTimeout(saveTimer.current);
+    if (savingRef.current) return;
+    saveTimer.current = window.setTimeout(() => formRef.current?.requestSubmit(), 1200);
+  }
 
   function recValue(items: Record<string, unknown>[], index: number, key: string): string {
     const value = items[index]?.[key];
@@ -77,8 +99,12 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saveTimer.current != null) window.clearTimeout(saveTimer.current);
+    if (savingRef.current) return;
+    savingRef.current = true;
     setPending(true);
-    setMessage("");
+    changedWhileSaving.current = false;
+    setMessage("Saving your changes…");
     const data = new FormData(event.currentTarget);
     const noticeValue = String(data.get("notice_period_days") ?? "").trim();
 
@@ -129,7 +155,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
       disability_details: String(data.get("disability_details") ?? ""),
       military_experience: String(data.get("military_experience") ?? ""),
       career_break: String(data.get("career_break") ?? ""),
-      profile_visible_in_sourcing: data.get("profile_visible_in_sourcing") === "on",
+      profile_visible_in_sourcing: initial.profile_visible_in_sourcing === true,
     };
 
     const numberOrNull = (name: string) => {
@@ -152,11 +178,19 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         }),
       ]);
       setCurrent(updated);
-      setMessage("Profile details saved.");
+      setDirty(changedWhileSaving.current);
+      setMessage(changedWhileSaving.current ? "Saving your latest edits…" : "All changes saved.");
+      router.refresh();
+      if (!changedWhileSaving.current && (event.nativeEvent as SubmitEvent).submitter instanceof HTMLButtonElement && (event.nativeEvent as SubmitEvent).submitter?.hasAttribute("data-save-and-close")) onSaved?.();
     } catch (cause) {
-      setMessage(cause instanceof Error ? cause.message : "Could not update profile.");
+      setDirty(true);
+      setMessage(cause instanceof Error ? "Couldn’t save your changes. Your edits are still here. Try again." : "Couldn’t save your changes. Your edits are still here. Try again.");
     } finally {
+      savingRef.current = false;
       setPending(false);
+      if (changedWhileSaving.current) {
+        saveTimer.current = window.setTimeout(() => formRef.current?.requestSubmit(), 900);
+      }
     }
   }
 
@@ -164,7 +198,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
   const selectedUSA = Array.isArray(initial.usa_work_authorization) ? initial.usa_work_authorization.map(String) : [];
 
   return (
-    <form className="grid gap-5" onSubmit={submit}>
+    <form ref={formRef} className="grid gap-5" onSubmit={submit} onChange={queueAutosave}>
       <section className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6">
         <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="flex items-start gap-4">
@@ -179,16 +213,15 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
             </div>
           </div>
           <div className="flex flex-col items-start gap-2 lg:items-end">
-            <Button type="button" variant="secondary" disabled>Upload CV</Button>
-            <label className="flex items-center gap-2 text-xs font-semibold text-ink-muted"><input name="profile_visible_in_sourcing" type="checkbox" defaultChecked={bool(initial, "profile_visible_in_sourcing")} /> Visible in sourcing</label>
-            <span className="text-[11px] text-ink-muted">{extended.cv_original_filename ? `Current CV: ${extended.cv_original_filename}` : "CV upload will activate with resume storage."}</span>
+            <span className="text-xs font-semibold text-ink-muted">Visibility is controlled separately in your privacy panel.</span>
+            <Link href="#section-resume" className="min-h-10 inline-flex items-center font-semibold text-indigo hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/40">Manage private resume →</Link>
           </div>
         </div>
       </section>
 
       {message && <p className="rounded-xl border border-indigo/15 bg-indigo-soft/55 px-4 py-3 text-sm font-semibold text-navy" role="status">{message}</p>}
 
-      <Section eyebrow="Profile overview" title="Professional summary" description="The first information recruiters see. Keep it concise and specific.">
+      <Section id="section-about" eyebrow="Your story" title="Professional summary" description="Lead with the work you do and the impact you bring.">
         <div className="grid gap-4 md:grid-cols-2">
           <label className={labelClass}>Full name<input className={inputClass} name="full_name" defaultValue={current.full_name} required /></label>
           <label className={labelClass}>Resume headline<input className={inputClass} name="headline" defaultValue={current.headline ?? ""} placeholder="e.g. Full stack engineer with 5 years of experience" /></label>
@@ -199,7 +232,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         </div>
       </Section>
 
-      <Section eyebrow="Contact, availability and location" title="Searchable essentials" description="These details help recruiters match your availability, location and compensation expectations.">
+      <Section id="section-preferences" eyebrow="Location & preferences" title="Work preferences" description="Choose what helps you find relevant opportunities. Compensation details remain private to recruiter profile APIs.">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <label className={labelClass}>Total experience (months)<input className={inputClass} type="number" min={0} name="total_experience_months" defaultValue={current.total_experience_months} /></label>
           <label className={labelClass}>Current salary<input className={inputClass} type="number" min={0} step="0.01" name="current_salary_amount" defaultValue={extended.current_salary_amount ?? ""} /></label>
@@ -217,7 +250,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         </div>
       </Section>
 
-      <Section eyebrow="Employment" title="Work history" description="Add roles in reverse chronological order. You can keep multiple employments in your profile.">
+      <Section id="section-experience" eyebrow="Experience" title="Work history" description="Add roles in reverse chronological order. You can keep multiple employments in your profile.">
         <div className="grid gap-4">
           {Array.from({ length: employmentCount }, (_, index) => (
             <div key={index} className="rounded-2xl border border-line bg-canvas/45 p-4">
@@ -239,7 +272,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         </div>
       </Section>
 
-      <Section eyebrow="IT skills" title="Software skills and expertise" description="List the technologies or software you use, how recently you used them and your experience level.">
+      <Section id="section-skills" eyebrow="Skills" title="Software skills and expertise" description="Add the tools you use, your experience level and when you last used them.">
         <div className="grid gap-4">
           {Array.from({ length: skillCount }, (_, index) => (
             <div key={index} className="grid gap-4 rounded-2xl border border-line bg-canvas/45 p-4 md:grid-cols-2 lg:grid-cols-6">
@@ -255,7 +288,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         </div>
       </Section>
 
-      <Section eyebrow="Education" title="Academic details" description="Record school, degree and higher education details that support your profile.">
+      <Section id="section-education" eyebrow="Education" title="Academic details" description="Record school, degree and higher education details that support your profile.">
         <div className="grid gap-4">
           {Array.from({ length: educationCount }, (_, index) => (
             <div key={index} className="grid gap-4 rounded-2xl border border-line bg-canvas/45 p-4 md:grid-cols-2 lg:grid-cols-3">
@@ -272,15 +305,15 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         </div>
       </Section>
 
-      <Section eyebrow="Projects and accomplishments" title="Work beyond the role" description="Add projects, portfolio links, publications, patents and other credentials that demonstrate your work.">
+      <Section id="section-projects" eyebrow="Projects & links" title="Work beyond the role" description="Add projects, portfolio links, publications, patents and other credentials that demonstrate your work.">
         <div className="grid gap-4">
           <label className={labelClass}>Projects<textarea className={textareaClass} name="projects" defaultValue={text(initial, "projects")} placeholder="Describe relevant projects, your role and outcomes." /></label>
           <label className={labelClass}>Accomplishments and links<textarea className={textareaClass} name="accomplishments" defaultValue={text(initial, "accomplishments")} placeholder="Certifications, publications, patents, awards and links." /></label>
-          <label className={labelClass}>Additional professional links<textarea className={textareaClass} name="professional_links" defaultValue={text(initial, "professional_links")} placeholder="https://github.com/you\nhttps://portfolio.example" /></label>
+          <label className={labelClass} id="section-links">Additional professional links<textarea className={textareaClass} name="professional_links" defaultValue={text(initial, "professional_links")} placeholder="https://github.com/you\nhttps://portfolio.example" /></label>
         </div>
       </Section>
 
-      <Section eyebrow="Personal details" title="Your personal preferences" description="Optional information helps support inclusive matching. You can choose not to answer sensitive fields.">
+      <Section eyebrow="Optional details" title="Personal information" description="These details are optional and are excluded from recruiter-facing profile responses. You can leave any field blank.">
         <div className="grid gap-5">
           <div><p className="mb-2 text-sm font-semibold text-navy">Gender</p><div className="flex flex-wrap gap-2">{["Male", "Female", "Transgender", "Non-binary", "Prefer not to say"].map((value) => <Choice key={value} name="gender" value={value} label={value} defaultChecked={text(initial, "gender") === value} />)}</div></div>
           <div><p className="mb-2 text-sm font-semibold text-navy">More information</p><div className="flex flex-wrap gap-2">{["Single parent", "Working mother", "Retired (Ex)", "LGBTQ+"].map((value) => <Choice key={value} type="checkbox" name="more_information" value={value} label={value} defaultChecked={selectedMoreInfo.includes(value)} />)}</div></div>
@@ -291,7 +324,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         </div>
       </Section>
 
-      <Section eyebrow="Language proficiency" title="How you communicate" description="List the languages you can use comfortably and the ways you use them.">
+      <Section id="section-languages" eyebrow="Languages" title="How you communicate" description="List the languages you can use comfortably and the ways you use them.">
         <div className="grid gap-4">
           {Array.from({ length: languageCount }, (_, index) => (
             <div key={index} className="grid gap-4 rounded-2xl border border-line bg-canvas/45 p-4 md:grid-cols-2 lg:grid-cols-5">
@@ -304,7 +337,7 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
         </div>
       </Section>
 
-      <Section eyebrow="Diversity and inclusion" title="Additional information" description="Optional information for inclusive employment opportunities. You decide what to share.">
+      <Section eyebrow="Optional information" title="Accessibility & career context" description="Optional information to help you describe your needs and career context. You decide whether to provide it.">
         <div className="grid gap-4 md:grid-cols-2">
           <label className={labelClass}>Disability status<select className={inputClass} name="disability_status" defaultValue={text(initial, "disability_status")}><option value="">Select</option><option>Prefer not to say</option><option>No disability</option><option>Person with disability</option></select></label>
           <label className={labelClass}>Disability details<input className={inputClass} name="disability_details" defaultValue={text(initial, "disability_details")} placeholder="Optional details" /></label>
@@ -314,8 +347,8 @@ export function ProfileForm({ profile, extended }: ProfileFormProps) {
       </Section>
 
       <div className="sticky bottom-4 z-20 flex items-center justify-between gap-4 rounded-2xl border border-line bg-white/95 p-3 shadow-card backdrop-blur">
-        <p className="hidden text-xs text-ink-muted sm:block">Save the complete profile after reviewing your details.</p>
-        <Button type="submit" size="lg" disabled={pending}>{pending ? "Saving profile…" : "Save full profile"}</Button>
+        <p className="text-xs text-ink-muted" role="status" aria-live="polite">{pending ? "Saving…" : dirty ? message : message || "Changes save automatically as you edit."}</p>
+        <Button type="submit" size="lg" disabled={pending} data-save-and-close>{pending ? "Saving…" : "Save & finish"}</Button>
       </div>
     </form>
   );

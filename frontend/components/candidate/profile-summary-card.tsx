@@ -1,11 +1,11 @@
 "use client";
 
 import { ChangeEvent, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
-import { CandidateProfileDetails, CandidateProfileSummary } from "@/lib/candidate";
+import { CandidateProfileSummary } from "@/lib/candidate";
 
 function experienceLabel(months: number) {
   const years = Math.floor(months / 12);
@@ -18,12 +18,11 @@ function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase() || "CP";
 }
 
-export function ProfileSummaryCard({ summary, extended, editing }: { summary: CandidateProfileSummary; extended: CandidateProfileDetails; editing: boolean }) {
-  const router = useRouter();
+export function ProfileSummaryCard({ summary, onEdit }: { summary: CandidateProfileSummary; onEdit: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [secondaryPhone, setSecondaryPhone] = useState(summary.secondary_phone ?? "");
   const [message, setMessage] = useState("");
+  const preferredLocations = summary.preferred_locations ?? [];
   const sharePath = `/profile/${summary.share_token}`;
   const shareURL = useMemo(() => typeof window === "undefined" ? sharePath : `${window.location.origin}${sharePath}`, [sharePath]);
 
@@ -45,7 +44,7 @@ export function ProfileSummaryCard({ summary, extended, editing }: { summary: Ca
       try {
         await apiRequest("/api/v1/candidate/profile/photo", { method: "PATCH", body: JSON.stringify({ data_url: String(reader.result ?? "") }) });
         setMessage("Profile photo updated.");
-        router.refresh();
+        window.location.reload();
       } catch (cause) {
         setMessage(cause instanceof Error ? cause.message : "Could not update profile photo.");
       } finally {
@@ -56,32 +55,9 @@ export function ProfileSummaryCard({ summary, extended, editing }: { summary: Ca
     reader.readAsDataURL(file);
   }
 
-  async function saveSecondaryPhone() {
-    setBusy(true);
-    setMessage("");
-    try {
-      await apiRequest("/api/v1/candidate/profile/details", {
-        method: "PATCH",
-        body: JSON.stringify({
-          details: { ...(extended.details ?? {}), secondary_phone: secondaryPhone.trim() },
-          current_salary_amount: extended.current_salary_amount ?? null,
-          current_salary_currency: extended.current_salary_currency || "INR",
-          expected_salary_amount: extended.expected_salary_amount ?? null,
-          expected_salary_currency: extended.expected_salary_currency || "INR",
-        }),
-      });
-      setMessage("Secondary mobile updated.");
-      router.refresh();
-    } catch (cause) {
-      setMessage(cause instanceof Error ? cause.message : "Could not update secondary mobile.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function shareProfile() {
     if (!summary.profile_visible) {
-      setMessage("Enable ‘Visible in sourcing’ while editing your profile before sharing it publicly.");
+      setMessage("Turn on the shareable profile link in Profile visibility before sharing.");
       return;
     }
     try {
@@ -89,7 +65,7 @@ export function ProfileSummaryCard({ summary, extended, editing }: { summary: Ca
         await navigator.share({ title: `${summary.full_name} — SapienWorx profile`, url: shareURL });
       } else {
         await navigator.clipboard.writeText(shareURL);
-        setMessage("Public profile link copied.");
+        setMessage("Profile link copied.");
       }
     } catch {
       // A user cancelling the native share sheet is not an error worth surfacing.
@@ -97,41 +73,47 @@ export function ProfileSummaryCard({ summary, extended, editing }: { summary: Ca
   }
 
   return (
-    <section className="rounded-[1.75rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6">
-      <div className="grid gap-6 xl:grid-cols-[auto_minmax(0,1.15fr)_minmax(17rem,.85fr)_auto] xl:items-center">
-        <div className="relative h-24 w-24 shrink-0">
+    <section className="rounded-[1.5rem] border border-line/80 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="candidate-identity-title">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div className="relative h-20 w-20 shrink-0">
           {summary.photo_data_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={summary.photo_data_url} alt={`${summary.full_name} profile`} className="h-24 w-24 rounded-full border-4 border-indigo-soft object-cover shadow-sm" />
+            <img src={summary.photo_data_url} alt={`${summary.full_name} profile`} className="h-20 w-20 rounded-full border-4 border-indigo-soft object-cover shadow-sm" />
           ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-navy text-xl font-bold text-white shadow-sm">{initials(summary.full_name)}</div>
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-navy text-xl font-bold text-white shadow-sm" aria-hidden="true">{initials(summary.full_name)}</div>
           )}
-          <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-indigo text-base text-white shadow-card transition hover:scale-105" aria-label={summary.photo_data_url ? "Change profile photo" : "Upload profile photo"}>✎</button>
+          <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-indigo text-base text-white shadow-card transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/50" aria-label={summary.photo_data_url ? "Change profile photo" : "Upload profile photo"}>✎</button>
           <input ref={inputRef} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadPhoto} />
         </div>
 
-        <div className="min-w-0">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-indigo">Candidate profile</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-[-0.03em] text-navy">{summary.full_name}</h2>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Your professional identity</p>
+          <h2 id="candidate-identity-title" className="mt-1 font-serif text-2xl font-semibold tracking-[-0.035em] text-navy sm:text-[1.8rem]">{summary.full_name}</h2>
           <p className="mt-1 text-sm text-ink-muted">{summary.headline || "Add your professional headline"}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full bg-indigo-soft px-3 py-1.5 text-xs font-bold text-indigo">{summary.profile_completion}% complete</span>
-            <span className="rounded-full bg-canvas px-3 py-1.5 text-xs font-semibold text-ink-muted">{experienceLabel(summary.total_experience_months)} experience</span>
-            {summary.current_location && <span className="rounded-full bg-canvas px-3 py-1.5 text-xs font-semibold text-ink-muted">⌖ {summary.current_location}</span>}
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold text-ink-muted">
+            {summary.current_location && <span>{summary.current_location}</span>}
+            <span>{experienceLabel(summary.total_experience_months)} experience</span>
+            <span className={`inline-flex items-center gap-1.5 ${summary.profile_visible ? "text-emerald-700" : "text-ink-muted"}`}><span className={`h-2 w-2 rounded-full ${summary.profile_visible ? "bg-emerald-500" : "bg-slate-300"}`} aria-hidden="true" />Shareable link {summary.profile_visible ? "on" : "private"}</span>
           </div>
-          {summary.preferred_locations.length > 0 && <p className="mt-3 text-xs text-ink-muted"><span className="font-bold text-navy">Preferred:</span> {summary.preferred_locations.join(" · ")}</p>}
+          {preferredLocations.length > 0 && <p className="mt-2 text-xs text-ink-muted"><span className="font-semibold text-navy">Open to:</span> {preferredLocations.join(" · ")}</p>}
         </div>
 
-        <div className="grid gap-3 rounded-2xl border border-line/70 bg-canvas/55 p-4 text-sm">
-          <div><p className="text-[11px] font-bold uppercase tracking-wide text-ink-muted">Email</p><div className="mt-1 flex flex-wrap items-center gap-2"><span className="font-semibold text-navy">{summary.email}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase ${summary.email_verified ? "bg-mint text-emerald-800" : "bg-peach text-amber-800"}`}>{summary.email_verified ? "Verified" : "Not verified"}</span></div></div>
-          <div><p className="text-[11px] font-bold uppercase tracking-wide text-ink-muted">Mobile numbers</p><p className="mt-1 font-semibold text-navy">{summary.primary_phone || "Primary mobile not available"}</p>{editing ? <div className="mt-2 flex gap-2"><input value={secondaryPhone} onChange={(event) => setSecondaryPhone(event.target.value)} placeholder="Secondary mobile" className="min-h-9 min-w-0 flex-1 rounded-lg border border-line bg-white px-2 text-xs outline-none focus:border-indigo/50" /><button type="button" onClick={saveSecondaryPhone} disabled={busy} className="rounded-lg border border-indigo/25 px-2 text-xs font-bold text-indigo">Save</button></div> : <p className="mt-1 text-xs text-ink-muted">{summary.secondary_phone || "Secondary mobile not added"}</p>}</div>
+        <div className="flex flex-wrap gap-2 sm:justify-end">
+          <Button type="button" onClick={onEdit}>Edit profile</Button>
+          <Button type="button" variant="secondary" onClick={() => window.print()}>Save as PDF</Button>
+          {summary.profile_visible && <Link href={sharePath} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center rounded-full border border-line bg-white px-4 text-sm font-semibold text-navy transition hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/40">Preview</Link>}
+          <Button type="button" variant="secondary" onClick={shareProfile} disabled={!summary.profile_visible}>Share link</Button>
         </div>
-
-        <div className="flex flex-wrap gap-2 xl:flex-col">
-          <Button type="button" variant="secondary" onClick={() => window.print()}>Download PDF</Button>
-          <Button type="button" variant="secondary" onClick={shareProfile}>Share profile</Button>
-          <button type="button" onClick={() => inputRef.current?.click()} className="min-h-10 rounded-full border border-indigo/25 bg-white px-4 text-sm font-bold text-indigo hover:bg-indigo-soft">{summary.photo_data_url ? "Update photo" : "Upload photo"}</button>
+      </div>
+      <div className="mt-5 grid gap-3 border-t border-line/70 pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div>
+          <p className="text-sm font-bold text-navy">{summary.profile_completion}% complete</p>
+          <p className="mt-1 text-xs leading-5 text-ink-muted">A clear, current profile helps people understand the work you want to do.</p>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-label="Profile completeness" aria-valuemin={0} aria-valuemax={100} aria-valuenow={summary.profile_completion}>
+            <div className="h-full rounded-full bg-gradient-to-r from-indigo to-blue-500 transition-[width] duration-500" style={{ width: `${Math.max(0, Math.min(summary.profile_completion, 100))}%` }} />
+          </div>
         </div>
+        <p className="rounded-xl bg-indigo-soft/45 px-3 py-2 text-xs text-indigo sm:max-w-56"><span className="font-bold">Your information stays yours.</span> You choose whether to turn on the shareable profile link.</p>
       </div>
       {message && <p role="status" className="mt-4 rounded-xl bg-indigo-soft/55 px-3 py-2 text-xs font-semibold text-navy">{message}</p>}
     </section>

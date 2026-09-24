@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { DashboardProfileCard } from "@/components/ui/dashboard-profile-card";
+import { LocalTimeGreeting } from "@/components/ui/local-time-greeting";
 import { MetricStrip } from "@/components/recruiter/metric-strip";
 import { PipelineTable } from "@/components/recruiter/pipeline-table";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
@@ -17,23 +19,27 @@ function urgency(kind: string) {
 }
 
 export default async function RecruiterDashboardPage() {
-  await requireRole("recruiter");
+  const session = await requireRole("recruiter");
   const data = await recruiterAPI<RecruiterDashboard>("/api/v1/recruiter/dashboard");
   const firstName = data.recruiter_name.split(" ")[0];
+  const headline = session.headline || `Talent Acquisition @ ${data.company_name}`;
 
   return (
     <RecruiterShell>
       <div className="grid gap-5">
-        <section className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-5">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-indigo">{data.company_name}</p>
-              <h1 className="mt-1.5 text-2xl font-bold tracking-[-0.04em] text-navy sm:text-[2rem]">Hiring workspace</h1>
-              <p className="mt-1 text-sm text-ink-muted">Welcome back, {firstName}. Here&apos;s what needs movement today.</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link href="/recruiter/jobs" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:bg-slate-50">Manage jobs</Link>
-              <Link href="/recruiter/jobs/new" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>
+        <section className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-4">
+          <DashboardProfileCard className="col-span-1 h-full" firstName={session.first_name || firstName || "Recruiter"} lastName={session.last_name} headline={headline} imageUrl={session.profile_image_url} statLabel="Active roles" statValue={data.active_jobs} />
+          <div className="relative col-span-1 flex h-full flex-col rounded-2xl border border-line/70 bg-white p-6 shadow-[0_1px_3px_rgba(16,33,63,0.04)] lg:col-span-3 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex h-full flex-col justify-center pr-0 lg:pr-64">
+              <div>
+                <span className="block text-xs font-bold uppercase tracking-wider text-blue-600">{data.company_name}</span>
+                <h1 className="mt-1.5 text-3xl font-extrabold text-slate-900"><LocalTimeGreeting firstName={session.first_name || firstName} />.</h1>
+                <p className="mt-2 text-sm text-slate-500">Hiring workspace. Here&apos;s what needs movement today.</p>
+              </div>
+              <div className="mt-4 flex items-center gap-3 lg:absolute lg:right-6 lg:top-[15px] lg:mt-0">
+                <Link href="/recruiter/jobs" className="inline-flex h-11 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-bold text-gray-700 shadow-sm transition hover:bg-gray-50">Manage jobs</Link>
+                <Link href="/recruiter/jobs/new" className="inline-flex h-11 items-center justify-center rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700">+ Post a job</Link>
+              </div>
             </div>
           </div>
         </section>

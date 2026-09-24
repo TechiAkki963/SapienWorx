@@ -75,8 +75,7 @@ func (s *Service) UpdateDetails(ctx context.Context, userID string, input Profil
 	if err != nil {
 		return ProfileDetails{}, err
 	}
-	calculatedExperience := experienceFromDetails(input.Details, time.Now())
-	_, err = s.db.Exec(ctx, `UPDATE candidate_profiles SET profile_details=$2::jsonb,current_salary_amount=$3,current_salary_currency=$4,expected_salary_amount=$5,expected_salary_currency=$6,total_experience_months=$7 WHERE user_id=$1`, userID, raw, input.CurrentSalaryAmount, input.CurrentSalaryCurrency, input.ExpectedSalaryAmount, input.ExpectedSalaryCurrency, calculatedExperience)
+	_, err = s.db.Exec(ctx, `UPDATE candidate_profiles SET profile_details=$2::jsonb,current_salary_amount=$3,current_salary_currency=$4,expected_salary_amount=$5,expected_salary_currency=$6 WHERE user_id=$1`, userID, raw, input.CurrentSalaryAmount, input.CurrentSalaryCurrency, input.ExpectedSalaryAmount, input.ExpectedSalaryCurrency)
 	if err != nil {
 		return ProfileDetails{}, err
 	}

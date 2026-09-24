@@ -54,13 +54,13 @@ export default async function CandidateProfilePage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-6 print:hidden">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">Candidate profile</p>
-        <h1 className="mt-2 text-4xl font-bold tracking-[-0.045em] text-navy">Your professional profile</h1>
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Your candidate workspace</p>
+        <h1 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.035em] text-navy sm:text-4xl">Your professional identity</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
-          Keep your complete candidate record accurate. Recruiters only see information according to your profile visibility and platform permissions.
+          Shape the experience, skills and preferences you want people to understand. You stay in control of what appears on your shareable profile.
         </p>
       </div>
-      <ProfileEditor profile={profile} extended={extended} summary={summary} />
+      <ProfileEditor profile={profile} extended={extended} summary={{ ...summary, profile_completion: profile.profile_completion }} />
     </div>
   );
 }

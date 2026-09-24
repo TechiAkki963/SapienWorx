@@ -73,14 +73,17 @@ data "aws_iam_policy_document" "application" {
   }
 
   statement {
-    sid    = "UsePrivateCandidateDocuments"
+    sid    = "UsePrivateUserAndCandidateDocuments"
     effect = "Allow"
     actions = [
       "s3:GetObject",
       "s3:PutObject",
       "s3:DeleteObject",
     ]
-    resources = ["${aws_s3_bucket.documents.arn}/candidate-cv/*"]
+    resources = [
+      "${aws_s3_bucket.documents.arn}/candidate-cv/*",
+      "${aws_s3_bucket.documents.arn}/profile-images/*",
+    ]
   }
 
   statement {

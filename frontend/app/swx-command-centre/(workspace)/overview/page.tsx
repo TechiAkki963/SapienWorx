@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { DashboardProfileCard } from "@/components/ui/dashboard-profile-card";
+import { requireRole } from "@/lib/auth-server";
 import { adminAPI } from "@/lib/admin-server";
 import type { AdminMetrics, VerificationList } from "@/lib/admin";
 
@@ -8,6 +10,7 @@ function MetricCard({ label, value, note }: { label: string; value: string | num
 }
 
 export default async function CommandCentreOverviewPage() {
+  const session = await requireRole("master_admin");
   const [metrics, pending] = await Promise.all([
     adminAPI<AdminMetrics>("/api/v1/admin/metrics"),
     adminAPI<VerificationList>("/api/v1/admin/company-verifications?status=pending&page=1&limit=5"),
@@ -15,9 +18,12 @@ export default async function CommandCentreOverviewPage() {
 
   return (
     <section className="space-y-5">
-      <div className="flex flex-col gap-4 rounded-[1.5rem] border border-[#dfe4f0] bg-white p-6 shadow-[0_14px_45px_rgba(23,37,84,0.05)] sm:p-8 lg:flex-row lg:items-end lg:justify-between">
+      <div className="grid items-start gap-5 sm:grid-cols-[16rem_minmax(0,1fr)]">
+        <DashboardProfileCard firstName={session.first_name || "Master"} lastName={session.last_name} headline="Master Administrator" imageUrl={session.profile_image_url} statLabel="Status" statValue="Online" />
+        <div className="flex flex-col gap-4 rounded-[1.5rem] border border-[#dfe4f0] bg-white p-6 shadow-[0_14px_45px_rgba(23,37,84,0.05)] sm:p-8 lg:flex-row lg:items-end lg:justify-between">
         <div><p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#5262c9]">Master Admin</p><h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-slate-950 sm:text-4xl">Platform command centre</h1><p className="mt-3 max-w-3xl text-sm leading-7 text-slate-500">Govern tenant access, moderate accounts, and watch operating volume and SNS spend signals from one restricted workspace.</p></div>
         <p className="text-xs text-slate-400">Computed {new Date(metrics.computed_at).toLocaleString("en-IN")}</p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

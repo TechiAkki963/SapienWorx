@@ -27,7 +27,7 @@ This root module declares the approved low-cost Mumbai production footprint. It 
 - RDS uses PostgreSQL 17, TLS enforcement, a private two-subnet group, encryption, seven-day backups, deletion protection, and Terraform `prevent_destroy`.
 - RDS generates its master password into AWS Secrets Manager. This administrative credential is used only to bootstrap separate `sapienworx_migrator` and `sapienworx_app` roles; EC2 and GitHub cannot read it. Runtime URLs live in separate SSM SecureStrings. This adds approximately USD 0.40/month plus negligible API usage.
 - Terraform creates SSM SecureString names with unmistakable placeholders and ignores later value changes. Placeholders are not usable secrets. Set real values outside Terraform before the first deployment.
-- The documents bucket permits the instance role to access only `candidate-cv/*`. Public access and ACLs are blocked, TLS is enforced, and URLs are presigned by the application.
+- The documents bucket permits the instance role to access only `candidate-cv/*` and `profile-images/*`. Public access and ACLs are blocked, TLS is enforced, and private object URLs are issued by the application only to the owning signed-in user.
 - GitHub trust is restricted to `TechiAkki963/SapienWorx` jobs using the protected `production` environment. It is not valid for arbitrary branches, forks, or repositories.
 - An optional `alert_email` creates an SNS email subscription. AWS sends a confirmation email; alarms will not deliver to that address until confirmed.
 

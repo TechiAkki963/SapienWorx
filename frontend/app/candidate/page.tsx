@@ -1,14 +1,17 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { JobCard } from "@/components/candidate/job-card";
 import { WorkspaceError } from "@/components/candidate/workspace-error";
 import { Button } from "@/components/ui/button";
+import { DashboardProfileCard } from "@/components/ui/dashboard-profile-card";
+import { LocalTimeGreeting } from "@/components/ui/local-time-greeting";
 import { Surface } from "@/components/ui/surface";
+import { requireRole } from "@/lib/auth-server";
 import { CandidateDashboard, stageLabel } from "@/lib/candidate";
 import { candidateAPI } from "@/lib/candidate-server";
 
 export default async function CandidateDashboardPage() {
+  const session = await requireRole("candidate");
   let dashboard: CandidateDashboard;
   try { dashboard = await candidateAPI<CandidateDashboard>("/api/v1/candidate/dashboard"); } catch { return <WorkspaceError />; }
   const firstName = dashboard.profile.full_name.split(" ")[0] || "there";
@@ -16,8 +19,9 @@ export default async function CandidateDashboardPage() {
 
   return (
     <div className="grid gap-6">
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_18rem]">
-        <Surface className="relative overflow-hidden p-6 sm:p-8" tone="lavender"><div className="relative z-10 md:max-w-[calc(100%-11rem)]"><p className="text-sm font-bold text-indigo">Candidate workspace</p><h1 className="mt-2 text-4xl font-bold tracking-[-0.045em] text-ink">Good to see you, {firstName}.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-ink-muted">Your search, applications and profile progress are in one place. Recommended roles below use location and recency only — no opaque AI score.</p><div className="mt-6 flex flex-wrap gap-3"><Button href="/jobs">Find jobs</Button><Button href="/candidate/profile" variant="secondary">Improve profile</Button></div></div><Image src="/images/people/candidate-dashboard.webp" alt="" width={1254} height={1254} sizes="(min-width: 768px) 11rem, 0px" loading="eager" className="pointer-events-none absolute -bottom-5 right-1 hidden h-44 w-44 object-contain md:block" aria-hidden="true" /></Surface>
+      <section className="grid items-start gap-5 md:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)_18rem]">
+        <DashboardProfileCard firstName={session.first_name || firstName} lastName={session.last_name} headline={dashboard.profile.headline || session.headline || "Candidate"} imageUrl={session.profile_image_url} statLabel="Profile" statValue={`${dashboard.profile.profile_completion}%`} />
+        <Surface className="min-h-64 p-6 sm:p-8" tone="lavender"><div><p className="text-sm font-bold text-indigo">Candidate workspace</p><h1 className="mt-2 text-4xl font-bold tracking-[-0.045em] text-ink">Your search, with room to grow.</h1><p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-500"><LocalTimeGreeting firstName={session.first_name || firstName} />. Your search, applications and profile progress are in one place. Recommended roles below use location and recency only — no opaque AI score.</p><div className="mt-6 flex flex-wrap items-center gap-4"><Button href="/jobs">Find jobs</Button><Button href="/candidate/profile" variant="secondary">Improve profile</Button></div></div></Surface>
         <Surface className="p-5" tone="mint"><div className="flex items-end justify-between"><p className="text-sm font-semibold">Profile strength</p><strong className="text-2xl text-indigo">{dashboard.profile.profile_completion}%</strong></div><div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-indigo" style={{ width: `${dashboard.profile.profile_completion}%` }} /></div><p className="mt-4 text-sm leading-6 text-ink-muted">Add a headline, location, experience and notice period to help recruiters understand your context.</p><Link className="mt-4 inline-block text-sm font-bold text-indigo hover:underline" href="/candidate/profile">Edit profile →</Link></Surface>
       </section>
 
