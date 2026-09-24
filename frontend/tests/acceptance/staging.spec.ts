@@ -22,7 +22,7 @@ async function signIn(page: import("@playwright/test").Page, role: "candidate" |
 test.describe.serial("deployed staging acceptance", () => {
   test("captures visual review of landing at phone, tablet and desktop sizes", async ({ page }) => {
     await mkdir("visual-review", { recursive: true });
-    for (const width of [430, 1024, 1280, 1920]) {
+    for (const width of [430, 1024, 1280, 1440, 1920]) {
       await page.setViewportSize({ width, height: 900 });
       const response = await page.goto("/");
       expect(response?.status()).toBe(200);
