@@ -396,3 +396,28 @@ a {
   .swx-landing .swx-journey-body p{font-size:.53rem}
   .swx-landing .swx-product-copy h2{font-size:2.05rem}
 }
+
+
+/* Laptop-first reference tuning: 1440×900 is a primary SapienWorx viewport. */
+@media (min-width:1281px) and (max-width:1600px){
+  .swx-landing .swx-header-inner{gap:1.5rem}
+  .swx-landing .swx-desktop-nav{gap:1.55rem}
+  .swx-landing .swx-hero-grid{
+    grid-template-columns:minmax(0,.96fr) minmax(500px,1.04fr);
+    column-gap:2.75rem;
+    min-height:560px;
+    padding:3.2rem 0 3.25rem;
+  }
+  .swx-landing .swx-hero-copy{padding-bottom:.5rem}
+  .swx-landing .swx-hero-title{font-size:clamp(3.25rem,4.75vw,4.85rem);line-height:.94}
+  .swx-landing .swx-lead{max-width:560px;margin-top:1rem;font-size:.94rem;line-height:1.58}
+  .swx-landing .swx-hero-visual{min-height:430px}
+  .swx-landing .swx-hero-photo{height:430px;width:min(100%,535px);border-radius:48px 48px 28px 28px}
+  .swx-landing .swx-hero-note{left:-.7rem;top:6.4rem}
+  .swx-landing .swx-opportunity-card{right:-.1rem;bottom:1.45rem;width:218px}
+  .swx-landing .swx-search-wrap{width:min(790px,100%);margin-top:-.55rem}
+  .swx-landing .swx-search{grid-template-columns:1.18fr .88fr 1fr auto}
+  .swx-landing .swx-section{padding:4.35rem 0}
+  .swx-landing .swx-product-grid{gap:3rem}
+  .swx-landing .swx-dashboard-wrap{padding-right:3.5rem}
+}
