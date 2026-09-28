@@ -192,6 +192,18 @@ func (p *Processor) processEvent(ctx context.Context, event eventRecord) error {
 		return p.captureFeedback(ctx, event)
 	case "platform.analysis.requested":
 		return p.runPlatformAnalysis(ctx, event)
+	case "matching.candidate_recompute":
+		if event.AggregateID == nil {
+			return nil
+		}
+		ok, err := p.switchEnabled(ctx, "matching")
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errCapabilityPaused
+		}
+		return p.refreshCandidateMatches(ctx, *event.AggregateID)
 	default:
 		return nil
 	}
