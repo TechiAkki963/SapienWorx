@@ -1,6 +1,6 @@
 # SapienWorx test/staging deployment
 
-This is the deployment rehearsal stack. It uses the same compiled frontend and backend artifacts that should later be promoted to production.
+This is the deployment rehearsal stack. It uses the same compiled frontend, backend and Intelligence Engine artifacts that should later be promoted to production.
 
 ## Topology
 
@@ -10,8 +10,10 @@ Browser -> nginx gateway :8080
              v         v
         Next.js     Go API
                          |
-                         v
                    PostgreSQL 17
+                         ^
+                         |
+                Intelligence worker
 ```
 
 Browser API and WebSocket traffic is same-origin through the gateway. Next.js Server Components use the private `INTERNAL_API_URL=http://backend:8080`.
