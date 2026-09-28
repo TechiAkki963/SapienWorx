@@ -27,7 +27,7 @@ type Props = {
 };
 
 function typeLabel(value: string) {
-  return value.replaceAll("_", " ").replace(/w/g, (letter) => letter.toUpperCase());
+  return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export function TaxonomyInput({
@@ -108,14 +108,13 @@ export function TaxonomyInput({
         onFocus={() => items.length > 0 && setOpen(true)}
         onBlur={() => { window.setTimeout(() => setOpen(false), 120); if (onCommit && currentValue.trim()) onCommit(currentValue.trim()); }}
         onKeyDown={(event) => {
-          if (!open || items.length === 0) return;
-          if (event.key === "ArrowDown") {
+          if (open && items.length > 0 && event.key === "ArrowDown") {
             event.preventDefault();
             setActive((index) => Math.min(items.length - 1, index + 1));
-          } else if (event.key === "ArrowUp") {
+          } else if (open && items.length > 0 && event.key === "ArrowUp") {
             event.preventDefault();
             setActive((index) => Math.max(0, index - 1));
-          } else if (event.key === "Enter" && active >= 0) {
+          } else if (open && items.length > 0 && event.key === "Enter" && active >= 0) {
             event.preventDefault();
             choose(items[active]);
           } else if ((event.key === "Enter" || event.key === ",") && onCommit && currentValue.trim()) {
