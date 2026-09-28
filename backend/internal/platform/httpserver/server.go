@@ -188,6 +188,12 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/privacy/incidents", Chain(http.HandlerFunc(s.adminPrivacyIncidents), adminGuard(admin.PrivacyRead)))
 	mux.Handle("GET /api/v1/admin/privacy/subprocessors", Chain(http.HandlerFunc(s.adminPrivacySubprocessors), adminGuard(admin.PrivacyRead)))
 	mux.Handle("GET /api/v1/admin/privacy/processing-activities", Chain(http.HandlerFunc(s.adminPrivacyProcessingActivities), adminGuard(admin.PrivacyRead)))
+	mux.Handle("GET /api/v1/admin/control-plane", Chain(http.HandlerFunc(s.adminControlPlane), adminGuard(admin.ControlPlaneRead)))
+	mux.Handle("POST /api/v1/admin/control-plane/approvals", Chain(http.HandlerFunc(s.adminCreateApproval), adminGuard(admin.ControlPlaneManage)))
+	mux.Handle("POST /api/v1/admin/control-plane/approvals/{approvalID}/decisions", Chain(http.HandlerFunc(s.adminDecideApproval), adminGuard(admin.ControlPlaneManage)))
+	mux.Handle("POST /api/v1/admin/control-plane/cases", Chain(http.HandlerFunc(s.adminCreateCase), adminGuard(admin.ControlPlaneManage)))
+	mux.Handle("PATCH /api/v1/admin/control-plane/cases/{caseID}", Chain(http.HandlerFunc(s.adminUpdateCase), adminGuard(admin.ControlPlaneManage)))
+	mux.Handle("POST /api/v1/admin/control-plane/organization-reviews", Chain(http.HandlerFunc(s.adminCreateOrganizationGovernanceReview), adminGuard(admin.ControlPlaneManage)))
 
 	handler := Chain(mux, TrustedProxyRemoteAddr(cfg.HTTP.TrustedProxyCIDRs), RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), MaxBodyBytes(cfg.HTTP.MaxBodyBytes))
 	s.http = &http.Server{Addr: cfg.HTTP.Address, Handler: handler, ReadTimeout: cfg.HTTP.ReadTimeout, ReadHeaderTimeout: cfg.HTTP.ReadHeaderTimeout, WriteTimeout: cfg.HTTP.WriteTimeout, IdleTimeout: cfg.HTTP.IdleTimeout}
