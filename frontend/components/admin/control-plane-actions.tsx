@@ -395,3 +395,157 @@ export function ReleaseTransitionForm({ releaseID, status }: { releaseID: string
     <div className="flex items-center gap-2"><button disabled={pending} className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{pending ? "Updating…" : "Apply reviewed state"}</button><Message value={message}/></div>
   </form>;
 }
+
+
+export function KnowledgeArticleForm() {
+  const allowed = useAdminPermission("content.manage");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/knowledge", {
+        method: "POST",
+        body: JSON.stringify({
+          id: String(data.get("id") ?? "").trim(),
+          slug: String(data.get("slug") ?? "").trim(),
+          title: String(data.get("title") ?? "").trim(),
+          summary: String(data.get("summary") ?? "").trim(),
+          content: String(data.get("content") ?? "").trim(),
+          status: String(data.get("status") ?? "draft"),
+        }),
+      });
+      form.reset();
+      setMessage("Knowledge Hub revision saved.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not save Knowledge Hub revision.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+    <div><p className="text-sm font-bold text-slate-900">Create or revise Knowledge Hub content</p><p className="mt-1 text-xs leading-5 text-slate-500">Supplying an article UUID creates a new immutable revision of that article. Leave it blank for a new article.</p></div>
+    <div className="grid gap-3 md:grid-cols-2">
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Article UUID (for revision)<input name="id" className="h-10 rounded-xl border border-slate-200 px-3 font-mono text-xs font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Slug<input required name="slug" placeholder="candidate-interview-guide" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600 md:col-span-2">Title<input required minLength={3} maxLength={240} name="title" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">State<select name="status" defaultValue="draft" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"><option>draft</option><option>in_review</option><option>published</option><option>archived</option></select></label>
+    </div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Summary<textarea name="summary" maxLength={1000} rows={2} className="rounded-xl border border-slate-200 p-3 text-sm font-normal"/></label>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Content<textarea required name="content" maxLength={100000} rows={8} className="rounded-xl border border-slate-200 p-3 text-sm font-normal"/></label>
+    <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Saving…" : "Save revision"}</button><Message value={message}/></div>
+  </form>;
+}
+
+export function OperationalSettingForm() {
+  const allowed = useAdminPermission("system.configure");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      const rawValue = String(data.get("value") ?? "{}").trim();
+      const value = JSON.parse(rawValue) as Record<string, unknown>;
+      await apiRequest("/api/v1/admin/control-plane/settings", {
+        method: "PUT",
+        body: JSON.stringify({
+          key: String(data.get("key") ?? "").trim(),
+          value,
+          description: String(data.get("description") ?? "").trim(),
+          high_risk: data.get("high_risk") === "on",
+          approval_id: String(data.get("approval_id") ?? "").trim(),
+        }),
+      });
+      form.reset();
+      setMessage("Operational setting saved.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not save operational setting.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+    <div><p className="text-sm font-bold text-slate-900">Controlled operational setting</p><p className="mt-1 text-xs leading-5 text-slate-500">Secrets, passwords, tokens, private keys and encryption keys are blocked. High-risk settings require an approved request for the exact setting key.</p></div>
+    <div className="grid gap-3 md:grid-cols-2">
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Setting key<input required minLength={3} maxLength={100} name="key" placeholder="recruitment.max_bulk_inmail" className="h-10 rounded-xl border border-slate-200 px-3 font-mono text-xs font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Approval UUID (high-risk only)<input name="approval_id" className="h-10 rounded-xl border border-slate-200 px-3 font-mono text-xs font-normal"/></label>
+    </div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Value (JSON object)<textarea required name="value" defaultValue="{}" rows={4} className="rounded-xl border border-slate-200 p-3 font-mono text-xs font-normal"/></label>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Description<input name="description" maxLength={1000} className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+    <label className="flex items-center gap-2 text-xs font-bold text-slate-700"><input type="checkbox" name="high_risk"/>High-risk change — require exact-key dual approval</label>
+    <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Saving…" : "Save controlled setting"}</button><Message value={message}/></div>
+  </form>;
+}
+
+export function CostSnapshotForm() {
+  const allowed = useAdminPermission("system.configure");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const numberOrNull = (name: string) => {
+      const raw = String(data.get(name) ?? "").trim();
+      return raw === "" ? null : Number(raw);
+    };
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/cost-snapshots", {
+        method: "POST",
+        body: JSON.stringify({
+          currency: String(data.get("currency") ?? "USD").trim(),
+          period_start: String(data.get("period_start") ?? "") + "T00:00:00Z",
+          period_end: String(data.get("period_end") ?? "") + "T00:00:00Z",
+          actual_cost: Number(data.get("actual_cost") ?? 0),
+          forecast_cost: numberOrNull("forecast_cost"),
+          budget_amount: numberOrNull("budget_amount"),
+          source_reference: String(data.get("source_reference") ?? "").trim(),
+        }),
+      });
+      form.reset();
+      setMessage("Verified cost snapshot recorded.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not record cost snapshot.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+    <div><p className="text-sm font-bold text-slate-900">Record actual cloud cost evidence</p><p className="mt-1 text-xs leading-5 text-slate-500">Use this only for verified Cost Explorer/Budget evidence. The preferred production path is the signed collector endpoint.</p></div>
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Currency<input required name="currency" defaultValue="USD" maxLength={3} className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal uppercase"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Period start<input required type="date" name="period_start" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Period end<input required type="date" name="period_end" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Actual cost<input required min="0" step="0.01" type="number" name="actual_cost" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Forecast cost<input min="0" step="0.01" type="number" name="forecast_cost" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Budget amount<input min="0" step="0.01" type="number" name="budget_amount" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+    </div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Evidence reference<input name="source_reference" maxLength={500} placeholder="Cost Explorer export / CUR object / ticket reference" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+    <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Recording…" : "Record cost snapshot"}</button><Message value={message}/></div>
+  </form>;
+}
