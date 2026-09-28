@@ -32,13 +32,14 @@ const (
 	IntelligenceModelsRead     Permission = "intelligence.models.read"
 	IntelligenceModelsEvaluate Permission = "intelligence.models.evaluate"
 	IntelligenceModelsApprove  Permission = "intelligence.models.approve"
+	IntelligencePromptsApprove Permission = "intelligence.prompts.approve"
 	IntelligenceConfigUpdate   Permission = "intelligence.config.update"
 	IntelligenceKillSwitch     Permission = "intelligence.kill_switch"
 	IntelligenceAuditRead      Permission = "intelligence.audit.read"
 )
 
 var rolePermissions = map[string][]Permission{
-	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceFeedbackReview, IntelligenceModelsRead, IntelligenceModelsEvaluate, IntelligenceModelsApprove, IntelligenceConfigUpdate, IntelligenceKillSwitch, IntelligenceAuditRead},
+	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceFeedbackReview, IntelligenceModelsRead, IntelligenceModelsEvaluate, IntelligenceModelsApprove, IntelligencePromptsApprove, IntelligenceConfigUpdate, IntelligenceKillSwitch, IntelligenceAuditRead},
 	"platform_admin": {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ReleaseManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceFeedbackReview, IntelligenceModelsRead, IntelligenceModelsEvaluate},
 	"security_admin": {UsersRead, UsersModerate, AuditRead, ControlPlaneRead, ControlPlaneManage},
 	"privacy_admin":  {PrivacyRead, PrivacyManage, AuditRead, ControlPlaneRead, ControlPlaneManage},
