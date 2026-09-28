@@ -51,7 +51,7 @@ test("role preview is clearly non-enforcing, read-only and responsive", async ({
   await selector.selectOption("super_admin");
   await expect(page.getByText("Not granted", { exact: true })).toHaveCount(0);
   await selector.selectOption("content_admin");
-  await expect(page.getByText("0 proposed capabilities", { exact: true })).toBeVisible();
+  await expect(page.getByText("3 proposed capabilities", { exact: true })).toBeVisible();
   expect(mutations).toEqual([]);
   await selector.selectOption("auditor");
   for (const width of [1440, 768, 375]) {
