@@ -650,19 +650,65 @@ func (s *Service) CreateOrganizationGovernanceReview(ctx context.Context, actor 
 	return out, nil
 }
 
-func sanitizeTelemetryMetadata(input map[string]any) map[string]any {
+func sensitiveMetadataKey(key string) bool {
+	switch strings.ToLower(strings.TrimSpace(key)) {
+	case "content", "body", "message", "message_text", "cv", "cv_text", "resume", "resume_text", "email_body", "attachment", "password", "secret", "token", "private_key", "email", "phone", "phone_e164", "full_name":
+		return true
+	default:
+		return false
+	}
+}
+
+func sanitizeMetadataValue(value any, depth int) any {
+	if depth > 5 {
+		return nil
+	}
+	switch typed := value.(type) {
+	case map[string]any:
+		return sanitizeTelemetryMetadataDepth(typed, depth+1)
+	case []any:
+		items := make([]any, 0, len(typed))
+		for _, item := range typed {
+			clean := sanitizeMetadataValue(item, depth+1)
+			if clean != nil {
+				items = append(items, clean)
+			}
+			if len(items) >= 50 {
+				break
+			}
+		}
+		return items
+	case string:
+		if len(typed) > 1000 {
+			return typed[:1000]
+		}
+		return typed
+	case float64, float32, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, bool, nil:
+		return typed
+	default:
+		return nil
+	}
+}
+
+func sanitizeTelemetryMetadataDepth(input map[string]any, depth int) map[string]any {
 	out := map[string]any{}
 	for k, v := range input {
 		key := strings.ToLower(strings.TrimSpace(k))
-		switch key {
-		case "content", "body", "message", "message_text", "cv", "cv_text", "resume", "resume_text", "email_body", "attachment", "password", "secret", "token", "private_key":
+		if key == "" || len(key) > 64 || sensitiveMetadataKey(key) {
 			continue
 		}
-		if len(key) <= 64 {
-			out[key] = v
+		if clean := sanitizeMetadataValue(v, depth); clean != nil {
+			out[key] = clean
+		}
+		if len(out) >= 50 {
+			break
 		}
 	}
 	return out
+}
+
+func sanitizeTelemetryMetadata(input map[string]any) map[string]any {
+	return sanitizeTelemetryMetadataDepth(input, 0)
 }
 func (s *Service) RecordTelemetry(ctx context.Context, category, source, operation, status string, latencyMS *int, retryCount int, backlogCount *int, referenceID string, metadata map[string]any) error {
 	category = strings.ToLower(strings.TrimSpace(category))
