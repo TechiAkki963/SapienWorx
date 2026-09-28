@@ -440,7 +440,129 @@ WHERE NOT EXISTS (
 )
 ON CONFLICT DO NOTHING;
 
-DO $$
+CREATE OR REPLACE FUNCTION workforce.sync_source_terms(
+  p_source_type text,
+  p_source_id uuid,
+  p_values text[],
+  p_entity_type text DEFAULT 'competency',
+  p_source text DEFAULT 'runtime.sync'
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public, workforce
+AS $
+DECLARE
+  raw_term text;
+  normalized text;
+  resolved_entity uuid;
+  resolved_method text;
+  resolved_confidence numeric;
+  provisional_id uuid;
+BEGIN
+  DELETE FROM workforce.term_mappings
+  WHERE source_type=p_source_type AND source_id=p_source_id;
+
+  FOREACH raw_term IN ARRAY coalesce(p_values,'{}'::text[]) LOOP
+    raw_term := btrim(raw_term);
+    normalized := workforce.normalize_term(raw_term);
+    IF normalized='' THEN
+      CONTINUE;
+    END IF;
+
+    SELECT r.entity_id,r.match_method,r.confidence
+      INTO resolved_entity,resolved_method,resolved_confidence
+    FROM workforce.resolve_term(
+      raw_term,
+      ARRAY['skill','competency','tool','technology','equipment','certification','licence','qualification','domain_knowledge','methodology']
+    ) r
+    LIMIT 1;
+
+    IF resolved_entity IS NOT NULL THEN
+      INSERT INTO workforce.term_mappings(
+        source_type,source_id,raw_value,normalized_value,entity_id,mapping_method,confidence,source
+      ) VALUES (
+        p_source_type,p_source_id,raw_term,normalized,resolved_entity,resolved_method,resolved_confidence,p_source
+      )
+      ON CONFLICT (source_type,source_id,normalized_value)
+      DO UPDATE SET raw_value=EXCLUDED.raw_value,entity_id=EXCLUDED.entity_id,
+        provisional_term_id=NULL,mapping_method=EXCLUDED.mapping_method,
+        confidence=EXCLUDED.confidence,source=EXCLUDED.source,updated_at=now();
+      CONTINUE;
+    END IF;
+
+    INSERT INTO workforce.provisional_terms(
+      raw_term,normalized_term,proposed_entity_type,source,source_context
+    ) VALUES (
+      raw_term,normalized,p_entity_type,p_source,p_source_type
+    )
+    ON CONFLICT (proposed_entity_type,normalized_term,country_scope,status)
+    DO UPDATE SET occurrence_count=workforce.provisional_terms.occurrence_count+1,
+                  last_seen_at=now()
+    RETURNING id INTO provisional_id;
+
+    INSERT INTO workforce.term_mappings(
+      source_type,source_id,raw_value,normalized_value,provisional_term_id,mapping_method,confidence,source
+    ) VALUES (
+      p_source_type,p_source_id,raw_term,normalized,provisional_id,'provisional',0.0000,p_source
+    )
+    ON CONFLICT (source_type,source_id,normalized_value)
+    DO UPDATE SET raw_value=EXCLUDED.raw_value,entity_id=NULL,
+      provisional_term_id=EXCLUDED.provisional_term_id,mapping_method='provisional',
+      confidence=0.0000,source=EXCLUDED.source,updated_at=now();
+  END LOOP;
+END;
+$;
+
+CREATE OR REPLACE FUNCTION workforce.sync_job_required_skills()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public, workforce
+AS $
+BEGIN
+  PERFORM workforce.sync_source_terms('job_required_skill',NEW.id,NEW.required_skills,'competency','job.write');
+  RETURN NEW;
+END;
+$;
+
+CREATE OR REPLACE FUNCTION workforce.sync_candidate_competencies()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public, workforce
+AS $
+DECLARE
+  values text[];
+BEGIN
+  SELECT coalesce(array_agg(term),'{}'::text[]) INTO values
+  FROM (
+    SELECT btrim(CASE jsonb_typeof(v)
+      WHEN 'object' THEN coalesce(v->>'name','')
+      WHEN 'string' THEN trim(both '"' from v::text)
+      ELSE ''
+    END) AS term
+    FROM jsonb_array_elements(
+      CASE WHEN jsonb_typeof(NEW.profile_details->'it_skills')='array'
+        THEN NEW.profile_details->'it_skills' ELSE '[]'::jsonb END
+    ) v
+  ) q
+  WHERE term<>'';
+
+  PERFORM workforce.sync_source_terms('candidate_skill',NEW.user_id,values,'competency','candidate.profile.write');
+  RETURN NEW;
+END;
+$;
+
+CREATE TRIGGER trg_workforce_sync_job_required_skills
+AFTER INSERT OR UPDATE OF required_skills ON jobs
+FOR EACH ROW EXECUTE FUNCTION workforce.sync_job_required_skills();
+
+CREATE TRIGGER trg_workforce_sync_candidate_competencies
+AFTER INSERT OR UPDATE OF profile_details ON candidate_profiles
+FOR EACH ROW EXECUTE FUNCTION workforce.sync_candidate_competencies();
+
+DO $
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_app') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA workforce TO sapienworx_app';
