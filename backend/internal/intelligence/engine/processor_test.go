@@ -3,7 +3,7 @@ package engine
 import "testing"
 
 func TestSkillOverlap(t *testing.T) {
-	score, matched := skillOverlap([]string{"go","postgresql","aws"}, []string{"go","aws","kubernetes"})
+	score, matched := skillOverlap([]string{"go", "postgresql", "aws"}, []string{"go", "aws", "kubernetes"})
 	if score < 0.66 || score > 0.67 {
 		t.Fatalf("unexpected score: %v", score)
 	}
@@ -34,8 +34,8 @@ func TestAvailabilityFit(t *testing.T) {
 }
 
 func TestFeedbackLabels(t *testing.T) {
-	hired := feedbackLabel("application.stage_changed", map[string]any{"stage":"hired"})
-	rejected := feedbackLabel("application.stage_changed", map[string]any{"stage":"rejected"})
+	hired := feedbackLabel("application.stage_changed", map[string]any{"stage": "hired"})
+	rejected := feedbackLabel("application.stage_changed", map[string]any{"stage": "rejected"})
 	if hired == nil || *hired != 1 {
 		t.Fatalf("unexpected hired label: %#v", hired)
 	}
