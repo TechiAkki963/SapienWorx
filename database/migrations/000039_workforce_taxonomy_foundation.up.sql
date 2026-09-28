@@ -619,7 +619,7 @@ BEGIN
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.normalize_term(text) TO sapienworx_intelligence';
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.resolve_term(text,text[]) TO sapienworx_intelligence';
   END IF;
-END
+END;
 $workforce$;
 
 COMMIT;
