@@ -515,7 +515,7 @@ func (s *Service) RegisterIntelligencePrompt(ctx context.Context, actor, promptK
 	if err = tx.QueryRow(ctx, `SELECT COALESCE(max(version),0)+1 FROM intelligence.prompts WHERE prompt_key=$1`, promptKey).Scan(&version); err != nil {
 		return IntelligencePromptRecord{}, err
 	}
-		var model any
+	var model any
 	if modelVersionID != "" {
 		model = modelVersionID
 	}
@@ -534,7 +534,6 @@ func (s *Service) RegisterIntelligencePrompt(ctx context.Context, actor, promptK
 	_ = s.Audit(ctx, AuditInput{AdminID: &actor, ActionType: "intelligence.prompt.registered", TargetEntityType: "intelligence_prompt", TargetEntityID: &out.ID, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"prompt_key": promptKey, "version": version, "status": status}})
 	return out, nil
 }
-
 
 func (s *Service) ActivateIntelligencePrompt(ctx context.Context, promptID, actor, approvalID, ip, requestID string) error {
 	promptID = strings.TrimSpace(promptID)
