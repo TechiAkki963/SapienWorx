@@ -336,6 +336,49 @@ INSERT INTO intelligence.events(event_type,aggregate_type,aggregate_id,payload)
 SELECT 'application.created','application',id,jsonb_build_object('candidate_id',candidate_id,'job_id',job_id,'stage',stage::text)
 FROM applications;
 
+CREATE VIEW intelligence.source_candidate_features AS
+SELECT
+  user_id AS candidate_id,
+  COALESCE(headline,'') AS headline,
+  COALESCE(current_city,'') AS current_city,
+  COALESCE(current_state,'') AS current_state,
+  country_code,
+  total_experience_months,
+  notice_period_days,
+  COALESCE(profile_details->'it_skills','[]'::jsonb) AS it_skills,
+  COALESCE(profile_details->'employment','[]'::jsonb) AS employment,
+  COALESCE(profile_details->'education','[]'::jsonb) AS education,
+  COALESCE(profile_details->>'interested_domains','') AS interested_domains
+FROM candidate_profiles;
+
+CREATE VIEW intelligence.source_job_features AS
+SELECT
+  id AS job_id,
+  title,
+  COALESCE(role_category,'') AS role_category,
+  required_skills,
+  min_experience_months,
+  max_experience_months,
+  employment_type::text AS employment_type,
+  work_mode::text AS work_mode,
+  COALESCE(city,'') AS city,
+  COALESCE(state,'') AS state,
+  country_code,
+  status::text AS status
+FROM jobs;
+
+CREATE VIEW intelligence.source_platform_snapshot AS
+SELECT
+  (SELECT count(*) FROM jobs WHERE status='active')::bigint AS active_jobs,
+  (SELECT count(*) FROM applications WHERE applied_at>=now()-interval '30 days')::bigint AS applications_30d,
+  (SELECT count(*) FROM interviews WHERE scheduled_at>=now()-interval '30 days')::bigint AS interviews_30d,
+  (SELECT count(*) FROM applications WHERE stage='hired' AND updated_at>=now()-interval '90 days')::bigint AS hires_90d,
+  (SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours')::bigint AS parser_events_24h,
+  (SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours' AND status IN ('failed','degraded'))::bigint AS parser_failures_24h,
+  (SELECT count(*) FROM admin_alerts WHERE severity='critical' AND status IN ('open','acknowledged'))::bigint AS critical_alerts,
+  (SELECT count(*) FROM privacy_requests WHERE status IN ('received','in_progress','awaiting_review'))::bigint AS pending_privacy_requests,
+  (SELECT count(*) FROM admin_approval_requests WHERE status='pending' AND (expires_at IS NULL OR expires_at>now()))::bigint AS pending_approvals;
+
 INSERT INTO intelligence.skills(canonical_name,normalized_name,category) VALUES
 ('Go','go','language'),('Java','java','language'),('Python','python','language'),('JavaScript','javascript','language'),
 ('TypeScript','typescript','language'),('React','react','framework'),('Next.js','next.js','framework'),('PostgreSQL','postgresql','database'),
@@ -396,20 +439,17 @@ DO $grant$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_app') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA intelligence TO sapienworx_app';
-    EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA intelligence TO sapienworx_app';
-    EXECUTE 'GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA intelligence TO sapienworx_app';
-    EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA intelligence GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO sapienworx_app';
-    EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA intelligence GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO sapienworx_app';
+    EXECUTE 'GRANT SELECT ON ALL TABLES IN SCHEMA intelligence TO sapienworx_app';
+    EXECUTE 'GRANT INSERT ON intelligence.events, intelligence.model_versions, intelligence.prompts, intelligence.audit_events TO sapienworx_app';
+    EXECUTE 'GRANT UPDATE ON intelligence.model_versions, intelligence.prompts, intelligence.engine_switches TO sapienworx_app';
+    EXECUTE 'GRANT EXECUTE ON FUNCTION intelligence.enqueue_event(text,text,uuid,jsonb) TO sapienworx_app';
   END IF;
 
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_intelligence') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA intelligence TO sapienworx_intelligence';
-    EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA intelligence TO sapienworx_intelligence';
-    EXECUTE 'GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA intelligence TO sapienworx_intelligence';
-    EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA intelligence GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO sapienworx_intelligence';
-    EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA intelligence GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO sapienworx_intelligence';
-
-    EXECUTE 'GRANT SELECT ON candidate_profiles, jobs, applications, interviews, admin_telemetry_events, admin_alerts, privacy_requests, admin_approval_requests TO sapienworx_intelligence';
+    EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON intelligence.events, intelligence.candidate_features, intelligence.job_features, intelligence.match_results, intelligence.recommendations, intelligence.feedback_events, intelligence.evaluations, intelligence.gateway_requests, intelligence.engine_heartbeats, intelligence.audit_events TO sapienworx_intelligence';
+    EXECUTE 'GRANT SELECT ON intelligence.skills, intelligence.skill_aliases, intelligence.skill_relations, intelligence.model_versions, intelligence.prompts, intelligence.engine_switches, intelligence.source_candidate_features, intelligence.source_job_features, intelligence.source_platform_snapshot TO sapienworx_intelligence';
+    EXECUTE 'GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA intelligence TO sapienworx_intelligence';
     EXECUTE 'GRANT SELECT, INSERT ON intelligence_runs, intelligence_insights TO sapienworx_intelligence';
   END IF;
 END $grant$;
