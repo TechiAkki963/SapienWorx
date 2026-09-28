@@ -1,0 +1,12 @@
+BEGIN;
+DROP TRIGGER IF EXISTS trg_intelligence_saved_job_event ON saved_jobs;
+DROP TRIGGER IF EXISTS trg_intelligence_application_event ON applications;
+DROP TRIGGER IF EXISTS trg_intelligence_candidate_event ON candidate_profiles;
+DROP TRIGGER IF EXISTS trg_intelligence_job_event ON jobs;
+DROP FUNCTION IF EXISTS intelligence.saved_job_event_trigger();
+DROP FUNCTION IF EXISTS intelligence.application_event_trigger();
+DROP FUNCTION IF EXISTS intelligence.candidate_event_trigger();
+DROP FUNCTION IF EXISTS intelligence.job_event_trigger();
+DROP FUNCTION IF EXISTS intelligence.enqueue_event(text,text,uuid,jsonb);
+DROP SCHEMA IF EXISTS intelligence CASCADE;
+COMMIT;
