@@ -249,3 +249,53 @@ func (s *Server) adminCaseHistory(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items})
 }
+
+
+func (s *Server) adminAlerts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	items, err := s.admin.Alerts(r.Context())
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	rules, err := s.admin.AlertRules(r.Context())
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items, "rules": rules})
+}
+
+func (s *Server) adminEvaluateAlerts(w http.ResponseWriter, r *http.Request) {
+	actor, ok := adminClaimsID(r)
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+		return
+	}
+	count, err := s.admin.EvaluateAlerts(r.Context(), actor, clientIP(r.RemoteAddr), RequestIDFromContext(r.Context()))
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]int{"triggered": count})
+}
+
+func (s *Server) adminAlertTransition(w http.ResponseWriter, r *http.Request) {
+	actor, ok := adminClaimsID(r)
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+		return
+	}
+	var input struct {
+		Status string \`json:"status"\`
+		Owner  string \`json:"owner"\`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if err := s.admin.UpdateAlert(r.Context(), strings.TrimSpace(r.PathValue("alertID")), actor, input.Status, input.Owner, clientIP(r.RemoteAddr), RequestIDFromContext(r.Context())); err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"updated": true})
+}

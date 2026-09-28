@@ -197,7 +197,7 @@ func (s *Service) ControlPlane(ctx context.Context) (ControlPlaneSummary, error)
 		(SELECT count(*) FROM admin_cases WHERE status IN ('open','investigating','awaiting_review')),
 		(SELECT count(*) FROM organization_governance_reviews WHERE status='pending'),
 		(SELECT count(*) FROM admin_telemetry_events WHERE occurred_at>=now()-interval '24 hours' AND status IN ('failed','retrying','backlogged','degraded')),
-		(SELECT count(*) FROM admin_operation_evidence WHERE evidence_type='alert' AND status IN ('warning','critical','failed','pending')),
+		(SELECT count(*) FROM admin_alerts WHERE status IN ('open','acknowledged')),
 		(SELECT count(*) FROM knowledge_articles WHERE status IN ('draft','in_review')),
 		(SELECT count(*) FROM admin_release_acceptance WHERE status IN ('reviewing','approved_for_rollout','deployed'))`).Scan(
 		&out.PendingApprovals, &out.OpenCases, &out.PendingOrganizationReviews, &out.FailedTelemetry24h, &out.OpenAlerts, &out.DraftArticles, &out.PendingReleases,
