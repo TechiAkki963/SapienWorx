@@ -10,22 +10,22 @@ import (
 )
 
 type CandidateJobFilters struct {
-	Query             string
-	Location          string
-	Company           string
-	WorkMode          string
-	EmploymentType    string
-	RoleCategory      string
-	Competency        string
-	ExperienceMonths  *int
-	Education         []string
-	MinSalary         *float64
-	MaxSalary         *float64
-	SalaryCurrency    string
-	PostedWithinDays  int
-	Sort              string
-	Page              int
-	Limit             int
+	Query            string
+	Location         string
+	Company          string
+	WorkMode         string
+	EmploymentType   string
+	RoleCategory     string
+	Competency       string
+	ExperienceMonths *int
+	Education        []string
+	MinSalary        *float64
+	MaxSalary        *float64
+	SalaryCurrency   string
+	PostedWithinDays int
+	Sort             string
+	Page             int
+	Limit            int
 }
 
 type CandidateJobCard struct {
@@ -59,11 +59,11 @@ type CandidateSearchInterpretation struct {
 }
 
 type CandidateJobList struct {
-	Items                    []CandidateJobCard              `json:"items"`
-	Page                     int                             `json:"page"`
-	Limit                    int                             `json:"limit"`
-	Total                    int                             `json:"total"`
-	Sort                     string                          `json:"sort"`
+	Items                    []CandidateJobCard             `json:"items"`
+	Page                     int                            `json:"page"`
+	Limit                    int                            `json:"limit"`
+	Total                    int                            `json:"total"`
+	Sort                     string                         `json:"sort"`
 	QueryInterpretation      *CandidateSearchInterpretation `json:"query_interpretation,omitempty"`
 	CompetencyInterpretation *CandidateSearchInterpretation `json:"competency_interpretation,omitempty"`
 }
