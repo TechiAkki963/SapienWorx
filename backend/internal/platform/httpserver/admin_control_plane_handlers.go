@@ -228,7 +228,6 @@ func (s *Server) adminUpdateReleaseAcceptance(w http.ResponseWriter, r *http.Req
 	writeJSON(w, http.StatusOK, map[string]bool{"updated": true})
 }
 
-
 func (s *Server) adminRuntimeSnapshot(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	result, err := s.admin.RuntimeSnapshot(r.Context())
@@ -239,7 +238,6 @@ func (s *Server) adminRuntimeSnapshot(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
-
 func (s *Server) adminCaseHistory(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	items, err := s.admin.CaseHistory(r.Context(), strings.TrimSpace(r.PathValue("caseID")))
@@ -249,7 +247,6 @@ func (s *Server) adminCaseHistory(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items})
 }
-
 
 func (s *Server) adminAlerts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
@@ -331,9 +328,9 @@ func (s *Server) adminReviewIntelligenceInsight(w http.ResponseWriter, r *http.R
 		return
 	}
 	var input struct {
-		Status string `json:"status"`
+		Status  string `json:"status"`
 		Outcome string `json:"outcome"`
-		Note string `json:"note"`
+		Note    string `json:"note"`
 	}
 	if !decodeJSON(w, r, &input) {
 		return
