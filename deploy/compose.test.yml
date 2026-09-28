@@ -89,6 +89,12 @@ services:
     pids_limit: 96
     mem_limit: 384m
     cpus: 0.35
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 4
+      start_period: 5s
 
   frontend:
     build:
