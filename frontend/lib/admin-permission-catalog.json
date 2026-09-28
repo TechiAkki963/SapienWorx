@@ -1,10 +1,74 @@
 {
-  "super_admin": ["overview.read", "organizations.read", "organizations.review", "organizations.documents", "users.read", "users.moderate", "jobs.read", "jobs.moderate", "privacy.read", "privacy.manage", "audit.read", "system.read", "system.configure", "recruitment.read"],
-  "platform_admin": ["overview.read", "organizations.read", "organizations.review", "organizations.documents", "users.read", "users.moderate", "jobs.read", "jobs.moderate", "recruitment.read"],
-  "security_admin": ["users.read", "users.moderate", "audit.read"],
-  "privacy_admin": ["privacy.read", "privacy.manage", "audit.read"],
-  "support_admin": ["users.read", "organizations.read", "jobs.read"],
-  "finance_admin": ["system.read"],
-  "content_admin": [],
-  "auditor": ["overview.read", "audit.read"]
+  "super_admin": [
+    "overview.read",
+    "organizations.read",
+    "organizations.review",
+    "organizations.documents",
+    "users.read",
+    "users.moderate",
+    "jobs.read",
+    "jobs.moderate",
+    "privacy.read",
+    "privacy.manage",
+    "audit.read",
+    "system.read",
+    "system.configure",
+    "recruitment.read",
+    "control_plane.read",
+    "control_plane.manage",
+    "content.read",
+    "content.manage",
+    "costs.read",
+    "release.manage"
+  ],
+  "platform_admin": [
+    "overview.read",
+    "organizations.read",
+    "organizations.review",
+    "organizations.documents",
+    "users.read",
+    "users.moderate",
+    "jobs.read",
+    "jobs.moderate",
+    "recruitment.read",
+    "control_plane.read",
+    "control_plane.manage",
+    "release.manage"
+  ],
+  "security_admin": [
+    "users.read",
+    "users.moderate",
+    "audit.read",
+    "control_plane.read",
+    "control_plane.manage"
+  ],
+  "privacy_admin": [
+    "privacy.read",
+    "privacy.manage",
+    "audit.read",
+    "control_plane.read",
+    "control_plane.manage"
+  ],
+  "support_admin": [
+    "users.read",
+    "organizations.read",
+    "jobs.read"
+  ],
+  "finance_admin": [
+    "system.read",
+    "costs.read",
+    "control_plane.read"
+  ],
+  "content_admin": [
+    "content.read",
+    "content.manage",
+    "control_plane.read"
+  ],
+  "auditor": [
+    "overview.read",
+    "audit.read",
+    "control_plane.read",
+    "costs.read",
+    "content.read"
+  ]
 }
