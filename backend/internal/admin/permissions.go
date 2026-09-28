@@ -25,19 +25,26 @@ const (
 	ContentManage          Permission = "content.manage"
 	CostsRead              Permission = "costs.read"
 	ReleaseManage          Permission = "release.manage"
-	IntelligenceRead       Permission = "intelligence.read"
-	IntelligenceManage     Permission = "intelligence.manage"
+	IntelligenceRead           Permission = "intelligence.read"
+	IntelligenceMetricsRead    Permission = "intelligence.metrics.read"
+	IntelligenceFeedbackRead   Permission = "intelligence.feedback.read"
+	IntelligenceModelsRead     Permission = "intelligence.models.read"
+	IntelligenceModelsEvaluate Permission = "intelligence.models.evaluate"
+	IntelligenceModelsApprove  Permission = "intelligence.models.approve"
+	IntelligenceConfigUpdate   Permission = "intelligence.config.update"
+	IntelligenceKillSwitch     Permission = "intelligence.kill_switch"
+	IntelligenceAuditRead      Permission = "intelligence.audit.read"
 )
 
 var rolePermissions = map[string][]Permission{
-	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage, IntelligenceRead, IntelligenceManage},
-	"platform_admin": {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ReleaseManage, IntelligenceRead, IntelligenceManage},
+	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceModelsRead, IntelligenceModelsEvaluate, IntelligenceModelsApprove, IntelligenceConfigUpdate, IntelligenceKillSwitch, IntelligenceAuditRead},
+	"platform_admin": {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ReleaseManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceModelsRead, IntelligenceModelsEvaluate},
 	"security_admin": {UsersRead, UsersModerate, AuditRead, ControlPlaneRead, ControlPlaneManage},
 	"privacy_admin":  {PrivacyRead, PrivacyManage, AuditRead, ControlPlaneRead, ControlPlaneManage},
 	"support_admin":  {UsersRead, OrganizationsRead, JobsRead},
 	"finance_admin":  {SystemRead, CostsRead, ControlPlaneRead},
 	"content_admin":  {ContentRead, ContentManage, ControlPlaneRead},
-	"auditor":        {OverviewRead, AuditRead, ControlPlaneRead, CostsRead, ContentRead, IntelligenceRead},
+	"auditor":        {OverviewRead, AuditRead, ControlPlaneRead, CostsRead, ContentRead, IntelligenceRead, IntelligenceMetricsRead, IntelligenceModelsRead, IntelligenceAuditRead},
 }
 
 func PermissionsForRole(role string) []Permission {
