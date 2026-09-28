@@ -56,10 +56,11 @@ Feedback never immediately mutates a production model.
 Candidate matching versions are evaluated against observed labeled candidate/job outcomes. Evaluation records include the dataset reference, metrics and a quality-gate status.
 
 A model can be promoted only when:
-1. an evaluation for that model has passed;
-2. a separate admin approval request is in `approved` state;
-3. the approval action is `intelligence.model.promote`;
-4. the approval target is the exact model version.
+1. the `model_deployment` governance switch has itself been explicitly enabled;
+2. an evaluation for that model has passed;
+3. a separate admin approval request is in `approved` state;
+4. the approval action is `intelligence.model.promote`;
+5. the approval target is the exact model version.
 
 Promotion retires the previous production version for the same engine type and records an intelligence audit event.
 
@@ -97,7 +98,7 @@ Current switches:
 - ai_gateway
 - model_deployment
 
-Disabling does not require approval. Re-enabling governed capabilities requires an approved request bound to the exact switch.
+All production capability switches default to OFF at migration time. Disabling does not require approval. Re-enabling governed capabilities requires an approved request bound to the exact switch. Paused candidate/CV events are deferred rather than marked processed, and matching re-enable queues recomputation from stored features.
 
 ## Master Admin permissions
 
@@ -119,8 +120,9 @@ Write operations additionally inherit the existing recent MFA/re-authentication 
 
 Do not enable production Intelligence until all of the following are independently reviewed:
 - migration 000038 approved
-- standalone Intelligence image published
-- production DB credentials scoped and secret-managed
+- standalone Intelligence image published to its own ECR repository
+- separate `sapienworx_intelligence` production DB credential stored as `INTELLIGENCE_DATABASE_URL`; the runtime refuses production start without it
+- production DB grants verified for least-privilege Intelligence/public-table access
 - engine heartbeat visible
 - event backlog drains without failures
 - candidate/job feature backfill reviewed
