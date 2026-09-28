@@ -32,7 +32,7 @@ test.describe("Master Admin Intelligence Centre", () => {
 
     await expect(page.getByRole("button", { name: "Queue advisory analysis" })).toBeVisible();
     await expect(page.getByText("Register candidate model/version", { exact: true })).toBeVisible();
-    await expect(page.getByText("Register prompt version", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Register prompt version", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Activate with approval" })).toHaveCount(1);
     await expect(page.getByRole("button", { name: "Evaluate" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Promote with approval" })).toBeVisible();
