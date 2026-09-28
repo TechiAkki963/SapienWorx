@@ -19,7 +19,9 @@
     "content.read",
     "content.manage",
     "costs.read",
-    "release.manage"
+    "release.manage",
+    "intelligence.read",
+    "intelligence.manage"
   ],
   "platform_admin": [
     "overview.read",
@@ -33,7 +35,9 @@
     "recruitment.read",
     "control_plane.read",
     "control_plane.manage",
-    "release.manage"
+    "release.manage",
+    "intelligence.read",
+    "intelligence.manage"
   ],
   "security_admin": [
     "users.read",
@@ -69,6 +73,7 @@
     "audit.read",
     "control_plane.read",
     "costs.read",
-    "content.read"
+    "content.read",
+    "intelligence.read"
   ]
 }
