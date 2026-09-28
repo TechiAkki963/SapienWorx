@@ -94,7 +94,7 @@ CREATE TABLE workforce.provisional_terms (
   country_scope varchar(2) NOT NULL DEFAULT '' CHECK (country_scope='' OR country_scope ~ '^[A-Z]{2}$'),
   source text NOT NULL CHECK (source ~ '^[a-z][a-z0-9_.-]{1,63}$'),
   source_context text NOT NULL DEFAULT '' CHECK (length(source_context) <= 120),
-  occurrence_count bigint NOT NULL DEFAULT 1 CHECK (occurrence_count > 0),
+  occurrence_count bigint NOT NULL DEFAULT 0 CHECK (occurrence_count >= 0),
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','merged','rejected')),
   resolved_entity_id uuid REFERENCES workforce.taxonomy_entities(id) ON DELETE SET NULL,
   created_by uuid REFERENCES users(id) ON DELETE SET NULL,
@@ -210,6 +210,39 @@ $$;
 CREATE TRIGGER trg_workforce_mapping_usage
 AFTER INSERT OR UPDATE OF entity_id OR DELETE ON workforce.term_mappings
 FOR EACH ROW EXECUTE FUNCTION workforce.update_entity_usage();
+
+CREATE OR REPLACE FUNCTION workforce.update_provisional_usage()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $
+BEGIN
+  IF TG_OP='INSERT' THEN
+    IF NEW.provisional_term_id IS NOT NULL THEN
+      UPDATE workforce.provisional_terms SET occurrence_count=occurrence_count+1,last_seen_at=now() WHERE id=NEW.provisional_term_id;
+    END IF;
+    RETURN NEW;
+  ELSIF TG_OP='DELETE' THEN
+    IF OLD.provisional_term_id IS NOT NULL THEN
+      UPDATE workforce.provisional_terms SET occurrence_count=greatest(occurrence_count-1,0) WHERE id=OLD.provisional_term_id;
+    END IF;
+    RETURN OLD;
+  END IF;
+
+  IF OLD.provisional_term_id IS DISTINCT FROM NEW.provisional_term_id THEN
+    IF OLD.provisional_term_id IS NOT NULL THEN
+      UPDATE workforce.provisional_terms SET occurrence_count=greatest(occurrence_count-1,0) WHERE id=OLD.provisional_term_id;
+    END IF;
+    IF NEW.provisional_term_id IS NOT NULL THEN
+      UPDATE workforce.provisional_terms SET occurrence_count=occurrence_count+1,last_seen_at=now() WHERE id=NEW.provisional_term_id;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$;
+
+CREATE TRIGGER trg_workforce_provisional_usage
+AFTER INSERT OR UPDATE OF provisional_term_id OR DELETE ON workforce.term_mappings
+FOR EACH ROW EXECUTE FUNCTION workforce.update_provisional_usage();
 
 INSERT INTO workforce.taxonomy_entities(entity_type,canonical_name,normalized_name,description,metadata)
 VALUES
@@ -409,11 +442,11 @@ unknown AS (
   GROUP BY r.raw_value,workforce.normalize_term(r.raw_value)
 )
 INSERT INTO workforce.provisional_terms(raw_term,normalized_term,proposed_entity_type,source,source_context,occurrence_count)
-SELECT min(raw_value),normalized_term,'competency','migration.000039','legacy_skill_backfill',sum(occurrence_count)
+SELECT min(raw_value),normalized_term,'competency','migration.000039','legacy_skill_backfill',0
 FROM unknown
 GROUP BY normalized_term
 ON CONFLICT (proposed_entity_type,normalized_term,country_scope,status)
-DO UPDATE SET occurrence_count=workforce.provisional_terms.occurrence_count+EXCLUDED.occurrence_count,last_seen_at=now();
+DO UPDATE SET last_seen_at=now();
 
 WITH raw_terms AS (
   SELECT 'job_required_skill'::text AS source_type,j.id AS source_id,btrim(v)::text AS raw_value
@@ -497,8 +530,7 @@ BEGIN
       raw_term,normalized,p_entity_type,p_source,p_source_type
     )
     ON CONFLICT (proposed_entity_type,normalized_term,country_scope,status)
-    DO UPDATE SET occurrence_count=workforce.provisional_terms.occurrence_count+1,
-                  last_seen_at=now()
+    DO UPDATE SET last_seen_at=now()
     RETURNING id INTO provisional_id;
 
     INSERT INTO workforce.term_mappings(
