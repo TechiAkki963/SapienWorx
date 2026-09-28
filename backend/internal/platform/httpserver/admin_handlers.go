@@ -31,11 +31,12 @@ func (s *Server) adminMetrics(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) adminCompanyVerifications(w http.ResponseWriter, r *http.Request) {
 	page, limit := parseAdminPage(r)
-	result, err := s.admin.CompanyVerifications(r.Context(), r.URL.Query().Get("status"), page, limit)
+	result, err := s.admin.CompanyVerificationsForScope(r.Context(), r.URL.Query().Get("status"), r.URL.Query().Get("company_id"), r.URL.Query().Get("country"), page, limit)
 	if err != nil {
 		s.writeAdminError(w, r, err)
 		return
 	}
+	w.Header().Set("Cache-Control", "no-store")
 	writeJSON(w, http.StatusOK, result)
 }
 
@@ -86,8 +87,9 @@ func (s *Server) adminRegistrationDocument(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *Server) adminUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
 	page, limit := parseAdminPage(r)
-	result, err := s.admin.Users(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("role"), r.URL.Query().Get("status"), page, limit)
+	result, err := s.admin.UsersForScope(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("role"), r.URL.Query().Get("status"), r.URL.Query().Get("company_id"), r.URL.Query().Get("country"), page, limit)
 	if err != nil {
 		s.writeAdminError(w, r, err)
 		return
@@ -96,8 +98,9 @@ func (s *Server) adminUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) adminJobs(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
 	page, limit := parseAdminPage(r)
-	result, err := s.admin.Jobs(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("status"), page, limit)
+	result, err := s.admin.JobsForScope(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("status"), r.URL.Query().Get("company_id"), r.URL.Query().Get("country"), page, limit)
 	if err != nil {
 		s.writeAdminError(w, r, err)
 		return
@@ -107,7 +110,7 @@ func (s *Server) adminJobs(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) adminAuditLogs(w http.ResponseWriter, r *http.Request) {
 	page, limit := parseAdminPage(r)
-	result, err := s.admin.AuditLogs(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("action"), r.URL.Query().Get("target_type"), page, limit)
+	result, err := s.admin.AuditLogsForTarget(r.Context(), r.URL.Query().Get("q"), r.URL.Query().Get("action"), r.URL.Query().Get("target_type"), r.URL.Query().Get("target_id"), page, limit)
 	if err != nil {
 		s.writeAdminError(w, r, err)
 		return
@@ -220,6 +223,8 @@ func (s *Server) writeAdminError(w http.ResponseWriter, r *http.Request, err err
 		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin operation is not permitted")
 	case errors.Is(err, admin.ErrInvalid):
 		writeError(w, r, http.StatusBadRequest, "invalid_request", "admin request is invalid")
+	case errors.Is(err, admin.ErrConflict):
+		writeError(w, r, http.StatusConflict, "state_conflict", "Refresh this record. Its current state or verification requirements do not permit this action.")
 	default:
 		s.logger.Error("master admin operation failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
 		writeError(w, r, http.StatusInternalServerError, "internal_error", "admin operation could not be completed")

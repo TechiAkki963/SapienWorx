@@ -32,6 +32,7 @@ type AuditList struct {
 
 type JobModerationRecord struct {
 	ID               string     `json:"id"`
+	JobReference     string     `json:"job_reference"`
 	Title            string     `json:"title"`
 	CompanyID        string     `json:"company_id"`
 	CompanyName      string     `json:"company_name"`
@@ -62,18 +63,26 @@ type BudgetSettings struct {
 }
 
 func (s *Service) AuditLogs(ctx context.Context, query, action, targetType string, page, limit int) (AuditList, error) {
+	return s.AuditLogsForTarget(ctx, query, action, targetType, "", page, limit)
+}
+func (s *Service) AuditLogsForTarget(ctx context.Context, query, action, targetType, targetID string, page, limit int) (AuditList, error) {
+	if targetID != "" && !validResourceID(targetID) {
+		return AuditList{}, ErrInvalid
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	page, limit = normalizePage(page, limit)
 	query = strings.TrimSpace(query)
 	action = strings.TrimSpace(action)
 	targetType = strings.TrimSpace(targetType)
-	const where = `($1='' OR al.action_type ILIKE '%'||$1||'%' OR COALESCE(al.request_id,'') ILIKE '%'||$1||'%' OR COALESCE(al.target_entity_id::text,'') ILIKE '%'||$1||'%' OR COALESCE(ap.full_name,'') ILIKE '%'||$1||'%') AND ($2='' OR al.action_type=$2) AND ($3='' OR COALESCE(al.target_entity_type,'')=$3)`
+	const where = `($1='' OR al.action_type ILIKE '%'||$1||'%' OR COALESCE(al.request_id,'') ILIKE '%'||$1||'%' OR COALESCE(al.target_entity_id::text,'') ILIKE '%'||$1||'%' OR COALESCE(ap.full_name,'') ILIKE '%'||$1||'%') AND ($2='' OR al.action_type=$2) AND ($3='' OR COALESCE(al.target_entity_type,'')=$3) AND ($4::uuid IS NULL OR al.target_entity_id=$4)`
 
 	var total int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM admin_audit_logs al LEFT JOIN admin_profiles ap ON ap.user_id=al.admin_id WHERE `+where, query, action, targetType).Scan(&total); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM admin_audit_logs al LEFT JOIN admin_profiles ap ON ap.user_id=al.admin_id WHERE `+where, query, action, targetType, nullableID(targetID)).Scan(&total); err != nil {
 		return AuditList{}, err
 	}
 
-	rows, err := s.db.Query(ctx, `SELECT al.id,al.admin_id,ap.full_name,al.action_type,al.target_entity_type,al.target_entity_id,al.ip_address::text,al.request_id,al.metadata,al.created_at FROM admin_audit_logs al LEFT JOIN admin_profiles ap ON ap.user_id=al.admin_id WHERE `+where+` ORDER BY al.created_at DESC LIMIT $4 OFFSET $5`, query, action, targetType, limit, (page-1)*limit)
+	rows, err := s.db.Query(ctx, `SELECT al.id,al.admin_id,ap.full_name,al.action_type,al.target_entity_type,al.target_entity_id,al.ip_address::text,al.request_id,al.metadata,al.created_at FROM admin_audit_logs al LEFT JOIN admin_profiles ap ON ap.user_id=al.admin_id WHERE `+where+` ORDER BY al.created_at DESC,al.id LIMIT $5 OFFSET $6`, query, action, targetType, nullableID(targetID), limit, (page-1)*limit)
 	if err != nil {
 		return AuditList{}, err
 	}
@@ -94,20 +103,33 @@ func (s *Service) AuditLogs(ctx context.Context, query, action, targetType strin
 }
 
 func (s *Service) Jobs(ctx context.Context, query, status string, page, limit int) (JobModerationList, error) {
+	return s.JobsForScope(ctx, query, status, "", "", page, limit)
+}
+
+func (s *Service) JobsForScope(ctx context.Context, query, status, company, country string, page, limit int) (JobModerationList, error) {
+	company, country, scopeErr := normalizeOrganizationScope(company, country)
+	if scopeErr != nil {
+		return JobModerationList{}, scopeErr
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	page, limit = normalizePage(page, limit)
 	query = strings.TrimSpace(query)
+	if len(query) > 200 {
+		return JobModerationList{}, ErrInvalid
+	}
 	status = strings.ToLower(strings.TrimSpace(status))
 	if status != "" && status != "draft" && status != "active" && status != "paused" && status != "closed" && status != "expired" && status != "archived" {
 		return JobModerationList{}, ErrInvalid
 	}
-	const where = `($1='' OR j.title ILIKE '%'||$1||'%' OR c.display_name ILIKE '%'||$1||'%' OR c.legal_name ILIKE '%'||$1||'%' OR j.id::text=$1) AND ($2='' OR j.status::text=$2)`
+	const where = `($1='' OR j.title ILIKE '%'||$1||'%' OR c.display_name ILIKE '%'||$1||'%' OR c.legal_name ILIKE '%'||$1||'%' OR j.job_reference ILIKE '%'||$1||'%' OR j.id::text=$1) AND ($2='' OR j.status::text=$2) AND ($3::uuid IS NULL OR c.id=$3) AND ($4='' OR c.country_code=$4)`
 
 	var total int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where, query, status).Scan(&total); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where, query, status, nullableID(company), country).Scan(&total); err != nil {
 		return JobModerationList{}, err
 	}
 
-	rows, err := s.db.Query(ctx, `SELECT j.id,j.title,j.company_id,c.display_name,j.created_by_recruiter_id,rp.full_name,j.status::text,j.work_mode::text,j.city,j.country_code,j.published_at,j.created_at,j.updated_at,(SELECT count(*) FROM applications a WHERE a.job_id=j.id) FROM jobs j JOIN companies c ON c.id=j.company_id JOIN recruiter_profiles rp ON rp.user_id=j.created_by_recruiter_id WHERE `+where+` ORDER BY j.updated_at DESC LIMIT $3 OFFSET $4`, query, status, limit, (page-1)*limit)
+	rows, err := s.db.Query(ctx, `SELECT j.id,j.job_reference,j.title,j.company_id,c.display_name,j.created_by_recruiter_id,rp.full_name,j.status::text,j.work_mode::text,j.city,j.country_code,j.published_at,j.created_at,j.updated_at,(SELECT count(*) FROM applications a WHERE a.job_id=j.id) FROM jobs j JOIN companies c ON c.id=j.company_id JOIN recruiter_profiles rp ON rp.user_id=j.created_by_recruiter_id WHERE `+where+` ORDER BY j.updated_at DESC,j.id LIMIT $5 OFFSET $6`, query, status, nullableID(company), country, limit, (page-1)*limit)
 	if err != nil {
 		return JobModerationList{}, err
 	}
@@ -116,7 +138,7 @@ func (s *Service) Jobs(ctx context.Context, query, status string, page, limit in
 	items := make([]JobModerationRecord, 0)
 	for rows.Next() {
 		var item JobModerationRecord
-		if err := rows.Scan(&item.ID, &item.Title, &item.CompanyID, &item.CompanyName, &item.RecruiterUserID, &item.RecruiterName, &item.Status, &item.WorkMode, &item.City, &item.CountryCode, &item.PublishedAt, &item.CreatedAt, &item.UpdatedAt, &item.ApplicationCount); err != nil {
+		if err := rows.Scan(&item.ID, &item.JobReference, &item.Title, &item.CompanyID, &item.CompanyName, &item.RecruiterUserID, &item.RecruiterName, &item.Status, &item.WorkMode, &item.City, &item.CountryCode, &item.PublishedAt, &item.CreatedAt, &item.UpdatedAt, &item.ApplicationCount); err != nil {
 			return JobModerationList{}, err
 		}
 		items = append(items, item)

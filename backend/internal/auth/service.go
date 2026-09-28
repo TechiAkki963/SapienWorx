@@ -15,15 +15,16 @@ import (
 )
 
 var (
-	ErrAccountPending     = errors.New("account verification is pending")
-	ErrEmailUnverified    = errors.New("email verification is pending")
-	ErrRecruiterPending   = errors.New("recruiter approval is pending")
-	ErrAccountUnavailable = errors.New("account is unavailable")
-	ErrConflict           = errors.New("account already exists")
-	ErrInvalidOTP         = errors.New("invalid or expired verification code")
-	ErrOTPRateLimited     = errors.New("verification code was requested too recently")
-	ErrInvalidRefresh     = errors.New("invalid refresh session")
-	ErrForbidden          = errors.New("forbidden")
+	ErrAccountPending        = errors.New("account verification is pending")
+	ErrEmailUnverified       = errors.New("email verification is pending")
+	ErrRecruiterPending      = errors.New("recruiter approval is pending")
+	ErrAccountUnavailable    = errors.New("account is unavailable")
+	ErrPasswordResetRequired = errors.New("password reset is required")
+	ErrConflict              = errors.New("account already exists")
+	ErrInvalidOTP            = errors.New("invalid or expired verification code")
+	ErrOTPRateLimited        = errors.New("verification code was requested too recently")
+	ErrInvalidRefresh        = errors.New("invalid refresh session")
+	ErrForbidden             = errors.New("forbidden")
 )
 
 const PurposePasswordReset = "password_reset"
@@ -103,6 +104,7 @@ type loginRecord struct {
 	RecruiterVerification string
 	EmailVerifiedAt       *time.Time
 	IsActive              bool
+	ForcePasswordReset    bool
 }
 
 func NewService(db *pgxpool.Pool, tokens *TokenManager, cfg ServiceConfig) *Service {
@@ -115,7 +117,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput, userAgent, remote
 		return SessionResult{}, ErrInvalidCredentials
 	}
 	var record loginRecord
-	err = s.db.QueryRow(ctx, `SELECT u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,''),u.email_verified_at,u.is_active FROM users u LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE lower(u.email)=lower($1)`, email).Scan(&record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification, &record.EmailVerifiedAt, &record.IsActive)
+	err = s.db.QueryRow(ctx, `SELECT u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,''),u.email_verified_at,u.is_active,u.force_password_reset FROM users u LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE lower(u.email)=lower($1)`, email).Scan(&record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification, &record.EmailVerifiedAt, &record.IsActive, &record.ForcePasswordReset)
 	if err != nil || VerifyPassword(record.PasswordHash, input.Password) != nil {
 		return SessionResult{}, ErrInvalidCredentials
 	}
@@ -131,6 +133,9 @@ func (s *Service) Login(ctx context.Context, input LoginInput, userAgent, remote
 func loginEligibility(record loginRecord) error {
 	if !record.IsActive || record.Status == "suspended" || record.Status == "disabled" {
 		return ErrAccountUnavailable
+	}
+	if record.ForcePasswordReset {
+		return ErrPasswordResetRequired
 	}
 	if (record.Role == RoleCandidate || record.Role == RoleRecruiter) && record.EmailVerifiedAt == nil {
 		return ErrEmailUnverified
@@ -155,7 +160,7 @@ func (s *Service) Refresh(ctx context.Context, refreshToken, userAgent, remoteAd
 	defer tx.Rollback(ctx)
 	var record loginRecord
 	var oldSessionID string
-	err = tx.QueryRow(ctx, `SELECT rs.id,u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,''),u.email_verified_at,u.is_active FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE rs.token_hash=$1 AND rs.revoked_at IS NULL AND rs.expires_at>now() AND u.is_active=true FOR UPDATE OF rs, u`, tokenHash(refreshToken)).Scan(&oldSessionID, &record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification, &record.EmailVerifiedAt, &record.IsActive)
+	err = tx.QueryRow(ctx, `SELECT rs.id,u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,''),u.email_verified_at,u.is_active,u.force_password_reset FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE rs.token_hash=$1 AND rs.revoked_at IS NULL AND rs.expires_at>now() AND u.is_active=true FOR UPDATE OF u, rs`, tokenHash(refreshToken)).Scan(&oldSessionID, &record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification, &record.EmailVerifiedAt, &record.IsActive, &record.ForcePasswordReset)
 	if err != nil || loginEligibility(record) != nil {
 		return SessionResult{}, ErrInvalidRefresh
 	}
@@ -197,6 +202,20 @@ func (s *Service) createSession(ctx context.Context, record loginRecord, userAge
 		return SessionResult{}, err
 	}
 	defer tx.Rollback(ctx)
+	// Serialize new login with moderation; never grant a session based on
+	// password/account state read before a concurrent suspension or reset.
+	var current loginRecord
+	err = tx.QueryRow(ctx, `SELECT u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,''),u.email_verified_at,u.is_active,u.force_password_reset FROM users u LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE u.id=$1 FOR UPDATE OF u`, record.ID).Scan(&current.ID, &current.Email, &current.PasswordHash, &current.Role, &current.Status, &current.RecruiterVerification, &current.EmailVerifiedAt, &current.IsActive, &current.ForcePasswordReset)
+	if err != nil {
+		return SessionResult{}, err
+	}
+	if current.PasswordHash != record.PasswordHash {
+		return SessionResult{}, ErrInvalidCredentials
+	}
+	if err = loginEligibility(current); err != nil {
+		return SessionResult{}, err
+	}
+	record = current
 	result, err := s.createSessionWithTx(ctx, tx, record, userAgent, remoteAddr, rotatedFrom)
 	if err != nil {
 		return SessionResult{}, err

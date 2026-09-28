@@ -323,12 +323,21 @@ func (s *Service) UpdateStage(ctx context.Context, userID, applicationID, stage 
 		return err
 	}
 	defer tx.Rollback(ctx)
-	var candidateID string
-	err = tx.QueryRow(ctx, `UPDATE applications a SET stage=$3::application_stage FROM jobs j WHERE a.id=$1 AND j.id=a.job_id AND j.company_id=$2 RETURNING a.candidate_id`, applicationID, companyID, stage).Scan(&candidateID)
+	var candidateID, previousStage string
+	err = tx.QueryRow(ctx, `SELECT a.candidate_id,a.stage::text FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND j.company_id=$2 FOR UPDATE OF a`, applicationID, companyID).Scan(&candidateID, &previousStage)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
 	if err != nil {
+		return err
+	}
+	if previousStage == stage {
+		return nil
+	}
+	if _, err = tx.Exec(ctx, `UPDATE applications SET stage=$2::application_stage WHERE id=$1`, applicationID, stage); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, `INSERT INTO application_stage_audit(application_id,actor_recruiter_id,previous_stage,new_stage) VALUES($1,$2,$3::application_stage,$4::application_stage)`, applicationID, userID, previousStage, stage); err != nil {
 		return err
 	}
 	_, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'application_stage','Application status updated',$2,'/candidate/applications')`, candidateID, "Your application moved to "+strings.ReplaceAll(stage, "_", " ")+".")

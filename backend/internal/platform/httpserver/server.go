@@ -59,11 +59,24 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("GET /api/v1/profiles/{token}", s.publicCandidateProfile)
 	mux.HandleFunc("GET /api/v1/privacy/subprocessors", s.publicSubprocessors)
 
-	protected := Authenticate(tokens, cfg.Auth.AccessCookieName)
+	protected := func(next http.Handler) http.Handler {
+		return Chain(next, Authenticate(tokens, cfg.Auth.AccessCookieName), RequireCurrentSession(authService))
+	}
 	candidateOnly := RequireRoles(auth.RoleCandidate)
 	recruiterOnly := RequireRoles(auth.RoleRecruiter)
 	candidateActivity := CandidateActivity(candidateService, logger)
 	adminOnly := MasterAdminOnly(tokens, cfg.Auth.AccessCookieName, adminService, logger)
+	adminGuard := func(permissions ...admin.Permission) Middleware {
+		if !cfg.Admin.AccessEnabled {
+			return adminOnly
+		}
+		return func(next http.Handler) http.Handler {
+			return Chain(next, adminOnly, scopedAdminPermission(adminService, logger, permissions...))
+		}
+	}
+	mux.Handle("GET /api/v1/admin/access", Chain(http.HandlerFunc(s.adminAccessStatus), adminGuard()))
+	mux.Handle("POST /api/v1/admin/security/mfa/enroll", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
+	mux.Handle("POST /api/v1/admin/security/mfa/verify", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 
 	mux.Handle("GET /api/v1/auth/me", Chain(http.HandlerFunc(s.me), protected))
 	mux.Handle("POST /api/v1/users/profile-image", Chain(http.HandlerFunc(s.uploadUserProfileImage), protected))
@@ -132,24 +145,32 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/messaging/threads/{threadID}/read", Chain(http.HandlerFunc(s.messagingRead), protected, messagingUsers, candidateActivity))
 	mux.Handle("GET /api/v1/messaging/threads/{threadID}/ws", Chain(http.HandlerFunc(s.messagingSocket), protected, messagingUsers, candidateActivity))
 
-	mux.Handle("GET /api/v1/admin/metrics", Chain(http.HandlerFunc(s.adminMetrics), adminOnly))
-	mux.Handle("GET /api/v1/admin/company-verifications", Chain(http.HandlerFunc(s.adminCompanyVerifications), adminOnly))
-	mux.Handle("GET /api/v1/admin/company-verifications/{verificationID}/document", Chain(http.HandlerFunc(s.adminRegistrationDocument), adminOnly))
-	mux.Handle("POST /api/v1/admin/company-verifications/{verificationID}/approve", Chain(http.HandlerFunc(s.adminApproveCompany), adminOnly))
-	mux.Handle("POST /api/v1/admin/company-verifications/{verificationID}/reject", Chain(http.HandlerFunc(s.adminRejectCompany), adminOnly))
-	mux.Handle("GET /api/v1/admin/users", Chain(http.HandlerFunc(s.adminUsers), adminOnly))
-	mux.Handle("POST /api/v1/admin/users/{userID}/suspend", Chain(http.HandlerFunc(s.adminSuspendUser), adminOnly))
-	mux.Handle("POST /api/v1/admin/users/{userID}/force-password-reset", Chain(http.HandlerFunc(s.adminForcePasswordReset), adminOnly))
-	mux.Handle("GET /api/v1/admin/jobs", Chain(http.HandlerFunc(s.adminJobs), adminOnly))
-	mux.Handle("POST /api/v1/admin/jobs/{jobID}/takedown", Chain(http.HandlerFunc(s.adminTakedownJob), adminOnly))
-	mux.Handle("GET /api/v1/admin/audit-logs", Chain(http.HandlerFunc(s.adminAuditLogs), adminOnly))
-	mux.Handle("GET /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminOnly))
-	mux.Handle("PATCH /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminOnly))
-	mux.Handle("GET /api/v1/admin/privacy/requests", Chain(http.HandlerFunc(s.adminPrivacyRequests), adminOnly))
-	mux.Handle("PATCH /api/v1/admin/privacy/requests/{requestID}/status", Chain(http.HandlerFunc(s.adminPrivacyRequestTransition), adminOnly))
-	mux.Handle("GET /api/v1/admin/privacy/incidents", Chain(http.HandlerFunc(s.adminPrivacyIncidents), adminOnly))
-	mux.Handle("GET /api/v1/admin/privacy/subprocessors", Chain(http.HandlerFunc(s.adminPrivacySubprocessors), adminOnly))
-	mux.Handle("GET /api/v1/admin/privacy/processing-activities", Chain(http.HandlerFunc(s.adminPrivacyProcessingActivities), adminOnly))
+	mux.Handle("GET /api/v1/admin/metrics", Chain(http.HandlerFunc(s.adminMetrics), adminGuard(admin.OverviewRead, admin.SystemRead)))
+	mux.Handle("GET /api/v1/admin/dashboard", Chain(http.HandlerFunc(s.adminDashboard), adminGuard(admin.OverviewRead)))
+	mux.Handle("GET /api/v1/admin/applications", Chain(http.HandlerFunc(s.adminApplications), adminGuard(admin.RecruitmentRead)))
+	mux.Handle("GET /api/v1/admin/interviews", Chain(http.HandlerFunc(s.adminInterviews), adminGuard(admin.RecruitmentRead)))
+	mux.Handle("GET /api/v1/admin/applications/{applicationID}/history", Chain(http.HandlerFunc(s.adminApplicationHistory), adminGuard(admin.RecruitmentRead)))
+	mux.Handle("GET /api/v1/admin/company-verifications", Chain(http.HandlerFunc(s.adminCompanyVerifications), adminGuard(admin.OrganizationsRead)))
+	mux.Handle("GET /api/v1/admin/company-verifications/{verificationID}/document", Chain(http.HandlerFunc(s.adminRegistrationDocument), adminGuard(admin.OrganizationsDocuments)))
+	mux.Handle("POST /api/v1/admin/company-verifications/{verificationID}/approve", Chain(http.HandlerFunc(s.adminApproveCompany), adminGuard(admin.OrganizationsReview)))
+	mux.Handle("POST /api/v1/admin/company-verifications/{verificationID}/reject", Chain(http.HandlerFunc(s.adminRejectCompany), adminGuard(admin.OrganizationsReview)))
+	mux.Handle("GET /api/v1/admin/users", Chain(http.HandlerFunc(s.adminUsers), adminGuard(admin.UsersRead)))
+	mux.Handle("GET /api/v1/admin/users/{userID}/summary", Chain(http.HandlerFunc(s.adminAccountSummary), adminGuard(admin.UsersRead)))
+	mux.Handle("GET /api/v1/admin/organizations", Chain(http.HandlerFunc(s.adminOrganizations), adminGuard(admin.OrganizationsRead)))
+	mux.Handle("POST /api/v1/admin/users/{userID}/reactivate", Chain(http.HandlerFunc(s.adminReactivateUser), adminGuard(admin.UsersModerate)))
+	mux.Handle("POST /api/v1/admin/users/{userID}/revoke-sessions", Chain(http.HandlerFunc(s.adminRevokeUserSessions), adminGuard(admin.UsersModerate)))
+	mux.Handle("POST /api/v1/admin/users/{userID}/suspend", Chain(http.HandlerFunc(s.adminSuspendUser), adminGuard(admin.UsersModerate)))
+	mux.Handle("POST /api/v1/admin/users/{userID}/force-password-reset", Chain(http.HandlerFunc(s.adminForcePasswordReset), adminGuard(admin.UsersModerate)))
+	mux.Handle("GET /api/v1/admin/jobs", Chain(http.HandlerFunc(s.adminJobs), adminGuard(admin.JobsRead)))
+	mux.Handle("POST /api/v1/admin/jobs/{jobID}/takedown", Chain(http.HandlerFunc(s.adminTakedownJob), adminGuard(admin.JobsModerate)))
+	mux.Handle("GET /api/v1/admin/audit-logs", Chain(http.HandlerFunc(s.adminAuditLogs), adminGuard(admin.AuditRead)))
+	mux.Handle("GET /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminGuard(admin.SystemRead)))
+	mux.Handle("PATCH /api/v1/admin/budget-settings", Chain(http.HandlerFunc(s.adminBudgetSettings), adminGuard(admin.SystemConfigure)))
+	mux.Handle("GET /api/v1/admin/privacy/requests", Chain(http.HandlerFunc(s.adminPrivacyRequests), adminGuard(admin.PrivacyRead)))
+	mux.Handle("PATCH /api/v1/admin/privacy/requests/{requestID}/status", Chain(http.HandlerFunc(s.adminPrivacyRequestTransition), adminGuard(admin.PrivacyManage)))
+	mux.Handle("GET /api/v1/admin/privacy/incidents", Chain(http.HandlerFunc(s.adminPrivacyIncidents), adminGuard(admin.PrivacyRead)))
+	mux.Handle("GET /api/v1/admin/privacy/subprocessors", Chain(http.HandlerFunc(s.adminPrivacySubprocessors), adminGuard(admin.PrivacyRead)))
+	mux.Handle("GET /api/v1/admin/privacy/processing-activities", Chain(http.HandlerFunc(s.adminPrivacyProcessingActivities), adminGuard(admin.PrivacyRead)))
 
 	handler := Chain(mux, TrustedProxyRemoteAddr(cfg.HTTP.TrustedProxyCIDRs), RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), MaxBodyBytes(cfg.HTTP.MaxBodyBytes))
 	s.http = &http.Server{Addr: cfg.HTTP.Address, Handler: handler, ReadTimeout: cfg.HTTP.ReadTimeout, ReadHeaderTimeout: cfg.HTTP.ReadHeaderTimeout, WriteTimeout: cfg.HTTP.WriteTimeout, IdleTimeout: cfg.HTTP.IdleTimeout}

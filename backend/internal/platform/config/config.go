@@ -16,6 +16,7 @@ type Config struct {
 	HTTP        HTTPConfig
 	Database    DatabaseConfig
 	Auth        AuthConfig
+	Admin       AdminConfig
 	AWS         AWSConfig
 }
 
@@ -66,6 +67,11 @@ type AWSConfig struct {
 	S3PresignTTL time.Duration
 }
 
+type AdminConfig struct {
+	AccessEnabled    bool
+	MFAEncryptionKey string
+}
+
 func Load() (Config, error) {
 	jwtSecret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
 	otpSecret := strings.TrimSpace(os.Getenv("AUTH_OTP_HMAC_SECRET"))
@@ -75,6 +81,7 @@ func Load() (Config, error) {
 	environment := env("APP_ENV", "development")
 	cfg := Config{
 		Environment: environment,
+		Admin:       AdminConfig{AccessEnabled: boolEnv("ADMIN_ACCESS_ENABLED", false), MFAEncryptionKey: strings.TrimSpace(os.Getenv("ADMIN_MFA_ENCRYPTION_KEY"))},
 		HTTP: HTTPConfig{
 			Address:           ":" + env("API_PORT", "8080"),
 			ReadTimeout:       durationEnv("HTTP_READ_TIMEOUT", 15*time.Second),
@@ -128,6 +135,9 @@ func Load() (Config, error) {
 
 func (c Config) Validate() error {
 	var problems []string
+	if c.Admin.AccessEnabled && (len(c.Admin.MFAEncryptionKey) < 32 || c.Admin.MFAEncryptionKey == c.Auth.JWTSecret || c.Admin.MFAEncryptionKey == c.Auth.OTPSecret) {
+		problems = append(problems, "ADMIN_MFA_ENCRYPTION_KEY must be at least 32 bytes and distinct from authentication secrets when admin access enforcement is enabled")
+	}
 	if c.Database.URL == "" {
 		problems = append(problems, "DATABASE_URL is required")
 	}

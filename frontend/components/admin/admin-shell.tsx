@@ -1,15 +1,18 @@
 import Link from "next/link";
 
 import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminAccessProvider } from "@/components/admin/admin-access-provider";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import type { SessionUser } from "@/lib/auth-server";
+import { adminRoleLabel, type AdminAccess } from "@/lib/admin-access";
 
 function shortID(value: string) {
   return value.length > 10 ? `${value.slice(0, 8)}…` : value;
 }
 
-export function AdminShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
+export function AdminShell({ user, access, children }: { user: SessionUser; access: AdminAccess; children: React.ReactNode }) {
+  const roleLabel=access.enabled?adminRoleLabel(access.admin_role):"Legacy Master Admin";
   return (
     <div className="min-h-screen bg-[#f6f7fb] text-ink">
       <header className="sticky top-0 z-50 border-b border-[#dfe4f0] bg-white/96 backdrop-blur-xl">
@@ -25,7 +28,7 @@ export function AdminShell({ user, children }: { user: SessionUser; children: Re
 
           <div className="ml-auto flex items-center gap-2">
             <div className="hidden rounded-xl border border-[#dfe4f0] bg-[#fafbff] px-3 py-2 text-right md:block">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">Master Admin</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">{roleLabel}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-700">Session {shortID(user.id)}</p>
             </div>
             <details className="relative">
@@ -33,9 +36,10 @@ export function AdminShell({ user, children }: { user: SessionUser; children: Re
               <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-[#dfe4f0] bg-white p-2 shadow-[0_20px_55px_rgba(23,37,84,0.16)]">
                 <div className="rounded-xl bg-[#f7f8fd] px-3 py-3">
                   <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#5262c9]">Restricted session</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">Master Admin</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">{roleLabel}</p>
                   <p className="mt-0.5 truncate text-xs text-slate-500">{user.id}</p>
                 </div>
+                {access.enabled && <Link href="/swx-command-centre/security" className="mt-2 block rounded-xl px-3 py-2 text-sm font-semibold text-indigo">Confirm security session</Link>}
                 <div className="mt-2 border-t border-[#eef0f5] pt-2"><LogoutButton /></div>
               </div>
             </details>
@@ -44,19 +48,19 @@ export function AdminShell({ user, children }: { user: SessionUser; children: Re
       </header>
 
       <div className="mx-auto grid max-w-[118rem] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:px-8 lg:py-6">
-        <aside className="lg:sticky lg:top-[5.75rem] lg:self-start">
+        <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
           <div className="rounded-[1.25rem] border border-[#dfe4f0] bg-white p-2.5 shadow-[0_10px_35px_rgba(23,37,84,0.05)]">
             <div className="mb-2 rounded-xl bg-gradient-to-br from-[#eef1ff] to-[#f8f7ff] px-3 py-3">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#5262c9]">SapienWorx Control Plane</p>
               <p className="mt-1 text-xs leading-5 text-slate-500">High-privilege operations are audited.</p>
             </div>
-            <AdminNav />
+            <AdminNav access={access} />
           </div>
           <div className="mt-3 rounded-2xl border border-[#e3e6ef] bg-[#fbfbfd] px-3 py-3 text-[11px] leading-5 text-slate-500">
             <span className="font-bold text-slate-700">Security note:</span> every governance action is written to the append-only audit log.
           </div>
         </aside>
-        <main id="main-content" className="min-w-0">{children}</main>
+        <main id="main-content" className="min-w-0"><AdminAccessProvider access={access}>{!access.enabled&&<p role="note" className="mb-4 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">Legacy master-admin access: scoped roles and MFA are not enforced. Security activation requires a reviewed rollout.</p>}{children}</AdminAccessProvider></main>
       </div>
     </div>
   );

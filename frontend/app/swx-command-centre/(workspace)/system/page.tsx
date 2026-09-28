@@ -1,5 +1,6 @@
 import { BudgetSettingsForm } from "@/components/admin/admin-actions";
 import { adminAPI } from "@/lib/admin-server";
+import { requireAdminWorkspace } from "@/lib/admin-access-server";
 import type { AdminBudgetSettings, AdminMetrics } from "@/lib/admin";
 
 function HealthCard({ label, value, detail, tone = "indigo" }: { label: string; value: string; detail: string; tone?: "indigo" | "emerald" | "amber" | "red" }) {
@@ -8,6 +9,7 @@ function HealthCard({ label, value, detail, tone = "indigo" }: { label: string; 
 }
 
 export default async function AdminSystemPage() {
+  await requireAdminWorkspace("system.read");
   const [metrics, settings] = await Promise.all([
     adminAPI<AdminMetrics>("/api/v1/admin/metrics"),
     adminAPI<AdminBudgetSettings>("/api/v1/admin/budget-settings"),

@@ -1,6 +1,6 @@
 import { expect, Page, APIRequestContext } from "@playwright/test";
 
-export const MOCK_API = "http://127.0.0.1:18080";
+export const MOCK_API = `http://127.0.0.1:${process.env.E2E_MOCK_API_PORT || "18080"}`;
 
 export type RecordedRequest = {
   method: string;

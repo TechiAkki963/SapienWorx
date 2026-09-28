@@ -6,11 +6,12 @@ const nextCLI = fileURLToPath(
 );
 const child = spawn(
   process.execPath,
-  [nextCLI, "dev", "--hostname", "127.0.0.1", "--port", "3000"],
+  [nextCLI, "dev", "--hostname", "127.0.0.1", "--port", process.env.E2E_WEB_PORT || "3000"],
   {
     env: {
       ...process.env,
-      NEXT_PUBLIC_API_URL: "http://127.0.0.1:18080",
+      INTERNAL_API_URL: `http://127.0.0.1:${process.env.E2E_MOCK_API_PORT || "18080"}`,
+      NEXT_PUBLIC_API_URL: `http://127.0.0.1:${process.env.E2E_MOCK_API_PORT || "18080"}`,
     },
     stdio: "inherit",
   },

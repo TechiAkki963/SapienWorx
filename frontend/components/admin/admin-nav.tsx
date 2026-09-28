@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { canAdmin, type AdminAccess, type AdminPermission } from "@/lib/admin-access";
 
 const items = [
   ["/swx-command-centre/overview", "Overview"],
@@ -11,7 +12,13 @@ const items = [
   ["/swx-command-centre/privacy", "Privacy operations"],
   ["/swx-command-centre/audit", "Audit logs"],
   ["/swx-command-centre/system", "System health"],
+  ["/swx-command-centre/access", "Access design · preview"],
+  ["/swx-command-centre/organizations", "Organizations"],
+  ["/swx-command-centre/applications", "Applications & outcomes"],
+  ["/swx-command-centre/interviews", "Interview oversight"],
 ] as const;
+
+const modulePermissions: (AdminPermission | null)[] = ["overview.read", "organizations.read", "users.read", "jobs.read", "privacy.read", "audit.read", "system.read", null, "organizations.read", "recruitment.read", "recruitment.read"];
 
 function Icon({ index }: { index: number }) {
   const paths = [
@@ -22,14 +29,18 @@ function Icon({ index }: { index: number }) {
     "M12 3 5 6v5c0 4.5 2.7 8 7 10 4.3-2 7-5.5 7-10V6l-7-3Zm-2 9 1.5 1.5L15 10",
     "M6 3h12v18H6zM9 8h6M9 12h6M9 16h4",
     "M3 12h4l2-5 4 10 2-5h6",
+    "M12 3 5 6v5c0 4.5 2.7 8 7 10 4.3-2 7-5.5 7-10V6l-7-3ZM9 12l2 2 4-4",
   ];
-  return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d={paths[index]} /></svg>;
+  return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d={paths[index] ?? paths[1]} /></svg>;
 }
 
-export function AdminNav() {
+export function AdminNav({ access }: { access: AdminAccess }) {
   const pathname = usePathname();
-  return <nav aria-label="Master Admin navigation" className="grid gap-1">{items.map(([href, label], index) => {
+  return <nav aria-label="Master Admin navigation" className="flex max-w-full gap-2 overflow-x-auto lg:grid lg:gap-1 lg:overflow-visible">{items.map(([href, label], index) => {
+    const permission = modulePermissions[index];
+    if (permission && !canAdmin(access, permission)) return null;
+    const displayLabel = index === 7 && access.enabled ? "Access & permissions" : label;
     const active = pathname === href || pathname.startsWith(`${href}/`);
-    return <Link key={href} href={href} className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon index={index} /></span><span>{label}</span></Link>;
+    return <Link key={href} href={href} className={`group flex shrink-0 items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-semibold transition lg:whitespace-normal ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon index={index} /></span><span>{displayLabel}</span></Link>;
   })}</nav>;
 }

@@ -1,4 +1,5 @@
 import { adminAPI } from "@/lib/admin-server";
+import { requireAdminWorkspace } from "@/lib/admin-access-server";
 
 type PrivacyRequest = { id: string; user_id: string; request_type: string; status: string; due_at: string; created_at: string };
 type Incident = { id: string; title: string; severity: string; status: string; discovered_at: string; notification_required?: boolean; notification_deadline?: string };
@@ -6,6 +7,7 @@ type ProcessingActivity = { id: string; activity_name: string; purpose: string; 
 type Subprocessor = { id: string; name: string; purpose: string; processing_locations: string[]; effective_from: string };
 
 export default async function AdminPrivacyPage() {
+  await requireAdminWorkspace("privacy.read");
   const [requests, incidents, activities, subprocessors] = await Promise.all([
     adminAPI<{ items: PrivacyRequest[] }>("/api/v1/admin/privacy/requests"),
     adminAPI<{ items: Incident[] }>("/api/v1/admin/privacy/incidents"),

@@ -121,6 +121,14 @@ func (s *Server) refresh(w http.ResponseWriter, r *http.Request) {
 		s.writeAuthError(w, r, err)
 		return
 	}
+	if s.cfg.Admin.AccessEnabled && result.Role == auth.RoleMasterAdmin {
+		claims, parseErr := s.tokens.Parse(result.AccessToken)
+		if parseErr != nil || s.admin == nil || s.admin.CarryMFAProof(r.Context(), claims.TokenID, claims.Subject) != nil {
+			s.clearAuthCookies(w)
+			writeError(w, r, http.StatusServiceUnavailable, "admin_access_unavailable", "administrator session could not be refreshed")
+			return
+		}
+	}
 	s.setAuthCookies(w, result)
 	writeJSON(w, http.StatusOK, result)
 }
@@ -185,6 +193,8 @@ func (s *Server) writeAuthError(w http.ResponseWriter, r *http.Request, err erro
 		writeError(w, r, http.StatusForbidden, "recruiter_approval_pending", "recruiter approval is pending")
 	case errors.Is(err, auth.ErrAccountUnavailable):
 		writeError(w, r, http.StatusForbidden, "account_unavailable", "account access is unavailable")
+	case errors.Is(err, auth.ErrPasswordResetRequired):
+		writeError(w, r, http.StatusForbidden, "password_reset_required", "A password reset is required. Use Forgot password to verify your email and choose a new password.")
 	case errors.Is(err, auth.ErrAccountPending):
 		writeError(w, r, http.StatusForbidden, "account_pending", "account access is pending")
 	case errors.Is(err, auth.ErrConflict):

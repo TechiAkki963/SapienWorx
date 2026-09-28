@@ -44,16 +44,21 @@ type VerificationList struct {
 }
 
 type UserRecord struct {
-	ID                 string     `json:"id"`
-	Role               string     `json:"role"`
-	Status             string     `json:"status"`
-	Name               string     `json:"name"`
-	Email              string     `json:"email"`
-	Phone              *string    `json:"phone,omitempty"`
-	EmailVerifiedAt    *time.Time `json:"email_verified_at,omitempty"`
-	PhoneVerifiedAt    *time.Time `json:"phone_verified_at,omitempty"`
-	ForcePasswordReset bool       `json:"force_password_reset"`
-	CreatedAt          time.Time  `json:"created_at"`
+	ID                    string     `json:"id"`
+	Role                  string     `json:"role"`
+	Status                string     `json:"status"`
+	Name                  string     `json:"name"`
+	Email                 string     `json:"email"`
+	Phone                 *string    `json:"phone,omitempty"`
+	EmailVerifiedAt       *time.Time `json:"email_verified_at,omitempty"`
+	PhoneVerifiedAt       *time.Time `json:"phone_verified_at,omitempty"`
+	ForcePasswordReset    bool       `json:"force_password_reset"`
+	IsActive              bool       `json:"is_active"`
+	LastLoginAt           *time.Time `json:"last_login_at,omitempty"`
+	CompanyID             *string    `json:"company_id,omitempty"`
+	CompanyName           *string    `json:"company_name,omitempty"`
+	RecruiterVerification *string    `json:"recruiter_verification,omitempty"`
+	CreatedAt             time.Time  `json:"created_at"`
 }
 
 type UserList struct {
@@ -171,6 +176,15 @@ func (s *Service) Metrics(ctx context.Context) (MetricsSnapshot, error) {
 }
 
 func (s *Service) CompanyVerifications(ctx context.Context, status string, page, limit int) (VerificationList, error) {
+	return s.CompanyVerificationsForScope(ctx, status, "", "", page, limit)
+}
+func (s *Service) CompanyVerificationsForScope(ctx context.Context, status, company, country string, page, limit int) (VerificationList, error) {
+	company, country, err := normalizeOrganizationScope(company, country)
+	if err != nil {
+		return VerificationList{}, err
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	page, limit = normalizePage(page, limit)
 	status = strings.ToLower(strings.TrimSpace(status))
 	if status == "" {
@@ -180,10 +194,11 @@ func (s *Service) CompanyVerifications(ctx context.Context, status string, page,
 		return VerificationList{}, ErrInvalid
 	}
 	var total int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM company_verifications WHERE status::text=$1`, status).Scan(&total); err != nil {
+	const scope = ` FROM company_verifications v JOIN companies c ON c.id=v.company_id WHERE v.status::text=$1 AND ($2::uuid IS NULL OR c.id=$2) AND ($3='' OR c.country_code=$3)`
+	if err := s.db.QueryRow(ctx, `SELECT count(*)`+scope, status, nullableID(company), country).Scan(&total); err != nil {
 		return VerificationList{}, err
 	}
-	rows, err := s.db.Query(ctx, `SELECT id,company_id,recruiter_user_id,company_name,registration_doc_url,status::text,reviewed_by,review_notes,reviewed_at,created_at,updated_at FROM company_verifications WHERE status::text=$1 ORDER BY created_at ASC LIMIT $2 OFFSET $3`, status, limit, (page-1)*limit)
+	rows, err := s.db.Query(ctx, `SELECT v.id,v.company_id,v.recruiter_user_id,v.company_name,v.registration_doc_url,v.status::text,v.reviewed_by,v.review_notes,v.reviewed_at,v.created_at,v.updated_at`+scope+` ORDER BY v.created_at ASC,v.id LIMIT $4 OFFSET $5`, status, nullableID(company), country, limit, (page-1)*limit)
 	if err != nil {
 		return VerificationList{}, err
 	}
@@ -204,7 +219,8 @@ func (s *Service) CompanyVerifications(ctx context.Context, status string, page,
 
 func (s *Service) ReviewCompany(ctx context.Context, verificationID, adminID, decision, notes, ip, requestID string) error {
 	decision = strings.ToLower(strings.TrimSpace(decision))
-	if decision != "approved" && decision != "rejected" {
+	notes = strings.TrimSpace(notes)
+	if !validResourceID(verificationID) || !validResourceID(adminID) || len(notes) > 4000 || (decision == "rejected" && !validReason(notes)) || (decision != "approved" && decision != "rejected") {
 		return ErrInvalid
 	}
 	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
@@ -212,13 +228,32 @@ func (s *Service) ReviewCompany(ctx context.Context, verificationID, adminID, de
 		return err
 	}
 	defer tx.Rollback(ctx)
-	var companyID, recruiterID string
-	err = tx.QueryRow(ctx, `SELECT company_id,recruiter_user_id FROM company_verifications WHERE id=$1 AND status='pending' FOR UPDATE`, verificationID).Scan(&companyID, &recruiterID)
+	var companyID, recruiterID, reviewStatus string
+	err = tx.QueryRow(ctx, `SELECT company_id,recruiter_user_id,status::text FROM company_verifications WHERE id=$1 FOR UPDATE`, verificationID).Scan(&companyID, &recruiterID, &reviewStatus)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
 	if err != nil {
 		return err
+	}
+	if reviewStatus != "pending" {
+		return ErrConflict
+	}
+	var role string
+	if err = tx.QueryRow(ctx, `SELECT role::text FROM users WHERE id=$1 FOR UPDATE`, recruiterID).Scan(&role); err != nil {
+		return err
+	}
+	if role != "recruiter" {
+		return ErrConflict
+	}
+	var attachedCompany string
+	if err = tx.QueryRow(ctx, `SELECT company_id::text FROM recruiter_profiles WHERE user_id=$1 FOR UPDATE`, recruiterID).Scan(&attachedCompany); errors.Is(err, pgx.ErrNoRows) {
+		return ErrConflict
+	} else if err != nil {
+		return err
+	}
+	if attachedCompany != companyID {
+		return ErrConflict
 	}
 	if _, err = tx.Exec(ctx, `UPDATE company_verifications SET status=$2,reviewed_by=$3,review_notes=NULLIF($4,''),reviewed_at=now() WHERE id=$1`, verificationID, decision, adminID, strings.TrimSpace(notes)); err != nil {
 		return err
@@ -230,7 +265,7 @@ func (s *Service) ReviewCompany(ctx context.Context, verificationID, adminID, de
 		if _, err = tx.Exec(ctx, `UPDATE recruiter_profiles SET verification_status='verified',verified_at=COALESCE(verified_at,now()) WHERE user_id=$1`, recruiterID); err != nil {
 			return err
 		}
-		if _, err = tx.Exec(ctx, `UPDATE users SET status=CASE WHEN email_verified_at IS NOT NULL THEN 'active'::account_status ELSE 'pending_verification'::account_status END WHERE id=$1`, recruiterID); err != nil {
+		if _, err = tx.Exec(ctx, `UPDATE users SET status=CASE WHEN email_verified_at IS NOT NULL THEN 'active'::account_status ELSE 'pending_verification'::account_status END WHERE id=$1 AND status='pending_verification' AND is_active=true`, recruiterID); err != nil {
 			return err
 		}
 	} else {
@@ -252,8 +287,25 @@ func (s *Service) ReviewCompany(ctx context.Context, verificationID, adminID, de
 }
 
 func (s *Service) Users(ctx context.Context, query, role, status string, page, limit int) (UserList, error) {
+	return s.UsersForOrganization(ctx, query, role, status, "", page, limit)
+}
+
+func (s *Service) UsersForOrganization(ctx context.Context, query, role, status, companyID string, page, limit int) (UserList, error) {
+	return s.UsersForScope(ctx, query, role, status, companyID, "", page, limit)
+}
+
+func (s *Service) UsersForScope(ctx context.Context, query, role, status, companyID, country string, page, limit int) (UserList, error) {
+	companyID, country, scopeErr := normalizeOrganizationScope(companyID, country)
+	if scopeErr != nil {
+		return UserList{}, scopeErr
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	page, limit = normalizePage(page, limit)
 	query = strings.TrimSpace(query)
+	if len(query) > 200 || (companyID != "" && !validResourceID(companyID)) {
+		return UserList{}, ErrInvalid
+	}
 	role = strings.ToLower(strings.TrimSpace(role))
 	status = strings.ToLower(strings.TrimSpace(status))
 	if role != "" && role != "candidate" && role != "recruiter" && role != "master_admin" {
@@ -262,12 +314,12 @@ func (s *Service) Users(ctx context.Context, query, role, status string, page, l
 	if status != "" && status != "pending_verification" && status != "active" && status != "suspended" && status != "disabled" {
 		return UserList{}, ErrInvalid
 	}
-	const where = `($1='' OR u.email ILIKE '%'||$1||'%' OR COALESCE(u.phone_e164,'') ILIKE '%'||$1||'%' OR COALESCE(cp.full_name,rp.full_name,ap.full_name,'') ILIKE '%'||$1||'%') AND ($2='' OR u.role::text=$2) AND ($3='' OR u.status::text=$3)`
+	const where = `($1='' OR u.id::text ILIKE '%'||$1||'%' OR u.email ILIKE '%'||$1||'%' OR COALESCE(u.phone_e164,'') ILIKE '%'||$1||'%' OR COALESCE(cp.full_name,rp.full_name,ap.full_name,'') ILIKE '%'||$1||'%') AND ($2='' OR u.role::text=$2) AND ($3='' OR u.status::text=$3) AND (($4::uuid IS NULL AND $5='') OR (u.role='recruiter' AND EXISTS(SELECT 1 FROM companies c WHERE c.id=rp.company_id AND ($4::uuid IS NULL OR c.id=$4) AND ($5='' OR c.country_code=$5))) OR (u.role='candidate' AND EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id JOIN companies c ON c.id=j.company_id WHERE a.candidate_id=u.id AND ($4::uuid IS NULL OR c.id=$4) AND ($5='' OR c.country_code=$5))))`
 	var total int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM users u LEFT JOIN candidate_profiles cp ON cp.user_id=u.id LEFT JOIN recruiter_profiles rp ON rp.user_id=u.id LEFT JOIN admin_profiles ap ON ap.user_id=u.id WHERE `+where, query, role, status).Scan(&total); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM users u LEFT JOIN candidate_profiles cp ON cp.user_id=u.id LEFT JOIN recruiter_profiles rp ON rp.user_id=u.id LEFT JOIN admin_profiles ap ON ap.user_id=u.id WHERE `+where, query, role, status, nullableID(companyID), country).Scan(&total); err != nil {
 		return UserList{}, err
 	}
-	rows, err := s.db.Query(ctx, `SELECT u.id,u.role::text,u.status::text,COALESCE(cp.full_name,rp.full_name,ap.full_name,''),u.email,u.phone_e164,u.email_verified_at,u.phone_verified_at,u.force_password_reset,u.created_at FROM users u LEFT JOIN candidate_profiles cp ON cp.user_id=u.id LEFT JOIN recruiter_profiles rp ON rp.user_id=u.id LEFT JOIN admin_profiles ap ON ap.user_id=u.id WHERE `+where+` ORDER BY u.created_at DESC LIMIT $4 OFFSET $5`, query, role, status, limit, (page-1)*limit)
+	rows, err := s.db.Query(ctx, `SELECT u.id,u.role::text,u.status::text,COALESCE(cp.full_name,rp.full_name,ap.full_name,''),u.email,u.phone_e164,u.email_verified_at,u.phone_verified_at,u.force_password_reset,u.created_at,u.is_active,u.last_login_at,rp.company_id,c.display_name,rp.verification_status::text FROM users u LEFT JOIN candidate_profiles cp ON cp.user_id=u.id LEFT JOIN recruiter_profiles rp ON rp.user_id=u.id LEFT JOIN admin_profiles ap ON ap.user_id=u.id LEFT JOIN companies c ON c.id=rp.company_id WHERE `+where+` ORDER BY u.created_at DESC,u.id LIMIT $6 OFFSET $7`, query, role, status, nullableID(companyID), country, limit, (page-1)*limit)
 	if err != nil {
 		return UserList{}, err
 	}
@@ -275,7 +327,7 @@ func (s *Service) Users(ctx context.Context, query, role, status string, page, l
 	items := make([]UserRecord, 0)
 	for rows.Next() {
 		var item UserRecord
-		if err := rows.Scan(&item.ID, &item.Role, &item.Status, &item.Name, &item.Email, &item.Phone, &item.EmailVerifiedAt, &item.PhoneVerifiedAt, &item.ForcePasswordReset, &item.CreatedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.Role, &item.Status, &item.Name, &item.Email, &item.Phone, &item.EmailVerifiedAt, &item.PhoneVerifiedAt, &item.ForcePasswordReset, &item.CreatedAt, &item.IsActive, &item.LastLoginAt, &item.CompanyID, &item.CompanyName, &item.RecruiterVerification); err != nil {
 			return UserList{}, err
 		}
 		items = append(items, item)
@@ -295,45 +347,7 @@ func (s *Service) ForcePasswordReset(ctx context.Context, targetID, adminID, rea
 }
 
 func (s *Service) moderateUser(ctx context.Context, targetID, adminID, action, reason, ip, requestID string) error {
-	if targetID == adminID {
-		return ErrForbidden
-	}
-	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-	var role string
-	err = tx.QueryRow(ctx, `SELECT role::text FROM users WHERE id=$1 AND is_active=true FOR UPDATE`, targetID).Scan(&role)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return ErrNotFound
-	}
-	if err != nil {
-		return err
-	}
-	if role == "master_admin" {
-		return ErrForbidden
-	}
-	switch action {
-	case "suspend":
-		if _, err = tx.Exec(ctx, `UPDATE users SET status='suspended' WHERE id=$1`, targetID); err != nil {
-			return err
-		}
-	case "force_password_reset":
-		if _, err = tx.Exec(ctx, `UPDATE users SET force_password_reset=true WHERE id=$1`, targetID); err != nil {
-			return err
-		}
-	default:
-		return ErrInvalid
-	}
-	if _, err = tx.Exec(ctx, `UPDATE refresh_sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE user_id=$1 AND revoked_at IS NULL`, targetID); err != nil {
-		return err
-	}
-	target := targetID
-	if err = insertAuditTx(ctx, tx, AuditInput{AdminID: &adminID, ActionType: "user." + action, TargetEntityType: "user", TargetEntityID: &target, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"reason": strings.TrimSpace(reason), "role": role}}); err != nil {
-		return err
-	}
-	return tx.Commit(ctx)
+	return s.changeAccount(ctx, targetID, adminID, action, reason, ip, requestID)
 }
 
 func (s *Service) TakedownJob(ctx context.Context, jobID, adminID, reason, ip, requestID string) error {

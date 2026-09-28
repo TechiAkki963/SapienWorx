@@ -1,20 +1,24 @@
 import Link from "next/link";
 
 import { adminAPI } from "@/lib/admin-server";
+import { requireAdminWorkspace } from "@/lib/admin-access-server";
 import type { AdminAuditList } from "@/lib/admin";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 function first(value: string | string[] | undefined) { return Array.isArray(value) ? value[0] : value; }
 
 export default async function AdminAuditPage({ searchParams }: Props) {
+  await requireAdminWorkspace("audit.read");
   const params = await searchParams;
   const q = first(params.q) ?? "";
   const action = first(params.action) ?? "";
   const targetType = first(params.target_type) ?? "";
+  const targetID=first(params.target_id)||"";
   const page = Math.max(1, Number(first(params.page) ?? "1") || 1);
-  const query = new URLSearchParams({ q, action, target_type: targetType, page: String(page), limit: "50" });
+  const query = new URLSearchParams({ q, action, target_type: targetType,target_id:targetID, page: String(page), limit: "50" });
   const data = await adminAPI<AdminAuditList>(`/api/v1/admin/audit-logs?${query.toString()}`);
   const pages = Math.max(1, Math.ceil(data.total / data.limit));
+  const pageHref = (number: number) => `/swx-command-centre/audit?${new URLSearchParams({ q, action, target_type: targetType, target_id: targetID, page: String(number) })}`;
 
   return <section className="space-y-5">
     <div className="rounded-[1.5rem] border border-[#dfe4f0] bg-white p-6 shadow-[0_14px_45px_rgba(23,37,84,0.05)] sm:p-8">
@@ -22,6 +26,7 @@ export default async function AdminAuditPage({ searchParams }: Props) {
       <h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-slate-950">Administrative audit log</h1>
       <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-500">Append-only evidence for denied gateway attempts and privileged platform actions. Records cannot be edited or deleted through the application.</p>
       <form className="mt-5 grid gap-3 lg:grid-cols-[1fr_16rem_13rem_auto]">
+        {targetID&&<><input type="hidden" name="target_id" value={targetID}/><p className="break-all text-xs text-slate-500 lg:col-span-4">Exact target: {targetID}. This is administrative evidence, not a complete historical recruiter-edit ledger.</p></>}
         <input name="q" defaultValue={q} placeholder="Search admin, target ID, request ID or action" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 focus:ring-3 focus:ring-indigo-100" />
         <input name="action" defaultValue={action} placeholder="Exact action type" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 focus:ring-3 focus:ring-indigo-100" />
         <select name="target_type" defaultValue={targetType} className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 focus:ring-3 focus:ring-indigo-100"><option value="">All targets</option>{["admin_gateway","company_verification","user","job","platform_settings"].map((value) => <option key={value} value={value}>{value}</option>)}</select>
@@ -36,6 +41,6 @@ export default async function AdminAuditPage({ searchParams }: Props) {
       </table>
     </div>
 
-    <div className="flex items-center justify-between text-sm text-slate-500"><span>{data.total.toLocaleString("en-IN")} events</span><div className="flex items-center gap-2"><Link aria-disabled={page <= 1} href={`/swx-command-centre/audit?${new URLSearchParams({ q, action, target_type: targetType, page: String(Math.max(1,page-1)) }).toString()}`} className={`rounded-lg border border-slate-200 px-3 py-2 font-semibold ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-white"}`}>Previous</Link><span className="px-2 text-xs font-bold">Page {page} of {pages}</span><Link aria-disabled={page >= pages} href={`/swx-command-centre/audit?${new URLSearchParams({ q, action, target_type: targetType, page: String(Math.min(pages,page+1)) }).toString()}`} className={`rounded-lg border border-slate-200 px-3 py-2 font-semibold ${page >= pages ? "pointer-events-none opacity-40" : "hover:bg-white"}`}>Next</Link></div></div>
+    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500"><span>{data.total.toLocaleString("en-IN")} events</span><div className="flex items-center gap-2"><Link aria-disabled={page <= 1} tabIndex={page<=1?-1:undefined} href={pageHref(Math.max(1,page-1))} className={`rounded-lg border border-slate-200 px-3 py-2 font-semibold ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-white"}`}>Previous</Link><span className="px-2 text-xs font-bold">Page {page} of {pages}</span><Link aria-disabled={page >= pages} tabIndex={page>=pages?-1:undefined} href={pageHref(Math.min(pages,page+1))} className={`rounded-lg border border-slate-200 px-3 py-2 font-semibold ${page >= pages ? "pointer-events-none opacity-40" : "hover:bg-white"}`}>Next</Link></div></div>
   </section>;
 }

@@ -88,7 +88,7 @@ func (s *Service) ResetPassword(ctx context.Context, input ResetPasswordInput) e
 	if _, err = tx.Exec(ctx, `UPDATE email_verification_challenges SET consumed_at=now(),attempts=attempts+1 WHERE id=$1`, challengeID); err != nil {
 		return err
 	}
-	if _, err = tx.Exec(ctx, `UPDATE users SET password_hash=$1 WHERE id=$2`, passwordHash, userID); err != nil {
+	if _, err = tx.Exec(ctx, `UPDATE users SET password_hash=$1,force_password_reset=false WHERE id=$2`, passwordHash, userID); err != nil {
 		return err
 	}
 	if _, err = tx.Exec(ctx, `UPDATE refresh_sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE user_id=$1 AND revoked_at IS NULL`, userID); err != nil {

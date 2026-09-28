@@ -1,0 +1,3 @@
+BEGIN;
+ALTER TABLE interviews DROP COLUMN IF EXISTS round_label;
+COMMIT;

@@ -1,10 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const mockAPI = "http://127.0.0.1:18080";
-const web = "http://127.0.0.1:3000";
+const mockAPI = `http://127.0.0.1:${process.env.E2E_MOCK_API_PORT || "18080"}`;
+const web = `http://127.0.0.1:${process.env.E2E_WEB_PORT || "3000"}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  // Admin enforcement scenarios use their own mock controller and isolated ports.
+  testIgnore: /admin-(access-preview|security|dashboard|governance|recruitment)\.spec\.ts/,
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
@@ -31,6 +33,7 @@ export default defineConfig({
   webServer: [
     {
       command: "node tests/e2e/mock-api.mjs",
+      env: { E2E_WEB_ORIGIN: web },
       url: `${mockAPI}/healthz`,
       reuseExistingServer: !process.env.CI,
       timeout: 20_000,

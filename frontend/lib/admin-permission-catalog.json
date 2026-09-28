@@ -1,0 +1,10 @@
+{
+  "super_admin": ["overview.read", "organizations.read", "organizations.review", "organizations.documents", "users.read", "users.moderate", "jobs.read", "jobs.moderate", "privacy.read", "privacy.manage", "audit.read", "system.read", "system.configure", "recruitment.read"],
+  "platform_admin": ["overview.read", "organizations.read", "organizations.review", "organizations.documents", "users.read", "users.moderate", "jobs.read", "jobs.moderate", "recruitment.read"],
+  "security_admin": ["users.read", "users.moderate", "audit.read"],
+  "privacy_admin": ["privacy.read", "privacy.manage", "audit.read"],
+  "support_admin": ["users.read", "organizations.read", "jobs.read"],
+  "finance_admin": ["system.read"],
+  "content_admin": [],
+  "auditor": ["overview.read", "audit.read"]
+}

@@ -1,3 +1,32 @@
+export type AdminDashboard = {
+  computed_at: string;
+  company_id?: string;
+  country?: string;
+  period: string;
+  from: string;
+  to: string;
+  registered_users: number;
+  candidates: number;
+  recruiters: number;
+  verified_recruiters: number;
+  organizations: number;
+  published_jobs: number;
+  draft_jobs: number;
+  applications: number;
+  scheduled_interviews: number;
+  offer_stage_applications: number;
+  hired_stage_applications: number;
+  pending_company_reviews: number;
+  pending_accounts: number;
+  pending_privacy_requests: number;
+  open_privacy_incidents: number;
+  new_users: number;
+  jobs_published: number;
+  new_applications: number;
+  active_conversations: number;
+  admin_access_denials: number;
+};
+
 export type AdminMetrics = {
   metric_date: string;
   total_active_users: number;
@@ -42,6 +71,11 @@ export type AdminUser = {
   email_verified_at?: string | null;
   phone_verified_at?: string | null;
   force_password_reset: boolean;
+  is_active: boolean;
+  last_login_at?: string | null;
+  company_id?: string | null;
+  company_name?: string | null;
+  recruiter_verification?: string | null;
   created_at: string;
 };
 
@@ -51,6 +85,22 @@ export type AdminUserList = {
   limit: number;
   total: number;
 };
+
+export type AdminAccountSummary = {
+  id:string; role:AdminUser["role"]; status:AdminUser["status"]; created_at:string; last_login_at?:string;
+  active_sessions:number; computed_at:string;
+  consent:{events:number;latest_purposes:number;latest_granted:number;latest_denied_or_withdrawn:number;last_recorded_at?:string};
+  candidate?:{onboarding:string;method:string;profile_completion:number;discoverable:boolean;contact_sharing:boolean;resume_uploaded:boolean;updated_at:string;applications:number};
+  recruiter?:{company_id?:string;verification:string;jobs_owned:number;active_jobs_owned:number;applications_to_owned_jobs:number;stage_changes:number;interview_changes:number;last_recorded_workflow?:string};
+};
+
+export type AdminOrganization = {
+  id: string; legal_name: string; display_name: string; website_url?: string | null;
+  work_email_domain?: string | null; country_code?: string | null;
+  verification_status: "pending" | "verified" | "rejected"; created_at: string;
+  recruiters: number; active_jobs: number; applications: number;
+};
+export type AdminOrganizationList = { items: AdminOrganization[]; page: number; limit: number; total: number };
 
 export type AdminAuditRecord = {
   id: string;
@@ -74,6 +124,7 @@ export type AdminAuditList = {
 
 export type AdminJob = {
   id: string;
+  job_reference: string;
   title: string;
   company_id: string;
   company_name: string;
@@ -102,3 +153,17 @@ export type AdminBudgetSettings = {
   updated_at: string;
   updated_by?: string | null;
 };
+
+export type AdminApplication = {
+  id: string; candidate_id: string; job_id: string; job_reference: string; job_title: string;
+  company_id: string; company_name: string; organization_country?: string | null;
+  stage: string; source: string; applied_at: string; updated_at: string;
+};
+export type AdminInterview = {
+  id: string; application_id: string; candidate_id: string; job_id: string; job_reference: string;
+  job_title: string; company_id: string; company_name: string; recruiter_id: string;
+  scheduled_at: string; duration_minutes: number; round_label: string; status: string; created_at: string;
+};
+export type AdminRecruitmentList<T> = { items: T[]; page: number; limit: number; total: number };
+export type AdminRecruitmentEvent = { id: string; kind: string; actor_id?: string | null; occurred_at: string; changes: Record<string,string|number> };
+export type AdminApplicationHistory = AdminRecruitmentList<AdminRecruitmentEvent> & { application: AdminApplication };

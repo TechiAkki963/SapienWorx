@@ -10,12 +10,12 @@ func TestCalculateProfileCompletionUsesProfileEvidence(t *testing.T) {
 
 	details := map[string]any{
 		"professional_summary": "Builds reliable services.",
-		"employment": []any{map[string]any{"company": "Example", "job_title": "Engineer"}},
-		"education":  []any{map[string]any{"level": "Bachelor", "university": "Example University"}},
-		"it_skills":  []any{map[string]any{"name": "Go"}, map[string]any{"name": "SQL"}, map[string]any{"name": "PostgreSQL"}},
-		"projects":   "A relevant project",
-		"professional_links": "https://example.com",
-		"preferred_locations": "Mumbai",
+		"employment":           []any{map[string]any{"company": "Example", "job_title": "Engineer"}},
+		"education":            []any{map[string]any{"level": "Bachelor", "university": "Example University"}},
+		"it_skills":            []any{map[string]any{"name": "Go"}, map[string]any{"name": "SQL"}, map[string]any{"name": "PostgreSQL"}},
+		"projects":             "A relevant project",
+		"professional_links":   "https://example.com",
+		"preferred_locations":  "Mumbai",
 	}
 	if got := calculateProfileCompletion(profile, details, true); got != 100 {
 		t.Fatalf("expected a complete evidenced profile to score 100, got %d", got)
@@ -34,4 +34,4 @@ func TestCalculateProfileCompletionDoesNotCountEmptyRecords(t *testing.T) {
 }
 
 func stringPointer(value string) *string { return &value }
-func intPointer(value int) *int { return &value }
+func intPointer(value int) *int          { return &value }

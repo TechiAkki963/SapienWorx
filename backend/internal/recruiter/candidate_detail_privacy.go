@@ -4,20 +4,20 @@ package recruiter
 // also contains private contact, compensation, address and sensitive personal
 // attributes, which must not cross the recruiter API boundary.
 var recruiterProfileFields = map[string]struct{}{
-	"current_designation": {},
-	"professional_summary": {},
+	"current_designation":   {},
+	"professional_summary":  {},
 	"employment_highlights": {},
-	"interested_domains": {},
-	"preferred_locations": {},
-	"department_role": {},
-	"industry": {},
-	"employment": {},
-	"it_skills": {},
-	"education": {},
-	"projects": {},
-	"accomplishments": {},
-	"professional_links": {},
-	"languages": {},
+	"interested_domains":    {},
+	"preferred_locations":   {},
+	"department_role":       {},
+	"industry":              {},
+	"employment":            {},
+	"it_skills":             {},
+	"education":             {},
+	"projects":              {},
+	"accomplishments":       {},
+	"professional_links":    {},
+	"languages":             {},
 }
 
 var recruiterEmploymentFields = map[string]struct{}{

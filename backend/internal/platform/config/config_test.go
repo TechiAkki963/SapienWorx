@@ -13,6 +13,7 @@ func TestValidateRejectsMissingSecrets(t *testing.T) {
 }
 
 func TestLoadUsesEnvironment(t *testing.T) {
+	t.Setenv("ADMIN_ACCESS_ENABLED", "false")
 	t.Setenv("DATABASE_URL", "postgres://localhost/sapienworx")
 	t.Setenv("JWT_SECRET", "01234567890123456789012345678901")
 	t.Setenv("API_PORT", "9090")
@@ -24,8 +25,29 @@ func TestLoadUsesEnvironment(t *testing.T) {
 	if cfg.HTTP.Address != ":9090" {
 		t.Fatalf("address = %q, want :9090", cfg.HTTP.Address)
 	}
+	if cfg.Admin.AccessEnabled {
+		t.Fatal("admin gate must remain disabled without explicit activation")
+	}
 	if cfg.Database.MaxConns != 6 || cfg.Database.MinConns != 0 {
 		t.Fatalf("database pool = %d/%d, want 0/6", cfg.Database.MinConns, cfg.Database.MaxConns)
+	}
+}
+
+func TestAdminSecurityRequiresDedicatedKeyOnlyWhenEnabled(t *testing.T) {
+	cfg := validProductionConfig()
+	if err := cfg.Validate(); err != nil {
+		t.Fatal("disabled gate changed existing config")
+	}
+	cfg.Admin.AccessEnabled = true
+	for _, key := range []string{"", "short", cfg.Auth.JWTSecret, cfg.Auth.OTPSecret} {
+		cfg.Admin.MFAEncryptionKey = key
+		if err := cfg.Validate(); err == nil {
+			t.Fatal("enabled gate accepted missing, short or reused encryption key")
+		}
+	}
+	cfg.Admin.MFAEncryptionKey = "isolated-dedicated-mfa-key-0123456789"
+	if err := cfg.Validate(); err != nil {
+		t.Fatal(err)
 	}
 }
 

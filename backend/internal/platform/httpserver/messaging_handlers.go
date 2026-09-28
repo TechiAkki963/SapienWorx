@@ -227,11 +227,19 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 	conn.SetPongHandler(func(string) error { return conn.SetReadDeadline(time.Now().Add(60 * time.Second)) })
 
 	go func() {
+		defer conn.Close()
 		ticker := time.NewTicker(25 * time.Second)
 		defer ticker.Stop()
 		for {
 			select {
 			case event, ok := <-client.Send:
+				if s.auth == nil {
+					return
+				}
+				allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+				if err != nil || !allowed {
+					return
+				}
 				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 				if !ok {
 					return
@@ -240,6 +248,13 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			case <-ticker.C:
+				if s.auth == nil {
+					return
+				}
+				allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+				if err != nil || !allowed {
+					return
+				}
 				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 				if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 					return
@@ -256,6 +271,13 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 			Content string `json:"content,omitempty"`
 		}
 		if err := conn.ReadJSON(&inbound); err != nil {
+			return
+		}
+		if s.auth == nil {
+			return
+		}
+		allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+		if err != nil || !allowed {
 			return
 		}
 		if inbound.ThreadID != "" && inbound.ThreadID != threadID {
@@ -287,7 +309,8 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "invalid typing payload"), time.Now().Add(time.Second))
 				return
 			}
-			// Typing is deliberately transient: no service method and no database I/O.
+			// Typing is transient: the session check above is the only database
+			// lookup here; no message or typing event is persisted.
 			s.messages.hub.BroadcastExceptUser(threadID, claims.Subject, messaging.NewTypingEvent(threadID, claims.Subject, payload.IsTyping))
 
 		case messaging.EventTypeRead:

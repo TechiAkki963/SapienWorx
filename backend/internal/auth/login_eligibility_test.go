@@ -14,6 +14,7 @@ func TestLoginEligibility(t *testing.T) {
 		want   error
 	}{
 		{"verified candidate", loginRecord{Role: RoleCandidate, Status: "active", IsActive: true, EmailVerifiedAt: &now}, nil},
+		{"candidate forced reset", loginRecord{Role: RoleCandidate, Status: "active", IsActive: true, EmailVerifiedAt: &now, ForcePasswordReset: true}, ErrPasswordResetRequired},
 		{"unverified candidate", loginRecord{Role: RoleCandidate, Status: "pending_verification", IsActive: true}, ErrEmailUnverified},
 		{"verified recruiter pending approval", loginRecord{Role: RoleRecruiter, Status: "pending_verification", IsActive: true, EmailVerifiedAt: &now, RecruiterVerification: "pending"}, ErrRecruiterPending},
 		{"approved recruiter", loginRecord{Role: RoleRecruiter, Status: "active", IsActive: true, EmailVerifiedAt: &now, RecruiterVerification: "verified"}, nil},
