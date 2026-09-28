@@ -4,11 +4,11 @@ import "testing"
 
 func TestRedactSensitiveKeysRecursively(t *testing.T) {
 	input := map[string]any{
-		"job_id":"123",
-		"email":"candidate@example.com",
-		"nested":map[string]any{
-			"token":"secret",
-			"score":87,
+		"job_id": "123",
+		"email":  "candidate@example.com",
+		"nested": map[string]any{
+			"token": "secret",
+			"score": 87,
 		},
 	}
 	out := redact(input)
