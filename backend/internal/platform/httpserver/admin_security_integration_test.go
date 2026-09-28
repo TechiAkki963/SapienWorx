@@ -430,7 +430,7 @@ func TestAdminSecurityHTTPIsolatedDatabase(t *testing.T) {
 	t.Run("disabled gate keeps legacy access but disallows enrollment", func(t *testing.T) {
 		_, session := fixture("")
 		cfg.Admin.AccessEnabled = false
-		server = New(cfg, db, tokens, authService, nil, nil, adminService, slog.New(slog.NewTextHandler(io.Discard, nil)))
+		server = New(cfg, db, tokens, authService, nil, nil, adminService, workforce.NewService(db), slog.New(slog.NewTextHandler(io.Discard, nil)))
 		if w := request("GET", "/api/v1/admin/users", session.AccessToken, nil, ""); w.Code != 200 {
 			t.Fatal("disabled gate locked existing admin out")
 		}
