@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -72,13 +72,6 @@ function ChipInput({ skills, setSkills }: { skills: string[]; setSkills: (next: 
     setValue("");
   }
 
-  function keyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter" || event.key === ",") {
-      event.preventDefault();
-      addSkill();
-    }
-  }
-
   return (
     <div>
       <label className="text-sm font-semibold text-ink">Skills & competencies</label>
@@ -97,18 +90,10 @@ function ChipInput({ skills, setSkills }: { skills: string[]; setSkills: (next: 
               if (!skills.some((skill) => skill.toLowerCase() === item.canonical_name.toLowerCase())) setSkills([...skills, item.canonical_name]);
               setValue("");
             }}
+            onCommit={() => addSkill()}
             placeholder={skills.length ? "Add another competency" : "Search or add a competency"}
             className="w-full border-0 bg-transparent py-1 text-sm outline-none placeholder:text-ink-muted/65"
             ariaLabel="Search workforce taxonomy"
-          />
-          <input
-            value={value}
-            onChange={() => {}}
-            onKeyDown={keyDown}
-            onBlur={addSkill}
-            className="sr-only"
-            tabIndex={-1}
-            aria-hidden="true"
           />
         </div>
       </div>
