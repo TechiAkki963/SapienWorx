@@ -19,7 +19,9 @@ import (
 func (s *Server) candidateCVParsePreview(w http.ResponseWriter, r *http.Request) {
 	started := time.Now()
 	telemetryStatus := "failed"
-	defer func() { s.recordAdminTelemetry("cv_parser", "candidate_api", "parse_preview", telemetryStatus, time.Since(started), "", map[string]any{"ocr_enabled": os.Getenv("CV_OCR_ENABLED") == "true"}) }()
+	defer func() {
+		s.recordAdminTelemetry("cv_parser", "candidate_api", "parse_preview", telemetryStatus, time.Since(started), "", map[string]any{"ocr_enabled": os.Getenv("CV_OCR_ENABLED") == "true"})
+	}()
 	if !strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "multipart/form-data;") {
 		writeError(w, r, http.StatusUnsupportedMediaType, "unsupported_media_type", "upload a PDF or DOCX")
 		return
