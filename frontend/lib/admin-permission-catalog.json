@@ -21,7 +21,15 @@
     "costs.read",
     "release.manage",
     "intelligence.read",
-    "intelligence.manage"
+    "intelligence.metrics.read",
+    "intelligence.feedback.read",
+    "intelligence.feedback.review",
+    "intelligence.models.read",
+    "intelligence.models.evaluate",
+    "intelligence.models.approve",
+    "intelligence.config.update",
+    "intelligence.kill_switch",
+    "intelligence.audit.read"
   ],
   "platform_admin": [
     "overview.read",
@@ -37,7 +45,11 @@
     "control_plane.manage",
     "release.manage",
     "intelligence.read",
-    "intelligence.manage"
+    "intelligence.metrics.read",
+    "intelligence.feedback.read",
+    "intelligence.feedback.review",
+    "intelligence.models.read",
+    "intelligence.models.evaluate"
   ],
   "security_admin": [
     "users.read",
@@ -74,6 +86,9 @@
     "control_plane.read",
     "costs.read",
     "content.read",
-    "intelligence.read"
+    "intelligence.read",
+    "intelligence.metrics.read",
+    "intelligence.models.read",
+    "intelligence.audit.read"
   ]
 }
