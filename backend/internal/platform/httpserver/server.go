@@ -202,6 +202,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/admin/intelligence/models/{modelID}/evaluate", Chain(http.HandlerFunc(s.adminRequestIntelligenceModelEvaluation), adminGuard(admin.IntelligenceModelsEvaluate)))
 	mux.Handle("POST /api/v1/admin/intelligence/models/{modelID}/promote", Chain(http.HandlerFunc(s.adminPromoteIntelligenceModel), adminGuard(admin.IntelligenceModelsApprove)))
 	mux.Handle("POST /api/v1/admin/intelligence/prompts", Chain(http.HandlerFunc(s.adminRegisterIntelligencePrompt), adminGuard(admin.IntelligenceConfigUpdate)))
+	mux.Handle("POST /api/v1/admin/intelligence/prompts/{promptID}/activate", Chain(http.HandlerFunc(s.adminActivateIntelligencePrompt), adminGuard(admin.IntelligencePromptsApprove)))
 	mux.Handle("POST /api/v1/admin/control-plane/approvals", Chain(http.HandlerFunc(s.adminCreateApproval), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("POST /api/v1/admin/control-plane/approvals/{approvalID}/decisions", Chain(http.HandlerFunc(s.adminDecideApproval), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("POST /api/v1/admin/control-plane/cases", Chain(http.HandlerFunc(s.adminCreateCase), adminGuard(admin.ControlPlaneManage)))
