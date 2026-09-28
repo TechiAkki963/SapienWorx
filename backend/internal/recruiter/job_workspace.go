@@ -41,20 +41,20 @@ type WorkspaceJob struct {
 }
 
 type JobWorkspaceSummary struct {
-	TotalJobs        int `json:"total_jobs"`
-	ActiveJobs       int `json:"active_jobs"`
-	DraftJobs        int `json:"draft_jobs"`
-	PausedJobs       int `json:"paused_jobs"`
-	Applications     int `json:"applications"`
-	NewApplications  int `json:"new_applications"`
+	TotalJobs       int `json:"total_jobs"`
+	ActiveJobs      int `json:"active_jobs"`
+	DraftJobs       int `json:"draft_jobs"`
+	PausedJobs      int `json:"paused_jobs"`
+	Applications    int `json:"applications"`
+	NewApplications int `json:"new_applications"`
 }
 
 type JobWorkspaceResult struct {
-	Items   []WorkspaceJob     `json:"items"`
-	Page    int                `json:"page"`
-	Limit   int                `json:"limit"`
-	Total   int                `json:"total"`
-	Sort    string             `json:"sort"`
+	Items   []WorkspaceJob      `json:"items"`
+	Page    int                 `json:"page"`
+	Limit   int                 `json:"limit"`
+	Total   int                 `json:"total"`
+	Sort    string              `json:"sort"`
 	Summary JobWorkspaceSummary `json:"summary"`
 }
 
