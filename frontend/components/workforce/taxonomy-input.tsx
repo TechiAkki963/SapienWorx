@@ -22,6 +22,7 @@ type Props = {
   entityTypes?: string[];
   onValueChange?: (value: string) => void;
   onSelect?: (item: TaxonomySuggestion) => void;
+  onCommit?: (value: string) => void;
   ariaLabel?: string;
 };
 
@@ -38,6 +39,7 @@ export function TaxonomyInput({
   entityTypes = ["skill", "competency", "tool", "technology", "equipment", "certification", "licence", "qualification", "domain_knowledge", "methodology"],
   onValueChange,
   onSelect,
+  onCommit,
   ariaLabel,
 }: Props) {
   const controlled = value !== undefined;
@@ -104,7 +106,7 @@ export function TaxonomyInput({
         value={currentValue}
         onChange={(event) => change(event.target.value)}
         onFocus={() => items.length > 0 && setOpen(true)}
-        onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+        onBlur={() => { window.setTimeout(() => setOpen(false), 120); if (onCommit && currentValue.trim()) onCommit(currentValue.trim()); }}
         onKeyDown={(event) => {
           if (!open || items.length === 0) return;
           if (event.key === "ArrowDown") {
@@ -116,6 +118,9 @@ export function TaxonomyInput({
           } else if (event.key === "Enter" && active >= 0) {
             event.preventDefault();
             choose(items[active]);
+          } else if ((event.key === "Enter" || event.key === ",") && onCommit && currentValue.trim()) {
+            event.preventDefault();
+            onCommit(currentValue.trim());
           } else if (event.key === "Escape") {
             setOpen(false);
           }
