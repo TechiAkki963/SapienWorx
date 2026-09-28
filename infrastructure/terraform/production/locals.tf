@@ -17,7 +17,8 @@ locals {
   ecr_repository_names = {
     frontend  = "${var.project_name}/frontend"
     backend   = "${var.project_name}/backend"
-    migration = "${var.project_name}/migration"
+    migration    = "${var.project_name}/migration"
+    intelligence = "${var.project_name}/intelligence"
   }
   parameter_path = "/${var.project_name}/${var.environment}"
 }
