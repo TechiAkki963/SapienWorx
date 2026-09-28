@@ -378,11 +378,11 @@ INSERT INTO intelligence.model_versions(engine_type,version,provider,model_ref,c
 ('ai_gateway','1.0.0','local','gateway-policy-v1','{"external_providers_enabled":false}'::jsonb,'production',now());
 
 INSERT INTO intelligence.engine_switches(switch_key,enabled,requires_approval_to_enable,description) VALUES
-('global_intelligence',true,true,'Master switch for intelligence processing.'),
-('candidate_intelligence',true,true,'Generate normalized candidate feature records from verified/profile data.'),
-('cv_intelligence',true,true,'Allow CV-derived candidate intelligence after malware scanning and candidate confirmation.'),
-('matching',true,true,'Generate deterministic candidate-job match results.'),
-('learning_collection',true,true,'Collect non-sensitive outcome and correction feedback for offline evaluation.'),
+('global_intelligence',false,true,'Master switch for intelligence processing.'),
+('candidate_intelligence',false,true,'Generate normalized candidate feature records from verified/profile data.'),
+('cv_intelligence',false,true,'Allow CV-derived candidate intelligence after malware scanning and candidate confirmation.'),
+('matching',false,true,'Generate deterministic candidate-job match results.'),
+('learning_collection',false,true,'Collect non-sensitive outcome and correction feedback for offline evaluation.'),
 ('automated_recommendations',false,true,'Allow intelligence-generated recommendations to become user-facing defaults.'),
 ('ai_gateway',false,true,'Allow external or generative model routing through the governed AI Gateway.'),
 ('model_deployment',false,true,'Allow an evaluated and approved candidate model to be promoted to production.')
