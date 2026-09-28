@@ -369,3 +369,11 @@ func (s *Server) adminPromoteIntelligenceModel(w http.ResponseWriter,r *http.Req
 	if err:=s.admin.PromoteIntelligenceModel(r.Context(),strings.TrimSpace(r.PathValue("modelID")),actor,input.ApprovalID,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()));err!=nil{s.writeAdminError(w,r,err);return}
 	writeJSON(w,http.StatusOK,map[string]bool{"promoted":true})
 }
+
+
+func (s *Server) adminRegisterIntelligencePrompt(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input struct{PromptKey string `json:"prompt_key"`;Template string `json:"template"`;Status string `json:"status"`;Variables []string `json:"variables"`;ModelVersionID string `json:"model_version_id"`};if !decodeJSON(w,r,&input){return}
+	result,err:=s.admin.RegisterIntelligencePrompt(r.Context(),actor,input.PromptKey,input.Template,input.Status,input.Variables,input.ModelVersionID,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()));if err!=nil{s.writeAdminError(w,r,err);return}
+	writeJSON(w,http.StatusCreated,result)
+}
