@@ -109,7 +109,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
   const maxSalary = single(params.max_salary);
   const salaryCurrency = single(params.salary_currency) || "INR";
   const postedWithin = single(params.posted_within);
-  const sort = single(params.sort) || (q || competency ? "relevance" : "newest");
+  const sort = single(params.sort) || "relevance";
   const page = Math.max(1, Number(single(params.page)) || 1);
 
   const query = new URLSearchParams({ q, location, company, page: String(page), limit: "10" });
@@ -197,7 +197,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
                   name="q"
                   defaultValue={q}
                   entityTypes={discoveryEntityTypes}
-                  ariaLabel="Keyword"
+                  ariaLabel="Role or keyword"
                   placeholder="e.g. ICU Nursing, Accounts Payable"
                   className={inputClass}
                 />
@@ -210,7 +210,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
                   name="competency"
                   defaultValue={competency}
                   entityTypes={competencyEntityTypes}
-                  ariaLabel="Competency"
+                  ariaLabel="Competency or requirement"
                   placeholder="e.g. Patient Assessment, Negotiation"
                   className={inputClass}
                 />
