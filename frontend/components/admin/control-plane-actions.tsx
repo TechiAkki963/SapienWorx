@@ -1,0 +1,152 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAdminPermission } from "@/components/admin/admin-access-provider";
+import { apiRequest } from "@/lib/api";
+
+type Approval = {
+  id: string;
+  status: string;
+  requested_by: string;
+  action_type: string;
+  target_type: string;
+  approval_reference: string;
+  approvals: number;
+  required_approvals: number;
+};
+
+function Message({ value }: { value: string }) {
+  if (!value) return null;
+  return <p role="status" className="text-xs leading-5 text-slate-600">{value}</p>;
+}
+
+export function ApprovalRequestForm() {
+  const allowed = useAdminPermission("control_plane.manage");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/approvals", {
+        method: "POST",
+        body: JSON.stringify({
+          action_type: String(data.get("action_type") ?? "").trim(),
+          target_type: String(data.get("target_type") ?? "").trim(),
+          target_id: String(data.get("target_id") ?? "").trim(),
+          reason: String(data.get("reason") ?? "").trim(),
+          approval_reference: String(data.get("approval_reference") ?? "").trim(),
+          required_approvals: Number(data.get("required_approvals") ?? 2),
+        }),
+      });
+      form.reset();
+      setMessage("Approval request created.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not create approval request.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/40 p-4">
+    <div><p className="text-sm font-bold text-slate-900">Request a governed action</p><p className="mt-1 text-xs leading-5 text-slate-500">Use a durable change/ticket reference. Requesters cannot approve their own request.</p></div>
+    <div className="grid gap-3 md:grid-cols-2">
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Action type<input required name="action_type" placeholder="operational_setting.update" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Target type<input required name="target_type" placeholder="operational_setting" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Target UUID (optional)<input name="target_id" placeholder="UUID when applicable" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Approval reference<input required minLength={5} name="approval_reference" placeholder="CHG-2026-001" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Required approvals<select name="required_approvals" defaultValue="2" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></label>
+    </div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Reason<textarea required minLength={10} maxLength={2000} name="reason" rows={3} className="rounded-xl border border-slate-200 bg-white p-3 text-sm font-normal"/></label>
+    <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-[#4656cf] px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Creating…" : "Create approval request"}</button><Message value={message}/></div>
+  </form>;
+}
+
+export function ApprovalDecisionActions({ approval }: { approval: Approval }) {
+  const allowed = useAdminPermission("control_plane.manage");
+  const router = useRouter();
+  const [busy, setBusy] = useState("");
+  const [message, setMessage] = useState("");
+  if (!allowed || approval.status !== "pending") return null;
+
+  async function decide(decision: "approve" | "reject") {
+    const note = window.prompt(decision === "approve" ? "Approval note (optional)" : "Rejection note");
+    if (note === null) return;
+    setBusy(decision);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/approvals/" + approval.id + "/decisions", {
+        method: "POST",
+        body: JSON.stringify({ decision, note: note.trim() }),
+      });
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Decision could not be recorded.");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  return <div className="mt-3 flex flex-wrap items-center gap-2">
+    <button type="button" disabled={!!busy} onClick={() => void decide("approve")} className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{busy === "approve" ? "Approving…" : "Approve"}</button>
+    <button type="button" disabled={!!busy} onClick={() => void decide("reject")} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 disabled:opacity-50">{busy === "reject" ? "Rejecting…" : "Reject"}</button>
+    <Message value={message}/>
+  </div>;
+}
+
+export function CaseCreateForm() {
+  const allowed = useAdminPermission("control_plane.manage");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/cases", {
+        method: "POST",
+        body: JSON.stringify({
+          case_type: data.get("case_type"),
+          subject_type: data.get("subject_type"),
+          subject_id: String(data.get("subject_id") ?? "").trim(),
+          title: String(data.get("title") ?? "").trim(),
+          priority: data.get("priority"),
+          summary: String(data.get("summary") ?? "").trim(),
+        }),
+      });
+      form.reset();
+      setMessage("Case opened.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not open case.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+    <p className="text-sm font-bold text-slate-900">Open investigation case</p>
+    <div className="grid gap-3 md:grid-cols-2">
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Case type<select name="case_type" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"><option>moderation</option><option>privacy</option><option>security</option><option>organization</option><option>operations</option></select></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Subject type<select name="subject_type" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"><option>user</option><option>job</option><option>message</option><option>privacy_request</option><option>organization</option><option>incident</option><option>system</option><option>release</option></select></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Subject UUID (optional)<input name="subject_id" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Priority<select name="priority" defaultValue="normal" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"><option>low</option><option>normal</option><option>high</option><option>critical</option></select></label>
+    </div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Title<input required minLength={5} maxLength={240} name="title" className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal"/></label>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Summary<textarea name="summary" maxLength={4000} rows={3} className="rounded-xl border border-slate-200 bg-white p-3 text-sm font-normal"/></label>
+    <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Opening…" : "Open case"}</button><Message value={message}/></div>
+  </form>;
+}
