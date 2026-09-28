@@ -23,11 +23,12 @@ test.describe("Master Admin Intelligence Centre", () => {
     await expect(page.getByRole("heading", { name: "Prompt Registry" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Evaluations" })).toBeVisible();
 
-    await expect(page.getByText("global_intelligence", { exact: true })).toBeVisible();
-    await expect(page.getByText("automated_recommendations", { exact: true })).toBeVisible();
-    await expect(page.getByText("ai_gateway", { exact: true })).toBeVisible();
-    await expect(page.getByText("model_deployment", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Enable with approval" })).toHaveCount(8);
+    const switches = page.getByRole("heading", { name: "Intelligence kill switches" }).locator("..");
+    await expect(switches.getByText("global_intelligence", { exact: true })).toBeVisible();
+    await expect(switches.getByText("automated_recommendations", { exact: true })).toBeVisible();
+    await expect(switches.getByText("ai_gateway", { exact: true })).toBeVisible();
+    await expect(switches.getByText("model_deployment", { exact: true })).toBeVisible();
+    await expect(switches.getByRole("button", { name: "Enable with approval" })).toHaveCount(8);
 
     await expect(page.getByRole("button", { name: "Queue advisory analysis" })).toBeVisible();
     await expect(page.getByText("Register candidate model/version", { exact: true })).toBeVisible();
