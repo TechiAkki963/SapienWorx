@@ -67,7 +67,6 @@ func run(logger *slog.Logger) error {
 	}
 }
 
-
 func intelligenceDatabaseConfig() (string, config.DatabaseConfig, error) {
 	environment := strings.TrimSpace(os.Getenv("APP_ENV"))
 	if environment == "" {
