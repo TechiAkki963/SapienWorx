@@ -1,0 +1,14 @@
+BEGIN;
+DROP TABLE IF EXISTS admin_release_acceptance;
+DROP TABLE IF EXISTS admin_operational_settings;
+DROP TABLE IF EXISTS knowledge_article_revisions;
+DROP TABLE IF EXISTS knowledge_articles;
+DROP TABLE IF EXISTS admin_cost_snapshots;
+DROP TABLE IF EXISTS admin_operation_evidence;
+DROP TABLE IF EXISTS admin_telemetry_events;
+DROP TABLE IF EXISTS organization_governance_reviews;
+DROP TABLE IF EXISTS admin_case_events;
+DROP TABLE IF EXISTS admin_cases;
+DROP TABLE IF EXISTS admin_approval_decisions;
+DROP TABLE IF EXISTS admin_approval_requests;
+COMMIT;
