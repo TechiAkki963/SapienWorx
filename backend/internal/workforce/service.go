@@ -122,10 +122,9 @@ func (s *Service) Suggest(ctx context.Context, query string, types []string, lim
 		    AND (e.normalized_name LIKE '%'||i.q||'%' OR similarity(e.normalized_name,i.q)>=0.28)
 		  UNION ALL
 		  SELECT e.id,e.entity_type,e.canonical_name,a.alias,'alias',
-		    greatest(a.confidence::float8,
-		      CASE WHEN a.normalized_alias=i.q THEN 1.0
-		           WHEN a.normalized_alias LIKE i.q||'%' THEN 0.95
-		           ELSE similarity(a.normalized_alias,i.q) END)
+		    CASE WHEN a.normalized_alias=i.q THEN a.confidence::float8
+		         WHEN a.normalized_alias LIKE i.q||'%' THEN least(a.confidence::float8,0.95)
+		         ELSE similarity(a.normalized_alias,i.q) * a.confidence::float8 END
 		  FROM workforce.taxonomy_aliases a
 		  JOIN workforce.taxonomy_entities e ON e.id=a.entity_id
 		  CROSS JOIN input i
