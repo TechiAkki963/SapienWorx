@@ -36,8 +36,8 @@ test.describe("candidate job discovery", () => {
     await login(page, "candidate");
     await page.goto("/candidate/jobs");
 
-    await page.getByLabel("Keyword").fill("Go");
-    await page.getByLabel("Competency").fill("PostgreSQL");
+    await page.getByLabel("Role or keyword").fill("Go");
+    await page.getByLabel("Competency or requirement").fill("PostgreSQL");
     await page.getByLabel("Company name").fill("Sapien Labs India");
     await page.getByLabel("Location").fill("Mumbai");
     await page.getByLabel("Role / function").selectOption("Technology");
@@ -63,8 +63,8 @@ test.describe("candidate job discovery", () => {
     await expect(page).toHaveURL(/role_category=Technology/);
     await expect(page).toHaveURL(/posted_within=30/);
     await expect(page).toHaveURL(/sort=relevance/);
-    await expect(page.getByLabel("Keyword")).toHaveValue("Go");
-    await expect(page.getByLabel("Competency")).toHaveValue("PostgreSQL");
+    await expect(page.getByLabel("Role or keyword")).toHaveValue("Go");
+    await expect(page.getByLabel("Competency or requirement")).toHaveValue("PostgreSQL");
     await expect(page.getByLabel("Company name")).toHaveValue("Sapien Labs India");
     await expect(page.getByLabel("Experience")).toHaveValue("3");
     await expect(page.getByLabel("B.Tech / B.E.")).toBeChecked();
@@ -93,8 +93,8 @@ test.describe("candidate job discovery", () => {
     expect(params.get("limit")).toBe("10");
 
     await page.reload();
-    await expect(page.getByLabel("Keyword")).toHaveValue("Go");
-    await expect(page.getByLabel("Competency")).toHaveValue("PostgreSQL");
+    await expect(page.getByLabel("Role or keyword")).toHaveValue("Go");
+    await expect(page.getByLabel("Competency or requirement")).toHaveValue("PostgreSQL");
     await expect(page.getByLabel("Location")).toHaveValue("Mumbai");
     await expect(page.getByLabel("Work mode")).toHaveValue("hybrid");
   });
@@ -103,7 +103,7 @@ test.describe("candidate job discovery", () => {
     await login(page, "candidate");
     await page.goto("/candidate/jobs");
 
-    await page.getByLabel("Keyword").fill("ICU Nursing");
+    await page.getByLabel("Role or keyword").fill("ICU Nursing");
     await page.getByLabel("Role / function").selectOption("Healthcare");
     await page.getByLabel("Employment type").selectOption("full_time");
     await page.getByLabel("Posted date").selectOption("14");
