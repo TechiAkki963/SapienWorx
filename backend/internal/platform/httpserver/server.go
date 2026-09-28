@@ -194,6 +194,12 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/admin/control-plane/cases", Chain(http.HandlerFunc(s.adminCreateCase), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("PATCH /api/v1/admin/control-plane/cases/{caseID}", Chain(http.HandlerFunc(s.adminUpdateCase), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("POST /api/v1/admin/control-plane/organization-reviews", Chain(http.HandlerFunc(s.adminCreateOrganizationGovernanceReview), adminGuard(admin.ControlPlaneManage)))
+	mux.Handle("POST /api/v1/admin/control-plane/knowledge", Chain(http.HandlerFunc(s.adminKnowledgeArticle), adminGuard(admin.ContentManage)))
+	mux.Handle("PUT /api/v1/admin/control-plane/settings", Chain(http.HandlerFunc(s.adminOperationalSetting), adminGuard(admin.SystemConfigure)))
+	mux.Handle("POST /api/v1/admin/control-plane/operation-evidence", Chain(http.HandlerFunc(s.adminOperationEvidence), adminGuard(admin.SystemConfigure)))
+	mux.Handle("POST /api/v1/admin/control-plane/cost-snapshots", Chain(http.HandlerFunc(s.adminCostSnapshot), adminGuard(admin.SystemConfigure)))
+	mux.Handle("POST /api/v1/admin/control-plane/releases", Chain(http.HandlerFunc(s.adminCreateReleaseAcceptance), adminGuard(admin.ReleaseManage)))
+	mux.Handle("PATCH /api/v1/admin/control-plane/releases/{releaseID}", Chain(http.HandlerFunc(s.adminUpdateReleaseAcceptance), adminGuard(admin.ReleaseManage)))
 
 	handler := Chain(mux, TrustedProxyRemoteAddr(cfg.HTTP.TrustedProxyCIDRs), RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), MaxBodyBytes(cfg.HTTP.MaxBodyBytes))
 	s.http = &http.Server{Addr: cfg.HTTP.Address, Handler: handler, ReadTimeout: cfg.HTTP.ReadTimeout, ReadHeaderTimeout: cfg.HTTP.ReadHeaderTimeout, WriteTimeout: cfg.HTTP.WriteTimeout, IdleTimeout: cfg.HTTP.IdleTimeout}
