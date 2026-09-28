@@ -194,6 +194,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/admin/control-plane/approvals/{approvalID}/decisions", Chain(http.HandlerFunc(s.adminDecideApproval), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("POST /api/v1/admin/control-plane/cases", Chain(http.HandlerFunc(s.adminCreateCase), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("PATCH /api/v1/admin/control-plane/cases/{caseID}", Chain(http.HandlerFunc(s.adminUpdateCase), adminGuard(admin.ControlPlaneManage)))
+	mux.Handle("GET /api/v1/admin/control-plane/cases/{caseID}/history", Chain(http.HandlerFunc(s.adminCaseHistory), adminGuard(admin.ControlPlaneRead)))
 	mux.Handle("POST /api/v1/admin/control-plane/organization-reviews", Chain(http.HandlerFunc(s.adminCreateOrganizationGovernanceReview), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("POST /api/v1/admin/control-plane/knowledge", Chain(http.HandlerFunc(s.adminKnowledgeArticle), adminGuard(admin.ContentManage)))
 	mux.Handle("PUT /api/v1/admin/control-plane/settings", Chain(http.HandlerFunc(s.adminOperationalSetting), adminGuard(admin.SystemConfigure)))

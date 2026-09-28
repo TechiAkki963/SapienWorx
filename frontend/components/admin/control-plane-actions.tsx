@@ -206,3 +206,49 @@ export function OrganizationGovernanceForm({ companyID }: { companyID: string })
     <div className="flex flex-wrap items-center gap-2"><button disabled={pending} className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{pending ? "Creating…" : "Create governed review"}</button><Message value={message}/></div>
   </form>;
 }
+
+
+export function CaseManagementForm({ caseID }: { caseID: string }) {
+  const allowed = useAdminPermission("control_plane.manage");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/cases/" + caseID, {
+        method: "PATCH",
+        body: JSON.stringify({
+          assigned_to: String(data.get("assigned_to") ?? "").trim(),
+          status: String(data.get("status") ?? "").trim(),
+          event_type: String(data.get("event_type") ?? "note"),
+          note: String(data.get("note") ?? "").trim(),
+        }),
+      });
+      form.reset();
+      setMessage("Case updated.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not update case.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+    <p className="text-sm font-bold text-slate-900">Update investigation</p>
+    <div className="grid gap-3 sm:grid-cols-2">
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Assign reviewer UUID<input name="assigned_to" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"/></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Status<select name="status" defaultValue="" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"><option value="">Keep current</option><option>open</option><option>investigating</option><option>awaiting_review</option><option>resolved</option><option>closed</option></select></label>
+      <label className="grid gap-1 text-xs font-bold text-slate-600">Event<select name="event_type" defaultValue="note" className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"><option>note</option><option>assigned</option><option>status_changed</option><option>reviewed</option><option>escalated</option><option>hold_added</option><option>hold_released</option></select></label>
+    </div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Investigation note<textarea name="note" maxLength={4000} rows={3} className="rounded-xl border border-slate-200 p-3 text-sm font-normal"/></label>
+    <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Saving…" : "Save case update"}</button><Message value={message}/></div>
+  </form>;
+}

@@ -238,3 +238,14 @@ func (s *Server) adminRuntimeSnapshot(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, result)
 }
+
+
+func (s *Server) adminCaseHistory(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	items, err := s.admin.CaseHistory(r.Context(), strings.TrimSpace(r.PathValue("caseID")))
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+}
