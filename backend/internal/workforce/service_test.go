@@ -21,7 +21,6 @@ func TestWorkforceNormalized(t *testing.T) {
 	}
 }
 
-
 func TestCleanTypesAcrossDomains(t *testing.T) {
 	got, err := CleanTypes([]string{"occupation", "licence", "equipment", "qualification", "domain_knowledge"})
 	if err != nil {
