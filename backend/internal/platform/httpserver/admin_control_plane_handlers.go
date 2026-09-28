@@ -48,3 +48,46 @@ func (s *Server) adminCreateOrganizationGovernanceReview(w http.ResponseWriter,r
 	result,err:=s.admin.CreateOrganizationGovernanceReview(r.Context(),actor,input,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()))
 	if err!=nil{s.writeAdminError(w,r,err);return};writeJSON(w,http.StatusCreated,result)
 }
+
+
+func (s *Server) adminKnowledgeArticle(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input admin.KnowledgeInput;if !decodeJSON(w,r,&input){return}
+	result,err:=s.admin.SaveKnowledgeArticle(r.Context(),actor,input,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()))
+	if err!=nil{s.writeAdminError(w,r,err);return};writeJSON(w,http.StatusOK,result)
+}
+
+func (s *Server) adminOperationalSetting(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input admin.OperationalSettingInput;if !decodeJSON(w,r,&input){return}
+	result,err:=s.admin.SetOperationalSetting(r.Context(),actor,input,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()))
+	if err!=nil{s.writeAdminError(w,r,err);return};writeJSON(w,http.StatusOK,result)
+}
+
+func (s *Server) adminOperationEvidence(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input admin.OperationEvidenceInput;if !decodeJSON(w,r,&input){return}
+	result,err:=s.admin.RecordOperationEvidence(r.Context(),actor,input,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()))
+	if err!=nil{s.writeAdminError(w,r,err);return};writeJSON(w,http.StatusCreated,result)
+}
+
+func (s *Server) adminCostSnapshot(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input admin.CostSnapshotInput;if !decodeJSON(w,r,&input){return}
+	result,err:=s.admin.RecordCostSnapshot(r.Context(),actor,input,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()))
+	if err!=nil{s.writeAdminError(w,r,err);return};writeJSON(w,http.StatusCreated,result)
+}
+
+func (s *Server) adminCreateReleaseAcceptance(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input admin.ReleaseAcceptanceInput;if !decodeJSON(w,r,&input){return}
+	result,err:=s.admin.CreateReleaseAcceptance(r.Context(),actor,input,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()))
+	if err!=nil{s.writeAdminError(w,r,err);return};writeJSON(w,http.StatusCreated,result)
+}
+
+func (s *Server) adminUpdateReleaseAcceptance(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input struct{Status string `json:"status"`;BackupEvidenceID string `json:"backup_evidence_id"`;RestoreTestEvidenceID string `json:"restore_test_evidence_id"`;Note string `json:"note"`};if !decodeJSON(w,r,&input){return}
+	err:=s.admin.UpdateReleaseAcceptance(r.Context(),actor,strings.TrimSpace(r.PathValue("releaseID")),input.Status,input.BackupEvidenceID,input.RestoreTestEvidenceID,input.Note,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()))
+	if err!=nil{s.writeAdminError(w,r,err);return};writeJSON(w,http.StatusOK,map[string]bool{"updated":true})
+}
