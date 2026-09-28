@@ -598,18 +598,24 @@ CREATE TRIGGER trg_workforce_sync_candidate_competencies
 AFTER INSERT OR UPDATE OF profile_details ON candidate_profiles
 FOR EACH ROW EXECUTE FUNCTION workforce.sync_candidate_competencies();
 
-DO $$
+REVOKE ALL ON FUNCTION workforce.sync_source_terms(text,uuid,text[],text,text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION workforce.sync_job_required_skills() FROM PUBLIC;
+REVOKE ALL ON FUNCTION workforce.sync_candidate_competencies() FROM PUBLIC;
+
+DO $
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_app') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA workforce TO sapienworx_app';
-    EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA workforce TO sapienworx_app';
-    EXECUTE 'GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA workforce TO sapienworx_app';
+    EXECUTE 'GRANT SELECT ON workforce.taxonomy_entities, workforce.taxonomy_aliases, workforce.taxonomy_relationships, workforce.provisional_terms, workforce.term_mappings, workforce.taxonomy_changes TO sapienworx_app';
+    EXECUTE 'GRANT INSERT, UPDATE ON workforce.taxonomy_entities, workforce.taxonomy_aliases, workforce.provisional_terms, workforce.term_mappings TO sapienworx_app';
+    EXECUTE 'GRANT INSERT ON workforce.taxonomy_changes TO sapienworx_app';
+    EXECUTE 'GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA workforce TO sapienworx_app';
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.normalize_term(text) TO sapienworx_app';
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.resolve_term(text,text[]) TO sapienworx_app';
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_intelligence') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA workforce TO sapienworx_intelligence';
-    EXECUTE 'GRANT SELECT ON ALL TABLES IN SCHEMA workforce TO sapienworx_intelligence';
+    EXECUTE 'GRANT SELECT ON workforce.taxonomy_entities, workforce.taxonomy_aliases, workforce.taxonomy_relationships TO sapienworx_intelligence';
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.normalize_term(text) TO sapienworx_intelligence';
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.resolve_term(text,text[]) TO sapienworx_intelligence';
   END IF;
