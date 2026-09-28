@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -154,6 +155,8 @@ func (p *Processor) processEvent(ctx context.Context, event eventRecord) error {
 		return p.refreshJobMatches(ctx, *event.AggregateID)
 	case "application.created", "application.stage_changed", "candidate.job_saved", "candidate.job_unsaved":
 		return p.captureFeedback(ctx, event)
+	case "platform.analysis.requested":
+		return p.runPlatformAnalysis(ctx, event)
 	default:
 		return nil
 	}
@@ -780,4 +783,44 @@ func (p *Processor) Summary(ctx context.Context) (map[string]any, error) {
 
 func (p *Processor) String() string {
 	return fmt.Sprintf("SapienWorx Intelligence %s", Version)
+}
+
+
+func (p *Processor) runPlatformAnalysis(ctx context.Context, event eventRecord) error {
+	var requestedBy string
+	if value, ok := event.Payload["requested_by"].(string); ok {
+		requestedBy = value
+	}
+	if requestedBy == "" {
+		return errors.New("platform analysis request missing requested_by")
+	}
+	var snap intelligence.Snapshot
+	if err := p.db.QueryRow(ctx, `SELECT
+		(SELECT count(*) FROM jobs WHERE status='active'),
+		(SELECT count(*) FROM applications WHERE applied_at>=now()-interval '30 days'),
+		(SELECT count(*) FROM interviews WHERE scheduled_at>=now()-interval '30 days'),
+		(SELECT count(*) FROM applications WHERE stage='hired' AND updated_at>=now()-interval '90 days'),
+		(SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours'),
+		(SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours' AND status IN ('failed','degraded')),
+		(SELECT count(*) FROM admin_alerts WHERE severity='critical' AND status IN ('open','acknowledged')),
+		(SELECT count(*) FROM privacy_requests WHERE status IN ('received','in_progress','awaiting_review')),
+		(SELECT count(*) FROM admin_approval_requests WHERE status='pending' AND (expires_at IS NULL OR expires_at>now()))`).Scan(
+		&snap.ActiveJobs,&snap.Applications30d,&snap.Interviews30d,&snap.Hires90d,&snap.ParserEvents24h,&snap.ParserFailures24h,&snap.CriticalAlerts,&snap.PendingPrivacyRequests,&snap.PendingApprovals); err != nil {
+		return err
+	}
+	raw, _ := json.Marshal(snap)
+	var runID string
+	if err := p.db.QueryRow(ctx, `INSERT INTO intelligence_runs(engine_version,metrics,requested_by) VALUES($1,$2,$3) RETURNING id`, intelligence.EngineVersion, raw, requestedBy).Scan(&runID); err != nil {
+		return err
+	}
+	for _, insight := range intelligence.Analyze(snap) {
+		evidence, _ := json.Marshal(insight.Evidence)
+		if _, err := p.db.Exec(ctx, `INSERT INTO intelligence_insights(run_id,domain,insight_key,severity,title,rationale,evidence,recommendation,confidence) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+			runID, insight.Domain, insight.Key, insight.Severity, insight.Title, insight.Rationale, evidence, insight.Recommendation, insight.Confidence); err != nil {
+			return err
+		}
+	}
+	meta, _ := json.Marshal(map[string]any{"source_event_id": event.ID, "engine_version": intelligence.EngineVersion})
+	_, err := p.db.Exec(ctx, `INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,target_id,metadata) VALUES($1,'platform.analysis.completed','intelligence_run',$2,$3)`, requestedBy, runID, meta)
+	return err
 }
