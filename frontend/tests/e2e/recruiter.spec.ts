@@ -75,7 +75,7 @@ test.describe("job applicant workspace", () => {
     await page.goto("/recruiter/jobs");
 
     await expect(page.getByRole("table")).toHaveCount(1);
-    await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+    await expect(page.getByRole("table").getByText("SWX-JOB-2026-00001")).toBeVisible();
 
     const filters = page.getByRole("form", { name: "Job filters" });
     await filters.getByLabel("Search").fill("Senior Go");
@@ -112,7 +112,7 @@ test.describe("job applicant workspace", () => {
   test("shows the stable job reference and opens applicants from job management", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs");
-    await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+    await expect(page.getByRole("table").getByText("SWX-JOB-2026-00001")).toBeVisible();
     await page.getByRole("link", { name: "View applicants →" }).click();
     await expect(page).toHaveURL(/\/recruiter\/jobs\/60000000-0000-4000-8000-000000000001\/applicants$/);
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
