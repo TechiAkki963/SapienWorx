@@ -15,6 +15,7 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/privacy"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/storage"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/workforce"
 )
 
 type DatabaseHealth interface{ Ping(context.Context) error }
@@ -29,14 +30,15 @@ type Server struct {
 	candidate     *candidate.Service
 	recruiter     *recruiter.Service
 	admin         *admin.Service
+	workforce     *workforce.Service
 	privacy       *privacy.Service
 	messages      *messagingRuntime
 	objectStorage storage.ObjectStore
 	cfg           config.Config
 }
 
-func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, logger *slog.Logger) *Server {
-	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db), cfg: cfg}
+func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, workforceService *workforce.Service, logger *slog.Logger) *Server {
+	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, workforce: workforceService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db), cfg: cfg}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health/live", s.live)
 	mux.HandleFunc("GET /health/ready", s.ready)
@@ -81,6 +83,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/admin/security/mfa/verify", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 
 	mux.Handle("GET /api/v1/auth/me", Chain(http.HandlerFunc(s.me), protected))
+	mux.Handle("GET /api/v1/workforce/taxonomy/suggest", Chain(http.HandlerFunc(s.workforceTaxonomySuggest), protected))
 	mux.Handle("POST /api/v1/users/profile-image", Chain(http.HandlerFunc(s.uploadUserProfileImage), protected))
 	mux.Handle("GET /api/v1/users/profile-image", Chain(http.HandlerFunc(s.getUserProfileImage), protected))
 	mux.Handle("POST /api/v1/auth/logout-all", Chain(http.HandlerFunc(s.logoutAll), protected))
@@ -194,6 +197,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/alerts", Chain(http.HandlerFunc(s.adminAlerts), adminGuard(admin.ControlPlaneRead)))
 	mux.Handle("POST /api/v1/admin/alerts/evaluate", Chain(http.HandlerFunc(s.adminEvaluateAlerts), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("PATCH /api/v1/admin/alerts/{alertID}", Chain(http.HandlerFunc(s.adminAlertTransition), adminGuard(admin.ControlPlaneManage)))
+	mux.Handle("GET /api/v1/admin/workforce-taxonomy", Chain(http.HandlerFunc(s.adminWorkforceTaxonomy), adminGuard(admin.TaxonomyRead)))
+	mux.Handle("POST /api/v1/admin/workforce-taxonomy/provisional/{termID}/resolve", Chain(http.HandlerFunc(s.adminResolveWorkforceTaxonomyTerm), adminGuard(admin.TaxonomyManage)))
 	mux.Handle("GET /api/v1/admin/intelligence", Chain(http.HandlerFunc(s.adminIntelligence), adminGuard(admin.IntelligenceRead, admin.IntelligenceMetricsRead)))
 	mux.Handle("POST /api/v1/admin/intelligence/run", Chain(http.HandlerFunc(s.adminRunIntelligence), adminGuard(admin.IntelligenceModelsEvaluate)))
 	mux.Handle("PATCH /api/v1/admin/intelligence/insights/{insightID}", Chain(http.HandlerFunc(s.adminReviewIntelligenceInsight), adminGuard(admin.IntelligenceFeedbackReview)))
