@@ -1,4 +1,4 @@
-import { IntelligenceSwitchControl, InsightReviewActions, ModelActions, ModelRegistrationForm, PromptRegistrationForm, RunIntelligenceButton } from "@/components/admin/intelligence-actions";
+import { IntelligenceSwitchControl, InsightReviewActions, ModelActions, ModelRegistrationForm, PromptActions, PromptRegistrationForm, RunIntelligenceButton } from "@/components/admin/intelligence-actions";
 import { requireAdminWorkspace } from "@/lib/admin-access-server";
 import { adminAPI } from "@/lib/admin-server";
 
@@ -8,7 +8,7 @@ type Model={id:string;engine_type:string;version:string;provider:string;model_re
 type Eval={id:string;model_version_id:string;dataset_ref:string;metrics:Record<string,unknown>;quality_gate_status:string;started_at:string;completed_at?:string;notes:string};
 type Switch={key:string;enabled:boolean;requires_approval_to_enable:boolean;description:string;changed_at:string};
 type Heartbeat={engine_key:string;status:string;version:string;metadata:Record<string,unknown>;last_seen_at:string};
-type Prompt={id:string;prompt_key:string;version:number;template:string;variables:string[];status:string;model_version_id?:string;created_at:string};
+type Prompt={id:string;prompt_key:string;version:number;template:string;variables:string[];status:string;model_version_id?:string;approval_id?:string;created_at:string;activated_at?:string};
 type Dashboard={runs:Run[];insights:Insight[];models:Model[];evaluations:Eval[];switches:Switch[];heartbeats:Heartbeat[];prompts:Prompt[];gateway:{requests_24h:number;failures_24h:number;blocked_24h:number;estimated_cost_24h:number;avg_latency_ms_24h:number;redactions_24h:number};store:{pending_events:number;failed_events:number;candidate_features:number;job_features:number;match_results:number;feedback_events:number};computed_at:string;advisory_only:boolean};
 
 function Pill({value}:{value:string}){const good=["healthy","production","passed","enabled","approved"].includes(value);const bad=["failed","degraded","rejected","stopped"].includes(value);return <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${good?"bg-emerald-50 text-emerald-700":bad?"bg-red-50 text-red-700":"bg-amber-50 text-amber-800"}`}>{value.replaceAll("_"," ")}</span>}
@@ -68,7 +68,7 @@ export default async function IntelligencePage(){
     <section className="rounded-2xl border border-slate-200 bg-white p-5">
       <h2 className="font-bold text-slate-950">Prompt Registry</h2>
       <p className="mt-1 text-xs text-slate-500">Versioned prompts are centrally governed; services should not embed provider prompts independently.</p>
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">{data.prompts.length===0?<p className="text-sm text-slate-500">No prompt versions registered.</p>:data.prompts.map(v=><article key={v.id} className="rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><div><p className="font-mono text-xs font-bold text-slate-800">{v.prompt_key}</p><p className="mt-1 text-xs text-slate-500">version {v.version} · {v.variables.join(", ")||"no variables"}</p></div><Pill value={v.status}/></div><pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-[11px] text-slate-700">{v.template}</pre></article>)}</div>
+      <div className="mt-4 grid gap-3 xl:grid-cols-2">{data.prompts.length===0?<p className="text-sm text-slate-500">No prompt versions registered.</p>:data.prompts.map(v=><article key={v.id} className="rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><div><p className="font-mono text-xs font-bold text-slate-800">{v.prompt_key}</p><p className="mt-1 text-xs text-slate-500">version {v.version} · {v.variables.join(", ")||"no variables"}</p></div><Pill value={v.status}/></div><pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-[11px] text-slate-700">{v.template}</pre><PromptActions id={v.id} status={v.status}/></article>)}</div>
     </section>
 
     <section className="rounded-2xl border border-slate-200 bg-white p-5">
