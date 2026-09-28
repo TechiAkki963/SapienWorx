@@ -602,7 +602,7 @@ REVOKE ALL ON FUNCTION workforce.sync_source_terms(text,uuid,text[],text,text) F
 REVOKE ALL ON FUNCTION workforce.sync_job_required_skills() FROM PUBLIC;
 REVOKE ALL ON FUNCTION workforce.sync_candidate_competencies() FROM PUBLIC;
 
-DO $
+DO $workforce$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_app') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA workforce TO sapienworx_app';
@@ -619,6 +619,7 @@ BEGIN
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.normalize_term(text) TO sapienworx_intelligence';
     EXECUTE 'GRANT EXECUTE ON FUNCTION workforce.resolve_term(text,text[]) TO sapienworx_intelligence';
   END IF;
-END $$;
+END
+$workforce$;
 
 COMMIT;
