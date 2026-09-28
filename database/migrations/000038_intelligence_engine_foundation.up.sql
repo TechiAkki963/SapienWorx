@@ -322,6 +322,20 @@ END;
 $$;
 CREATE TRIGGER trg_intelligence_saved_job_event AFTER INSERT OR DELETE ON saved_jobs FOR EACH ROW EXECUTE FUNCTION intelligence.saved_job_event_trigger();
 
+-- Initial bounded backfill. Only identifiers and non-sensitive workflow metadata
+-- are placed into the event stream; feature workers read permitted normalized fields.
+INSERT INTO intelligence.events(event_type,aggregate_type,aggregate_id,payload)
+SELECT 'candidate.profile_updated','candidate',user_id,jsonb_build_object('profile_completion',profile_completion)
+FROM candidate_profiles;
+
+INSERT INTO intelligence.events(event_type,aggregate_type,aggregate_id,payload)
+SELECT 'job.updated','job',id,jsonb_build_object('company_id',company_id,'status',status::text)
+FROM jobs;
+
+INSERT INTO intelligence.events(event_type,aggregate_type,aggregate_id,payload)
+SELECT 'application.created','application',id,jsonb_build_object('candidate_id',candidate_id,'job_id',job_id,'stage',stage::text)
+FROM applications;
+
 INSERT INTO intelligence.skills(canonical_name,normalized_name,category) VALUES
 ('Go','go','language'),('Java','java','language'),('Python','python','language'),('JavaScript','javascript','language'),
 ('TypeScript','typescript','language'),('React','react','framework'),('Next.js','next.js','framework'),('PostgreSQL','postgresql','database'),
