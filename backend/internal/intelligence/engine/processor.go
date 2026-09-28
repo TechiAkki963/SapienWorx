@@ -241,7 +241,7 @@ func (p *Processor) refreshCandidateFeatures(ctx context.Context, candidateID, s
 		COALESCE(profile_details->'employment','[]'::jsonb),
 		COALESCE(profile_details->'education','[]'::jsonb),
 		COALESCE(profile_details->>'interested_domains','')
-		FROM candidate_profiles WHERE user_id=$1`, candidateID).
+		FROM intelligence.source_candidate_features WHERE candidate_id=$1`, candidateID).
 		Scan(&headline, &city, &state, &country, &totalMonths, &notice, &skillsRaw, &employmentRaw, &educationRaw, &interestedDomains)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil
@@ -304,7 +304,7 @@ func (p *Processor) refreshJobFeatures(ctx context.Context, jobID, sourceEventID
 	var required []string
 	var minMonths int
 	var maxMonths *int
-	err := p.db.QueryRow(ctx, `SELECT title,COALESCE(role_category,''),required_skills,min_experience_months,max_experience_months,employment_type::text,work_mode::text,COALESCE(city,''),COALESCE(state,''),country_code,status::text FROM jobs WHERE id=$1`, jobID).
+	err := p.db.QueryRow(ctx, `SELECT title,role_category,required_skills,min_experience_months,max_experience_months,employment_type,work_mode,city,state,country_code,status FROM intelligence.source_job_features WHERE job_id=$1`, jobID).
 		Scan(&title, &roleCategory, &required, &minMonths, &maxMonths, &employmentType, &workMode, &city, &state, &country, &status)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil
@@ -536,8 +536,11 @@ func (p *Processor) refreshRecommendations(ctx context.Context, candidateID stri
 
 func (p *Processor) captureFeedback(ctx context.Context, event eventRecord) error {
 	ok, err := p.switchEnabled(ctx, "learning_collection")
-	if err != nil || !ok {
+	if err != nil {
 		return err
+	}
+	if !ok {
+		return errCapabilityPaused
 	}
 	var candidateID, jobID, applicationID *string
 	if v, ok := event.Payload["candidate_id"].(string); ok {
@@ -959,16 +962,7 @@ func (p *Processor) runPlatformAnalysis(ctx context.Context, event eventRecord) 
 		return errors.New("platform analysis request missing requested_by")
 	}
 	var snap intelligence.Snapshot
-	if err := p.db.QueryRow(ctx, `SELECT
-		(SELECT count(*) FROM jobs WHERE status='active'),
-		(SELECT count(*) FROM applications WHERE applied_at>=now()-interval '30 days'),
-		(SELECT count(*) FROM interviews WHERE scheduled_at>=now()-interval '30 days'),
-		(SELECT count(*) FROM applications WHERE stage='hired' AND updated_at>=now()-interval '90 days'),
-		(SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours'),
-		(SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours' AND status IN ('failed','degraded')),
-		(SELECT count(*) FROM admin_alerts WHERE severity='critical' AND status IN ('open','acknowledged')),
-		(SELECT count(*) FROM privacy_requests WHERE status IN ('received','in_progress','awaiting_review')),
-		(SELECT count(*) FROM admin_approval_requests WHERE status='pending' AND (expires_at IS NULL OR expires_at>now()))`).Scan(
+	if err := p.db.QueryRow(ctx, `SELECT active_jobs,applications_30d,interviews_30d,hires_90d,parser_events_24h,parser_failures_24h,critical_alerts,pending_privacy_requests,pending_approvals FROM intelligence.source_platform_snapshot`).Scan(
 		&snap.ActiveJobs, &snap.Applications30d, &snap.Interviews30d, &snap.Hires90d, &snap.ParserEvents24h, &snap.ParserFailures24h, &snap.CriticalAlerts, &snap.PendingPrivacyRequests, &snap.PendingApprovals); err != nil {
 		return err
 	}
