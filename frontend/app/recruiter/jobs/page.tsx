@@ -103,7 +103,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
         </section>
 
         <section className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_4px_20px_rgba(16,33,63,0.035)]">
-          <form aria-label="Job filters" action="/recruiter/jobs" className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(14rem,1.5fr)_repeat(5,minmax(9rem,1fr))_auto]">
+          <form aria-label="Job filters" action="/recruiter/jobs" className="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-[minmax(14rem,1.5fr)_repeat(5,minmax(9rem,1fr))_auto]">
             <label className="grid gap-1 text-xs font-bold text-ink-muted">
               Search
               <input name="q" defaultValue={q} className={inputClass} placeholder="Job ID, title, team or location" />
@@ -163,9 +163,10 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
             </div>
           </form>
           {deadline === "soon" && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-950"><span>Showing active jobs closing in the next 3 days.</span><Link href="/recruiter/jobs" className="text-indigo hover:underline">Show all jobs</Link></div>}
+          {status === "active" && deadline !== "soon" && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-indigo/20 bg-indigo-soft/40 px-3 py-2 text-xs font-semibold text-navy"><span>Showing active jobs.</span><Link href="/recruiter/jobs" className="text-indigo hover:underline">Show all jobs</Link></div>}
         </section>
 
-        <section aria-label="Jobs">
+        <section aria-label="Jobs" className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-semibold text-ink-muted">Showing {result.items.length ? (result.page - 1) * result.limit + 1 : 0}–{Math.min(result.page * result.limit, result.total)} of {result.total} matching jobs</p>
             <p className="text-xs font-bold uppercase tracking-[0.08em] text-ink-muted">{result.summary.total_jobs} total jobs</p>
@@ -173,7 +174,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
 
           {result.items.length ? (
             <>
-              <div className="hidden overflow-x-auto rounded-2xl border border-line/70 bg-white shadow-[0_4px_20px_rgba(16,33,63,0.035)] lg:block">
+              <div className="hidden min-w-0 max-w-full overflow-x-auto rounded-2xl border border-line/70 bg-white shadow-[0_4px_20px_rgba(16,33,63,0.035)] lg:block">
                 <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
                   <thead className="bg-slate-50/90 text-[10px] font-extrabold uppercase tracking-[0.08em] text-ink-muted">
                     <tr>
