@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 	"os/signal"
 	"syscall"
 	"time"
@@ -25,6 +27,13 @@ func run(logger *slog.Logger) error {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
+	}
+	intelligenceDatabaseURL := strings.TrimSpace(os.Getenv("INTELLIGENCE_DATABASE_URL"))
+	if strings.EqualFold(cfg.Environment, "production") && intelligenceDatabaseURL == "" {
+		return fmt.Errorf("INTELLIGENCE_DATABASE_URL is required in production for the separate Intelligence Engine database role")
+	}
+	if intelligenceDatabaseURL != "" {
+		cfg.Database.URL = intelligenceDatabaseURL
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
