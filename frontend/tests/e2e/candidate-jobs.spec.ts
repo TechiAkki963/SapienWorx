@@ -109,8 +109,9 @@ test.describe("candidate job discovery", () => {
     await page.getByLabel("Posted date").selectOption("14");
     await page.getByRole("button", { name: "Apply filters" }).click();
 
-    await expect(page).toHaveURL(/q=ICU+Nursing/);
+    await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe("ICU Nursing");
     await expect(page).toHaveURL(/role_category=Healthcare/);
+    await expect.poll(() => new URL(page.url()).searchParams.get("sort")).toBe("relevance");
     await expect(page.getByText(/Interpreted “ICU Nursing” as Critical Care Nursing/)).toBeVisible();
     await expect(page.getByRole("heading", { name: "Critical Care Nurse" })).toBeVisible();
     await expect(page.getByText("SWX-JOB-2026-00001", { exact: true })).toBeVisible();
