@@ -67,6 +67,13 @@ func (p *Processor) ProcessBatch(ctx context.Context, limit int) error {
 	if limit < 1 || limit > 100 {
 		limit = 25
 	}
+	enabled, err := p.switchEnabled(ctx, "global_intelligence")
+	if err != nil {
+		return err
+	}
+	if !enabled {
+		return nil
+	}
 	for i := 0; i < limit; i++ {
 		event, ok, err := p.claimEvent(ctx)
 		if err != nil {
