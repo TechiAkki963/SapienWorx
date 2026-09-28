@@ -316,7 +316,7 @@ export function ProfileForm({ profile, extended, onSaved, guided = false, sectio
         <div className="grid gap-4">
           {Array.from({ length: skillCount }, (_, index) => (
             <div key={index} className="grid gap-4 rounded-2xl border border-line bg-canvas/45 p-4 md:grid-cols-2 lg:grid-cols-6">
-              <label className={`${labelClass} lg:col-span-2`}>Skill / competency<TaxonomyInput className={inputClass} name={`skill_${index}_name`} defaultValue={recValue(initialSkills, index, "name")} placeholder="e.g. Critical Care Nursing, Negotiation, PostgreSQL" ariaLabel={`Skill or competency ${index + 1}`} /></label>
+              <label className={`${labelClass} lg:col-span-2`}>Skill / competency<TaxonomyInput className={inputClass} name={`skill_${index}_name`} defaultValue={recValue(initialSkills, index, "name")} placeholder="e.g. Critical Care Nursing, Negotiation, PostgreSQL" ariaLabel={index === 0 ? "Skill / competency" : `Skill / competency ${index + 1}`} /></label>
               <label className={labelClass}>Version / level (optional)<input className={inputClass} name={`skill_${index}_version`} defaultValue={recValue(initialSkills, index, "version")} /></label>
               <label className={labelClass}>Last used<input className={inputClass} name={`skill_${index}_last_used`} defaultValue={recValue(initialSkills, index, "last_used")} placeholder="Year" /></label>
               <label className={labelClass}>Experience years<input className={inputClass} name={`skill_${index}_experience_years`} defaultValue={recValue(initialSkills, index, "experience_years")} /></label>
