@@ -252,3 +252,146 @@ export function CaseManagementForm({ caseID }: { caseID: string }) {
     <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Saving…" : "Save case update"}</button><Message value={message}/></div>
   </form>;
 }
+
+
+export function OperationEvidenceForm() {
+  const allowed = useAdminPermission("system.configure");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/operation-evidence", {
+        method: "POST",
+        body: JSON.stringify({
+          evidence_type: data.get("evidence_type"),
+          environment: String(data.get("environment") ?? "").trim(),
+          component: String(data.get("component") ?? "").trim(),
+          status: data.get("status"),
+          owner: String(data.get("owner") ?? "").trim(),
+          reference: String(data.get("reference") ?? "").trim(),
+          details: {},
+        }),
+      });
+      form.reset();
+      setMessage("Operational evidence recorded.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not record evidence.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+    <p className="text-xs font-bold text-slate-800">Record verified operational evidence</p>
+    <div className="grid gap-2 sm:grid-cols-2">
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Evidence type<select name="evidence_type" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"><option>service_health</option><option>database_health</option><option>alert</option><option>release</option><option>migration</option><option>backup</option><option>restore_test</option></select></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Status<select name="status" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"><option>passed</option><option>healthy</option><option>warning</option><option>critical</option><option>failed</option><option>pending</option><option>unconnected</option><option>unknown</option></select></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Environment<input required name="environment" defaultValue="production" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Component<input required name="component" placeholder="postgres / backup job / api" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Owner<input name="owner" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Evidence reference<input name="reference" placeholder="run ID / ticket / object reference" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+    </div>
+    <div className="flex items-center gap-2"><button disabled={pending} className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{pending ? "Recording…" : "Record evidence"}</button><Message value={message}/></div>
+  </form>;
+}
+
+export function ReleaseCreateForm() {
+  const allowed = useAdminPermission("release.manage");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/releases", {
+        method: "POST",
+        body: JSON.stringify({
+          release_reference: String(data.get("release_reference") ?? "").trim(),
+          environment: String(data.get("environment") ?? "").trim(),
+          commit_sha: String(data.get("commit_sha") ?? "").trim(),
+          migration_reference: String(data.get("migration_reference") ?? "").trim(),
+          approval_reference: String(data.get("approval_reference") ?? "").trim(),
+          notes: String(data.get("notes") ?? "").trim(),
+        }),
+      });
+      form.reset();
+      setMessage("Release checkpoint created with dual-approval request.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not create release checkpoint.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="mt-4 grid gap-3 rounded-xl border border-indigo-100 bg-indigo-50/40 p-3">
+    <p className="text-xs font-bold text-slate-800">Create release acceptance checkpoint</p>
+    <div className="grid gap-2 sm:grid-cols-2">
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Release reference<input required minLength={5} name="release_reference" placeholder="SWX-2026.09.28" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Environment<input required name="environment" defaultValue="production" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Commit SHA<input required minLength={7} name="commit_sha" className="h-9 rounded-lg border border-slate-200 bg-white px-2 font-mono text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Migration reference<input name="migration_reference" placeholder="000034…" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Approval reference<input required minLength={5} name="approval_reference" placeholder="REL-CHG-001" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+    </div>
+    <label className="grid gap-1 text-[11px] font-bold text-slate-600">Notes<textarea name="notes" maxLength={4000} rows={2} className="rounded-lg border border-slate-200 bg-white p-2 text-xs font-normal"/></label>
+    <div className="flex items-center gap-2"><button disabled={pending} className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{pending ? "Creating…" : "Create release checkpoint"}</button><Message value={message}/></div>
+  </form>;
+}
+
+export function ReleaseTransitionForm({ releaseID, status }: { releaseID: string; status: string }) {
+  const allowed = useAdminPermission("release.manage");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/releases/" + releaseID, {
+        method: "PATCH",
+        body: JSON.stringify({
+          status: data.get("status"),
+          backup_evidence_id: String(data.get("backup_evidence_id") ?? "").trim(),
+          restore_test_evidence_id: String(data.get("restore_test_evidence_id") ?? "").trim(),
+          note: String(data.get("note") ?? "").trim(),
+        }),
+      });
+      setMessage("Release state updated.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Release state could not be updated.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form onSubmit={submit} className="mt-3 grid gap-2 border-t border-slate-100 pt-3">
+    <div className="grid gap-2 sm:grid-cols-2">
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Next state<select name="status" defaultValue={status === "reviewing" ? "approved_for_rollout" : status === "approved_for_rollout" ? "deployed" : "accepted"} className="h-9 rounded-lg border border-slate-200 px-2 text-xs font-normal"><option>approved_for_rollout</option><option>deployed</option><option>accepted</option><option>rejected</option><option>rolled_back</option></select></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Backup evidence UUID<input name="backup_evidence_id" className="h-9 rounded-lg border border-slate-200 px-2 font-mono text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Restore-test evidence UUID<input name="restore_test_evidence_id" className="h-9 rounded-lg border border-slate-200 px-2 font-mono text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Note<input name="note" className="h-9 rounded-lg border border-slate-200 px-2 text-xs font-normal"/></label>
+    </div>
+    <div className="flex items-center gap-2"><button disabled={pending} className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{pending ? "Updating…" : "Apply reviewed state"}</button><Message value={message}/></div>
+  </form>;
+}
