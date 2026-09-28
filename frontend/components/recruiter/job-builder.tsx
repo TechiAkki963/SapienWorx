@@ -33,7 +33,7 @@ const initialState: BuilderState = {
   department: "",
   employment_type: "full_time",
   work_mode: "hybrid",
-  role_category: "Technology",
+  role_category: "",
   location: "",
   openings: "1",
   min_experience_years: "",
