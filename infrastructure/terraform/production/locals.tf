@@ -15,8 +15,8 @@ locals {
 
   documents_bucket_name = "${local.name_prefix}-documents-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
   ecr_repository_names = {
-    frontend  = "${var.project_name}/frontend"
-    backend   = "${var.project_name}/backend"
+    frontend     = "${var.project_name}/frontend"
+    backend      = "${var.project_name}/backend"
     migration    = "${var.project_name}/migration"
     intelligence = "${var.project_name}/intelligence"
   }
