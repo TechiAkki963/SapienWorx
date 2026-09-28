@@ -15,7 +15,7 @@ type CandidateDetail struct {
 	FullName              string         `json:"full_name"`
 	Headline              *string        `json:"headline,omitempty"`
 	Email                 string         `json:"email"`
-	Phone                 *string        `json:"phone,omitempty"`
+	Saved                 bool           `json:"saved"`
 	CurrentCity           *string        `json:"current_city,omitempty"`
 	CurrentState          *string        `json:"current_state,omitempty"`
 	CountryCode           string         `json:"country_code"`
@@ -39,9 +39,10 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	var photo []byte
 	var photoMime *string
 	err = s.db.QueryRow(ctx, `
-		SELECT cp.user_id,cp.full_name,cp.headline,u.email,u.phone_e164,cp.current_city,cp.current_state,cp.country_code,
+		SELECT cp.user_id,cp.full_name,cp.headline,u.email,cp.current_city,cp.current_state,cp.country_code,
 		       cp.total_experience_months,cp.notice_period_days,cp.profile_completion,u.last_active_at,cp.updated_at,
-		       cp.profile_photo,cp.profile_photo_mime,cp.profile_details
+		       cp.profile_photo,cp.profile_photo_mime,cp.profile_details,
+		       EXISTS(SELECT 1 FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$3 AND tpm.candidate_id=cp.user_id)
 		FROM candidate_profiles cp
 		JOIN users u ON u.id=cp.user_id
 		WHERE cp.user_id=$1
@@ -50,12 +51,11 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		    JOIN jobs j ON j.id=a.job_id
 		    WHERE a.candidate_id=cp.user_id AND j.company_id=$2
 		  )
-	`, candidateUserID, companyID).Scan(
+	`, candidateUserID, companyID, recruiterUserID).Scan(
 		&detail.UserID,
 		&detail.FullName,
 		&detail.Headline,
 		&detail.Email,
-		&detail.Phone,
 		&detail.CurrentCity,
 		&detail.CurrentState,
 		&detail.CountryCode,
@@ -67,6 +67,7 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		&photo,
 		&photoMime,
 		&raw,
+		&detail.Saved,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return CandidateDetail{}, ErrNotFound

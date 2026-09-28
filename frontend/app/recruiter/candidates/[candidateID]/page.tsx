@@ -1,7 +1,10 @@
 import Link from "next/link";
 
 import { CandidateCVButton } from "@/components/recruiter/candidate-cv-button";
+import { CandidateComments } from "@/components/recruiter/candidate-comments";
+import { CandidateContact } from "@/components/recruiter/candidate-contact";
 import { CandidateProfileView } from "@/components/recruiter/candidate-profile-view";
+import { SaveProfileButton } from "@/components/recruiter/save-profile-button";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
 import { experience, RecruiterCandidateDetail, RecruiterJob } from "@/lib/recruiter";
@@ -9,7 +12,7 @@ import { recruiterAPI } from "@/lib/recruiter-server";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ candidateID: string }> };
+type Props = { params: Promise<{ candidateID: string }>; searchParams: Promise<{ job_id?: string; compose?: string; request_contact?: string }> };
 type RecordItem = Record<string, unknown>;
 
 function text(details: Record<string, unknown>, key: string) {
@@ -32,13 +35,15 @@ function formatDate(value?: string) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
-export default async function RecruiterCandidatePage({ params }: Props) {
+export default async function RecruiterCandidatePage({ params, searchParams }: Props) {
   await requireRole("recruiter");
   const { candidateID } = await params;
-  const [candidate, jobs] = await Promise.all([
+  const query = await searchParams;
+  const [candidate, jobsResponse] = await Promise.all([
     recruiterAPI<RecruiterCandidateDetail>(`/api/v1/recruiter/candidates/${candidateID}`),
-    recruiterAPI<RecruiterJob[]>("/api/v1/recruiter/jobs"),
+    recruiterAPI<{ items: RecruiterJob[] }>("/api/v1/recruiter/jobs"),
   ]);
+  const jobs = jobsResponse.items ?? [];
   const employment = records(candidate.details, "employment");
   const skills = records(candidate.details, "it_skills");
   const education = records(candidate.details, "education");
@@ -48,7 +53,7 @@ export default async function RecruiterCandidatePage({ params }: Props) {
     <RecruiterShell>
       <div className="grid gap-5">
         <div className="flex items-center justify-between gap-3">
-          <Link href="/recruiter/pipeline" className="text-sm font-bold text-indigo hover:underline">← Back to pipeline</Link>
+          <Link href={query.job_id ? `/recruiter/pipeline?job_id=${encodeURIComponent(query.job_id)}` : "/recruiter/pipeline"} className="text-sm font-bold text-indigo hover:underline">← Back to applications</Link>
         </div>
 
         <CandidateProfileView
@@ -56,20 +61,23 @@ export default async function RecruiterCandidatePage({ params }: Props) {
           candidateName={candidate.full_name}
           candidateHeadline={candidate.headline}
           jobs={jobs.map((job) => ({ id: job.id, title: job.title, status: job.status }))}
+          composeOnOpen={query.compose === "1"}
+          initialJobID={jobs.some(job => job.id === query.job_id) ? query.job_id : ""}
+          requestContact={query.request_contact === "1"}
         >
           <div className="grid gap-5">
             <section className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-6">
               <div className="candidate-profile-header flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-                <div className="flex items-start gap-4">
+                <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                   {candidate.photo_data_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={candidate.photo_data_url} alt="" className="h-16 w-16 rounded-2xl object-cover" />
                   ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-navy text-sm font-extrabold text-white">{initials}</div>
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-navy text-sm font-extrabold text-white">{initials}</div>
                   )}
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Candidate profile</p>
-                    <h1 className="mt-1 text-2xl font-bold tracking-[-0.035em] text-navy">{candidate.full_name}</h1>
+                    <h1 className="mt-1 break-words text-2xl font-bold tracking-[-0.035em] text-navy">{candidate.full_name}</h1>
                     <p className="mt-1 text-sm text-ink-muted">{candidate.headline ?? "No professional headline"}</p>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-ink-muted">
                       <span className="rounded-full bg-slate-100 px-2.5 py-1">{experience(candidate.total_experience_months)} experience</span>
@@ -77,12 +85,13 @@ export default async function RecruiterCandidatePage({ params }: Props) {
                       <span className="rounded-full bg-slate-100 px-2.5 py-1">{candidate.notice_period_days == null ? "Notice not specified" : `${candidate.notice_period_days}d notice`}</span>
                       <span className="rounded-full bg-blue-50 px-2.5 py-1 text-blue-700">{candidate.profile_completion}% profile</span>
                     </div>
+                    <div className="mt-3"><SaveProfileButton candidateID={candidateID} initialSaved={candidate.saved} /></div>
                   </div>
                 </div>
 
-                <div className="grid min-w-[18rem] gap-2 rounded-xl border border-line/70 bg-slate-50/70 p-3 text-xs">
-                  <div className="flex justify-between gap-4"><span className="text-ink-muted">Last active</span><span className="font-bold text-ink">{formatDate(candidate.last_active_at)}</span></div>
-                  <div className="flex justify-between gap-4"><span className="text-ink-muted">Profile updated</span><span className="font-bold text-ink">{formatDate(candidate.profile_updated_at)}</span></div>
+                <div className="grid min-w-0 gap-2 rounded-xl border border-line/70 bg-slate-50/70 p-3 text-xs sm:min-w-[18rem]">
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1"><span className="text-ink-muted">Last active</span><span className="font-bold text-ink">{formatDate(candidate.last_active_at)}</span></div>
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1"><span className="text-ink-muted">Profile updated</span><span className="font-bold text-ink">{formatDate(candidate.profile_updated_at)}</span></div>
                 </div>
               </div>
             </section>
@@ -134,10 +143,11 @@ export default async function RecruiterCandidatePage({ params }: Props) {
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
                   <dl className="mt-3 grid gap-3 text-sm">
                     <div><dt className="text-xs text-ink-muted">Email</dt><dd className="mt-0.5 break-all font-semibold text-ink">{candidate.email}</dd></div>
-                    <div><dt className="text-xs text-ink-muted">Phone</dt><dd className="mt-0.5 font-semibold text-ink">{candidate.phone ?? "—"}</dd></div>
+                    <div><dt className="text-xs text-ink-muted">Phone</dt><dd className="mt-1"><CandidateContact candidateID={candidateID} /></dd></div>
                     <div><dt className="text-xs text-ink-muted">Preferred locations</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "preferred_locations")}</dd></div>
                   </dl>
                 </section>
+                <CandidateComments candidateID={candidateID} jobID={query.job_id} />
                 <section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Searchable context</p>
                   <dl className="mt-3 grid gap-3 text-sm">

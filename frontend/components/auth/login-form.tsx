@@ -7,6 +7,7 @@ import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiRequest, APIRequestError } from "@/lib/api";
+import { CandidateProfileDetails, candidateOnboardingStatus } from "@/lib/candidate";
 
 type Role = "candidate" | "recruiter" | "master_admin";
 
@@ -31,7 +32,17 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
         method: "POST",
         body: JSON.stringify({ email, password: data.get("password"), role }),
       });
-      router.replace(destination);
+      let finalDestination = destination;
+      if (role === "candidate" && nextPath) {
+        const details = await apiRequest<CandidateProfileDetails>("/api/v1/candidate/profile/details").catch(() => null);
+        if (!details) {
+          // Do not bypass the first-login decision when profile state is unavailable.
+          finalDestination = "/candidate";
+        } else if (candidateOnboardingStatus(details) === "not_started") {
+          finalDestination = `/welcome?next=${encodeURIComponent(nextPath)}`;
+        }
+      }
+      router.replace(finalDestination);
       router.refresh();
     } catch (cause) {
       if (cause instanceof APIRequestError) {
@@ -79,7 +90,7 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
       <Input label="Password" name="password" type="password" autoComplete="current-password" required />
       <div className="flex items-center justify-between text-sm">
         {role === "master_admin" ? <span className="text-xs text-ink-muted">No self-registration is available.</span> : <Link className="font-semibold text-indigo hover:underline" href="/forgot-password">Forgot password?</Link>}
-        {role !== "master_admin" && <Link className="text-ink-muted hover:text-ink" href={role === "recruiter" ? "/recruiter/signup" : "/signup"}>Create account</Link>}
+        {role !== "master_admin" && <Link className="text-ink-muted hover:text-ink" href={role === "recruiter" ? "/recruiter/signup" : nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"}>Create account</Link>}
       </div>
       <Button type="submit" size="lg" disabled={pending}>{pending ? "Signing in…" : role === "master_admin" ? "Enter command centre" : "Sign in"}</Button>
     </form>

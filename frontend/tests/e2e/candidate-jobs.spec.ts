@@ -5,6 +5,33 @@ import { login, resetE2E, waitForRecordedRequest } from "./helpers";
 test.describe("candidate job discovery", () => {
   test.beforeEach(async ({ request }) => resetE2E(request));
 
+  test("keeps salary fields inside the filter card and rejects a reversed range", async ({ page }) => {
+    await login(page, "candidate");
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto("/candidate/jobs");
+
+    const minimum = page.getByRole("spinbutton", { name: "Minimum" });
+    const maximum = page.getByRole("spinbutton", { name: "Maximum" });
+    const salaryCard = maximum.locator("..").locator("..").locator("..");
+    const cardBounds = await salaryCard.boundingBox();
+    const maxBounds = await maximum.boundingBox();
+    expect(cardBounds).not.toBeNull();
+    expect(maxBounds).not.toBeNull();
+    expect(maxBounds!.x + maxBounds!.width).toBeLessThanOrEqual(cardBounds!.x + cardBounds!.width);
+
+    await minimum.fill("1200000");
+    await maximum.fill("800000");
+    await expect(page.getByText("Maximum salary must be at least the minimum salary.")).toBeVisible();
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await expect(page).not.toHaveURL(/min_salary=/);
+
+    await maximum.fill("1800000");
+    await expect(page.getByText("Maximum salary must be at least the minimum salary.")).not.toBeVisible();
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await expect(page).toHaveURL(/min_salary=1200000/);
+    await expect(page).toHaveURL(/max_salary=1800000/);
+  });
+
   test("preserves facets in the URL/UI and forwards them to server-side job search", async ({ page, request }) => {
     await login(page, "candidate");
     await page.goto("/candidate/jobs");

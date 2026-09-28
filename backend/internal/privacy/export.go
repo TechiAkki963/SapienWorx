@@ -35,6 +35,25 @@ func (s *Service) BuildSafeExport(ctx context.Context, userID string) (ExportBun
 		return ExportBundle{}, err
 	}
 
+	// Organization-authored candidate notes require disclosure review. Do not
+	// mark a partial automatic export complete while those records are omitted.
+	var candidateNotes bool
+	if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM recruiter_candidate_comments WHERE candidate_id=$1)`, userID).Scan(&candidateNotes); err != nil {
+		return ExportBundle{}, err
+	}
+	if candidateNotes {
+		if _, err = tx.Exec(ctx, `UPDATE privacy_requests SET status='awaiting_review',result_manifest=jsonb_build_object('reason','recruiter_comment_disclosure_review'),completed_at=NULL WHERE id=$1`, requestID); err != nil {
+			return ExportBundle{}, err
+		}
+		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'comment_export_review',$2,'awaiting_review',jsonb_build_object('reason','recruiter_comments')) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "comment-export-review:"+requestID); err != nil {
+			return ExportBundle{}, err
+		}
+		if err = tx.Commit(ctx); err != nil {
+			return ExportBundle{}, err
+		}
+		return ExportBundle{}, ErrReview
+	}
+
 	var jobID string
 	err = tx.QueryRow(ctx, `
 		INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,attempts,started_at)

@@ -1,4 +1,4 @@
-import { CandidateInbox } from "@/components/candidate/candidate-inbox";
+import { MessagingWorkspace } from "@/components/messaging/messaging-workspace";
 import type { ThreadListResponse } from "@/lib/messaging";
 import { messagingAPI } from "@/lib/messaging-server";
 
@@ -14,7 +14,7 @@ export default async function CandidateInboxPage() {
         <h1 className="mt-1 text-2xl font-bold tracking-[-0.035em] text-navy">Inbox</h1>
         <p className="mt-1 text-sm text-ink-muted">Private conversations started by recruiters about roles and opportunities.</p>
       </div>
-      <CandidateInbox initialThreads={threads.items ?? []} />
+      <MessagingWorkspace initialThreads={threads.items ?? []} role="candidate" />
     </div>
   );
 }

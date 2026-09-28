@@ -1,4 +1,5 @@
 import { JobCard } from "@/components/candidate/job-card";
+import { SalaryRangeFilter } from "@/components/candidate/salary-range-filter";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { CandidateJob, JobList } from "@/lib/candidate";
@@ -106,11 +107,7 @@ export default async function CandidateJobsPage({ searchParams }: Props) {
               <label className="grid gap-1.5 text-sm font-semibold text-ink">Location<input name="location" defaultValue={location} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15" placeholder="Mumbai, Pune…" /></label>
               <label className="grid gap-1.5 text-sm font-semibold text-ink">Experience<select name="experience" defaultValue={experience} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any experience</option><option value="0">Fresher / 0 years</option><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="5">5 years</option><option value="8">8 years</option><option value="10">10+ years</option></select></label>
 
-              <div className="rounded-xl border border-line bg-white p-3">
-                <div className="flex items-center justify-between gap-3"><span className="text-sm font-semibold text-ink">Salary range</span><select name="salary_currency" defaultValue={salaryCurrency} className="rounded-lg border border-line bg-canvas px-2 py-1 text-xs font-semibold"><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option></select></div>
-                <div className="mt-3 grid grid-cols-2 gap-2"><label className="grid gap-1 text-[11px] font-bold uppercase tracking-wide text-ink-muted">Min<input name="min_salary" type="number" min="0" step="1000" defaultValue={minSalary} placeholder="e.g. 800000" className="min-h-10 rounded-lg border border-line bg-white px-2 text-sm font-normal normal-case tracking-normal text-ink outline-none focus:border-indigo/40" /></label><label className="grid gap-1 text-[11px] font-bold uppercase tracking-wide text-ink-muted">Max<input name="max_salary" type="number" min="0" step="1000" defaultValue={maxSalary} placeholder="e.g. 1200000" className="min-h-10 rounded-lg border border-line bg-white px-2 text-sm font-normal normal-case tracking-normal text-ink outline-none focus:border-indigo/40" /></label></div>
-                <p className="mt-2 text-[10px] leading-4 text-ink-muted">Enter annual salary amounts. Only disclosed job ranges are compared by currency.</p>
-              </div>
+              <SalaryRangeFilter key={`${salaryCurrency}:${minSalary}:${maxSalary}`} minSalary={minSalary} maxSalary={maxSalary} salaryCurrency={salaryCurrency} />
 
               <label className="grid gap-1.5 text-sm font-semibold text-ink">Work mode<select name="work_mode" defaultValue={workMode} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="onsite">On-site</option></select></label>
 

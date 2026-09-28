@@ -7,11 +7,13 @@ import { DashboardProfileCard } from "@/components/ui/dashboard-profile-card";
 import { LocalTimeGreeting } from "@/components/ui/local-time-greeting";
 import { Surface } from "@/components/ui/surface";
 import { requireRole } from "@/lib/auth-server";
-import { CandidateDashboard, stageLabel } from "@/lib/candidate";
+import { CandidateDashboard, CandidateProfileDetails, candidateOnboardingStatus, stageLabel } from "@/lib/candidate";
 import { candidateAPI } from "@/lib/candidate-server";
 
 export default async function CandidateDashboardPage() {
   const session = await requireRole("candidate");
+  const onboardingDetails = await candidateAPI<CandidateProfileDetails>("/api/v1/candidate/profile/details").catch(() => null);
+  const onboardingStatus = onboardingDetails ? candidateOnboardingStatus(onboardingDetails) : null;
   let dashboard: CandidateDashboard;
   try { dashboard = await candidateAPI<CandidateDashboard>("/api/v1/candidate/dashboard"); } catch { return <WorkspaceError />; }
   const firstName = dashboard.profile.full_name.split(" ")[0] || "there";
@@ -19,6 +21,7 @@ export default async function CandidateDashboardPage() {
 
   return (
     <div className="grid gap-6">
+      {(onboardingStatus === "manual_started" || onboardingStatus === "cv_started" || onboardingStatus === "in_progress" || onboardingStatus === "review_required") && <Surface className="flex flex-wrap items-center justify-between gap-3 p-4" tone="lavender"><p className="text-sm font-semibold text-navy">Your profile is still in progress. You can continue building it at your own pace.</p><Link href="/candidate/onboarding" className="text-sm font-bold text-indigo hover:underline">Continue profile setup →</Link></Surface>}
       <section className="grid items-start gap-5 md:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)_18rem]">
         <DashboardProfileCard firstName={session.first_name || firstName} lastName={session.last_name} headline={dashboard.profile.headline || session.headline || "Candidate"} imageUrl={session.profile_image_url} statLabel="Profile" statValue={`${dashboard.profile.profile_completion}%`} />
         <Surface className="min-h-64 p-6 sm:p-8" tone="lavender"><div><p className="text-sm font-bold text-indigo">Candidate workspace</p><h1 className="mt-2 text-4xl font-bold tracking-[-0.045em] text-ink">Your search, with room to grow.</h1><p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-500"><LocalTimeGreeting firstName={session.first_name || firstName} />. Your search, applications and profile progress are in one place. Recommended roles below use location and recency only — no opaque AI score.</p><div className="mt-6 flex flex-wrap items-center gap-4"><Button href="/jobs">Find jobs</Button><Button href="/candidate/profile" variant="secondary">Improve profile</Button></div></div></Surface>

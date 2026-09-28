@@ -60,6 +60,7 @@ function initialState() {
       profile_updated_at: now(),
     },
     pendingCVFilename: null,
+    failCVPreview: false,
     stages: new Map(),
     verificationStatus: "pending",
     accountStatuses: {},
@@ -146,14 +147,28 @@ function pipelineRows() {
       candidate_id: `71000000-0000-4000-8000-${String(n).padStart(12, "0")}`,
       candidate_name: `Candidate ${String(n).padStart(3, "0")}`,
       headline: n % 2 ? "Backend engineer" : "Platform engineer",
+      designation: n % 2 ? "Backend Engineer" : "Platform Engineer",
       city: n % 2 ? "Mumbai" : "Pune",
+      current_company: "Acme Hiring India",
+      previous_company: "",
+      education: "",
+      university: "",
+      preferred_location: "",
+      key_skills: "Go, PostgreSQL, AWS",
+      photo_data_url: "",
+      cv_filename: "",
+      saved: false,
+      comment_count: 0,
       experience_months: 24 + n,
       notice_period_days: 15,
       job_id: jobID,
       job_title: "Senior Go Platform Engineer",
+      job_reference: "SWX-JOB-2026-00001",
       stage: state.stages.get(appID) ?? (n === 1 ? "screening" : "new_application"),
       applied_at: new Date(Date.now() - n * 86400000).toISOString(),
       updated_at: now(),
+      profile_updated_at: now(),
+      last_active_at: now(),
     };
   });
 }
@@ -223,6 +238,14 @@ const server = http.createServer(async (req, res) => {
     return json(res,200,adminPage(apps,url));
   }
 
+  if (url.pathname === "/__e2e/onboarding" && req.method === "POST") {
+    state.profileDetails.details = { ...state.profileDetails.details, onboarding_status: String(payload.status ?? "not_started") };
+    return json(res, 200, state.profileDetails);
+  }
+  if (url.pathname === "/__e2e/cv-failure" && req.method === "POST") {
+    state.failCVPreview = Boolean(payload.enabled);
+    return json(res, 200, { enabled: state.failCVPreview });
+  }
 
   if (url.pathname === "/__e2e/cv-upload" && req.method === "PUT") {
     if (req.headers["content-type"] !== "application/pdf") return json(res, 400, { error: { message: "PDF content type required" } });
@@ -264,10 +287,41 @@ const server = http.createServer(async (req, res) => {
   }
   if (url.pathname === "/api/v1/candidate/profile/details" && req.method === "GET") return json(res, 200, state.profileDetails);
   if (url.pathname === "/api/v1/candidate/profile/details" && req.method === "PATCH") {
-    state.profileDetails = { ...state.profileDetails, ...payload, details: payload.details ?? state.profileDetails.details, profile_updated_at: now() };
+    const current = state.profileDetails.details;
+    const details = payload.details ? { ...payload.details } : { ...current };
+    for (const key of ["onboarding_status", "onboarding_method", "onboarding_return_to", "discoverable_to_recruiters"]) {
+      if (key in current) details[key] = current[key];
+      else delete details[key];
+    }
+    state.profileDetails = { ...state.profileDetails, ...payload, details, profile_updated_at: now() };
+    return json(res, 200, state.profileDetails);
+  }
+  if (url.pathname === "/api/v1/candidate/onboarding" && req.method === "PATCH") {
+    const status = String(payload.status ?? "");
+    if (!["manual_started", "cv_started", "review_required", "profile_ready"].includes(status)) return json(res, 409, { error: { message: "invalid transition" } });
+    const method = status === "manual_started" ? "manual" : ["cv_started", "review_required"].includes(status) ? "cv" : state.profileDetails.details.onboarding_method;
+    state.profileDetails.details = { ...state.profileDetails.details, onboarding_status: status, onboarding_method: method, ...(payload.return_to ? { onboarding_return_to: payload.return_to } : {}) };
     return json(res, 200, state.profileDetails);
   }
   if (url.pathname === "/api/v1/candidate/profile/summary" && req.method === "GET") return json(res, 200, profileSummary());
+  if (url.pathname === "/api/v1/candidate/cv/parse-preview" && req.method === "POST" && state.failCVPreview) return json(res, 422, { error: { message: "unable to read document" } });
+  if (url.pathname === "/api/v1/candidate/cv/parse-preview" && req.method === "POST") return json(res, 200, {
+    format: "DOCX",
+    fields: {
+      full_name: { value: "Mira Synthetic", confidence: "review", evidence: "Mira Synthetic", requires_review: true },
+      headline: { value: "Go Engineer", confidence: "review", evidence: "Go Engineer", requires_review: true },
+      current_city: { value: "Pune", confidence: "review", evidence: "Location: Pune", requires_review: true },
+      current_state: { value: "Maharashtra", confidence: "review", evidence: "Location: Pune, Maharashtra", requires_review: true },
+      professional_summary: { value: "Builds reliable hiring tools.", confidence: "review", evidence: "Builds reliable hiring tools.", requires_review: true },
+      total_experience_months: { value: "48", confidence: "review", evidence: "Supported employment dates", requires_review: true },
+      email: { value: "mira@example.test", confidence: "high", evidence: "mira@example.test", requires_review: true },
+    },
+    skills: [{ value: "Go", confidence: "review", evidence: "Go", requires_review: true }],
+    employment: [{ role: "Platform Engineer", company: "Example Labs", start: "Jan 2022", end: "Present", evidence: "synthetic" }],
+    education: [{ degree: "B.E. Computer Science", institution: "Example University", year: "2020", evidence: "synthetic" }],
+    links: ["https://github.com/example"],
+    warnings: [],
+  });
   if (url.pathname === "/api/v1/candidate/cv/presign" && req.method === "POST") {
     state.pendingCVFilename = String(payload.filename ?? "resume.pdf");
     return json(res, 200, {
@@ -309,23 +363,54 @@ const server = http.createServer(async (req, res) => {
     company_name: "Sapien Labs India",
     active_jobs: 12,
     applications: 1000,
+    new_applications: 9,
     shortlisted: 85,
     upcoming_interviews: 14,
+    upcoming_items: [],
     offers: 7,
     hires: 5,
     placement_rate: 5.8,
     recent_applications: pipelineRows().slice(0, 6),
     needs_attention: [],
   });
-  if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") return json(res, 200, { items: [{ ...job(), applications: 1000, status: "active", updated_at: now() }] });
+  if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") return json(res, 200, { items: [{ ...job(), applications: 1000, new_applications: 9, shortlisted: 1, interviews: 0, status: "active", updated_at: now() }] });
+  if (url.pathname === `/api/v1/recruiter/jobs/${jobID}` && req.method === "GET") return json(res, 200, {
+    id: jobID, job_reference: "SWX-JOB-2026-00001", status: "active", title: "Senior Go Platform Engineer", department: "Engineering",
+    employment_type: "full_time", work_mode: "hybrid", role_category: "Technology", location: "Mumbai, Maharashtra",
+    min_experience_years: 2, max_experience_years: 6, min_salary_lakhs: 8, max_salary_lakhs: 18,
+    skills: ["Go", "PostgreSQL"], description: "Build recruitment infrastructure.", responsibilities: "Own reliable services.",
+    company_overview: "Sapien Labs India", why_join: "Human-centered hiring.", hiring_process: ["Application review", "Interview"], openings: 3,
+  });
+  if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
+    user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
+    saved: false, current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
+    profile_completion: 65, last_active_at: now(), profile_updated_at: now(), details: {},
+  });
+  if (url.pathname === "/api/v1/recruiter/discover" && req.method === "GET") return json(res, 200, { items: [], page: 1, limit: 20, total: 0 });
+  if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [] });
+  if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") return json(res, 200, { items: [] });
+  if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{
+    id: "80000000-0000-4000-8000-000000000001", application_id: "70000000-0000-4000-8000-000000000001",
+    candidate_id: "71000000-0000-4000-8000-000000000001", job_id: jobID, job_reference: "SWX-JOB-2026-00001",
+    candidate_name: "Candidate 001", candidate_headline: "Backend engineer", job_title: "Senior Go Platform Engineer",
+    scheduled_at: new Date(Date.now() + 2 * 86400000).toISOString(), duration_minutes: 45,
+    meeting_url: "https://example.test/meeting", status: "scheduled", round_label: "Technical interview", notes: "",
+  }] });
+  if (/^\/api\/v1\/recruiter\/interviews\/[^/]+\/history$/.test(url.pathname) && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/recruiter/pipeline" && req.method === "GET") {
     const page = Number(url.searchParams.get("page") ?? 1);
     let items = pipelineRows();
     const q = (url.searchParams.get("q") ?? "").toLowerCase();
-    const stage = url.searchParams.get("stage") ?? "";
-    if (q) items = items.filter((row) => `${row.candidate_name} ${row.headline}`.toLowerCase().includes(q));
-    if (stage) items = items.filter((row) => row.stage === stage);
-    return json(res, 200, { items, page, limit: 10, total: q || stage ? items.length : 1000 });
+    const stages = url.searchParams.getAll("stage");
+    const location = (url.searchParams.get("location") ?? "").toLowerCase();
+    const jobFilter = url.searchParams.get("job_id") ?? "";
+    const company = (url.searchParams.get("current_company") ?? "").toLowerCase();
+    if (q) items = items.filter((row) => `${row.candidate_name} ${row.headline} ${row.designation} ${row.job_title} ${row.key_skills}`.toLowerCase().includes(q));
+    if (stages.length) items = items.filter((row) => stages.includes(row.stage));
+    if (location) items = items.filter((row) => `${row.city} ${row.preferred_location}`.toLowerCase().includes(location));
+    if (jobFilter) items = items.filter((row) => row.job_id === jobFilter);
+    if (company) items = items.filter((row) => row.current_company.toLowerCase().includes(company));
+    return json(res, 200, { items, page, limit: 10, total: q || stages.length || location || company ? items.length : 1000 });
   }
   const stageMatch = url.pathname.match(/^\/api\/v1\/recruiter\/applications\/([^/]+)\/stage$/);
   if (stageMatch && req.method === "PATCH") {

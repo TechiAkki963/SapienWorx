@@ -6,12 +6,14 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OTPCodeInput } from "@/components/auth/otp-code-input";
 import { apiRequest } from "@/lib/api";
+import { safeCandidateJobPath } from "@/lib/candidate";
 
 export function VerifyEmailForm() {
   const router = useRouter();
   const params = useSearchParams();
   const email = params.get("email") ?? "";
   const role = params.get("role") ?? "candidate";
+  const nextPath = role === "candidate" ? safeCandidateJobPath(params.get("next")) : undefined;
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("If your email is awaiting verification, check your inbox for the code.");
   const [cooldown, setCooldown] = useState(0);
@@ -52,7 +54,9 @@ export function VerifyEmailForm() {
         setMessage("Email verified. Your recruiter account is awaiting SapienWorx administrator approval before workspace access.");
         return;
       }
-      router.replace(role === "recruiter" ? "/recruiter/login?verified=1" : "/login?verified=1");
+      const loginQuery = new URLSearchParams({ verified: "1" });
+      if (nextPath) loginQuery.set("next", nextPath);
+      router.replace(role === "recruiter" ? "/recruiter/login?verified=1" : `/login?${loginQuery.toString()}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Email verification failed.");
     } finally {

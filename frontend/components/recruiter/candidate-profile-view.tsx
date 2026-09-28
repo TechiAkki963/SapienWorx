@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, LazyMotion, MotionConfig, domAnimation, m } from "motion/react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
@@ -31,6 +32,9 @@ type Props = {
   candidateHeadline?: string;
   jobs: RecruiterJobOption[];
   children: ReactNode;
+  composeOnOpen?: boolean;
+  initialJobID?: string;
+  requestContact?: boolean;
 };
 
 const spring = { type: "spring" as const, stiffness: 245, damping: 28, mass: 0.85 };
@@ -41,15 +45,15 @@ function applyVariables(value: string, candidateName: string, jobTitle: string) 
     .replaceAll("{{JobTitle}}", jobTitle || "{{JobTitle}}");
 }
 
-export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children }: Props) {
-  const [composerOpen, setComposerOpen] = useState(false);
+export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children, composeOnOpen = false, initialJobID = "", requestContact = false }: Props) {
+  const [composerOpen, setComposerOpen] = useState(composeOnOpen);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
   const [selectedTemplateID, setSelectedTemplateID] = useState("");
-  const [selectedJobID, setSelectedJobID] = useState("");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [selectedJobID, setSelectedJobID] = useState(initialJobID);
+  const [subject, setSubject] = useState(requestContact ? "Request to speak about your application" : "");
+  const [body, setBody] = useState(requestContact ? "Would you be comfortable sharing a phone number so we can discuss your application? You can reply here if you prefer to keep the conversation in SapienWorx." : "");
   const [subjectDirty, setSubjectDirty] = useState(false);
   const [bodyDirty, setBodyDirty] = useState(false);
   const [sending, setSending] = useState(false);
@@ -204,8 +208,10 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
                       <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 rounded-2xl border border-emerald-200/80 bg-emerald-50/80 p-5 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
                         <p className="text-sm font-extrabold text-emerald-800">InMail sent</p>
                         <p className="mt-1 text-sm leading-6 text-emerald-700">A two-way conversation has been created. Replies will continue in this thread.</p>
-                        <p className="mt-3 break-all text-[11px] font-semibold text-emerald-700/80">Thread {sentThreadID}</p>
-                        <Button type="button" variant="secondary" onClick={closeComposer} className="mt-4">Return to profile</Button>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Link href={`/recruiter/messages?thread=${encodeURIComponent(sentThreadID)}`} className="inline-flex h-10 items-center rounded-xl bg-indigo px-4 text-sm font-bold text-white hover:bg-indigo/90">Open conversation</Link>
+                          <Button type="button" variant="secondary" onClick={closeComposer}>Return to profile</Button>
+                        </div>
                       </m.div>
                     ) : (
                       <div className="mt-6 grid gap-4">

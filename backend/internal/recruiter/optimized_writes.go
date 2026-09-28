@@ -48,13 +48,13 @@ func (s *Service) CreateJobEfficient(ctx context.Context, userID string, in JobI
 			NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),NULLIF($9,''),
 			$10,$11,$12,$13,$14::job_status,$15,CASE WHEN $14='active' THEN now() ELSE NULL END
 		)
-		RETURNING id,title,department,status::text,employment_type::text,work_mode::text,
+		RETURNING id,job_reference,title,department,status::text,employment_type::text,work_mode::text,
 			city,state,country_code,openings,published_at,application_deadline,updated_at`,
 		companyID, userID, in.Title, strings.TrimSpace(in.Department), in.Description,
 		in.EmploymentType, in.WorkMode, strings.TrimSpace(in.City), strings.TrimSpace(in.State),
 		country, in.MinExperienceMonths, in.MaxExperienceMonths, in.Openings, status, deadline,
 	).Scan(
-		&job.ID, &job.Title, &job.Department, &job.Status, &job.EmploymentType, &job.WorkMode,
+		&job.ID, &job.JobReference, &job.Title, &job.Department, &job.Status, &job.EmploymentType, &job.WorkMode,
 		&job.City, &job.State, &job.CountryCode, &job.Openings, &job.PublishedAt,
 		&job.ApplicationDeadline, &job.UpdatedAt,
 	)
@@ -74,6 +74,16 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 	if in.DurationMinutes == 0 {
 		in.DurationMinutes = 45
 	}
+	if in.DurationMinutes < 10 || in.DurationMinutes > 480 {
+		return Interview{}, ErrInvalid
+	}
+	in.RoundLabel = strings.TrimSpace(in.RoundLabel)
+	if in.RoundLabel == "" {
+		in.RoundLabel = "Interview"
+	}
+	if len(in.RoundLabel) > 120 {
+		return Interview{}, ErrInvalid
+	}
 	u, err := url.ParseRequestURI(strings.TrimSpace(in.MeetingURL))
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
 		return Interview{}, ErrInvalid
@@ -89,14 +99,14 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 	}
 	defer tx.Rollback(ctx)
 
-	var candidateID, candidateName, jobTitle string
+	var candidateID, candidateName, candidateHeadline, jobID, jobReference, jobTitle string
 	err = tx.QueryRow(ctx, `
-		SELECT a.candidate_id,cp.full_name,j.title
+		SELECT a.candidate_id,cp.full_name,coalesce(cp.headline,''),j.id,j.job_reference,j.title
 		FROM applications a
 		JOIN jobs j ON j.id=a.job_id
 		JOIN candidate_profiles cp ON cp.user_id=a.candidate_id
 		WHERE a.id=$1 AND j.company_id=$2`, in.ApplicationID, companyID,
-	).Scan(&candidateID, &candidateName, &jobTitle)
+	).Scan(&candidateID, &candidateName, &candidateHeadline, &jobID, &jobReference, &jobTitle)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Interview{}, ErrNotFound
 	}
@@ -105,23 +115,28 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 	}
 
 	item := Interview{
-		ApplicationID:   in.ApplicationID,
-		CandidateName:   candidateName,
-		JobTitle:        jobTitle,
-		ScheduledAt:     in.ScheduledAt,
-		DurationMinutes: in.DurationMinutes,
-		MeetingURL:      strings.TrimSpace(in.MeetingURL),
-		Status:          "scheduled",
+		ApplicationID:     in.ApplicationID,
+		CandidateID:       candidateID,
+		JobID:             jobID,
+		JobReference:      jobReference,
+		CandidateName:     candidateName,
+		CandidateHeadline: candidateHeadline,
+		JobTitle:          jobTitle,
+		ScheduledAt:       in.ScheduledAt,
+		DurationMinutes:   in.DurationMinutes,
+		MeetingURL:        strings.TrimSpace(in.MeetingURL),
+		Status:            "scheduled",
+		RoundLabel:        in.RoundLabel,
 	}
 	if notes := strings.TrimSpace(in.Notes); notes != "" {
 		item.Notes = &notes
 	}
 
 	err = tx.QueryRow(ctx, `
-		INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,notes)
-		VALUES($1,$2,$3,$4,$5,NULLIF($6,''))
+		INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,notes,round_label)
+		VALUES($1,$2,$3,$4,$5,NULLIF($6,''),$7)
 		RETURNING id,status`,
-		in.ApplicationID, userID, in.ScheduledAt, in.DurationMinutes, item.MeetingURL, strings.TrimSpace(in.Notes),
+		in.ApplicationID, userID, in.ScheduledAt, in.DurationMinutes, item.MeetingURL, strings.TrimSpace(in.Notes), in.RoundLabel,
 	).Scan(&item.ID, &item.Status)
 	if err != nil {
 		return Interview{}, err

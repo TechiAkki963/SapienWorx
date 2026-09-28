@@ -15,6 +15,7 @@ export interface DashboardProfileCardProps {
   statLabel: string;
   statValue: string | number;
   className?: string;
+  compact?: boolean;
 }
 
 type UploadResponse = { profile_image_url: string; size_bytes: number; content_type: "image/webp" };
@@ -27,7 +28,7 @@ function trustedImagePath(value?: string | null) {
   return value?.startsWith("/api/v1/users/profile-image?version=") ? value : "";
 }
 
-export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, statLabel, statValue, className }: DashboardProfileCardProps) {
+export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, statLabel, statValue, className, compact = false }: DashboardProfileCardProps) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const localPreview = useRef<string | null>(null);
@@ -82,12 +83,12 @@ export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, 
 
   return (
     <section className={cn("h-full w-full", className)} aria-label="Your dashboard profile">
-      <div className="relative aspect-square w-full max-w-64 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo via-[#7c83e8] to-[#f2a87e] shadow-lg">
+      <div className={cn("relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-indigo via-[#7c83e8] to-[#f2a87e] shadow-lg", compact ? "h-44" : "aspect-square max-w-64")}>
         {preview && !imageFailed ? (
           <Image src={preview} alt={`${name} profile photo`} fill unoptimized sizes="(max-width: 639px) 100vw, 256px" className="object-cover" onError={() => setImageFailed(true)} />
         ) : (
-          <div aria-hidden="true" className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#555fc1] via-[#837be2] to-[#f0a982]">
-            <span className="font-sans text-5xl font-bold tracking-tight text-white drop-shadow-sm">{initials(firstName, lastName)}</span>
+          <div aria-hidden="true" className={cn("absolute inset-0 grid bg-gradient-to-br from-[#555fc1] via-[#837be2] to-[#f0a982]", compact ? "place-items-start justify-center pt-5" : "place-items-center")}>
+            <span className={cn("font-sans font-bold tracking-tight text-white drop-shadow-sm", compact ? "text-4xl" : "text-5xl")}>{initials(firstName, lastName)}</span>
           </div>
         )}
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-1/2 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

@@ -87,7 +87,9 @@ func (s *Service) RegisterCandidateEmailOnly(ctx context.Context, input EmailOnl
 	if err != nil {
 		return RegistrationResult{}, mapConflict(err)
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO candidate_profiles(user_id,full_name) VALUES($1,$2)`, userID, strings.TrimSpace(input.FullName)); err != nil {
+	// Existing candidate profiles have no onboarding marker and remain on the
+	// established dashboard flow. Only newly registered candidates start here.
+	if _, err = tx.Exec(ctx, `INSERT INTO candidate_profiles(user_id,full_name,profile_details) VALUES($1,$2,'{"onboarding_status":"not_started"}'::jsonb)`, userID, strings.TrimSpace(input.FullName)); err != nil {
 		return RegistrationResult{}, err
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'privacy_notice_acknowledgement',$2,true,'web_signup',$3,jsonb_build_object('evidence_type','notice_acknowledgement','processing_basis','contract_legal_obligation_legitimate_interests_as_applicable','age_confirmed',true,'verification_channel','email_otp'))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil {

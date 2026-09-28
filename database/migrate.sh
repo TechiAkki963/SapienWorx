@@ -14,11 +14,15 @@ SQL
 
 for migration in /migrations/*.up.sql; do
   version="$(basename "$migration" .up.sql)"
-  checksum="$(sha256sum "$migration" | awk '{print $1}')"
+  raw_checksum="$(sha256sum "$migration" | awk '{print $1}')"
+  # Windows checkouts may use CRLF while an earlier migration was applied with LF.
+  # Compare both encodings without allowing any SQL-content drift.
+  checksum="$(sed 's/\r$//' "$migration" | sha256sum | awk '{print $1}')"
+  crlf_checksum="$(sed 's/\r$//' "$migration" | sed 's/$/\r/' | sha256sum | awk '{print $1}')"
   applied_checksum="$(psql "$DATABASE_URL" -At -v ON_ERROR_STOP=1 -c "SELECT checksum FROM schema_migrations WHERE version = '$version';")"
 
   if [ -n "$applied_checksum" ]; then
-    if [ "$applied_checksum" != "$checksum" ]; then
+    if [ "$applied_checksum" != "$checksum" ] && [ "$applied_checksum" != "$crlf_checksum" ] && [ "$applied_checksum" != "$raw_checksum" ]; then
       echo "Migration drift detected for $version" >&2
       exit 1
     fi

@@ -66,6 +66,23 @@ func TestPresignGetForcesAttachmentFilename(t *testing.T) {
 	}
 }
 
+func TestPresignGetInlineKeepsPrivateExpiringLink(t *testing.T) {
+	request, err := testPresigner().PresignGetInline(context.Background(), "candidate-cv/user-1/resume.pdf", "Candidate CV.pdf")
+	if err != nil {
+		t.Fatal(err)
+	}
+	parsed, err := url.Parse(request.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsed.Query().Get("response-content-disposition") != `inline; filename="Candidate CV.pdf"` {
+		t.Fatalf("unexpected content disposition: %q", parsed.Query().Get("response-content-disposition"))
+	}
+	if parsed.Query().Get("X-Amz-Signature") == "" || parsed.Query().Get("X-Amz-Expires") != "300" {
+		t.Fatal("inline CV link must remain signed and short-lived")
+	}
+}
+
 func TestPresignRejectsTraversalKey(t *testing.T) {
 	if _, err := testPresigner().PresignGet(context.Background(), "../secret", "resume.pdf"); err == nil {
 		t.Fatal("PresignGet() unexpectedly accepted traversal key")

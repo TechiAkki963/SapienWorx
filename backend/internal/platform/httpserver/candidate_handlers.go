@@ -41,6 +41,29 @@ func candidateID(r *http.Request) (string, bool) {
 	return claims.Subject, ok
 }
 
+func (s *Server) candidateDiscoveryVisibility(w http.ResponseWriter, r *http.Request) {
+	id, ok := candidateID(r)
+	if !ok {
+		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
+		return
+	}
+	var input struct {
+		Enabled *bool `json:"enabled"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if input.Enabled == nil {
+		writeError(w, r, http.StatusBadRequest, "validation_error", "enabled is required")
+		return
+	}
+	if err := s.candidate.SetDiscoverable(r.Context(), id, *input.Enabled); err != nil {
+		s.writeCandidateError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"discoverable_to_recruiters": *input.Enabled})
+}
+
 func (s *Server) candidateDashboard(w http.ResponseWriter, r *http.Request) {
 	id, ok := candidateID(r)
 	if !ok {

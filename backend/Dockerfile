@@ -6,9 +6,11 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/sapienworx-api ./cmd/api
 
 FROM alpine:3.22
+ARG ENABLE_LOCAL_OCR=false
 RUN apk add --no-cache ca-certificates tzdata wget \
     && addgroup -S sapienworx \
     && adduser -S -G sapienworx -H -s /sbin/nologin sapienworx
+RUN if [ "$ENABLE_LOCAL_OCR" = "true" ]; then apk add --no-cache poppler-utils tesseract-ocr tesseract-ocr-data-eng; fi
 COPY --from=builder /out/sapienworx-api /usr/local/bin/sapienworx-api
 USER sapienworx
 EXPOSE 8080

@@ -29,6 +29,7 @@ export function ScheduleInterviewForm({ applications }: { applications: Pipeline
           scheduled_at: new Date(String(data.get("scheduled_at"))).toISOString(),
           duration_minutes: Number(data.get("duration_minutes")),
           meeting_url: data.get("meeting_url"),
+          round_label: data.get("round_label"),
           notes: data.get("notes"),
         }),
       });
@@ -55,6 +56,7 @@ export function ScheduleInterviewForm({ applications }: { applications: Pipeline
               {error && <p role="alert" className="mb-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-700">{error}</p>}
               <div className="grid gap-4 md:grid-cols-2">
                 <label className={`${labelClass} md:col-span-2`}>Candidate and job<select name="application_id" required className={controlClass}>{applications.map((application) => <option key={application.application_id} value={application.application_id}>{application.candidate_name} — {application.job_title}</option>)}</select></label>
+                <label className={`${labelClass} md:col-span-2`}>Interview round<input name="round_label" maxLength={120} defaultValue="First interview" required className={controlClass} /></label>
                 <label className={labelClass}>Date and time<input name="scheduled_at" type="datetime-local" required className={controlClass} /></label>
                 <label className={labelClass}>Duration (minutes)<input name="duration_minutes" type="number" min="10" max="480" defaultValue="45" className={controlClass} /></label>
                 <label className={`${labelClass} md:col-span-2`}>External meeting URL<input name="meeting_url" type="url" required placeholder="https://..." className={controlClass} /><span className="font-normal text-ink-muted">SapienWorx stores and opens this URL; it does not create or host the meeting.</span></label>

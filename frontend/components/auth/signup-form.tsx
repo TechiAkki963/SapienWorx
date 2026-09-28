@@ -10,7 +10,7 @@ import { apiRequest } from "@/lib/api";
 
 const privacyPolicyVersion = "privacy-v3-2026-09-17";
 
-export function SignupForm({ recruiter = false }: { recruiter?: boolean }) {
+export function SignupForm({ recruiter = false, nextPath }: { recruiter?: boolean; nextPath?: string }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -36,6 +36,7 @@ export function SignupForm({ recruiter = false }: { recruiter?: boolean }) {
         { method: "POST", body: JSON.stringify(payload) },
       );
       const query = new URLSearchParams({ email: result.email, role: recruiter ? "recruiter" : "candidate" });
+      if (!recruiter && nextPath) query.set("next", nextPath);
       router.push(`/verify-email?${query.toString()}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Account creation failed.");
@@ -65,7 +66,7 @@ export function SignupForm({ recruiter = false }: { recruiter?: boolean }) {
       </fieldset>
 
       <Button type="submit" size="lg" disabled={pending}>{pending ? "Creating account…" : "Create account"}</Button>
-      <p className="text-center text-sm text-ink-muted">Already registered? <Link className="font-semibold text-indigo hover:underline" href={recruiter ? "/recruiter/login" : "/login"}>Sign in</Link></p>
+      <p className="text-center text-sm text-ink-muted">Already registered? <Link className="font-semibold text-indigo hover:underline" href={recruiter ? "/recruiter/login" : nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login"}>Sign in</Link></p>
     </form>
   );
 }

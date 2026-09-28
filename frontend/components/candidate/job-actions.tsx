@@ -27,7 +27,7 @@ export function JobActions({
     return (
       <div className="grid gap-3">
         <Button href={`/login?next=/jobs/${jobId}`} size="lg">Sign in to apply</Button>
-        <p className="text-center text-xs leading-5 text-ink-muted">New to SapienWorx? <Link className="font-semibold text-indigo hover:underline" href="/signup">Create a candidate profile</Link>.</p>
+        <p className="text-center text-xs leading-5 text-ink-muted">New to SapienWorx? <Link className="font-semibold text-indigo hover:underline" href={`/signup?next=${encodeURIComponent(`/jobs/${jobId}`)}`}>Create a candidate profile</Link>.</p>
       </div>
     );
   }

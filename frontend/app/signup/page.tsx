@@ -1,5 +1,6 @@
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignupForm } from "@/components/auth/signup-form";
+import { safeCandidateJobPath } from "@/lib/candidate";
 
 const candidateFeatures = [
   { title: "Create one career profile", body: "Keep your experience, location and profile context ready for every opportunity." },
@@ -8,7 +9,9 @@ const candidateFeatures = [
   { title: "Keep opportunities organised", body: "Save jobs, receive meaningful notifications and manage your search from one workspace." },
 ];
 
-export default function CandidateSignupPage() {
+export default async function CandidateSignupPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  const next = Array.isArray(params.next) ? params.next[0] : params.next;
   return (
     <AuthShell
       eyebrow="Candidate registration"
@@ -22,7 +25,7 @@ export default function CandidateSignupPage() {
       reverseOnDesktop
       tone="mint"
     >
-      <SignupForm />
+      <SignupForm nextPath={safeCandidateJobPath(next)} />
     </AuthShell>
   );
 }

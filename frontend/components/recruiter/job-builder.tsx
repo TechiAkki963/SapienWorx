@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/api";
-import { label, RecruiterJob } from "@/lib/recruiter";
+import { EditableRecruiterJob, label, RecruiterJob } from "@/lib/recruiter";
 
 type BuilderState = {
   title: string;
@@ -15,6 +15,7 @@ type BuilderState = {
   work_mode: string;
   role_category: string;
   location: string;
+  openings: string;
   min_experience_years: string;
   max_experience_years: string;
   min_salary_lakhs: string;
@@ -33,6 +34,7 @@ const initialState: BuilderState = {
   work_mode: "hybrid",
   role_category: "Technology",
   location: "",
+  openings: "1",
   min_experience_years: "",
   max_experience_years: "",
   min_salary_lakhs: "",
@@ -50,6 +52,7 @@ const steps = [
   { number: 3, title: "Candidate story", subtitle: "Role, company and process" },
   { number: 4, title: "Publish & share", subtitle: "Final review and distribution" },
 ];
+const roleCategoryOptions = ["Technology", "Product", "Design", "Sales", "Marketing", "Finance", "Human Resources", "Operations", "Healthcare", "Other"];
 
 function optionalNumber(value: string): number | null {
   const normalized = value.trim();
@@ -137,11 +140,33 @@ function CandidatePreview({ companyName, state, skills }: { companyName: string;
   );
 }
 
-export function JobBuilder({ companyName }: { companyName: string }) {
+function stateFromJob(job?: EditableRecruiterJob): BuilderState {
+  if (!job) return initialState;
+  return {
+    title: job.title,
+    department: job.department,
+    employment_type: job.employment_type,
+    work_mode: job.work_mode,
+    role_category: job.role_category,
+    location: job.location,
+    openings: String(job.openings),
+    min_experience_years: String(job.min_experience_years),
+    max_experience_years: job.max_experience_years == null ? "" : String(job.max_experience_years),
+    min_salary_lakhs: job.min_salary_lakhs == null ? "" : String(job.min_salary_lakhs),
+    max_salary_lakhs: job.max_salary_lakhs == null ? "" : String(job.max_salary_lakhs),
+    description: job.description === "Draft role details pending." ? "" : job.description,
+    responsibilities: job.responsibilities,
+    company_overview: job.company_overview,
+    why_join: job.why_join,
+    hiring_process: job.hiring_process.join("\n"),
+  };
+}
+
+export function JobBuilder({ companyName, job }: { companyName: string; job?: EditableRecruiterJob }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [state, setState] = useState<BuilderState>(initialState);
-  const [skills, setSkills] = useState<string[]>([]);
+  const [state, setState] = useState<BuilderState>(() => stateFromJob(job));
+  const [skills, setSkills] = useState<string[]>(() => job?.skills ?? []);
   const [busy, setBusy] = useState<"draft" | "publish" | "">("");
   const [error, setError] = useState("");
 
@@ -158,15 +183,21 @@ export function JobBuilder({ companyName }: { companyName: string }) {
       setError("Add a job title before saving this role.");
       return;
     }
+    const openings = Number(state.openings);
+    if (!Number.isInteger(openings) || openings < 1 || openings > 10000) {
+      setStep(1);
+      setError("Enter an openings count between 1 and 10,000.");
+      return;
+    }
     if (publish && !publishReady) {
       setStep(3);
-      setError("Complete the role summary, responsibilities, at least one skill, and at least three hiring stages before publishing.");
+      setError("Complete the role summary, responsibilities, at least one skill, and at least three hiring stages before saving a published role.");
       return;
     }
     setBusy(publish ? "publish" : "draft");
     try {
-      await apiRequest<RecruiterJob>("/api/v1/recruiter/jobs/builder", {
-        method: "POST",
+      await apiRequest<RecruiterJob | void>(job ? `/api/v1/recruiter/jobs/${job.id}` : "/api/v1/recruiter/jobs/builder", {
+        method: job ? "PATCH" : "POST",
         body: JSON.stringify({
           title: state.title,
           department: state.department,
@@ -174,6 +205,7 @@ export function JobBuilder({ companyName }: { companyName: string }) {
           work_mode: state.work_mode,
           role_category: state.role_category,
           location: state.location,
+          openings,
           min_experience_years: Number(state.min_experience_years || 0),
           max_experience_years: optionalNumber(state.max_experience_years),
           min_salary_lakhs: optionalNumber(state.min_salary_lakhs),
@@ -224,8 +256,9 @@ export function JobBuilder({ companyName }: { companyName: string }) {
                 <label className="grid gap-2 text-sm font-semibold text-ink">Employment type<select value={state.employment_type} onChange={(event) => update("employment_type", event.target.value)} className="min-h-11 rounded-xl border border-line bg-white px-3 shadow-sm outline-none focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50"><option value="full_time">Full time</option><option value="part_time">Part time</option><option value="contract">Contract</option><option value="internship">Internship</option><option value="temporary">Temporary</option></select></label>
                 <label className="grid gap-2 text-sm font-semibold text-ink">Workplace model<select value={state.work_mode} onChange={(event) => update("work_mode", event.target.value)} className="min-h-11 rounded-xl border border-line bg-white px-3 shadow-sm outline-none focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50"><option value="onsite">On-site</option><option value="hybrid">Hybrid</option><option value="remote">Remote</option></select></label>
               </div>
-              <label className="grid gap-2 text-sm font-semibold text-ink">Role category<select value={state.role_category} onChange={(event) => update("role_category", event.target.value)} className="min-h-11 rounded-xl border border-line bg-white px-3 shadow-sm outline-none focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50">{["Technology","Product","Design","Sales","Marketing","Finance","Human Resources","Operations","Healthcare","Other"].map((option) => <option key={option}>{option}</option>)}</select></label>
+              <label className="grid gap-2 text-sm font-semibold text-ink">Role category<select value={state.role_category} onChange={(event) => update("role_category", event.target.value)} className="min-h-11 rounded-xl border border-line bg-white px-3 shadow-sm outline-none focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50"><option value="">No category set</option>{state.role_category && !roleCategoryOptions.includes(state.role_category) && <option>{state.role_category}</option>}{roleCategoryOptions.map((option) => <option key={option}>{option}</option>)}</select></label>
               <Input label="Location" value={state.location} onChange={(event) => update("location", event.target.value)} placeholder="e.g. Bengaluru, India" />
+              <Input label="Openings" type="number" min="1" max="10000" value={state.openings} onChange={(event) => update("openings", event.target.value)} />
             </div>}
 
             {step === 2 && <div className="grid gap-6">
@@ -245,12 +278,12 @@ export function JobBuilder({ companyName }: { companyName: string }) {
             {step === 4 && <div className="grid gap-5">
               <div className="rounded-xl border border-line bg-slate-50/65 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Final review</p><h3 className="mt-1 text-lg font-bold text-navy">Ready to publish?</h3><p className="mt-1 text-sm leading-6 text-ink-muted">Review the candidate-facing preview and confirm the role information. Publishing makes this vacancy discoverable to candidates immediately.</p></div>
               <div className="grid gap-3 sm:grid-cols-2"><div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Role</p><p className="mt-1 font-bold text-ink">{state.title || "Untitled role"}</p><p className="mt-1 text-xs text-ink-muted">{state.department || "No team set"} · {label(state.work_mode)}</p></div><div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Requirements</p><p className="mt-1 font-bold text-ink">{skills.length} skill{skills.length === 1 ? "" : "s"}</p><p className="mt-1 text-xs text-ink-muted">{state.min_experience_years || "0"}{state.max_experience_years ? `–${state.max_experience_years}` : "+"} years experience</p></div></div>
-              {!publishReady && <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold leading-5 text-amber-900">To publish, complete the role summary, responsibilities, add at least one skill, and provide at least three hiring stages. You can still save this role as a draft.</div>}
+              {!publishReady && <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-semibold leading-5 text-amber-900">To publish, complete the role summary, responsibilities, add at least one skill, and provide at least three hiring stages. {job?.status === "active" ? "This older published role can be edited without removing information already present." : "You can still save this role as a draft."}</div>}
             </div>}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/60 bg-slate-50/45 px-5 py-4 sm:px-6">
-            <div className="flex gap-2">{step > 1 && <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>← Back</Button>}<Button type="button" variant="ghost" disabled={Boolean(busy)} onClick={() => save(false)}>{busy === "draft" ? "Saving…" : "Save as draft"}</Button></div>
-            {step < 4 ? <Button type="submit">Continue →</Button> : <Button type="button" disabled={Boolean(busy) || !publishReady} onClick={() => save(true)}>{busy === "publish" ? "Publishing…" : "Publish job"}</Button>}
+            <div className="flex gap-2">{step > 1 && <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>← Back</Button>}<Button type="button" variant="ghost" disabled={Boolean(busy)} onClick={() => save(false)}>{busy === "draft" ? "Saving…" : job ? "Save changes" : "Save as draft"}</Button></div>
+            {step < 4 ? <Button type="submit">Continue →</Button> : <Button type="button" disabled={Boolean(busy) || !publishReady} onClick={() => save(true)}>{busy === "publish" ? "Publishing…" : job?.status === "active" ? "Save and keep published" : "Publish job"}</Button>}
           </div>
         </section>
 

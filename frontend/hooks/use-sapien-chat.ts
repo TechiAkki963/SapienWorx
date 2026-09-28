@@ -67,6 +67,7 @@ export function useSapienChat({ threadID, currentSenderType, onMessage, onRead, 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const observedNodesRef = useRef<Map<Element, ChatMessage>>(new Map());
   const disposedRef = useRef(false);
+  const historyRequestRef = useRef(0);
 
   const sendEvent = useCallback((event: object) => {
     const socket = socketRef.current;
@@ -76,6 +77,7 @@ export function useSapienChat({ threadID, currentSenderType, onMessage, onRead, 
   }, []);
 
   const refreshHistory = useCallback(async () => {
+    const requestVersion = ++historyRequestRef.current;
     if (!threadID) {
       setMessages([]);
       return;
@@ -84,11 +86,13 @@ export function useSapienChat({ threadID, currentSenderType, onMessage, onRead, 
     setError("");
     try {
       const result = await apiRequest<MessageListResponse>(`/api/v1/messaging/threads/${threadID}/messages?limit=100`);
-      if (!disposedRef.current) setMessages(result.items ?? []);
+      if (!disposedRef.current && requestVersion === historyRequestRef.current) {
+        setMessages((current) => (result.items ?? []).reduce(mergeMessage, current.filter((message) => message.thread_id === threadID)));
+      }
     } catch (cause) {
-      if (!disposedRef.current) setError(cause instanceof Error ? cause.message : "Could not load conversation.");
+      if (!disposedRef.current && requestVersion === historyRequestRef.current) setError(cause instanceof Error ? cause.message : "Could not load conversation.");
     } finally {
-      if (!disposedRef.current) setLoading(false);
+      if (!disposedRef.current && requestVersion === historyRequestRef.current) setLoading(false);
     }
   }, [threadID]);
 
@@ -97,6 +101,7 @@ export function useSapienChat({ threadID, currentSenderType, onMessage, onRead, 
     void refreshHistory();
     return () => {
       disposedRef.current = true;
+      historyRequestRef.current++;
     };
   }, [refreshHistory]);
 
@@ -185,14 +190,17 @@ export function useSapienChat({ threadID, currentSenderType, onMessage, onRead, 
     };
   }, [onMessage, onRead, refreshHistory, threadID]);
 
+  useEffect(() => {
+    if (!threadID || connectionState === "live") return;
+    const timer = window.setInterval(() => { void refreshHistory(); }, 8000);
+    return () => window.clearInterval(timer);
+  }, [connectionState, refreshHistory, threadID]);
+
   const sendMessage = useCallback(async (content: string) => {
     const clean = content.trim();
     if (!clean || !threadID) return null;
-
-    if (sendEvent({ type: "message", thread_id: threadID, payload: { content: clean } })) {
-      return null;
-    }
-
+    // A successful HTTP response confirms persistence. A WebSocket write only
+    // confirms that the browser queued bytes, so it must not clear the draft.
     const message = await apiRequest<ChatMessage>(`/api/v1/messaging/threads/${threadID}/messages`, {
       method: "POST",
       body: JSON.stringify({ content: clean }),
@@ -200,7 +208,7 @@ export function useSapienChat({ threadID, currentSenderType, onMessage, onRead, 
     setMessages((current) => mergeMessage(current, message));
     onMessage?.(message);
     return message;
-  }, [onMessage, sendEvent, threadID]);
+  }, [onMessage, threadID]);
 
   const emitTyping = useCallback(() => {
     if (!threadID) return;

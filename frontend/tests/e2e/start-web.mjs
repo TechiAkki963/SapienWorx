@@ -10,6 +10,8 @@ const child = spawn(
   {
     env: {
       ...process.env,
+      // Synthetic CV journeys must not enable unscanned uploads in the real app.
+      NEXT_PUBLIC_CV_PARSE_PREVIEW_ENABLED: "true",
       INTERNAL_API_URL: `http://127.0.0.1:${process.env.E2E_MOCK_API_PORT || "18080"}`,
       NEXT_PUBLIC_API_URL: `http://127.0.0.1:${process.env.E2E_MOCK_API_PORT || "18080"}`,
     },

@@ -14,6 +14,43 @@ func recruiterID(r *http.Request) (string, bool) {
 	return claims.Subject, ok
 }
 
+func (s *Server) recruiterDiscover(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
+		return
+	}
+	q := r.URL.Query()
+	parseNumber := func(key string) (int, bool) {
+		if q.Get(key) == "" {
+			return 0, true
+		}
+		n, err := strconv.Atoi(q.Get(key))
+		return n, err == nil
+	}
+	min, minOK := parseNumber("min_experience")
+	max, maxOK := parseNumber("max_experience")
+	notice, noticeOK := parseNumber("max_notice_days")
+	page, pageOK := parseNumber("page")
+	if !minOK || !maxOK || !noticeOK || !pageOK {
+		s.writeRecruiterError(w, r, recruiter.ErrInvalid)
+		return
+	}
+	if page == 0 && q.Get("page") == "" {
+		page = 1
+	}
+	result, err := s.recruiter.Discover(r.Context(), id, recruiter.DiscoveryFilters{
+		Query: q.Get("q"), Designation: q.Get("designation"), CurrentCompany: q.Get("current_company"), PreviousCompany: q.Get("previous_company"),
+		Education: q.Get("education"), Skills: q.Get("skills"), Location: q.Get("location"), PreferredLocation: q.Get("preferred_location"),
+		EmploymentType: q.Get("employment_type"), UpdatedSince: q.Get("updated_since"), MinExperience: min, MaxExperience: max, MaxNoticeDays: notice, HasMaxNotice: q.Get("max_notice_days") != "", Page: page,
+	})
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
 func (s *Server) recruiterDashboard(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
 	if !ok {
@@ -51,6 +88,32 @@ func (s *Server) recruiterJobs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusCreated, item)
+}
+
+func (s *Server) recruiterJobDetail(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
+		return
+	}
+	if r.Method == http.MethodGet {
+		item, err := s.recruiter.EditableJob(r.Context(), id, r.PathValue("jobID"))
+		if err != nil {
+			s.writeRecruiterError(w, r, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, item)
+		return
+	}
+	var input recruiter.DetailedJobInput
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if err := s.recruiter.UpdateDetailedJob(r.Context(), id, r.PathValue("jobID"), input); err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Server) recruiterJobStatus(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +157,20 @@ func (s *Server) recruiterPipeline(w http.ResponseWriter, r *http.Request) {
 	}
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	result, err := s.recruiter.Pipeline(r.Context(), id, r.URL.Query().Get("q"), r.URL.Query().Get("stage"), r.URL.Query().Get("job_id"), page, limit)
+	q := r.URL.Query()
+	intFilter := func(name string) int { value, _ := strconv.Atoi(q.Get(name)); return value }
+	filters := recruiter.PipelineFilters{
+		Query: q.Get("q"), ExcludeQuery: q.Get("exclude_q"), Stages: q["stage"],
+		JobID: q.Get("job_id"), Attention: q.Get("attention"),
+		CurrentCompany: q.Get("current_company"), PreviousCompany: q.Get("previous_company"),
+		Location: q.Get("location"), Designation: q.Get("designation"),
+		Education: q.Get("education"), University: q.Get("university"),
+		MinExperienceYears: intFilter("min_experience_years"), MaxExperienceYears: intFilter("max_experience_years"), MaxExperienceSet: q.Get("max_experience_years") != "",
+		MaxNoticeDays: intFilter("max_notice_days"), ImmediateNotice: q.Get("max_notice_days") == "0", AppliedWithinDays: intFilter("applied_within_days"),
+		ActiveWithinDays: intFilter("active_within_days"), UpdatedWithinDays: intFilter("updated_within_days"),
+		HasCV: q.Get("has_cv") == "true", Sort: q.Get("sort"),
+	}
+	result, err := s.recruiter.Pipeline(r.Context(), id, filters, page, limit)
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
@@ -157,6 +233,35 @@ func (s *Server) recruiterInterviews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusCreated, item)
+}
+
+func (s *Server) recruiterInterviewChange(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	var input recruiter.InterviewChangeInput
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if err := s.recruiter.ChangeInterview(r.Context(), id, r.PathValue("interviewID"), input); err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) recruiterInterviewHistory(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	items, err := s.recruiter.InterviewHistory(r.Context(), id, r.PathValue("interviewID"))
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"items": items})
 }
 
 func (s *Server) writeRecruiterError(w http.ResponseWriter, r *http.Request, err error) {

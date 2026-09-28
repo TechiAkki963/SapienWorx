@@ -57,12 +57,13 @@ func normalizeTags(tags []string) []string {
 
 // SaveToTalentPool is idempotent and updates tags if the candidate is already saved.
 func (s *Service) SaveToTalentPool(ctx context.Context, recruiterID, candidateID string, tags []string) (TalentPoolMembership, error) {
-	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
+	companyID, _, _, err := s.recruiterCompany(ctx, recruiterID)
+	if err != nil {
 		return TalentPoolMembership{}, err
 	}
 
 	var exists bool
-	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM candidate_profiles WHERE user_id=$1)`, candidateID).Scan(&exists); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM candidate_profiles cp WHERE cp.user_id=$1 AND (coalesce((cp.profile_details->>'discoverable_to_recruiters')::boolean,false) OR EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2)))`, candidateID, companyID).Scan(&exists); err != nil {
 		return TalentPoolMembership{}, err
 	}
 	if !exists {
@@ -71,7 +72,7 @@ func (s *Service) SaveToTalentPool(ctx context.Context, recruiterID, candidateID
 
 	cleanTags := normalizeTags(tags)
 	var item TalentPoolMembership
-	err := s.db.QueryRow(ctx, `
+	err = s.db.QueryRow(ctx, `
 		INSERT INTO talent_pool_memberships(recruiter_id,candidate_id,tags)
 		VALUES($1,$2,$3)
 		ON CONFLICT (recruiter_id,candidate_id)

@@ -33,6 +33,7 @@ function fallbackSummary(profile: CandidateProfile, extended: CandidateProfileDe
     profile_completion: profile.profile_completion,
     share_token: "",
     profile_visible: false,
+    discoverable_to_recruiters: false,
   };
 }
 
@@ -55,7 +56,7 @@ export default async function CandidateProfilePage() {
     <div className="mx-auto max-w-6xl">
       <div className="mb-6 print:hidden">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Your candidate workspace</p>
-        <h1 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.035em] text-navy sm:text-4xl">Your professional identity</h1>
+        <h1 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.035em] text-navy sm:text-4xl">My Professional Profile</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
           Shape the experience, skills and preferences you want people to understand. You stay in control of what appears on your shareable profile.
         </p>

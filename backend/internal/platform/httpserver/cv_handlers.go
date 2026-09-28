@@ -116,7 +116,12 @@ func (s *Server) recruiterCandidateCVDownload(w http.ResponseWriter, r *http.Req
 		writeError(w, r, http.StatusInternalServerError, "internal_error", "candidate CV could not be opened")
 		return
 	}
-	presigned, err := s.objectStorage.PresignGet(r.Context(), object.Key, object.Filename)
+	var presigned storage.PresignedRequest
+	if r.URL.Query().Get("mode") == "view" {
+		presigned, err = s.objectStorage.PresignGetInline(r.Context(), object.Key, object.Filename)
+	} else {
+		presigned, err = s.objectStorage.PresignGet(r.Context(), object.Key, object.Filename)
+	}
 	if err != nil {
 		s.logger.Error("presign recruiter CV download failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
 		writeError(w, r, http.StatusServiceUnavailable, "storage_unavailable", "private CV storage is temporarily unavailable")

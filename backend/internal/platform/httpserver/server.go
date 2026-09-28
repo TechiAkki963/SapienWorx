@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/admin"
@@ -92,10 +93,16 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/candidate/profile", Chain(http.HandlerFunc(s.candidateProfile), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/profile", Chain(http.HandlerFunc(s.candidateProfile), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/profile/summary", Chain(http.HandlerFunc(s.candidateProfileSummary), protected, candidateOnly, candidateActivity))
+	mux.Handle("PATCH /api/v1/candidate/profile/discovery", Chain(http.HandlerFunc(s.candidateDiscoveryVisibility), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/profile/photo", Chain(http.HandlerFunc(s.candidateProfilePhoto), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/profile/details", Chain(http.HandlerFunc(s.candidateProfileDetails), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/profile/details", Chain(http.HandlerFunc(s.candidateProfileDetails), protected, candidateOnly, candidateActivity))
+	mux.Handle("PATCH /api/v1/candidate/onboarding", Chain(http.HandlerFunc(s.candidateOnboarding), protected, candidateOnly, candidateActivity))
+	mux.Handle("PATCH /api/v1/candidate/profile/contact-sharing", Chain(http.HandlerFunc(s.candidateContactSharing), protected, candidateOnly, candidateActivity))
 	mux.Handle("POST /api/v1/candidate/cv/presign", Chain(http.HandlerFunc(s.candidateCVPresign), protected, candidateOnly, candidateActivity))
+	if cfg.Environment != "production" && os.Getenv("CV_PARSE_PREVIEW_ENABLED") == "true" {
+		mux.Handle("POST /api/v1/candidate/cv/parse-preview", Chain(http.HandlerFunc(s.candidateCVParsePreview), protected, candidateOnly, candidateActivity))
+	}
 	mux.Handle("POST /api/v1/candidate/cv/complete", Chain(http.HandlerFunc(s.candidateCVComplete), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/cv", Chain(http.HandlerFunc(s.candidateCVDownload), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/recommendations", Chain(http.HandlerFunc(s.candidateRecommendations), protected, candidateOnly, candidateActivity))
@@ -113,11 +120,14 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/candidate/notifications/{notificationID}/read", Chain(http.HandlerFunc(s.candidateNotificationRead), protected, candidateOnly, candidateActivity))
 
 	mux.Handle("GET /api/v1/recruiter/dashboard", Chain(http.HandlerFunc(s.recruiterDashboard), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/discover", Chain(http.HandlerFunc(s.recruiterDiscover), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/company/branding", Chain(http.HandlerFunc(s.recruiterCompanyBranding), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/company/branding", Chain(http.HandlerFunc(s.recruiterCompanyBranding), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/jobs", Chain(http.HandlerFunc(s.recruiterJobs), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/jobs", Chain(http.HandlerFunc(s.recruiterJobs), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/jobs/builder", Chain(http.HandlerFunc(s.recruiterJobBuilder), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/jobs/{jobID}", Chain(http.HandlerFunc(s.recruiterJobDetail), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}", Chain(http.HandlerFunc(s.recruiterJobDetail), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/status", Chain(http.HandlerFunc(s.recruiterJobStatus), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/compensation", Chain(http.HandlerFunc(s.recruiterJobCompensation), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/skills", Chain(http.HandlerFunc(s.recruiterJobSkills), protected, recruiterOnly))
@@ -125,12 +135,19 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/recruiter/pipeline", Chain(http.HandlerFunc(s.recruiterPipeline), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/candidates/{candidateID}", Chain(http.HandlerFunc(s.recruiterCandidateDetail), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/candidates/{candidateID}/cv", Chain(http.HandlerFunc(s.recruiterCandidateCVDownload), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/candidates/{candidateID}/contact", Chain(http.HandlerFunc(s.recruiterCandidateContact), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/candidates/{candidateID}/comments", Chain(http.HandlerFunc(s.recruiterCandidateComments), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/candidates/{candidateID}/comments", Chain(http.HandlerFunc(s.recruiterCandidateComments), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/candidates/{candidateID}/comments/{commentID}", Chain(http.HandlerFunc(s.recruiterCandidateComment), protected, recruiterOnly))
+	mux.Handle("DELETE /api/v1/recruiter/candidates/{candidateID}/comments/{commentID}", Chain(http.HandlerFunc(s.recruiterCandidateComment), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/applications/{applicationID}/stage", Chain(http.HandlerFunc(s.recruiterApplicationStage), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/talent-pool", Chain(http.HandlerFunc(s.recruiterTalentPool), protected, recruiterOnly))
 	mux.Handle("PUT /api/v1/recruiter/talent-pool/{candidateID}", Chain(http.HandlerFunc(s.recruiterTalentPoolCandidate), protected, recruiterOnly))
 	mux.Handle("DELETE /api/v1/recruiter/talent-pool/{candidateID}", Chain(http.HandlerFunc(s.recruiterTalentPoolCandidate), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/interviews/{interviewID}", Chain(http.HandlerFunc(s.recruiterInterviewChange), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/interviews/{interviewID}/history", Chain(http.HandlerFunc(s.recruiterInterviewHistory), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))

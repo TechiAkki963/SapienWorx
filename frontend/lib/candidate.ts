@@ -47,7 +47,20 @@ export type CandidateProfileDetails = {
   cv_original_filename?: string;
   last_active_at?: string;
   profile_updated_at?: string;
+  alternate_phone_e164?: string;
+  contact_reveal_enabled?: boolean;
 };
+
+export type CandidateOnboardingStatus = "not_started" | "manual_started" | "cv_started" | "review_required" | "profile_ready" | "in_progress" | "ready" | "complete";
+
+export function candidateOnboardingStatus(details: CandidateProfileDetails): CandidateOnboardingStatus | null {
+  const value = details.details?.onboarding_status;
+  return value === "not_started" || value === "manual_started" || value === "cv_started" || value === "review_required" || value === "profile_ready" || value === "in_progress" || value === "ready" || value === "complete" ? value : null;
+}
+
+export function safeCandidateJobPath(value: string | null | undefined): string | undefined {
+  return value && /^\/(?:candidate\/jobs|jobs)\/[a-zA-Z0-9-]+$/.test(value) ? value : undefined;
+}
 
 export type CandidateProfileSummary = {
   full_name: string;
@@ -63,6 +76,7 @@ export type CandidateProfileSummary = {
   photo_data_url?: string;
   share_token: string;
   profile_visible: boolean;
+  discoverable_to_recruiters: boolean;
 };
 
 export type CandidateApplication = {

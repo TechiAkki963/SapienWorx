@@ -29,6 +29,7 @@ type PresignedRequest struct {
 
 type Presigner interface {
 	PresignGet(context.Context, string, string) (PresignedRequest, error)
+	PresignGetInline(context.Context, string, string) (PresignedRequest, error)
 	PresignPut(context.Context, string, string) (PresignedRequest, error)
 	DeleteObject(context.Context, string) error
 }
@@ -66,11 +67,15 @@ func NewS3Presigner(ctx context.Context, region, bucket string, ttl time.Duratio
 }
 
 func (p *S3Presigner) PresignGet(ctx context.Context, key, filename string) (PresignedRequest, error) {
-	return p.presign(ctx, http.MethodGet, key, "", filename)
+	return p.presign(ctx, http.MethodGet, key, "", filename, "attachment")
+}
+
+func (p *S3Presigner) PresignGetInline(ctx context.Context, key, filename string) (PresignedRequest, error) {
+	return p.presign(ctx, http.MethodGet, key, "", filename, "inline")
 }
 
 func (p *S3Presigner) PresignPut(ctx context.Context, key, contentType string) (PresignedRequest, error) {
-	return p.presign(ctx, http.MethodPut, key, contentType, "")
+	return p.presign(ctx, http.MethodPut, key, contentType, "", "")
 }
 
 func (p *S3Presigner) DeleteObject(ctx context.Context, key string) error {
@@ -138,7 +143,7 @@ func (p *S3Presigner) PutObject(ctx context.Context, key, contentType string, bo
 	return errors.New("profile image storage failed with status " + resp.Status)
 }
 
-func (p *S3Presigner) presign(ctx context.Context, method, key, contentType, filename string) (PresignedRequest, error) {
+func (p *S3Presigner) presign(ctx context.Context, method, key, contentType, filename, disposition string) (PresignedRequest, error) {
 	key = strings.TrimSpace(strings.TrimPrefix(key, "/"))
 	if key == "" || strings.Contains(key, "..") {
 		return PresignedRequest{}, errors.New("invalid object key")
@@ -152,7 +157,7 @@ func (p *S3Presigner) presign(ctx context.Context, method, key, contentType, fil
 	q := endpoint.Query()
 	q.Set("X-Amz-Expires", strconv.FormatInt(int64(p.ttl/time.Second), 10))
 	if filename != "" {
-		q.Set("response-content-disposition", `attachment; filename="`+safeFilename(filename)+`"`)
+		q.Set("response-content-disposition", disposition+`; filename="`+safeFilename(filename)+`"`)
 	}
 	endpoint.RawQuery = q.Encode()
 

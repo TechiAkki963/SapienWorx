@@ -25,6 +25,7 @@ type ProfileSummary struct {
 	PhotoDataURL          string   `json:"photo_data_url,omitempty"`
 	ShareToken            string   `json:"share_token"`
 	ProfileVisible        bool     `json:"profile_visible"`
+	Discoverable          bool     `json:"discoverable_to_recruiters"`
 }
 
 func stringValue(m map[string]any, key string) string {
@@ -39,9 +40,9 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 	var raw []byte
 	var photo []byte
 	var photoMime *string
-	var visible bool
-	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,COALESCE((cp.profile_details->>'profile_visible_in_sourcing')::boolean,false) FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
-		&result.FullName, &headline, &result.Email, &emailVerified, &phone, &city, &state, &result.TotalExperienceMonths, &result.ProfileCompletion, &raw, &photo, &photoMime, &result.ShareToken, &visible,
+	var visible, discoverable bool
+	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,cp.profile_details->>'profile_visible_in_sourcing'='true',cp.profile_details->>'discoverable_to_recruiters'='true' FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
+		&result.FullName, &headline, &result.Email, &emailVerified, &phone, &city, &state, &result.TotalExperienceMonths, &result.ProfileCompletion, &raw, &photo, &photoMime, &result.ShareToken, &visible, &discoverable,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ProfileSummary{}, ErrNotFound
@@ -53,6 +54,7 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 	result.PrimaryPhone = phone
 	result.EmailVerified = emailVerified != nil
 	result.ProfileVisible = visible
+	result.Discoverable = discoverable
 	result.CurrentLocation = strings.Join(nonEmpty(pointerValue(city), pointerValue(state)), ", ")
 	var details map[string]any
 	if len(raw) > 0 {
@@ -73,6 +75,19 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 		result.PhotoDataURL = "data:" + *photoMime + ";base64," + base64.StdEncoding.EncodeToString(photo)
 	}
 	return result, nil
+}
+
+// SetDiscoverable is a separate opt-in from the shareable-link setting. Update only
+// this JSON key so an in-flight profile edit cannot overwrite unrelated details.
+func (s *Service) SetDiscoverable(ctx context.Context, userID string, enabled bool) error {
+	command, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET profile_details=jsonb_set(COALESCE(profile_details,'{}'::jsonb),'{discoverable_to_recruiters}',to_jsonb($2::boolean),true),updated_at=now() WHERE user_id=$1`, userID, enabled)
+	if err != nil {
+		return err
+	}
+	if command.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 func pointerValue(v *string) string {

@@ -5,15 +5,21 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
 import { RecruiterDashboard } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
+import type { ThreadListResponse } from "@/lib/messaging";
+import { messagingAPI } from "@/lib/messaging-server";
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase() || "R";
 }
 
 export async function RecruiterShell({ children }: { children: React.ReactNode }) {
-  const workspace = await recruiterAPI<RecruiterDashboard>("/api/v1/recruiter/dashboard").catch(() => null);
+  const [workspace, conversations] = await Promise.all([
+    recruiterAPI<RecruiterDashboard>("/api/v1/recruiter/dashboard").catch(() => null),
+    messagingAPI<ThreadListResponse>("/api/v1/messaging/threads").catch(() => null),
+  ]);
   const recruiterName = workspace?.recruiter_name ?? "Recruiter";
   const companyName = workspace?.company_name ?? "SapienWorx workspace";
+  const unreadCount = conversations?.items?.reduce((total, thread) => total + thread.unread_count, 0) ?? 0;
 
   return (
     <div className="min-h-screen bg-[#f5f7fb] text-ink">
@@ -57,9 +63,9 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[108rem] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:px-8 lg:py-6">
-        <aside className="lg:sticky lg:top-[5.75rem] lg:self-start">
-          <div className="rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]"><RecruiterNav /></div>
+      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:px-8 lg:py-6">
+        <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
+          <div className="min-w-0 rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]"><RecruiterNav unreadCount={unreadCount} /></div>
         </aside>
         <main id="main-content" className="min-w-0">{children}</main>
       </div>
