@@ -3,10 +3,10 @@ package admin
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 
-	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -19,6 +19,7 @@ type IntelligenceRunRecord struct {
 	StartedAt     time.Time      `json:"started_at"`
 	CompletedAt   time.Time      `json:"completed_at"`
 }
+
 type IntelligenceInsightRecord struct {
 	ID             string         `json:"id"`
 	RunID          string         `json:"run_id"`
@@ -35,135 +36,213 @@ type IntelligenceInsightRecord struct {
 	ReviewedAt     *time.Time     `json:"reviewed_at,omitempty"`
 	CreatedAt      time.Time      `json:"created_at"`
 }
-type IntelligenceDashboard struct {
-	Runs         []IntelligenceRunRecord     `json:"runs"`
-	Insights     []IntelligenceInsightRecord `json:"insights"`
-	ComputedAt   time.Time                   `json:"computed_at"`
-	AdvisoryOnly bool                        `json:"advisory_only"`
+
+type IntelligenceModelRecord struct {
+	ID          string         `json:"id"`
+	EngineType  string         `json:"engine_type"`
+	Version     string         `json:"version"`
+	Provider    string         `json:"provider"`
+	ModelRef    string         `json:"model_ref"`
+	Config      map[string]any `json:"config"`
+	Status      string         `json:"status"`
+	ApprovalID  *string        `json:"approval_id,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
+	ActivatedAt *time.Time     `json:"activated_at,omitempty"`
 }
 
-func (s *Service) intelligenceSnapshot(ctx context.Context) (intelligence.Snapshot, error) {
-	var snap intelligence.Snapshot
-	err := s.db.QueryRow(ctx, `SELECT
-	(SELECT count(*) FROM jobs WHERE status='active'),
-	(SELECT count(*) FROM applications WHERE applied_at>=now()-interval '30 days'),
-	(SELECT count(*) FROM interviews WHERE scheduled_at>=now()-interval '30 days'),
-	(SELECT count(*) FROM applications WHERE stage='hired' AND updated_at>=now()-interval '90 days'),
-	(SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours'),
-	(SELECT count(*) FROM admin_telemetry_events WHERE category='cv_parser' AND occurred_at>=now()-interval '24 hours' AND status IN ('failed','degraded')),
-	(SELECT count(*) FROM admin_alerts WHERE severity='critical' AND status IN ('open','acknowledged')),
-	(SELECT count(*) FROM privacy_requests WHERE status IN ('received','in_progress','awaiting_review')),
-	(SELECT count(*) FROM admin_approval_requests WHERE status='pending' AND (expires_at IS NULL OR expires_at>now()))`).Scan(
-		&snap.ActiveJobs, &snap.Applications30d, &snap.Interviews30d, &snap.Hires90d, &snap.ParserEvents24h, &snap.ParserFailures24h, &snap.CriticalAlerts, &snap.PendingPrivacyRequests, &snap.PendingApprovals)
-	return snap, err
+type IntelligenceEvaluationRecord struct {
+	ID                string         `json:"id"`
+	ModelVersionID    string         `json:"model_version_id"`
+	DatasetRef         string         `json:"dataset_ref"`
+	Metrics            map[string]any `json:"metrics"`
+	QualityGateStatus  string         `json:"quality_gate_status"`
+	StartedAt          time.Time      `json:"started_at"`
+	CompletedAt        *time.Time     `json:"completed_at,omitempty"`
+	Notes              string         `json:"notes"`
 }
-func (s *Service) RunIntelligence(ctx context.Context, actor, ip, requestID string) (IntelligenceRunRecord, error) {
+
+type IntelligenceSwitchRecord struct {
+	Key                      string     `json:"key"`
+	Enabled                  bool       `json:"enabled"`
+	RequiresApprovalToEnable bool       `json:"requires_approval_to_enable"`
+	Description              string     `json:"description"`
+	ChangedBy                *string    `json:"changed_by,omitempty"`
+	ApprovalID               *string    `json:"approval_id,omitempty"`
+	ChangedAt                time.Time  `json:"changed_at"`
+}
+
+type IntelligenceHeartbeatRecord struct {
+	EngineKey  string         `json:"engine_key"`
+	Status     string         `json:"status"`
+	Version    string         `json:"version"`
+	Metadata   map[string]any `json:"metadata"`
+	LastSeenAt time.Time      `json:"last_seen_at"`
+}
+
+type IntelligenceGatewayMetrics struct {
+	Requests24h       int64   `json:"requests_24h"`
+	Failures24h       int64   `json:"failures_24h"`
+	Blocked24h        int64   `json:"blocked_24h"`
+	EstimatedCost24h  float64 `json:"estimated_cost_24h"`
+	AvgLatencyMS24h   float64 `json:"avg_latency_ms_24h"`
+	Redactions24h     int64   `json:"redactions_24h"`
+}
+
+type IntelligenceStoreMetrics struct {
+	PendingEvents     int64 `json:"pending_events"`
+	FailedEvents      int64 `json:"failed_events"`
+	CandidateFeatures int64 `json:"candidate_features"`
+	JobFeatures       int64 `json:"job_features"`
+	MatchResults      int64 `json:"match_results"`
+	FeedbackEvents    int64 `json:"feedback_events"`
+}
+
+type IntelligenceDashboard struct {
+	Runs           []IntelligenceRunRecord        `json:"runs"`
+	Insights       []IntelligenceInsightRecord    `json:"insights"`
+	Models         []IntelligenceModelRecord      `json:"models"`
+	Evaluations    []IntelligenceEvaluationRecord `json:"evaluations"`
+	Switches       []IntelligenceSwitchRecord     `json:"switches"`
+	Heartbeats     []IntelligenceHeartbeatRecord  `json:"heartbeats"`
+	Gateway        IntelligenceGatewayMetrics     `json:"gateway"`
+	Store          IntelligenceStoreMetrics       `json:"store"`
+	ComputedAt     time.Time                      `json:"computed_at"`
+	AdvisoryOnly   bool                           `json:"advisory_only"`
+}
+
+type IntelligenceQueueResult struct {
+	EventID string `json:"event_id"`
+	Status  string `json:"status"`
+}
+
+func (s *Service) RunIntelligence(ctx context.Context, actor, ip, requestID string) (IntelligenceQueueResult, error) {
 	if !validResourceID(actor) {
-		return IntelligenceRunRecord{}, ErrInvalid
+		return IntelligenceQueueResult{}, ErrInvalid
 	}
-	snap, err := s.intelligenceSnapshot(ctx)
+	payload, _ := json.Marshal(map[string]any{"requested_by": actor})
+	var eventID string
+	err := s.db.QueryRow(ctx, `SELECT intelligence.enqueue_event('platform.analysis.requested','platform',NULL,$1)`, payload).Scan(&eventID)
 	if err != nil {
-		return IntelligenceRunRecord{}, err
+		return IntelligenceQueueResult{}, err
 	}
-	raw, err := json.Marshal(snap)
-	if err != nil {
-		return IntelligenceRunRecord{}, err
-	}
-	var metrics map[string]any
-	if err = json.Unmarshal(raw, &metrics); err != nil {
-		return IntelligenceRunRecord{}, err
-	}
-	insights := intelligence.Analyze(snap)
-	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return IntelligenceRunRecord{}, err
-	}
-	defer tx.Rollback(ctx)
-	var run IntelligenceRunRecord
-	var stored []byte
-	err = tx.QueryRow(ctx, `INSERT INTO intelligence_runs(engine_version,metrics,requested_by) VALUES($1,$2,$3) RETURNING id,engine_version,status,metrics,requested_by,started_at,completed_at`, intelligence.EngineVersion, raw, actor).Scan(&run.ID, &run.EngineVersion, &run.Status, &stored, &run.RequestedBy, &run.StartedAt, &run.CompletedAt)
-	if err != nil {
-		return IntelligenceRunRecord{}, err
-	}
-	run.Metrics = metrics
-	for _, v := range insights {
-		e, _ := json.Marshal(v.Evidence)
-		if _, err = tx.Exec(ctx, `INSERT INTO intelligence_insights(run_id,domain,insight_key,severity,title,rationale,evidence,recommendation,confidence) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, run.ID, v.Domain, v.Key, v.Severity, v.Title, v.Rationale, e, v.Recommendation, v.Confidence); err != nil {
-			return IntelligenceRunRecord{}, err
-		}
-	}
-	target := run.ID
-	if err = insertAuditTx(ctx, tx, AuditInput{AdminID: &actor, ActionType: "intelligence.run", TargetEntityType: "intelligence_run", TargetEntityID: &target, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"engine_version": intelligence.EngineVersion, "insight_count": len(insights), "advisory_only": true}}); err != nil {
-		return IntelligenceRunRecord{}, err
-	}
-	if err = tx.Commit(ctx); err != nil {
-		return IntelligenceRunRecord{}, err
-	}
-	return run, nil
+	_ = s.Audit(ctx, AuditInput{AdminID: &actor, ActionType: "intelligence.analysis_requested", TargetEntityType: "intelligence_event", IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"event_id": eventID, "processing_plane": "sapienworx-intelligence"}})
+	return IntelligenceQueueResult{EventID: eventID, Status: "queued"}, nil
 }
+
 func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, error) {
-	out := IntelligenceDashboard{ComputedAt: s.now().UTC(), AdvisoryOnly: true, Runs: make([]IntelligenceRunRecord, 0), Insights: make([]IntelligenceInsightRecord, 0)}
-	rows, err := s.db.Query(ctx, `SELECT id,engine_version,status,metrics,requested_by,started_at,completed_at FROM intelligence_runs ORDER BY completed_at DESC LIMIT 20`)
-	if err != nil {
-		return out, err
+	out := IntelligenceDashboard{
+		ComputedAt: s.now().UTC(), AdvisoryOnly: true,
+		Runs: []IntelligenceRunRecord{}, Insights: []IntelligenceInsightRecord{}, Models: []IntelligenceModelRecord{},
+		Evaluations: []IntelligenceEvaluationRecord{}, Switches: []IntelligenceSwitchRecord{}, Heartbeats: []IntelligenceHeartbeatRecord{},
 	}
+	rows, err := s.db.Query(ctx, `SELECT id,engine_version,status,metrics,requested_by,started_at,completed_at FROM intelligence_runs ORDER BY completed_at DESC LIMIT 20`)
+	if err != nil { return out, err }
 	for rows.Next() {
 		var v IntelligenceRunRecord
 		var raw []byte
-		if err = rows.Scan(&v.ID, &v.EngineVersion, &v.Status, &raw, &v.RequestedBy, &v.StartedAt, &v.CompletedAt); err != nil {
-			rows.Close()
-			return out, err
-		}
-		_ = json.Unmarshal(raw, &v.Metrics)
-		out.Runs = append(out.Runs, v)
+		if err = rows.Scan(&v.ID,&v.EngineVersion,&v.Status,&raw,&v.RequestedBy,&v.StartedAt,&v.CompletedAt); err != nil { rows.Close(); return out, err }
+		_ = json.Unmarshal(raw,&v.Metrics); out.Runs=append(out.Runs,v)
 	}
-	if err = rows.Err(); err != nil {
-		rows.Close()
-		return out, err
-	}
-	rows.Close()
-	rows, err = s.db.Query(ctx, `SELECT id,run_id,domain,insight_key,severity,title,rationale,evidence,recommendation,confidence::float8,status,reviewed_by,reviewed_at,created_at FROM intelligence_insights ORDER BY created_at DESC LIMIT 100`)
-	if err != nil {
-		return out, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var v IntelligenceInsightRecord
-		var raw []byte
-		if err = rows.Scan(&v.ID, &v.RunID, &v.Domain, &v.InsightKey, &v.Severity, &v.Title, &v.Rationale, &raw, &v.Recommendation, &v.Confidence, &v.Status, &v.ReviewedBy, &v.ReviewedAt, &v.CreatedAt); err != nil {
-			return out, err
-		}
-		_ = json.Unmarshal(raw, &v.Evidence)
-		out.Insights = append(out.Insights, v)
-	}
-	return out, rows.Err()
+	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
+
+	rows,err=s.db.Query(ctx,`SELECT id,run_id,domain,insight_key,severity,title,rationale,evidence,recommendation,confidence::float8,status,reviewed_by,reviewed_at,created_at FROM intelligence_insights ORDER BY created_at DESC LIMIT 100`)
+	if err!=nil{return out,err}
+	for rows.Next(){var v IntelligenceInsightRecord;var raw []byte;if err=rows.Scan(&v.ID,&v.RunID,&v.Domain,&v.InsightKey,&v.Severity,&v.Title,&v.Rationale,&raw,&v.Recommendation,&v.Confidence,&v.Status,&v.ReviewedBy,&v.ReviewedAt,&v.CreatedAt);err!=nil{rows.Close();return out,err};_ = json.Unmarshal(raw,&v.Evidence);out.Insights=append(out.Insights,v)}
+	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
+
+	rows,err=s.db.Query(ctx,`SELECT id,engine_type,version,provider,model_ref,config,status,approval_id,created_at,activated_at FROM intelligence.model_versions ORDER BY engine_type,created_at DESC LIMIT 100`)
+	if err!=nil{return out,err}
+	for rows.Next(){var v IntelligenceModelRecord;var raw []byte;if err=rows.Scan(&v.ID,&v.EngineType,&v.Version,&v.Provider,&v.ModelRef,&raw,&v.Status,&v.ApprovalID,&v.CreatedAt,&v.ActivatedAt);err!=nil{rows.Close();return out,err};_ = json.Unmarshal(raw,&v.Config);out.Models=append(out.Models,v)}
+	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
+
+	rows,err=s.db.Query(ctx,`SELECT id,model_version_id,dataset_ref,metrics,quality_gate_status,started_at,completed_at,notes FROM intelligence.evaluations ORDER BY started_at DESC LIMIT 100`)
+	if err!=nil{return out,err}
+	for rows.Next(){var v IntelligenceEvaluationRecord;var raw []byte;if err=rows.Scan(&v.ID,&v.ModelVersionID,&v.DatasetRef,&raw,&v.QualityGateStatus,&v.StartedAt,&v.CompletedAt,&v.Notes);err!=nil{rows.Close();return out,err};_ = json.Unmarshal(raw,&v.Metrics);out.Evaluations=append(out.Evaluations,v)}
+	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
+
+	rows,err=s.db.Query(ctx,`SELECT switch_key,enabled,requires_approval_to_enable,description,changed_by,approval_id,changed_at FROM intelligence.engine_switches ORDER BY switch_key`)
+	if err!=nil{return out,err}
+	for rows.Next(){var v IntelligenceSwitchRecord;if err=rows.Scan(&v.Key,&v.Enabled,&v.RequiresApprovalToEnable,&v.Description,&v.ChangedBy,&v.ApprovalID,&v.ChangedAt);err!=nil{rows.Close();return out,err};out.Switches=append(out.Switches,v)}
+	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
+
+	rows,err=s.db.Query(ctx,`SELECT engine_key,status,version,metadata,last_seen_at FROM intelligence.engine_heartbeats ORDER BY engine_key`)
+	if err!=nil{return out,err}
+	for rows.Next(){var v IntelligenceHeartbeatRecord;var raw []byte;if err=rows.Scan(&v.EngineKey,&v.Status,&v.Version,&raw,&v.LastSeenAt);err!=nil{rows.Close();return out,err};_ = json.Unmarshal(raw,&v.Metadata);out.Heartbeats=append(out.Heartbeats,v)}
+	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
+
+	err=s.db.QueryRow(ctx,`SELECT count(*),count(*) FILTER(WHERE status='failed'),count(*) FILTER(WHERE status='blocked'),COALESCE(sum(estimated_cost),0)::float8,COALESCE(avg(latency_ms),0)::float8,COALESCE(sum(redaction_count),0) FROM intelligence.gateway_requests WHERE occurred_at>=now()-interval '24 hours'`).Scan(&out.Gateway.Requests24h,&out.Gateway.Failures24h,&out.Gateway.Blocked24h,&out.Gateway.EstimatedCost24h,&out.Gateway.AvgLatencyMS24h,&out.Gateway.Redactions24h)
+	if err!=nil{return out,err}
+	err=s.db.QueryRow(ctx,`SELECT
+		(SELECT count(*) FROM intelligence.events WHERE status='pending'),
+		(SELECT count(*) FROM intelligence.events WHERE status='failed'),
+		(SELECT count(*) FROM intelligence.candidate_features),
+		(SELECT count(*) FROM intelligence.job_features),
+		(SELECT count(*) FROM intelligence.match_results),
+		(SELECT count(*) FROM intelligence.feedback_events)`).Scan(&out.Store.PendingEvents,&out.Store.FailedEvents,&out.Store.CandidateFeatures,&out.Store.JobFeatures,&out.Store.MatchResults,&out.Store.FeedbackEvents)
+	return out,err
 }
-func (s *Service) ReviewIntelligenceInsight(ctx context.Context, id, actor, status, outcome, note, ip, requestID string) error {
-	id = strings.TrimSpace(id)
-	status = strings.ToLower(strings.TrimSpace(status))
-	outcome = strings.ToLower(strings.TrimSpace(outcome))
-	note = strings.TrimSpace(note)
-	if !validResourceID(id) || !validResourceID(actor) || !map[string]bool{"reviewed": true, "dismissed": true, "actioned": true}[status] || !map[string]bool{"accepted": true, "rejected": true, "needs_more_data": true}[outcome] || len(note) > 2000 {
-		return ErrInvalid
+
+func (s *Service) ReviewIntelligenceInsight(ctx context.Context,id,actor,status,outcome,note,ip,requestID string) error {
+	id=strings.TrimSpace(id);status=strings.ToLower(strings.TrimSpace(status));outcome=strings.ToLower(strings.TrimSpace(outcome));note=strings.TrimSpace(note)
+	if !validResourceID(id)||!validResourceID(actor)||!map[string]bool{"reviewed":true,"dismissed":true,"actioned":true}[status]||!map[string]bool{"accepted":true,"rejected":true,"needs_more_data":true}[outcome]||len(note)>2000{return ErrInvalid}
+	tx,err:=s.db.BeginTx(ctx,pgx.TxOptions{});if err!=nil{return err};defer tx.Rollback(ctx)
+	tag,err:=tx.Exec(ctx,`UPDATE intelligence_insights SET status=$2,reviewed_by=$3,reviewed_at=now() WHERE id=$1`,id,status,actor);if err!=nil{return err};if tag.RowsAffected()==0{return ErrNotFound}
+	if _,err=tx.Exec(ctx,`INSERT INTO intelligence_feedback(insight_id,admin_id,outcome,note) VALUES($1,$2,$3,$4)`,id,actor,outcome,note);err!=nil{return err}
+	target:=id;if err=insertAuditTx(ctx,tx,AuditInput{AdminID:&actor,ActionType:"intelligence.insight_reviewed",TargetEntityType:"intelligence_insight",TargetEntityID:&target,IPAddress:ip,RequestID:requestID,Metadata:map[string]any{"status":status,"outcome":outcome,"advisory_only":true}});err!=nil{return err}
+	return tx.Commit(ctx)
+}
+
+func (s *Service) UpdateIntelligenceSwitch(ctx context.Context,key,actor string,enabled bool,approvalID,ip,requestID string) error {
+	key=strings.ToLower(strings.TrimSpace(key));approvalID=strings.TrimSpace(approvalID)
+	if !validResourceID(actor)||len(key)<3||len(key)>100{return ErrInvalid}
+	tx,err:=s.db.BeginTx(ctx,pgx.TxOptions{});if err!=nil{return err};defer tx.Rollback(ctx)
+	var current,requires bool
+	if err=tx.QueryRow(ctx,`SELECT enabled,requires_approval_to_enable FROM intelligence.engine_switches WHERE switch_key=$1 FOR UPDATE`,key).Scan(&current,&requires);errors.Is(err,pgx.ErrNoRows){return ErrNotFound}else if err!=nil{return err}
+	var approval any
+	if enabled&&!current&&requires {
+		if !validResourceID(approvalID){return ErrInvalid}
+		var status,action,targetType,reference string
+		if err=tx.QueryRow(ctx,`SELECT status,action_type,target_type,approval_reference FROM admin_approval_requests WHERE id=$1`,approvalID).Scan(&status,&action,&targetType,&reference);err!=nil{return err}
+		if status!="approved"||action!="intelligence.switch.enable"||targetType!="intelligence_switch"||reference!="switch:"+key{return ErrConflict}
+		approval=approvalID
 	}
-	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-	tag, err := tx.Exec(ctx, `UPDATE intelligence_insights SET status=$2,reviewed_by=$3,reviewed_at=now() WHERE id=$1`, id, status, actor)
-	if err != nil {
-		return err
-	}
-	if tag.RowsAffected() == 0 {
-		return ErrNotFound
-	}
-	if _, err = tx.Exec(ctx, `INSERT INTO intelligence_feedback(insight_id,admin_id,outcome,note) VALUES($1,$2,$3,$4)`, id, actor, outcome, note); err != nil {
-		return err
-	}
-	target := id
-	if err = insertAuditTx(ctx, tx, AuditInput{AdminID: &actor, ActionType: "intelligence.insight_reviewed", TargetEntityType: "intelligence_insight", TargetEntityID: &target, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"status": status, "outcome": outcome, "advisory_only": true}}); err != nil {
-		return err
-	}
+	if _,err=tx.Exec(ctx,`UPDATE intelligence.engine_switches SET enabled=$2,changed_by=$3,approval_id=$4,changed_at=now() WHERE switch_key=$1`,key,enabled,actor,approval);err!=nil{return err}
+	meta,_:=json.Marshal(map[string]any{"switch_key":key,"enabled":enabled,"previous":current,"approval_id":approvalID})
+	if _,err=tx.Exec(ctx,`INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,metadata) VALUES($1,'intelligence.switch.changed','engine_switch',$2)`,actor,meta);err!=nil{return err}
+	return tx.Commit(ctx)
+}
+
+func (s *Service) RegisterIntelligenceModel(ctx context.Context,actor,engineType,version,provider,modelRef string,config map[string]any,ip,requestID string)(IntelligenceModelRecord,error){
+	engineType=strings.ToLower(strings.TrimSpace(engineType));version=strings.TrimSpace(version);provider=strings.TrimSpace(provider);modelRef=strings.TrimSpace(modelRef)
+	if !validResourceID(actor)||!map[string]bool{"candidate_intelligence":true,"matching":true,"resume_parser":true,"recommendation":true,"evaluation":true,"platform_intelligence":true,"ai_gateway":true}[engineType]||len(version)<1||len(version)>80||len(provider)<1||len(provider)>80||len(modelRef)<1||len(modelRef)>200{return IntelligenceModelRecord{},ErrInvalid}
+	raw,err:=json.Marshal(config);if err!=nil{return IntelligenceModelRecord{},ErrInvalid}
+	var out IntelligenceModelRecord;var stored []byte
+	err=s.db.QueryRow(ctx,`INSERT INTO intelligence.model_versions(engine_type,version,provider,model_ref,config,status,created_by) VALUES($1,$2,$3,$4,$5,'candidate',$6) RETURNING id,engine_type,version,provider,model_ref,config,status,approval_id,created_at,activated_at`,engineType,version,provider,modelRef,raw,actor).Scan(&out.ID,&out.EngineType,&out.Version,&out.Provider,&out.ModelRef,&stored,&out.Status,&out.ApprovalID,&out.CreatedAt,&out.ActivatedAt)
+	if err!=nil{return IntelligenceModelRecord{},err};_ = json.Unmarshal(stored,&out.Config)
+	_ = s.Audit(ctx,AuditInput{AdminID:&actor,ActionType:"intelligence.model.registered",TargetEntityType:"intelligence_model",TargetEntityID:&out.ID,IPAddress:ip,RequestID:requestID,Metadata:map[string]any{"engine_type":engineType,"version":version,"provider":provider}})
+	return out,nil
+}
+
+func (s *Service) RequestModelEvaluation(ctx context.Context,modelID,actor,ip,requestID string) error {
+	if !validResourceID(modelID)||!validResourceID(actor){return ErrInvalid}
+	tag,err:=s.db.Exec(ctx,`UPDATE intelligence.model_versions SET status='evaluating' WHERE id=$1 AND status IN ('candidate','evaluating')`,modelID);if err!=nil{return err};if tag.RowsAffected()==0{return ErrConflict}
+	return s.Audit(ctx,AuditInput{AdminID:&actor,ActionType:"intelligence.model.evaluation_requested",TargetEntityType:"intelligence_model",TargetEntityID:&modelID,IPAddress:ip,RequestID:requestID})
+}
+
+func (s *Service) PromoteIntelligenceModel(ctx context.Context,modelID,actor,approvalID,ip,requestID string) error {
+	if !validResourceID(modelID)||!validResourceID(actor)||!validResourceID(approvalID){return ErrInvalid}
+	tx,err:=s.db.BeginTx(ctx,pgx.TxOptions{});if err!=nil{return err};defer tx.Rollback(ctx)
+	var engineType,status string
+	if err=tx.QueryRow(ctx,`SELECT engine_type,status FROM intelligence.model_versions WHERE id=$1 FOR UPDATE`,modelID).Scan(&engineType,&status);errors.Is(err,pgx.ErrNoRows){return ErrNotFound}else if err!=nil{return err}
+	if status!="candidate"&&status!="evaluating"&&status!="approved"{return ErrConflict}
+	var passed bool
+	if err=tx.QueryRow(ctx,`SELECT EXISTS(SELECT 1 FROM intelligence.evaluations WHERE model_version_id=$1 AND quality_gate_status='passed')`,modelID).Scan(&passed);err!=nil{return err};if !passed{return ErrConflict}
+	var approvalStatus,action,targetType string;var targetID *string
+	if err=tx.QueryRow(ctx,`SELECT status,action_type,target_type,target_id FROM admin_approval_requests WHERE id=$1`,approvalID).Scan(&approvalStatus,&action,&targetType,&targetID);err!=nil{return err}
+	if approvalStatus!="approved"||action!="intelligence.model.promote"||targetType!="intelligence_model"||targetID==nil||*targetID!=modelID{return ErrConflict}
+	if _,err=tx.Exec(ctx,`UPDATE intelligence.model_versions SET status='retired' WHERE engine_type=$1 AND status='production' AND id<>$2`,engineType,modelID);err!=nil{return err}
+	if _,err=tx.Exec(ctx,`UPDATE intelligence.model_versions SET status='production',approval_id=$2,activated_at=now() WHERE id=$1`,modelID,approvalID);err!=nil{return err}
+	meta,_:=json.Marshal(map[string]any{"engine_type":engineType,"approval_id":approvalID})
+	if _,err=tx.Exec(ctx,`INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,target_id,metadata) VALUES($1,'intelligence.model.promoted','intelligence_model',$2,$3)`,actor,modelID,meta);err!=nil{return err}
 	return tx.Commit(ctx)
 }
