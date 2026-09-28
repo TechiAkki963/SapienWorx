@@ -25,17 +25,19 @@ const (
 	ContentManage          Permission = "content.manage"
 	CostsRead              Permission = "costs.read"
 	ReleaseManage          Permission = "release.manage"
+	IntelligenceRead       Permission = "intelligence.read"
+	IntelligenceManage     Permission = "intelligence.manage"
 )
 
 var rolePermissions = map[string][]Permission{
-	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage},
-	"platform_admin": {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ReleaseManage},
+	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage, IntelligenceRead, IntelligenceManage},
+	"platform_admin": {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ReleaseManage, IntelligenceRead, IntelligenceManage},
 	"security_admin": {UsersRead, UsersModerate, AuditRead, ControlPlaneRead, ControlPlaneManage},
 	"privacy_admin":  {PrivacyRead, PrivacyManage, AuditRead, ControlPlaneRead, ControlPlaneManage},
 	"support_admin":  {UsersRead, OrganizationsRead, JobsRead},
 	"finance_admin":  {SystemRead, CostsRead, ControlPlaneRead},
 	"content_admin":  {ContentRead, ContentManage, ControlPlaneRead},
-	"auditor":        {OverviewRead, AuditRead, ControlPlaneRead, CostsRead, ContentRead},
+	"auditor":        {OverviewRead, AuditRead, ControlPlaneRead, CostsRead, ContentRead, IntelligenceRead},
 }
 
 func PermissionsForRole(role string) []Permission {
