@@ -258,26 +258,26 @@ func (p *Processor) refreshJobFeatures(ctx context.Context, jobID, sourceEventID
 }
 
 type candidateFeature struct {
-	ID          string
-	Skills      []string
-	Months      int
-	City        *string
-	State       *string
-	Country     *string
-	Notice      *int
-	Headline    string
+	ID       string
+	Skills   []string
+	Months   int
+	City     *string
+	State    *string
+	Country  *string
+	Notice   *int
+	Headline string
 }
 type jobFeature struct {
-	ID          string
-	Title       string
-	Skills      []string
-	MinMonths   int
-	MaxMonths   *int
-	WorkMode    string
-	City        *string
-	State       *string
-	Country     *string
-	Status      string
+	ID        string
+	Title     string
+	Skills    []string
+	MinMonths int
+	MaxMonths *int
+	WorkMode  string
+	City      *string
+	State     *string
+	Country   *string
+	Status    string
 }
 
 func (p *Processor) refreshCandidateMatches(ctx context.Context, candidateID string) error {
@@ -437,8 +437,8 @@ func (p *Processor) refreshRecommendations(ctx context.Context, candidateID stri
 	}
 	defer rows.Close()
 	type rec struct {
-		job string
-		score float64
+		job         string
+		score       float64
 		explanation []byte
 	}
 	items := make([]rec, 0)
@@ -749,53 +749,68 @@ func (p *Processor) evaluateMatchingModel(ctx context.Context, modelID string) e
 		return err
 	}
 	type pair struct{ candidateID, jobID string }
-	pairs := make([]pair,0)
+	pairs := make([]pair, 0)
 	for rows.Next() {
 		var item pair
-		if err := rows.Scan(&item.candidateID,&item.jobID); err != nil { rows.Close(); return err }
-		pairs=append(pairs,item)
+		if err := rows.Scan(&item.candidateID, &item.jobID); err != nil {
+			rows.Close()
+			return err
+		}
+		pairs = append(pairs, item)
 	}
 	rows.Close()
 	for _, item := range pairs {
-		candidate, err := p.loadCandidateFeature(ctx,item.candidateID)
+		candidate, err := p.loadCandidateFeature(ctx, item.candidateID)
 		if err != nil {
-			if errors.Is(err,pgx.ErrNoRows) { continue }
+			if errors.Is(err, pgx.ErrNoRows) {
+				continue
+			}
 			return err
 		}
-		job, err := p.loadJobFeature(ctx,item.jobID)
+		job, err := p.loadJobFeature(ctx, item.jobID)
 		if err != nil {
-			if errors.Is(err,pgx.ErrNoRows) { continue }
+			if errors.Is(err, pgx.ErrNoRows) {
+				continue
+			}
 			return err
 		}
-		if err := p.storeMatchForModel(ctx,candidate,job,modelID,config); err != nil { return err }
+		if err := p.storeMatchForModel(ctx, candidate, job, modelID, config); err != nil {
+			return err
+		}
 	}
-	var positives,total int
-	var avgPositive,avgNegative float64
-	err=p.db.QueryRow(ctx,`
+	var positives, total int
+	var avgPositive, avgNegative float64
+	err = p.db.QueryRow(ctx, `
 		SELECT count(*) FILTER(WHERE f.label>0.5),count(*),
 		  COALESCE(avg(m.score) FILTER(WHERE f.label>0.5),0),
 		  COALESCE(avg(m.score) FILTER(WHERE f.label<=0),0)
 		FROM intelligence.feedback_events f
 		JOIN intelligence.match_results m ON m.candidate_id=f.candidate_id AND m.job_id=f.job_id AND m.model_version_id=$1
-		WHERE f.candidate_id IS NOT NULL AND f.job_id IS NOT NULL AND f.label IS NOT NULL`,modelID).Scan(&positives,&total,&avgPositive,&avgNegative)
-	if err!=nil{return err}
-	gate:="insufficient_data"
-	if total>=25 {
-		gate="failed"
-		if positives>=5 && avgPositive>=avgNegative+10 { gate="passed" }
+		WHERE f.candidate_id IS NOT NULL AND f.job_id IS NOT NULL AND f.label IS NOT NULL`, modelID).Scan(&positives, &total, &avgPositive, &avgNegative)
+	if err != nil {
+		return err
 	}
-	metrics:=map[string]any{
-		"labeled_events":total,"positive_events":positives,
-		"avg_score_positive":avgPositive,"avg_score_non_positive":avgNegative,
-		"quality_metric":"observed_feedback_separation",
-		"minimum_labels":25,"minimum_positive_labels":5,
-		"fairness_evaluation":"requires separately approved non-sensitive cohort dataset",
-		"privacy_review":"candidate/job identifiers and outcome labels only",
-		"autonomous_promotion":false,
+	gate := "insufficient_data"
+	if total >= 25 {
+		gate = "failed"
+		if positives >= 5 && avgPositive >= avgNegative+10 {
+			gate = "passed"
+		}
 	}
-	metricsRaw,_:=json.Marshal(metrics)
-	if _,err=p.db.Exec(ctx,`INSERT INTO intelligence.evaluations(model_version_id,metrics,quality_gate_status,completed_at,notes) VALUES($1,$2,$3,now(),$4)`,modelID,metricsRaw,gate,"Observed outcome evaluation. Promotion additionally requires independent admin approval.");err!=nil{return err}
-	_,err=p.db.Exec(ctx,`UPDATE intelligence.model_versions SET status=CASE WHEN $2='passed' THEN 'approved' ELSE 'evaluating' END WHERE id=$1 AND status IN ('candidate','evaluating','approved')`,modelID,gate)
+	metrics := map[string]any{
+		"labeled_events": total, "positive_events": positives,
+		"avg_score_positive": avgPositive, "avg_score_non_positive": avgNegative,
+		"quality_metric": "observed_feedback_separation",
+		"minimum_labels": 25, "minimum_positive_labels": 5,
+		"fairness_evaluation":  "requires separately approved non-sensitive cohort dataset",
+		"privacy_review":       "candidate/job identifiers and outcome labels only",
+		"autonomous_promotion": false,
+	}
+	metricsRaw, _ := json.Marshal(metrics)
+	if _, err = p.db.Exec(ctx, `INSERT INTO intelligence.evaluations(model_version_id,metrics,quality_gate_status,completed_at,notes) VALUES($1,$2,$3,now(),$4)`, modelID, metricsRaw, gate, "Observed outcome evaluation. Promotion additionally requires independent admin approval."); err != nil {
+		return err
+	}
+	_, err = p.db.Exec(ctx, `UPDATE intelligence.model_versions SET status=CASE WHEN $2='passed' THEN 'approved' ELSE 'evaluating' END WHERE id=$1 AND status IN ('candidate','evaluating','approved')`, modelID, gate)
 	return err
 }
 
@@ -817,7 +832,6 @@ func (p *Processor) String() string {
 	return fmt.Sprintf("SapienWorx Intelligence %s", Version)
 }
 
-
 func (p *Processor) runPlatformAnalysis(ctx context.Context, event eventRecord) error {
 	var requestedBy string
 	if value, ok := event.Payload["requested_by"].(string); ok {
@@ -837,7 +851,7 @@ func (p *Processor) runPlatformAnalysis(ctx context.Context, event eventRecord) 
 		(SELECT count(*) FROM admin_alerts WHERE severity='critical' AND status IN ('open','acknowledged')),
 		(SELECT count(*) FROM privacy_requests WHERE status IN ('received','in_progress','awaiting_review')),
 		(SELECT count(*) FROM admin_approval_requests WHERE status='pending' AND (expires_at IS NULL OR expires_at>now()))`).Scan(
-		&snap.ActiveJobs,&snap.Applications30d,&snap.Interviews30d,&snap.Hires90d,&snap.ParserEvents24h,&snap.ParserFailures24h,&snap.CriticalAlerts,&snap.PendingPrivacyRequests,&snap.PendingApprovals); err != nil {
+		&snap.ActiveJobs, &snap.Applications30d, &snap.Interviews30d, &snap.Hires90d, &snap.ParserEvents24h, &snap.ParserFailures24h, &snap.CriticalAlerts, &snap.PendingPrivacyRequests, &snap.PendingApprovals); err != nil {
 		return err
 	}
 	raw, _ := json.Marshal(snap)
