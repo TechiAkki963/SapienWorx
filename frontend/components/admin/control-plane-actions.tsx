@@ -150,3 +150,59 @@ export function CaseCreateForm() {
     <div className="flex items-center gap-3"><button disabled={pending} className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50">{pending ? "Opening…" : "Open case"}</button><Message value={message}/></div>
   </form>;
 }
+
+
+export function OrganizationGovernanceForm({ companyID }: { companyID: string }) {
+  const allowed = useAdminPermission("control_plane.manage");
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (!allowed) return null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      await apiRequest("/api/v1/admin/control-plane/organization-reviews", {
+        method: "POST",
+        body: JSON.stringify({
+          company_id: companyID,
+          review_type: data.get("review_type"),
+          assigned_to: String(data.get("assigned_to") ?? "").trim(),
+          source_user_id: String(data.get("source_user_id") ?? "").trim(),
+          target_user_id: String(data.get("target_user_id") ?? "").trim(),
+          duplicate_company_id: String(data.get("duplicate_company_id") ?? "").trim(),
+          reason: String(data.get("reason") ?? "").trim(),
+          approval_reference: String(data.get("approval_reference") ?? "").trim(),
+        }),
+      });
+      form.reset();
+      setMessage("Governance review opened with dual approval.");
+      router.refresh();
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Could not create governance review.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  if (!open) return <button type="button" onClick={() => setOpen(true)} className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700">Govern organization</button>;
+
+  return <form onSubmit={submit} className="mt-3 grid gap-3 rounded-xl border border-indigo-100 bg-indigo-50/40 p-3">
+    <div className="flex items-center justify-between gap-2"><p className="text-xs font-bold text-slate-800">Governed organization action</p><button type="button" onClick={() => setOpen(false)} className="text-xs font-bold text-slate-500">Close</button></div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Review type<select name="review_type" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"><option value="restriction">Restriction</option><option value="invitation">Invitation review</option><option value="reassignment">Recruiter reassignment</option><option value="merge_review">Duplicate / merge review</option></select></label>
+    <div className="grid gap-2 sm:grid-cols-2">
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Assigned admin UUID<input name="assigned_to" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Source recruiter UUID<input name="source_user_id" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Target recruiter UUID<input name="target_user_id" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+      <label className="grid gap-1 text-[11px] font-bold text-slate-600">Duplicate company UUID<input name="duplicate_company_id" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+    </div>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Approval reference<input required minLength={5} name="approval_reference" placeholder="ORG-CHG-001" className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-normal"/></label>
+    <label className="grid gap-1 text-xs font-bold text-slate-600">Reason<textarea required minLength={10} maxLength={2000} name="reason" rows={2} className="rounded-lg border border-slate-200 bg-white p-2 text-xs font-normal"/></label>
+    <div className="flex flex-wrap items-center gap-2"><button disabled={pending} className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{pending ? "Creating…" : "Create governed review"}</button><Message value={message}/></div>
+  </form>;
+}
