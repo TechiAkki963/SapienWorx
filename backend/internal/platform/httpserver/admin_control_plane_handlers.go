@@ -341,3 +341,31 @@ func (s *Server) adminReviewIntelligenceInsight(w http.ResponseWriter, r *http.R
 	}
 	writeJSON(w, http.StatusOK, map[string]bool{"updated": true})
 }
+
+
+func (s *Server) adminUpdateIntelligenceSwitch(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input struct{Enabled bool `json:"enabled"`;ApprovalID string `json:"approval_id"`};if !decodeJSON(w,r,&input){return}
+	if err:=s.admin.UpdateIntelligenceSwitch(r.Context(),strings.TrimSpace(r.PathValue("switchKey")),actor,input.Enabled,input.ApprovalID,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()));err!=nil{s.writeAdminError(w,r,err);return}
+	writeJSON(w,http.StatusOK,map[string]bool{"updated":true})
+}
+
+func (s *Server) adminRegisterIntelligenceModel(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input struct{EngineType string `json:"engine_type"`;Version string `json:"version"`;Provider string `json:"provider"`;ModelRef string `json:"model_ref"`;Config map[string]any `json:"config"`};if !decodeJSON(w,r,&input){return}
+	result,err:=s.admin.RegisterIntelligenceModel(r.Context(),actor,input.EngineType,input.Version,input.Provider,input.ModelRef,input.Config,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()));if err!=nil{s.writeAdminError(w,r,err);return}
+	writeJSON(w,http.StatusCreated,result)
+}
+
+func (s *Server) adminRequestIntelligenceModelEvaluation(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	if err:=s.admin.RequestModelEvaluation(r.Context(),strings.TrimSpace(r.PathValue("modelID")),actor,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()));err!=nil{s.writeAdminError(w,r,err);return}
+	writeJSON(w,http.StatusAccepted,map[string]bool{"queued":true})
+}
+
+func (s *Server) adminPromoteIntelligenceModel(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input struct{ApprovalID string `json:"approval_id"`};if !decodeJSON(w,r,&input){return}
+	if err:=s.admin.PromoteIntelligenceModel(r.Context(),strings.TrimSpace(r.PathValue("modelID")),actor,input.ApprovalID,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()));err!=nil{s.writeAdminError(w,r,err);return}
+	writeJSON(w,http.StatusOK,map[string]bool{"promoted":true})
+}
