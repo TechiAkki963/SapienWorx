@@ -27,6 +27,7 @@
     "intelligence.models.read",
     "intelligence.models.evaluate",
     "intelligence.models.approve",
+    "intelligence.prompts.approve",
     "intelligence.config.update",
     "intelligence.kill_switch",
     "intelligence.audit.read"
