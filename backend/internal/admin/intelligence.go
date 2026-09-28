@@ -266,13 +266,13 @@ func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, erro
 	}
 	rows.Close()
 
-	rows, err = s.db.Query(ctx, `SELECT id,prompt_key,version,template,variables,status,model_version_id,created_by,created_at FROM intelligence.prompts ORDER BY prompt_key,version DESC LIMIT 100`)
+	rows, err = s.db.Query(ctx, `SELECT id,prompt_key,version,template,variables,status,model_version_id,approval_id,created_by,created_at,activated_at FROM intelligence.prompts ORDER BY prompt_key,version DESC LIMIT 100`)
 	if err != nil {
 		return out, err
 	}
 	for rows.Next() {
 		var v IntelligencePromptRecord
-		if err = rows.Scan(&v.ID, &v.PromptKey, &v.Version, &v.Template, &v.Variables, &v.Status, &v.ModelVersionID, &v.CreatedBy, &v.CreatedAt); err != nil {
+		if err = rows.Scan(&v.ID, &v.PromptKey, &v.Version, &v.Template, &v.Variables, &v.Status, &v.ModelVersionID, &v.ApprovalID, &v.CreatedBy, &v.CreatedAt, &v.ActivatedAt); err != nil {
 			rows.Close()
 			return out, err
 		}
@@ -491,7 +491,7 @@ func (s *Service) RegisterIntelligencePrompt(ctx context.Context, actor, promptK
 	template = strings.TrimSpace(template)
 	status = strings.ToLower(strings.TrimSpace(status))
 	modelVersionID = strings.TrimSpace(modelVersionID)
-	if !validResourceID(actor) || len(promptKey) < 3 || len(promptKey) > 100 || len(template) < 1 || len(template) > 20000 || !map[string]bool{"draft": true, "active": true, "retired": true}[status] {
+	if !validResourceID(actor) || len(promptKey) < 3 || len(promptKey) > 100 || len(template) < 1 || len(template) > 20000 || !map[string]bool{"draft": true, "retired": true}[status] {
 		return IntelligencePromptRecord{}, ErrInvalid
 	}
 	if modelVersionID != "" && !validResourceID(modelVersionID) {
@@ -515,17 +515,12 @@ func (s *Service) RegisterIntelligencePrompt(ctx context.Context, actor, promptK
 	if err = tx.QueryRow(ctx, `SELECT COALESCE(max(version),0)+1 FROM intelligence.prompts WHERE prompt_key=$1`, promptKey).Scan(&version); err != nil {
 		return IntelligencePromptRecord{}, err
 	}
-	if status == "active" {
-		if _, err = tx.Exec(ctx, `UPDATE intelligence.prompts SET status='retired' WHERE prompt_key=$1 AND status='active'`, promptKey); err != nil {
-			return IntelligencePromptRecord{}, err
-		}
-	}
-	var model any
+		var model any
 	if modelVersionID != "" {
 		model = modelVersionID
 	}
 	var out IntelligencePromptRecord
-	err = tx.QueryRow(ctx, `INSERT INTO intelligence.prompts(prompt_key,version,template,variables,status,model_version_id,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id,prompt_key,version,template,variables,status,model_version_id,created_by,created_at`, promptKey, version, template, cleanVars, status, model, actor).Scan(&out.ID, &out.PromptKey, &out.Version, &out.Template, &out.Variables, &out.Status, &out.ModelVersionID, &out.CreatedBy, &out.CreatedAt)
+	err = tx.QueryRow(ctx, `INSERT INTO intelligence.prompts(prompt_key,version,template,variables,status,model_version_id,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id,prompt_key,version,template,variables,status,model_version_id,approval_id,created_by,created_at,activated_at`, promptKey, version, template, cleanVars, status, model, actor).Scan(&out.ID, &out.PromptKey, &out.Version, &out.Template, &out.Variables, &out.Status, &out.ModelVersionID, &out.ApprovalID, &out.CreatedBy, &out.CreatedAt, &out.ActivatedAt)
 	if err != nil {
 		return IntelligencePromptRecord{}, err
 	}
@@ -538,4 +533,50 @@ func (s *Service) RegisterIntelligencePrompt(ctx context.Context, actor, promptK
 	}
 	_ = s.Audit(ctx, AuditInput{AdminID: &actor, ActionType: "intelligence.prompt.registered", TargetEntityType: "intelligence_prompt", TargetEntityID: &out.ID, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"prompt_key": promptKey, "version": version, "status": status}})
 	return out, nil
+}
+
+
+func (s *Service) ActivateIntelligencePrompt(ctx context.Context, promptID, actor, approvalID, ip, requestID string) error {
+	promptID = strings.TrimSpace(promptID)
+	approvalID = strings.TrimSpace(approvalID)
+	if !validResourceID(promptID) || !validResourceID(actor) || !validResourceID(approvalID) {
+		return ErrInvalid
+	}
+	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	var promptKey, status string
+	if err = tx.QueryRow(ctx, `SELECT prompt_key,status FROM intelligence.prompts WHERE id=$1 FOR UPDATE`, promptID).Scan(&promptKey, &status); errors.Is(err, pgx.ErrNoRows) {
+		return ErrNotFound
+	} else if err != nil {
+		return err
+	}
+	if status != "draft" {
+		return ErrConflict
+	}
+	var approvalStatus, action, targetType string
+	var targetID *string
+	if err = tx.QueryRow(ctx, `SELECT status,action_type,target_type,target_id FROM admin_approval_requests WHERE id=$1`, approvalID).Scan(&approvalStatus, &action, &targetType, &targetID); err != nil {
+		return err
+	}
+	if approvalStatus != "approved" || action != "intelligence.prompt.activate" || targetType != "intelligence_prompt" || targetID == nil || *targetID != promptID {
+		return ErrConflict
+	}
+	if _, err = tx.Exec(ctx, `UPDATE intelligence.prompts SET status='retired' WHERE prompt_key=$1 AND status='active'`, promptKey); err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, `UPDATE intelligence.prompts SET status='active',approval_id=$2,activated_at=now() WHERE id=$1`, promptID, approvalID); err != nil {
+		return err
+	}
+	meta, _ := json.Marshal(map[string]any{"prompt_key": promptKey, "approval_id": approvalID})
+	if _, err = tx.Exec(ctx, `INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,target_id,metadata) VALUES($1,'intelligence.prompt.activated','prompt',$2,$3)`, actor, promptID, meta); err != nil {
+		return err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return err
+	}
+	return s.Audit(ctx, AuditInput{AdminID: &actor, ActionType: "intelligence.prompt.activated", TargetEntityType: "intelligence_prompt", TargetEntityID: &promptID, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"prompt_key": promptKey, "approval_id": approvalID}})
 }
