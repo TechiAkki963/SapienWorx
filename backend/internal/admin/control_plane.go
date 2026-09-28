@@ -689,21 +689,21 @@ func (s *Service) RecordTelemetry(ctx context.Context, category, source, operati
 
 
 type CaseEventRecord struct {
-	ID         string    \`json:"id"\`
-	CaseID     string    \`json:"case_id"\`
-	ActorID    string    \`json:"actor_id"\`
-	EventType  string    \`json:"event_type"\`
-	Note       string    \`json:"note"\`
-	FromStatus *string   \`json:"from_status,omitempty"\`
-	ToStatus   *string   \`json:"to_status,omitempty"\`
-	CreatedAt  time.Time \`json:"created_at"\`
+	ID         string    `json:"id"`
+	CaseID     string    `json:"case_id"`
+	ActorID    string    `json:"actor_id"`
+	EventType  string    `json:"event_type"`
+	Note       string    `json:"note"`
+	FromStatus *string   `json:"from_status,omitempty"`
+	ToStatus   *string   `json:"to_status,omitempty"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 func (s *Service) CaseHistory(ctx context.Context, caseID string) ([]CaseEventRecord, error) {
 	if !validResourceID(caseID) {
 		return nil, ErrInvalid
 	}
-	rows, err := s.db.Query(ctx, \`SELECT id,case_id,actor_id,event_type,note,from_status,to_status,created_at FROM admin_case_events WHERE case_id=$1 ORDER BY created_at,id\`, caseID)
+	rows, err := s.db.Query(ctx, `SELECT id,case_id,actor_id,event_type,note,from_status,to_status,created_at FROM admin_case_events WHERE case_id=$1 ORDER BY created_at,id`, caseID)
 	if err != nil {
 		return nil, err
 	}

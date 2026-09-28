@@ -287,8 +287,8 @@ func (s *Server) adminAlertTransition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var input struct {
-		Status string \`json:"status"\`
-		Owner  string \`json:"owner"\`
+		Status string `json:"status"`
+		Owner  string `json:"owner"`
 	}
 	if !decodeJSON(w, r, &input) {
 		return
