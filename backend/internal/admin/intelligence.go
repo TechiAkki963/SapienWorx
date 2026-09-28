@@ -362,6 +362,13 @@ func (s *Service) UpdateIntelligenceSwitch(ctx context.Context, key, actor strin
 	if _, err = tx.Exec(ctx, `UPDATE intelligence.engine_switches SET enabled=$2,changed_by=$3,approval_id=$4,changed_at=now() WHERE switch_key=$1`, key, enabled, actor, approval); err != nil {
 		return err
 	}
+	if key == "matching" && enabled && !current {
+		if _, err = tx.Exec(ctx, `INSERT INTO intelligence.events(event_type,aggregate_type,aggregate_id,payload)
+			SELECT 'matching.candidate_recompute','candidate',candidate_id,'{}'::jsonb
+			FROM intelligence.candidate_features`); err != nil {
+			return err
+		}
+	}
 	meta, _ := json.Marshal(map[string]any{"switch_key": key, "enabled": enabled, "previous": current, "approval_id": approvalID})
 	if _, err = tx.Exec(ctx, `INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,metadata) VALUES($1,'intelligence.switch.changed','engine_switch',$2)`, actor, meta); err != nil {
 		return err
@@ -422,6 +429,13 @@ func (s *Service) PromoteIntelligenceModel(ctx context.Context, modelID, actor, 
 		return err
 	}
 	if status != "candidate" && status != "evaluating" && status != "approved" {
+		return ErrConflict
+	}
+	var deploymentEnabled bool
+	if err = tx.QueryRow(ctx, `SELECT enabled FROM intelligence.engine_switches WHERE switch_key='model_deployment'`).Scan(&deploymentEnabled); err != nil {
+		return err
+	}
+	if !deploymentEnabled {
 		return ErrConflict
 	}
 	var passed bool
