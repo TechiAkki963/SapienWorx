@@ -54,8 +54,9 @@ export function JobCard({
           </h3>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-ink-muted">
             <span className="font-bold text-ink">{job.company_name}</span>
-            {typeof job.match_score === "number" && <><span aria-hidden="true">·</span><span className="text-emerald-700">{job.match_score}% skill match</span></>}
+            {typeof job.match_score === "number" && <><span aria-hidden="true">·</span><span className="text-emerald-700">{job.match_score}% competency match</span></>}
           </div>
+          {job.job_reference && <p className="mt-1 text-[11px] font-bold tracking-[0.08em] text-ink-muted">{job.job_reference}</p>}
         </div>
 
         <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white shadow-sm">

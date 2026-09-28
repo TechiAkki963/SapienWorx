@@ -428,12 +428,46 @@ const server = http.createServer(async (req, res) => {
       filename: state.profileDetails.cv_original_filename,
     });
   }
+  if (url.pathname === "/api/v1/workforce/taxonomy/suggest" && req.method === "GET") {
+    const q = (url.searchParams.get("q") ?? "").toLowerCase();
+    const items = q.includes("icu")
+      ? [{ id: "11111111-1111-4111-8111-111111111111", entity_type: "competency", canonical_name: "Critical Care Nursing", matched_value: "ICU Nursing", match_kind: "alias", confidence: 1 }]
+      : q.includes("reactjs")
+        ? [{ id: "22222222-2222-4222-8222-222222222222", entity_type: "competency", canonical_name: "React", matched_value: "ReactJS", match_kind: "alias", confidence: 1 }]
+        : q.includes("a/p")
+          ? [{ id: "33333333-3333-4333-8333-333333333333", entity_type: "competency", canonical_name: "Accounts Payable", matched_value: "A/P", match_kind: "alias", confidence: 1 }]
+          : [];
+    return json(res, 200, { items });
+  }
   if (url.pathname === "/api/v1/candidate/recommendations" && req.method === "GET") return json(res, 200, { items: [], minimum_match: 65 });
   if (url.pathname === "/api/v1/candidate/saved-jobs" && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/candidate/jobs" && req.method === "GET") {
     const page = Number(url.searchParams.get("page") ?? 1);
-    const items = Array.from({ length: 10 }, (_, i) => job({ id: `${jobID.slice(0, -2)}${String(i + 1).padStart(2, "0")}`, title: i === 0 ? "Senior Go Platform Engineer" : `Platform Engineer ${i + 1}` }));
-    return json(res, 200, { items, page, limit: 10, total: 24 });
+    const query = url.searchParams.get("q") ?? "";
+    const competency = url.searchParams.get("competency") ?? "";
+    const healthcare = query.toLowerCase().includes("icu");
+    const items = Array.from({ length: 10 }, (_, i) => job({
+      id: `${jobID.slice(0, -2)}${String(i + 1).padStart(2, "0")}`,
+      job_reference: `SWX-JOB-2026-${String(i + 1).padStart(5, "0")}`,
+      title: i === 0 ? (healthcare ? "Critical Care Nurse" : "Senior Go Platform Engineer") : (healthcare ? `Registered Nurse ${i + 1}` : `Platform Engineer ${i + 1}`),
+      department: healthcare ? "Critical Care" : "Engineering",
+      required_skills: healthcare ? ["Critical Care Nursing", "Patient Assessment", "Clinical Documentation"] : ["Go", "PostgreSQL", "AWS"],
+    }));
+    const query_interpretation = query.toLowerCase() === "icu nursing"
+      ? { input: query, canonical: "Critical Care Nursing", entity_type: "competency" }
+      : undefined;
+    const competency_interpretation = competency.toLowerCase() === "icu nursing"
+      ? { input: competency, canonical: "Critical Care Nursing", entity_type: "competency" }
+      : undefined;
+    return json(res, 200, {
+      items,
+      page,
+      limit: 10,
+      total: 24,
+      sort: url.searchParams.get("sort") || (query || competency ? "relevance" : "newest"),
+      ...(query_interpretation ? { query_interpretation } : {}),
+      ...(competency_interpretation ? { competency_interpretation } : {}),
+    });
   }
 
   if (url.pathname === "/api/v1/recruiter/dashboard" && req.method === "GET") return json(res, 200, {
