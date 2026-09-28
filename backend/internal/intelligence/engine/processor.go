@@ -186,7 +186,10 @@ func (p *Processor) refreshCandidateFeatures(ctx context.Context, candidateID, s
 	}
 	var details map[string]any
 	_ = json.Unmarshal(raw, &details)
-	skills := normalizeSkills(extractSkillNames(details["it_skills"]))
+	skills, err := p.normalizeSkills(ctx, extractSkillNames(details["it_skills"]))
+	if err != nil {
+		return err
+	}
 	experience := arrayValue(details["experience"])
 	education := arrayValue(details["education"])
 	certifications := arrayValue(details["certifications"])
@@ -238,7 +241,10 @@ func (p *Processor) refreshJobFeatures(ctx context.Context, jobID, sourceEventID
 	if err != nil {
 		return err
 	}
-	required = normalizeSkills(required)
+	required, err = p.normalizeSkills(ctx, required)
+	if err != nil {
+		return err
+	}
 	roleFamily := normalizeRoleFamily(title, roleCategory)
 	_, err = p.db.Exec(ctx, `
 		INSERT INTO intelligence.job_features(job_id,title,role_family,role_category,required_skills,min_experience_months,max_experience_months,employment_type,work_mode,city,state,country_code,status,source_event_id)
@@ -520,38 +526,34 @@ func (p *Processor) heartbeat(ctx context.Context, status string) error {
 	return err
 }
 
-func normalizeSkills(values []string) []string {
+func (p *Processor) normalizeSkills(ctx context.Context, values []string) ([]string, error) {
 	seen := map[string]bool{}
 	out := make([]string, 0, len(values))
 	for _, value := range values {
 		key := strings.ToLower(strings.TrimSpace(value))
-		switch key {
-		case "golang", "go lang":
-			key = "go"
-		case "postgres":
-			key = "postgresql"
-		case "js":
-			key = "javascript"
-		case "ts":
-			key = "typescript"
-		case "react.js":
-			key = "react"
-		case "nextjs":
-			key = "next.js"
-		case "amazon web services":
-			key = "aws"
-		case "springboot":
-			key = "spring boot"
-		case "technical recruiting":
-			key = "technical recruitment"
+		if key == "" {
+			continue
 		}
-		if key != "" && !seen[key] {
-			seen[key] = true
-			out = append(out, key)
+		var canonical string
+		err := p.db.QueryRow(ctx, `
+			SELECT s.normalized_name
+			FROM intelligence.skills s
+			LEFT JOIN intelligence.skill_aliases a ON a.skill_id=s.id
+			WHERE s.normalized_name=$1 OR a.alias=$1
+			ORDER BY CASE WHEN s.normalized_name=$1 THEN 0 ELSE 1 END
+			LIMIT 1`, key).Scan(&canonical)
+		if errors.Is(err, pgx.ErrNoRows) {
+			canonical = key
+		} else if err != nil {
+			return nil, err
+		}
+		if !seen[canonical] {
+			seen[canonical] = true
+			out = append(out, canonical)
 		}
 	}
 	sort.Strings(out)
-	return out
+	return out, nil
 }
 
 func extractSkillNames(value any) []string {
