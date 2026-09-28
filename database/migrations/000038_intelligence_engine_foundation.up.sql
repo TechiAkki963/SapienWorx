@@ -130,8 +130,10 @@ CREATE TABLE intelligence.prompts (
   variables text[] NOT NULL DEFAULT '{}',
   status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','active','retired')),
   model_version_id uuid REFERENCES intelligence.model_versions(id) ON DELETE SET NULL,
+  approval_id uuid REFERENCES admin_approval_requests(id) ON DELETE SET NULL,
   created_by uuid REFERENCES users(id) ON DELETE SET NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
+  activated_at timestamptz,
   UNIQUE(prompt_key,version)
 );
 CREATE UNIQUE INDEX ux_intelligence_active_prompt ON intelligence.prompts(prompt_key) WHERE status='active';
