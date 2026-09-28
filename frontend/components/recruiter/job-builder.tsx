@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { apiRequest } from "@/lib/api";
+import { TaxonomyInput } from "@/components/workforce/taxonomy-input";
 import { EditableRecruiterJob, label, RecruiterJob } from "@/lib/recruiter";
 
 type BuilderState = {
@@ -80,7 +81,7 @@ function ChipInput({ skills, setSkills }: { skills: string[]; setSkills: (next: 
 
   return (
     <div>
-      <label className="text-sm font-semibold text-ink">Skills</label>
+      <label className="text-sm font-semibold text-ink">Skills & competencies</label>
       <div className="mt-2 flex min-h-12 flex-wrap items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 shadow-sm focus-within:border-indigo/45 focus-within:ring-4 focus-within:ring-indigo-soft/50">
         {skills.map((skill) => (
           <span key={skill} className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
@@ -88,9 +89,30 @@ function ChipInput({ skills, setSkills }: { skills: string[]; setSkills: (next: 
             <button type="button" onClick={() => setSkills(skills.filter((item) => item !== skill))} className="text-blue-400 hover:text-blue-800" aria-label={`Remove ${skill}`}>×</button>
           </span>
         ))}
-        <input value={value} onChange={(event) => setValue(event.target.value)} onKeyDown={keyDown} onBlur={addSkill} placeholder={skills.length ? "Add another skill" : "Add a skill and press Enter"} className="min-w-[11rem] flex-1 border-0 bg-transparent py-1 text-sm outline-none placeholder:text-ink-muted/65" />
+        <div className="min-w-[11rem] flex-1">
+          <TaxonomyInput
+            value={value}
+            onValueChange={setValue}
+            onSelect={(item) => {
+              if (!skills.some((skill) => skill.toLowerCase() === item.canonical_name.toLowerCase())) setSkills([...skills, item.canonical_name]);
+              setValue("");
+            }}
+            placeholder={skills.length ? "Add another competency" : "Search or add a competency"}
+            className="w-full border-0 bg-transparent py-1 text-sm outline-none placeholder:text-ink-muted/65"
+            ariaLabel="Search workforce taxonomy"
+          />
+          <input
+            value={value}
+            onChange={() => {}}
+            onKeyDown={keyDown}
+            onBlur={addSkill}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+        </div>
       </div>
-      <p className="mt-1.5 text-xs text-ink-muted">These skills power candidate recommendations and matching.</p>
+      <p className="mt-1.5 text-xs text-ink-muted">Choose a canonical suggestion when available. New legitimate terms are still allowed and enter taxonomy review automatically.</p>
     </div>
   );
 }
