@@ -535,6 +535,10 @@ AS $
 DECLARE
   values text[];
 BEGIN
+  IF TG_OP='UPDATE' AND (OLD.profile_details->'it_skills') IS NOT DISTINCT FROM (NEW.profile_details->'it_skills') THEN
+    RETURN NEW;
+  END IF;
+
   SELECT coalesce(array_agg(term),'{}'::text[]) INTO values
   FROM (
     SELECT btrim(CASE jsonb_typeof(v)
