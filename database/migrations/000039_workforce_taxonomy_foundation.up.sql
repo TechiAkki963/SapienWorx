@@ -214,7 +214,7 @@ FOR EACH ROW EXECUTE FUNCTION workforce.update_entity_usage();
 CREATE OR REPLACE FUNCTION workforce.update_provisional_usage()
 RETURNS trigger
 LANGUAGE plpgsql
-AS $
+AS $$
 BEGIN
   IF TG_OP='INSERT' THEN
     IF NEW.provisional_term_id IS NOT NULL THEN
@@ -238,7 +238,7 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$;
+$$;
 
 CREATE TRIGGER trg_workforce_provisional_usage
 AFTER INSERT OR UPDATE OF provisional_term_id OR DELETE ON workforce.term_mappings
