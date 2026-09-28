@@ -356,11 +356,22 @@ func (p *Processor) storeMatch(ctx context.Context, c candidateFeature, j jobFea
 	if err != nil {
 		return err
 	}
+	return p.storeMatchForModel(ctx, c, j, modelID, config)
+}
+
+func (p *Processor) storeMatchForModel(ctx context.Context, c candidateFeature, j jobFeature, modelID string, config map[string]any) error {
 	weights := map[string]float64{"skills": 0.45, "experience": 0.20, "location": 0.10, "availability": 0.10, "semantic": 0.15}
 	if raw, ok := config["weights"].(map[string]any); ok {
+		total := 0.0
 		for k := range weights {
-			if value, ok := raw[k].(float64); ok && value >= 0 {
+			if value, ok := raw[k].(float64); ok && value >= 0 && value <= 1 {
 				weights[k] = value
+			}
+			total += weights[k]
+		}
+		if total > 0 {
+			for k := range weights {
+				weights[k] /= total
 			}
 		}
 	}
@@ -377,28 +388,19 @@ func (p *Processor) storeMatch(ctx context.Context, c candidateFeature, j jobFea
 	if !eligible {
 		score = math.Min(score, 45)
 	}
-	if score < 0 {
-		score = 0
-	}
-	if score > 100 {
-		score = 100
-	}
+	score = math.Max(0, math.Min(100, score))
 	components := map[string]any{
 		"skills": skillScore * 100, "experience": experienceScore * 100, "location": locationScore * 100,
 		"availability": availabilityScore * 100, "semantic": semanticScore * 100, "matched_skills": matchedSkills,
 	}
 	explanation := map[string]any{
-		"eligible": eligible,
-		"matched_skills": matchedSkills,
-		"experience_months": c.Months,
-		"job_min_experience_months": j.MinMonths,
-		"location_alignment": locationScore >= 0.8,
-		"availability_signal": availabilityScore,
-		"method": "deterministic-weighted-v1",
+		"eligible": eligible, "matched_skills": matchedSkills, "experience_months": c.Months,
+		"job_min_experience_months": j.MinMonths, "location_alignment": locationScore >= 0.8,
+		"availability_signal": availabilityScore, "method": "deterministic-weighted-v1",
 	}
 	compRaw, _ := json.Marshal(components)
 	expRaw, _ := json.Marshal(explanation)
-	_, err = p.db.Exec(ctx, `
+	_, err := p.db.Exec(ctx, `
 		INSERT INTO intelligence.match_results(candidate_id,job_id,model_version_id,eligible,score,components,explanation)
 		VALUES($1,$2,$3,$4,$5,$6,$7)
 		ON CONFLICT(candidate_id,job_id,model_version_id) DO UPDATE SET eligible=EXCLUDED.eligible,score=EXCLUDED.score,components=EXCLUDED.components,explanation=EXCLUDED.explanation,generated_at=now()`,
@@ -734,36 +736,64 @@ func (p *Processor) EvaluateCandidateModels(ctx context.Context) error {
 }
 
 func (p *Processor) evaluateMatchingModel(ctx context.Context, modelID string) error {
-	var positives, total int
-	var avgPositive, avgNegative float64
-	err := p.db.QueryRow(ctx, `
-		SELECT
-		  count(*) FILTER (WHERE f.label>0.5),
-		  count(*),
-		  COALESCE(avg(m.score) FILTER (WHERE f.label>0.5),0),
-		  COALESCE(avg(m.score) FILTER (WHERE f.label<=0),0)
-		FROM intelligence.feedback_events f
-		LEFT JOIN intelligence.match_results m ON m.candidate_id=f.candidate_id AND m.job_id=f.job_id AND m.model_version_id=$1
-		WHERE f.candidate_id IS NOT NULL AND f.job_id IS NOT NULL AND f.label IS NOT NULL`, modelID).Scan(&positives, &total, &avgPositive, &avgNegative)
+	var raw []byte
+	if err := p.db.QueryRow(ctx, `SELECT config FROM intelligence.model_versions WHERE id=$1 AND engine_type='matching'`, modelID).Scan(&raw); err != nil {
+		return err
+	}
+	var config map[string]any
+	_ = json.Unmarshal(raw, &config)
+	rows, err := p.db.Query(ctx, `SELECT DISTINCT candidate_id,job_id FROM intelligence.feedback_events WHERE candidate_id IS NOT NULL AND job_id IS NOT NULL AND label IS NOT NULL ORDER BY candidate_id,job_id LIMIT 2000`)
 	if err != nil {
 		return err
 	}
-	gate := "insufficient_data"
-	if total >= 25 {
-		gate = "failed"
-		if avgPositive >= avgNegative+10 {
-			gate = "passed"
+	type pair struct{ candidateID, jobID string }
+	pairs := make([]pair,0)
+	for rows.Next() {
+		var item pair
+		if err := rows.Scan(&item.candidateID,&item.jobID); err != nil { rows.Close(); return err }
+		pairs=append(pairs,item)
+	}
+	rows.Close()
+	for _, item := range pairs {
+		candidate, err := p.loadCandidateFeature(ctx,item.candidateID)
+		if err != nil {
+			if errors.Is(err,pgx.ErrNoRows) { continue }
+			return err
 		}
+		job, err := p.loadJobFeature(ctx,item.jobID)
+		if err != nil {
+			if errors.Is(err,pgx.ErrNoRows) { continue }
+			return err
+		}
+		if err := p.storeMatchForModel(ctx,candidate,job,modelID,config); err != nil { return err }
 	}
-	metrics := map[string]any{
-		"labeled_events": total, "positive_events": positives,
-		"avg_score_positive": avgPositive, "avg_score_non_positive": avgNegative,
-		"quality_metric": "observed_feedback_separation",
-		"bias_fairness": "not_evaluated_without_approved_non-sensitive_dataset",
-		"privacy_review": "aggregate_identifiers_only",
+	var positives,total int
+	var avgPositive,avgNegative float64
+	err=p.db.QueryRow(ctx,`
+		SELECT count(*) FILTER(WHERE f.label>0.5),count(*),
+		  COALESCE(avg(m.score) FILTER(WHERE f.label>0.5),0),
+		  COALESCE(avg(m.score) FILTER(WHERE f.label<=0),0)
+		FROM intelligence.feedback_events f
+		JOIN intelligence.match_results m ON m.candidate_id=f.candidate_id AND m.job_id=f.job_id AND m.model_version_id=$1
+		WHERE f.candidate_id IS NOT NULL AND f.job_id IS NOT NULL AND f.label IS NOT NULL`,modelID).Scan(&positives,&total,&avgPositive,&avgNegative)
+	if err!=nil{return err}
+	gate:="insufficient_data"
+	if total>=25 {
+		gate="failed"
+		if positives>=5 && avgPositive>=avgNegative+10 { gate="passed" }
 	}
-	raw, _ := json.Marshal(metrics)
-	_, err = p.db.Exec(ctx, `INSERT INTO intelligence.evaluations(model_version_id,metrics,quality_gate_status,completed_at,notes) VALUES($1,$2,$3,now(),$4)`, modelID, raw, gate, "Offline/observational evaluation only; production promotion still requires admin approval.")
+	metrics:=map[string]any{
+		"labeled_events":total,"positive_events":positives,
+		"avg_score_positive":avgPositive,"avg_score_non_positive":avgNegative,
+		"quality_metric":"observed_feedback_separation",
+		"minimum_labels":25,"minimum_positive_labels":5,
+		"fairness_evaluation":"requires separately approved non-sensitive cohort dataset",
+		"privacy_review":"candidate/job identifiers and outcome labels only",
+		"autonomous_promotion":false,
+	}
+	metricsRaw,_:=json.Marshal(metrics)
+	if _,err=p.db.Exec(ctx,`INSERT INTO intelligence.evaluations(model_version_id,metrics,quality_gate_status,completed_at,notes) VALUES($1,$2,$3,now(),$4)`,modelID,metricsRaw,gate,"Observed outcome evaluation. Promotion additionally requires independent admin approval.");err!=nil{return err}
+	_,err=p.db.Exec(ctx,`UPDATE intelligence.model_versions SET status=CASE WHEN $2='passed' THEN 'approved' ELSE 'evaluating' END WHERE id=$1 AND status IN ('candidate','evaluating','approved')`,modelID,gate)
 	return err
 }
 
