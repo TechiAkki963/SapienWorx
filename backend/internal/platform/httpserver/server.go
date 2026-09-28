@@ -189,6 +189,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/privacy/subprocessors", Chain(http.HandlerFunc(s.adminPrivacySubprocessors), adminGuard(admin.PrivacyRead)))
 	mux.Handle("GET /api/v1/admin/privacy/processing-activities", Chain(http.HandlerFunc(s.adminPrivacyProcessingActivities), adminGuard(admin.PrivacyRead)))
 	mux.Handle("GET /api/v1/admin/control-plane", Chain(http.HandlerFunc(s.adminControlPlane), adminGuard(admin.ControlPlaneRead)))
+	mux.Handle("GET /api/v1/admin/runtime-snapshot", Chain(http.HandlerFunc(s.adminRuntimeSnapshot), adminGuard(admin.SystemRead)))
 	mux.Handle("POST /api/v1/admin/control-plane/approvals", Chain(http.HandlerFunc(s.adminCreateApproval), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("POST /api/v1/admin/control-plane/approvals/{approvalID}/decisions", Chain(http.HandlerFunc(s.adminDecideApproval), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("POST /api/v1/admin/control-plane/cases", Chain(http.HandlerFunc(s.adminCreateCase), adminGuard(admin.ControlPlaneManage)))

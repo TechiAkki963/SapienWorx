@@ -89,11 +89,14 @@ func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request)
 	if !decodeJSON(w, r, &input) {
 		return
 	}
+	started := time.Now()
 	result, err := s.messages.service.Initiate(r.Context(), claims.Subject, input)
 	if err != nil {
+		s.recordAdminTelemetry("inmail", "messaging_api", "single_send", "failed", time.Since(started), "", nil)
 		s.writeMessagingError(w, r, err)
 		return
 	}
+	s.recordAdminTelemetry("inmail", "messaging_api", "single_send", "ok", time.Since(started), result.Thread.ID, nil)
 	s.messages.hub.Broadcast(result.Thread.ID, messaging.NewMessageEvent(result.Message))
 	writeJSON(w, http.StatusCreated, result)
 }
@@ -108,11 +111,14 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &input) {
 		return
 	}
+	started := time.Now()
 	result, err := s.messages.service.BulkInMail(r.Context(), claims.Subject, input)
 	if err != nil {
+		s.recordAdminTelemetry("inmail", "messaging_api", "bulk_send", "failed", time.Since(started), "", nil)
 		s.writeMessagingError(w, r, err)
 		return
 	}
+	s.recordAdminTelemetry("inmail", "messaging_api", "bulk_send", "ok", time.Since(started), "", nil)
 	writeJSON(w, http.StatusOK, result)
 }
 

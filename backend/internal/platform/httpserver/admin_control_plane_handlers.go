@@ -227,3 +227,14 @@ func (s *Server) adminUpdateReleaseAcceptance(w http.ResponseWriter, r *http.Req
 	}
 	writeJSON(w, http.StatusOK, map[string]bool{"updated": true})
 }
+
+
+func (s *Server) adminRuntimeSnapshot(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	result, err := s.admin.RuntimeSnapshot(r.Context())
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
