@@ -687,7 +687,6 @@ func (s *Service) RecordTelemetry(ctx context.Context, category, source, operati
 	return err
 }
 
-
 type CaseEventRecord struct {
 	ID         string    `json:"id"`
 	CaseID     string    `json:"case_id"`
