@@ -279,7 +279,7 @@ const server = http.createServer(async (req, res) => {
   logRequest(req, url, payload);
 
   // Synthetic browser scenarios only. This controller never exists in Go.
-  if (url.pathname === "/__e2e/admin-security" && req.method === "POST" && process.env.ADMIN_SECURITY_E2E === "1") {
+  if (url.pathname === "/__e2e/admin-security" && req.method === "POST") {
     state.adminAccess = { ...state.adminAccess, ...payload };
     return json(res, 200, { configured: true });
   }
