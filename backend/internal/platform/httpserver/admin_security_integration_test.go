@@ -157,6 +157,8 @@ func TestAdminSecurityHTTPIsolatedDatabase(t *testing.T) {
 		{"GET", "/api/v1/admin/jobs", admin.JobsRead},
 		{"GET", "/api/v1/admin/audit-logs", admin.AuditRead},
 		{"GET", "/api/v1/admin/budget-settings", admin.SystemRead},
+		{"GET", "/api/v1/admin/workforce-taxonomy", admin.TaxonomyRead},
+		{"POST", "/api/v1/admin/workforce-taxonomy/provisional/invalid/resolve", admin.TaxonomyManage},
 		{"GET", "/api/v1/admin/privacy/requests", admin.PrivacyRead},
 		{"GET", "/api/v1/admin/privacy/incidents", admin.PrivacyRead},
 		{"GET", "/api/v1/admin/privacy/subprocessors", admin.PrivacyRead},
