@@ -491,7 +491,7 @@ func (s *Service) RegisterIntelligencePrompt(ctx context.Context, actor, promptK
 	template = strings.TrimSpace(template)
 	status = strings.ToLower(strings.TrimSpace(status))
 	modelVersionID = strings.TrimSpace(modelVersionID)
-	if !validResourceID(actor) || len(promptKey) < 3 || len(promptKey) > 100 || len(template) < 1 || len(template) > 20000 || !map[string]bool{"draft": true, "retired": true}[status] {
+	if !validResourceID(actor) || len(promptKey) < 3 || len(promptKey) > 100 || len(template) < 1 || len(template) > 20000 || status != "draft" {
 		return IntelligencePromptRecord{}, ErrInvalid
 	}
 	if modelVersionID != "" && !validResourceID(modelVersionID) {
