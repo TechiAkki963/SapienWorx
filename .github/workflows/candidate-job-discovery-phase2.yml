@@ -87,6 +87,31 @@ jobs:
               RAISE EXCEPTION 'taxonomy alias resolution failed: %', resolved_name;
             END IF;
 
+            DECLARE
+              candidate_source uuid := gen_random_uuid();
+              job_source uuid := gen_random_uuid();
+              mapped_matches integer;
+            BEGIN
+              PERFORM workforce.sync_source_terms('candidate_skill',candidate_source,ARRAY['ReactJS'],'competency','phase2.validation');
+              PERFORM workforce.sync_source_terms('job_required_skill',job_source,ARRAY['React'],'competency','phase2.validation');
+
+              SELECT count(*) INTO mapped_matches
+              FROM workforce.term_mappings candidate_mapping
+              JOIN workforce.term_mappings job_mapping
+                ON candidate_mapping.entity_id=job_mapping.entity_id
+              WHERE candidate_mapping.source_type='candidate_skill'
+                AND candidate_mapping.source_id=candidate_source
+                AND job_mapping.source_type='job_required_skill'
+                AND job_mapping.source_id=job_source;
+
+              IF mapped_matches <> 1 THEN
+                RAISE EXCEPTION 'taxonomy-aware recommendation alias join failed: %', mapped_matches;
+              END IF;
+
+              DELETE FROM workforce.term_mappings
+              WHERE source_id IN (candidate_source,job_source);
+            END;
+
             SELECT count(*) INTO index_count
             FROM pg_indexes
             WHERE indexname IN (
