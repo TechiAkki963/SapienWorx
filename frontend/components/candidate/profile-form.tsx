@@ -324,7 +324,7 @@ export function ProfileForm({ profile, extended, onSaved, guided = false, sectio
               <label className={labelClass}>Proficiency<select className={inputClass} name={`skill_${index}_proficiency`} defaultValue={recValue(initialSkills, index, "proficiency")}><option value="">Select</option><option>1 / 5</option><option>2 / 5</option><option>3 / 5</option><option>4 / 5</option><option>5 / 5</option></select></label>
             </div>
           ))}
-          <button type="button" onClick={() => setSkillCount((count) => count + 1)} className="justify-self-end rounded-full border border-indigo/25 px-4 py-2 text-xs font-bold text-indigo hover:bg-indigo-soft">+ IT skill</button>
+          <button type="button" onClick={() => setSkillCount((count) => count + 1)} className="justify-self-end rounded-full border border-indigo/25 px-4 py-2 text-xs font-bold text-indigo hover:bg-indigo-soft">+ Skill / competency</button>
         </div>
       </Section></div>
 
