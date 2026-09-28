@@ -20,3 +20,14 @@ func TestWorkforceNormalized(t *testing.T) {
 		t.Fatalf("unexpected normalization %q", got)
 	}
 }
+
+
+func TestCleanTypesAcrossDomains(t *testing.T) {
+	got, err := CleanTypes([]string{"occupation", "licence", "equipment", "qualification", "domain_knowledge"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 5 {
+		t.Fatalf("unexpected cross-domain type count: %#v", got)
+	}
+}
