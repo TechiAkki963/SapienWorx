@@ -14,6 +14,7 @@ SapienWorx remains cross-industry. Search behavior and validation must work for 
 - taxonomy-aware competency/requirement filtering
 - literal-search fallback for legitimate unknown terms
 - deterministic relevance ordering
+- taxonomy-aware fallback recommendations with inspectable competency counts
 - employment-type filtering
 - work-mode filtering
 - role/function filtering
@@ -44,7 +45,7 @@ Unknown terms are not rejected. Literal title, description, company, role-catego
 
 Relevance is deterministic and inspectable. Exact title matches rank above partial title matches; canonical-title matches and taxonomy-mapped requirement matches contribute additional evidence. Recency is the tie-breaker.
 
-No LLM or vector similarity is required for Phase 2.
+No LLM or vector similarity is required for Phase 2. When the separate governed Intelligence recommendation engine is disabled, candidate recommendations use the same canonical/provisional workforce mappings as search; the returned explanation records matched, required and unmatched competency counts.
 
 ## Privacy boundary
 
