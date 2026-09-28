@@ -72,15 +72,17 @@ type IntelligenceSwitchRecord struct {
 }
 
 type IntelligencePromptRecord struct {
-	ID             string    `json:"id"`
-	PromptKey      string    `json:"prompt_key"`
-	Version        int       `json:"version"`
-	Template       string    `json:"template"`
-	Variables      []string  `json:"variables"`
-	Status         string    `json:"status"`
-	ModelVersionID *string   `json:"model_version_id,omitempty"`
-	CreatedBy      *string   `json:"created_by,omitempty"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID             string     `json:"id"`
+	PromptKey      string     `json:"prompt_key"`
+	Version        int        `json:"version"`
+	Template       string     `json:"template"`
+	Variables      []string   `json:"variables"`
+	Status         string     `json:"status"`
+	ModelVersionID *string    `json:"model_version_id,omitempty"`
+	ApprovalID     *string    `json:"approval_id,omitempty"`
+	CreatedBy      *string    `json:"created_by,omitempty"`
+	CreatedAt      time.Time  `json:"created_at"`
+	ActivatedAt    *time.Time `json:"activated_at,omitempty"`
 }
 
 type IntelligenceHeartbeatRecord struct {
