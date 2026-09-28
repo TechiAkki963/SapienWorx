@@ -451,7 +451,7 @@ RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public, workforce
-AS $
+AS $$
 DECLARE
   raw_term text;
   normalized text;
@@ -512,26 +512,26 @@ BEGIN
       confidence=0.0000,source=EXCLUDED.source,updated_at=now();
   END LOOP;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION workforce.sync_job_required_skills()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public, workforce
-AS $
+AS $$
 BEGIN
   PERFORM workforce.sync_source_terms('job_required_skill',NEW.id,NEW.required_skills,'competency','job.write');
   RETURN NEW;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION workforce.sync_candidate_competencies()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public, workforce
-AS $
+AS $$
 DECLARE
   values text[];
 BEGIN
@@ -556,7 +556,7 @@ BEGIN
   PERFORM workforce.sync_source_terms('candidate_skill',NEW.user_id,values,'competency','candidate.profile.write');
   RETURN NEW;
 END;
-$;
+$$;
 
 CREATE TRIGGER trg_workforce_sync_job_required_skills
 AFTER INSERT OR UPDATE OF required_skills ON jobs
@@ -566,7 +566,7 @@ CREATE TRIGGER trg_workforce_sync_candidate_competencies
 AFTER INSERT OR UPDATE OF profile_details ON candidate_profiles
 FOR EACH ROW EXECUTE FUNCTION workforce.sync_candidate_competencies();
 
-DO $
+DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_app') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA workforce TO sapienworx_app';
