@@ -12,8 +12,8 @@ const roles = [
   { id: "security_admin", label: "Security Admin", description: "Account security actions and authorized audit investigations." },
   { id: "privacy_admin", label: "Privacy Admin", description: "Data-rights operations and authorized audit investigations." },
   { id: "support_admin", label: "Support Admin", description: "Read-only account, organization and job support." },
-  { id: "finance_admin", label: "Finance Admin", description: "Read-only operational usage. Actual AWS billing is not integrated yet." },
-  { id: "content_admin", label: "Content Admin", description: "Reserved for Knowledge Hub workflows; no implemented content capabilities yet." },
+  { id: "finance_admin", label: "Finance Admin", description: "Read-only actual cost snapshots and governed operational evidence." },
+  { id: "content_admin", label: "Content Admin", description: "Knowledge Hub revisions and publishing controls without platform-security privileges." },
   { id: "auditor", label: "Read-only Auditor", description: "Aggregate overview and authorized audit records; no mutations." },
 ] as const;
 
@@ -27,6 +27,10 @@ const modules = [
   { label: "Privacy operations", permissions: [["privacy.read", "View privacy operations records"], ["privacy.manage", "Transition data-rights requests"]] },
   { label: "Audit history", permissions: [["audit.read", "Read authorized audit records"]] },
   { label: "System usage", permissions: [["system.read", "View operational counts and SNS usage"], ["system.configure", "Change SNS usage thresholds"]] },
+  { label: "Control plane", permissions: [["control_plane.read", "View approvals, cases, telemetry and release evidence"], ["control_plane.manage", "Create governed reviews and independent approvals"]] },
+  { label: "Knowledge Hub", permissions: [["content.read", "View content revisions"], ["content.manage", "Publish governed content revisions"]] },
+  { label: "Cost evidence", permissions: [["costs.read", "View actual cloud cost snapshots"]] },
+  { label: "Release acceptance", permissions: [["release.manage", "Manage reviewed release acceptance checkpoints"]] },
 ] as const;
 
 export function AdminAccessPreview({ access }: { access: AdminAccess }) {
