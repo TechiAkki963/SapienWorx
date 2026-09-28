@@ -69,6 +69,46 @@ test.describe("recruiter pipeline", () => {
 test.describe("job applicant workspace", () => {
   test.beforeEach(async ({ request }) => resetE2E(request));
 
+  test("uses a server-filtered table-first job workspace while keeping mobile actions", async ({ page, request }) => {
+    await login(page, "recruiter");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/recruiter/jobs");
+
+    await expect(page.getByRole("table")).toHaveCount(1);
+    await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+
+    const filters = page.getByRole("form", { name: "Job filters" });
+    await filters.getByLabel("Search").fill("Senior Go");
+    await filters.getByLabel("Status").selectOption("active");
+    await filters.getByLabel("Role / function").selectOption("Technology");
+    await filters.getByLabel("Work mode").selectOption("hybrid");
+    await filters.getByLabel("Employment").selectOption("full_time");
+    await filters.getByLabel("Sort").selectOption("applications");
+    await filters.getByRole("button", { name: "Apply" }).click();
+
+    await expect(page).toHaveURL(/q=Senior(?:\+|%20)Go/);
+    await expect(page).toHaveURL(/status=active/);
+    await expect(page).toHaveURL(/role_category=Technology/);
+    await expect(page).toHaveURL(/sort=applications/);
+
+    const requests = await (await request.get(`${MOCK_API}/__e2e/requests`)).json();
+    const search = requests.items.findLast((item: { path: string; method: string; search: string }) => item.path === "/api/v1/recruiter/jobs" && item.method === "GET");
+    const params = new URLSearchParams(search.search);
+    expect(params.get("q")).toBe("Senior Go");
+    expect(params.get("status")).toBe("active");
+    expect(params.get("role_category")).toBe("Technology");
+    expect(params.get("work_mode")).toBe("hybrid");
+    expect(params.get("employment_type")).toBe("full_time");
+    expect(params.get("sort")).toBe("applications");
+    expect(params.get("limit")).toBe("20");
+
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.reload();
+    await expect(page.getByRole("table")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "View applicants →" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  });
+
   test("shows the stable job reference and opens applicants from job management", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs");

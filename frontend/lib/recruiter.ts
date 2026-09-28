@@ -21,6 +21,7 @@ export type RecruiterJob = {
   job_reference: string;
   title: string;
   department?: string;
+  role_category?: string;
   status: string;
   employment_type: string;
   work_mode: string;
@@ -35,6 +36,21 @@ export type RecruiterJob = {
   published_at?: string;
   application_deadline?: string;
   updated_at: string;
+};
+export type RecruiterJobWorkspace = {
+  items: RecruiterJob[];
+  page: number;
+  limit: number;
+  total: number;
+  sort: "updated" | "applications" | "newest" | "deadline";
+  summary: {
+    total_jobs: number;
+    active_jobs: number;
+    draft_jobs: number;
+    paused_jobs: number;
+    applications: number;
+    new_applications: number;
+  };
 };
 export type PipelineRow = {
   application_id: string;

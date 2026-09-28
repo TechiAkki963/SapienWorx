@@ -485,7 +485,40 @@ const server = http.createServer(async (req, res) => {
     recent_applications: pipelineRows().slice(0, 6),
     needs_attention: [],
   });
-  if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") return json(res, 200, { items: [{ ...job(), applications: 1000, new_applications: 9, shortlisted: 1, interviews: 0, status: "active", updated_at: now() }] });
+  if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") {
+    const source = [{
+      ...job(),
+      role_category: "Technology",
+      applications: 1000,
+      new_applications: 9,
+      shortlisted: 1,
+      interviews: 0,
+      status: "active",
+      application_deadline: new Date(Date.now() + 2 * 86400000).toISOString(),
+      updated_at: now(),
+    }];
+    const q = (url.searchParams.get("q") ?? "").toLowerCase();
+    const status = url.searchParams.get("status") ?? "";
+    const roleCategory = url.searchParams.get("role_category") ?? "";
+    const workMode = url.searchParams.get("work_mode") ?? "";
+    const employmentType = url.searchParams.get("employment_type") ?? "";
+    let items = source.filter((item) =>
+      (!q || `${item.job_reference} ${item.title} ${item.department} ${item.role_category} ${item.city} ${item.state}`.toLowerCase().includes(q)) &&
+      (!status || item.status === status) &&
+      (!roleCategory || item.role_category === roleCategory) &&
+      (!workMode || item.work_mode === workMode) &&
+      (!employmentType || item.employment_type === employmentType)
+    );
+    if (url.searchParams.get("deadline") === "soon") items = items.filter((item) => item.status === "active");
+    return json(res, 200, {
+      items,
+      page: Number(url.searchParams.get("page") ?? 1),
+      limit: Number(url.searchParams.get("limit") ?? 20),
+      total: items.length,
+      sort: url.searchParams.get("sort") || "updated",
+      summary: { total_jobs: 1, active_jobs: 1, draft_jobs: 0, paused_jobs: 0, applications: 1000, new_applications: 9 },
+    });
+  }
   if (url.pathname === `/api/v1/recruiter/jobs/${jobID}` && req.method === "GET") return json(res, 200, {
     id: jobID, job_reference: "SWX-JOB-2026-00001", status: "active", title: "Senior Go Platform Engineer", department: "Engineering",
     employment_type: "full_time", work_mode: "hybrid", role_category: "Technology", location: "Mumbai, Maharashtra",

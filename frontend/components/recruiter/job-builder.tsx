@@ -53,7 +53,25 @@ const steps = [
   { number: 3, title: "Candidate story", subtitle: "Role, company and process" },
   { number: 4, title: "Publish & share", subtitle: "Final review and distribution" },
 ];
-const roleCategoryOptions = ["Technology", "Product", "Design", "Sales", "Marketing", "Finance", "Human Resources", "Operations", "Healthcare", "Other"];
+const roleCategoryOptions = [
+  "Healthcare",
+  "Finance",
+  "Human Resources",
+  "Operations",
+  "Sales",
+  "Marketing",
+  "Technology",
+  "Product",
+  "Design",
+  "Manufacturing",
+  "Logistics",
+  "Hospitality",
+  "Education",
+  "Construction",
+  "Legal",
+  "Retail",
+  "Other",
+];
 
 function optionalNumber(value: string): number | null {
   const normalized = value.trim();
