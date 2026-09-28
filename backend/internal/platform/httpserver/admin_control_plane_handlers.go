@@ -441,3 +441,11 @@ func (s *Server) adminRegisterIntelligencePrompt(w http.ResponseWriter, r *http.
 	}
 	writeJSON(w, http.StatusCreated, result)
 }
+
+
+func (s *Server) adminActivateIntelligencePrompt(w http.ResponseWriter,r *http.Request){
+	actor,ok:=adminClaimsID(r);if !ok{writeError(w,r,http.StatusForbidden,"admin_forbidden","master admin access denied");return}
+	var input struct{ApprovalID string `json:"approval_id"`};if !decodeJSON(w,r,&input){return}
+	if err:=s.admin.ActivateIntelligencePrompt(r.Context(),strings.TrimSpace(r.PathValue("promptID")),actor,input.ApprovalID,clientIP(r.RemoteAddr),RequestIDFromContext(r.Context()));err!=nil{s.writeAdminError(w,r,err);return}
+	writeJSON(w,http.StatusOK,map[string]bool{"activated":true})
+}
