@@ -88,6 +88,11 @@ func (s *Service) SaveKnowledgeArticle(ctx context.Context, actor string, input 
 func approvedRequest(ctx context.Context,tx pgx.Tx,id string) error{
 	if !validResourceID(id){return ErrInvalid};var status string;if err:=tx.QueryRow(ctx,`SELECT status FROM admin_approval_requests WHERE id=$1`,id).Scan(&status);errors.Is(err,pgx.ErrNoRows){return ErrNotFound}else if err!=nil{return err};if status!="approved"{return ErrConflict};return nil
 }
+func approvedSettingRequest(ctx context.Context,tx pgx.Tx,id,key string) error{
+	if !validResourceID(id){return ErrInvalid};var status,action,targetType,reference string
+	if err:=tx.QueryRow(ctx,`SELECT status,action_type,target_type,approval_reference FROM admin_approval_requests WHERE id=$1`,id).Scan(&status,&action,&targetType,&reference);errors.Is(err,pgx.ErrNoRows){return ErrNotFound}else if err!=nil{return err}
+	if status!="approved"||action!="operational_setting.update"||targetType!="operational_setting"||reference!="setting:"+key{return ErrConflict};return nil
+}
 
 func (s *Service) SetOperationalSetting(ctx context.Context, actor string, input OperationalSettingInput, ip, requestID string)(OperationalSettingRecord,error){
 	input.Key=strings.ToLower(strings.TrimSpace(input.Key));input.Description=strings.TrimSpace(input.Description);input.ApprovalID=strings.TrimSpace(input.ApprovalID)
@@ -95,7 +100,7 @@ func (s *Service) SetOperationalSetting(ctx context.Context, actor string, input
 	clean:=sanitizeTelemetryMetadata(input.Value);raw,err:=json.Marshal(clean);if err!=nil{return OperationalSettingRecord{},err}
 	tx,err:=s.db.BeginTx(ctx,pgx.TxOptions{});if err!=nil{return OperationalSettingRecord{},err};defer tx.Rollback(ctx)
 	var approval any
-	if input.HighRisk{if err=approvedRequest(ctx,tx,input.ApprovalID);err!=nil{return OperationalSettingRecord{},err};approval=input.ApprovalID}
+	if input.HighRisk{if err=approvedSettingRequest(ctx,tx,input.ApprovalID,input.Key);err!=nil{return OperationalSettingRecord{},err};approval=input.ApprovalID}
 	var out OperationalSettingRecord
 	err=tx.QueryRow(ctx,`INSERT INTO admin_operational_settings(setting_key,value,description,high_risk,approval_id,updated_by) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(setting_key) DO UPDATE SET value=EXCLUDED.value,description=EXCLUDED.description,high_risk=EXCLUDED.high_risk,approval_id=EXCLUDED.approval_id,updated_by=EXCLUDED.updated_by,updated_at=now() RETURNING setting_key,value,description,high_risk,approval_id,updated_by,updated_at`,input.Key,raw,input.Description,input.HighRisk,approval,actor).Scan(&out.Key,&out.Value,&out.Description,&out.HighRisk,&out.ApprovalID,&out.UpdatedBy,&out.UpdatedAt);if err!=nil{return OperationalSettingRecord{},err}
 	if err=insertAuditTx(ctx,tx,AuditInput{AdminID:&actor,ActionType:"operational_setting.updated",TargetEntityType:"operational_setting",IPAddress:ip,RequestID:requestID,Metadata:map[string]any{"setting_key":input.Key,"high_risk":input.HighRisk,"approval_id":input.ApprovalID}});err!=nil{return OperationalSettingRecord{},err};if err=tx.Commit(ctx);err!=nil{return OperationalSettingRecord{},err};return out,nil
