@@ -392,7 +392,7 @@ INSERT INTO intelligence.prompts(prompt_key,version,template,variables,status)
 VALUES('match.explanation',1,'Explain the deterministic match using only supplied evidence. Do not infer protected traits or unsupported facts.',ARRAY['match_components','job_title','candidate_headline'],'active')
 ON CONFLICT(prompt_key,version) DO NOTHING;
 
-DO $
+DO $grant$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_app') THEN
     EXECUTE 'GRANT USAGE ON SCHEMA intelligence TO sapienworx_app';
@@ -412,6 +412,6 @@ BEGIN
     EXECUTE 'GRANT SELECT ON candidate_profiles, jobs, applications, interviews, admin_telemetry_events, admin_alerts, privacy_requests, admin_approval_requests TO sapienworx_intelligence';
     EXECUTE 'GRANT SELECT, INSERT ON intelligence_runs, intelligence_insights TO sapienworx_intelligence';
   END IF;
-END $;
+END $grant$;
 
 COMMIT;
