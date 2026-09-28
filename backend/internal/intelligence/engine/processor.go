@@ -18,6 +18,8 @@ import (
 
 const Version = "engine-v1"
 
+var errCapabilityPaused = errors.New("intelligence capability paused")
+
 type Processor struct {
 	db     *pgxpool.Pool
 	logger *slog.Logger
@@ -74,6 +76,12 @@ func (p *Processor) ProcessBatch(ctx context.Context, limit int) error {
 			return nil
 		}
 		if err := p.processEvent(ctx, event); err != nil {
+			if errors.Is(err, errCapabilityPaused) {
+				if deferErr := p.deferEvent(ctx, event.ID); deferErr != nil {
+					return deferErr
+				}
+				continue
+			}
 			p.logger.Warn("intelligence event failed", "event_id", event.ID, "event_type", event.EventType, "error", err)
 			if markErr := p.failEvent(ctx, event.ID, event.Attempts, err); markErr != nil {
 				return markErr
@@ -128,15 +136,42 @@ func (p *Processor) failEvent(ctx context.Context, id string, attempts int, caus
 	return err
 }
 
+func (p *Processor) deferEvent(ctx context.Context, id string) error {
+	_, err := p.db.Exec(ctx, `UPDATE intelligence.events
+		SET status='pending',
+		    attempts=GREATEST(attempts-1,0),
+		    locked_at=NULL,
+		    last_error=NULL,
+		    available_at=now()+interval '30 seconds'
+		WHERE id=$1`, id)
+	return err
+}
+
 func (p *Processor) processEvent(ctx context.Context, event eventRecord) error {
 	enabled, err := p.switchEnabled(ctx, "global_intelligence")
-	if err != nil || !enabled {
+	if err != nil {
 		return err
+	}
+	if !enabled {
+		return errCapabilityPaused
 	}
 	switch event.EventType {
 	case "candidate.profile_created", "candidate.profile_updated", "candidate.cv_uploaded":
-		if ok, err := p.switchEnabled(ctx, "candidate_intelligence"); err != nil || !ok {
+		ok, err := p.switchEnabled(ctx, "candidate_intelligence")
+		if err != nil {
 			return err
+		}
+		if !ok {
+			return errCapabilityPaused
+		}
+		if event.EventType == "candidate.cv_uploaded" {
+			cvEnabled, err := p.switchEnabled(ctx, "cv_intelligence")
+			if err != nil {
+				return err
+			}
+			if !cvEnabled {
+				return errCapabilityPaused
+			}
 		}
 		if event.AggregateID == nil {
 			return nil
