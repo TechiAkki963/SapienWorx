@@ -4,17 +4,17 @@ This directory defines the single-host production runtime. PostgreSQL is not con
 
 ## Topology
 
-`Internet -> Caddy :80/:443 -> frontend :3000 or backend :8080 -> private RDS :5432`
+`Internet -> Caddy :80/:443 -> frontend :3000 or backend :8080 -> private RDS :5432`; the non-public `intelligence` worker connects only to private RDS and is never routed by Caddy.
 
 All containers share the explicit `172.28.0.0/24` bridge. The backend trusts forwarding headers only from that network. No Docker socket is mounted, no container is privileged, and application filesystems are read-only where practical.
 
 ## First deployment
 
 1. Terraform creates the host and writes these reviewed files to `/opt/sapienworx`; it does not start the application.
-2. Bootstrap the separate database roles and replace all four SSM SecureString placeholders using the documented procedures.
+2. Bootstrap the separate database roles and replace all five SSM SecureString placeholders using the documented procedures.
 3. Run the manual GitHub production workflow with a full Git SHA from `main`. The protected `production` environment must require reviewer approval.
 4. The workflow builds `linux/arm64` images, pushes immutable SHA tags, and sends the deployment through Systems Manager.
-5. `deploy.sh` pulls exact tags, runs forward migrations once, starts backend/frontend, verifies health, and records `runtime/deployed-sha`.
+5. `deploy.sh` pulls exact tags, runs forward migrations once, starts backend/frontend/intelligence, verifies health, and records `runtime/deployed-sha`.
 6. Caddy remains disabled initially (`runtime/deployment.conf`: `CADDY_ENABLED=false`). Do not enable it until both domain names resolve to the Elastic IP and the DNS cutover is approved.
 7. After DNS is confirmed, use Session Manager to set `CADDY_ENABLED=true`, retain `ACME_EMAIL=info@sapienworx.com`, and redeploy the same SHA. Caddy will then request/renew certificates and redirect HTTP to HTTPS.
 
@@ -26,7 +26,7 @@ Rollback never runs reverse migrations. If a forward migration is incompatible w
 
 ## Runtime files
 
-- `runtime/production.env`: application-only credentials/configuration generated from SSM at every deployment, mode `0600`; never commit or copy it.
+- `runtime/production.env`: runtime credentials/configuration generated from SSM at every deployment, including separate application and Intelligence database URLs; mode `0600`; never commit or copy it.
 - `runtime/migration.env`: separate migrator URL, mode `0600`, exposed only to the one-shot migration container.
 - `runtime/deployment.conf`: non-secret Caddy enablement and ACME contact.
 - `runtime/caddy-data`: certificate state; retained across container replacement.
