@@ -149,7 +149,7 @@ func (p *Processor) deferEvent(ctx context.Context, id string) error {
 		    attempts=GREATEST(attempts-1,0),
 		    locked_at=NULL,
 		    last_error=NULL,
-		    available_at=now()+interval '30 seconds'
+		    available_at=now()+interval '10 minutes'
 		WHERE id=$1`, id)
 	return err
 }
