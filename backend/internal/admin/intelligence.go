@@ -71,6 +71,18 @@ type IntelligenceSwitchRecord struct {
 	ChangedAt                time.Time  `json:"changed_at"`
 }
 
+type IntelligencePromptRecord struct {
+	ID             string     `json:"id"`
+	PromptKey      string     `json:"prompt_key"`
+	Version        int        `json:"version"`
+	Template       string     `json:"template"`
+	Variables      []string   `json:"variables"`
+	Status         string     `json:"status"`
+	ModelVersionID *string    `json:"model_version_id,omitempty"`
+	CreatedBy      *string    `json:"created_by,omitempty"`
+	CreatedAt      time.Time  `json:"created_at"`
+}
+
 type IntelligenceHeartbeatRecord struct {
 	EngineKey  string         `json:"engine_key"`
 	Status     string         `json:"status"`
@@ -104,6 +116,7 @@ type IntelligenceDashboard struct {
 	Evaluations    []IntelligenceEvaluationRecord `json:"evaluations"`
 	Switches       []IntelligenceSwitchRecord     `json:"switches"`
 	Heartbeats     []IntelligenceHeartbeatRecord  `json:"heartbeats"`
+	Prompts        []IntelligencePromptRecord     `json:"prompts"`
 	Gateway        IntelligenceGatewayMetrics     `json:"gateway"`
 	Store          IntelligenceStoreMetrics       `json:"store"`
 	ComputedAt     time.Time                      `json:"computed_at"`
@@ -133,7 +146,7 @@ func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, erro
 	out := IntelligenceDashboard{
 		ComputedAt: s.now().UTC(), AdvisoryOnly: true,
 		Runs: []IntelligenceRunRecord{}, Insights: []IntelligenceInsightRecord{}, Models: []IntelligenceModelRecord{},
-		Evaluations: []IntelligenceEvaluationRecord{}, Switches: []IntelligenceSwitchRecord{}, Heartbeats: []IntelligenceHeartbeatRecord{},
+		Evaluations: []IntelligenceEvaluationRecord{}, Switches: []IntelligenceSwitchRecord{}, Heartbeats: []IntelligenceHeartbeatRecord{}, Prompts: []IntelligencePromptRecord{},
 	}
 	rows, err := s.db.Query(ctx, `SELECT id,engine_version,status,metrics,requested_by,started_at,completed_at FROM intelligence_runs ORDER BY completed_at DESC LIMIT 20`)
 	if err != nil { return out, err }
@@ -168,6 +181,11 @@ func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, erro
 	rows,err=s.db.Query(ctx,`SELECT engine_key,status,version,metadata,last_seen_at FROM intelligence.engine_heartbeats ORDER BY engine_key`)
 	if err!=nil{return out,err}
 	for rows.Next(){var v IntelligenceHeartbeatRecord;var raw []byte;if err=rows.Scan(&v.EngineKey,&v.Status,&v.Version,&raw,&v.LastSeenAt);err!=nil{rows.Close();return out,err};_ = json.Unmarshal(raw,&v.Metadata);out.Heartbeats=append(out.Heartbeats,v)}
+	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
+
+	rows,err=s.db.Query(ctx,`SELECT id,prompt_key,version,template,variables,status,model_version_id,created_by,created_at FROM intelligence.prompts ORDER BY prompt_key,version DESC LIMIT 100`)
+	if err!=nil{return out,err}
+	for rows.Next(){var v IntelligencePromptRecord;if err=rows.Scan(&v.ID,&v.PromptKey,&v.Version,&v.Template,&v.Variables,&v.Status,&v.ModelVersionID,&v.CreatedBy,&v.CreatedAt);err!=nil{rows.Close();return out,err};out.Prompts=append(out.Prompts,v)}
 	if err=rows.Err();err!=nil{rows.Close();return out,err};rows.Close()
 
 	err=s.db.QueryRow(ctx,`SELECT count(*),count(*) FILTER(WHERE status='failed'),count(*) FILTER(WHERE status='blocked'),COALESCE(sum(estimated_cost),0)::float8,COALESCE(avg(latency_ms),0)::float8,COALESCE(sum(redaction_count),0) FROM intelligence.gateway_requests WHERE occurred_at>=now()-interval '24 hours'`).Scan(&out.Gateway.Requests24h,&out.Gateway.Failures24h,&out.Gateway.Blocked24h,&out.Gateway.EstimatedCost24h,&out.Gateway.AvgLatencyMS24h,&out.Gateway.Redactions24h)
@@ -245,4 +263,26 @@ func (s *Service) PromoteIntelligenceModel(ctx context.Context,modelID,actor,app
 	meta,_:=json.Marshal(map[string]any{"engine_type":engineType,"approval_id":approvalID})
 	if _,err=tx.Exec(ctx,`INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,target_id,metadata) VALUES($1,'intelligence.model.promoted','intelligence_model',$2,$3)`,actor,modelID,meta);err!=nil{return err}
 	return tx.Commit(ctx)
+}
+
+
+func (s *Service) RegisterIntelligencePrompt(ctx context.Context,actor,promptKey,template,status string,variables []string,modelVersionID,ip,requestID string)(IntelligencePromptRecord,error){
+	promptKey=strings.ToLower(strings.TrimSpace(promptKey));template=strings.TrimSpace(template);status=strings.ToLower(strings.TrimSpace(status));modelVersionID=strings.TrimSpace(modelVersionID)
+	if !validResourceID(actor)||len(promptKey)<3||len(promptKey)>100||len(template)<1||len(template)>20000||!map[string]bool{"draft":true,"active":true,"retired":true}[status]{return IntelligencePromptRecord{},ErrInvalid}
+	if modelVersionID!=""&&!validResourceID(modelVersionID){return IntelligencePromptRecord{},ErrInvalid}
+	cleanVars:=make([]string,0,len(variables));seen:=map[string]bool{}
+	for _,v:=range variables{v=strings.TrimSpace(v);if v!=""&&len(v)<=80&&!seen[v]{seen[v]=true;cleanVars=append(cleanVars,v)}}
+	tx,err:=s.db.BeginTx(ctx,pgx.TxOptions{});if err!=nil{return IntelligencePromptRecord{},err};defer tx.Rollback(ctx)
+	var version int
+	if err=tx.QueryRow(ctx,`SELECT COALESCE(max(version),0)+1 FROM intelligence.prompts WHERE prompt_key=$1`,promptKey).Scan(&version);err!=nil{return IntelligencePromptRecord{},err}
+	if status=="active"{if _,err=tx.Exec(ctx,`UPDATE intelligence.prompts SET status='retired' WHERE prompt_key=$1 AND status='active'`,promptKey);err!=nil{return IntelligencePromptRecord{},err}}
+	var model any;if modelVersionID!=""{model=modelVersionID}
+	var out IntelligencePromptRecord
+	err=tx.QueryRow(ctx,`INSERT INTO intelligence.prompts(prompt_key,version,template,variables,status,model_version_id,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id,prompt_key,version,template,variables,status,model_version_id,created_by,created_at`,promptKey,version,template,cleanVars,status,model,actor).Scan(&out.ID,&out.PromptKey,&out.Version,&out.Template,&out.Variables,&out.Status,&out.ModelVersionID,&out.CreatedBy,&out.CreatedAt)
+	if err!=nil{return IntelligencePromptRecord{},err}
+	meta,_:=json.Marshal(map[string]any{"prompt_key":promptKey,"version":version,"status":status})
+	if _,err=tx.Exec(ctx,`INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,target_id,metadata) VALUES($1,'intelligence.prompt.registered','prompt',$2,$3)`,actor,out.ID,meta);err!=nil{return IntelligencePromptRecord{},err}
+	if err=tx.Commit(ctx);err!=nil{return IntelligencePromptRecord{},err}
+	_ = s.Audit(ctx,AuditInput{AdminID:&actor,ActionType:"intelligence.prompt.registered",TargetEntityType:"intelligence_prompt",TargetEntityID:&out.ID,IPAddress:ip,RequestID:requestID,Metadata:map[string]any{"prompt_key":promptKey,"version":version,"status":status}})
+	return out,nil
 }
