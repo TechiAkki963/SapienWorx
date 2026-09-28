@@ -111,8 +111,7 @@ test.describe("candidate job discovery", () => {
 
     await expect(page).toHaveURL(/q=ICU+Nursing/);
     await expect(page).toHaveURL(/role_category=Healthcare/);
-    await expect(page.getByText(/Interpreted “ICU Nursing” as/)).toBeVisible();
-    await expect(page.getByText("Critical Care Nursing", { exact: true })).toBeVisible();
+    await expect(page.getByText(/Interpreted “ICU Nursing” as Critical Care Nursing/)).toBeVisible();
     await expect(page.getByRole("heading", { name: "Critical Care Nurse" })).toBeVisible();
     await expect(page.getByText("SWX-JOB-2026-00001", { exact: true })).toBeVisible();
 
