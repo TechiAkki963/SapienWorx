@@ -299,3 +299,48 @@ func (s *Server) adminAlertTransition(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]bool{"updated": true})
 }
+
+func (s *Server) adminIntelligence(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
+	result, err := s.admin.Intelligence(r.Context())
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
+}
+
+func (s *Server) adminRunIntelligence(w http.ResponseWriter, r *http.Request) {
+	actor, ok := adminClaimsID(r)
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+		return
+	}
+	result, err := s.admin.RunIntelligence(r.Context(), actor, clientIP(r.RemoteAddr), RequestIDFromContext(r.Context()))
+	if err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, result)
+}
+
+func (s *Server) adminReviewIntelligenceInsight(w http.ResponseWriter, r *http.Request) {
+	actor, ok := adminClaimsID(r)
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+		return
+	}
+	var input struct {
+		Status string `json:"status"`
+		Outcome string `json:"outcome"`
+		Note string `json:"note"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if err := s.admin.ReviewIntelligenceInsight(r.Context(), strings.TrimSpace(r.PathValue("insightID")), actor, input.Status, input.Outcome, input.Note, clientIP(r.RemoteAddr), RequestIDFromContext(r.Context())); err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"updated": true})
+}
