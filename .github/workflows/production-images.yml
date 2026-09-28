@@ -191,6 +191,17 @@ jobs:
           sbom: true
           tags: ${{ steps.ecr.outputs.registry }}/sapienworx/backend:${{ inputs.release_sha }}
 
+      - name: Build and push Intelligence Engine
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile.intelligence
+          platforms: linux/arm64
+          push: true
+          provenance: mode=max
+          sbom: true
+          tags: ${{ steps.ecr.outputs.registry }}/sapienworx/intelligence:${{ inputs.release_sha }}
+
       - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
