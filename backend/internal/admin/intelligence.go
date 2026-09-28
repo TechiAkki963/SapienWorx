@@ -369,6 +369,26 @@ func (s *Service) UpdateIntelligenceSwitch(ctx context.Context, key, actor strin
 			return err
 		}
 	}
+	if enabled && !current {
+		switch key {
+		case "global_intelligence":
+			if _, err = tx.Exec(ctx, `UPDATE intelligence.events SET available_at=now() WHERE status IN ('pending','failed')`); err != nil {
+				return err
+			}
+		case "candidate_intelligence":
+			if _, err = tx.Exec(ctx, `UPDATE intelligence.events SET available_at=now() WHERE status IN ('pending','failed') AND event_type IN ('candidate.profile_created','candidate.profile_updated','candidate.cv_uploaded')`); err != nil {
+				return err
+			}
+		case "cv_intelligence":
+			if _, err = tx.Exec(ctx, `UPDATE intelligence.events SET available_at=now() WHERE status IN ('pending','failed') AND event_type='candidate.cv_uploaded'`); err != nil {
+				return err
+			}
+		case "learning_collection":
+			if _, err = tx.Exec(ctx, `UPDATE intelligence.events SET available_at=now() WHERE status IN ('pending','failed') AND event_type IN ('application.created','application.stage_changed','candidate.job_saved','candidate.job_unsaved')`); err != nil {
+				return err
+			}
+		}
+	}
 	meta, _ := json.Marshal(map[string]any{"switch_key": key, "enabled": enabled, "previous": current, "approval_id": approvalID})
 	if _, err = tx.Exec(ctx, `INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,metadata) VALUES($1,'intelligence.switch.changed','engine_switch',$2)`, actor, meta); err != nil {
 		return err
