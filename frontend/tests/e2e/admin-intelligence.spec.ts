@@ -16,7 +16,7 @@ test.describe("Master Admin Intelligence Centre", () => {
 
     await expect(page.getByRole("heading", { name: "Control plane for the separate Intelligence Engine" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Engine health" })).toBeVisible();
-    await expect(page.getByText("sapienworx-intelligence", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Engine health" }).locator("..").getByText("sapienworx-intelligence", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "AI Gateway" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Intelligence kill switches" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Model & engine registry" })).toBeVisible();
