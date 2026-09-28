@@ -138,6 +138,72 @@ function job(overrides = {}) {
   };
 }
 
+function intelligenceDashboard() {
+  return {
+    runs: [{
+      id: "a1000000-0000-4000-8000-000000000001",
+      engine_version: "rules-v1",
+      status: "completed",
+      metrics: { active_jobs: 12, applications_30d: 140, interviews_30d: 18, hires_90d: 6 },
+      requested_by: adminID,
+      started_at: now(),
+      completed_at: now(),
+    }],
+    insights: [{
+      id: "a2000000-0000-4000-8000-000000000001",
+      run_id: "a1000000-0000-4000-8000-000000000001",
+      domain: "operations",
+      insight_key: "parser_review",
+      severity: "warning",
+      title: "Parser failures need review",
+      rationale: "Synthetic E2E evidence indicates a review threshold was crossed.",
+      evidence: { parser_failures_24h: 3, parser_events_24h: 40 },
+      recommendation: "Review parser failures before changing production behavior.",
+      confidence: 0.82,
+      status: "new",
+      created_at: now(),
+    }],
+    models: [
+      { id: "a3000000-0000-4000-8000-000000000001", engine_type: "matching", version: "1.0.0", provider: "local", model_ref: "deterministic-weighted-v1", config: {}, status: "production", created_at: now(), activated_at: now() },
+      { id: "a3000000-0000-4000-8000-000000000002", engine_type: "matching", version: "1.1.0", provider: "local", model_ref: "deterministic-weighted-v2", config: {}, status: "candidate", created_at: now() },
+    ],
+    evaluations: [{
+      id: "a4000000-0000-4000-8000-000000000001",
+      model_version_id: "a3000000-0000-4000-8000-000000000002",
+      dataset_ref: "synthetic-e2e-labels",
+      metrics: { labeled_events: 30, avg_score_positive: 76, avg_score_non_positive: 52 },
+      quality_gate_status: "passed",
+      started_at: now(),
+      completed_at: now(),
+      notes: "Synthetic E2E evaluation only.",
+    }],
+    switches: [
+      ["global_intelligence", false, "Master switch for intelligence processing."],
+      ["candidate_intelligence", false, "Generate normalized candidate feature records."],
+      ["cv_intelligence", false, "Process CV-derived intelligence."],
+      ["matching", false, "Generate deterministic match results."],
+      ["learning_collection", false, "Collect outcome feedback."],
+      ["automated_recommendations", false, "Serve intelligence recommendations."],
+      ["ai_gateway", false, "Allow governed external AI routing."],
+      ["model_deployment", false, "Allow approved model promotion."],
+    ].map(([key, enabled, description]) => ({ key, enabled, requires_approval_to_enable: true, description, changed_at: now() })),
+    heartbeats: [{ engine_key: "sapienworx-intelligence", status: "healthy", version: "engine-v1", metadata: { advisory_only: true }, last_seen_at: now() }],
+    prompts: [{
+      id: "a5000000-0000-4000-8000-000000000001",
+      prompt_key: "match.explanation",
+      version: 1,
+      template: "Explain deterministic match evidence only.",
+      variables: ["match_components", "job_title"],
+      status: "active",
+      created_at: now(),
+    }],
+    gateway: { requests_24h: 0, failures_24h: 0, blocked_24h: 0, estimated_cost_24h: 0, avg_latency_ms_24h: 0, redactions_24h: 0 },
+    store: { pending_events: 12, failed_events: 0, candidate_features: 42, job_features: 12, match_results: 180, feedback_events: 55 },
+    computed_at: now(),
+    advisory_only: true,
+  };
+}
+
 function pipelineRows() {
   return Array.from({ length: 10 }, (_, index) => {
     const n = index + 1;
@@ -416,6 +482,15 @@ const server = http.createServer(async (req, res) => {
   if (stageMatch && req.method === "PATCH") {
     state.stages.set(stageMatch[1], String(payload.stage ?? "new_application"));
     return json(res, 200, { updated: true });
+  }
+
+  if (url.pathname === "/api/v1/admin/intelligence" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || (!permissions.includes("intelligence.read") && !permissions.includes("intelligence.metrics.read")))) {
+      return json(res, 403, { error: { message: "intelligence access denied" } });
+    }
+    return json(res, 200, intelligenceDashboard());
   }
 
   // Aggregate fixtures for the isolated admin dashboard UI; never production data.
