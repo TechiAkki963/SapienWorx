@@ -97,7 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci <<'SQL'
-          DO $
+          DO $$
           DECLARE resolved_name text;
           BEGIN
             SELECT e.canonical_name INTO resolved_name
@@ -113,7 +113,7 @@ jobs:
             IF resolved_name IS DISTINCT FROM 'Critical Care Nursing' THEN
               RAISE EXCEPTION 'ICU Nursing alias resolved to %', resolved_name;
             END IF;
-          END $;
+          END $$;
 
           SELECT workforce.sync_source_terms(
             'ci_fixture',
@@ -123,7 +123,7 @@ jobs:
             'ci'
           );
 
-          DO $
+          DO $$
           DECLARE mapped integer; provisional integer; trigger_count integer;
           BEGIN
             SELECT count(*) INTO mapped
@@ -143,7 +143,7 @@ jobs:
             IF mapped <> 1 OR provisional <> 1 OR trigger_count <> 2 THEN
               RAISE EXCEPTION 'taxonomy foundation mismatch mapped=% provisional=% triggers=%', mapped, provisional, trigger_count;
             END IF;
-          END $;
+          END $$;
 
           SET ROLE sapienworx_intelligence;
           SELECT count(*) FROM workforce.taxonomy_entities;
