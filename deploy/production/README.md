@@ -4,7 +4,7 @@ This directory defines the single-host production runtime. PostgreSQL is not con
 
 ## Topology
 
-`Internet -> Caddy :80/:443 -> frontend :3000 or backend :8080 -> private RDS :5432`; the non-public `intelligence` worker connects only to private RDS and is never routed by Caddy.
+`Internet -> Caddy :80/:443 -> frontend :3000 or backend :8080 -> private RDS :5432`; the `intelligence` worker has no public route and connects only to private RDS.; the non-public `intelligence` worker connects only to private RDS and is never routed by Caddy.
 
 All containers share the explicit `172.28.0.0/24` bridge. The backend trusts forwarding headers only from that network. No Docker socket is mounted, no container is privileged, and application filesystems are read-only where practical.
 
