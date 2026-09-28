@@ -59,6 +59,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("GET /api/v1/jobs/{jobID}", s.getJob)
 	mux.HandleFunc("GET /api/v1/profiles/{token}", s.publicCandidateProfile)
 	mux.HandleFunc("GET /api/v1/privacy/subprocessors", s.publicSubprocessors)
+	mux.HandleFunc("POST /api/v1/admin/collector/events", s.adminCollectorIngest)
 
 	protected := func(next http.Handler) http.Handler {
 		return Chain(next, Authenticate(tokens, cfg.Auth.AccessCookieName), RequireCurrentSession(authService))
