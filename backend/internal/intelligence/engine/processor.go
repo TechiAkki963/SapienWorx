@@ -219,30 +219,46 @@ func (p *Processor) switchEnabled(ctx context.Context, key string) (bool, error)
 }
 
 func (p *Processor) refreshCandidateFeatures(ctx context.Context, candidateID, sourceEventID string) error {
-	var headline, city, state, country string
+	var headline, city, state, country, interestedDomains string
 	var totalMonths int
 	var notice *int
-	var raw []byte
-	err := p.db.QueryRow(ctx, `SELECT COALESCE(headline,''),COALESCE(current_city,''),COALESCE(current_state,''),country_code,total_experience_months,notice_period_days,profile_details FROM candidate_profiles WHERE user_id=$1`, candidateID).
-		Scan(&headline, &city, &state, &country, &totalMonths, &notice, &raw)
+	var skillsRaw, employmentRaw, educationRaw []byte
+	err := p.db.QueryRow(ctx, `SELECT
+		COALESCE(headline,''),
+		COALESCE(current_city,''),
+		COALESCE(current_state,''),
+		country_code,
+		total_experience_months,
+		notice_period_days,
+		COALESCE(profile_details->'it_skills','[]'::jsonb),
+		COALESCE(profile_details->'employment','[]'::jsonb),
+		COALESCE(profile_details->'education','[]'::jsonb),
+		COALESCE(profile_details->>'interested_domains','')
+		FROM candidate_profiles WHERE user_id=$1`, candidateID).
+		Scan(&headline, &city, &state, &country, &totalMonths, &notice, &skillsRaw, &employmentRaw, &educationRaw, &interestedDomains)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil
 	}
 	if err != nil {
 		return err
 	}
-	var details map[string]any
-	_ = json.Unmarshal(raw, &details)
-	skills, err := p.normalizeSkills(ctx, extractSkillNames(details["it_skills"]))
+
+	var skillItems, employmentItems, educationItems []any
+	_ = json.Unmarshal(skillsRaw, &skillItems)
+	_ = json.Unmarshal(employmentRaw, &employmentItems)
+	_ = json.Unmarshal(educationRaw, &educationItems)
+
+	skills, err := p.normalizeSkills(ctx, extractSkillNames(skillItems))
 	if err != nil {
 		return err
 	}
-	experience := arrayValue(details["experience"])
-	education := arrayValue(details["education"])
-	certifications := arrayValue(details["certifications"])
-	projects := arrayValue(details["projects"])
-	domains := stringArray(details["domains"])
+	experience := minimizeEmployment(employmentItems)
+	education := minimizeEducation(educationItems)
+	certifications := []any{}
+	projects := []any{}
+	domains := splitProfessionalDomains(interestedDomains)
 	seniority := seniorityFromMonths(totalMonths)
+
 	confidence := 0.55
 	if len(skills) > 0 {
 		confidence += 0.15
@@ -259,6 +275,7 @@ func (p *Processor) refreshCandidateFeatures(ctx context.Context, candidateID, s
 	if confidence > 0.9 {
 		confidence = 0.9
 	}
+
 	expRaw, _ := json.Marshal(experience)
 	eduRaw, _ := json.Marshal(education)
 	certRaw, _ := json.Marshal(certifications)
@@ -603,8 +620,7 @@ func (p *Processor) normalizeSkills(ctx context.Context, values []string) ([]str
 	return out, nil
 }
 
-func extractSkillNames(value any) []string {
-	items, _ := value.([]any)
+func extractSkillNames(items []any) []string {
 	out := make([]string, 0, len(items))
 	for _, item := range items {
 		switch typed := item.(type) {
@@ -619,22 +635,70 @@ func extractSkillNames(value any) []string {
 	return out
 }
 
-func arrayValue(value any) []any {
-	items, ok := value.([]any)
-	if !ok {
-		return []any{}
-	}
-	return items
-}
-
-func stringArray(value any) []string {
-	items, _ := value.([]any)
-	out := make([]string, 0, len(items))
+func minimizeEmployment(items []any) []any {
+	out := make([]any, 0, len(items))
 	for _, item := range items {
-		if s, ok := item.(string); ok && strings.TrimSpace(s) != "" {
-			out = append(out, strings.TrimSpace(s))
+		record, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		clean := map[string]any{}
+		for _, key := range []string{"job_title", "employment_type", "joining_year", "joining_month", "end_year", "end_month", "current_company", "skills_used"} {
+			if value, ok := record[key]; ok {
+				if text, ok := value.(string); ok && strings.TrimSpace(text) != "" {
+					clean[key] = truncate(strings.TrimSpace(text), 240)
+				}
+			}
+		}
+		if len(clean) > 0 {
+			out = append(out, clean)
+		}
+		if len(out) >= 20 {
+			break
 		}
 	}
+	return out
+}
+
+func minimizeEducation(items []any) []any {
+	out := make([]any, 0, len(items))
+	for _, item := range items {
+		record, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		clean := map[string]any{}
+		for _, key := range []string{"level", "specialization", "course_type", "start_year", "end_year"} {
+			if value, ok := record[key]; ok {
+				if text, ok := value.(string); ok && strings.TrimSpace(text) != "" {
+					clean[key] = truncate(strings.TrimSpace(text), 160)
+				}
+			}
+		}
+		if len(clean) > 0 {
+			out = append(out, clean)
+		}
+		if len(out) >= 12 {
+			break
+		}
+	}
+	return out
+}
+
+func splitProfessionalDomains(value string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0)
+	for _, item := range strings.FieldsFunc(value, func(r rune) bool { return r == ',' || r == ';' || r == '|' || r == '\n' }) {
+		item = strings.ToLower(strings.TrimSpace(item))
+		if item != "" && len(item) <= 100 && !seen[item] {
+			seen[item] = true
+			out = append(out, item)
+		}
+		if len(out) >= 20 {
+			break
+		}
+	}
+	sort.Strings(out)
 	return out
 }
 
