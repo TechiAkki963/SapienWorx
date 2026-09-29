@@ -50,7 +50,7 @@ test("enrollment, invalid code, confirmation and role-filtered controls", async 
   await expect(page.getByRole("alert", { name: "Authenticator verification error" })).toContainText("invalid, expired or already used");
   await expect(page.getByLabel("Current password", { exact: true })).toHaveValue("");
   await expect(page.getByLabel("Authenticator code", { exact: true })).toHaveValue("");
-  for (const width of [1440, 768, 375]) {
+  for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: "../output/admin-security-setup-" + width + ".png", fullPage: true });
@@ -105,7 +105,7 @@ test("expired MFA returns to confirmation before any data request", async ({ pag
   await login(page);
   await expect(page).toHaveURL(/\/swx-command-centre\/security$/);
   await expect(page.getByRole("heading", { name: "Confirm your authenticator" })).toBeVisible();
-  for (const width of [1440, 768, 375]) {
+  for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: "../output/admin-security-confirmation-" + width + ".png", fullPage: true });
