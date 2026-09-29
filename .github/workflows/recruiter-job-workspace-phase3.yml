@@ -3,6 +3,9 @@ name: Recruiter Job Workspace Phase 3 Validation
 on:
   push:
     branches: [RecruiterJobWorkspace]
+  pull_request:
+    branches: [CandidateJobDiscovery]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
