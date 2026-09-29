@@ -66,7 +66,7 @@ export function JobShareMenu({ jobId, title, active }: { jobId: string; title: s
           <button type="button" onClick={() => openShare("x")} className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-ink hover:bg-slate-50">X / Twitter</button>
         </div>
       )}
-      <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">{message}</p>
+      {message && <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">{message}</p>}
     </div>
   );
 }
