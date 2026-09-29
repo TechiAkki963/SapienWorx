@@ -34,7 +34,7 @@ func (benchmarkJobSearcher) CandidateJobs(_ context.Context, filters candidate.C
 }
 
 func BenchmarkCandidateJobsEndpoint(b *testing.B) {
-	const target = "/api/v1/candidate/jobs?q=golang&location=Mumbai&company=SapienWorx&work_mode=hybrid&experience=4&education=B.Tech%20%2F%20B.E.&education=MCA&min_salary=1200000&max_salary=2500000&salary_currency=INR&page=1&limit=10"
+	const target = "/api/v1/candidate/jobs?q=golang&location=Mumbai&company=SapienWorx&work_mode=hybrid&employment_type=full_time&role_category=Technology&competency=Go&experience=4&education=B.Tech%20%2F%20B.E.&education=MCA&min_salary=1200000&max_salary=2500000&salary_currency=INR&posted_within=30&sort=relevance&page=1&limit=10"
 	searcher := benchmarkJobSearcher{}
 
 	b.ReportAllocs()

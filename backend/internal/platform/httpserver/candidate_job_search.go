@@ -37,16 +37,28 @@ func candidateJobFiltersFromRequest(r *http.Request) candidate.CandidateJobFilte
 		}
 	}
 
+	postedWithinDays := 0
+	if raw := strings.TrimSpace(r.URL.Query().Get("posted_within")); raw != "" {
+		if days, err := strconv.Atoi(raw); err == nil && days >= 0 && days <= 365 {
+			postedWithinDays = days
+		}
+	}
+
 	return candidate.CandidateJobFilters{
 		Query:            r.URL.Query().Get("q"),
 		Location:         r.URL.Query().Get("location"),
 		Company:          r.URL.Query().Get("company"),
 		WorkMode:         r.URL.Query().Get("work_mode"),
+		EmploymentType:   r.URL.Query().Get("employment_type"),
+		RoleCategory:     r.URL.Query().Get("role_category"),
+		Competency:       r.URL.Query().Get("competency"),
 		ExperienceMonths: experienceMonths,
 		Education:        r.URL.Query()["education"],
 		MinSalary:        optionalNonNegativeFloat(r.URL.Query().Get("min_salary")),
 		MaxSalary:        optionalNonNegativeFloat(r.URL.Query().Get("max_salary")),
 		SalaryCurrency:   r.URL.Query().Get("salary_currency"),
+		PostedWithinDays: postedWithinDays,
+		Sort:             r.URL.Query().Get("sort"),
 		Page:             page,
 		Limit:            limit,
 	}

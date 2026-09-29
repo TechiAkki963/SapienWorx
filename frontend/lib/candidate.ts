@@ -1,5 +1,6 @@
 export type CandidateJob = {
   id: string;
+  job_reference?: string;
   company_name: string;
   company_logo_url?: string;
   title: string;
@@ -22,7 +23,21 @@ export type CandidateJob = {
   match_score?: number;
 };
 
-export type JobList = { items: CandidateJob[]; page: number; limit: number; total: number };
+export type CandidateSearchInterpretation = {
+  input: string;
+  canonical: string;
+  entity_type: string;
+};
+
+export type JobList = {
+  items: CandidateJob[];
+  page: number;
+  limit: number;
+  total: number;
+  sort?: "relevance" | "newest";
+  query_interpretation?: CandidateSearchInterpretation;
+  competency_interpretation?: CandidateSearchInterpretation;
+};
 
 export type CandidateProfile = {
   user_id: string;
