@@ -155,19 +155,19 @@ func TestRecruiterJobWorkspaceScaleIsolatedDatabase(t *testing.T) {
 
 	exec(`
 		INSERT INTO application_stage_audit(application_id,actor_recruiter_id,previous_stage,new_stage,changed_at)
-		SELECT a.id,$2,'new_application','screening',a.applied_at+interval '1 hour'
+		SELECT a.id,$2::uuid,'new_application'::application_stage,'screening'::application_stage,a.applied_at+interval '1 hour'
 		FROM applications a WHERE a.job_id=$1
 		UNION ALL
-		SELECT a.id,$2,'screening','shortlisted',a.applied_at+interval '4 hours'
+		SELECT a.id,$2::uuid,'screening'::application_stage,'shortlisted'::application_stage,a.applied_at+interval '4 hours'
 		FROM applications a WHERE a.job_id=$1
 		UNION ALL
-		SELECT a.id,$2,'shortlisted','technical_interview',a.applied_at+interval '1 day'
+		SELECT a.id,$2::uuid,'shortlisted'::application_stage,'technical_interview'::application_stage,a.applied_at+interval '1 day'
 		FROM applications a WHERE a.job_id=$1
 	`, focalJobID, recruiterID)
 
 	exec(`
 		INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,status)
-		SELECT a.id,$2,now()+((row_number() OVER (ORDER BY a.id)%14)+1)*interval '1 day',
+		SELECT a.id,$2::uuid,now()+((row_number() OVER (ORDER BY a.id)%14)+1)*interval '1 day',
 		       45,'https://example.invalid/interview','scheduled'
 		FROM applications a
 		WHERE a.job_id=$1
@@ -177,7 +177,7 @@ func TestRecruiterJobWorkspaceScaleIsolatedDatabase(t *testing.T) {
 
 	exec(`
 		INSERT INTO job_change_audit(job_id,actor_recruiter_id,action,previous_state,new_state,changed_at)
-		SELECT $1,$2,'scale_edit','{}'::jsonb,
+		SELECT $1::uuid,$2::uuid,'scale_edit','{}'::jsonb,
 		       jsonb_build_object('iteration',gs),
 		       now()-gs*interval '1 minute'
 		FROM generate_series(1,5000) gs
