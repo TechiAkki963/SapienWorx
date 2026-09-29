@@ -30,6 +30,7 @@ type BulkJobActionResult struct {
 	RequestedCount int                       `json:"requested_count"`
 	UniqueCount    int                       `json:"unique_count"`
 	SucceededCount int                       `json:"succeeded_count"`
+	UnchangedCount int                       `json:"unchanged_count"`
 	FailedCount    int                       `json:"failed_count"`
 	Status         string                    `json:"status"`
 	Items          []BulkJobActionItemResult `json:"items"`
@@ -168,13 +169,38 @@ func (s *Service) BulkJobAction(ctx context.Context, userID string, input BulkJo
 
 	targetStatus := map[string]string{"pause": "paused", "close": "closed", "archive": "archived"}[action]
 	for _, jobID := range ids {
+		item := BulkJobActionItemResult{JobID: jobID}
+		if action != "reassign" {
+			var currentStatus string
+			err := s.db.QueryRow(ctx, `SELECT status::text FROM jobs WHERE id=$1 AND company_id=$2`, jobID, companyID).Scan(&currentStatus)
+			if errors.Is(err, pgx.ErrNoRows) {
+				item.Outcome = "failed"
+				item.ErrorCode = "not_found"
+				result.FailedCount++
+				result.Items = append(result.Items, item)
+				continue
+			}
+			if err != nil {
+				item.Outcome = "failed"
+				item.ErrorCode = "failed"
+				result.FailedCount++
+				result.Items = append(result.Items, item)
+				continue
+			}
+			if currentStatus == targetStatus {
+				item.Outcome = "unchanged"
+				result.UnchangedCount++
+				result.Items = append(result.Items, item)
+				continue
+			}
+		}
+
 		var itemErr error
 		if action == "reassign" {
 			itemErr = s.bulkReassignJob(ctx, userID, companyID, jobID, assigneeID, operationID)
 		} else {
 			itemErr = s.transitionJobStatusForCompany(ctx, userID, companyID, jobID, targetStatus, "bulk_"+action, &operationID)
 		}
-		item := BulkJobActionItemResult{JobID: jobID}
 		if itemErr != nil {
 			item.Outcome = "failed"
 			item.ErrorCode = bulkJobErrorCode(itemErr)
@@ -186,8 +212,10 @@ func (s *Service) BulkJobAction(ctx context.Context, userID string, input BulkJo
 		result.Items = append(result.Items, item)
 	}
 	switch {
-	case result.FailedCount == 0:
+	case result.FailedCount == 0 && result.SucceededCount > 0:
 		result.Status = "succeeded"
+	case result.FailedCount == 0 && result.SucceededCount == 0:
+		result.Status = "unchanged"
 	case result.SucceededCount == 0:
 		result.Status = "failed"
 	default:
@@ -195,5 +223,3 @@ func (s *Service) BulkJobAction(ctx context.Context, userID string, input BulkJo
 	}
 	return result, nil
 }
-
-var _ = pgx.ErrNoRows
