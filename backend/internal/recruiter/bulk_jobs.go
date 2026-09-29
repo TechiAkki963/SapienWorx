@@ -93,36 +93,57 @@ func (s *Service) validateBulkAssignee(ctx context.Context, companyID, recruiter
 	return nil
 }
 
-func (s *Service) bulkReassignJob(ctx context.Context, actorID, companyID, jobID, assigneeID, operationID string) error {
+func bulkAssigneeUnchanged(current *string, target string) bool {
+	return current != nil && *current == target
+}
+
+func (s *Service) bulkReassignJob(ctx context.Context, actorID, companyID, jobID, assigneeID, operationID string) (bool, error) {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
-		return err
+		return false, err
 	}
 	defer tx.Rollback(ctx)
 
-	previous, err := jobSnapshotTx(ctx, tx, jobID, companyID, true)
-	if err != nil {
-		return err
+	var currentAssignee *string
+	var previous []byte
+	err = tx.QueryRow(ctx, `
+		SELECT j.assigned_recruiter_id::text,to_jsonb(j)
+		FROM jobs j
+		WHERE j.id=$1 AND j.company_id=$2
+		FOR UPDATE
+	`, jobID, companyID).Scan(&currentAssignee, &previous)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, ErrNotFound
 	}
+	if err != nil {
+		return false, err
+	}
+	if bulkAssigneeUnchanged(currentAssignee, assigneeID) {
+		return false, nil
+	}
+
 	tag, err := tx.Exec(ctx, `
 		UPDATE jobs
 		SET assigned_recruiter_id=$3
 		WHERE id=$1 AND company_id=$2
 	`, jobID, companyID, assigneeID)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if tag.RowsAffected() == 0 {
-		return ErrNotFound
+		return false, ErrNotFound
 	}
 	next, err := jobSnapshotTx(ctx, tx, jobID, companyID, false)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if err := auditJobChangeWithOperationTx(ctx, tx, jobID, actorID, "bulk_reassigned", &operationID, previous, next); err != nil {
-		return err
+		return false, err
 	}
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (s *Service) BulkJobAction(ctx context.Context, userID string, input BulkJobActionInput) (BulkJobActionResult, error) {
@@ -196,8 +217,9 @@ func (s *Service) BulkJobAction(ctx context.Context, userID string, input BulkJo
 		}
 
 		var itemErr error
+		changed := true
 		if action == "reassign" {
-			itemErr = s.bulkReassignJob(ctx, userID, companyID, jobID, assigneeID, operationID)
+			changed, itemErr = s.bulkReassignJob(ctx, userID, companyID, jobID, assigneeID, operationID)
 		} else {
 			itemErr = s.transitionJobStatusForCompany(ctx, userID, companyID, jobID, targetStatus, "bulk_"+action, &operationID)
 		}
@@ -205,6 +227,9 @@ func (s *Service) BulkJobAction(ctx context.Context, userID string, input BulkJo
 			item.Outcome = "failed"
 			item.ErrorCode = bulkJobErrorCode(itemErr)
 			result.FailedCount++
+		} else if !changed {
+			item.Outcome = "unchanged"
+			result.UnchangedCount++
 		} else {
 			item.Outcome = "succeeded"
 			result.SucceededCount++
