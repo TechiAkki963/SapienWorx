@@ -21,7 +21,7 @@ test("Phase 3.8 keyboard and assistive-technology acceptance", async ({ page }) 
   await reviewButton.focus();
   await reviewButton.press("Enter");
 
-  const confirmation = page.getByRole("alertdialog", { name: /Pause 1 selected job/ });
+  const confirmation = page.getByRole("alertdialog", { name: "Confirm bulk job action" });
   await expect(confirmation).toBeVisible();
   await expect(page.getByRole("button", { name: "Cancel" })).toBeFocused();
   await page.keyboard.press("Escape");
