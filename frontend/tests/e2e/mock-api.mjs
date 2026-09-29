@@ -470,6 +470,10 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  if (url.pathname === "/api/v1/recruiter/team" && req.method === "GET") return json(res, 200, { items: [
+    { user_id: recruiterID, full_name: "Riya Recruiter", designation: "Senior Recruiter" },
+    { user_id: "20000000-0000-4000-8000-000000000002", full_name: "Kabir Recruiter", designation: "Healthcare Recruiter" },
+  ] });
   if (url.pathname === "/api/v1/recruiter/dashboard" && req.method === "GET") return json(res, 200, {
     recruiter_name: "Riya Recruiter",
     company_name: "Sapien Labs India",
@@ -524,7 +528,28 @@ const server = http.createServer(async (req, res) => {
     employment_type: "full_time", work_mode: "hybrid", role_category: "Technology", location: "Mumbai, Maharashtra",
     min_experience_years: 2, max_experience_years: 6, min_salary_lakhs: 8, max_salary_lakhs: 18,
     skills: ["Go", "PostgreSQL"], description: "Build recruitment infrastructure.", responsibilities: "Own reliable services.",
-    company_overview: "Sapien Labs India", why_join: "Human-centered hiring.", hiring_process: ["Application review", "Interview"], openings: 3,
+    company_overview: "Sapien Labs India", why_join: "Human-centered hiring.",
+    hiring_process: ["Application review", "Recruiter conversation", "Technical interview", "Final decision"],
+    application_deadline: new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 10),
+    education_requirements: ["B.Tech / B.E.", "MCA"],
+    screening_questions: ["Are you comfortable working with Go in production?", "Can you work in a hybrid model?"],
+    referral_enabled: true, visibility: "public", internal_notes: "Priority role. Review referrals within 48 hours.",
+    assigned_recruiter_id: recruiterID, openings: 3,
+  });
+  if (url.pathname === `/api/v1/recruiter/jobs/${jobID}/history` && req.method === "GET") return json(res, 200, { items: [
+    { id: "90000000-0000-4000-8000-000000000001", action: "updated", actor_user_id: recruiterID, actor_name: "Riya Recruiter", previous_state: {}, new_state: {}, changed_at: now() },
+    { id: "90000000-0000-4000-8000-000000000002", action: "created_and_published", actor_user_id: recruiterID, actor_name: "Riya Recruiter", previous_state: {}, new_state: {}, changed_at: new Date(Date.now() - 86400000).toISOString() },
+  ] });
+  if (url.pathname === `/api/v1/recruiter/jobs/${jobID}/duplicate` && req.method === "POST") return json(res, 201, {
+    id: "60000000-0000-4000-8000-000000000099", job_reference: "SWX-JOB-2026-00099", status: "draft",
+    title: "Senior Go Platform Engineer (Copy)", department: "Engineering", employment_type: "full_time", work_mode: "hybrid",
+    role_category: "Technology", location: "Mumbai, Maharashtra", min_experience_years: 2, max_experience_years: 6,
+    min_salary_lakhs: 8, max_salary_lakhs: 18, skills: ["Go", "PostgreSQL"], description: "Build recruitment infrastructure.",
+    responsibilities: "Own reliable services.", company_overview: "Sapien Labs India", why_join: "Human-centered hiring.",
+    hiring_process: ["Application review", "Recruiter conversation", "Technical interview", "Final decision"],
+    application_deadline: null, education_requirements: ["B.Tech / B.E.", "MCA"], screening_questions: [],
+    referral_enabled: true, visibility: "public", internal_notes: "Priority role. Review referrals within 48 hours.",
+    assigned_recruiter_id: recruiterID, openings: 3,
   });
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
