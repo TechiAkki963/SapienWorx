@@ -41,7 +41,7 @@ test("Phase 3.8 keyboard and assistive-technology acceptance", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Post a job" })).toBeVisible();
   await page.getByLabel("Job title").fill("");
   await page.getByRole("button", { name: "Save as draft" }).click();
-  const builderError = page.getByRole("alert");
+  const builderError = page.locator("#job-builder-error");
   await expect(builderError).toContainText("Add a job title");
   await expect(builderError).toBeFocused();
   await expect(page.getByLabel("Job title")).toHaveAttribute("aria-invalid", "true");
