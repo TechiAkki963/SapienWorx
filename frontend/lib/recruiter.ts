@@ -148,6 +148,14 @@ export type RecruiterCandidateDetail = {
 
 export const stages = ["new_application","screening","shortlisted","technical_interview","hr_round","final_interview","offer","hired","rejected","withdrawn"] as const;
 export const jobStatuses = ["draft","active","paused","closed","expired","archived"] as const;
+export const jobStatusTransitions: Record<string, readonly string[]> = {
+  draft: ["draft","active","archived"],
+  active: ["active","paused","closed"],
+  paused: ["paused","active","closed","archived"],
+  closed: ["closed","active","archived"],
+  expired: ["expired","active","archived"],
+  archived: ["archived"],
+};
 export function label(value: string) { return value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()); }
 export function experience(months: number) { const years=Math.floor(months/12); const rest=months%12; return years ? `${years}y${rest ? ` ${rest}m` : ""}` : `${rest}m`; }
 export function compactDate(value?: string) { if(!value) return "—"; return new Intl.DateTimeFormat("en-IN",{day:"2-digit",month:"short",year:"numeric"}).format(new Date(value)); }
