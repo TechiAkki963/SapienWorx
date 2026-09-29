@@ -10,7 +10,8 @@ import (
 type DiscoveryFilters struct {
 	Query, Designation, CurrentCompany, PreviousCompany string
 	Education, Skills, Location, PreferredLocation      string
-	EmploymentType, UpdatedSince                        string
+	EmploymentType, WorkMode, Industry, FunctionalArea         string
+	Languages, Certifications, Availability, UpdatedSince, Sort string
 	MinExperience, MaxExperience, MaxNoticeDays, Page   int
 	HasMaxNotice                                        bool
 }
@@ -49,7 +50,7 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 	if f.Page < 1 || f.Page > 1000 || f.MinExperience < 0 || f.MaxExperience < 0 || f.MinExperience > 60 || f.MaxExperience > 60 || (f.MaxExperience > 0 && f.MaxExperience < f.MinExperience) || f.MaxNoticeDays < 0 || f.MaxNoticeDays > 3650 {
 		return DiscoveryList{}, ErrInvalid
 	}
-	for _, value := range []string{f.Query, f.Designation, f.CurrentCompany, f.PreviousCompany, f.Education, f.Skills, f.Location, f.PreferredLocation, f.EmploymentType} {
+	for _, value := range []string{f.Query, f.Designation, f.CurrentCompany, f.PreviousCompany, f.Education, f.Skills, f.Location, f.PreferredLocation, f.EmploymentType, f.WorkMode, f.Industry, f.FunctionalArea, f.Languages, f.Certifications, f.Availability} {
 		if len(value) > 300 {
 			return DiscoveryList{}, ErrInvalid
 		}
@@ -115,6 +116,8 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 	if err := s.db.QueryRow(ctx, `SELECT count(*)`+from, args...).Scan(&result.Total); err != nil {
 		return DiscoveryList{}, err
 	}
+	orderBy := "cp.updated_at DESC,cp.user_id"
+	switch f.Sort { case "", "recently_updated": case "most_experienced": orderBy = "cp.total_experience_months DESC,cp.updated_at DESC,cp.user_id"; case "least_notice": orderBy = "cp.notice_period_days ASC NULLS LAST,cp.updated_at DESC,cp.user_id"; default: return DiscoveryList{}, ErrInvalid }
 	args = append(args, result.Limit, (f.Page-1)*result.Limit)
 	query := `SELECT cp.user_id,cp.full_name,cp.headline,coalesce(cp.profile_details->>'current_designation',''),
 		coalesce((SELECT e->>'company' FROM ` + discoveryEmployment + ` e WHERE lower(e->>'current_company')='yes' LIMIT 1),''),
@@ -122,7 +125,7 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 		coalesce(cp.profile_details->>'preferred_locations',''),
 		ARRAY(SELECT s->>'name' FROM ` + discoverySkills + ` s WHERE coalesce(s->>'name','')<>'' LIMIT 6),
 		coalesce((SELECT concat_ws(' · ',nullif(e->>'level',''),nullif(e->>'specialization',''),nullif(e->>'university','')) FROM ` + discoveryEducation + ` e LIMIT 1),''),cp.updated_at` + from +
-		fmt.Sprintf(` ORDER BY cp.updated_at DESC,cp.user_id LIMIT $%d OFFSET $%d`, len(args)-1, len(args))
+		fmt.Sprintf(` ORDER BY `+orderBy+` LIMIT $%d OFFSET $%d`, len(args)-1, len(args))
 	rows, err := s.db.Query(ctx, query, args...)
 	if err != nil {
 		return DiscoveryList{}, err
