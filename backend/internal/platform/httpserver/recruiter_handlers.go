@@ -48,6 +48,11 @@ func (s *Server) recruiterDiscover(w http.ResponseWriter, r *http.Request) {
 		s.writeRecruiterError(w, r, err)
 		return
 	}
+	if len(q) > 1 || (len(q) == 1 && q.Get("page") == "") {
+		record := map[string]any{}
+		for key, values := range q { if key != "page" && len(values) > 0 && strings.TrimSpace(values[0]) != "" { record[key] = values[0] } }
+		if len(record) > 0 { _ = s.recruiter.RecordSearch(r.Context(), id, record) }
+	}
 	writeJSON(w, http.StatusOK, result)
 }
 
