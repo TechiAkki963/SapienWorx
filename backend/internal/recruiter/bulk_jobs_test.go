@@ -38,3 +38,17 @@ func TestBulkJobErrorCode(t *testing.T) {
 		t.Fatalf("unexpected invalid code: %s", got)
 	}
 }
+
+
+func TestBulkAssigneeUnchanged(t *testing.T) {
+	current := "20000000-0000-4000-8000-000000000002"
+	if !bulkAssigneeUnchanged(&current, current) {
+		t.Fatal("expected identical assignee to be unchanged")
+	}
+	if bulkAssigneeUnchanged(nil, current) {
+		t.Fatal("expected an unassigned job to require a change")
+	}
+	if bulkAssigneeUnchanged(&current, "20000000-0000-4000-8000-000000000003") {
+		t.Fatal("expected a different assignee to require a change")
+	}
+}
