@@ -339,23 +339,8 @@ func (s *Service) CreateJob(ctx context.Context, userID string, in JobInput) (Jo
 	return Job{}, ErrNotFound
 }
 func (s *Service) SetJobStatus(ctx context.Context, userID, jobID, status string) error {
-	if !validEnum(status, "draft", "active", "paused", "closed", "expired", "archived") {
-		return ErrInvalid
-	}
-	companyID, _, _, err := s.recruiterCompany(ctx, userID)
-	if err != nil {
-		return err
-	}
-	tag, err := s.db.Exec(ctx, `UPDATE jobs SET status=$3::job_status,published_at=CASE WHEN $3='active' AND published_at IS NULL THEN now() ELSE published_at END,closed_at=CASE WHEN $3='closed' THEN now() ELSE closed_at END WHERE id=$1 AND company_id=$2`, jobID, companyID, status)
-	if err != nil {
-		return err
-	}
-	if tag.RowsAffected() == 0 {
-		return ErrNotFound
-	}
-	return nil
+	return s.transitionJobStatus(ctx,userID,jobID,status)
 }
-
 func (s *Service) Pipeline(ctx context.Context, userID string, filters PipelineFilters, page, limit int) (PipelineList, error) {
 	companyID, _, _, err := s.recruiterCompany(ctx, userID)
 	if err != nil {
