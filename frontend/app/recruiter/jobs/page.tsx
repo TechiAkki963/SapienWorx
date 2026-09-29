@@ -43,15 +43,16 @@ function location(job: RecruiterJob) {
 }
 
 function JobActions({ job }: { job: RecruiterJob }) {
+  const publiclyShareable = job.status === "active" && job.visibility === "public";
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Link href={`/recruiter/jobs/${job.id}/applicants`} className="rounded-lg bg-indigo px-2.5 py-1.5 text-xs font-bold text-white hover:bg-navy">View applicants →</Link>
       <Link href={`/recruiter/jobs/${job.id}/edit`} className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs font-bold text-ink hover:text-indigo">Edit</Link>
       <Link href={`/recruiter/jobs/${job.id}/analytics`} className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs font-bold text-ink hover:text-indigo">Analytics</Link>
-      {job.status === "active" ? (
+      {publiclyShareable ? (
         <Link href={`/jobs/${job.id}`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs font-bold text-ink hover:text-indigo">Preview ↗</Link>
       ) : null}
-      <JobShareMenu jobId={job.id} title={job.title} active={job.status === "active"} />
+      <JobShareMenu jobId={job.id} title={job.title} active={publiclyShareable} />
     </div>
   );
 }
