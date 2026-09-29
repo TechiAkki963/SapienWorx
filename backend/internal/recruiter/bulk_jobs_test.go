@@ -39,7 +39,6 @@ func TestBulkJobErrorCode(t *testing.T) {
 	}
 }
 
-
 func TestBulkAssigneeUnchanged(t *testing.T) {
 	current := "20000000-0000-4000-8000-000000000002"
 	if !bulkAssigneeUnchanged(&current, current) {
