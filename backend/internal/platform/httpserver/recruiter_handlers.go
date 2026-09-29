@@ -42,7 +42,7 @@ func (s *Server) recruiterDiscover(w http.ResponseWriter, r *http.Request) {
 	result, err := s.recruiter.Discover(r.Context(), id, recruiter.DiscoveryFilters{
 		Query: q.Get("q"), Designation: q.Get("designation"), CurrentCompany: q.Get("current_company"), PreviousCompany: q.Get("previous_company"),
 		Education: q.Get("education"), Skills: q.Get("skills"), Location: q.Get("location"), PreferredLocation: q.Get("preferred_location"),
-		EmploymentType: q.Get("employment_type"), WorkMode: q.Get("work_mode"), Industry: q.Get("industry"), FunctionalArea: q.Get("functional_area"), Languages: q.Get("languages"), Certifications: q.Get("certifications"), Availability: q.Get("availability"), UpdatedSince: q.Get("updated_since"), Sort: q.Get("sort"), MinExperience: min, MaxExperience: max, MaxNoticeDays: notice, HasMaxNotice: q.Get("max_notice_days") != "", Page: page,
+		EmploymentType: q.Get("employment_type"), WorkMode: q.Get("work_mode"), Industry: q.Get("industry"), FunctionalArea: q.Get("functional_area"), Languages: q.Get("languages"), Certifications: q.Get("certifications"), Availability: q.Get("availability"), Gender: q.Get("gender"), Disability: q.Get("disability"), DefenceBackground: q.Get("defence_background"), UpdatedSince: q.Get("updated_since"), Sort: q.Get("sort"), MinExperience: min, MaxExperience: max, MaxNoticeDays: notice, HasMaxNotice: q.Get("max_notice_days") != "", Page: page,
 	})
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
