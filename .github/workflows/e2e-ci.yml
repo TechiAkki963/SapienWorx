@@ -42,6 +42,14 @@ jobs:
         run: npm run test:e2e
       - name: Run isolated Master Admin journeys
         run: npx playwright test --config playwright.admin-access.config.ts
+      - name: Upload Phase 4 discovery visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase4-discovery-visuals
+          path: frontend/visual-artifacts/phase4-discovery/
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload successful visual acceptance screenshots
         if: always()
         uses: actions/upload-artifact@v4
