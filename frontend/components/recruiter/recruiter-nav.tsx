@@ -74,10 +74,10 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
     return () => { active = false; window.removeEventListener("sapienworx:unread-change", onChange); document.removeEventListener("visibilitychange", refresh); window.clearInterval(timer); };
   }, []);
   return (
-    <div ref={navScrollRef} className="flex gap-3 overflow-x-auto lg:grid lg:overflow-visible">
-      {sections.map(section => <div key={section.title} className="shrink-0 lg:min-w-0">
+    <div ref={navScrollRef} className="flex max-w-full gap-3 overflow-x-auto max-[359px]:flex-wrap max-[359px]:gap-1 max-[359px]:overflow-visible lg:grid lg:overflow-visible">
+      {sections.map(section => <div key={section.title} className="shrink-0 max-[359px]:max-w-full lg:min-w-0">
       <p className="hidden px-3 pb-2 pt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink-muted/70 lg:block">{section.title}</p>
-      <nav aria-label={section.title} className="flex gap-1 lg:grid">
+      <nav aria-label={section.title} className="flex gap-1 max-[359px]:flex-wrap lg:grid">
         {section.items.map(({ label, href, icon }) => {
           const active = href === "/recruiter" ? path === href : path.startsWith(href);
           return (
