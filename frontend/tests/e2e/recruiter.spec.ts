@@ -113,7 +113,7 @@ test.describe("job applicant workspace", () => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs?q=Private%20Operations%20Lead");
 
-    await expect(page.getByText("Private Operations Lead")).toBeVisible();
+    await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
     await expect(page.getByText("Private · not shareable")).toBeVisible();
