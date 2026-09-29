@@ -537,7 +537,7 @@ const server = http.createServer(async (req, res) => {
       updated_at: now(),
     }];
     const q = (url.searchParams.get("q") ?? "").toLowerCase();
-    if (q === "private-visibility-test") {
+    if (q === "private operations lead") {
       source.splice(0, source.length, {
         ...job({
           id: "60000000-0000-4000-8000-000000000088",
