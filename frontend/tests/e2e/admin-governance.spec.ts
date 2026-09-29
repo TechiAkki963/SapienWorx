@@ -102,7 +102,7 @@ test("support scope hides new mutations and auditor cannot fetch organizations",
 
 test("desktop tables become usable cards on tablet and mobile", async ({ page }) => {
   await login(page);
-  for (const width of [1440,768,375]) {
+  for (const width of [1440,1024,768,390,320]) {
     await page.setViewportSize({ width, height: 960 });
     for (const path of ["users", "organizations"]) {
       await page.goto("/swx-command-centre/"+path);
