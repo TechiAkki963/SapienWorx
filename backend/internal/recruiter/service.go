@@ -339,7 +339,7 @@ func (s *Service) CreateJob(ctx context.Context, userID string, in JobInput) (Jo
 	return Job{}, ErrNotFound
 }
 func (s *Service) SetJobStatus(ctx context.Context, userID, jobID, status string) error {
-	return s.transitionJobStatus(ctx,userID,jobID,status)
+	return s.transitionJobStatus(ctx, userID, jobID, status)
 }
 func (s *Service) Pipeline(ctx context.Context, userID string, filters PipelineFilters, page, limit int) (PipelineList, error) {
 	companyID, _, _, err := s.recruiterCompany(ctx, userID)
