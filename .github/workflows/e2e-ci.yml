@@ -42,6 +42,14 @@ jobs:
         run: npm run test:e2e
       - name: Run isolated Master Admin journeys
         run: npx playwright test --config playwright.admin-access.config.ts
+      - name: Upload successful visual acceptance screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: master-admin-visual-acceptance
+          path: frontend/output/
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
