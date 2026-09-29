@@ -130,6 +130,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phase3-job-builder-visuals
-          path: frontend/test-results/phase3-job-builder-visuals
+          path: frontend/visual-artifacts/phase3-job-builder
           if-no-files-found: ignore
           retention-days: 7
