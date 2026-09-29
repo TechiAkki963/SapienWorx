@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { TaxonomyInput } from "@/components/workforce/taxonomy-input";
@@ -262,6 +262,12 @@ export function JobBuilder({
   const [skills, setSkills] = useState<string[]>(() => job?.skills ?? []);
   const [busy, setBusy] = useState<"draft" | "publish" | "">("");
   const [error, setError] = useState("");
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!error) return;
+    errorRef.current?.focus();
+  }, [error, step]);
 
   const publishReady = useMemo(
     () => Boolean(
@@ -277,6 +283,7 @@ export function JobBuilder({
 
   function update<K extends keyof BuilderState>(key: K, value: BuilderState[K]) {
     setState((current) => ({ ...current, [key]: value }));
+    if (error) setError("");
   }
 
   async function save(publish: boolean) {
@@ -352,7 +359,7 @@ export function JobBuilder({
           const active = item.number === step;
           const completed = item.number < step;
           return (
-            <button key={item.number} type="button" onClick={() => setStep(item.number)} className={`rounded-xl border px-3.5 py-3 text-left transition ${active ? "border-indigo/40 bg-blue-50 shadow-sm" : completed ? "border-emerald-200 bg-emerald-50/45" : "border-line bg-white hover:border-indigo/25"}`}>
+            <button key={item.number} type="button" aria-current={active ? "step" : undefined} onClick={() => setStep(item.number)} className={`rounded-xl border px-3.5 py-3 text-left transition ${active ? "border-indigo/40 bg-blue-50 shadow-sm" : completed ? "border-emerald-200 bg-emerald-50/45" : "border-line bg-white hover:border-indigo/25"}`}>
               <div className="flex items-start gap-3">
                 <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${active ? "bg-indigo text-white" : completed ? "bg-emerald-100 text-emerald-700" : "border border-line bg-slate-50 text-ink-muted"}`}>{completed ? "✓" : item.number}</span>
                 <span><span className="block text-sm font-bold text-ink">{item.title}</span><span className="mt-0.5 block text-[11px] leading-4 text-ink-muted">{item.subtitle}</span></span>
@@ -362,14 +369,14 @@ export function JobBuilder({
         })}
       </nav>
 
-      {error && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-800">{error}</div>}
+      {error && <div ref={errorRef} id="job-builder-error" role="alert" tabIndex={-1} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-800">{error}</div>}
 
       <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
         <section className="min-w-0 rounded-2xl border border-line/70 bg-white shadow-[0_1px_2px_rgba(16,33,63,0.03)]">
           <div className="border-b border-line/60 px-5 py-4 sm:px-6"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Step {step} of 4</p><h2 className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">{steps[step - 1].title}</h2></div>
           <div className="p-5 sm:p-6">
             {step === 1 && <div className="grid gap-5">
-              <Input label="Job title" value={state.title} onChange={(event) => update("title", event.target.value)} placeholder="e.g. Critical Care Nurse" required />
+              <Input label="Job title" value={state.title} onChange={(event) => update("title", event.target.value)} placeholder="e.g. Critical Care Nurse" required error={error.startsWith("Add a job title") ? error : undefined} />
               <Input label="Department or team" value={state.department} onChange={(event) => update("department", event.target.value)} placeholder="e.g. Intensive Care Unit" />
               <div className="grid min-w-0 gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-ink">Employment type<select value={state.employment_type} onChange={(event) => update("employment_type", event.target.value)} className={fieldClass}><option value="full_time">Full time</option><option value="part_time">Part time</option><option value="contract">Contract</option><option value="internship">Internship</option><option value="temporary">Temporary</option></select></label>
@@ -378,7 +385,7 @@ export function JobBuilder({
               <label className="grid gap-2 text-sm font-semibold text-ink">Role / function<select value={state.role_category} onChange={(event) => update("role_category", event.target.value)} className={fieldClass}><option value="">No category set</option>{state.role_category && !roleCategoryOptions.includes(state.role_category) && <option>{state.role_category}</option>}{roleCategoryOptions.map((option) => <option key={option}>{option}</option>)}</select></label>
               <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_8rem]">
                 <Input label="Location" value={state.location} onChange={(event) => update("location", event.target.value)} placeholder="e.g. Mumbai, India" />
-                <Input label="Openings" type="number" min="1" max="10000" value={state.openings} onChange={(event) => update("openings", event.target.value)} />
+                <Input label="Openings" type="number" min="1" max="10000" value={state.openings} onChange={(event) => update("openings", event.target.value)} error={error.startsWith("Enter an openings count") ? error : undefined} />
               </div>
             </div>}
 
