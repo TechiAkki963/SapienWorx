@@ -79,7 +79,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
-    await expect(page.getByText("Private · not shareable")).toBeVisible();
+    await expect(page.locator("span:visible").filter({ hasText: "Private · not shareable" }).first()).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} private job management`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/01b-private-job-${viewport.name}.png`, fullPage: true });
