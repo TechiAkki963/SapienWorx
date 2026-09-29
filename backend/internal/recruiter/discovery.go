@@ -11,7 +11,7 @@ type DiscoveryFilters struct {
 	Query, Designation, CurrentCompany, PreviousCompany string
 	Education, Skills, Location, PreferredLocation      string
 	EmploymentType, WorkMode, Industry, FunctionalArea         string
-	Languages, Certifications, Availability, UpdatedSince, Sort string
+	Languages, Certifications, Availability, Gender, Disability, DefenceBackground, UpdatedSince, Sort string
 	MinExperience, MaxExperience, MaxNoticeDays, Page   int
 	HasMaxNotice                                        bool
 }
@@ -50,7 +50,7 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 	if f.Page < 1 || f.Page > 1000 || f.MinExperience < 0 || f.MaxExperience < 0 || f.MinExperience > 60 || f.MaxExperience > 60 || (f.MaxExperience > 0 && f.MaxExperience < f.MinExperience) || f.MaxNoticeDays < 0 || f.MaxNoticeDays > 3650 {
 		return DiscoveryList{}, ErrInvalid
 	}
-	for _, value := range []string{f.Query, f.Designation, f.CurrentCompany, f.PreviousCompany, f.Education, f.Skills, f.Location, f.PreferredLocation, f.EmploymentType, f.WorkMode, f.Industry, f.FunctionalArea, f.Languages, f.Certifications, f.Availability} {
+	for _, value := range []string{f.Query, f.Designation, f.CurrentCompany, f.PreviousCompany, f.Education, f.Skills, f.Location, f.PreferredLocation, f.EmploymentType, f.WorkMode, f.Industry, f.FunctionalArea, f.Languages, f.Certifications, f.Availability, f.Gender, f.Disability, f.DefenceBackground} {
 		if len(value) > 300 {
 			return DiscoveryList{}, ErrInvalid
 		}
