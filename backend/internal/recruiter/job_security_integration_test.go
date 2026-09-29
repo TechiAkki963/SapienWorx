@@ -96,8 +96,8 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 			)
 			VALUES(
 				$1,$2,$2,$5,gen_random_uuid()::text,'Synthetic publishable role description',
-				'full_time','hybrid',$3,$4,
-				CASE WHEN $3='active' THEN now()-interval '2 days' ELSE NULL END,
+				'full_time','hybrid',$3::job_status,$4,
+				CASE WHEN $3::text='active' THEN now()-interval '2 days' ELSE NULL END,
 				ARRAY['Communication'], 'Own the role outcome.', ARRAY['Screening','Interview'],2
 			)
 			RETURNING id::text
