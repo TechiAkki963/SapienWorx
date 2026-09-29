@@ -100,7 +100,28 @@ export type EditableRecruiterJob = {
   company_overview: string;
   why_join: string;
   hiring_process: string[];
+  application_deadline: string | null;
+  education_requirements: string[];
+  screening_questions: string[];
+  referral_enabled: boolean;
+  visibility: "public" | "private";
+  internal_notes: string;
+  assigned_recruiter_id: string | null;
   openings: number;
+};
+export type RecruiterTeamMember = {
+  user_id: string;
+  full_name: string;
+  designation?: string;
+};
+export type JobAuditEvent = {
+  id: string;
+  action: string;
+  actor_user_id: string;
+  actor_name: string;
+  previous_state: Record<string, unknown>;
+  new_state: Record<string, unknown>;
+  changed_at: string;
 };
 export type PipelineList = { items: PipelineRow[]; page: number; limit: number; total: number };
 export type Interview = {
