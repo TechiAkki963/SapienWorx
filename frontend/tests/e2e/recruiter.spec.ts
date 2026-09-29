@@ -114,7 +114,7 @@ test.describe("job applicant workspace", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/recruiter/jobs");
 
-    await page.getByLabel("Select SWX-JOB-2026-00001 Senior Go Platform Engineer").check();
+    await page.locator('input[data-bulk-job-id="60000000-0000-4000-8000-000000000001"]:visible').check();
     await expect(page.getByText("1 selected on this page")).toBeVisible();
     await page.getByLabel("Bulk action").selectOption("pause");
     await page.getByRole("button", { name: "Review action" }).click();
@@ -132,7 +132,7 @@ test.describe("job applicant workspace", () => {
   test("offers only organization-scoped recruiters for bulk reassignment", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs");
-    await page.getByLabel("Select SWX-JOB-2026-00001 Senior Go Platform Engineer").check();
+    await page.locator('input[data-bulk-job-id="60000000-0000-4000-8000-000000000001"]:visible').check();
     await page.getByLabel("Bulk action").selectOption("reassign");
     const recruiter = page.getByLabel("Assign recruiter");
     await expect(recruiter).toContainText("Riya Recruiter");
