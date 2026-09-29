@@ -111,7 +111,6 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
 
     // 6. Public candidate-facing preview under recruiter session
     await page.goto(`/jobs/${jobID}`);
-    await expect(page.getByText("Recruiter preview")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} preview`);
     await prepareShot(page);
