@@ -36,6 +36,7 @@ test("job builder recruitment settings remain clear and responsive", async ({ pa
     await page.evaluate(() => {
       window.scrollTo(0, 0);
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      document.querySelectorAll("nextjs-portal").forEach((portal) => portal.remove());
     });
 
     const overflow = await page.evaluate(() => ({
@@ -77,6 +78,7 @@ test("edit job shows governance controls and audit history without clutter", asy
     await page.evaluate(() => {
       window.scrollTo(0, 0);
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      document.querySelectorAll("nextjs-portal").forEach((portal) => portal.remove());
     });
     await page.addStyleTag({ content: ".skip-link { display: none !important; }" });
 
