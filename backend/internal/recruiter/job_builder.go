@@ -192,9 +192,6 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 	defer tx.Rollback(ctx)
 
 	assignedRecruiterID := userID
-	if currentAssignedRecruiterID != nil && strings.TrimSpace(*currentAssignedRecruiterID) != "" {
-		assignedRecruiterID = *currentAssignedRecruiterID
-	}
 	if in.AssignedRecruiterID != nil {
 		assignedRecruiterID = strings.TrimSpace(*in.AssignedRecruiterID)
 	}
@@ -363,8 +360,11 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 	}
 
 	assignedRecruiterID := userID
+	if currentAssignedRecruiterID != nil && strings.TrimSpace(*currentAssignedRecruiterID) != "" {
+		assignedRecruiterID = *currentAssignedRecruiterID
+	}
 	if in.AssignedRecruiterID != nil {
-		assignedRecruiterID = *in.AssignedRecruiterID
+		assignedRecruiterID = strings.TrimSpace(*in.AssignedRecruiterID)
 	}
 	if err := validateAssignedRecruiterTx(ctx, tx, companyID, assignedRecruiterID); err != nil {
 		return err
