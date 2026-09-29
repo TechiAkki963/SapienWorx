@@ -288,6 +288,25 @@ const server = http.createServer(async (req, res) => {
     if (state.adminAccess.fail) return json(res, 503, { error: { message: "administrator security is unavailable" } });
     return json(res, 200, { ...state.adminAccess, permissions: adminCatalog[state.adminAccess.admin_role] ?? [] });
   }
+  if (url.pathname === "/api/v1/admin/workforce-taxonomy" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "taxonomy access denied" } });
+    return json(res, 200, {
+      entity_count: 1284,
+      alias_count: 3421,
+      relationship_count: 876,
+      mapping_count: 4912,
+      pending_count: 2,
+      provisional_terms: [
+        { id: "b1000000-0000-4000-8000-000000000001", raw_term: "Sterile Processing", normalized_term: "sterile processing", proposed_entity_type: "competency", country_scope: "IN", source: "job", source_context: "Healthcare", occurrence_count: 7, status: "pending", first_seen_at: now(), last_seen_at: now() },
+        { id: "b1000000-0000-4000-8000-000000000002", raw_term: "Cold Chain Dispatch", normalized_term: "cold chain dispatch", proposed_entity_type: "competency", country_scope: "IN", source: "candidate", source_context: "Logistics", occurrence_count: 4, status: "pending", first_seen_at: now(), last_seen_at: now() },
+      ],
+      entities: [
+        { id: "b2000000-0000-4000-8000-000000000001", entity_type: "competency", canonical_name: "Critical Care Nursing", description: "Clinical critical-care competency", status: "active", country_scope: "IN", language_code: "en", usage_count: 418, metadata: {} },
+        { id: "b2000000-0000-4000-8000-000000000002", entity_type: "competency", canonical_name: "Financial Analysis", description: "Finance analysis competency", status: "active", country_scope: "", language_code: "en", usage_count: 365, metadata: {} },
+        { id: "b2000000-0000-4000-8000-000000000003", entity_type: "occupation", canonical_name: "Warehouse Supervisor", description: "Logistics occupation", status: "active", country_scope: "IN", language_code: "en", usage_count: 291, metadata: {} },
+      ],
+    });
+  }
   if (url.pathname.startsWith("/api/v1/admin/security/mfa/") && req.method === "POST") {
     if (roleFromCookie(req) !== "master_admin" || !state.adminAccess.enabled || !state.adminAccess.assigned) return json(res, 403, { error: { message: "approved role required" } });
     if (payload.password !== "E2e-password-123!") return json(res, 400, { error: { message: "password or authenticator code is invalid, expired or already used" } });
