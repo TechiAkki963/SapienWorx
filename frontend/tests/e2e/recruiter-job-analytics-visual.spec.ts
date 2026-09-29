@@ -22,6 +22,8 @@ test("job analytics stays compact and readable across target recruiter widths", 
     await expect(page.getByRole("heading", { name: "Job analytics" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Hiring funnel" })).toBeVisible();
     await expect(page.getByRole("region", { name: "Source performance" })).toBeVisible();
+    const firstTrendBarHeight = await page.getByTestId("trend-bar").first().evaluate((element) => element.getBoundingClientRect().height);
+    expect(firstTrendBarHeight, `${viewport.name} trend bar should be visible`).toBeGreaterThan(2);
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow, `${viewport.name} analytics horizontal overflow`).toBeLessThanOrEqual(0);
