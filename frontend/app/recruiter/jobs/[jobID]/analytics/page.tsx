@@ -104,12 +104,17 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
           <div><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Demand</p><h2 className="mt-1 text-xl font-bold text-navy">Applications · last 30 days</h2></div>
           <p className="text-xs font-semibold text-ink-muted">Daily submitted applications</p>
         </div>
-        <div className="mt-5 flex h-36 min-w-0 items-end gap-1" aria-label="30 day application volume">
+        <div className="mt-5 flex h-36 min-w-0 items-end gap-1" role="img" aria-label={`30 day application volume. ${analytics.trend.reduce((total, point) => total + point.applications, 0)} applications in total.`}>
           {analytics.trend.map((point) => <div key={point.date} className="group flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1" title={`${point.date}: ${point.applications} applications`}>
             <div data-testid="trend-bar" className="w-full min-w-[2px] rounded-t-sm bg-indigo/70 transition group-hover:bg-indigo" style={{ height: `${Math.max(2, point.applications / maxTrend * 100)}%` }} />
           </div>)}
         </div>
         <div className="mt-2 flex justify-between text-[10px] font-semibold text-ink-muted"><span>{compactDate(analytics.trend[0]?.date)}</span><span>{compactDate(analytics.trend.at(-1)?.date)}</span></div>
+        <table className="sr-only">
+          <caption>Daily application volume for the last 30 days</caption>
+          <thead><tr><th scope="col">Date</th><th scope="col">Applications</th></tr></thead>
+          <tbody>{analytics.trend.map((point) => <tr key={point.date}><th scope="row">{point.date}</th><td>{point.applications}</td></tr>)}</tbody>
+        </table>
       </section>
 
       <section aria-label="Source performance" className="min-w-0 rounded-2xl border border-line/70 bg-white p-5 shadow-[0_4px_20px_rgba(16,33,63,0.035)] sm:p-6">
