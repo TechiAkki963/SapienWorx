@@ -33,6 +33,7 @@ export function JobShareMenu({ jobId, title, active }: { jobId: string; title: s
     const url = jobURL();
     if (navigator.share) {
       await navigator.share({ title, text: `We're hiring: ${title}`, url });
+      setOpen(false);
       return;
     }
     await navigator.clipboard.writeText(url);
