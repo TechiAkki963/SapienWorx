@@ -33,6 +33,11 @@ test("job builder recruitment settings remain clear and responsive", async ({ pa
     await page.getByLabel("Job visibility").selectOption("private");
     await expect(page.getByText("Private roles are hidden from candidate search, recommendations and public job pages.")).toBeVisible();
 
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    });
+
     const overflow = await page.evaluate(() => ({
       page: document.documentElement.scrollWidth,
       viewport: innerWidth,
@@ -68,6 +73,11 @@ test("edit job shows governance controls and audit history without clutter", asy
     await expect(page.getByLabel("Assigned recruiter")).toHaveValue("20000000-0000-4000-8000-000000000001");
     await expect(page.getByLabel("Job visibility")).toHaveValue("public");
     await expect(page.getByText("Enable referrals")).toBeVisible();
+
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    });
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow, `${viewport.name} edit builder horizontal overflow`).toBeLessThanOrEqual(0);
