@@ -35,6 +35,17 @@ async function assertNoHorizontalOverflow(page: import("@playwright/test").Page,
   expect(report.width, `${label}: horizontal overflow offenders=${JSON.stringify(report.offenders)}`).toBeLessThanOrEqual(report.viewport);
 }
 
+async function expectAnyVisibleText(page: import("@playwright/test").Page, text: string) {
+  const visible = await page.getByText(text, { exact: true }).evaluateAll((elements) =>
+    elements.some((element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return style.visibility !== "hidden" && style.display !== "none" && rect.width > 0 && rect.height > 0;
+    }),
+  );
+  expect(visible, `Expected visible text: ${text}`).toBeTruthy();
+}
+
 async function prepareShot(page: import("@playwright/test").Page) {
   await page.evaluate(() => {
     window.scrollTo(0, 0);
@@ -57,7 +68,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     // 1. Job management
     await page.goto("/recruiter/jobs");
     await expect(page.getByRole("heading", { name: "Job management" })).toBeVisible();
-    await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+    await expectAnyVisibleText(page, "SWX-JOB-2026-00001");
     await expect(page.getByRole("link", { name: "View applicants →" })).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} job management`);
     await prepareShot(page);
