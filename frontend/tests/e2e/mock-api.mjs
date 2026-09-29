@@ -527,6 +527,7 @@ const server = http.createServer(async (req, res) => {
     const source = [{
       ...job(),
       role_category: "Technology",
+      visibility: "public",
       applications: 1000,
       new_applications: 9,
       shortlisted: 1,
@@ -536,6 +537,24 @@ const server = http.createServer(async (req, res) => {
       updated_at: now(),
     }];
     const q = (url.searchParams.get("q") ?? "").toLowerCase();
+    if (q === "private-visibility-test") {
+      source.splice(0, source.length, {
+        ...job({
+          id: "60000000-0000-4000-8000-000000000088",
+          job_reference: "SWX-JOB-2026-00088",
+          title: "Private Operations Lead",
+        }),
+        role_category: "Operations",
+        visibility: "private",
+        applications: 4,
+        new_applications: 1,
+        shortlisted: 0,
+        interviews: 0,
+        status: "active",
+        application_deadline: new Date(Date.now() + 5 * 86400000).toISOString(),
+        updated_at: now(),
+      });
+    }
     const status = url.searchParams.get("status") ?? "";
     const roleCategory = url.searchParams.get("role_category") ?? "";
     const workMode = url.searchParams.get("work_mode") ?? "";
