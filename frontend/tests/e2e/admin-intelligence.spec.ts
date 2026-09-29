@@ -40,7 +40,7 @@ test.describe("Master Admin Intelligence Centre", () => {
     const apiRequest = await waitForRecordedRequest(request, (item) => item.method === "GET" && item.path === "/api/v1/admin/intelligence");
     expect(apiRequest).toBeTruthy();
 
-    for (const width of [1440, 768, 375]) {
+    for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 960 });
       await expect(page.getByRole("heading", { name: "Control plane for the separate Intelligence Engine" })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
