@@ -95,6 +95,7 @@ func (s *Service) Recommendations(ctx context.Context, userID string, minimumSco
 			FROM jobs j
 			JOIN job_match_counts jm ON jm.job_id=j.id
 			WHERE j.status='active'
+			  AND j.visibility='public'
 			  AND jm.required_count>0
 			  AND (j.application_deadline IS NULL OR j.application_deadline>=current_date)
 		)
@@ -174,7 +175,7 @@ func (s *Service) intelligenceRecommendations(ctx context.Context, userID string
 		JOIN jobs j ON j.id=r.job_id
 		JOIN companies c ON c.id=j.company_id
 		WHERE r.candidate_id=$1 AND r.status='active' AND (r.expires_at IS NULL OR r.expires_at>now()) AND r.score>=$2
-		  AND j.status='active' AND (j.application_deadline IS NULL OR j.application_deadline>=current_date)
+		  AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline>=current_date)
 		ORDER BY r.rank ASC,r.score DESC LIMIT $3`, userID, minimumScore, limit)
 	if err != nil {
 		return nil, true, err
