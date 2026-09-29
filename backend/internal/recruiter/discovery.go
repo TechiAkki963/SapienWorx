@@ -8,12 +8,12 @@ import (
 )
 
 type DiscoveryFilters struct {
-	Query, Designation, CurrentCompany, PreviousCompany string
-	Education, Skills, Location, PreferredLocation      string
-	EmploymentType, WorkMode, Industry, FunctionalArea         string
+	Query, Designation, CurrentCompany, PreviousCompany                                                string
+	Education, Skills, Location, PreferredLocation                                                     string
+	EmploymentType, WorkMode, Industry, FunctionalArea                                                 string
 	Languages, Certifications, Availability, Gender, Disability, DefenceBackground, UpdatedSince, Sort string
-	MinExperience, MaxExperience, MaxNoticeDays, Page   int
-	HasMaxNotice                                        bool
+	MinExperience, MaxExperience, MaxNoticeDays, Page                                                  int
+	HasMaxNotice                                                                                       bool
 }
 
 type DiscoveryCandidate struct {
@@ -126,7 +126,15 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 		return DiscoveryList{}, err
 	}
 	orderBy := "cp.updated_at DESC,cp.user_id"
-	switch f.Sort { case "", "recently_updated": case "most_experienced": orderBy = "cp.total_experience_months DESC,cp.updated_at DESC,cp.user_id"; case "least_notice": orderBy = "cp.notice_period_days ASC NULLS LAST,cp.updated_at DESC,cp.user_id"; default: return DiscoveryList{}, ErrInvalid }
+	switch f.Sort {
+	case "", "recently_updated":
+	case "most_experienced":
+		orderBy = "cp.total_experience_months DESC,cp.updated_at DESC,cp.user_id"
+	case "least_notice":
+		orderBy = "cp.notice_period_days ASC NULLS LAST,cp.updated_at DESC,cp.user_id"
+	default:
+		return DiscoveryList{}, ErrInvalid
+	}
 	args = append(args, result.Limit, (f.Page-1)*result.Limit)
 	query := `SELECT cp.user_id,cp.full_name,cp.headline,coalesce(cp.profile_details->>'current_designation',''),
 		coalesce((SELECT e->>'company' FROM ` + discoveryEmployment + ` e WHERE lower(e->>'current_company')='yes' LIMIT 1),''),
