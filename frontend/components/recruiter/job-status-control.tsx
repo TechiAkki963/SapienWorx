@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { StatusMenu } from "@/components/recruiter/status-menu";
 import { apiRequest } from "@/lib/api";
-import { jobStatuses } from "@/lib/recruiter";
+import { jobStatusTransitions } from "@/lib/recruiter";
 
 export function JobStatusControl({ jobId, status }: { jobId: string; status: string }) {
   const router = useRouter();
@@ -14,7 +14,7 @@ export function JobStatusControl({ jobId, status }: { jobId: string; status: str
   return (
     <StatusMenu
       value={status}
-      options={jobStatuses}
+      options={jobStatusTransitions[status] ?? [status]}
       disabled={busy}
       ariaLabel="Job status"
       onChange={async (next) => {
