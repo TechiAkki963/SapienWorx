@@ -70,8 +70,8 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
         method: "POST",
         body: JSON.stringify(payload),
       });
-      setResult(response);
       resetSelection();
+      setResult(response);
       router.refresh();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Bulk action could not be completed.");
