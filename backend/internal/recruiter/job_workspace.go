@@ -25,6 +25,7 @@ type WorkspaceJob struct {
 	Department          *string    `json:"department,omitempty"`
 	RoleCategory        *string    `json:"role_category,omitempty"`
 	Status              string     `json:"status"`
+	Visibility          string     `json:"visibility"`
 	EmploymentType      string     `json:"employment_type"`
 	WorkMode            string     `json:"work_mode"`
 	City                *string    `json:"city,omitempty"`
@@ -151,7 +152,7 @@ func (s *Service) JobWorkspace(ctx context.Context, userID string, filters JobWo
 	listArgs := append(append([]any{}, args...), filters.Limit, (filters.Page-1)*filters.Limit)
 	rows, err := s.db.Query(ctx, `
 		SELECT
-			j.id,j.job_reference,j.title,j.department,j.role_category,j.status::text,
+			j.id,j.job_reference,j.title,j.department,j.role_category,j.status::text,j.visibility,
 			j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.openings,
 			count(a.id)::int,
 			count(a.id) FILTER (WHERE a.stage='new_application')::int,
@@ -185,6 +186,7 @@ func (s *Service) JobWorkspace(ctx context.Context, userID string, filters JobWo
 			&item.Department,
 			&item.RoleCategory,
 			&item.Status,
+			&item.Visibility,
 			&item.EmploymentType,
 			&item.WorkMode,
 			&item.City,
