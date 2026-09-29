@@ -88,7 +88,7 @@ const roleCategoryOptions = [
   "Other",
 ];
 
-const fieldClass = "min-h-11 rounded-xl border border-line bg-white px-3 shadow-sm outline-none focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50";
+const fieldClass = "min-h-11 min-w-0 w-full max-w-full rounded-xl border border-line bg-white px-3 shadow-sm outline-none focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50";
 
 function optionalNumber(value: string): number | null {
   const normalized = value.trim();
@@ -157,9 +157,9 @@ function TextareaField({
   hint?: string;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-ink">
+    <label className="grid min-w-0 max-w-full gap-2 text-sm font-semibold text-ink">
       <span>{labelText}</span>
-      <textarea rows={rows} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="w-full resize-y rounded-xl border border-line bg-white px-3.5 py-3 text-sm leading-6 shadow-sm outline-none transition placeholder:text-ink-muted/60 focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50" />
+      <textarea rows={rows} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-w-0 w-full max-w-full resize-y rounded-xl border border-line bg-white px-3.5 py-3 text-sm leading-6 shadow-sm outline-none transition placeholder:text-ink-muted/60 focus:border-indigo/45 focus:ring-4 focus:ring-indigo-soft/50" />
       {hint && <span className="text-xs font-normal leading-5 text-ink-muted">{hint}</span>}
     </label>
   );
@@ -346,7 +346,7 @@ export function JobBuilder({
   }
 
   return (
-    <form onSubmit={submit} className="grid min-w-0 gap-5">
+    <form onSubmit={submit} className="grid min-w-0 w-full max-w-full gap-5">
       <nav className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="Job posting steps">
         {steps.map((item) => {
           const active = item.number === step;
@@ -371,7 +371,7 @@ export function JobBuilder({
             {step === 1 && <div className="grid gap-5">
               <Input label="Job title" value={state.title} onChange={(event) => update("title", event.target.value)} placeholder="e.g. Critical Care Nurse" required />
               <Input label="Department or team" value={state.department} onChange={(event) => update("department", event.target.value)} placeholder="e.g. Intensive Care Unit" />
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-ink">Employment type<select value={state.employment_type} onChange={(event) => update("employment_type", event.target.value)} className={fieldClass}><option value="full_time">Full time</option><option value="part_time">Part time</option><option value="contract">Contract</option><option value="internship">Internship</option><option value="temporary">Temporary</option></select></label>
                 <label className="grid gap-2 text-sm font-semibold text-ink">Workplace model<select value={state.work_mode} onChange={(event) => update("work_mode", event.target.value)} className={fieldClass}><option value="onsite">On-site</option><option value="hybrid">Hybrid</option><option value="remote">Remote</option></select></label>
               </div>
@@ -397,17 +397,17 @@ export function JobBuilder({
               <TextareaField labelText="Responsibilities" value={state.responsibilities} onChange={(value) => update("responsibilities", value)} placeholder="Add the outcomes and responsibilities candidates should understand before applying…" />
               <TextareaField labelText="Company overview" value={state.company_overview} onChange={(value) => update("company_overview", value)} placeholder="Introduce the company, its mission and the team this person will join." rows={4} />
               <TextareaField labelText="Why join" value={state.why_join} onChange={(value) => update("why_join", value)} placeholder="Give candidates honest reasons to consider this opportunity." rows={4} />
-              <TextareaField labelText="Hiring process" value={state.hiring_process} onChange={(value) => update("hiring_process", value)} placeholder="Application review\nRecruiter conversation\nRole-focused conversation\nFinal decision" rows={6} hint="Enter one stage per line. Use three to six stages so candidates know what to expect." />
+              <TextareaField labelText="Hiring process" value={state.hiring_process} onChange={(value) => update("hiring_process", value)} placeholder={"Application review\nRecruiter conversation\nRole-focused conversation\nFinal decision"} rows={6} hint="Enter one stage per line. Use three to six stages so candidates know what to expect." />
             </div>}
 
-            {step === 4 && <div className="grid gap-6">
+            {step === 4 && <div className="grid min-w-0 max-w-full gap-6">
               <div className="rounded-xl border border-indigo/15 bg-indigo-soft/30 p-4">
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Recruitment controls</p>
                 <h3 className="mt-1 text-lg font-bold text-navy">Configure before publishing</h3>
                 <p className="mt-1 text-sm leading-6 text-ink-muted">These settings control ownership, candidate visibility and application quality without changing the public role story.</p>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-ink">
                   Application deadline
                   <input type="date" value={state.application_deadline} onChange={(event) => update("application_deadline", event.target.value)} className={fieldClass} />
@@ -421,7 +421,7 @@ export function JobBuilder({
                 </label>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-ink">
                   Job visibility
                   <select value={state.visibility} onChange={(event) => update("visibility", event.target.value as "public" | "private")} className={fieldClass}>
@@ -436,11 +436,11 @@ export function JobBuilder({
                 </label>
               </div>
 
-              <TextareaField labelText="Education requirements" value={state.education_requirements} onChange={(value) => update("education_requirements", value)} placeholder="B.Sc Nursing\nGNM\nValid state nursing registration" rows={4} hint="One requirement per line. Keep requirements genuinely necessary for the role." />
-              <TextareaField labelText="Screening questions" value={state.screening_questions} onChange={(value) => update("screening_questions", value)} placeholder="Do you hold a valid nursing registration?\nAre you available for rotational shifts?" rows={5} hint="One question per line. Maximum 20 questions; each should be job-related and necessary." />
+              <TextareaField labelText="Education requirements" value={state.education_requirements} onChange={(value) => update("education_requirements", value)} placeholder={"B.Sc Nursing\nGNM\nValid state nursing registration"} rows={4} hint="One requirement per line. Keep requirements genuinely necessary for the role." />
+              <TextareaField labelText="Screening questions" value={state.screening_questions} onChange={(value) => update("screening_questions", value)} placeholder={"Do you hold a valid nursing registration?\nAre you available for rotational shifts?"} rows={5} hint="One question per line. Maximum 20 questions; each should be job-related and necessary." />
               <TextareaField labelText="Internal recruiter notes" value={state.internal_notes} onChange={(value) => update("internal_notes", value)} placeholder="Hiring-manager context, sourcing notes, internal constraints…" rows={4} hint="Internal only. Never shown to candidates." />
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Role</p><p className="mt-1 font-bold text-ink">{state.title || "Untitled role"}</p><p className="mt-1 text-xs text-ink-muted">{state.department || "No team set"} · {label(state.work_mode)}</p></div>
                 <div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Requirements</p><p className="mt-1 font-bold text-ink">{skills.length} competenc{skills.length === 1 ? "y" : "ies"}</p><p className="mt-1 text-xs text-ink-muted">{lines(state.screening_questions).length} screening question{lines(state.screening_questions).length === 1 ? "" : "s"} · {state.visibility}</p></div>
               </div>
