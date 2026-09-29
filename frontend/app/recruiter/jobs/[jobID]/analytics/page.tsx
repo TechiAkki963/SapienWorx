@@ -105,8 +105,8 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
           <p className="text-xs font-semibold text-ink-muted">Daily submitted applications</p>
         </div>
         <div className="mt-5 flex h-36 min-w-0 items-end gap-1" aria-label="30 day application volume">
-          {analytics.trend.map((point) => <div key={point.date} className="group flex min-w-0 flex-1 flex-col items-center justify-end gap-1" title={`${point.date}: ${point.applications} applications`}>
-            <div className="w-full min-w-[2px] rounded-t-sm bg-indigo/70 transition group-hover:bg-indigo" style={{ height: `${Math.max(2, point.applications / maxTrend * 100)}%` }} />
+          {analytics.trend.map((point) => <div key={point.date} className="group flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1" title={`${point.date}: ${point.applications} applications`}>
+            <div data-testid="trend-bar" className="w-full min-w-[2px] rounded-t-sm bg-indigo/70 transition group-hover:bg-indigo" style={{ height: `${Math.max(2, point.applications / maxTrend * 100)}%` }} />
           </div>)}
         </div>
         <div className="mt-2 flex justify-between text-[10px] font-semibold text-ink-muted"><span>{compactDate(analytics.trend[0]?.date)}</span><span>{compactDate(analytics.trend.at(-1)?.date)}</span></div>
@@ -121,7 +121,7 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
               <tbody className="divide-y divide-line/60">{analytics.sources.map((source) => <tr key={source.source}><td className="px-3 py-3 font-bold text-ink">{label(source.source)}</td><td className="px-3 py-3 text-right">{source.applications}</td><td className="px-3 py-3 text-right">{source.shortlisted}</td><td className="px-3 py-3 text-right">{source.interviews}</td><td className="px-3 py-3 text-right">{source.offers}</td><td className="px-3 py-3 text-right font-bold">{source.hires}</td><td className="px-3 py-3 text-right font-bold text-indigo">{percent(source.hire_conversion_percent)}</td></tr>)}</tbody>
             </table>
           </div>
-          <div className="mt-5 grid gap-3 md:hidden">{analytics.sources.map((source) => <article key={source.source} className="rounded-xl border border-line bg-slate-50/45 p-3.5"><div className="flex items-center justify-between gap-3"><h3 className="font-bold text-ink">{label(source.source)}</h3><span className="text-sm font-black text-indigo">{percent(source.hire_conversion_percent)}</span></div><div className="mt-3 grid grid-cols-3 gap-2 text-xs"><div><p className="text-ink-muted">Applications</p><p className="mt-1 font-bold text-navy">{source.applications}</p></div><div><p className="text-ink-muted">Offers</p><p className="mt-1 font-bold text-navy">{source.offers}</p></div><div><p className="text-ink-muted">Hires</p><p className="mt-1 font-bold text-navy">{source.hires}</p></div></div></article>)}</div>
+          <div className="mt-5 grid gap-3 md:hidden">{analytics.sources.map((source) => <article key={source.source} className="rounded-xl border border-line bg-slate-50/45 p-3.5"><div className="flex items-center justify-between gap-3"><h3 className="font-bold text-ink">{label(source.source)}</h3><span className="text-sm font-black text-indigo">{percent(source.hire_conversion_percent)}</span></div><div className="mt-3 grid grid-cols-3 gap-2 text-xs"><div><p className="text-ink-muted">Apps</p><p className="mt-1 font-bold text-navy">{source.applications}</p></div><div><p className="text-ink-muted">Offers</p><p className="mt-1 font-bold text-navy">{source.offers}</p></div><div><p className="text-ink-muted">Hires</p><p className="mt-1 font-bold text-navy">{source.hires}</p></div></div></article>)}</div>
         </> : <p className="mt-4 text-sm text-ink-muted">No application source data is available yet.</p>}
       </section>
     </div>
