@@ -82,6 +82,13 @@ jobs:
           test "$columns" = "5"
           audit_table="$(psql -At -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SELECT CASE WHEN to_regclass('public.job_change_audit') IS NULL THEN 0 ELSE 1 END")"
           test "$audit_table" = "1"
+      - name: Verify Phase 3.3 analytics indexes
+        run: |
+          set -euo pipefail
+          applied_index="$(psql -At -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SELECT CASE WHEN to_regclass('public.ix_applications_job_applied') IS NULL THEN 0 ELSE 1 END")"
+          test "$applied_index" = "1"
+          stage_index="$(psql -At -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SELECT CASE WHEN to_regclass('public.ix_application_stage_audit_application_stage_changed') IS NULL THEN 0 ELSE 1 END")"
+          test "$stage_index" = "1"
       - name: Roll back all migrations
         run: |
           set -euo pipefail
