@@ -63,10 +63,10 @@ func (s *Service) transitionJobStatus(ctx context.Context, userID, jobID, nextSt
 	}
 	if nextStatus == "active" {
 		if !publishableDetailedJob(DetailedJobInput{
-			Description: description,
+			Description:      description,
 			Responsibilities: valueOrEmpty(responsibilities),
-			Skills: skills,
-			HiringProcess: process,
+			Skills:           skills,
+			HiringProcess:    process,
 		}) {
 			return ErrInvalid
 		}
