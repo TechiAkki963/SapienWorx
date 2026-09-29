@@ -23,6 +23,7 @@ export type RecruiterJob = {
   department?: string;
   role_category?: string;
   status: string;
+  visibility: "public" | "private";
   employment_type: string;
   work_mode: string;
   city?: string;
