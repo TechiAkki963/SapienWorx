@@ -27,7 +27,10 @@ test("bulk job controls remain compact after selection across recruiter breakpoi
 
     await page.evaluate(() => {
       window.scrollTo(0, 0);
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
       document.querySelectorAll("nextjs-portal").forEach((portal) => portal.remove());
+      document.querySelector<HTMLElement>(".skip-link")?.style.setProperty("display", "none", "important");
+      document.querySelector<HTMLElement>("header")?.style.setProperty("position", "static", "important");
     });
     await page.screenshot({
       path: `visual-artifacts/phase3-bulk-jobs/bulk-jobs-${viewport.name}.png`,
