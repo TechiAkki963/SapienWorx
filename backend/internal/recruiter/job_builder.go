@@ -328,7 +328,7 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 		WHERE id=$1 AND company_id=$2
 		FOR UPDATE
 	`, jobID, companyID).Scan(
-		&currentStatus, &currentDescription, &currentResponsibilities, &currentSkills, &currentProcess, &previousSnapshot,
+		&currentStatus, &currentDescription, &currentResponsibilities, &currentSkills, &currentProcess, &currentAssignedRecruiterID, &previousSnapshot,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
