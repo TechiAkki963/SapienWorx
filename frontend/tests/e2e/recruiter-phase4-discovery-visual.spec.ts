@@ -6,9 +6,9 @@ test.beforeEach(async({request})=>resetE2E(request));
 test("Phase 4 recruiter candidate discovery is responsive and actionable",async({page})=>{
  test.setTimeout(180000);await login(page,"recruiter");await fs.mkdir("visual-artifacts/phase4-discovery",{recursive:true});
  for(const v of viewports){await page.setViewportSize({width:v.width,height:v.height});await page.goto("/recruiter/discover");
-  await expect(page.getByRole("heading",{name:"Discover Talent"})).toBeVisible();await expect(page.getByText("Aarav Mehta")).toBeVisible();await expect(page.getByText("Meera Nair")).toBeVisible();await expect(page.getByText("Diversity sourcing")).toBeVisible();await expect(page.getByText("Saved searches")).toBeVisible();
+  await expect(page.getByRole("heading",{name:"Discover Talent"})).toBeVisible();await expect(page.getByText("Aarav Mehta")).toBeVisible();await expect(page.getByText("Meera Nair")).toBeVisible();if(v.width<1280){await expect(page.getByText("Search & filters",{exact:true})).toBeVisible();await page.getByText("Search & filters",{exact:true}).click();await expect(page.getByText("Diversity sourcing")).toBeVisible();}else{await expect(page.getByText("Diversity sourcing")).toBeVisible();}await expect(page.getByText("Saved searches")).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${v.name} horizontal overflow`).toBeTruthy();
-  await page.evaluate(()=>{window.scrollTo(0,0);document.querySelectorAll("nextjs-portal").forEach(x=>x.remove())});await page.screenshot({path:`visual-artifacts/phase4-discovery/discover-${v.name}.png`,fullPage:true});
+  if(v.width<1280){await page.getByText("Search & filters",{exact:true}).click();}await page.evaluate(()=>{window.scrollTo(0,0);document.querySelectorAll("nextjs-portal").forEach(x=>x.remove())});await page.screenshot({path:`visual-artifacts/phase4-discovery/discover-${v.name}.png`,fullPage:true});
  }
 });
 test("Phase 4 can save a search and add a discoverable candidate to Talent Pool",async({page})=>{
