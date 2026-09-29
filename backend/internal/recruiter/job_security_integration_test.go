@@ -151,6 +151,26 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		}
 	})
 
+	t.Run("job edit preserves assignee when assignment is omitted", func(t *testing.T) {
+		exec(`UPDATE jobs SET assigned_recruiter_id=$2 WHERE id=$1`, jobPublicA, recruiterA2)
+		edit, err := recruiterSvc.EditableJob(ctx, recruiterA, jobPublicA)
+		if err != nil {
+			t.Fatal(err)
+		}
+		edit.AssignedRecruiterID = nil
+		edit.Publish = false
+		if err := recruiterSvc.UpdateDetailedJob(ctx, recruiterA, jobPublicA, edit.DetailedJobInput); err != nil {
+			t.Fatal(err)
+		}
+		var assigned string
+		if err := db.QueryRow(ctx, `SELECT assigned_recruiter_id::text FROM jobs WHERE id=$1`, jobPublicA).Scan(&assigned); err != nil {
+			t.Fatal(err)
+		}
+		if assigned != recruiterA2 {
+			t.Fatalf("omitted assignment silently reassigned job: got=%s want=%s", assigned, recruiterA2)
+		}
+	})
+
 	t.Run("team and reassignment cannot cross tenant boundary", func(t *testing.T) {
 		team, err := recruiterSvc.RecruiterTeam(ctx, recruiterA)
 		if err != nil {
