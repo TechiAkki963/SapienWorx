@@ -24,7 +24,7 @@ export function PublicHeader({ sessionRole }: { sessionRole?: Role }) {
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           {workspaceHref ? (
-            <Button href={workspaceHref} size="sm" className="px-3 sm:px-5">{workspaceLabel} <span aria-hidden="true">→</span></Button>
+            <Button href={workspaceHref} size="sm" className="hidden px-3 sm:inline-flex sm:px-5">{workspaceLabel} <span aria-hidden="true">→</span></Button>
           ) : (
             <>
               <Button href="/login" size="sm" variant="ghost" className="hidden sm:inline-flex">Log in</Button>
