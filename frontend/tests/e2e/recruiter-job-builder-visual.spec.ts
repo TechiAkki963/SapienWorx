@@ -4,9 +4,11 @@ import fs from "node:fs/promises";
 import { login, resetE2E } from "./helpers";
 
 const viewports = [
-  { name: "laptop", width: 1440, height: 900 },
+  { name: "laptop-1440", width: 1440, height: 900 },
+  { name: "laptop-1366", width: 1366, height: 768 },
   { name: "tablet", width: 768, height: 1024 },
-  { name: "mobile", width: 390, height: 844 },
+  { name: "mobile-390", width: 390, height: 844 },
+  { name: "mobile-320", width: 320, height: 800 },
 ];
 
 test.beforeEach(async ({ request }) => resetE2E(request));
