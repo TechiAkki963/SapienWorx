@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { apiRequest } from "@/lib/api";
@@ -29,6 +29,8 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<BulkJobActionResult | null>(null);
   const [error, setError] = useState("");
+  const reviewButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const sync = () => setSelected(selectedJobIDs());
@@ -39,6 +41,23 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
     sync();
     return () => document.removeEventListener("change", listener);
   }, []);
+
+  useEffect(() => {
+    if (!confirming) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const frame = window.requestAnimationFrame(() => cancelButtonRef.current?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setConfirming(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", onKeyDown);
+      if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
+    };
+  }, [confirming]);
 
   function selectPage(next: boolean) {
     document.querySelectorAll<HTMLInputElement>("input[data-bulk-job-id]").forEach((input) => {
@@ -93,11 +112,12 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
         <button
           type="button"
           onClick={() => selectPage(!allSelected)}
+          aria-pressed={allSelected}
           className="min-h-10 rounded-xl border border-line bg-white px-3 text-xs font-bold text-ink transition hover:border-indigo/30 hover:text-indigo"
         >
           {allSelected ? "Clear page" : "Select page"}
         </button>
-        <p className="min-w-0 flex-1 text-xs font-semibold text-ink-muted">
+        <p aria-live="polite" aria-atomic="true" className="min-w-0 flex-1 text-xs font-semibold text-ink-muted">
           {selected.length ? <><span className="font-extrabold text-navy">{selected.length}</span> selected on this page</> : "Select vacancies below to use governed bulk actions."}
         </p>
 
@@ -137,6 +157,7 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
             )}
 
             <button
+              ref={reviewButtonRef}
               type="button"
               disabled={!action || busy || (action === "reassign" && !assignee)}
               onClick={() => setConfirming(true)}
@@ -149,20 +170,20 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
       </div>
 
       {confirming && selected.length > 0 && (
-        <div role="alertdialog" aria-label="Confirm bulk job action" className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3">
+        <div role="alertdialog" aria-labelledby="bulk-confirm-title" aria-describedby="bulk-confirm-description" className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3">
           <div>
-            <p className="text-sm font-bold text-amber-950">{confirmationText}</p>
-            <p className="mt-0.5 text-xs text-amber-900/80">Each job is checked independently against its lifecycle and organization rules.</p>
+            <p id="bulk-confirm-title" className="text-sm font-bold text-amber-950">{confirmationText}</p>
+            <p id="bulk-confirm-description" className="mt-0.5 text-xs text-amber-900/80">Each job is checked independently against its lifecycle and organization rules.</p>
           </div>
           <div className="flex gap-2">
-            <button type="button" disabled={busy} onClick={() => setConfirming(false)} className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-amber-950">Cancel</button>
+            <button ref={cancelButtonRef} type="button" disabled={busy} onClick={() => setConfirming(false)} className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-amber-950">Cancel</button>
             <button type="button" disabled={busy} onClick={submit} className="rounded-lg bg-amber-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{busy ? "Applying…" : `Confirm ${actionLabel(action)}`}</button>
           </div>
         </div>
       )}
 
       {result && (
-        <div role="status" className="mt-3 rounded-xl border border-line bg-slate-50/70 px-3.5 py-3 text-xs text-ink">
+        <div role="status" aria-live="polite" aria-atomic="true" className="mt-3 rounded-xl border border-line bg-slate-50/70 px-3.5 py-3 text-xs text-ink">
           <p className="font-extrabold text-navy">Bulk action {result.status}.</p>
           <p className="mt-1 text-ink-muted">{result.succeeded_count} changed · {result.unchanged_count} unchanged · {result.failed_count} failed</p>
           {result.failed_count > 0 && <p className="mt-1 font-semibold text-rose-700">Failed jobs remain unchanged and can be reviewed individually.</p>}
