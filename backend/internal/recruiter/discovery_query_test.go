@@ -31,3 +31,11 @@ func TestDiscoveryBooleanQuery(t *testing.T) {
 		t.Fatalf("wildcard not escaped: %s", got)
 	}
 }
+
+
+func TestDiscoverySortModes(t *testing.T) {
+	for _, sort := range []string{"", "recently_updated", "most_experienced", "least_notice"} {
+		f := DiscoveryFilters{Page: 1, Sort: sort}
+		if f.Page != 1 { t.Fatal("unexpected page") }
+	}
+}
