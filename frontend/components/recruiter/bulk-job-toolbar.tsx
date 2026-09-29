@@ -9,7 +9,11 @@ import { BulkJobActionResult, RecruiterTeamMember } from "@/lib/recruiter";
 type BulkAction = "" | "pause" | "close" | "archive" | "reassign";
 
 function selectedJobIDs() {
-  return Array.from(document.querySelectorAll<HTMLInputElement>('input[data-bulk-job-id]:checked')).map((input) => input.dataset.bulkJobId!).filter(Boolean);
+  return Array.from(new Set(
+    Array.from(document.querySelectorAll<HTMLInputElement>('input[data-bulk-job-id]:checked'))
+      .map((input) => input.dataset.bulkJobId!)
+      .filter(Boolean),
+  ));
 }
 
 function actionLabel(action: BulkAction) {
