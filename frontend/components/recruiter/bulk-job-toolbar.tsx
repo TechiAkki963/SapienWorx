@@ -170,7 +170,7 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
       </div>
 
       {confirming && selected.length > 0 && (
-        <div role="alertdialog" aria-labelledby="bulk-confirm-title" aria-describedby="bulk-confirm-description" className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3">
+        <div role="alertdialog" aria-label="Confirm bulk job action" aria-describedby="bulk-confirm-description" className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3">
           <div>
             <p id="bulk-confirm-title" className="text-sm font-bold text-amber-950">{confirmationText}</p>
             <p id="bulk-confirm-description" className="mt-0.5 text-xs text-amber-900/80">Each job is checked independently against its lifecycle and organization rules.</p>
