@@ -78,6 +78,7 @@ test("edit job shows governance controls and audit history without clutter", asy
       window.scrollTo(0, 0);
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     });
+    await page.addStyleTag({ content: ".skip-link { display: none !important; }" });
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     expect(overflow, `${viewport.name} edit builder horizontal overflow`).toBeLessThanOrEqual(0);
