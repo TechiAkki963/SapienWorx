@@ -47,8 +47,8 @@ test.describe("candidate onboarding", () => {
     await page.getByLabel("Education level").fill("B.E. Computer Science");
     await page.getByLabel("University / institute").fill("Example University");
     await page.getByRole("button", { name: "Save & continue" }).click();
-    await expect(page.getByRole("heading", { name: "Software skills and expertise" })).toBeVisible();
-    await page.getByLabel("Skill / software name").fill("Go");
+    await expect(page.getByRole("heading", { name: "Skills & competencies" })).toBeVisible();
+    await page.getByLabel("Skill / competency").fill("Go");
     await page.getByRole("button", { name: "Save & continue" }).click();
     await expect(page.getByRole("heading", { name: "Work preferences" })).toBeVisible();
     await page.getByRole("button", { name: "Save & review" }).click();

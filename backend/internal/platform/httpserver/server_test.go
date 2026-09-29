@@ -31,7 +31,7 @@ func testTokens(t *testing.T) *auth.TokenManager {
 }
 
 func TestReadinessFailsWhenDatabaseFails(t *testing.T) {
-	server := New(testConfig(), fakeDB{err: errors.New("down")}, testTokens(t), nil, nil, nil, nil, slog.Default())
+	server := New(testConfig(), fakeDB{err: errors.New("down")}, testTokens(t), nil, nil, nil, nil, nil, slog.Default())
 	req := httptest.NewRequest(http.MethodGet, "/health/ready", nil)
 	res := httptest.NewRecorder()
 	server.http.Handler.ServeHTTP(res, req)
@@ -41,7 +41,7 @@ func TestReadinessFailsWhenDatabaseFails(t *testing.T) {
 }
 
 func TestProtectedEndpointRejectsMissingToken(t *testing.T) {
-	server := New(testConfig(), fakeDB{}, testTokens(t), nil, nil, nil, nil, slog.Default())
+	server := New(testConfig(), fakeDB{}, testTokens(t), nil, nil, nil, nil, nil, slog.Default())
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/me", nil)
 	res := httptest.NewRecorder()
 	server.http.Handler.ServeHTTP(res, req)
@@ -51,7 +51,7 @@ func TestProtectedEndpointRejectsMissingToken(t *testing.T) {
 }
 
 func TestAdminEndpointRejectsMissingTokenWithForbidden(t *testing.T) {
-	server := New(testConfig(), fakeDB{}, testTokens(t), nil, nil, nil, nil, slog.Default())
+	server := New(testConfig(), fakeDB{}, testTokens(t), nil, nil, nil, nil, nil, slog.Default())
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/admin/metrics", nil)
 	res := httptest.NewRecorder()
 	server.http.Handler.ServeHTTP(res, req)
@@ -66,7 +66,7 @@ func TestAdminEndpointRejectsNonAdminRoleWithForbidden(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	server := New(testConfig(), fakeDB{}, tokens, nil, nil, nil, nil, slog.Default())
+	server := New(testConfig(), fakeDB{}, tokens, nil, nil, nil, nil, nil, slog.Default())
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/admin/metrics", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	res := httptest.NewRecorder()

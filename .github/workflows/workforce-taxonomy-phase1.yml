@@ -1,0 +1,173 @@
+name: Workforce Taxonomy Phase 1 Validation
+
+on:
+  push:
+    branches: [WorkforceTaxonomy]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workforce-taxonomy-phase1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.x"
+          cache-dependency-path: backend/go.sum
+      - name: Verify module files
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+      - name: Verify formatting
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "$unformatted"
+            gofmt -d $unformatted
+            exit 1
+          fi
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test -race ./...
+
+  migrations:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: sapienworx_ci
+          POSTGRES_USER: sapienworx
+          POSTGRES_PASSWORD: sapienworx_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sapienworx -d sapienworx_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGPASSWORD: sapienworx_ci
+    steps:
+      - uses: actions/checkout@v5
+      - name: Create restricted runtime roles
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci <<'SQL'
+          CREATE ROLE sapienworx_app NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+          CREATE ROLE sapienworx_intelligence NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+          SQL
+      - name: Apply migrations
+        run: |
+          set -euo pipefail
+          for migration in database/migrations/*.up.sql; do
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -f "$migration"
+          done
+      - name: Verify taxonomy foundation
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci <<'SQL'
+          DO $$
+          DECLARE resolved_name text;
+          BEGIN
+            SELECT e.canonical_name INTO resolved_name
+            FROM workforce.resolve_term('ReactJS',ARRAY['competency']) r
+            JOIN workforce.taxonomy_entities e ON e.id=r.entity_id;
+            IF resolved_name IS DISTINCT FROM 'React' THEN RAISE EXCEPTION 'ReactJS alias failed'; END IF;
+
+            SELECT e.canonical_name INTO resolved_name
+            FROM workforce.resolve_term('ICU Nursing',ARRAY['competency']) r
+            JOIN workforce.taxonomy_entities e ON e.id=r.entity_id;
+            IF resolved_name IS DISTINCT FROM 'Critical Care Nursing' THEN RAISE EXCEPTION 'ICU alias failed'; END IF;
+
+            SELECT e.canonical_name INTO resolved_name
+            FROM workforce.resolve_term('A/P',ARRAY['competency']) r
+            JOIN workforce.taxonomy_entities e ON e.id=r.entity_id;
+            IF resolved_name IS DISTINCT FROM 'Accounts Payable' THEN RAISE EXCEPTION 'accounting alias failed'; END IF;
+          END $$;
+
+          SELECT workforce.sync_source_terms(
+            'ci_fixture',
+            '11111111-1111-4111-8111-111111111111'::uuid,
+            ARRAY['React.js','Novel Welding Process'],
+            'competency',
+            'ci'
+          );
+
+          DO $$
+          DECLARE mapped integer; provisional integer; triggers integer;
+          BEGIN
+            SELECT count(*) INTO mapped FROM workforce.term_mappings
+              WHERE source_type='ci_fixture' AND source_id='11111111-1111-4111-8111-111111111111'::uuid AND entity_id IS NOT NULL;
+            SELECT count(*) INTO provisional FROM workforce.term_mappings
+              WHERE source_type='ci_fixture' AND source_id='11111111-1111-4111-8111-111111111111'::uuid AND provisional_term_id IS NOT NULL;
+            SELECT count(*) INTO triggers FROM pg_trigger
+              WHERE tgname IN ('trg_workforce_sync_job_required_skills','trg_workforce_sync_candidate_competencies') AND NOT tgisinternal;
+            IF mapped<>1 OR provisional<>1 OR triggers<>2 THEN
+              RAISE EXCEPTION 'taxonomy sync failed mapped=% provisional=% triggers=%',mapped,provisional,triggers;
+            END IF;
+          END $$;
+
+          SET ROLE sapienworx_intelligence;
+          SELECT count(*) FROM workforce.taxonomy_entities;
+          SELECT count(*) FROM workforce.taxonomy_aliases;
+          RESET ROLE;
+          SQL
+
+          if psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SET ROLE sapienworx_intelligence; UPDATE workforce.taxonomy_entities SET usage_count=usage_count+1;" >/dev/null 2>&1; then
+            echo "Intelligence role unexpectedly mutated workforce taxonomy." >&2
+            exit 1
+          fi
+      - name: Roll back all migrations
+        run: |
+          set -euo pipefail
+          while IFS= read -r migration; do
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -f "$migration"
+          done < <(printf '%s\n' database/migrations/*.down.sql | sort -r)
+
+  frontend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.x"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+
+  e2e:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22.x"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Playwright
+        run: npm run test:e2e
+      - name: Master Admin security journeys
+        run: npx playwright test --config playwright.admin-access.config.ts

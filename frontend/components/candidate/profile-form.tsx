@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
+import { TaxonomyInput } from "@/components/workforce/taxonomy-input";
 import { CandidateProfile, CandidateProfileDetails } from "@/lib/candidate";
 
 type Details = Record<string, unknown>;
@@ -311,19 +312,19 @@ export function ProfileForm({ profile, extended, onSaved, guided = false, sectio
         </div>
       </Section></div>
 
-      <div hidden={section ? section !== "skills" : guided && step !== 4}><Section id="section-skills" eyebrow="Skills" title="Software skills and expertise" description="Add the tools you use, your experience level and when you last used them.">
+      <div hidden={section ? section !== "skills" : guided && step !== 4}><Section id="section-skills" eyebrow="Skills" title="Skills & competencies" description="Add professional competencies, tools, technologies, equipment or credentials relevant to your work.">
         <div className="grid gap-4">
           {Array.from({ length: skillCount }, (_, index) => (
             <div key={index} className="grid gap-4 rounded-2xl border border-line bg-canvas/45 p-4 md:grid-cols-2 lg:grid-cols-6">
-              <label className={`${labelClass} lg:col-span-2`}>Skill / software name<input className={inputClass} name={`skill_${index}_name`} defaultValue={recValue(initialSkills, index, "name")} placeholder="e.g. TypeScript" /></label>
-              <label className={labelClass}>Software version<input className={inputClass} name={`skill_${index}_version`} defaultValue={recValue(initialSkills, index, "version")} /></label>
+              <label className={`${labelClass} lg:col-span-2`}>Skill / competency<TaxonomyInput className={inputClass} name={`skill_${index}_name`} defaultValue={recValue(initialSkills, index, "name")} placeholder="e.g. Critical Care Nursing, Negotiation, PostgreSQL" ariaLabel={index === 0 ? "Skill / competency" : `Skill / competency ${index + 1}`} /></label>
+              <label className={labelClass}>Version / level (optional)<input className={inputClass} name={`skill_${index}_version`} defaultValue={recValue(initialSkills, index, "version")} /></label>
               <label className={labelClass}>Last used<input className={inputClass} name={`skill_${index}_last_used`} defaultValue={recValue(initialSkills, index, "last_used")} placeholder="Year" /></label>
               <label className={labelClass}>Experience years<input className={inputClass} name={`skill_${index}_experience_years`} defaultValue={recValue(initialSkills, index, "experience_years")} /></label>
               <label className={labelClass}>Experience months<input className={inputClass} name={`skill_${index}_experience_months`} defaultValue={recValue(initialSkills, index, "experience_months")} /></label>
               <label className={labelClass}>Proficiency<select className={inputClass} name={`skill_${index}_proficiency`} defaultValue={recValue(initialSkills, index, "proficiency")}><option value="">Select</option><option>1 / 5</option><option>2 / 5</option><option>3 / 5</option><option>4 / 5</option><option>5 / 5</option></select></label>
             </div>
           ))}
-          <button type="button" onClick={() => setSkillCount((count) => count + 1)} className="justify-self-end rounded-full border border-indigo/25 px-4 py-2 text-xs font-bold text-indigo hover:bg-indigo-soft">+ IT skill</button>
+          <button type="button" onClick={() => setSkillCount((count) => count + 1)} className="justify-self-end rounded-full border border-indigo/25 px-4 py-2 text-xs font-bold text-indigo hover:bg-indigo-soft">+ Skill / competency</button>
         </div>
       </Section></div>
 

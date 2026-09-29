@@ -22,6 +22,7 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/workforce"
 	"github.com/gorilla/websocket"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"strings"
@@ -59,7 +60,7 @@ func TestAdminSecurityHTTPIsolatedDatabase(t *testing.T) {
 	cfg.Auth.LoginIPWindow = time.Minute
 	authService := auth.NewService(db, tokens, auth.ServiceConfig{RefreshTTL: time.Hour, OTPTTL: 10 * time.Minute, OTPSecret: "isolated-reset-test-secret-012345678901", Development: true})
 	adminService := admin.NewService(db)
-	server := New(cfg, db, tokens, authService, candidate.NewService(db), nil, adminService, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	server := New(cfg, db, tokens, authService, candidate.NewService(db), nil, adminService, workforce.NewService(db), slog.New(slog.NewTextHandler(io.Discard, nil)))
 	request := func(method, path, token string, input any, refresh string) *httptest.ResponseRecorder {
 		t.Helper()
 		raw, _ := json.Marshal(input)
@@ -156,6 +157,8 @@ func TestAdminSecurityHTTPIsolatedDatabase(t *testing.T) {
 		{"GET", "/api/v1/admin/jobs", admin.JobsRead},
 		{"GET", "/api/v1/admin/audit-logs", admin.AuditRead},
 		{"GET", "/api/v1/admin/budget-settings", admin.SystemRead},
+		{"GET", "/api/v1/admin/workforce-taxonomy", admin.TaxonomyRead},
+		{"POST", "/api/v1/admin/workforce-taxonomy/provisional/invalid/resolve", admin.TaxonomyManage},
 		{"GET", "/api/v1/admin/privacy/requests", admin.PrivacyRead},
 		{"GET", "/api/v1/admin/privacy/incidents", admin.PrivacyRead},
 		{"GET", "/api/v1/admin/privacy/subprocessors", admin.PrivacyRead},
@@ -429,7 +432,7 @@ func TestAdminSecurityHTTPIsolatedDatabase(t *testing.T) {
 	t.Run("disabled gate keeps legacy access but disallows enrollment", func(t *testing.T) {
 		_, session := fixture("")
 		cfg.Admin.AccessEnabled = false
-		server = New(cfg, db, tokens, authService, nil, nil, adminService, slog.New(slog.NewTextHandler(io.Discard, nil)))
+		server = New(cfg, db, tokens, authService, nil, nil, adminService, workforce.NewService(db), slog.New(slog.NewTextHandler(io.Discard, nil)))
 		if w := request("GET", "/api/v1/admin/users", session.AccessToken, nil, ""); w.Code != 200 {
 			t.Fatal("disabled gate locked existing admin out")
 		}

@@ -92,6 +92,83 @@ jobs:
             echo "Intelligence role unexpectedly created a database object." >&2
             exit 1
           fi
+      - name: Verify Workforce Taxonomy foundation
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci <<'SQL'
+          DO $$
+          DECLARE resolved_name text;
+          BEGIN
+            SELECT e.canonical_name INTO resolved_name
+            FROM workforce.resolve_term('ReactJS',ARRAY['competency']) r
+            JOIN workforce.taxonomy_entities e ON e.id=r.entity_id;
+            IF resolved_name IS DISTINCT FROM 'React' THEN
+              RAISE EXCEPTION 'ReactJS alias resolved to %', resolved_name;
+            END IF;
+
+            SELECT e.canonical_name INTO resolved_name
+            FROM workforce.resolve_term('ICU Nursing',ARRAY['competency']) r
+            JOIN workforce.taxonomy_entities e ON e.id=r.entity_id;
+            IF resolved_name IS DISTINCT FROM 'Critical Care Nursing' THEN
+              RAISE EXCEPTION 'ICU Nursing alias resolved to %', resolved_name;
+            END IF;
+          END $$;
+
+          SELECT workforce.sync_source_terms(
+            'ci_fixture',
+            '11111111-1111-4111-8111-111111111111'::uuid,
+            ARRAY['React.js','Novel Welding Process'],
+            'competency',
+            'ci'
+          );
+
+          SELECT workforce.sync_source_terms(
+            'ci_fixture',
+            '11111111-1111-4111-8111-111111111111'::uuid,
+            ARRAY['React.js','Novel Welding Process'],
+            'competency',
+            'ci'
+          );
+
+          DO $$
+          DECLARE mapped integer; provisional integer; provisional_usage integer; trigger_count integer;
+          BEGIN
+            SELECT count(*) INTO mapped
+            FROM workforce.term_mappings
+            WHERE source_type='ci_fixture'
+              AND source_id='11111111-1111-4111-8111-111111111111'::uuid
+              AND entity_id IS NOT NULL;
+            SELECT count(*) INTO provisional
+            FROM workforce.term_mappings
+            WHERE source_type='ci_fixture'
+              AND source_id='11111111-1111-4111-8111-111111111111'::uuid
+              AND provisional_term_id IS NOT NULL;
+            SELECT p.occurrence_count INTO provisional_usage
+            FROM workforce.provisional_terms p
+            JOIN workforce.term_mappings m ON m.provisional_term_id=p.id
+            WHERE m.source_type='ci_fixture'
+              AND m.source_id='11111111-1111-4111-8111-111111111111'::uuid
+              AND m.normalized_value=workforce.normalize_term('Novel Welding Process');
+            SELECT count(*) INTO trigger_count
+            FROM pg_trigger
+            WHERE tgname IN ('trg_workforce_sync_job_required_skills','trg_workforce_sync_candidate_competencies')
+              AND NOT tgisinternal;
+            IF mapped <> 1 OR provisional <> 1 OR provisional_usage <> 1 OR trigger_count <> 2 THEN
+              RAISE EXCEPTION 'taxonomy foundation mismatch mapped=% provisional=% provisional_usage=% triggers=%', mapped, provisional, provisional_usage, trigger_count;
+            END IF;
+          END $$;
+
+          SET ROLE sapienworx_intelligence;
+          SELECT count(*) FROM workforce.taxonomy_entities;
+          SELECT count(*) FROM workforce.taxonomy_aliases;
+          RESET ROLE;
+          SQL
+
+          if psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SET ROLE sapienworx_intelligence; UPDATE workforce.taxonomy_entities SET usage_count=usage_count+1;" >/dev/null 2>&1; then
+            echo "Intelligence role unexpectedly mutated workforce taxonomy." >&2
+            exit 1
+          fi
       - name: Roll back all migrations
         shell: bash
         run: |
