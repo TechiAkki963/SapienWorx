@@ -19,7 +19,7 @@ export default async function IntelligencePage(){
   const data=await adminAPI<Dashboard>("/api/v1/admin/intelligence");
   const latest=data.runs[0];
   const now=Date.now();
-  return <section className="space-y-5">
+  return <section className="min-w-0 space-y-5">
     <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <p className="text-xs font-bold uppercase tracking-widest text-indigo-600">SapienWorx Intelligence Centre</p>
       <h1 className="mt-3 text-3xl font-bold text-slate-950">Control plane for the separate Intelligence Engine</h1>
@@ -38,12 +38,12 @@ export default async function IntelligencePage(){
     </section>
 
     <div className="grid gap-5 xl:grid-cols-2">
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="font-bold text-slate-950">Engine health</h2>
         <p className="mt-1 text-xs text-slate-500">Heartbeat freshness distinguishes a healthy processing plane from a disconnected UI.</p>
-        <div className="mt-4 space-y-3">{data.heartbeats.length===0?<p className="text-sm text-slate-500">No Intelligence Engine heartbeat has been recorded.</p>:data.heartbeats.map(v=>{const stale=now-new Date(v.last_seen_at).getTime()>120000;return <article key={v.engine_key} className="rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><div><p className="font-semibold text-slate-900">{v.engine_key}</p><p className="mt-1 text-xs text-slate-500">{v.version} · last seen {new Date(v.last_seen_at).toLocaleString("en-IN",{timeZone:"UTC"})} UTC</p></div><Pill value={stale?"stopped":v.status}/></div></article>})}</div>
+        <div className="mt-4 space-y-3">{data.heartbeats.length===0?<p className="text-sm text-slate-500">No Intelligence Engine heartbeat has been recorded.</p>:data.heartbeats.map(v=>{const stale=now-new Date(v.last_seen_at).getTime()>120000;return <article key={v.engine_key} className="min-w-0 rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><div><p className="font-semibold text-slate-900">{v.engine_key}</p><p className="mt-1 text-xs text-slate-500">{v.version} · last seen {new Date(v.last_seen_at).toLocaleString("en-IN",{timeZone:"UTC"})} UTC</p></div><Pill value={stale?"stopped":v.status}/></div></article>})}</div>
       </section>
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="font-bold text-slate-950">AI Gateway</h2>
         <p className="mt-1 text-xs text-slate-500">The gateway remains provider-agnostic and external providers stay disabled until explicitly governed.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -57,38 +57,38 @@ export default async function IntelligencePage(){
       </section>
     </div>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
       <h2 className="font-bold text-slate-950">Intelligence kill switches</h2>
       <p className="mt-1 text-xs text-slate-500">Disabling a capability does not disable SapienWorx core recruitment workflows. Enabling governed capabilities requires an approved request.</p>
-      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{data.switches.map(v=><article key={v.key} className="rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><p className="font-mono text-xs font-bold text-slate-800">{v.key}</p><Pill value={v.enabled?"enabled":"disabled"}/></div><IntelligenceSwitchControl switchKey={v.key} enabled={v.enabled} description={v.description}/></article>)}</div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{data.switches.map(v=><article key={v.key} className="min-w-0 rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><p className="min-w-0 break-all font-mono text-xs font-bold text-slate-800">{v.key}</p><Pill value={v.enabled?"enabled":"disabled"}/></div><IntelligenceSwitchControl switchKey={v.key} enabled={v.enabled} description={v.description}/></article>)}</div>
     </section>
 
     <div className="grid gap-5 xl:grid-cols-2"><ModelRegistrationForm/><PromptRegistrationForm/></div>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
       <h2 className="font-bold text-slate-950">Prompt Registry</h2>
       <p className="mt-1 text-xs text-slate-500">Versioned prompts are centrally governed; services should not embed provider prompts independently.</p>
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">{data.prompts.length===0?<p className="text-sm text-slate-500">No prompt versions registered.</p>:data.prompts.map(v=><article key={v.id} className="rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><div><p className="font-mono text-xs font-bold text-slate-800">{v.prompt_key}</p><p className="mt-1 text-xs text-slate-500">version {v.version} · {v.variables.join(", ")||"no variables"}</p></div><Pill value={v.status}/></div><pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-[11px] text-slate-700">{v.template}</pre><PromptActions id={v.id} status={v.status}/></article>)}</div>
+      <div className="mt-4 grid gap-3 xl:grid-cols-2">{data.prompts.length===0?<p className="text-sm text-slate-500">No prompt versions registered.</p>:data.prompts.map(v=><article key={v.id} className="min-w-0 rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><div><p className="min-w-0 break-all font-mono text-xs font-bold text-slate-800">{v.prompt_key}</p><p className="mt-1 text-xs text-slate-500">version {v.version} · {v.variables.join(", ")||"no variables"}</p></div><Pill value={v.status}/></div><pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-[11px] text-slate-700">{v.template}</pre><PromptActions id={v.id} status={v.status}/></article>)}</div>
     </section>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
       <h2 className="font-bold text-slate-950">Model & engine registry</h2>
       <p className="mt-1 text-xs text-slate-500">Candidate versions are evaluated offline/observationally before any controlled promotion.</p>
-      <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[900px] text-left text-sm"><thead className="text-xs text-slate-500"><tr><th className="py-2">Engine</th><th>Version</th><th>Provider</th><th>Model ref</th><th>Status</th><th>Activated</th><th>Actions</th></tr></thead><tbody>{data.models.map(v=><tr key={v.id} className="border-t border-slate-100"><td className="py-3 font-semibold">{v.engine_type.replaceAll("_"," ")}</td><td>{v.version}</td><td>{v.provider}</td><td className="font-mono text-xs">{v.model_ref}</td><td><Pill value={v.status}/></td><td className="text-xs text-slate-500">{v.activated_at?new Date(v.activated_at).toLocaleString("en-IN",{timeZone:"UTC"})+" UTC":"—"}</td><td><ModelActions id={v.id} status={v.status}/></td></tr>)}</tbody></table></div>
+      <div className="mt-4 max-w-full overflow-x-auto"><table className="w-full min-w-[900px] text-left text-sm"><thead className="text-xs text-slate-500"><tr><th className="py-2">Engine</th><th>Version</th><th>Provider</th><th>Model ref</th><th>Status</th><th>Activated</th><th>Actions</th></tr></thead><tbody>{data.models.map(v=><tr key={v.id} className="border-t border-slate-100"><td className="py-3 font-semibold">{v.engine_type.replaceAll("_"," ")}</td><td>{v.version}</td><td>{v.provider}</td><td className="break-all font-mono text-xs">{v.model_ref}</td><td><Pill value={v.status}/></td><td className="text-xs text-slate-500">{v.activated_at?new Date(v.activated_at).toLocaleString("en-IN",{timeZone:"UTC"})+" UTC":"—"}</td><td><ModelActions id={v.id} status={v.status}/></td></tr>)}</tbody></table></div>
     </section>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
       <h2 className="font-bold text-slate-950">Evaluations</h2>
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">{data.evaluations.length===0?<p className="text-sm text-slate-500">No candidate-model evaluations recorded.</p>:data.evaluations.map(v=><article key={v.id} className="rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><p className="font-mono text-xs text-slate-700">{v.model_version_id}</p><Pill value={v.quality_gate_status}/></div><p className="mt-2 text-xs text-slate-500">{v.dataset_ref}</p><pre className="mt-3 max-h-52 overflow-auto rounded-lg bg-slate-50 p-3 text-[11px] text-slate-700">{JSON.stringify(v.metrics,null,2)}</pre><p className="mt-2 text-xs leading-5 text-slate-500">{v.notes}</p></article>)}</div>
+      <div className="mt-4 grid gap-3 xl:grid-cols-2">{data.evaluations.length===0?<p className="text-sm text-slate-500">No candidate-model evaluations recorded.</p>:data.evaluations.map(v=><article key={v.id} className="min-w-0 rounded-xl border border-slate-100 p-4"><div className="flex items-center justify-between gap-2"><p className="break-all font-mono text-xs text-slate-700">{v.model_version_id}</p><Pill value={v.quality_gate_status}/></div><p className="mt-2 text-xs text-slate-500">{v.dataset_ref}</p><pre className="mt-3 max-h-52 overflow-auto rounded-lg bg-slate-50 p-3 text-[11px] text-slate-700">{JSON.stringify(v.metrics,null,2)}</pre><p className="mt-2 text-xs leading-5 text-slate-500">{v.notes}</p></article>)}</div>
     </section>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
       <h2 className="font-bold text-slate-950">Latest aggregate platform snapshot</h2>
       <p className="mt-1 text-xs text-slate-500">{latest?"Engine "+latest.engine_version+" · "+new Date(latest.completed_at).toLocaleString("en-IN",{timeZone:"UTC"})+" UTC":"No completed platform-analysis run yet."}</p>
       {latest?<div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{Object.entries(latest.metrics).map(([key,value])=><Metric key={key} label={key.replaceAll("_"," ")} value={Number(value).toLocaleString("en-IN")}/>)}</div>:<p className="mt-4 text-sm text-slate-500">Queue an advisory analysis after the separate engine is running.</p>}
     </section>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
       <h2 className="font-bold text-slate-950">Recent findings requiring human judgement</h2>
       <div className="mt-4 grid gap-4 xl:grid-cols-2">{data.insights.length===0?<p className="text-sm text-slate-500">No findings recorded.</p>:data.insights.map(item=><article key={item.id} className="rounded-2xl border border-slate-100 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">{item.domain}</p><h3 className="mt-1 font-bold text-slate-950">{item.title}</h3></div><Pill value={item.severity}/></div><p className="mt-3 text-sm leading-6 text-slate-600">{item.rationale}</p><div className="mt-3 rounded-xl bg-slate-50 p-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Evidence</p><pre className="mt-1 overflow-x-auto whitespace-pre-wrap text-xs text-slate-700">{JSON.stringify(item.evidence,null,2)}</pre></div><p className="mt-3 text-sm leading-6 text-slate-700"><strong>Recommendation:</strong> {item.recommendation}</p><p className="mt-2 text-xs text-slate-500">Confidence {Math.round(item.confidence*100)}% · state {item.status}</p><InsightReviewActions id={item.id} status={item.status}/></article>)}</div>
     </section>
