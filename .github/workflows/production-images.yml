@@ -143,6 +143,13 @@ jobs:
           set -euo pipefail
           curl --fail --silent http://127.0.0.1:8080/health/live | grep -q '"status":"ok"'
           curl --fail --silent http://127.0.0.1:8080/health/ready | grep -q '"status":"ready"'
+          intelligence_id="$(docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml ps -q intelligence)"
+          test -n "$intelligence_id" || { echo "Intelligence Engine container is not running."; exit 1; }
+          test "$(docker inspect --format '{{.State.Health.Status}}' "$intelligence_id")" = "healthy" || {
+            echo "Intelligence Engine container is not healthy."
+            docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml logs --no-color --tail=100 intelligence
+            exit 1
+          }
           count="$(docker compose --env-file /tmp/sapienworx-release.env -f deploy/compose.test.yml exec -T postgres psql -U sapienworx -d sapienworx -Atc 'SELECT count(*) FROM schema_migrations;')"
           expected="$(find database/migrations -maxdepth 1 -name '*.up.sql' | wc -l | tr -d ' ')"
           test "$count" = "$expected"
@@ -190,6 +197,17 @@ jobs:
           provenance: mode=max
           sbom: true
           tags: ${{ steps.ecr.outputs.registry }}/sapienworx/backend:${{ inputs.release_sha }}
+
+      - name: Build and push Intelligence Engine
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile.intelligence
+          platforms: linux/arm64
+          push: true
+          provenance: mode=max
+          sbom: true
+          tags: ${{ steps.ecr.outputs.registry }}/sapienworx/intelligence:${{ inputs.release_sha }}
 
       - name: Build and push frontend
         uses: docker/build-push-action@v6

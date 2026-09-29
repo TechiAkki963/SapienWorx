@@ -36,6 +36,7 @@ wait_until_healthy() {
 
 wait_until_healthy backend
 wait_until_healthy frontend
+wait_until_healthy intelligence
 
 if [ "${CADDY_ENABLED:-false}" = "true" ]; then
   wait_until_healthy caddy

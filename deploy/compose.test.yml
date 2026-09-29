@@ -66,6 +66,34 @@ services:
       retries: 15
       start_period: 10s
 
+  intelligence:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.intelligence
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-staging}
+      DATABASE_URL: postgres://sapienworx:${POSTGRES_PASSWORD}@postgres:5432/sapienworx?sslmode=disable
+      DB_MAX_CONNS: "2"
+      DB_MIN_CONNS: "0"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [data]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    cap_drop: [ALL]
+    pids_limit: 96
+    mem_limit: 384m
+    cpus: 0.35
+    healthcheck:
+      test: ["CMD", "sapienworx-intelligence", "healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 4
+      start_period: 5s
+
   frontend:
     build:
       context: ../frontend

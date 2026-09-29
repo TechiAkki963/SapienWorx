@@ -68,8 +68,10 @@ type AWSConfig struct {
 }
 
 type AdminConfig struct {
-	AccessEnabled    bool
-	MFAEncryptionKey string
+	AccessEnabled         bool
+	MFAEncryptionKey      string
+	CollectorHMACSecret   string
+	CollectorMaxClockSkew time.Duration
 }
 
 func Load() (Config, error) {
@@ -81,7 +83,12 @@ func Load() (Config, error) {
 	environment := env("APP_ENV", "development")
 	cfg := Config{
 		Environment: environment,
-		Admin:       AdminConfig{AccessEnabled: boolEnv("ADMIN_ACCESS_ENABLED", false), MFAEncryptionKey: strings.TrimSpace(os.Getenv("ADMIN_MFA_ENCRYPTION_KEY"))},
+		Admin: AdminConfig{
+			AccessEnabled:         boolEnv("ADMIN_ACCESS_ENABLED", false),
+			MFAEncryptionKey:      strings.TrimSpace(os.Getenv("ADMIN_MFA_ENCRYPTION_KEY")),
+			CollectorHMACSecret:   strings.TrimSpace(os.Getenv("ADMIN_COLLECTOR_HMAC_SECRET")),
+			CollectorMaxClockSkew: durationEnv("ADMIN_COLLECTOR_MAX_CLOCK_SKEW", 5*time.Minute),
+		},
 		HTTP: HTTPConfig{
 			Address:           ":" + env("API_PORT", "8080"),
 			ReadTimeout:       durationEnv("HTTP_READ_TIMEOUT", 15*time.Second),
@@ -137,6 +144,14 @@ func (c Config) Validate() error {
 	var problems []string
 	if c.Admin.AccessEnabled && (len(c.Admin.MFAEncryptionKey) < 32 || c.Admin.MFAEncryptionKey == c.Auth.JWTSecret || c.Admin.MFAEncryptionKey == c.Auth.OTPSecret) {
 		problems = append(problems, "ADMIN_MFA_ENCRYPTION_KEY must be at least 32 bytes and distinct from authentication secrets when admin access enforcement is enabled")
+	}
+	if c.Admin.CollectorHMACSecret != "" {
+		if len(c.Admin.CollectorHMACSecret) < 32 || c.Admin.CollectorHMACSecret == c.Auth.JWTSecret || c.Admin.CollectorHMACSecret == c.Auth.OTPSecret || c.Admin.CollectorHMACSecret == c.Admin.MFAEncryptionKey {
+			problems = append(problems, "ADMIN_COLLECTOR_HMAC_SECRET must be at least 32 bytes and distinct from authentication/admin encryption secrets")
+		}
+		if c.Admin.CollectorMaxClockSkew < time.Minute || c.Admin.CollectorMaxClockSkew > 15*time.Minute {
+			problems = append(problems, "ADMIN_COLLECTOR_MAX_CLOCK_SKEW must be between 1m and 15m")
+		}
 	}
 	if c.Database.URL == "" {
 		problems = append(problems, "DATABASE_URL is required")

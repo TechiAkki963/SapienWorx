@@ -34,6 +34,7 @@ parameters="$(aws ssm get-parameters \
   --with-decryption \
   --names \
     "$PARAMETER_ROOT/DATABASE_URL" \
+    "$PARAMETER_ROOT/INTELLIGENCE_DATABASE_URL" \
     "$PARAMETER_ROOT/MIGRATION_DATABASE_URL" \
     "$PARAMETER_ROOT/JWT_SECRET" \
     "$PARAMETER_ROOT/AUTH_OTP_HMAC_SECRET" \
@@ -49,12 +50,13 @@ parameter_value() {
 }
 
 database_url="$(parameter_value "$PARAMETER_ROOT/DATABASE_URL")"
+intelligence_database_url="$(parameter_value "$PARAMETER_ROOT/INTELLIGENCE_DATABASE_URL")"
 migration_database_url="$(parameter_value "$PARAMETER_ROOT/MIGRATION_DATABASE_URL")"
 jwt_secret="$(parameter_value "$PARAMETER_ROOT/JWT_SECRET")"
 otp_secret="$(parameter_value "$PARAMETER_ROOT/AUTH_OTP_HMAC_SECRET")"
 s3_bucket="$(parameter_value "$PARAMETER_ROOT/S3_BUCKET")"
 
-for value in "$database_url" "$migration_database_url" "$jwt_secret" "$otp_secret" "$s3_bucket"; do
+for value in "$database_url" "$intelligence_database_url" "$migration_database_url" "$jwt_secret" "$otp_secret" "$s3_bucket"; do
   case "$value" in
     *REPLACE_OUTSIDE_TERRAFORM*|*REPLACE_WITH*) echo "An SSM placeholder has not been replaced." >&2; exit 1 ;;
   esac
@@ -70,12 +72,16 @@ case "$database_url" in
   *sslmode=require*|*sslmode=verify-ca*|*sslmode=verify-full*) ;;
   *) echo "DATABASE_URL must require PostgreSQL TLS." >&2; exit 1 ;;
 esac
+case "$intelligence_database_url" in
+  *sslmode=require*|*sslmode=verify-ca*|*sslmode=verify-full*) ;;
+  *) echo "INTELLIGENCE_DATABASE_URL must require PostgreSQL TLS." >&2; exit 1 ;;
+esac
 case "$migration_database_url" in
   *sslmode=require*|*sslmode=verify-ca*|*sslmode=verify-full*) ;;
   *) echo "MIGRATION_DATABASE_URL must require PostgreSQL TLS." >&2; exit 1 ;;
 esac
-[ "$database_url" != "$migration_database_url" ] || {
-  echo "Application and migration database URLs must use separate credentials." >&2
+[ "$database_url" != "$migration_database_url" ] && [ "$database_url" != "$intelligence_database_url" ] && [ "$migration_database_url" != "$intelligence_database_url" ] || {
+  echo "Application, Intelligence and migration database URLs must use separate credentials." >&2
   exit 1
 }
 
@@ -91,6 +97,7 @@ trap 'rm -f "$tmp_env" "$tmp_migration_env"' EXIT INT TERM
   printf 'AWS_REGION=%s\n' "$REGION"
   printf 'S3_BUCKET=%s\n' "$s3_bucket"
   printf 'DATABASE_URL=%s\n' "$database_url"
+  printf 'INTELLIGENCE_DATABASE_URL=%s\n' "$intelligence_database_url"
   printf 'JWT_SECRET=%s\n' "$jwt_secret"
   printf 'AUTH_OTP_HMAC_SECRET=%s\n' "$otp_secret"
 } >"$tmp_env"
@@ -119,7 +126,7 @@ export DOCKER_CONFIG="$docker_config_dir"
 
 aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$registry" >/dev/null
 
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull backend frontend
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull backend frontend intelligence
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" --profile migration pull migration
 
 cleanup_registry_auth
@@ -130,7 +137,7 @@ if [ "${SKIP_MIGRATIONS:-false}" != "true" ]; then
   docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" --profile migration run --rm migration
 fi
 
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --remove-orphans backend frontend
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --remove-orphans backend frontend intelligence
 
 if [ "${CADDY_ENABLED:-false}" = "true" ]; then
   : "${ACME_EMAIL:?ACME_EMAIL is required when CADDY_ENABLED=true}"

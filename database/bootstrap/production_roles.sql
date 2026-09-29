@@ -16,6 +16,11 @@
   \getenv migration_password SAPIENWORX_MIGRATION_PASSWORD
 \endif
 
+\if :{?intelligence_password}
+\else
+  \getenv intelligence_password SAPIENWORX_INTELLIGENCE_PASSWORD
+\endif
+
 \if :{?app_password}
 \else
   \echo 'app_password or SAPIENWORX_APP_PASSWORD is required'
@@ -25,6 +30,12 @@
 \if :{?migration_password}
 \else
   \echo 'migration_password or SAPIENWORX_MIGRATION_PASSWORD is required'
+  \quit
+\endif
+
+\if :{?intelligence_password}
+\else
+  \echo 'intelligence_password or SAPIENWORX_INTELLIGENCE_PASSWORD is required'
   \quit
 \endif
 
@@ -48,10 +59,18 @@ SELECT format(
 WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'sapienworx_app')
 \gexec
 
+SELECT format(
+  'CREATE ROLE sapienworx_intelligence LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD %L',
+  :'intelligence_password'
+)
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'sapienworx_intelligence')
+\gexec
+
 ALTER ROLE sapienworx_migrator PASSWORD :'migration_password';
 ALTER ROLE sapienworx_app PASSWORD :'app_password';
+ALTER ROLE sapienworx_intelligence PASSWORD :'intelligence_password';
 
-GRANT CONNECT ON DATABASE :"database_name" TO sapienworx_migrator, sapienworx_app;
+GRANT CONNECT ON DATABASE :"database_name" TO sapienworx_migrator, sapienworx_app, sapienworx_intelligence;
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 GRANT USAGE, CREATE ON SCHEMA public TO sapienworx_migrator;
 GRANT USAGE ON SCHEMA public TO sapienworx_app;
@@ -68,4 +87,5 @@ RESET ROLE;
 REVOKE sapienworx_migrator FROM CURRENT_USER;
 
 ALTER ROLE sapienworx_migrator IN DATABASE :"database_name" SET search_path = public;
-ALTER ROLE sapienworx_app IN DATABASE :"database_name" SET search_path = public;
+ALTER ROLE sapienworx_app IN DATABASE :"database_name" SET search_path = public,intelligence;
+ALTER ROLE sapienworx_intelligence IN DATABASE :"database_name" SET search_path = intelligence,public;

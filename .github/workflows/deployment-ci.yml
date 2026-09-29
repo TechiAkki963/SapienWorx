@@ -10,6 +10,7 @@ on:
       - "database/Dockerfile.migrate"
       - "database/migrate.sh"
       - "deploy/**"
+      - "infrastructure/terraform/production/**"
       - ".github/workflows/deployment-ci.yml"
   pull_request:
     branches: [main]
@@ -20,6 +21,7 @@ on:
       - "database/Dockerfile.migrate"
       - "database/migrate.sh"
       - "deploy/**"
+      - "infrastructure/terraform/production/**"
       - ".github/workflows/deployment-ci.yml"
 
 permissions:
@@ -86,6 +88,9 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:8080/health/ready | grep -q '"status":"ready"'
           curl --fail --silent --show-error http://127.0.0.1:8080/ | grep -q 'SapienWorx'
           curl --fail --silent --show-error http://127.0.0.1:8080/jobs | grep -q 'Find your next role'
+          intelligence_id="$(docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml ps -q intelligence)"
+          test -n "$intelligence_id"
+          test "$(docker inspect --format '{{.State.Health.Status}}' "$intelligence_id")" = "healthy"
           docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml ps
 
       - name: Verify migration ledger
@@ -108,3 +113,31 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose --env-file /tmp/sapienworx-test.env -f deploy/compose.test.yml down -v --remove-orphans
+
+
+  terraform-production:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/production
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.5"
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive
+
+      - name: Initialize without remote backend
+        run: terraform init -backend=false -input=false
+
+      - name: Validate Terraform
+        run: terraform validate
+
+      - name: Run offline production safety tests
+        run: terraform test -filter=tests/offline_plan.tftest.hcl

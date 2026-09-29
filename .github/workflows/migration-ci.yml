@@ -49,6 +49,14 @@ jobs:
             down="${up%.up.sql}.down.sql"
             test -f "$down" || { echo "Missing down migration for $up"; exit 1; }
           done
+      - name: Create restricted runtime roles
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci <<'SQL'
+          CREATE ROLE sapienworx_app NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+          CREATE ROLE sapienworx_intelligence NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+          SQL
       - name: Apply all forward migrations
         shell: bash
         run: |
@@ -57,6 +65,33 @@ jobs:
             echo "Applying $migration"
             psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -f "$migration"
           done
+      - name: Verify Intelligence least-privilege boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci <<'SQL'
+          SET ROLE sapienworx_intelligence;
+          SELECT count(*) FROM intelligence.source_candidate_features;
+          SELECT count(*) FROM intelligence.source_job_features;
+          SELECT * FROM intelligence.source_platform_snapshot;
+          INSERT INTO intelligence.engine_heartbeats(engine_key,status,version,metadata)
+          VALUES('ci-intelligence','healthy','ci','{}'::jsonb)
+          ON CONFLICT(engine_key) DO UPDATE SET last_seen_at=now();
+          RESET ROLE;
+          SET ROLE sapienworx_app;
+          SELECT count(*) FROM intelligence.model_versions;
+          SELECT intelligence.enqueue_event('platform.analysis.requested','platform',NULL,'{}'::jsonb);
+          RESET ROLE;
+          SQL
+
+          if psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SET ROLE sapienworx_intelligence; SELECT count(*) FROM candidate_profiles;" >/dev/null 2>&1; then
+            echo "Intelligence role unexpectedly read candidate_profiles directly." >&2
+            exit 1
+          fi
+          if psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SET ROLE sapienworx_intelligence; CREATE TABLE intelligence.should_not_exist(id integer);" >/dev/null 2>&1; then
+            echo "Intelligence role unexpectedly created a database object." >&2
+            exit 1
+          fi
       - name: Roll back all migrations
         shell: bash
         run: |
