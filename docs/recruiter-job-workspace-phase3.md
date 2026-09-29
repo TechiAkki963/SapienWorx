@@ -101,3 +101,22 @@ Every step is checked for horizontal overflow and captured as a full-page screen
 - 320 × 800
 
 The existing dedicated visual checks for job builder settings, analytics and bulk controls remain in place as focused regression coverage.
+
+
+## Phase 3.8 — Accessibility acceptance
+
+Phase 3.8 hardens the recruiter job workspace for keyboard and assistive-technology use without changing the compact visual design.
+
+The acceptance slice covers:
+
+- keyboard-operable governed bulk actions with focus entry, Escape dismissal and focus restoration
+- explicit live announcements for page selection and bulk-action outcomes
+- accessible disclosure state and keyboard focus handling for the job sharing menu
+- job-builder validation errors programmatically associated with the affected field and focused when validation fails
+- current-step semantics for the multi-step job builder
+- descriptive recruiter-header control names, including upcoming interview count when present
+- a non-visual tabular equivalent for the 30-day application-volume chart
+- focused Playwright regression coverage for keyboard behavior, validation semantics and chart alternatives
+- retained desktop/mobile overflow and visual-workflow coverage from Phase 3.7
+
+This gate is an implementation-level accessibility acceptance pass. A formal external WCAG conformance audit remains a production-readiness task rather than a claim made by this phase.
