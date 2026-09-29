@@ -50,9 +50,15 @@ function JobActions({ job }: { job: RecruiterJob }) {
       <Link href={`/recruiter/jobs/${job.id}/edit`} className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs font-bold text-ink hover:text-indigo">Edit</Link>
       <Link href={`/recruiter/jobs/${job.id}/analytics`} className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs font-bold text-ink hover:text-indigo">Analytics</Link>
       {publiclyShareable ? (
-        <Link href={`/jobs/${job.id}`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs font-bold text-ink hover:text-indigo">Preview ↗</Link>
-      ) : null}
-      <JobShareMenu jobId={job.id} title={job.title} active={publiclyShareable} />
+        <>
+          <Link href={`/jobs/${job.id}`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-xs font-bold text-ink hover:text-indigo">Preview ↗</Link>
+          <JobShareMenu jobId={job.id} title={job.title} active />
+        </>
+      ) : job.status === "active" && job.visibility === "private" ? (
+        <span className="text-xs font-semibold text-ink-muted/70">Private · not shareable</span>
+      ) : (
+        <JobShareMenu jobId={job.id} title={job.title} active={false} />
+      )}
     </div>
   );
 }
