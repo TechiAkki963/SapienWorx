@@ -540,6 +540,48 @@ const server = http.createServer(async (req, res) => {
     { id: "90000000-0000-4000-8000-000000000001", action: "updated", actor_user_id: recruiterID, actor_name: "Riya Recruiter", previous_state: {}, new_state: {}, changed_at: now() },
     { id: "90000000-0000-4000-8000-000000000002", action: "created_and_published", actor_user_id: recruiterID, actor_name: "Riya Recruiter", previous_state: {}, new_state: {}, changed_at: new Date(Date.now() - 86400000).toISOString() },
   ] });
+  if (url.pathname === `/api/v1/recruiter/jobs/${jobID}/analytics` && req.method === "GET") {
+    const today = new Date();
+    return json(res, 200, {
+      job_id: jobID,
+      job_reference: "SWX-JOB-2026-00001",
+      title: "Senior Go Platform Engineer",
+      status: "active",
+      openings: 3,
+      published_at: new Date(Date.now() - 19 * 86400000).toISOString(),
+      application_deadline: new Date(Date.now() + 2 * 86400000).toISOString(),
+      total_applications: 1000,
+      hires: 2,
+      remaining_openings: 1,
+      fill_rate_percent: 66.7,
+      days_open: 19,
+      days_to_deadline: 2,
+      closing_soon: true,
+      overdue: false,
+      time_to_first_application_hours: 2.4,
+      time_to_first_shortlist_hours: 27.2,
+      time_to_first_offer_hours: 96.5,
+      time_to_first_hire_hours: 144.2,
+      funnel: [
+        { stage: "Applied", count: 1000, conversion_percent: 100 },
+        { stage: "Screening", count: 640, conversion_percent: 64 },
+        { stage: "Shortlisted", count: 310, conversion_percent: 31 },
+        { stage: "Interview", count: 160, conversion_percent: 16 },
+        { stage: "Offer", count: 42, conversion_percent: 4.2 },
+        { stage: "Hired", count: 2, conversion_percent: 0.2 },
+      ],
+      sources: [
+        { source: "direct", applications: 520, shortlisted: 180, interviews: 92, offers: 24, hires: 1, hire_conversion_percent: 0.2 },
+        { source: "referral", applications: 180, shortlisted: 85, interviews: 44, offers: 13, hires: 1, hire_conversion_percent: 0.6 },
+        { source: "linkedin", applications: 300, shortlisted: 45, interviews: 24, offers: 5, hires: 0, hire_conversion_percent: 0 },
+      ],
+      trend: Array.from({ length: 30 }, (_, index) => {
+        const day = new Date(today);
+        day.setDate(today.getDate() - (29 - index));
+        return { date: day.toISOString().slice(0, 10), applications: [12,18,22,15,28,35,42][index % 7] };
+      }),
+    });
+  }
   if (url.pathname === `/api/v1/recruiter/jobs/${jobID}/duplicate` && req.method === "POST") return json(res, 201, {
     id: "60000000-0000-4000-8000-000000000099", job_reference: "SWX-JOB-2026-00099", status: "draft",
     title: "Senior Go Platform Engineer (Copy)", department: "Engineering", employment_type: "full_time", work_mode: "hybrid",

@@ -52,6 +52,31 @@ export type RecruiterJobWorkspace = {
     new_applications: number;
   };
 };
+export type JobAnalytics = {
+  job_id: string;
+  job_reference: string;
+  title: string;
+  status: string;
+  openings: number;
+  published_at?: string;
+  closed_at?: string;
+  application_deadline?: string;
+  total_applications: number;
+  hires: number;
+  remaining_openings: number;
+  fill_rate_percent: number;
+  days_open: number;
+  days_to_deadline?: number;
+  closing_soon: boolean;
+  overdue: boolean;
+  time_to_first_application_hours?: number;
+  time_to_first_shortlist_hours?: number;
+  time_to_first_offer_hours?: number;
+  time_to_first_hire_hours?: number;
+  funnel: { stage: string; count: number; conversion_percent: number }[];
+  sources: { source: string; applications: number; shortlisted: number; interviews: number; offers: number; hires: number; hire_conversion_percent: number }[];
+  trend: { date: string; applications: number }[];
+};
 export type PipelineRow = {
   application_id: string;
   candidate_id: string;

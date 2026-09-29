@@ -140,3 +140,11 @@ jobs:
           path: frontend/visual-artifacts/phase3-job-builder
           if-no-files-found: ignore
           retention-days: 7
+      - name: Upload recruiter job analytics visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase3-job-analytics-visuals
+          path: frontend/visual-artifacts/phase3-job-analytics
+          if-no-files-found: ignore
+          retention-days: 7

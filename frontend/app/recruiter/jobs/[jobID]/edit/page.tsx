@@ -39,6 +39,7 @@ export default async function RecruiterEditJobPage({ params }: { params: Promise
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href={`/recruiter/jobs/${job.id}/applicants`} className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-navy">View applicants</Link>
+            <Link href={`/recruiter/jobs/${job.id}/analytics`} className="rounded-xl border border-indigo/20 bg-indigo-soft/40 px-4 py-2.5 text-sm font-bold text-indigo transition hover:bg-indigo-soft">View analytics</Link>
             <DuplicateJobButton jobId={job.id} />
             <Link href="/recruiter/jobs" className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:bg-slate-50">← Back to jobs</Link>
           </div>

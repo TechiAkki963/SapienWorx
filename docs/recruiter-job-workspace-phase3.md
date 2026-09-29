@@ -24,3 +24,18 @@ SapienWorx remains cross-industry. Role/function choices cover healthcare, finan
 ## Boundaries
 
 This slice does not redesign recruiter candidate discovery, Sapien Signal, outreach or the application pipeline. Those remain separate workstreams.
+
+
+## Phase 3.3 — Job analytics
+
+Job analytics are deterministic and organization-scoped. The first analytics slice includes:
+
+- cumulative application funnel based on the highest stage ever reached
+- 30-day application volume
+- source-level application, shortlist, interview, offer and hire conversion
+- openings, hires, remaining openings and fill rate
+- job age and closing-soon / overdue state
+- time to first application, shortlist, offer and hire
+- dedicated responsive recruiter analytics page
+
+These metrics do not use an LLM or infer recruiter/candidate quality. They summarize recorded workflow events only.

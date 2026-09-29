@@ -134,6 +134,19 @@ test.describe("job applicant workspace", () => {
     await expect(page).toHaveURL(/\/recruiter\/jobs\/60000000-0000-4000-8000-000000000001\/applicants/);
   });
 
+  test("opens deterministic job analytics and keeps the workspace responsive", async ({ page }) => {
+    await login(page, "recruiter");
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 768, height: 1024 }, { width: 320, height: 800 }]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/recruiter/jobs/60000000-0000-4000-8000-000000000001/analytics");
+      await expect(page.getByRole("heading", { name: "Job analytics" })).toBeVisible();
+      await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+      await expect(page.getByRole("region", { name: "Hiring funnel" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "Source performance" })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    }
+  });
+
   test("keeps job cards and their applicant page usable on desktop, tablet, and mobile", async ({ page }) => {
     await login(page, "recruiter");
     for (const width of [1440, 768, 375]) {
