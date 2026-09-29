@@ -78,22 +78,10 @@ jobs:
       - name: Verify Phase 3.2 job governance schema
         run: |
           set -euo pipefail
-          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci <<'SQL'
-          DO $
-          DECLARE column_count integer;
-          BEGIN
-            SELECT count(*) INTO column_count
-            FROM information_schema.columns
-            WHERE table_schema='public' AND table_name='jobs'
-              AND column_name IN ('screening_questions','referral_enabled','visibility','internal_notes','assigned_recruiter_id');
-            IF column_count <> 5 THEN
-              RAISE EXCEPTION 'Phase 3.2 job settings columns missing: %', column_count;
-            END IF;
-            IF to_regclass('public.job_change_audit') IS NULL THEN
-              RAISE EXCEPTION 'job_change_audit missing';
-            END IF;
-          END $;
-          SQL
+          columns="$(psql -At -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name='jobs' AND column_name IN ('screening_questions','referral_enabled','visibility','internal_notes','assigned_recruiter_id')")"
+          test "$columns" = "5"
+          audit_table="$(psql -At -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SELECT CASE WHEN to_regclass('public.job_change_audit') IS NULL THEN 0 ELSE 1 END")"
+          test "$audit_table" = "1"
       - name: Roll back all migrations
         run: |
           set -euo pipefail
