@@ -110,11 +110,13 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
           </div>)}
         </div>
         <div className="mt-2 flex justify-between text-[10px] font-semibold text-ink-muted"><span>{compactDate(analytics.trend[0]?.date)}</span><span>{compactDate(analytics.trend.at(-1)?.date)}</span></div>
-        <table className="sr-only">
-          <caption>Daily application volume for the last 30 days</caption>
-          <thead><tr><th scope="col">Date</th><th scope="col">Applications</th></tr></thead>
-          <tbody>{analytics.trend.map((point) => <tr key={point.date}><th scope="row">{point.date}</th><td>{point.applications}</td></tr>)}</tbody>
-        </table>
+        <div className="absolute h-px w-px overflow-hidden whitespace-nowrap [clip-path:inset(50%)] [contain:strict]">
+          <table>
+            <caption>Daily application volume for the last 30 days</caption>
+            <thead><tr><th scope="col">Date</th><th scope="col">Applications</th></tr></thead>
+            <tbody>{analytics.trend.map((point) => <tr key={point.date}><th scope="row">{point.date}</th><td>{point.applications}</td></tr>)}</tbody>
+          </table>
+        </div>
       </section>
 
       <section aria-label="Source performance" className="min-w-0 rounded-2xl border border-line/70 bg-white p-5 shadow-[0_4px_20px_rgba(16,33,63,0.035)] sm:p-6">
