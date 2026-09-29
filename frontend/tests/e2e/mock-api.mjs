@@ -470,6 +470,27 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  if (url.pathname === `/api/v1/jobs/${jobID}` && req.method === "GET") return json(res, 200, job({
+    id: jobID,
+    job_reference: "SWX-JOB-2026-00001",
+    title: "Senior Go Platform Engineer",
+    department: "Engineering",
+    company_name: "Sapien Labs India",
+    employment_type: "full_time",
+    work_mode: "hybrid",
+    city: "Mumbai",
+    state: "Maharashtra",
+    country_code: "IN",
+    min_experience_months: 24,
+    max_experience_months: 72,
+    min_salary_amount: 800000,
+    max_salary_amount: 1800000,
+    salary_currency: "INR",
+    openings: 3,
+    description: "Build recruitment infrastructure.",
+    required_skills: ["Go", "PostgreSQL"],
+  }));
+
   if (url.pathname === "/api/v1/recruiter/team" && req.method === "GET") return json(res, 200, { items: [
     { user_id: recruiterID, full_name: "Riya Recruiter", designation: "Senior Recruiter" },
     { user_id: "20000000-0000-4000-8000-000000000002", full_name: "Kabir Recruiter", designation: "Healthcare Recruiter" },
