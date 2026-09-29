@@ -82,7 +82,7 @@ test("responsive dashboard, keyboard controls and truthful coverage", async ({ p
   await login(page);
   await expect(page.getByText("Database counts are not a production health verdict.", { exact: false })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Monitoring coverage" })).toBeVisible();
-  for (const width of [1440, 768, 375]) {
+  for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     await expect(page.getByRole("heading", { name: "Platform command centre" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
