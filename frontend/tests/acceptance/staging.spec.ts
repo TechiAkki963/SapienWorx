@@ -91,7 +91,8 @@ test.describe.serial("deployed staging acceptance", () => {
     const recruiterContext = await browser.newContext();
     const recruiterPage = await recruiterContext.newPage();
     await signIn(recruiterPage, "recruiter");
-    await expect(recruiterPage.getByRole("heading", { name: "Hiring workspace" })).toBeVisible();
+    await expect(recruiterPage.getByRole("heading", { name: /Good (morning|afternoon|evening), Ananya\./ })).toBeVisible();
+    await expect(recruiterPage.getByText("Hiring workspace.", { exact: false })).toBeVisible();
     await expect(recruiterPage.getByText("Northstar Product Labs").first()).toBeVisible();
     await recruiterContext.close();
   });
