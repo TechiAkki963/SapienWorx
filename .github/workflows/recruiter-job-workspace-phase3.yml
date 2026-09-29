@@ -4,7 +4,7 @@ on:
   push:
     branches: [RecruiterJobWorkspace]
   pull_request:
-    branches: [CandidateJobDiscovery]
+    branches: [CandidateJobDiscovery, main]
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
@@ -182,5 +182,13 @@ jobs:
         with:
           name: phase3-full-workflow-visuals
           path: frontend/visual-artifacts/phase3-full-workflow
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload stacked integration visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stack-integration-visuals
+          path: frontend/visual-artifacts/stack-integration
           if-no-files-found: ignore
           retention-days: 7
