@@ -39,3 +39,20 @@ Job analytics are deterministic and organization-scoped. The first analytics sli
 - dedicated responsive recruiter analytics page
 
 These metrics do not use an LLM or infer recruiter/candidate quality. They summarize recorded workflow events only.
+
+
+## Phase 3.4 — Safe bulk job operations
+
+Bulk vacancy actions are deliberately bounded and governed:
+
+- maximum 50 submitted job IDs per request
+- IDs are validated and deduplicated
+- supported actions are pause, close, archive and recruiter reassignment
+- bulk publishing is intentionally unavailable
+- lifecycle actions reuse the same per-job transition matrix as single-job changes
+- jobs outside the recruiter's organization are indistinguishable from missing jobs
+- recruiter reassignment is restricted to active verified recruiters in the same organization
+- each job is processed independently so valid jobs can succeed when another selected job is ineligible
+- response includes per-job success/failure details
+- successful changes write append-only job audit records
+- one bulk-operation ID groups all audit entries created by the same request

@@ -16,13 +16,14 @@ type RecruiterTeamMember struct {
 }
 
 type JobAuditEvent struct {
-	ID            string          `json:"id"`
-	Action        string          `json:"action"`
-	ActorUserID   string          `json:"actor_user_id"`
-	ActorName     string          `json:"actor_name"`
-	PreviousState json.RawMessage `json:"previous_state"`
-	NewState      json.RawMessage `json:"new_state"`
-	ChangedAt     time.Time       `json:"changed_at"`
+	ID              string          `json:"id"`
+	Action          string          `json:"action"`
+	ActorUserID     string          `json:"actor_user_id"`
+	ActorName       string          `json:"actor_name"`
+	BulkOperationID *string         `json:"bulk_operation_id,omitempty"`
+	PreviousState   json.RawMessage `json:"previous_state"`
+	NewState        json.RawMessage `json:"new_state"`
+	ChangedAt       time.Time       `json:"changed_at"`
 }
 
 func (s *Service) RecruiterTeam(ctx context.Context, userID string) ([]RecruiterTeamMember, error) {
@@ -91,6 +92,10 @@ func jobSnapshotTx(ctx context.Context, tx pgx.Tx, jobID, companyID string, lock
 }
 
 func auditJobChangeTx(ctx context.Context, tx pgx.Tx, jobID, actorID, action string, previous, next []byte) error {
+	return auditJobChangeWithOperationTx(ctx, tx, jobID, actorID, action, nil, previous, next)
+}
+
+func auditJobChangeWithOperationTx(ctx context.Context, tx pgx.Tx, jobID, actorID, action string, bulkOperationID *string, previous, next []byte) error {
 	if len(previous) == 0 {
 		previous = []byte(`{}`)
 	}
@@ -98,9 +103,9 @@ func auditJobChangeTx(ctx context.Context, tx pgx.Tx, jobID, actorID, action str
 		next = []byte(`{}`)
 	}
 	_, err := tx.Exec(ctx, `
-		INSERT INTO job_change_audit(job_id,actor_recruiter_id,action,previous_state,new_state)
-		VALUES($1,$2,$3,$4::jsonb,$5::jsonb)
-	`, jobID, actorID, action, previous, next)
+		INSERT INTO job_change_audit(job_id,actor_recruiter_id,action,bulk_operation_id,previous_state,new_state)
+		VALUES($1,$2,$3,$4::uuid,$5::jsonb,$6::jsonb)
+	`, jobID, actorID, action, bulkOperationID, previous, next)
 	return err
 }
 
@@ -120,7 +125,7 @@ func (s *Service) JobAuditHistory(ctx context.Context, userID, jobID string, lim
 		return nil, ErrNotFound
 	}
 	rows, err := s.db.Query(ctx, `
-		SELECT a.id,a.action,a.actor_recruiter_id,rp.full_name,a.previous_state,a.new_state,a.changed_at
+		SELECT a.id,a.action,a.actor_recruiter_id,rp.full_name,a.bulk_operation_id::text,a.previous_state,a.new_state,a.changed_at
 		FROM job_change_audit a
 		JOIN recruiter_profiles rp ON rp.user_id=a.actor_recruiter_id
 		WHERE a.job_id=$1
@@ -134,7 +139,7 @@ func (s *Service) JobAuditHistory(ctx context.Context, userID, jobID string, lim
 	items := make([]JobAuditEvent, 0)
 	for rows.Next() {
 		var item JobAuditEvent
-		if err := rows.Scan(&item.ID, &item.Action, &item.ActorUserID, &item.ActorName, &item.PreviousState, &item.NewState, &item.ChangedAt); err != nil {
+		if err := rows.Scan(&item.ID, &item.Action, &item.ActorUserID, &item.ActorName, &item.BulkOperationID, &item.PreviousState, &item.NewState, &item.ChangedAt); err != nil {
 			return nil, err
 		}
 		items = append(items, item)

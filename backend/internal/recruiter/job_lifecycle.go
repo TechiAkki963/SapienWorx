@@ -32,6 +32,10 @@ func (s *Service) transitionJobStatus(ctx context.Context, userID, jobID, nextSt
 	if err != nil {
 		return err
 	}
+	return s.transitionJobStatusForCompany(ctx, userID, companyID, jobID, nextStatus, "status_changed", nil)
+}
+
+func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, companyID, jobID, nextStatus, auditAction string, bulkOperationID *string) error {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -93,10 +97,7 @@ func (s *Service) transitionJobStatus(ctx context.Context, userID, jobID, nextSt
 	if err := tx.QueryRow(ctx, `SELECT to_jsonb(j) FROM jobs j WHERE j.id=$1 AND j.company_id=$2`, jobID, companyID).Scan(&next); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(ctx, `
-		INSERT INTO job_change_audit(job_id,actor_recruiter_id,action,previous_state,new_state)
-		VALUES($1,$2,'status_changed',$3::jsonb,$4::jsonb)
-	`, jobID, userID, previous, next); err != nil {
+	if err := auditJobChangeWithOperationTx(ctx, tx, jobID, userID, auditAction, bulkOperationID, previous, next); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

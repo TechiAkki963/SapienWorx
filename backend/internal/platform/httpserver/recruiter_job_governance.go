@@ -3,6 +3,8 @@ package httpserver
 import (
 	"net/http"
 	"strconv"
+
+	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 )
 
 func (s *Server) recruiterTeam(w http.ResponseWriter, r *http.Request) {
@@ -43,4 +45,21 @@ func (s *Server) recruiterJobHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (s *Server) recruiterBulkJobs(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	var input recruiter.BulkJobActionInput
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	result, err := s.recruiter.BulkJobAction(r.Context(), id, input)
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
 }
