@@ -8,7 +8,7 @@ test("anonymous access returns to the restricted gateway and preserves the dog",
   const dog = page.getByRole("img", { name: "SapienWorx golden retriever wearing a fingerprint bandana" });
   await expect(dog).toBeVisible();
   expect(await dog.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
-  for (const width of [1440, 768, 375]) {
+  for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     await expect(dog).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -54,7 +54,7 @@ test("role preview is clearly non-enforcing, read-only and responsive", async ({
   await expect(page.getByText("3 proposed capabilities", { exact: true })).toBeVisible();
   expect(mutations).toEqual([]);
   await selector.selectOption("auditor");
-  for (const width of [1440, 768, 375]) {
+  for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     await expect(selector).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
