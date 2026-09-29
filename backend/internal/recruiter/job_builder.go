@@ -192,8 +192,11 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 	defer tx.Rollback(ctx)
 
 	assignedRecruiterID := userID
+	if currentAssignedRecruiterID != nil && strings.TrimSpace(*currentAssignedRecruiterID) != "" {
+		assignedRecruiterID = *currentAssignedRecruiterID
+	}
 	if in.AssignedRecruiterID != nil {
-		assignedRecruiterID = *in.AssignedRecruiterID
+		assignedRecruiterID = strings.TrimSpace(*in.AssignedRecruiterID)
 	}
 	if err := validateAssignedRecruiterTx(ctx, tx, companyID, assignedRecruiterID); err != nil {
 		return Job{}, err
@@ -320,9 +323,10 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 	var currentDescription string
 	var currentResponsibilities *string
 	var currentSkills, currentProcess []string
+	var currentAssignedRecruiterID *string
 	var previousSnapshot []byte
 	err = tx.QueryRow(ctx, `
-		SELECT status::text,description,responsibilities,required_skills,hiring_process,to_jsonb(j)
+		SELECT status::text,description,responsibilities,required_skills,hiring_process,assigned_recruiter_id::text,to_jsonb(j)
 		FROM jobs j
 		WHERE id=$1 AND company_id=$2
 		FOR UPDATE
