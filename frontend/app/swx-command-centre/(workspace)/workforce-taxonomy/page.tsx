@@ -84,7 +84,7 @@ export default async function WorkforceTaxonomyPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="font-bold text-slate-950">Canonical entities</h2>
         <p className="mt-1 text-xs text-slate-500">Top 100 entities by current mapped usage. This is intentionally a compact Phase 1 governance view, not the final taxonomy editor.</p>
         <div className="mt-4 max-w-full overflow-x-auto">
