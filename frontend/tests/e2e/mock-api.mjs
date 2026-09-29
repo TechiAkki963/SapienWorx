@@ -670,7 +670,15 @@ const server = http.createServer(async (req, res) => {
     saved: false, current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
     profile_completion: 65, last_active_at: now(), profile_updated_at: now(), details: {},
   });
-  if (url.pathname === "/api/v1/recruiter/discover" && req.method === "GET") return json(res, 200, { items: [], page: 1, limit: 20, total: 0 });
+  if (url.pathname === "/api/v1/recruiter/discover" && req.method === "GET") return json(res, 200, { items: [
+    {id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",designation:"Operations Manager",current_company:"Meridian Logistics",current_city:"Mumbai",current_state:"Maharashtra",experience_months:96,notice_period_days:30,preferred_locations:"Mumbai, Pune",skills:["Operations","Vendor Management","SAP"],education:"MBA · Operations",updated_at:now()},
+    {id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",designation:"Senior Staff Nurse",current_company:"Harbour Health",current_city:"Navi Mumbai",current_state:"Maharashtra",experience_months:72,notice_period_days:15,preferred_locations:"Mumbai, Navi Mumbai",skills:["Critical Care","BLS","Patient Safety"],education:"B.Sc Nursing",updated_at:now()},
+    {id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",designation:"Relationship Manager",current_company:"Unity Finance",current_city:"Pune",current_state:"Maharashtra",experience_months:60,notice_period_days:0,preferred_locations:"Pune, Mumbai",skills:["B2B Sales","CRM","Portfolio Management"],education:"B.Com · Finance",updated_at:now()}
+  ], page: 1, limit: 12, total: 3 });
+  if (url.pathname === "/api/v1/recruiter/saved-searches" && req.method === "GET") return json(res, 200, {items:[{id:"saved-1",name:"Mumbai operations",filters:{industry:"Logistics",location:"Mumbai"},updated_at:now()}]});
+  if (url.pathname === "/api/v1/recruiter/saved-searches" && req.method === "POST") return json(res, 201, {id:"saved-new",name:payload.name,filters:payload.filters,updated_at:now()});
+  if (url.pathname === "/api/v1/recruiter/recent-searches" && req.method === "GET") return json(res, 200, {items:[{id:1,filters:{q:"operations",location:"Mumbai"},created_at:now()}]});
+  if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "PUT") return json(res, 200, {recruiter_id:recruiterID,candidate_id:url.pathname.split("/").at(-1),tags:[],created_at:now(),updated_at:now()});
   if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{
