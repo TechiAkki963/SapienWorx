@@ -217,6 +217,7 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 	}
 
 	const where = `j.status='active'
+		AND j.visibility='public'
 		AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)
 		AND (
 			$1='' OR

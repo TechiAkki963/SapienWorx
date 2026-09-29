@@ -64,18 +64,53 @@ func (s *Server) recruiterDashboard(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
+func recruiterJobWorkspaceFiltersFromRequest(r *http.Request) (recruiter.JobWorkspaceFilters, error) {
+	q := r.URL.Query()
+	page := 1
+	limit := 20
+	var err error
+	if raw := strings.TrimSpace(q.Get("page")); raw != "" {
+		page, err = strconv.Atoi(raw)
+		if err != nil || page < 1 {
+			return recruiter.JobWorkspaceFilters{}, recruiter.ErrInvalid
+		}
+	}
+	if raw := strings.TrimSpace(q.Get("limit")); raw != "" {
+		limit, err = strconv.Atoi(raw)
+		if err != nil || limit < 1 || limit > 50 {
+			return recruiter.JobWorkspaceFilters{}, recruiter.ErrInvalid
+		}
+	}
+	return recruiter.JobWorkspaceFilters{
+		Query:          q.Get("q"),
+		Status:         q.Get("status"),
+		EmploymentType: q.Get("employment_type"),
+		WorkMode:       q.Get("work_mode"),
+		RoleCategory:   q.Get("role_category"),
+		Deadline:       q.Get("deadline"),
+		Sort:           q.Get("sort"),
+		Page:           page,
+		Limit:          limit,
+	}, nil
+}
+
 func (s *Server) recruiterJobs(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
 	if !ok {
 		return
 	}
 	if r.Method == http.MethodGet {
-		items, err := s.recruiter.Jobs(r.Context(), id)
+		filters, err := recruiterJobWorkspaceFiltersFromRequest(r)
 		if err != nil {
 			s.writeRecruiterError(w, r, err)
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]any{"items": items})
+		result, err := s.recruiter.JobWorkspace(r.Context(), id, filters)
+		if err != nil {
+			s.writeRecruiterError(w, r, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, result)
 		return
 	}
 	var input recruiter.JobInput

@@ -288,6 +288,25 @@ const server = http.createServer(async (req, res) => {
     if (state.adminAccess.fail) return json(res, 503, { error: { message: "administrator security is unavailable" } });
     return json(res, 200, { ...state.adminAccess, permissions: adminCatalog[state.adminAccess.admin_role] ?? [] });
   }
+  if (url.pathname === "/api/v1/admin/workforce-taxonomy" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "taxonomy access denied" } });
+    return json(res, 200, {
+      entity_count: 1284,
+      alias_count: 3421,
+      relationship_count: 876,
+      mapping_count: 4912,
+      pending_count: 2,
+      provisional_terms: [
+        { id: "b1000000-0000-4000-8000-000000000001", raw_term: "Sterile Processing", normalized_term: "sterile processing", proposed_entity_type: "competency", country_scope: "IN", source: "job", source_context: "Healthcare", occurrence_count: 7, status: "pending", first_seen_at: now(), last_seen_at: now() },
+        { id: "b1000000-0000-4000-8000-000000000002", raw_term: "Cold Chain Dispatch", normalized_term: "cold chain dispatch", proposed_entity_type: "competency", country_scope: "IN", source: "candidate", source_context: "Logistics", occurrence_count: 4, status: "pending", first_seen_at: now(), last_seen_at: now() },
+      ],
+      entities: [
+        { id: "b2000000-0000-4000-8000-000000000001", entity_type: "competency", canonical_name: "Critical Care Nursing", description: "Clinical critical-care competency", status: "active", country_scope: "IN", language_code: "en", usage_count: 418, metadata: {} },
+        { id: "b2000000-0000-4000-8000-000000000002", entity_type: "competency", canonical_name: "Financial Analysis", description: "Finance analysis competency", status: "active", country_scope: "", language_code: "en", usage_count: 365, metadata: {} },
+        { id: "b2000000-0000-4000-8000-000000000003", entity_type: "occupation", canonical_name: "Warehouse Supervisor", description: "Logistics occupation", status: "active", country_scope: "IN", language_code: "en", usage_count: 291, metadata: {} },
+      ],
+    });
+  }
   if (url.pathname.startsWith("/api/v1/admin/security/mfa/") && req.method === "POST") {
     if (roleFromCookie(req) !== "master_admin" || !state.adminAccess.enabled || !state.adminAccess.assigned) return json(res, 403, { error: { message: "approved role required" } });
     if (payload.password !== "E2e-password-123!") return json(res, 400, { error: { message: "password or authenticator code is invalid, expired or already used" } });
@@ -470,6 +489,44 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  if (url.pathname === `/api/v1/jobs/${jobID}` && req.method === "GET") return json(res, 200, job({
+    id: jobID,
+    job_reference: "SWX-JOB-2026-00001",
+    title: "Senior Go Platform Engineer",
+    department: "Engineering",
+    company_name: "Sapien Labs India",
+    employment_type: "full_time",
+    work_mode: "hybrid",
+    city: "Mumbai",
+    state: "Maharashtra",
+    country_code: "IN",
+    min_experience_months: 24,
+    max_experience_months: 72,
+    min_salary_amount: 800000,
+    max_salary_amount: 1800000,
+    salary_currency: "INR",
+    openings: 3,
+    description: "Build recruitment infrastructure.",
+    required_skills: ["Go", "PostgreSQL"],
+  }));
+
+  if (url.pathname === "/api/v1/recruiter/team" && req.method === "GET") return json(res, 200, { items: [
+    { user_id: recruiterID, full_name: "Riya Recruiter", designation: "Senior Recruiter" },
+    { user_id: "20000000-0000-4000-8000-000000000002", full_name: "Kabir Recruiter", designation: "Healthcare Recruiter" },
+  ] });
+  if (url.pathname === "/api/v1/recruiter/jobs/bulk" && req.method === "POST") {
+    const ids = Array.from(new Set(Array.isArray(payload.job_ids) ? payload.job_ids : []));
+    return json(res, 200, {
+      operation_id: "91000000-0000-4000-8000-000000000001",
+      requested_count: Array.isArray(payload.job_ids) ? payload.job_ids.length : 0,
+      unique_count: ids.length,
+      succeeded_count: ids.length,
+      unchanged_count: 0,
+      failed_count: 0,
+      status: "succeeded",
+      items: ids.map((id) => ({ job_id: id, outcome: "succeeded" })),
+    });
+  }
   if (url.pathname === "/api/v1/recruiter/dashboard" && req.method === "GET") return json(res, 200, {
     recruiter_name: "Riya Recruiter",
     company_name: "Sapien Labs India",
@@ -485,13 +542,128 @@ const server = http.createServer(async (req, res) => {
     recent_applications: pipelineRows().slice(0, 6),
     needs_attention: [],
   });
-  if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") return json(res, 200, { items: [{ ...job(), applications: 1000, new_applications: 9, shortlisted: 1, interviews: 0, status: "active", updated_at: now() }] });
+  if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") {
+    const source = [{
+      ...job(),
+      role_category: "Technology",
+      visibility: "public",
+      applications: 1000,
+      new_applications: 9,
+      shortlisted: 1,
+      interviews: 0,
+      status: "active",
+      application_deadline: new Date(Date.now() + 2 * 86400000).toISOString(),
+      updated_at: now(),
+    }];
+    const q = (url.searchParams.get("q") ?? "").toLowerCase();
+    if (q === "private operations lead") {
+      source.splice(0, source.length, {
+        ...job({
+          id: "60000000-0000-4000-8000-000000000088",
+          job_reference: "SWX-JOB-2026-00088",
+          title: "Private Operations Lead",
+        }),
+        role_category: "Operations",
+        visibility: "private",
+        applications: 4,
+        new_applications: 1,
+        shortlisted: 0,
+        interviews: 0,
+        status: "active",
+        application_deadline: new Date(Date.now() + 5 * 86400000).toISOString(),
+        updated_at: now(),
+      });
+    }
+    const status = url.searchParams.get("status") ?? "";
+    const roleCategory = url.searchParams.get("role_category") ?? "";
+    const workMode = url.searchParams.get("work_mode") ?? "";
+    const employmentType = url.searchParams.get("employment_type") ?? "";
+    let items = source.filter((item) =>
+      (!q || `${item.job_reference} ${item.title} ${item.department} ${item.role_category} ${item.city} ${item.state}`.toLowerCase().includes(q)) &&
+      (!status || item.status === status) &&
+      (!roleCategory || item.role_category === roleCategory) &&
+      (!workMode || item.work_mode === workMode) &&
+      (!employmentType || item.employment_type === employmentType)
+    );
+    if (url.searchParams.get("deadline") === "soon") items = items.filter((item) => item.status === "active");
+    return json(res, 200, {
+      items,
+      page: Number(url.searchParams.get("page") ?? 1),
+      limit: Number(url.searchParams.get("limit") ?? 20),
+      total: items.length,
+      sort: url.searchParams.get("sort") || "updated",
+      summary: { total_jobs: 1, active_jobs: 1, draft_jobs: 0, paused_jobs: 0, applications: 1000, new_applications: 9 },
+    });
+  }
   if (url.pathname === `/api/v1/recruiter/jobs/${jobID}` && req.method === "GET") return json(res, 200, {
     id: jobID, job_reference: "SWX-JOB-2026-00001", status: "active", title: "Senior Go Platform Engineer", department: "Engineering",
     employment_type: "full_time", work_mode: "hybrid", role_category: "Technology", location: "Mumbai, Maharashtra",
     min_experience_years: 2, max_experience_years: 6, min_salary_lakhs: 8, max_salary_lakhs: 18,
     skills: ["Go", "PostgreSQL"], description: "Build recruitment infrastructure.", responsibilities: "Own reliable services.",
-    company_overview: "Sapien Labs India", why_join: "Human-centered hiring.", hiring_process: ["Application review", "Interview"], openings: 3,
+    company_overview: "Sapien Labs India", why_join: "Human-centered hiring.",
+    hiring_process: ["Application review", "Recruiter conversation", "Technical interview", "Final decision"],
+    application_deadline: new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 10),
+    education_requirements: ["B.Tech / B.E.", "MCA"],
+    screening_questions: ["Are you comfortable working with Go in production?", "Can you work in a hybrid model?"],
+    referral_enabled: true, visibility: "public", internal_notes: "Priority role. Review referrals within 48 hours.",
+    assigned_recruiter_id: recruiterID, openings: 3,
+  });
+  if (url.pathname === `/api/v1/recruiter/jobs/${jobID}/history` && req.method === "GET") return json(res, 200, { items: [
+    { id: "90000000-0000-4000-8000-000000000001", action: "updated", actor_user_id: recruiterID, actor_name: "Riya Recruiter", previous_state: {}, new_state: {}, changed_at: now() },
+    { id: "90000000-0000-4000-8000-000000000002", action: "created_and_published", actor_user_id: recruiterID, actor_name: "Riya Recruiter", previous_state: {}, new_state: {}, changed_at: new Date(Date.now() - 86400000).toISOString() },
+  ] });
+  if (url.pathname === `/api/v1/recruiter/jobs/${jobID}/analytics` && req.method === "GET") {
+    const today = new Date();
+    return json(res, 200, {
+      job_id: jobID,
+      job_reference: "SWX-JOB-2026-00001",
+      title: "Senior Go Platform Engineer",
+      status: "active",
+      openings: 3,
+      published_at: new Date(Date.now() - 19 * 86400000).toISOString(),
+      application_deadline: new Date(Date.now() + 2 * 86400000).toISOString(),
+      total_applications: 1000,
+      hires: 2,
+      remaining_openings: 1,
+      fill_rate_percent: 66.7,
+      days_open: 19,
+      days_to_deadline: 2,
+      closing_soon: true,
+      overdue: false,
+      time_to_first_application_hours: 2.4,
+      time_to_first_shortlist_hours: 27.2,
+      time_to_first_offer_hours: 96.5,
+      time_to_first_hire_hours: 144.2,
+      funnel: [
+        { stage: "Applied", count: 1000, conversion_percent: 100 },
+        { stage: "Screening", count: 640, conversion_percent: 64 },
+        { stage: "Shortlisted", count: 310, conversion_percent: 31 },
+        { stage: "Interview", count: 160, conversion_percent: 16 },
+        { stage: "Offer", count: 42, conversion_percent: 4.2 },
+        { stage: "Hired", count: 2, conversion_percent: 0.2 },
+      ],
+      sources: [
+        { source: "direct", applications: 520, shortlisted: 180, interviews: 92, offers: 24, hires: 1, hire_conversion_percent: 0.2 },
+        { source: "referral", applications: 180, shortlisted: 85, interviews: 44, offers: 13, hires: 1, hire_conversion_percent: 0.6 },
+        { source: "linkedin", applications: 300, shortlisted: 45, interviews: 24, offers: 5, hires: 0, hire_conversion_percent: 0 },
+      ],
+      trend: Array.from({ length: 30 }, (_, index) => {
+        const day = new Date(today);
+        day.setDate(today.getDate() - (29 - index));
+        return { date: day.toISOString().slice(0, 10), applications: [12,18,22,15,28,35,42][index % 7] };
+      }),
+    });
+  }
+  if (url.pathname === `/api/v1/recruiter/jobs/${jobID}/duplicate` && req.method === "POST") return json(res, 201, {
+    id: "60000000-0000-4000-8000-000000000099", job_reference: "SWX-JOB-2026-00099", status: "draft",
+    title: "Senior Go Platform Engineer (Copy)", department: "Engineering", employment_type: "full_time", work_mode: "hybrid",
+    role_category: "Technology", location: "Mumbai, Maharashtra", min_experience_years: 2, max_experience_years: 6,
+    min_salary_lakhs: 8, max_salary_lakhs: 18, skills: ["Go", "PostgreSQL"], description: "Build recruitment infrastructure.",
+    responsibilities: "Own reliable services.", company_overview: "Sapien Labs India", why_join: "Human-centered hiring.",
+    hiring_process: ["Application review", "Recruiter conversation", "Technical interview", "Final decision"],
+    application_deadline: null, education_requirements: ["B.Tech / B.E.", "MCA"], screening_questions: [],
+    referral_enabled: true, visibility: "public", internal_notes: "Priority role. Review referrals within 48 hours.",
+    assigned_recruiter_id: recruiterID, openings: 3,
   });
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",

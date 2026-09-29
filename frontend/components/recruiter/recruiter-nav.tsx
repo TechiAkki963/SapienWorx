@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -37,9 +37,24 @@ function NavIcon({ name }: { name: IconName }) {
 
 export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
   const path = usePathname();
+  const navScrollRef = useRef<HTMLDivElement>(null);
   const [unread, setUnread] = useState(unreadCount);
 
   useEffect(() => { setUnread(unreadCount); }, [unreadCount]);
+  useEffect(() => {
+    const container = navScrollRef.current;
+    if (!container || window.innerWidth >= 1024) return;
+    const active = container.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!active) return;
+    const containerBox = container.getBoundingClientRect();
+    const activeBox = active.getBoundingClientRect();
+    if (activeBox.left < containerBox.left || activeBox.right > containerBox.right) {
+      container.scrollBy({
+        left: activeBox.left - containerBox.left - 12,
+        behavior: "auto",
+      });
+    }
+  }, [path]);
   useEffect(() => {
     let active = true;
     const refresh = async () => {
@@ -59,23 +74,24 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
     return () => { active = false; window.removeEventListener("sapienworx:unread-change", onChange); document.removeEventListener("visibilitychange", refresh); window.clearInterval(timer); };
   }, []);
   return (
-    <div className="flex gap-3 overflow-x-auto lg:grid lg:overflow-visible">
-      {sections.map(section => <div key={section.title} className="shrink-0 lg:min-w-0">
+    <div ref={navScrollRef} className="flex max-w-full gap-3 overflow-x-auto max-[359px]:flex-wrap max-[359px]:gap-1 max-[359px]:overflow-visible lg:grid lg:overflow-visible">
+      {sections.map(section => <div key={section.title} className="shrink-0 max-[359px]:max-w-full lg:min-w-0">
       <p className="hidden px-3 pb-2 pt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink-muted/70 lg:block">{section.title}</p>
-      <nav aria-label={section.title} className="flex gap-1 lg:grid">
+      <nav aria-label={section.title} className="flex gap-1 max-[359px]:flex-wrap lg:grid">
         {section.items.map(({ label, href, icon }) => {
           const active = href === "/recruiter" ? path === href : path.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "group flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2",
                 active ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-100 hover:text-ink",
               )}
             >
               <NavIcon name={icon} />
-              <span>{label}</span>
+              <span className={cn(!active && "max-[359px]:sr-only")}>{label}</span>
               {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="ml-auto rounded-full bg-indigo px-1.5 py-0.5 text-[10px] font-extrabold text-white">{Math.min(unread, 99)}</span>}
             </Link>
           );

@@ -69,10 +69,93 @@ test.describe("recruiter pipeline", () => {
 test.describe("job applicant workspace", () => {
   test.beforeEach(async ({ request }) => resetE2E(request));
 
+  test("uses a server-filtered table-first job workspace while keeping mobile actions", async ({ page, request }) => {
+    await login(page, "recruiter");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/recruiter/jobs");
+
+    await expect(page.getByRole("table")).toHaveCount(1);
+    await expect(page.getByRole("table").getByText("SWX-JOB-2026-00001")).toBeVisible();
+
+    const filters = page.getByRole("form", { name: "Job filters" });
+    await filters.getByLabel("Search").fill("Senior Go");
+    await filters.getByLabel("Status").selectOption("active");
+    await filters.getByLabel("Role / function").selectOption("Technology");
+    await filters.getByLabel("Work mode").selectOption("hybrid");
+    await filters.getByLabel("Employment").selectOption("full_time");
+    await filters.getByLabel("Sort").selectOption("applications");
+    await filters.getByRole("button", { name: "Apply" }).click();
+
+    await expect(page).toHaveURL(/q=Senior(?:\+|%20)Go/);
+    await expect(page).toHaveURL(/status=active/);
+    await expect(page).toHaveURL(/role_category=Technology/);
+    await expect(page).toHaveURL(/sort=applications/);
+
+    const requests = await (await request.get(`${MOCK_API}/__e2e/requests`)).json();
+    const search = requests.items.findLast((item: { path: string; method: string; search: string }) => item.path === "/api/v1/recruiter/jobs" && item.method === "GET");
+    const params = new URLSearchParams(search.search);
+    expect(params.get("q")).toBe("Senior Go");
+    expect(params.get("status")).toBe("active");
+    expect(params.get("role_category")).toBe("Technology");
+    expect(params.get("work_mode")).toBe("hybrid");
+    expect(params.get("employment_type")).toBe("full_time");
+    expect(params.get("sort")).toBe("applications");
+    expect(params.get("limit")).toBe("20");
+
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.reload();
+    await expect(page.getByRole("table")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "View applicants →" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  });
+
+  test("does not expose public preview or sharing for an active private job", async ({ page }) => {
+    await login(page, "recruiter");
+    await page.goto("/recruiter/jobs?q=Private%20Operations%20Lead");
+
+    await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
+    await expect(page.locator("span:visible").filter({ hasText: "Private · not shareable" }).first()).toBeVisible();
+  });
+
+  test("requires confirmation before governed bulk job actions", async ({ page }) => {
+    await login(page, "recruiter");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/recruiter/jobs");
+
+    await page.locator('input[data-bulk-job-id="60000000-0000-4000-8000-000000000001"]:visible').check();
+    await expect(page.getByText("1 selected on this page")).toBeVisible();
+    await page.getByLabel("Bulk action").selectOption("pause");
+    await page.getByRole("button", { name: "Review action" }).click();
+    await expect(page.getByRole("alertdialog", { name: "Confirm bulk job action" })).toContainText("Pause 1 selected job?");
+
+    const mutation = page.waitForRequest((request) => new URL(request.url()).pathname === "/api/v1/recruiter/jobs/bulk" && request.method() === "POST");
+    await page.getByRole("button", { name: "Confirm Pause" }).click();
+    expect((await mutation).postDataJSON()).toEqual({
+      job_ids: ["60000000-0000-4000-8000-000000000001"],
+      action: "pause",
+    });
+    await expect(page.getByRole("status")).toContainText("1 changed");
+  });
+
+  test("offers only organization-scoped recruiters for bulk reassignment", async ({ page }) => {
+    await login(page, "recruiter");
+    await page.goto("/recruiter/jobs");
+    await page.locator('input[data-bulk-job-id="60000000-0000-4000-8000-000000000001"]:visible').check();
+    await page.getByLabel("Bulk action").selectOption("reassign");
+    const recruiter = page.getByLabel("Assign recruiter");
+    await expect(recruiter).toContainText("Riya Recruiter");
+    await expect(recruiter).toContainText("Kabir Recruiter");
+    await recruiter.selectOption("20000000-0000-4000-8000-000000000002");
+    await page.getByRole("button", { name: "Review action" }).click();
+    await expect(page.getByRole("alertdialog", { name: "Confirm bulk job action" })).toContainText("Kabir Recruiter");
+  });
+
   test("shows the stable job reference and opens applicants from job management", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs");
-    await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+    await expect(page.getByRole("table").getByText("SWX-JOB-2026-00001")).toBeVisible();
     await page.getByRole("link", { name: "View applicants →" }).click();
     await expect(page).toHaveURL(/\/recruiter\/jobs\/60000000-0000-4000-8000-000000000001\/applicants$/);
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
@@ -92,6 +175,19 @@ test.describe("job applicant workspace", () => {
     expect(params.get("stage")).toBe("new_application");
     await page.getByRole("form", { name: "Application filters" }).getByRole("button", { name: "Apply filters" }).click();
     await expect(page).toHaveURL(/\/recruiter\/jobs\/60000000-0000-4000-8000-000000000001\/applicants/);
+  });
+
+  test("opens deterministic job analytics and keeps the workspace responsive", async ({ page }) => {
+    await login(page, "recruiter");
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 768, height: 1024 }, { width: 320, height: 800 }]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/recruiter/jobs/60000000-0000-4000-8000-000000000001/analytics");
+      await expect(page.getByRole("heading", { name: "Job analytics" })).toBeVisible();
+      await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+      await expect(page.getByRole("region", { name: "Hiring funnel" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "Source performance" })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    }
   });
 
   test("keeps job cards and their applicant page usable on desktop, tablet, and mobile", async ({ page }) => {

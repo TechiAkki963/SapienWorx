@@ -36,13 +36,13 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
           </form>
 
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/recruiter/interviews" aria-label="Interview reminders" className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-white text-ink-muted transition hover:bg-slate-50 hover:text-ink">
+            <Link href="/recruiter/interviews" aria-label={`Interview reminders${workspace?.upcoming_interviews ? `, ${workspace.upcoming_interviews} upcoming` : ""}`} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-white text-ink-muted transition hover:bg-slate-50 hover:text-ink">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.8]"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8M10 20h4" /></svg>
               {!!workspace?.upcoming_interviews && <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-indigo px-1.5 py-0.5 text-center text-[9px] font-extrabold text-white">{Math.min(workspace.upcoming_interviews, 99)}</span>}
             </Link>
 
             <details className="relative">
-              <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-line bg-white py-1.5 pl-1.5 pr-2.5 transition hover:bg-slate-50">
+              <summary aria-label={`Account menu for ${recruiterName}`} className="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-line bg-white py-1.5 pl-1.5 pr-2.5 transition hover:bg-slate-50">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-[10px] font-extrabold text-white">{initials(recruiterName)}</span>
                 <span className="hidden max-w-36 text-left lg:block">
                   <span className="block truncate text-xs font-bold text-ink">{recruiterName}</span>

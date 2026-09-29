@@ -21,7 +21,9 @@ export type RecruiterJob = {
   job_reference: string;
   title: string;
   department?: string;
+  role_category?: string;
   status: string;
+  visibility: "public" | "private";
   employment_type: string;
   work_mode: string;
   city?: string;
@@ -35,6 +37,46 @@ export type RecruiterJob = {
   published_at?: string;
   application_deadline?: string;
   updated_at: string;
+};
+export type RecruiterJobWorkspace = {
+  items: RecruiterJob[];
+  page: number;
+  limit: number;
+  total: number;
+  sort: "updated" | "applications" | "newest" | "deadline";
+  summary: {
+    total_jobs: number;
+    active_jobs: number;
+    draft_jobs: number;
+    paused_jobs: number;
+    applications: number;
+    new_applications: number;
+  };
+};
+export type JobAnalytics = {
+  job_id: string;
+  job_reference: string;
+  title: string;
+  status: string;
+  openings: number;
+  published_at?: string;
+  closed_at?: string;
+  application_deadline?: string;
+  total_applications: number;
+  hires: number;
+  remaining_openings: number;
+  fill_rate_percent: number;
+  days_open: number;
+  days_to_deadline?: number;
+  closing_soon: boolean;
+  overdue: boolean;
+  time_to_first_application_hours?: number;
+  time_to_first_shortlist_hours?: number;
+  time_to_first_offer_hours?: number;
+  time_to_first_hire_hours?: number;
+  funnel: { stage: string; count: number; conversion_percent: number }[];
+  sources: { source: string; applications: number; shortlisted: number; interviews: number; offers: number; hires: number; hire_conversion_percent: number }[];
+  trend: { date: string; applications: number }[];
 };
 export type PipelineRow = {
   application_id: string;
@@ -84,7 +126,38 @@ export type EditableRecruiterJob = {
   company_overview: string;
   why_join: string;
   hiring_process: string[];
+  application_deadline: string | null;
+  education_requirements: string[];
+  screening_questions: string[];
+  referral_enabled: boolean;
+  visibility: "public" | "private";
+  internal_notes: string;
+  assigned_recruiter_id: string | null;
   openings: number;
+};
+export type RecruiterTeamMember = {
+  user_id: string;
+  full_name: string;
+  designation?: string;
+};
+export type BulkJobActionResult = {
+  operation_id: string;
+  requested_count: number;
+  unique_count: number;
+  succeeded_count: number;
+  unchanged_count: number;
+  failed_count: number;
+  status: "succeeded" | "partial" | "failed" | "unchanged";
+  items: { job_id: string; outcome: "succeeded" | "unchanged" | "failed"; error_code?: string }[];
+};
+export type JobAuditEvent = {
+  id: string;
+  action: string;
+  actor_user_id: string;
+  actor_name: string;
+  previous_state: Record<string, unknown>;
+  new_state: Record<string, unknown>;
+  changed_at: string;
 };
 export type PipelineList = { items: PipelineRow[]; page: number; limit: number; total: number };
 export type Interview = {
@@ -132,6 +205,14 @@ export type RecruiterCandidateDetail = {
 
 export const stages = ["new_application","screening","shortlisted","technical_interview","hr_round","final_interview","offer","hired","rejected","withdrawn"] as const;
 export const jobStatuses = ["draft","active","paused","closed","expired","archived"] as const;
+export const jobStatusTransitions: Record<string, readonly string[]> = {
+  draft: ["draft","active","archived"],
+  active: ["active","paused","closed"],
+  paused: ["paused","active","closed","archived"],
+  closed: ["closed","active","archived"],
+  expired: ["expired","active","archived"],
+  archived: ["archived"],
+};
 export function label(value: string) { return value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()); }
 export function experience(months: number) { const years=Math.floor(months/12); const rest=months%12; return years ? `${years}y${rest ? ` ${rest}m` : ""}` : `${rest}m`; }
 export function compactDate(value?: string) { if(!value) return "—"; return new Intl.DateTimeFormat("en-IN",{day:"2-digit",month:"short",year:"numeric"}).format(new Date(value)); }
