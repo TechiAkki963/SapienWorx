@@ -14,7 +14,7 @@ test.beforeEach(async ({ request }) => resetE2E(request));
 test("job builder recruitment settings remain clear and responsive", async ({ page }) => {
   test.setTimeout(120_000);
   await login(page, "recruiter");
-  await fs.mkdir("test-results/phase3-job-builder-visuals", { recursive: true });
+  await fs.mkdir("visual-artifacts/phase3-job-builder", { recursive: true });
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -42,7 +42,7 @@ test("job builder recruitment settings remain clear and responsive", async ({ pa
     expect(overflow.page, `${viewport.name} builder overflows by ${overflow.page - overflow.viewport}px: ${overflow.offenders.join(", ")}`).toBeLessThanOrEqual(viewport.width);
 
     await page.screenshot({
-      path: `test-results/phase3-job-builder-visuals/new-${viewport.name}.png`,
+      path: `visual-artifacts/phase3-job-builder/new-${viewport.name}.png`,
       fullPage: true,
     });
   }
@@ -51,7 +51,7 @@ test("job builder recruitment settings remain clear and responsive", async ({ pa
 test("edit job shows governance controls and audit history without clutter", async ({ page }) => {
   test.setTimeout(120_000);
   await login(page, "recruiter");
-  await fs.mkdir("test-results/phase3-job-builder-visuals", { recursive: true });
+  await fs.mkdir("visual-artifacts/phase3-job-builder", { recursive: true });
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -71,7 +71,7 @@ test("edit job shows governance controls and audit history without clutter", asy
     expect(overflow, `${viewport.name} edit builder horizontal overflow`).toBeLessThanOrEqual(0);
 
     await page.screenshot({
-      path: `test-results/phase3-job-builder-visuals/edit-${viewport.name}.png`,
+      path: `visual-artifacts/phase3-job-builder/edit-${viewport.name}.png`,
       fullPage: true,
     });
   }
