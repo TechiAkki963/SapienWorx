@@ -91,7 +91,7 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
               )}
             >
               <NavIcon name={icon} />
-              <span>{label}</span>
+              <span className={cn(!active && "max-[359px]:sr-only")}>{label}</span>
               {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="ml-auto rounded-full bg-indigo px-1.5 py-0.5 text-[10px] font-extrabold text-white">{Math.min(unread, 99)}</span>}
             </Link>
           );
