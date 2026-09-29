@@ -74,6 +74,16 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/01-jobs-${viewport.name}.png`, fullPage: true });
 
+    // 1b. Active private job must not expose a public preview/share path
+    await page.goto("/recruiter/jobs?q=Private%20Operations%20Lead");
+    await expect(page.getByText("Private Operations Lead")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
+    await expect(page.getByText("Private · not shareable")).toBeVisible();
+    await assertNoHorizontalOverflow(page, `${viewport.name} private job management`);
+    await prepareShot(page);
+    await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/01b-private-job-${viewport.name}.png`, fullPage: true });
+
     // 2. Per-job applicants
     await page.goto(`/recruiter/jobs/${jobID}/applicants`);
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
