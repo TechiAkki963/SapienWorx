@@ -17,7 +17,7 @@ test("bulk job controls remain compact after selection across recruiter breakpoi
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/recruiter/jobs");
-    await page.getByLabel("Select SWX-JOB-2026-00001 Senior Go Platform Engineer").check();
+    await page.locator('input[data-bulk-job-id="60000000-0000-4000-8000-000000000001"]:visible').check();
     await page.getByLabel("Bulk action").selectOption("reassign");
     await page.getByLabel("Assign recruiter").selectOption("20000000-0000-4000-8000-000000000002");
     await expect(page.getByText("1 selected on this page")).toBeVisible();
