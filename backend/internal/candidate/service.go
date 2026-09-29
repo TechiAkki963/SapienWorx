@@ -171,6 +171,7 @@ func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, er
 	}
 
 	const where = `j.status='active'
+		AND j.visibility='public'
 		AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)
 		AND ($1='' OR j.title ILIKE '%'||$1||'%' OR j.description ILIKE '%'||$1||'%' OR c.display_name ILIKE '%'||$1||'%')
 		AND ($2='' OR COALESCE(j.city,'') ILIKE '%'||$2||'%' OR COALESCE(j.state,'') ILIKE '%'||$2||'%')
@@ -205,7 +206,7 @@ func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, er
 
 func (s *Service) Job(ctx context.Context, id string) (Job, error) {
 	var job Job
-	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.id=$1 AND j.status='active' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job)
+	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.id=$1 AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Job{}, ErrNotFound
 	}
@@ -291,7 +292,7 @@ func (s *Service) Applications(ctx context.Context, userID string, limit int) ([
 
 func (s *Service) Apply(ctx context.Context, userID, jobID string) (Application, error) {
 	var active bool
-	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND status='active' AND (application_deadline IS NULL OR application_deadline >= current_date))`, jobID).Scan(&active); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND status='active' AND visibility='public' AND (application_deadline IS NULL OR application_deadline >= current_date))`, jobID).Scan(&active); err != nil {
 		return Application{}, err
 	}
 	if !active {
@@ -320,7 +321,7 @@ func (s *Service) Apply(ctx context.Context, userID, jobID string) (Application,
 }
 
 func (s *Service) SavedJobs(ctx context.Context, userID string) ([]Job, error) {
-	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM saved_jobs sj JOIN jobs j ON j.id=sj.job_id JOIN companies c ON c.id=j.company_id WHERE sj.candidate_id=$1 AND j.status='active' ORDER BY sj.saved_at DESC`, userID)
+	rows, err := s.db.Query(ctx, `SELECT `+jobColumns+` FROM saved_jobs sj JOIN jobs j ON j.id=sj.job_id JOIN companies c ON c.id=j.company_id WHERE sj.candidate_id=$1 AND j.status='active' AND j.visibility='public' ORDER BY sj.saved_at DESC`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +339,7 @@ func (s *Service) SavedJobs(ctx context.Context, userID string) ([]Job, error) {
 
 func (s *Service) SaveJob(ctx context.Context, userID, jobID string) error {
 	var active bool
-	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND status='active')`, jobID).Scan(&active); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND status='active' AND visibility='public')`, jobID).Scan(&active); err != nil {
 		return err
 	}
 	if !active {
