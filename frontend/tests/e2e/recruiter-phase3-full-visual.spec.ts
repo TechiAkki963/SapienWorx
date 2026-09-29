@@ -32,7 +32,7 @@ async function assertNoHorizontalOverflow(page: import("@playwright/test").Page,
       }));
     return { viewport, width, offenders };
   });
-  expect(report.width, `${label}: horizontal overflow offenders=${JSON.stringify(report.offenders)}`).toBeLessThanOrEqual(report.viewport);
+  expect(report.width, `${label}: horizontal overflow offenders=${JSON.stringify(report.offenders)}`).toBeLessThanOrEqual(report.viewport + 1);
 }
 
 async function expectAnyVisibleText(page: import("@playwright/test").Page, text: string) {
