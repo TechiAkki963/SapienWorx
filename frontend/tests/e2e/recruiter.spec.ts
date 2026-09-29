@@ -116,7 +116,7 @@ test.describe("job applicant workspace", () => {
     await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
-    await expect(page.getByText("Private · not shareable")).toBeVisible();
+    await expect(page.locator("span:visible").filter({ hasText: "Private · not shareable" }).first()).toBeVisible();
   });
 
   test("requires confirmation before governed bulk job actions", async ({ page }) => {
