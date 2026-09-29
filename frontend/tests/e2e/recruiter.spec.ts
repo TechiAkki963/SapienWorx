@@ -111,12 +111,12 @@ test.describe("job applicant workspace", () => {
 
   test("does not expose public preview or sharing for an active private job", async ({ page }) => {
     await login(page, "recruiter");
-    await page.goto("/recruiter/jobs?q=private-visibility-test");
+    await page.goto("/recruiter/jobs?q=Private%20Operations%20Lead");
 
     await expect(page.getByText("Private Operations Lead")).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
-    await expect(page.getByText("Publish to share")).toBeVisible();
+    await expect(page.getByText("Private · not shareable")).toBeVisible();
   });
 
   test("requires confirmation before governed bulk job actions", async ({ page }) => {
