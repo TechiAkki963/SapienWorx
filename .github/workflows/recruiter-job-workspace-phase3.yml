@@ -100,68 +100,7 @@ jobs:
         working-directory: backend
         env:
           RECRUITER_JOB_SECURITY_TEST_DATABASE_URL: postgres://sapienworx:sapienworx_ci@127.0.0.1:5432/sapienworx_ci?sslmode=disable
-        run: go test -race ./internal/recruiter -run '^TestRecruiterJobSecurityIsolatedDatabase
-  frontend:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "22.x"
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - run: npm ci --no-audit --no-fund
-      - run: npm run typecheck
-      - run: npm run build
-
-  e2e:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "22.x"
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
-      - name: Playwright
-        run: npm run test:e2e
-      - name: Master Admin security journeys
-        run: npx playwright test --config playwright.admin-access.config.ts
-      - name: Upload recruiter job builder visual QA
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase3-job-builder-visuals
-          path: frontend/visual-artifacts/phase3-job-builder
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload recruiter job analytics visual QA
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase3-job-analytics-visuals
-          path: frontend/visual-artifacts/phase3-job-analytics
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload recruiter bulk job visual QA
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase3-bulk-job-visuals
-          path: frontend/visual-artifacts/phase3-bulk-jobs
-          if-no-files-found: ignore
-          retention-days: 7
- -count=1
+        run: go test -race ./internal/recruiter -run TestRecruiterJobSecurityIsolatedDatabase -count=1
       - name: Roll back all migrations
         run: |
           set -euo pipefail
