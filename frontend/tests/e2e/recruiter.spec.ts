@@ -109,6 +109,39 @@ test.describe("job applicant workspace", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   });
 
+  test("requires confirmation before governed bulk job actions", async ({ page }) => {
+    await login(page, "recruiter");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/recruiter/jobs");
+
+    await page.getByLabel("Select SWX-JOB-2026-00001 Senior Go Platform Engineer").check();
+    await expect(page.getByText("1 selected on this page")).toBeVisible();
+    await page.getByLabel("Bulk action").selectOption("pause");
+    await page.getByRole("button", { name: "Review action" }).click();
+    await expect(page.getByRole("alertdialog", { name: "Confirm bulk job action" })).toContainText("Pause 1 selected job?");
+
+    const mutation = page.waitForRequest((request) => new URL(request.url()).pathname === "/api/v1/recruiter/jobs/bulk" && request.method() === "POST");
+    await page.getByRole("button", { name: "Confirm Pause" }).click();
+    expect((await mutation).postDataJSON()).toEqual({
+      job_ids: ["60000000-0000-4000-8000-000000000001"],
+      action: "pause",
+    });
+    await expect(page.getByRole("status")).toContainText("1 changed");
+  });
+
+  test("offers only organization-scoped recruiters for bulk reassignment", async ({ page }) => {
+    await login(page, "recruiter");
+    await page.goto("/recruiter/jobs");
+    await page.getByLabel("Select SWX-JOB-2026-00001 Senior Go Platform Engineer").check();
+    await page.getByLabel("Bulk action").selectOption("reassign");
+    const recruiter = page.getByLabel("Assign recruiter");
+    await expect(recruiter).toContainText("Riya Recruiter");
+    await expect(recruiter).toContainText("Kabir Recruiter");
+    await recruiter.selectOption("20000000-0000-4000-8000-000000000002");
+    await page.getByRole("button", { name: "Review action" }).click();
+    await expect(page.getByRole("alertdialog", { name: "Confirm bulk job action" })).toContainText("Kabir Recruiter");
+  });
+
   test("shows the stable job reference and opens applicants from job management", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs");

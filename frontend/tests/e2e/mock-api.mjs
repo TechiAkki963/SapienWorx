@@ -474,6 +474,19 @@ const server = http.createServer(async (req, res) => {
     { user_id: recruiterID, full_name: "Riya Recruiter", designation: "Senior Recruiter" },
     { user_id: "20000000-0000-4000-8000-000000000002", full_name: "Kabir Recruiter", designation: "Healthcare Recruiter" },
   ] });
+  if (url.pathname === "/api/v1/recruiter/jobs/bulk" && req.method === "POST") {
+    const ids = Array.from(new Set(Array.isArray(payload.job_ids) ? payload.job_ids : []));
+    return json(res, 200, {
+      operation_id: "91000000-0000-4000-8000-000000000001",
+      requested_count: Array.isArray(payload.job_ids) ? payload.job_ids.length : 0,
+      unique_count: ids.length,
+      succeeded_count: ids.length,
+      unchanged_count: 0,
+      failed_count: 0,
+      status: "succeeded",
+      items: ids.map((id) => ({ job_id: id, outcome: "succeeded" })),
+    });
+  }
   if (url.pathname === "/api/v1/recruiter/dashboard" && req.method === "GET") return json(res, 200, {
     recruiter_name: "Riya Recruiter",
     company_name: "Sapien Labs India",

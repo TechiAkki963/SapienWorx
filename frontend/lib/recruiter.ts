@@ -139,6 +139,16 @@ export type RecruiterTeamMember = {
   full_name: string;
   designation?: string;
 };
+export type BulkJobActionResult = {
+  operation_id: string;
+  requested_count: number;
+  unique_count: number;
+  succeeded_count: number;
+  unchanged_count: number;
+  failed_count: number;
+  status: "succeeded" | "partial" | "failed" | "unchanged";
+  items: { job_id: string; outcome: "succeeded" | "unchanged" | "failed"; error_code?: string }[];
+};
 export type JobAuditEvent = {
   id: string;
   action: string;

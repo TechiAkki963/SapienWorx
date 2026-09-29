@@ -1,10 +1,11 @@
 import Link from "next/link";
 
+import { BulkJobToolbar } from "@/components/recruiter/bulk-job-toolbar";
 import { JobShareMenu } from "@/components/recruiter/job-share-menu";
 import { JobStatusControl } from "@/components/recruiter/job-status-control";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
-import { RecruiterJob, RecruiterJobWorkspace, compactDate, label } from "@/lib/recruiter";
+import { RecruiterJob, RecruiterJobWorkspace, RecruiterTeamMember, compactDate, label } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
 
 export const dynamic = "force-dynamic";
@@ -75,7 +76,11 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
   if (roleCategory) query.set("role_category", roleCategory);
   if (deadline) query.set("deadline", deadline);
 
-  const result = await recruiterAPI<RecruiterJobWorkspace>(`/api/v1/recruiter/jobs?${query.toString()}`);
+  const [result, teamResponse] = await Promise.all([
+    recruiterAPI<RecruiterJobWorkspace>(`/api/v1/recruiter/jobs?${query.toString()}`),
+    recruiterAPI<{ items: RecruiterTeamMember[] }>("/api/v1/recruiter/team"),
+  ]);
+  const team = teamResponse.items;
   const pageCount = Math.max(1, Math.ceil(result.total / result.limit));
   const hasFilters = Boolean(q || status || employmentType || workMode || roleCategory || deadline || sort !== "updated");
   const pageHref = (next: number) => {
@@ -167,6 +172,8 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
           {status === "active" && deadline !== "soon" && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-indigo/20 bg-indigo-soft/40 px-3 py-2 text-xs font-semibold text-navy"><span>Showing active jobs.</span><Link href="/recruiter/jobs" className="text-indigo hover:underline">Show all jobs</Link></div>}
         </section>
 
+        {result.items.length > 0 && <BulkJobToolbar team={team} pageJobCount={result.items.length} />}
+
         <section aria-label="Jobs" className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-semibold text-ink-muted">Showing {result.items.length ? (result.page - 1) * result.limit + 1 : 0}–{Math.min(result.page * result.limit, result.total)} of {result.total} matching jobs</p>
@@ -179,6 +186,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
                 <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
                   <thead className="bg-slate-50/90 text-[10px] font-extrabold uppercase tracking-[0.08em] text-ink-muted">
                     <tr>
+                      <th className="w-10 px-3 py-3"><span className="sr-only">Select</span></th>
                       <th className="px-4 py-3">Job</th>
                       <th className="px-3 py-3">Status</th>
                       <th className="px-3 py-3">Function / mode</th>
@@ -191,6 +199,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
                   <tbody className="divide-y divide-line/60">
                     {result.items.map((job) => (
                       <tr key={job.id} className="align-top hover:bg-slate-50/45">
+                        <td className="px-3 py-3"><input type="checkbox" data-bulk-job-id={job.id} aria-label={`Select ${job.job_reference} ${job.title}`} className="h-4 w-4 rounded border-line accent-indigo" /></td>
                         <td className="px-4 py-3">
                           <p className="text-[10px] font-extrabold tracking-[0.06em] text-indigo">{job.job_reference}</p>
                           <p className="mt-0.5 max-w-[20rem] font-bold text-navy">{job.title}</p>
@@ -217,6 +226,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
               <div className="grid gap-3 lg:hidden">
                 {result.items.map((job) => (
                   <article key={job.id} className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_4px_20px_rgba(16,33,63,0.04)]">
+                    <div className="mb-3 flex items-center gap-2 border-b border-line/60 pb-3"><input type="checkbox" data-bulk-job-id={job.id} aria-label={`Select ${job.job_reference} ${job.title}`} className="h-4 w-4 rounded border-line accent-indigo" /><span className="text-xs font-bold text-ink-muted">Select vacancy</span></div>
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-extrabold tracking-[0.06em] text-indigo">{job.job_reference}</p>
