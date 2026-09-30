@@ -76,11 +76,8 @@ func (s *Service) RecordSearch(ctx context.Context, recruiterID string, filters 
 	if err != nil || len(raw) > 8192 {
 		return ErrInvalid
 	}
-	_, err = s.db.Exec(ctx, `DELETE FROM recruiter_search_activity WHERE recruiter_id=$1 AND filters=$2::jsonb`, recruiterID, string(raw))
-	if err != nil {
-		return err
-	}
-	_, err = s.db.Exec(ctx, `INSERT INTO recruiter_search_activity(recruiter_id,filters) VALUES($1,$2::jsonb)`, recruiterID, string(raw))
+	_, err = s.db.Exec(ctx, `INSERT INTO recruiter_search_activity(recruiter_id,filters) VALUES($1,$2::jsonb)
+		ON CONFLICT (recruiter_id,filters) DO UPDATE SET created_at=now()`, recruiterID, string(raw))
 	return err
 }
 
