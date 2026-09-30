@@ -43,7 +43,9 @@ export default async function DiscoverTalentPage({ searchParams }: Props) {
     else throw cause;
   }
   const pages = result ? Math.max(1, Math.ceil(result.total / result.limit)) : 1;
-  const [{items:savedSearches},{items:recentSearches}] = await Promise.all([recruiterAPI<{items:SavedSearch[]}>("/api/v1/recruiter/saved-searches"), recruiterAPI<{items:RecentSearch[]}>("/api/v1/recruiter/recent-searches")]);
+  const [savedResult,recentResult] = await Promise.allSettled([recruiterAPI<{items:SavedSearch[]}>("/api/v1/recruiter/saved-searches"), recruiterAPI<{items:RecentSearch[]}>("/api/v1/recruiter/recent-searches")]);
+  const savedSearches = savedResult.status === "fulfilled" ? savedResult.value.items : [];
+  const recentSearches = recentResult.status === "fulfilled" ? recentResult.value.items : [];
   const searchHref=(values:Record<string,string>)=>{const p=new URLSearchParams();for(const name of names)if(values[name])p.set(name,values[name]);return `/recruiter/discover?${p}`};
 
   return <RecruiterShell><div className="grid gap-5 pb-24">
