@@ -42,7 +42,7 @@ func TestDiscoverySortModes(t *testing.T) {
 }
 
 func TestDiscoveryDiversityOptInPredicateFailsClosed(t *testing.T) {
-	source := `CASE WHEN lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true'`
+	source := discoveryDiversityOptIn
 	if !strings.Contains(source, "='true'") {
 		t.Fatal("diversity opt-in must require an explicit true value")
 	}
