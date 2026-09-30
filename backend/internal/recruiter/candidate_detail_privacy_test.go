@@ -39,8 +39,8 @@ func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 
 func TestRecruiterVisibleCandidateDetailsSanitizesProfessionalRecords(t *testing.T) {
 	input := map[string]any{
-		"projects": []any{map[string]any{"title": "Payments migration", "description": "Moved payment flows.", "private_note": "do not expose"}},
-		"accomplishments": []any{map[string]any{"title": "Top performer", "issuer": "Example Ltd", "private_note": "hidden"}},
+		"projects":           []any{map[string]any{"title": "Payments migration", "description": "Moved payment flows.", "private_note": "do not expose"}},
+		"accomplishments":    []any{map[string]any{"title": "Top performer", "issuer": "Example Ltd", "private_note": "hidden"}},
 		"professional_links": []any{map[string]any{"label": "Portfolio", "url": "https://example.com", "token": "secret"}},
 	}
 	got := recruiterVisibleCandidateDetails(input)
