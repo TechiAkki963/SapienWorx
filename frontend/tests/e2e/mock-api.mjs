@@ -668,7 +668,13 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
     saved: false, current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
-    profile_completion: 65, last_active_at: now(), profile_updated_at: now(), details: {},
+    profile_completion: 65, last_active_at: now(), profile_updated_at: now(), has_company_application: true, can_view_cv: true, can_view_contact: true, can_collaborate: true, details: {},
+  });
+  if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000002" && req.method === "GET") return json(res, 200, {
+    user_id: "71000000-0000-4000-8000-000000000002", full_name: "Meera Nair", headline: "Critical care nursing professional",
+    saved: false, current_city: "Navi Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 72,
+    profile_completion: 82, last_active_at: now(), profile_updated_at: now(), has_company_application: false, can_view_cv: false, can_view_contact: false, can_collaborate: false,
+    details: { professional_summary: "Critical care nursing professional focused on patient safety.", languages: [{ language: "English", proficiency: "Professional" }, { language: "Marathi", proficiency: "Native" }] },
   });
   if (url.pathname === "/api/v1/recruiter/discover" && req.method === "GET") return json(res, 200, { items: [
     {id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",designation:"Operations Manager",current_company:"Meridian Logistics",current_city:"Mumbai",current_state:"Maharashtra",experience_months:96,notice_period_days:30,preferred_locations:"Mumbai, Pune",skills:["Operations","Vendor Management","SAP"],education:"MBA · Operations",updated_at:now()},
