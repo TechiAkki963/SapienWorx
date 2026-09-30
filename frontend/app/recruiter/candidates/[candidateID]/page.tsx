@@ -47,6 +47,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
   const employment = records(candidate.details, "employment");
   const skills = records(candidate.details, "it_skills");
   const education = records(candidate.details, "education");
+  const languages = records(candidate.details, "languages");
   const initials = candidate.full_name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
 
   const returnTarget = query.from === "discover" ? "/recruiter/discover" : query.from === "talent-pool" ? "/recruiter/talent-pool" : query.job_id ? `/recruiter/pipeline?job_id=${encodeURIComponent(query.job_id)}` : "/recruiter/pipeline";
@@ -132,6 +133,13 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                     {education.length ? education.map((item, index) => (
                       <div key={index} className="rounded-xl border border-line/70 p-4"><p className="font-bold text-ink">{recordText(item, "education")}</p><p className="mt-1 text-sm text-ink-muted">{recordText(item, "university")}</p><p className="mt-2 text-xs text-ink-muted">{recordText(item, "specialization")}</p></div>
                     )) : <p className="text-sm text-ink-muted">No education added.</p>}
+                  </div>
+                </section>
+
+                <section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <div className="flex items-center justify-between gap-3"><h2 className="text-base font-bold text-navy">Languages</h2><span className="text-xs font-semibold text-ink-muted">{languages.length} listed</span></div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {languages.length ? languages.map((item, index) => <span key={index} className="rounded-full border border-line bg-slate-50 px-3 py-1.5 text-xs font-semibold text-ink">{recordText(item, "language")} · {recordText(item, "proficiency")}</span>) : <p className="text-sm text-ink-muted">No languages added.</p>}
                   </div>
                 </section>
               </div>
