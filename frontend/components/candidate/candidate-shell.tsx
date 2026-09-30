@@ -3,14 +3,16 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { CandidateNav } from "@/components/candidate/candidate-nav";
+import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 
 export function CandidateShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f6f8fc] text-ink">
+    <div className="theme-surface min-h-screen bg-[#f6f8fc] text-ink">
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/95">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[96rem] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/candidate" aria-label="Candidate dashboard"><Wordmark /></Link>
           <div className="flex items-center gap-2">
+            <ThemeModeControl compact />
             <Link className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-ink-muted transition hover:bg-slate-50 hover:text-ink sm:block" href="/">Public site</Link>
             <LogoutButton />
           </div>
