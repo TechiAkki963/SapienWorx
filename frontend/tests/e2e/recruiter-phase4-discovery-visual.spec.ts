@@ -27,7 +27,7 @@ test("Discovery opens sourced Candidate 360 without exposing application-private
  await expect(page.getByRole("link",{name:"Back to discovery"})).toBeVisible();
  await expect(page.getByText("CV remains private until the candidate applies to your company.")).toBeVisible();
  await expect(page.getByText("Private until application",{exact:true})).toHaveCount(2);
- await expect(page.getByRole("button",{name:/download cv/i})).toHaveCount(0);
+ await expect(page.getByRole("button",{name:/open (private )?cv/i})).toHaveCount(0);
  await expect(page.getByRole("button",{name:/view contact/i})).toHaveCount(0);
  await expect(page.getByText("Internal application notes become available after the candidate applies to your company.")).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),"sourced Candidate 360 horizontal overflow").toBeTruthy();
