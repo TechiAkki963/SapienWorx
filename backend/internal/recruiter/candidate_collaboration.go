@@ -75,7 +75,7 @@ func (s *Service) CandidateContact(ctx context.Context, recruiterID, candidateID
 	}
 	defer tx.Rollback(ctx)
 	var contact CandidateContact
-	err = tx.QueryRow(ctx, `SELECT u.phone_e164,cp.alternate_phone_e164 FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1 AND cp.contact_reveal_enabled AND lower(trim(coalesce(cp.profile_details->>'private_contact','false')))='false'`, candidateID).Scan(&contact.Primary, &contact.Alternate)
+	err = tx.QueryRow(ctx, `SELECT u.phone_e164,cp.alternate_phone_e164 FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1 AND cp.contact_reveal_enabled AND `+candidateContactPublicPredicate+``, candidateID).Scan(&contact.Primary, &contact.Alternate)
 	if errors.Is(err, pgx.ErrNoRows) || (err == nil && contact.Primary == nil && contact.Alternate == nil) {
 		return CandidateContact{}, ErrNotFound
 	}
