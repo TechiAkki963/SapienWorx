@@ -436,7 +436,7 @@ a {
   --color-peach: #2a1d19;
   --color-peach-strong: #5b3429;
   --color-violet-ink: #93c5fd;
-  --color-navy: #dbeafe;
+  --color-navy: #172554;
   color-scheme: dark;
 }
 .swx-dark html,
@@ -468,6 +468,7 @@ a {
 .swx-dark .theme-surface [class*="border-[#e"] {
   border-color: #273449 !important;
 }
+.swx-dark .theme-surface .text-navy { color: #dbeafe !important; }
 .swx-dark .theme-surface [class*="text-slate-900"],
 .swx-dark .theme-surface [class*="text-slate-800"],
 .swx-dark .theme-surface [class*="text-slate-700"] {
