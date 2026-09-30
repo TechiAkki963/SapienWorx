@@ -6,13 +6,14 @@ test.beforeEach(async({request})=>resetE2E(request));
 test("Phase 4 recruiter candidate discovery is responsive and actionable",async({page})=>{
  test.setTimeout(180000);await login(page,"recruiter");await fs.mkdir("visual-artifacts/phase4-discovery",{recursive:true});
  for(const v of viewports){await page.setViewportSize({width:v.width,height:v.height});await page.goto("/recruiter/discover");
-  await expect(page.getByRole("heading",{name:"Discover Talent"})).toBeVisible();await expect(page.getByText("Aarav Mehta")).toBeVisible();await expect(page.getByText("Meera Nair")).toBeVisible();if(v.width<1280){await expect(page.getByText("Search & filters",{exact:true})).toBeVisible();await page.getByText("Search & filters",{exact:true}).click();await expect(page.getByText("Diversity sourcing")).toBeVisible();}else{await expect(page.getByText("Diversity sourcing")).toBeVisible();}await expect(page.getByText("Saved searches")).toBeVisible();
+  await expect(page.getByRole("heading",{name:"Discover Talent"})).toBeVisible();await expect(page.getByText("Aarav Mehta")).toBeVisible();await expect(page.getByText("Meera Nair")).toBeVisible();if(v.width<1280){const summary=page.locator("summary").filter({hasText:"Search & filters"});await expect(summary).toBeVisible();await summary.click();await expect(page.getByText("Diversity sourcing")).toBeVisible();}else{await expect(page.getByText("Diversity sourcing")).toBeVisible();}await expect(page.getByText("Saved searches")).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${v.name} horizontal overflow`).toBeTruthy();
-  if(v.width<1280){await page.getByText("Search & filters",{exact:true}).click();}await page.evaluate(()=>{window.scrollTo(0,0);document.querySelectorAll("nextjs-portal").forEach(x=>x.remove())});await page.screenshot({path:`visual-artifacts/phase4-discovery/discover-${v.name}.png`,fullPage:true});
+  if(v.width<1280){await page.locator("summary").filter({hasText:"Search & filters"}).click();}await page.evaluate(()=>{window.scrollTo(0,0);document.querySelectorAll("nextjs-portal").forEach(x=>x.remove())});await page.screenshot({path:`visual-artifacts/phase4-discovery/discover-${v.name}.png`,fullPage:true});
  }
 });
 test("Phase 4 can save a search and add a discoverable candidate to Talent Pool",async({page})=>{
  await login(page,"recruiter");await page.goto("/recruiter/discover?industry=Logistics&location=Mumbai");
+ const filterSummary=page.locator("summary").filter({hasText:"Search & filters"});if(await filterSummary.isVisible())await filterSummary.click();
  await page.getByPlaceholder("e.g. Mumbai sales leaders").fill("Mumbai logistics leaders");const save=page.waitForRequest(r=>new URL(r.url()).pathname==="/api/v1/recruiter/saved-searches"&&r.method()==="POST");await page.getByRole("button",{name:"Save search"}).click();expect((await save).postDataJSON()).toMatchObject({name:"Mumbai logistics leaders"});
  const pool=page.waitForRequest(r=>/\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(new URL(r.url()).pathname)&&r.method()==="PUT");await page.getByRole("button",{name:"Add to Talent Pool"}).first().click();expect((await pool).postDataJSON()).toEqual({tags:[]});await expect(page.getByText("Added to Talent Pool")).toBeVisible();
 });
