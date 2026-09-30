@@ -48,6 +48,9 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
   const skills = records(candidate.details, "it_skills");
   const education = records(candidate.details, "education");
   const languages = records(candidate.details, "languages");
+  const projects = records(candidate.details, "projects");
+  const accomplishments = records(candidate.details, "accomplishments");
+  const professionalLinks = records(candidate.details, "professional_links");
   const initials = candidate.full_name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
 
   const returnTarget = query.from === "discover" ? "/recruiter/discover" : query.from === "talent-pool" ? "/recruiter/talent-pool" : query.job_id ? `/recruiter/pipeline?job_id=${encodeURIComponent(query.job_id)}` : "/recruiter/pipeline";
@@ -140,6 +143,15 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                   <div className="flex items-center justify-between gap-3"><h2 className="text-base font-bold text-navy">Languages</h2><span className="text-xs font-semibold text-ink-muted">{languages.length} listed</span></div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {languages.length ? languages.map((item, index) => <span key={index} className="rounded-full border border-line bg-slate-50 px-3 py-1.5 text-xs font-semibold text-ink">{recordText(item, "language")} · {recordText(item, "proficiency")}</span>) : <p className="text-sm text-ink-muted">No languages added.</p>}
+                  </div>
+                </section>
+
+                {(projects.length > 0 || accomplishments.length > 0 || professionalLinks.length > 0) && <section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <h2 className="text-base font-bold text-navy">Professional highlights</h2>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {projects.map((item, index) => <article key={`project-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Project</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name")}</p><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p></article>)}
+                    {accomplishments.map((item, index) => <article key={`accomplishment-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name")}</p><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p></article>)}
+                    {professionalLinks.map((item, index) => <article key={`link-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "label") !== "—" ? recordText(item, "label") : recordText(item, "name")}</p><p className="mt-2 break-all text-xs leading-5 text-ink-muted">{recordText(item, "url")}</p></article>)}
                   </div>
                 </section>
               </div>
