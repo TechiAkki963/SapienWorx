@@ -1,6 +1,9 @@
 package recruiter
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 	input := map[string]any{
@@ -31,5 +34,19 @@ func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 	}
 	if _, exists := employment[0]["current_salary"]; exists {
 		t.Error("employment salary was exposed")
+	}
+}
+
+func TestCandidatePrivacyPredicatesFailClosed(t *testing.T) {
+	for name, predicate := range map[string]string{
+		"discovery": candidateDiscoverablePredicate,
+		"contact":   candidateContactPublicPredicate,
+	} {
+		if !strings.Contains(predicate, "='true'") && name == "discovery" {
+			t.Fatalf("%s predicate must require explicit true", name)
+		}
+		if strings.Contains(predicate, "::boolean") {
+			t.Fatalf("%s predicate must not cast profile JSON text to boolean", name)
+		}
 	}
 }
