@@ -30,6 +30,17 @@ function recordText(item: RecordItem, key: string) {
   return value == null || String(value).trim() === "" ? "—" : String(value);
 }
 
+function safeExternalURL(item: RecordItem, key = "url") {
+  const value = item[key];
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 function formatDate(value?: string) {
   if (!value) return "—";
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -149,9 +160,21 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                 {(projects.length > 0 || accomplishments.length > 0 || professionalLinks.length > 0) && <section className="rounded-2xl border border-line/70 bg-white p-5">
                   <h2 className="text-base font-bold text-navy">Professional highlights</h2>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {projects.map((item, index) => <article key={`project-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Project</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name")}</p><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p></article>)}
-                    {accomplishments.map((item, index) => <article key={`accomplishment-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name")}</p><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p></article>)}
-                    {professionalLinks.map((item, index) => <article key={`link-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "label") !== "—" ? recordText(item, "label") : recordText(item, "name")}</p><p className="mt-2 break-all text-xs leading-5 text-ink-muted">{recordText(item, "url")}</p></article>)}
+                    {projects.map((item, index) => {
+                      const title = recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name");
+                      const url = safeExternalURL(item);
+                      return <article key={`project-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Project</p><p className="mt-1 break-words text-sm font-bold text-ink">{title}</p><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>{url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open project ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View project ↗</a>}</article>;
+                    })}
+                    {accomplishments.map((item, index) => {
+                      const title = recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name");
+                      const url = safeExternalURL(item);
+                      return <article key={`accomplishment-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p><p className="mt-1 break-words text-sm font-bold text-ink">{title}</p><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>{url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open accomplishment ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View credential ↗</a>}</article>;
+                    })}
+                    {professionalLinks.map((item, index) => {
+                      const label = recordText(item, "label") !== "—" ? recordText(item, "label") : recordText(item, "name");
+                      const url = safeExternalURL(item);
+                      return <article key={`link-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p><p className="mt-1 break-words text-sm font-bold text-ink">{label}</p>{url ? <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${label}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">Open link ↗</a> : <p className="mt-2 text-xs text-ink-muted">Link unavailable</p>}</article>;
+                    })}
                   </div>
                 </section>}
               </div>
