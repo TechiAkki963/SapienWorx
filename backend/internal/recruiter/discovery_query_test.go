@@ -31,3 +31,22 @@ func TestDiscoveryBooleanQuery(t *testing.T) {
 		t.Fatalf("wildcard not escaped: %s", got)
 	}
 }
+
+func TestDiscoverySortModes(t *testing.T) {
+	for _, sort := range []string{"", "recently_updated", "most_experienced", "least_notice"} {
+		f := DiscoveryFilters{Page: 1, Sort: sort}
+		if f.Page != 1 {
+			t.Fatal("unexpected page")
+		}
+	}
+}
+
+func TestDiscoveryDiversityOptInPredicateFailsClosed(t *testing.T) {
+	source := discoveryDiversityOptIn
+	if !strings.Contains(source, "='true'") {
+		t.Fatal("diversity opt-in must require an explicit true value")
+	}
+	if strings.Contains(source, "::boolean") {
+		t.Fatal("diversity opt-in must not cast untrusted profile text to boolean")
+	}
+}

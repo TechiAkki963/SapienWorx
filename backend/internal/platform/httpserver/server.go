@@ -125,6 +125,9 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 
 	mux.Handle("GET /api/v1/recruiter/dashboard", Chain(http.HandlerFunc(s.recruiterDashboard), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/discover", Chain(http.HandlerFunc(s.recruiterDiscover), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/saved-searches", Chain(http.HandlerFunc(s.recruiterSavedSearches), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/saved-searches", Chain(http.HandlerFunc(s.recruiterSavedSearches), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/recent-searches", Chain(http.HandlerFunc(s.recruiterRecentSearches), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/company/branding", Chain(http.HandlerFunc(s.recruiterCompanyBranding), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/company/branding", Chain(http.HandlerFunc(s.recruiterCompanyBranding), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/team", Chain(http.HandlerFunc(s.recruiterTeam), protected, recruiterOnly))

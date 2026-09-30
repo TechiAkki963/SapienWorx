@@ -46,14 +46,9 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
     if (!container || window.innerWidth >= 1024) return;
     const active = container.querySelector<HTMLElement>('[aria-current="page"]');
     if (!active) return;
-    const containerBox = container.getBoundingClientRect();
-    const activeBox = active.getBoundingClientRect();
-    if (activeBox.left < containerBox.left || activeBox.right > containerBox.right) {
-      container.scrollBy({
-        left: activeBox.left - containerBox.left - 12,
-        behavior: "auto",
-      });
-    }
+    const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+    const target = Math.min(maxScroll, Math.max(0, active.offsetLeft - 12));
+    container.scrollTo({ left: target, behavior: "auto" });
   }, [path]);
   useEffect(() => {
     let active = true;
