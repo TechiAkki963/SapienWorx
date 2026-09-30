@@ -25,6 +25,11 @@ async function assertRoleData(page: import("@playwright/test").Page, role: "cand
   }
 }
 
+async function chooseMode(page: import("@playwright/test").Page, label: "System" | "Light" | "Dark") {
+  await page.getByTitle("Appearance").click();
+  await page.getByTitle(label + " mode").click();
+}
+
 async function captureModes(
   page: import("@playwright/test").Page,
   role: "candidate" | "recruiter" | "master_admin",
@@ -36,20 +41,20 @@ async function captureModes(
   await page.goto(destination);
   await assertRoleData(page, role);
 
-  await page.getByTitle("Light mode").click();
+  await chooseMode(page, "Light");
   await expect(page.locator("html")).not.toHaveClass(/swx-dark/);
   await assertRoleData(page, role);
   await assertNoHorizontalOverflow(page, role + " light mode");
   await page.screenshot({ path: `visual-artifacts/theme-modes/${role}-light.png`, fullPage: true });
 
-  await page.getByTitle("Dark mode").click();
+  await chooseMode(page, "Dark");
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
   await assertRoleData(page, role);
   await assertNoHorizontalOverflow(page, role + " dark mode");
   await page.screenshot({ path: `visual-artifacts/theme-modes/${role}-dark.png`, fullPage: true });
 
   await page.emulateMedia({ colorScheme: "dark" });
-  await page.getByTitle("System mode").click();
+  await chooseMode(page, "System");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "system");
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
   await assertRoleData(page, role);
