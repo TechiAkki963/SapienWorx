@@ -101,9 +101,9 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 	like(`cp.profile_details->>'languages' ILIKE $%d ESCAPE '\'`, f.Languages)
 	like(`cp.profile_details->>'certifications' ILIKE $%d ESCAPE '\'`, f.Certifications)
 	like(`cp.profile_details->>'availability' ILIKE $%d ESCAPE '\'`, f.Availability)
-	like(`CASE WHEN coalesce((cp.profile_details->>'diversity_search_opt_in')::boolean,false) THEN cp.profile_details->>'gender' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Gender)
-	like(`CASE WHEN coalesce((cp.profile_details->>'diversity_search_opt_in')::boolean,false) THEN cp.profile_details->>'disability_status' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Disability)
-	like(`CASE WHEN coalesce((cp.profile_details->>'diversity_search_opt_in')::boolean,false) THEN cp.profile_details->>'defence_background' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.DefenceBackground)
+	like(`CASE WHEN lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true' THEN cp.profile_details->>'gender' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Gender)
+	like(`CASE WHEN lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true' THEN cp.profile_details->>'disability_status' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Disability)
+	like(`CASE WHEN lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true' THEN cp.profile_details->>'defence_background' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.DefenceBackground)
 	if f.MinExperience > 0 {
 		args = append(args, f.MinExperience*12)
 		conditions = append(conditions, fmt.Sprintf("cp.total_experience_months >= $%d", len(args)))
