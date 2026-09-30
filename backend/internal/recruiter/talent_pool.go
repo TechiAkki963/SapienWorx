@@ -63,7 +63,7 @@ func (s *Service) SaveToTalentPool(ctx context.Context, recruiterID, candidateID
 	}
 
 	var exists bool
-	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM candidate_profiles cp WHERE cp.user_id=$1 AND (coalesce((cp.profile_details->>'discoverable_to_recruiters')::boolean,false) OR EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2)))`, candidateID, companyID).Scan(&exists); err != nil {
+	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM candidate_profiles cp WHERE cp.user_id=$1 AND (lower(trim(coalesce(cp.profile_details->>'discoverable_to_recruiters','')))='true' OR EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2)))`, candidateID, companyID).Scan(&exists); err != nil {
 		return TalentPoolMembership{}, err
 	}
 	if !exists {
