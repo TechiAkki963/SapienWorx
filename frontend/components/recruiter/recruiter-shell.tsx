@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
+import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 import { RecruiterDashboard } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
 import type { ThreadListResponse } from "@/lib/messaging";
@@ -22,7 +23,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
   const unreadCount = conversations?.items?.reduce((total, thread) => total + thread.unread_count, 0) ?? 0;
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb] text-ink">
+    <div className="theme-surface min-h-screen bg-[#f5f7fb] text-ink">
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/95">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[108rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/recruiter" aria-label="Recruiter dashboard" className="shrink-0"><Wordmark /></Link>
@@ -36,6 +37,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
           </form>
 
           <div className="ml-auto flex items-center gap-2">
+            <ThemeModeControl compact />
             <Link href="/recruiter/interviews" aria-label={`Interview reminders${workspace?.upcoming_interviews ? `, ${workspace.upcoming_interviews} upcoming` : ""}`} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-white text-ink-muted transition hover:bg-slate-50 hover:text-ink">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.8]"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8M10 20h4" /></svg>
               {!!workspace?.upcoming_interviews && <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-indigo px-1.5 py-0.5 text-center text-[9px] font-extrabold text-white">{Math.min(workspace.upcoming_interviews, 99)}</span>}
