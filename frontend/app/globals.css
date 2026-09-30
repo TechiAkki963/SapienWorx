@@ -469,6 +469,7 @@ a {
   border-color: #273449 !important;
 }
 .swx-dark .theme-surface .text-navy { color: #dbeafe !important; }
+.swx-dark .theme-surface [class*="text-slate-950"],
 .swx-dark .theme-surface [class*="text-slate-900"],
 .swx-dark .theme-surface [class*="text-slate-800"],
 .swx-dark .theme-surface [class*="text-slate-700"] {
@@ -487,4 +488,11 @@ a {
 .swx-dark .theme-surface input::placeholder,
 .swx-dark .theme-surface textarea::placeholder {
   color: #7f8da3;
+}
+
+.swx-dark .theme-surface [class*="bg-[#edf1ff]"] {
+  background-color: #1e2b4d !important;
+}
+.swx-dark .admin-control-plane-banner {
+  background: linear-gradient(135deg, #172554, #111827) !important;
 }
