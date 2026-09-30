@@ -49,6 +49,9 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
   const education = records(candidate.details, "education");
   const initials = candidate.full_name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
 
+  const returnTarget = query.from === "discover" ? "/recruiter/discover" : query.from === "talent-pool" ? "/recruiter/talent-pool" : query.job_id ? `/recruiter/pipeline?job_id=${encodeURIComponent(query.job_id)}` : "/recruiter/pipeline";
+  const returnLabel = query.from === "discover" ? "Back to discovery" : query.from === "talent-pool" ? "Back to talent pool" : "Back to applications";
+
   return (
     <RecruiterShell>
       <div className="grid gap-5">
