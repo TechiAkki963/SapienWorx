@@ -13,7 +13,7 @@ test("Phase 4 recruiter candidate discovery is responsive and actionable",async(
 });
 test("Phase 4 can save a search and add a discoverable candidate to Talent Pool",async({page})=>{
  await login(page,"recruiter");await page.goto("/recruiter/discover?industry=Logistics&location=Mumbai");
- await page.locator('label[for="discovery-filter-toggle"]').click();
+ const responsiveFilter=page.locator('label[for="discovery-filter-toggle"]');if(await responsiveFilter.isVisible())await responsiveFilter.click();
  await page.getByPlaceholder("e.g. Mumbai sales leaders").fill("Mumbai logistics leaders");const save=page.waitForRequest(r=>new URL(r.url()).pathname==="/api/v1/recruiter/saved-searches"&&r.method()==="POST");await page.getByRole("button",{name:"Save search"}).click();expect((await save).postDataJSON()).toMatchObject({name:"Mumbai logistics leaders"});
  const pool=page.waitForRequest(r=>/\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(new URL(r.url()).pathname)&&r.method()==="PUT");await page.getByRole("button",{name:"Add to Talent Pool"}).first().click();expect((await pool).postDataJSON()).toEqual({tags:[]});await expect(page.getByText("Added to Talent Pool")).toBeVisible();
 });
