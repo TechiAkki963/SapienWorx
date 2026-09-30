@@ -54,7 +54,7 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		  AND (
 		    EXISTS (SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2)
 		    OR EXISTS (SELECT 1 FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$3 AND tpm.candidate_id=cp.user_id)
-		    OR ` + candidateDiscoverablePredicate + `
+		    OR `+candidateDiscoverablePredicate+`
 		  )
 	`, candidateUserID, companyID, recruiterUserID).Scan(
 		&detail.UserID,
