@@ -10,6 +10,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+const candidateContactPublicPredicate = `lower(trim(coalesce(cp.profile_details->>'private_contact','false')))='false'`
+
 var candidateUUID = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
 type CandidateContact struct {
