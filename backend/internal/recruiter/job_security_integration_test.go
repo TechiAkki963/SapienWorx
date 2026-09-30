@@ -320,4 +320,72 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 			t.Fatalf("company A analytics count=%d, want 1", analytics.TotalApplications)
 		}
 	})
+
+	t.Run("candidate 360 authorization matrix is tenant and privacy scoped", func(t *testing.T) {
+		appliedCandidate := user("candidate")
+		discoverableCandidate := user("candidate")
+		pooledCandidate := user("candidate")
+		hiddenCandidate := user("candidate")
+		foreignCandidate := user("candidate")
+
+		exec(`UPDATE candidate_profiles
+			SET profile_details=jsonb_build_object(
+				'discoverable_to_recruiters','true',
+				'professional_summary','Safe recruiter-visible summary',
+				'gender','must remain private'
+			)
+			WHERE user_id=$1`, discoverableCandidate)
+		exec(`UPDATE candidate_profiles
+			SET profile_details=jsonb_build_object('discoverable_to_recruiters','malformed-legacy-value')
+			WHERE user_id=$1`, hiddenCandidate)
+		exec(`INSERT INTO talent_pool_memberships(recruiter_id,candidate_id,tags)
+			VALUES($1,$2,ARRAY['phase-5-security'])`, recruiterA, pooledCandidate)
+
+		if _, err := candidateSvc.Apply(ctx, appliedCandidate, jobPublicA); err != nil {
+			t.Fatalf("application fixture rejected: %v", err)
+		}
+		if _, err := candidateSvc.Apply(ctx, foreignCandidate, jobB); err != nil {
+			t.Fatalf("foreign application fixture rejected: %v", err)
+		}
+
+		applied, err := recruiterSvc.CandidateDetail(ctx, recruiterA, appliedCandidate)
+		if err != nil {
+			t.Fatalf("same-company application detail rejected: %v", err)
+		}
+		if !applied.HasCompanyApplication || !applied.CanViewCV || !applied.CanViewContact || !applied.CanCollaborate || applied.Email == "" {
+			t.Fatalf("same-company application capabilities incorrect: %+v", applied)
+		}
+
+		discoverable, err := recruiterSvc.CandidateDetail(ctx, recruiterA, discoverableCandidate)
+		if err != nil {
+			t.Fatalf("discoverable professional detail rejected: %v", err)
+		}
+		if discoverable.HasCompanyApplication || discoverable.CanViewCV || discoverable.CanViewContact || discoverable.CanCollaborate || discoverable.Email != "" {
+			t.Fatalf("discoverable candidate received application-private capabilities: %+v", discoverable)
+		}
+		if discoverable.Details["professional_summary"] != "Safe recruiter-visible summary" {
+			t.Fatalf("professional summary missing: %#v", discoverable.Details)
+		}
+		if _, exposed := discoverable.Details["gender"]; exposed {
+			t.Fatalf("sensitive profile field exposed: %#v", discoverable.Details)
+		}
+
+		pooled, err := recruiterSvc.CandidateDetail(ctx, recruiterA, pooledCandidate)
+		if err != nil {
+			t.Fatalf("own talent-pool candidate detail rejected: %v", err)
+		}
+		if !pooled.Saved || pooled.HasCompanyApplication || pooled.CanViewCV || pooled.CanViewContact || pooled.CanCollaborate || pooled.Email != "" {
+			t.Fatalf("talent-pool candidate capabilities incorrect: %+v", pooled)
+		}
+
+		if _, err := recruiterSvc.CandidateDetail(ctx, recruiterA, hiddenCandidate); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("malformed discoverability must fail closed, got: %v", err)
+		}
+		if _, err := recruiterSvc.CandidateDetail(ctx, recruiterA, foreignCandidate); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("foreign-company application leaked into Candidate 360: %v", err)
+		}
+		if _, err := recruiterSvc.CandidateDetail(ctx, recruiterB, appliedCandidate); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("cross-tenant Candidate 360 access succeeded: %v", err)
+		}
+	})
 }
