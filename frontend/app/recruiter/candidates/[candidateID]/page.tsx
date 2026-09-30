@@ -70,10 +70,6 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
   return (
     <RecruiterShell>
       <div className="grid gap-5">
-        <div className="flex items-center justify-between gap-3">
-          <Link href={returnTarget} className="text-sm font-bold text-indigo hover:underline">← {returnLabel}</Link>
-        </div>
-
         <CandidateProfileView
           candidateID={candidateID}
           candidateName={candidate.full_name}
@@ -82,6 +78,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
           composeOnOpen={query.compose === "1"}
           initialJobID={jobs.some(job => job.id === query.job_id) ? query.job_id : ""}
           requestContact={query.request_contact === "1"}
+          toolbarStart={<Link href={returnTarget} className="inline-flex min-h-10 items-center rounded-xl px-1 text-sm font-bold text-indigo hover:underline">← {returnLabel}</Link>}
         >
           <div className="grid gap-5">
             <section className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-6">
