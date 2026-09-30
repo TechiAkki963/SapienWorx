@@ -61,6 +61,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
   test.setTimeout(240_000);
   await login(page, "recruiter");
   await fs.mkdir("visual-artifacts/phase3-full-workflow", { recursive: true });
+  await fs.mkdir("visual-artifacts/phase5-candidate-360", { recursive: true });
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -100,6 +101,8 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await assertNoHorizontalOverflow(page, `${viewport.name} candidate profile`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/03-candidate-${viewport.name}.png`, fullPage: true });
+    await expect(page.getByText("Candidate 360°", { exact: true })).toBeVisible();
+    await page.screenshot({ path: `visual-artifacts/phase5-candidate-360/candidate-360-${viewport.name}.png`, fullPage: true });
 
     // 4. Deterministic job analytics
     await page.goto(`/recruiter/jobs/${jobID}/analytics`);
