@@ -42,6 +42,7 @@ type DiscoveryList struct {
 const discoveryEmployment = `jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'employment')='array' THEN cp.profile_details->'employment' ELSE '[]'::jsonb END)`
 const discoverySkills = `jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'it_skills')='array' THEN cp.profile_details->'it_skills' ELSE '[]'::jsonb END)`
 const discoveryEducation = `jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'education')='array' THEN cp.profile_details->'education' ELSE '[]'::jsonb END)`
+const discoveryDiversityOptIn = `lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true'`
 
 func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryFilters) (DiscoveryList, error) {
 	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
@@ -101,9 +102,9 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 	like(`cp.profile_details->>'languages' ILIKE $%d ESCAPE '\'`, f.Languages)
 	like(`cp.profile_details->>'certifications' ILIKE $%d ESCAPE '\'`, f.Certifications)
 	like(`cp.profile_details->>'availability' ILIKE $%d ESCAPE '\'`, f.Availability)
-	like(`CASE WHEN lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true' THEN cp.profile_details->>'gender' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Gender)
-	like(`CASE WHEN lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true' THEN cp.profile_details->>'disability_status' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Disability)
-	like(`CASE WHEN lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true' THEN cp.profile_details->>'defence_background' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.DefenceBackground)
+	like(`CASE WHEN `+discoveryDiversityOptIn+` THEN cp.profile_details->>'gender' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Gender)
+	like(`CASE WHEN `+discoveryDiversityOptIn+` THEN cp.profile_details->>'disability_status' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.Disability)
+	like(`CASE WHEN `+discoveryDiversityOptIn+` THEN cp.profile_details->>'defence_background' ELSE NULL END ILIKE $%d ESCAPE '\'`, f.DefenceBackground)
 	if f.MinExperience > 0 {
 		args = append(args, f.MinExperience*12)
 		conditions = append(conditions, fmt.Sprintf("cp.total_experience_months >= $%d", len(args)))
