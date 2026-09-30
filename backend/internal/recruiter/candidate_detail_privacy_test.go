@@ -37,11 +37,10 @@ func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 	}
 }
 
-
 func TestCandidatePrivacyPredicatesFailClosed(t *testing.T) {
 	for name, predicate := range map[string]string{
 		"discovery": candidateDiscoverablePredicate,
-		"contact": candidateContactPublicPredicate,
+		"contact":   candidateContactPublicPredicate,
 	} {
 		if !strings.Contains(predicate, "='true'") && name == "discovery" {
 			t.Fatalf("%s predicate must require explicit true", name)
