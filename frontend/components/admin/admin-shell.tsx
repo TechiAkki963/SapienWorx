@@ -52,7 +52,7 @@ export function AdminShell({ user, access, children }: { user: SessionUser; acce
       <div className="mx-auto grid max-w-[118rem] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:px-8 lg:py-6">
         <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
           <div className="rounded-[1.25rem] border border-[#dfe4f0] bg-white p-2.5 shadow-[0_10px_35px_rgba(23,37,84,0.05)]">
-            <div className="mb-2 rounded-xl bg-gradient-to-br from-[#eef1ff] to-[#f8f7ff] px-3 py-3">
+            <div className="admin-control-plane-banner mb-2 rounded-xl bg-gradient-to-br from-[#eef1ff] to-[#f8f7ff] px-3 py-3">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#5262c9]">SapienWorx Control Plane</p>
               <p className="mt-1 text-xs leading-5 text-slate-500">High-privilege operations are audited.</p>
             </div>
