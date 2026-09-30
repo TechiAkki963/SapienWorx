@@ -15,4 +15,5 @@ CREATE TABLE recruiter_search_activity (
  created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX ix_recruiter_search_activity_owner ON recruiter_search_activity(recruiter_id,created_at DESC);
+CREATE UNIQUE INDEX ux_recruiter_search_activity_filters ON recruiter_search_activity(recruiter_id,filters);
 COMMIT;
