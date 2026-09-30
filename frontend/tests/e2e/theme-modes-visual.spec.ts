@@ -17,7 +17,7 @@ async function assertRoleData(page: import("@playwright/test").Page, role: "cand
     await expect(page.getByRole("heading", { name: "About Me" })).toBeVisible();
   } else if (role === "recruiter") {
     await expect(page.getByRole("heading", { name: "Job management" })).toBeVisible();
-    await expect(page.getByText("SWX-JOB-2026-00001")).toBeVisible();
+    await expect(page.getByRole("table").getByText("SWX-JOB-2026-00001").first()).toBeVisible();
   } else {
     await expect(page.getByRole("heading", { name: "Platform command centre" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Registered users: 4. View records" })).toBeVisible();
