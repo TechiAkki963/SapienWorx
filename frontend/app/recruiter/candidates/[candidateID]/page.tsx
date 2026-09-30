@@ -153,7 +153,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                     {accomplishments.map((item, index) => <article key={`accomplishment-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name")}</p><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p></article>)}
                     {professionalLinks.map((item, index) => <article key={`link-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p><p className="mt-1 break-words text-sm font-bold text-ink">{recordText(item, "label") !== "—" ? recordText(item, "label") : recordText(item, "name")}</p><p className="mt-2 break-all text-xs leading-5 text-ink-muted">{recordText(item, "url")}</p></article>)}
                   </div>
-                </section>
+                </section>}
               </div>
 
               <aside className="grid content-start gap-4">
