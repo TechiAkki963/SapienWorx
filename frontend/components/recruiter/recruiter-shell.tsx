@@ -63,7 +63,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:px-8 lg:py-6">
+      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:px-8 lg:py-6 xl:grid-cols-[11.5rem_minmax(0,1fr)]">
         <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
           <div className="min-w-0 rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]"><RecruiterNav unreadCount={unreadCount} /></div>
         </aside>
