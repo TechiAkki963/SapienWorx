@@ -44,13 +44,13 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
             </Link>
 
             <details className="relative">
-              <summary aria-label={`Account menu for ${recruiterName}`} className="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-line bg-white py-1.5 pl-1.5 pr-2.5 transition hover:bg-slate-50">
+              <summary aria-label={`Account menu for ${recruiterName}`} className="flex cursor-pointer list-none items-center gap-0 rounded-xl border border-line bg-white p-1.5 transition hover:bg-slate-50 sm:gap-2 sm:pr-2.5">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-[10px] font-extrabold text-white">{initials(recruiterName)}</span>
                 <span className="hidden max-w-36 text-left lg:block">
                   <span className="block truncate text-xs font-bold text-ink">{recruiterName}</span>
                   <span className="block truncate text-[10px] text-ink-muted">{companyName}</span>
                 </span>
-                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3 fill-none stroke-current stroke-[1.7] text-ink-muted"><path d="m4 6 4 4 4-4" /></svg>
+                <svg aria-hidden="true" viewBox="0 0 16 16" className="hidden h-3 w-3 fill-none stroke-current stroke-[1.7] text-ink-muted sm:block"><path d="m4 6 4 4 4-4" /></svg>
               </summary>
               <div className="absolute right-0 mt-2 w-60 rounded-xl border border-line bg-white p-2 shadow-[0_16px_44px_rgba(16,33,63,0.14)]">
                 <div className="border-b border-line/70 px-2.5 py-2">
