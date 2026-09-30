@@ -12,7 +12,7 @@ import { recruiterAPI } from "@/lib/recruiter-server";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ candidateID: string }>; searchParams: Promise<{ job_id?: string; compose?: string; request_contact?: string }> };
+type Props = { params: Promise<{ candidateID: string }>; searchParams: Promise<{ job_id?: string; compose?: string; request_contact?: string; from?: string }> };
 type RecordItem = Record<string, unknown>;
 
 function text(details: Record<string, unknown>, key: string) {
@@ -53,7 +53,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
     <RecruiterShell>
       <div className="grid gap-5">
         <div className="flex items-center justify-between gap-3">
-          <Link href={query.job_id ? `/recruiter/pipeline?job_id=${encodeURIComponent(query.job_id)}` : "/recruiter/pipeline"} className="text-sm font-bold text-indigo hover:underline">← Back to applications</Link>
+          <Link href={returnTarget} className="text-sm font-bold text-indigo hover:underline">← {returnLabel}</Link>
         </div>
 
         <CandidateProfileView
@@ -76,7 +76,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-navy text-sm font-extrabold text-white">{initials}</div>
                   )}
                   <div className="min-w-0">
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Candidate profile</p>
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Candidate 360°</p>
                     <h1 className="mt-1 break-words text-2xl font-bold tracking-[-0.035em] text-navy">{candidate.full_name}</h1>
                     <p className="mt-1 text-sm text-ink-muted">{candidate.headline ?? "No professional headline"}</p>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-ink-muted">
