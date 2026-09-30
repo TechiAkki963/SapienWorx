@@ -139,14 +139,14 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
               <aside className="grid content-start gap-4">
                 <section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
-                  <p className="mt-2 text-xs leading-5 text-ink-muted">CV access is authorized only because this candidate has an application with your company. The download link expires automatically.</p>
-                  <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>
+                  <p className="mt-2 text-xs leading-5 text-ink-muted">{candidate.can_view_cv ? "CV access is authorized because this candidate has an application with your company. The download link expires automatically." : "CV remains private until the candidate applies to your company."}</p>
+                  {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
                 </section>
                 <section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
                   <dl className="mt-3 grid gap-3 text-sm">
-                    <div><dt className="text-xs text-ink-muted">Email</dt><dd className="mt-0.5 break-all font-semibold text-ink">{candidate.email}</dd></div>
-                    <div><dt className="text-xs text-ink-muted">Phone</dt><dd className="mt-1"><CandidateContact candidateID={candidateID} /></dd></div>
+                    <div><dt className="text-xs text-ink-muted">Email</dt><dd className="mt-0.5 break-all font-semibold text-ink">{candidate.email || "Private until application"}</dd></div>
+                    <div><dt className="text-xs text-ink-muted">Phone</dt><dd className="mt-1">{candidate.can_view_contact ? <CandidateContact candidateID={candidateID} /> : <span className="text-xs font-semibold text-ink-muted">Private until application</span>}</dd></div>
                     <div><dt className="text-xs text-ink-muted">Preferred locations</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "preferred_locations")}</dd></div>
                   </dl>
                 </section>
