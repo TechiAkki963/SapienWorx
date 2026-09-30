@@ -668,7 +668,18 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
     saved: false, current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
-    profile_completion: 65, last_active_at: now(), profile_updated_at: now(), has_company_application: true, can_view_cv: true, can_view_contact: true, can_collaborate: true, details: {},
+    profile_completion: 92, last_active_at: now(), profile_updated_at: now(), has_company_application: true, can_view_cv: true, can_view_contact: true, can_collaborate: true,
+    details: {
+      professional_summary: "Backend engineer focused on reliable recruitment infrastructure, data quality, and operationally simple services.",
+      current_designation: "Backend Engineer", industry: "Recruitment Technology", department_role: "Engineering / Platform", preferred_locations: "Mumbai, Pune, Remote",
+      employment: [{ company: "Example Systems", job_title: "Backend Engineer", employment_type: "Full time", current_company: "yes", skills_used: "Go, PostgreSQL, Redis", job_profile: "Built and operated recruiter workflow services with auditability and predictable performance." }],
+      it_skills: [{ name: "Go", proficiency: "Advanced" }, { name: "PostgreSQL", proficiency: "Advanced" }, { name: "Redis", proficiency: "Intermediate" }],
+      education: [{ education: "B.E. Computer Engineering", university: "University of Mumbai", specialization: "Computer Engineering" }],
+      languages: [{ language: "English", proficiency: "Professional" }, { language: "Marathi", proficiency: "Native" }],
+      projects: [{ title: "Candidate workflow reliability programme", description: "Reworked asynchronous recruiter workflows to improve traceability, idempotency, and recovery during partial failures across high-volume hiring operations.", role: "Backend Engineer", skills: "Go, PostgreSQL", url: "https://portfolio.example.test/projects/candidate-workflow-reliability-programme/architecture-and-results" }],
+      accomplishments: [{ title: "Operational excellence recognition", issuer: "Example Systems", description: "Recognised for reducing recurring production support incidents through safer defaults and stronger automated regression coverage." }],
+      professional_links: [{ label: "Engineering portfolio", type: "portfolio", url: "https://portfolio.example.test/candidate-001/backend-engineering-and-reliability" }],
+    },
   });
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000002" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000002", full_name: "Meera Nair", headline: "Critical care nursing professional",
