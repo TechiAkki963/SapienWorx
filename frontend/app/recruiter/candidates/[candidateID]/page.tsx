@@ -145,7 +145,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                 <section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
                   <dl className="mt-3 grid gap-3 text-sm">
-                    <div><dt className="text-xs text-ink-muted">Email</dt><dd className="mt-0.5 break-all font-semibold text-ink">{candidate.email || "Private until application"}</dd></div>
+                    <div><dt className="text-xs text-ink-muted">Email</dt><dd className="mt-0.5 break-all font-semibold text-ink">{candidate.has_company_application ? (candidate.email || "Not provided") : "Private until application"}</dd></div>
                     <div><dt className="text-xs text-ink-muted">Phone</dt><dd className="mt-1">{candidate.can_view_contact ? <CandidateContact candidateID={candidateID} /> : <span className="text-xs font-semibold text-ink-muted">Private until application</span>}</dd></div>
                     <div><dt className="text-xs text-ink-muted">Preferred locations</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "preferred_locations")}</dd></div>
                   </dl>
