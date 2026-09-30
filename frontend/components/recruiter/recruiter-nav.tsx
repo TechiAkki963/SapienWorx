@@ -69,9 +69,9 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
     return () => { active = false; window.removeEventListener("sapienworx:unread-change", onChange); document.removeEventListener("visibilitychange", refresh); window.clearInterval(timer); };
   }, []);
   return (
-    <div ref={navScrollRef} className="flex max-w-full gap-3 overflow-x-auto max-[359px]:flex-wrap max-[359px]:gap-1 max-[359px]:overflow-visible lg:grid lg:overflow-visible">
+    <div ref={navScrollRef} className="flex max-w-full gap-3 overflow-x-auto max-[359px]:flex-wrap max-[359px]:gap-1 max-[359px]:overflow-visible lg:grid lg:gap-2 lg:overflow-visible xl:gap-3">
       {sections.map(section => <div key={section.title} className="shrink-0 max-[359px]:max-w-full lg:min-w-0">
-      <p className="hidden px-3 pb-2 pt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink-muted/70 lg:block">{section.title}</p>
+      <p className="hidden px-3 pb-2 pt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink-muted/70 xl:block">{section.title}</p>
       <nav aria-label={section.title} className="flex gap-1 max-[359px]:flex-wrap lg:grid">
         {section.items.map(({ label, href, icon }) => {
           const active = href === "/recruiter" ? path === href : path.startsWith(href);
@@ -81,13 +81,13 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "group flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2",
+                "group relative flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2 lg:justify-center lg:px-0 xl:justify-start xl:px-3",
                 active ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-100 hover:text-ink",
               )}
             >
               <NavIcon name={icon} />
-              <span className={cn(!active && "max-[359px]:sr-only")}>{label}</span>
-              {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="ml-auto rounded-full bg-indigo px-1.5 py-0.5 text-[10px] font-extrabold text-white">{Math.min(unread, 99)}</span>}
+              <span className={cn("lg:sr-only xl:not-sr-only", !active && "max-[359px]:sr-only")}>{label}</span>
+              {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="ml-auto rounded-full bg-indigo px-1.5 py-0.5 text-[10px] font-extrabold text-white lg:absolute lg:-right-1 lg:-top-1 lg:ml-0 xl:static xl:ml-auto">{Math.min(unread, 99)}</span>}
             </Link>
           );
         })}
