@@ -1,6 +1,9 @@
 package recruiter
 
-import (\n\t"strings"\n\t"testing"\n)
+import (
+	"strings"
+	"testing"
+)
 
 func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 	input := map[string]any{
