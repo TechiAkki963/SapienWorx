@@ -189,7 +189,11 @@ export type RecruiterCandidateDetail = {
   user_id: string;
   full_name: string;
   headline?: string;
-  email: string;
+  email?: string;
+  has_company_application: boolean;
+  can_view_cv: boolean;
+  can_view_contact: boolean;
+  can_collaborate: boolean;
   saved: boolean;
   current_city?: string;
   current_state?: string;
