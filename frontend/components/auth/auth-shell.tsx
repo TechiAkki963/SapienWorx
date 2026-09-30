@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { HumanSignal } from "@/components/brand/human-signal";
 import { Wordmark } from "@/components/brand/wordmark";
+import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 
 type Feature = {
   title: string;
@@ -51,7 +52,8 @@ export function AuthShell({
   tone = "lavender",
 }: AuthShellProps) {
   return (
-    <main className="min-h-screen bg-[#f5f8fd] p-3 sm:p-5 lg:p-6">
+    <main className="theme-surface relative min-h-screen bg-[#f5f8fd] p-3 sm:p-5 lg:p-6">
+      <div className="absolute right-4 top-4 z-30"><ThemeModeControl compact /></div>
       <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[96rem] overflow-hidden rounded-[2rem] border border-[#dfe8f4] bg-white shadow-[0_28px_90px_rgba(8,43,91,0.11)] sm:min-h-[calc(100vh-2.5rem)] lg:grid-cols-[1.04fr_0.96fr]">
         <section
           className={`${reverseOnDesktop ? "lg:order-2" : ""} ${toneSurface[tone]} relative hidden min-h-[46rem] overflow-hidden lg:grid lg:grid-rows-[minmax(25rem,58vh)_1fr]`}
