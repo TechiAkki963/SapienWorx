@@ -150,7 +150,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                     <div><dt className="text-xs text-ink-muted">Preferred locations</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "preferred_locations")}</dd></div>
                   </dl>
                 </section>
-                <CandidateComments candidateID={candidateID} jobID={query.job_id} />
+                {candidate.can_collaborate ? <CandidateComments candidateID={candidateID} jobID={query.job_id} /> : <section className="rounded-2xl border border-line/70 bg-white p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Recruiter notes</p><p className="mt-2 text-xs leading-5 text-ink-muted">Internal application notes become available after the candidate applies to your company.</p></section>}
                 <section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Searchable context</p>
                   <dl className="mt-3 grid gap-3 text-sm">
