@@ -35,6 +35,7 @@ type Props = {
   composeOnOpen?: boolean;
   initialJobID?: string;
   requestContact?: boolean;
+  toolbarStart?: ReactNode;
 };
 
 const spring = { type: "spring" as const, stiffness: 245, damping: 28, mass: 0.85 };
@@ -45,7 +46,7 @@ function applyVariables(value: string, candidateName: string, jobTitle: string) 
     .replaceAll("{{JobTitle}}", jobTitle || "{{JobTitle}}");
 }
 
-export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children, composeOnOpen = false, initialJobID = "", requestContact = false }: Props) {
+export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children, composeOnOpen = false, initialJobID = "", requestContact = false, toolbarStart }: Props) {
   const [composerOpen, setComposerOpen] = useState(composeOnOpen);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -154,7 +155,8 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         <div className="grid gap-4">
-          <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="min-w-0">{toolbarStart}</div>
             {!composerOpen && (
               <Button type="button" onClick={() => setComposerOpen(true)} className="shadow-[0_12px_28px_rgba(79,70,229,0.18)]">
                 Send InMail
