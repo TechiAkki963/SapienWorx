@@ -246,9 +246,9 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
               </div>
             </section>
 
-            <div className="candidate-profile-two-column grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:grid-rows-[auto_1fr]">
+            <div className="candidate-profile-two-column grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_1fr] xl:grid-cols-[minmax(0,1fr)_20rem]">
               {selectedJob && (
-                <section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] xl:col-start-2 xl:row-start-1">
+                <section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] lg:col-start-2 lg:row-start-1">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Job match</p>
@@ -297,7 +297,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                 </section>
               )}
 
-              <div className="grid gap-5 xl:col-start-1 xl:row-span-2 xl:row-start-1">
+              <div className="grid gap-5 lg:col-start-1 lg:row-span-2 lg:row-start-1">
                 {candidate.can_collaborate ? (
                   <CandidateComments candidateID={candidateID} jobID={query.job_id} applicationID={candidateApplications[0]?.application_id} />
                 ) : (
@@ -457,7 +457,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                 )}
               </div>
 
-              <aside className="grid content-start gap-4 xl:col-start-2 xl:row-start-2">
+              <aside className="grid content-start gap-4 lg:col-start-2 lg:row-start-2">
                 <section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
                   <p className="mt-2 text-xs leading-5 text-ink-muted">
