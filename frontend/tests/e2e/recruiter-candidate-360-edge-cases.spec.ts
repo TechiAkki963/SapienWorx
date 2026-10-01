@@ -56,7 +56,7 @@ test("Candidate 360 header reveals masked contact, copies on double-click, and l
 
   const masked = page.getByRole("button", { name: /Masked contact \+91.*Single-click to reveal/ });
   await expect(masked).toBeVisible();
-  await expect(masked).toContainText("+91•••••0011");
+  await expect(masked).toContainText("+91••••••0011");
   await masked.click();
   await expect(page.getByRole("button", { name: /Contact \+919900000011/ })).toBeVisible();
 
