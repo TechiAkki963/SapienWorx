@@ -76,15 +76,10 @@ func TestCandidatePrivacyPredicatesFailClosed(t *testing.T) {
 }
 
 
-func TestMaskCandidatePhoneShowsOnlyLastFourDigits(t *testing.T) {
-	cases := map[string]string{
-		"+919876543210": "+••••••3210",
-		"9876543210":    "••••••3210",
-		"1234":          "••••",
-	}
-	for input, want := range cases {
-		if got := maskCandidatePhone(input); got != want {
-			t.Fatalf("maskCandidatePhone(%q)=%q want %q", input, got, want)
+func TestMaskCandidatePhoneHidesEntireNumber(t *testing.T) {
+	for _, input := range []string{"+919876543210", "9876543210", "1234"} {
+		if got := maskCandidatePhone(input); got != "••••••••••" {
+			t.Fatalf("maskCandidatePhone(%q)=%q want fully hidden mask", input, got)
 		}
 	}
 }
