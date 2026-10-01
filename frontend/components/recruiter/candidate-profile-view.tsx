@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, LazyMotion, MotionConfig, domAnimation, m } from "motion/react";
 import Link from "next/link";
 
@@ -60,6 +60,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [sentThreadID, setSentThreadID] = useState("");
+  const openerRef = useRef<HTMLElement | null>(null);
 
   const selectedTemplate = useMemo(
     () => templates.find((template) => template.id === selectedTemplateID),
@@ -70,7 +71,10 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const canSend = subject.trim().length > 0 && body.trim().length > 0 && !unresolvedJobVariable && !sending;
 
   useEffect(() => {
-    const openComposer = () => setComposerOpen(true);
+    const openComposer = () => {
+      openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setComposerOpen(true);
+    };
     window.addEventListener("sapienworx:open-candidate-inmail", openComposer);
     return () => window.removeEventListener("sapienworx:open-candidate-inmail", openComposer);
   }, []);
@@ -133,7 +137,20 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     setComposerOpen(false);
     setError("");
     setSentThreadID("");
+    window.requestAnimationFrame(() => openerRef.current?.focus());
   }
+
+  useEffect(() => {
+    if (!composerOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !sending) {
+        event.preventDefault();
+        closeComposer();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [composerOpen, sending]);
 
   async function sendInMail() {
     if (!canSend) return;
