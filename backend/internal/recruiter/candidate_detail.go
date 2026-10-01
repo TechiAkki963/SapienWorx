@@ -20,6 +20,7 @@ type CandidateDetail struct {
 	CanViewContact        bool           `json:"can_view_contact"`
 	CanCollaborate        bool           `json:"can_collaborate"`
 	Saved                 bool           `json:"saved"`
+	TalentPoolTags        []string       `json:"talent_pool_tags"`
 	CurrentCity           *string        `json:"current_city,omitempty"`
 	CurrentState          *string        `json:"current_state,omitempty"`
 	CountryCode           string         `json:"country_code"`
@@ -47,6 +48,7 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		       cp.total_experience_months,cp.notice_period_days,cp.profile_completion,u.last_active_at,cp.updated_at,
 		       cp.profile_photo,cp.profile_photo_mime,cp.profile_details,
 		       EXISTS(SELECT 1 FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$3 AND tpm.candidate_id=cp.user_id),
+		       COALESCE((SELECT tpm.tags FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$3 AND tpm.candidate_id=cp.user_id), ARRAY[]::text[]),
 		       EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2)
 		FROM candidate_profiles cp
 		JOIN users u ON u.id=cp.user_id
@@ -73,6 +75,7 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		&photoMime,
 		&raw,
 		&detail.Saved,
+		&detail.TalentPoolTags,
 		&detail.HasCompanyApplication,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
