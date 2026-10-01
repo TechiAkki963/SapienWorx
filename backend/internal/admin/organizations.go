@@ -20,6 +20,7 @@ type OrganizationRecord struct {
 	Recruiters         int64     `json:"recruiters"`
 	ActiveJobs         int64     `json:"active_jobs"`
 	Applications       int64     `json:"applications"`
+	CVViewsCurrentMonth int64     `json:"cv_views_current_month"`
 }
 
 type OrganizationList struct {
@@ -54,7 +55,8 @@ func (s *Service) Organizations(ctx context.Context, query, verification, countr
 	rows, err := tx.Query(ctx, `SELECT c.id,c.legal_name,c.display_name,c.website_url,c.work_email_domain,c.country_code,c.verification_status::text,c.created_at,
 	(SELECT count(*) FROM recruiter_profiles rp JOIN users u ON u.id=rp.user_id WHERE rp.company_id=c.id AND u.role='recruiter'),
 	(SELECT count(*) FROM jobs j WHERE j.company_id=c.id AND j.status='active'),
-	(SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=c.id)
+	(SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=c.id),
+	(SELECT COALESCE(sum(sue.quantity),0) FROM subscription_usage_events sue WHERE sue.company_id=c.id AND sue.meter_key='cv_view' AND sue.occurred_at>=date_trunc('month',now()))
 	FROM companies c WHERE `+where+` ORDER BY c.created_at DESC,c.id LIMIT $4 OFFSET $5`, query, verification, country, limit, (page-1)*limit)
 	if err != nil {
 		return OrganizationList{}, err
@@ -62,7 +64,7 @@ func (s *Service) Organizations(ctx context.Context, query, verification, countr
 	defer rows.Close()
 	for rows.Next() {
 		var item OrganizationRecord
-		if err = rows.Scan(&item.ID, &item.LegalName, &item.DisplayName, &item.WebsiteURL, &item.WorkEmailDomain, &item.CountryCode, &item.VerificationStatus, &item.CreatedAt, &item.Recruiters, &item.ActiveJobs, &item.Applications); err != nil {
+		if err = rows.Scan(&item.ID, &item.LegalName, &item.DisplayName, &item.WebsiteURL, &item.WorkEmailDomain, &item.CountryCode, &item.VerificationStatus, &item.CreatedAt, &item.Recruiters, &item.ActiveJobs, &item.Applications, &item.CVViewsCurrentMonth); err != nil {
 			return OrganizationList{}, err
 		}
 		result.Items = append(result.Items, item)
