@@ -190,6 +190,24 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                         <span className="font-bold text-ink">Preferred location:</span> {preferredLocations}
                       </p>
                     )}
+
+                    {candidate.has_company_application && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Verified candidate contact">
+                        {candidate.email && (
+                          <span
+                            title={candidate.email_verified ? "Verified account email · changes require re-verification" : "Candidate email"}
+                            className="inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border border-line/70 bg-white px-2.5 py-1 text-xs font-bold text-navy"
+                          >
+                            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 fill-none stroke-current stroke-[1.8]"><path d="M4 6h16v12H4z" /><path d="m4.5 7 7.5 6 7.5-6" /></svg>
+                            <span className="max-w-[15rem] truncate">{candidate.email}</span>
+                            {candidate.email_verified && <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-emerald-700">Verified</span>}
+                          </span>
+                        )}
+                        {candidate.can_view_contact && candidate.masked_phone && (
+                          <CandidateContact candidateID={candidateID} maskedPhone={candidate.masked_phone} compact />
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -448,20 +466,6 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       : "CV remains private until the candidate applies to your company."}
                   </p>
                   {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
-                </section>
-
-                <section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
-                  <dl className="mt-3 grid gap-3 text-sm">
-                    <div>
-                      <dt className="text-xs text-ink-muted">Email</dt>
-                      <dd className="mt-0.5 break-all font-semibold text-ink">{candidate.has_company_application ? (candidate.email || "Not provided") : "Private until application"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-ink-muted">Phone</dt>
-                      <dd className="mt-1">{candidate.can_view_contact ? <CandidateContact candidateID={candidateID} /> : <span className="text-xs font-semibold text-ink-muted">Private until application</span>}</dd>
-                    </div>
-                  </dl>
                 </section>
 
                 {candidate.can_collaborate && (
