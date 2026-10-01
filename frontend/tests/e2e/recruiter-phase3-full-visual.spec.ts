@@ -102,8 +102,10 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/03-candidate-${viewport.name}.png`, fullPage: true });
     await expect(page.getByText("Candidate 360°", { exact: true })).toBeVisible();
-    await expect(page.getByText("Priority", { exact: true })).toBeVisible();
-    await expect(page.getByText("Go Platform", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Recruiter Notes/ })).toBeVisible();
+    await expect(page.getByText("Preferred location:", { exact: true })).toBeVisible();
+    await expect(page.getByText("8.4 · CGPA / 10", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jan 2024 – Present", { exact: false })).toBeVisible();
     await expect(page.getByText("Recent activity", { exact: true })).toBeVisible();
     await expect(page.getByText("Stage changed to technical interview", { exact: true })).toBeVisible();
     await expect(page.getByText("Recruiter note added", { exact: true })).toBeVisible();
