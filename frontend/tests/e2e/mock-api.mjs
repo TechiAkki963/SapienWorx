@@ -672,10 +672,10 @@ const server = http.createServer(async (req, res) => {
     details: {
       professional_summary: "Backend engineer focused on reliable recruitment infrastructure, data quality, and operationally simple services.",
       current_designation: "Backend Engineer", industry: "Recruitment Technology", department_role: "Engineering / Platform", preferred_locations: "Mumbai, Pune, Remote",
-      employment: [{ company: "Example Systems", job_title: "Backend Engineer", employment_type: "Full time", current_company: "yes", skills_used: "Go, PostgreSQL, Redis", job_profile: "Built and operated recruiter workflow services with auditability and predictable performance." }],
+      employment: [{ company: "Example Systems", job_title: "Backend Engineer", employment_type: "Full time", joining_month: "Jan", joining_year: "2024", end_month: "", end_year: "", current_company: "yes", skills_used: "Go, PostgreSQL, Redis", job_profile: "Built and operated recruiter workflow services with auditability and predictable performance." }],
       it_skills: [{ name: "Go", proficiency: "Advanced" }, { name: "PostgreSQL", proficiency: "Advanced" }, { name: "Redis", proficiency: "Intermediate" }],
-      education: [{ education: "B.E. Computer Engineering", university: "University of Mumbai", specialization: "Computer Engineering" }],
-      languages: [{ language: "English", proficiency: "Professional" }, { language: "Marathi", proficiency: "Native" }],
+      education: [{ education: "B.E. Computer Engineering", university: "University of Mumbai", specialization: "Computer Engineering", grading_system: "CGPA / 10", score: "8.4", start_year: "2018", end_year: "2022" }],
+      languages: [{ language: "English", proficiency: "Professional", read: "Yes", write: "Yes", speak: "Yes" }, { language: "Marathi", proficiency: "Native", read: "Yes", write: "Yes", speak: "Yes" }],
       projects: [{ title: "Candidate workflow reliability programme", description: "Reworked asynchronous recruiter workflows to improve traceability, idempotency, and recovery during partial failures across high-volume hiring operations.", role: "Backend Engineer", skills: "Go, PostgreSQL", url: "https://portfolio.example.test/projects/candidate-workflow-reliability-programme/architecture-and-results" }],
       accomplishments: [{ title: "Operational excellence recognition", issuer: "Example Systems", description: "Recognised for reducing recurring production support incidents through safer defaults and stronger automated regression coverage." }],
       professional_links: [{ label: "Engineering portfolio", type: "portfolio", url: "https://portfolio.example.test/candidate-001/backend-engineering-and-reliability" }],
