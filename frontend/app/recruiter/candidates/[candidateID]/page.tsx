@@ -228,7 +228,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
               </div>
             </section>
 
-            <div className="candidate-profile-two-column grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="candidate-profile-two-column grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:grid-rows-[auto_1fr]">
               {selectedJob && (
                 <section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-[linear-gradient(145deg,#ffffff_0%,#f8f7ff_100%)] p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] xl:col-start-2 xl:row-start-1">
                   <div className="flex items-start justify-between gap-3">
@@ -279,7 +279,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                 </section>
               )}
 
-              <div className="grid gap-5 xl:col-start-1 xl:row-start-1">
+              <div className="grid gap-5 xl:col-start-1 xl:row-span-2 xl:row-start-1">
                 {candidate.can_collaborate ? (
                   <CandidateComments candidateID={candidateID} jobID={query.job_id} applicationID={candidateApplications[0]?.application_id} />
                 ) : (
