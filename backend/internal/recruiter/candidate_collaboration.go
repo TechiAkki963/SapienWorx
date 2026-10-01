@@ -19,14 +19,13 @@ type CandidateContact struct {
 	Alternate *string `json:"alternate,omitempty"`
 }
 
-
 type CandidateActivityItem struct {
-	Type        string     `json:"type"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	JobID       *string    `json:"job_id,omitempty"`
-	JobTitle    *string    `json:"job_title,omitempty"`
-	OccurredAt  time.Time  `json:"occurred_at"`
+	Type        string    `json:"type"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	JobID       *string   `json:"job_id,omitempty"`
+	JobTitle    *string   `json:"job_title,omitempty"`
+	OccurredAt  time.Time `json:"occurred_at"`
 }
 
 type CandidateActivityList struct {
@@ -91,10 +90,10 @@ func (s *Service) CandidateActivity(ctx context.Context, recruiterID, candidateI
 	result := CandidateActivityList{Items: []CandidateActivityItem{}}
 	for rows.Next() {
 		var item CandidateActivityItem
-		if err := rows.Scan(&item.Type,&item.Title,&item.Description,&item.JobID,&item.JobTitle,&item.OccurredAt); err != nil {
+		if err := rows.Scan(&item.Type, &item.Title, &item.Description, &item.JobID, &item.JobTitle, &item.OccurredAt); err != nil {
 			return CandidateActivityList{}, err
 		}
-		result.Items=append(result.Items,item)
+		result.Items = append(result.Items, item)
 	}
 	return result, rows.Err()
 }
