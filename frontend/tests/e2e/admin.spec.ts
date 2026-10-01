@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import fs from "node:fs/promises";
 
 import { login, resetE2E, waitForRecordedRequest } from "./helpers";
 
@@ -58,5 +59,7 @@ test.describe("Master Admin command centre", () => {
     await expect(organization).toBeVisible();
     await expect(organization).toContainText("CV views · month");
     await expect(organization).toContainText("12");
+    await fs.mkdir("output", { recursive: true });
+    await page.screenshot({ path: "output/admin-organizations-cv-meter.png", fullPage: true });
   });
 });
