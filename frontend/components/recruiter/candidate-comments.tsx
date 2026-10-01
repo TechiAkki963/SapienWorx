@@ -65,7 +65,7 @@ export function CandidateComments({ candidateID, jobID, applicationID, initialCo
         </div>
         <p className="mt-1 text-xs leading-5 text-ink-muted">Private team context. Tags stay internal and are not shown to the candidate.</p>
       </div>
-      <button type="button" aria-expanded={open} onClick={() => { setOpen(true); if (!result) void load(); }} className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg border border-line bg-white px-3 text-xs font-bold text-indigo transition hover:bg-indigo-soft/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/40">View notes<span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] text-ink-muted">{result?.total ?? initialCount ?? 0}</span></button>
+      <button type="button" aria-label="Recruiter Notes" aria-expanded={open} onClick={() => { setOpen(true); if (!result) void load(); }} className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg border border-line bg-white px-3 text-xs font-bold text-indigo transition hover:bg-indigo-soft/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/40">View notes<span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] text-ink-muted">{result?.total ?? initialCount ?? 0}</span></button>
     </div>
     {visibleTags.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-line/60 pt-3" aria-label="Recruiter tags">
       {visibleTags.map((tag) => <span key={tag} className="inline-flex min-h-7 max-w-full items-center rounded-full border border-indigo/15 bg-indigo-soft/60 px-2.5 py-1 text-[11px] font-bold leading-none text-indigo"><span className="max-w-[12rem] truncate">{tag}</span></span>)}
