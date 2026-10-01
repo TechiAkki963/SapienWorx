@@ -58,6 +58,14 @@ jobs:
           path: frontend/visual-artifacts/phase5-candidate-360/
           if-no-files-found: error
           retention-days: 7
+      - name: Upload Phase 5 Application Pipeline visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-application-pipeline-visuals
+          path: frontend/visual-artifacts/phase5-application-pipeline/
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload Phase 4 discovery visual screenshots
         if: always()
         uses: actions/upload-artifact@v4
