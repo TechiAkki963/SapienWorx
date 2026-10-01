@@ -137,7 +137,7 @@ export function ApplicantCardWorkspace({ rows, now }: { rows: PipelineRow[]; now
           </div>
 
           <div className="col-span-2 flex min-w-0 flex-nowrap items-center gap-1.5 sm:gap-2 lg:col-span-1 lg:justify-end">
-            <Link href={profileHref} className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg bg-indigo px-2.5 text-xs font-bold text-white hover:bg-navy max-sm:flex-1 sm:px-3"><CardIcon name="eye" /><span className="sm:hidden">Profile</span><span className="max-sm:hidden">View profile</span></Link>
+            <Link href={profileHref} aria-label="View Profile" className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg bg-indigo px-2.5 text-xs font-bold text-white hover:bg-navy max-sm:flex-1 sm:px-3"><CardIcon name="eye" /><span className="sm:hidden">Profile</span><span className="max-sm:hidden">View profile</span></Link>
             <Link href={`${profileHref}&compose=1`} className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg border border-line px-2.5 text-xs font-bold text-indigo hover:border-indigo/30 hover:bg-indigo-soft/30 max-sm:flex-1 sm:px-3"><CardIcon name="mail" />InMail</Link>
             <button type="button" onClick={() => void toggleSave(row)} disabled={busy === row.application_id} aria-pressed={saved} aria-label={saved ? "Saved · Unsave" : "Save Profile"} title={saved ? "Saved profile" : "Save profile"} className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition ${saved ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-line text-ink-muted hover:border-indigo/30 hover:text-indigo"}`}><CardIcon name="bookmark" /></button>
           </div>
