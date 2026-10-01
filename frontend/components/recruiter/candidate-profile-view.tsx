@@ -190,7 +190,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
               layout
               transition={spring}
               className={composerOpen
-                ? "min-w-0 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1 [&_.candidate-profile-header]:!flex-col [&_.candidate-profile-header]:!items-stretch [&_.candidate-profile-two-column]:!grid-cols-1"
+                ? "min-w-0 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1 [&_.candidate-profile-header]:!grid-cols-1 [&_.candidate-profile-header]:!items-stretch [&_.candidate-profile-two-column]:!grid-cols-1"
                 : "min-w-0"}
               aria-label="Candidate profile context"
             >
