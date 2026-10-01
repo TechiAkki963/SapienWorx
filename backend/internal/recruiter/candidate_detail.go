@@ -15,6 +15,8 @@ type CandidateDetail struct {
 	FullName              string         `json:"full_name"`
 	Headline              *string        `json:"headline,omitempty"`
 	Email                 string         `json:"email,omitempty"`
+	EmailVerified         bool           `json:"email_verified"`
+	MaskedPhone           string         `json:"masked_phone,omitempty"`
 	HasCompanyApplication bool           `json:"has_company_application"`
 	CanViewCV             bool           `json:"can_view_cv"`
 	CanViewContact        bool           `json:"can_view_contact"`
@@ -44,7 +46,10 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	var photo []byte
 	var photoMime *string
 	err = s.db.QueryRow(ctx, `
-		SELECT cp.user_id,cp.full_name,cp.headline,CASE WHEN EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2) THEN u.email ELSE '' END,cp.current_city,cp.current_state,cp.country_code,
+		SELECT cp.user_id,cp.full_name,cp.headline,
+		       CASE WHEN EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2) THEN u.email ELSE '' END,
+		       CASE WHEN EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2) THEN u.email_verified_at IS NOT NULL ELSE false END,
+		       cp.current_city,cp.current_state,cp.country_code,
 		       cp.total_experience_months,cp.notice_period_days,cp.profile_completion,u.last_active_at,cp.updated_at,
 		       cp.profile_photo,cp.profile_photo_mime,cp.profile_details,
 		       EXISTS(SELECT 1 FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$3 AND tpm.candidate_id=cp.user_id),
@@ -63,6 +68,7 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		&detail.FullName,
 		&detail.Headline,
 		&detail.Email,
+		&detail.EmailVerified,
 		&detail.CurrentCity,
 		&detail.CurrentState,
 		&detail.CountryCode,
@@ -93,10 +99,39 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	}
 	detail.Details = recruiterVisibleCandidateDetails(storedDetails)
 	detail.CanViewCV = detail.HasCompanyApplication
-	detail.CanViewContact = detail.HasCompanyApplication
 	detail.CanCollaborate = detail.HasCompanyApplication
+	detail.CanViewContact = false
+	if detail.HasCompanyApplication {
+		var phone *string
+		err = s.db.QueryRow(ctx, `SELECT u.phone_e164
+			FROM candidate_profiles cp
+			JOIN users u ON u.id=cp.user_id
+			WHERE cp.user_id=$1
+			  AND cp.contact_reveal_enabled
+			  AND `+candidateContactPublicPredicate+`
+			  AND u.phone_e164 IS NOT NULL`, candidateUserID).Scan(&phone)
+		if err == nil && phone != nil {
+			detail.CanViewContact = true
+			detail.MaskedPhone = maskCandidatePhone(*phone)
+		} else if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return CandidateDetail{}, err
+		}
+	}
 	if len(photo) > 0 && photoMime != nil {
 		detail.PhotoDataURL = "data:" + *photoMime + ";base64," + base64.StdEncoding.EncodeToString(photo)
 	}
 	return detail, nil
+}
+
+
+func maskCandidatePhone(value string) string {
+	if len(value) <= 4 {
+		return "••••"
+	}
+	prefix := ""
+	if value[0] == '+' {
+		prefix = "+"
+	}
+	last := value[len(value)-4:]
+	return prefix + "••••••" + last
 }
