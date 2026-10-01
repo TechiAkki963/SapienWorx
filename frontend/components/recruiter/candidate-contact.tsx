@@ -81,15 +81,14 @@ export function CandidateContact({
           onClick={onSingleClick}
           onDoubleClick={() => void onDoubleClick()}
           disabled={busy || (!contact && !maskedPhone)}
-          aria-label={contact ? `Phone ${current}. Double click to copy` : "Masked phone. Click to reveal, double click to reveal and copy"}
-          title={contact ? "Double-click to copy" : "Click to reveal · double-click to copy"}
+          aria-label={contact ? `Phone ${current}. Double click to copy` : "Hidden phone number. Click once to show. Double click to copy"}
+          title={contact ? "Double-click to copy" : "Click once to show · double-click to copy"}
           className="inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border border-line/70 bg-white px-2.5 py-1 text-xs font-bold text-navy transition hover:border-indigo/30 hover:bg-indigo-soft/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/35 disabled:cursor-not-allowed disabled:opacity-55"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 fill-none stroke-current stroke-[1.8]">
             <path d="M6.5 3h3l1.2 4-1.8 1.5a15 15 0 0 0 6.6 6.6l1.5-1.8 4 1.2v3c0 1-.8 1.8-1.8 1.8C10 20.3 3.7 14 3.7 5.2 3.7 4 4.7 3h1.8Z" />
           </svg>
           <span className="truncate">{busy ? "Checking…" : label}</span>
-          {!contact && maskedPhone && <span className="font-normal text-ink-muted">Reveal</span>}
         </button>
         {message && <p role="status" className="mt-1 text-[10px] leading-4 text-ink-muted">{message}</p>}
       </div>
