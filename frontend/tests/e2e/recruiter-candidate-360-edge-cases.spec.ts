@@ -58,8 +58,10 @@ test("Candidate 360 header reveals masked contact on single click and copies on 
   await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
   await expect(page.getByText("Verified", { exact: true })).toBeVisible();
 
-  const phone = page.getByRole("button", { name: "Masked phone. Click to reveal, double click to reveal and copy" });
-  await expect(phone).toContainText("+••••••0011");
+  const phone = page.getByRole("button", { name: "Hidden phone number. Click once to show. Double click to copy" });
+  await expect(phone).toContainText("••••••••••");
+  await expect(phone).not.toContainText("0011");
+  await expect(phone).not.toContainText("Reveal");
   await phone.click();
   await expect(page.getByRole("button", { name: /Phone \+919900000011/ })).toBeVisible();
 
@@ -74,7 +76,7 @@ test("sourced Candidate 360 never exposes verified email or masked contact in it
   await page.goto(`/recruiter/candidates/${sourcedCandidate}?from=discover`);
 
   await expect(page.getByText("private@example.test", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Masked phone/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Hidden phone number/ })).toHaveCount(0);
 });
 
 
