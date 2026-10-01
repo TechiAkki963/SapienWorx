@@ -193,11 +193,22 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                   </div>
                 </div>
 
-                <CandidateHeaderActions
-                  candidateID={candidateID}
-                  initialSaved={candidate.saved}
-                  applications={candidateApplications}
-                />
+                <div className="grid gap-3 justify-items-end">
+                  {match && (
+                    <div
+                      aria-label={`Job match score ${Math.round(match.score)} percent`}
+                      className="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-soft/55 px-3 py-2 text-indigo shadow-[0_1px_2px_rgba(16,33,63,0.03)]"
+                    >
+                      <span className="text-xl font-extrabold leading-none">{Math.round(match.score)}%</span>
+                      <span className="text-[10px] font-extrabold uppercase tracking-[0.1em]">Match</span>
+                    </div>
+                  )}
+                  <CandidateHeaderActions
+                    candidateID={candidateID}
+                    initialSaved={candidate.saved}
+                    applications={candidateApplications}
+                  />
+                </div>
               </div>
             </section>
 
@@ -225,12 +236,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Job match</p>
                       <p className="mt-1 break-words text-sm font-bold text-navy">{selectedJob.title}</p>
                     </div>
-                    {match && (
-                      <div className="shrink-0 rounded-xl bg-indigo px-3 py-2 text-center text-white">
-                        <p className="text-xl font-extrabold leading-none">{Math.round(match.score)}%</p>
-                        <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.08em] text-white/80">Match</p>
-                      </div>
-                    )}
+
                   </div>
 
                   {match ? (
