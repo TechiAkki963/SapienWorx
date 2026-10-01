@@ -118,7 +118,7 @@ export function ApplicantCardWorkspace({ rows, now }: { rows: PipelineRow[]; now
       const lastActive = days === null ? "Not provided" : days === 0 ? "Today" : days === 1 ? "1 day ago" : `${days} days ago`;
 
       return <article key={row.application_id} className="min-w-0 rounded-2xl border border-line/70 bg-white shadow-[0_3px_14px_rgba(24,51,96,0.045)]">
-        <div className="grid min-w-0 gap-3 p-3 sm:p-4 lg:grid-cols-[auto_minmax(0,1fr)_minmax(11rem,0.52fr)_auto] lg:items-center">
+        <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-3 p-3 sm:p-4 lg:grid-cols-[auto_minmax(0,1fr)_minmax(11rem,0.52fr)_auto] lg:items-center">
           <div className="flex items-center gap-3">
             <input type="checkbox" checked={selected.includes(row.application_id)} onChange={event => setSelected(current => event.target.checked ? [...current, row.application_id] : current.filter(id => id !== row.application_id))} aria-label={`Select ${row.candidate_name} for bulk actions`} className="h-4 w-4 shrink-0 accent-indigo" />
             <span aria-hidden="true" className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-indigo-soft text-sm font-extrabold text-indigo">{row.photo_data_url ? <Image src={row.photo_data_url} alt="" fill sizes="44px" unoptimized className="object-cover" /> : initials}</span>
@@ -130,13 +130,13 @@ export function ApplicantCardWorkspace({ rows, now }: { rows: PipelineRow[]; now
             <div className="mt-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1.5"><Signal icon="briefcase">{row.experience_months > 0 ? experience(row.experience_months) : "Experience not provided"}</Signal><Signal icon="building">{provided(row.current_company)}</Signal><Signal icon="pin">{provided(row.city)}</Signal>{row.notice_period_days != null && <Signal icon="clock">{row.notice_period_days === 0 ? "Immediate" : `${row.notice_period_days}d notice`}</Signal>}</div>
           </div>
 
-          <div className="min-w-0 rounded-xl bg-slate-50/70 px-3 py-2.5 lg:bg-transparent lg:px-0 lg:py-0">
+          <div className="col-span-2 min-w-0 rounded-xl bg-slate-50/70 px-3 py-2.5 lg:col-span-1 lg:bg-transparent lg:px-0 lg:py-0">
             <p className="truncate text-xs font-bold text-navy">{row.job_title}</p>
             <p className="mt-0.5 text-[11px] font-semibold text-indigo">{row.job_reference}</p>
             <p className="mt-1 text-[11px] text-ink-muted">Applied {date(row.applied_at)}</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+          <div className="col-span-2 flex flex-wrap items-center gap-2 lg:col-span-1 lg:justify-end">
             <Link href={profileHref} className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-indigo px-3 text-xs font-bold text-white hover:bg-navy"><CardIcon name="eye" />View profile</Link>
             <Link href={`${profileHref}&compose=1`} className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-line px-3 text-xs font-bold text-indigo hover:border-indigo/30 hover:bg-indigo-soft/30"><CardIcon name="mail" />InMail</Link>
             <button type="button" onClick={() => void toggleSave(row)} disabled={busy === row.application_id} aria-pressed={saved} aria-label={saved ? "Saved · Unsave" : "Save Profile"} title={saved ? "Saved profile" : "Save profile"} className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border transition ${saved ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-line text-ink-muted hover:border-indigo/30 hover:text-indigo"}`}><CardIcon name="bookmark" /></button>
