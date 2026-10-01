@@ -8,6 +8,21 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 )
 
+
+func (s *Server) recruiterCandidateActivity(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	result, err := s.recruiter.CandidateActivity(r.Context(), id, r.PathValue("candidateID"))
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, http.StatusOK, result)
+}
+
 func (s *Server) recruiterCandidateContact(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
 	if !ok {
