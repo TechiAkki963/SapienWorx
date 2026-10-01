@@ -120,3 +120,37 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
   await expect(page.getByRole("region", { name: "Candidate job match" })).toHaveCSS("background-color", "rgb(17, 24, 39)");
   await page.screenshot({ path: "visual-artifacts/theme-modes/candidate-360-system.png", fullPage: true });
 });
+
+
+test("Application pipeline supports system, light and dark modes with scan-first rows", async ({ page }) => {
+  await fs.mkdir("visual-artifacts/theme-modes", { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await login(page, "recruiter");
+  await page.goto("/recruiter/pipeline");
+
+  const assertPipeline = async () => {
+    await expect(page.getByRole("heading", { name: "Applications" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Candidate 001" }).first()).toBeVisible();
+    await expect(page.getByText("Details & actions", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /View profile/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /InMail/i }).first()).toBeVisible();
+    await assertNoHorizontalOverflow(page, "Application pipeline theme mode");
+  };
+
+  await chooseMode(page, "Light");
+  await expect(page.locator("html")).not.toHaveClass(/swx-dark/);
+  await assertPipeline();
+  await page.screenshot({ path: "visual-artifacts/theme-modes/application-pipeline-light.png", fullPage: true });
+
+  await chooseMode(page, "Dark");
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await assertPipeline();
+  await page.screenshot({ path: "visual-artifacts/theme-modes/application-pipeline-dark.png", fullPage: true });
+
+  await page.emulateMedia({ colorScheme: "dark" });
+  await chooseMode(page, "System");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "system");
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await assertPipeline();
+  await page.screenshot({ path: "visual-artifacts/theme-modes/application-pipeline-system.png", fullPage: true });
+});
