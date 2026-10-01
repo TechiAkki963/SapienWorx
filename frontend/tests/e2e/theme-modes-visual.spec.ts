@@ -109,6 +109,7 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
   await chooseMode(page, "Dark");
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
   await assertCandidate360();
+  await expect(page.getByRole("region", { name: "Candidate job match" })).toHaveCSS("background-color", "rgb(17, 24, 39)");
   await page.screenshot({ path: "visual-artifacts/theme-modes/candidate-360-dark.png", fullPage: true });
 
   await page.emulateMedia({ colorScheme: "dark" });
@@ -116,5 +117,6 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
   await expect(page.locator("html")).toHaveAttribute("data-theme", "system");
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
   await assertCandidate360();
+  await expect(page.getByRole("region", { name: "Candidate job match" })).toHaveCSS("background-color", "rgb(17, 24, 39)");
   await page.screenshot({ path: "visual-artifacts/theme-modes/candidate-360-system.png", fullPage: true });
 });
