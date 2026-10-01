@@ -112,11 +112,39 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
             </section>
 
             <div className="candidate-profile-two-column grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
-              <div className="grid gap-5">
+              <div className="grid gap-5 xl:col-start-1 xl:row-start-1">
                 <section className="rounded-2xl border border-line/70 bg-white p-5">
                   <h2 className="text-base font-bold text-navy">Professional summary</h2>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-ink-muted">{text(candidate.details, "professional_summary")}</p>
                 </section>
+              </div>
+
+              <aside className="grid content-start gap-4 xl:col-start-2 xl:row-span-2 xl:row-start-1">
+                <section className="rounded-2xl border border-line/70 bg-white p-4">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
+                  <p className="mt-2 text-xs leading-5 text-ink-muted">{candidate.can_view_cv ? "CV access is authorized because this candidate has an application with your company. The download link expires automatically." : "CV remains private until the candidate applies to your company."}</p>
+                  {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
+                </section>
+                <section className="rounded-2xl border border-line/70 bg-white p-4">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
+                  <dl className="mt-3 grid gap-3 text-sm">
+                    <div><dt className="text-xs text-ink-muted">Email</dt><dd className="mt-0.5 break-all font-semibold text-ink">{candidate.has_company_application ? (candidate.email || "Not provided") : "Private until application"}</dd></div>
+                    <div><dt className="text-xs text-ink-muted">Phone</dt><dd className="mt-1">{candidate.can_view_contact ? <CandidateContact candidateID={candidateID} /> : <span className="text-xs font-semibold text-ink-muted">Private until application</span>}</dd></div>
+                    <div><dt className="text-xs text-ink-muted">Preferred locations</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "preferred_locations")}</dd></div>
+                  </dl>
+                </section>
+                {candidate.can_collaborate ? <CandidateComments candidateID={candidateID} jobID={query.job_id} /> : <section className="rounded-2xl border border-line/70 bg-white p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Recruiter notes</p><p className="mt-2 text-xs leading-5 text-ink-muted">Internal application notes become available after the candidate applies to your company.</p></section>}
+                <section className="rounded-2xl border border-line/70 bg-white p-4">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Searchable context</p>
+                  <dl className="mt-3 grid gap-3 text-sm">
+                    <div><dt className="text-xs text-ink-muted">Current designation</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "current_designation")}</dd></div>
+                    <div><dt className="text-xs text-ink-muted">Industry</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "industry")}</dd></div>
+                    <div><dt className="text-xs text-ink-muted">Department / role</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "department_role")}</dd></div>
+                  </dl>
+                </section>
+              </aside>
+
+              <div className="grid gap-5 xl:col-start-1 xl:row-start-2">
 
                 <section className="rounded-2xl border border-line/70 bg-white p-5">
                   <div className="flex items-center justify-between"><h2 className="text-base font-bold text-navy">Employment</h2><span className="text-xs font-semibold text-ink-muted">{employment.length} records</span></div>
@@ -175,31 +203,6 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                   </div>
                 </section>}
               </div>
-
-              <aside className="grid content-start gap-4">
-                <section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
-                  <p className="mt-2 text-xs leading-5 text-ink-muted">{candidate.can_view_cv ? "CV access is authorized because this candidate has an application with your company. The download link expires automatically." : "CV remains private until the candidate applies to your company."}</p>
-                  {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
-                </section>
-                <section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
-                  <dl className="mt-3 grid gap-3 text-sm">
-                    <div><dt className="text-xs text-ink-muted">Email</dt><dd className="mt-0.5 break-all font-semibold text-ink">{candidate.has_company_application ? (candidate.email || "Not provided") : "Private until application"}</dd></div>
-                    <div><dt className="text-xs text-ink-muted">Phone</dt><dd className="mt-1">{candidate.can_view_contact ? <CandidateContact candidateID={candidateID} /> : <span className="text-xs font-semibold text-ink-muted">Private until application</span>}</dd></div>
-                    <div><dt className="text-xs text-ink-muted">Preferred locations</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "preferred_locations")}</dd></div>
-                  </dl>
-                </section>
-                {candidate.can_collaborate ? <CandidateComments candidateID={candidateID} jobID={query.job_id} /> : <section className="rounded-2xl border border-line/70 bg-white p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Recruiter notes</p><p className="mt-2 text-xs leading-5 text-ink-muted">Internal application notes become available after the candidate applies to your company.</p></section>}
-                <section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Searchable context</p>
-                  <dl className="mt-3 grid gap-3 text-sm">
-                    <div><dt className="text-xs text-ink-muted">Current designation</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "current_designation")}</dd></div>
-                    <div><dt className="text-xs text-ink-muted">Industry</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "industry")}</dd></div>
-                    <div><dt className="text-xs text-ink-muted">Department / role</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "department_role")}</dd></div>
-                  </dl>
-                </section>
-              </aside>
             </div>
           </div>
         </CandidateProfileView>
