@@ -27,7 +27,7 @@ export function CandidateHeaderActions({
         <span className="sm:hidden">InMail</span><span className="max-sm:hidden">Send InMail</span>
       </button>
 
-      <ScheduleInterviewForm applications={applications} compactTrigger />
+      {applications.length > 0 && <ScheduleInterviewForm applications={applications} compactTrigger />}
       <SaveProfileButton candidateID={candidateID} initialSaved={initialSaved} compact />
     </div>
   );
