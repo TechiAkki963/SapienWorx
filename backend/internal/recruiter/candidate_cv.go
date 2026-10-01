@@ -41,7 +41,6 @@ func (s *Service) CandidateCV(ctx context.Context, recruiterUserID, candidateUse
 	return object, err
 }
 
-
 func (s *Service) RecordCandidateCVView(ctx context.Context, object CandidateCVObject) error {
 	if object.CompanyID == "" || object.RecruiterID == "" || object.CandidateID == "" {
 		return ErrInvalid
