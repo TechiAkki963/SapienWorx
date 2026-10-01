@@ -4,6 +4,7 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
 import { ThemeModeControl } from "@/components/theme/theme-mode-control";
+import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 import { RecruiterDashboard } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
 import type { ThreadListResponse } from "@/lib/messaging";
