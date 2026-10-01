@@ -387,5 +387,53 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		if _, err := recruiterSvc.CandidateDetail(ctx, recruiterB, appliedCandidate); !errors.Is(err, ErrNotFound) {
 			t.Fatalf("cross-tenant Candidate 360 access succeeded: %v", err)
 		}
+
+		var matchingModelID string
+		if err := db.QueryRow(ctx, `SELECT id::text FROM intelligence.model_versions WHERE engine_type='matching' AND status='production' ORDER BY activated_at DESC NULLS LAST LIMIT 1`).Scan(&matchingModelID); err != nil {
+			t.Fatalf("production matching model unavailable: %v", err)
+		}
+		insertMatch := func(candidateID, jobID string, score float64) {
+			t.Helper()
+			exec(`INSERT INTO intelligence.match_results(candidate_id,job_id,model_version_id,eligible,score,components,explanation)
+				VALUES($1,$2,$3,true,$4,'{"skills":90,"experience":80}'::jsonb,'{"method":"security-fixture"}'::jsonb)
+				ON CONFLICT(candidate_id,job_id,model_version_id) DO UPDATE
+				SET eligible=EXCLUDED.eligible,score=EXCLUDED.score,components=EXCLUDED.components,explanation=EXCLUDED.explanation,generated_at=now()`,
+				candidateID, jobID, matchingModelID, score)
+		}
+		insertMatch(appliedCandidate, jobPublicA, 88.5)
+		insertMatch(appliedCandidate, jobB, 99.0)
+		insertMatch(hiddenCandidate, jobPublicA, 97.0)
+
+		ownMatch, err := recruiterSvc.CandidateMatch(ctx, recruiterA, appliedCandidate, jobPublicA)
+		if err != nil {
+			t.Fatalf("authorized CandidateMatch rejected: %v", err)
+		}
+		if ownMatch == nil || ownMatch.JobID != jobPublicA || ownMatch.Score < 88.49 || ownMatch.Score > 88.51 {
+			t.Fatalf("authorized CandidateMatch incorrect: %+v", ownMatch)
+		}
+
+		foreignJobMatch, err := recruiterSvc.CandidateMatch(ctx, recruiterA, appliedCandidate, jobB)
+		if err != nil {
+			t.Fatalf("foreign-job CandidateMatch lookup failed closed incorrectly: %v", err)
+		}
+		if foreignJobMatch != nil {
+			t.Fatalf("foreign-company job match leaked: %+v", foreignJobMatch)
+		}
+
+		hiddenMatch, err := recruiterSvc.CandidateMatch(ctx, recruiterA, hiddenCandidate, jobPublicA)
+		if err != nil {
+			t.Fatalf("hidden-candidate CandidateMatch lookup failed closed incorrectly: %v", err)
+		}
+		if hiddenMatch != nil {
+			t.Fatalf("hidden candidate match leaked: %+v", hiddenMatch)
+		}
+
+		crossTenantMatch, err := recruiterSvc.CandidateMatch(ctx, recruiterB, appliedCandidate, jobPublicA)
+		if err != nil {
+			t.Fatalf("cross-tenant CandidateMatch lookup failed closed incorrectly: %v", err)
+		}
+		if crossTenantMatch != nil {
+			t.Fatalf("cross-tenant candidate match leaked: %+v", crossTenantMatch)
+		}
 	})
 }
