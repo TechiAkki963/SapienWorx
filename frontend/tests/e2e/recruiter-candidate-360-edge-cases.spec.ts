@@ -76,3 +76,24 @@ test("sourced Candidate 360 never exposes verified email or masked contact in it
   await expect(page.getByText("private@example.test", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Masked phone/ })).toHaveCount(0);
 });
+
+
+test("opening a Candidate 360 CV requests the metered view mode", async ({ page }) => {
+  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/cv\?mode=view$/, route => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({
+      download: { url: "https://example.test/private-cv.pdf", method: "GET", expires_at: new Date(Date.now() + 300000).toISOString() },
+      filename: "candidate-001.pdf",
+    }),
+  }));
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/${candidateWithApplication}?job_id=${jobID}`);
+
+  const view = page.waitForRequest(request => {
+    const url = new URL(request.url());
+    return url.pathname.endsWith(`/recruiter/candidates/${candidateWithApplication}/cv`) && url.searchParams.get("mode") === "view";
+  });
+  await page.getByRole("button", { name: "Open private CV" }).click();
+  await view;
+});
