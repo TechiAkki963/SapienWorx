@@ -8,7 +8,6 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 )
 
-
 func (s *Server) recruiterCandidateActivity(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
 	if !ok {
