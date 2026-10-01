@@ -155,7 +155,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         <div className="grid gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-nowrap items-center justify-between gap-2">
             <div className="min-w-0">{toolbarStart}</div>
             {!composerOpen && (
               <Button type="button" onClick={() => setComposerOpen(true)} className="shadow-[0_12px_28px_rgba(79,70,229,0.18)]">
