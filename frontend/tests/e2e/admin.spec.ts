@@ -49,4 +49,14 @@ test.describe("Master Admin command centre", () => {
     await expect(page.getByText("Acme Hiring India", { exact: true }).first()).toBeVisible();
     await expect(page.getByRole("cell", { name: "approved", exact: true })).toBeVisible();
   });
+  test("shows organization CV-view usage for subscription metering", async ({ page }) => {
+    await login(page, "master_admin");
+    await page.goto("/swx-command-centre/organizations");
+
+    await expect(page.getByRole("heading", { name: "Organization governance" })).toBeVisible();
+    const organization = page.getByRole("article", { name: "Organization Acme Hiring India" });
+    await expect(organization).toBeVisible();
+    await expect(organization).toContainText("CV views · month");
+    await expect(organization).toContainText("12");
+  });
 });
