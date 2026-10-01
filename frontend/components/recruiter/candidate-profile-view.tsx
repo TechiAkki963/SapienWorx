@@ -70,6 +70,12 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const canSend = subject.trim().length > 0 && body.trim().length > 0 && !unresolvedJobVariable && !sending;
 
   useEffect(() => {
+    const openComposer = () => setComposerOpen(true);
+    window.addEventListener("sapienworx:open-candidate-inmail", openComposer);
+    return () => window.removeEventListener("sapienworx:open-candidate-inmail", openComposer);
+  }, []);
+
+  useEffect(() => {
     if (!composerOpen || templatesLoaded || templatesLoading) return;
     let active = true;
     setTemplatesLoading(true);
@@ -155,14 +161,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         <div className="grid gap-4">
-          <div className="flex flex-nowrap items-center justify-between gap-2">
-            <div className="min-w-0">{toolbarStart}</div>
-            {!composerOpen && (
-              <Button type="button" onClick={() => setComposerOpen(true)} className="shadow-[0_12px_28px_rgba(79,70,229,0.18)]">
-                Send InMail
-              </Button>
-            )}
-          </div>
+          {toolbarStart && <div className="min-w-0">{toolbarStart}</div>}
 
           <m.div
             layout
