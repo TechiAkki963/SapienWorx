@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { CandidateComments } from "@/components/recruiter/candidate-comments";
 import { CandidateContact } from "@/components/recruiter/candidate-contact";
@@ -31,7 +31,7 @@ function CardIcon({ name, className = "h-4 w-4" }: { name: "bookmark" | "eye" | 
   return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className}><path d={paths[name]} /></svg>;
 }
 
-function Signal({ icon, children }: { icon: "briefcase" | "building" | "pin" | "clock"; children: React.ReactNode }) {
+function Signal({ icon, children }: { icon: "briefcase" | "building" | "pin" | "clock"; children: ReactNode }) {
   return <span className="inline-flex min-w-0 items-center gap-1.5 text-xs text-ink-muted"><CardIcon name={icon} className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{children}</span></span>;
 }
 
