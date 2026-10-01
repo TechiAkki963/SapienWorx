@@ -81,6 +81,7 @@ test("every recruiter CV open is metered once and appears in Command Centre orga
   const state = await (await request.get(`${MOCK_API}/__e2e/state`)).json();
   expect(state.cvViews).toBe(2);
 
+  await page.context().clearCookies();
   await login(page, "master_admin");
   await fs.mkdir("visual-artifacts/phase5-candidate-360", { recursive: true });
   for (const viewport of [
