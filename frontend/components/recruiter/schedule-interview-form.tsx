@@ -15,7 +15,7 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const firstFieldRef = useRef<HTMLSelectElement>(null);
   const wasOpen = useRef(false);
 
@@ -27,7 +27,7 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
     }
     if (wasOpen.current) {
       wasOpen.current = false;
-      triggerRef.current?.focus();
+      openerRef.current?.focus();
     }
   }, [open]);
 
@@ -71,7 +71,7 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
 
   return (
     <>
-      <Button ref={triggerRef} onClick={() => setOpen(true)} disabled={!applications.length} aria-haspopup="dialog" aria-expanded={open} variant={compactTrigger ? "secondary" : "primary"} size={compactTrigger ? "sm" : "md"} className={compactTrigger ? "max-sm:min-w-[6.5rem] max-sm:flex-1" : undefined}><span className={compactTrigger ? "sm:hidden" : "hidden"}>Interview</span><span className={compactTrigger ? "max-sm:hidden" : ""}>Schedule interview</span></Button>
+      <Button onClick={() => { openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setOpen(true); }} disabled={!applications.length} aria-haspopup="dialog" aria-expanded={open} variant={compactTrigger ? "secondary" : "primary"} size={compactTrigger ? "sm" : "md"} className={compactTrigger ? "max-sm:min-w-[6.5rem] max-sm:flex-1" : undefined}><span className={compactTrigger ? "sm:hidden" : "hidden"}>Interview</span><span className={compactTrigger ? "max-sm:hidden" : ""}>Schedule interview</span></Button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/35 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) setOpen(false); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="schedule-interview-title" className="w-full max-w-2xl rounded-t-3xl bg-white shadow-[0_24px_80px_rgba(7,29,73,0.28)] sm:rounded-3xl">
