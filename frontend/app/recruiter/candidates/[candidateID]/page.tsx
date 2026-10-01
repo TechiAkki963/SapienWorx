@@ -230,7 +230,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
 
             <div className="candidate-profile-two-column grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:grid-rows-[auto_1fr]">
               {selectedJob && (
-                <section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-[linear-gradient(145deg,#ffffff_0%,#f8f7ff_100%)] p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] xl:col-start-2 xl:row-start-1">
+                <section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] xl:col-start-2 xl:row-start-1">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Job match</p>
