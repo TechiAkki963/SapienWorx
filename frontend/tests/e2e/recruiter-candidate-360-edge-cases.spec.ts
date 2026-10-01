@@ -43,3 +43,36 @@ test("Talent Pool context preserves return navigation without inventing a job ma
   await expect(page.getByRole("button", { name: /Schedule interview/i })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
+
+
+test("Candidate 360 header reveals masked contact on single click and copies on double click", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/contact$/, route => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({ primary: "+919900000011", alternate: "+919900000099" }),
+  }));
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/${candidateWithApplication}?job_id=${jobID}`);
+
+  await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
+  await expect(page.getByText("Verified", { exact: true })).toBeVisible();
+
+  const phone = page.getByRole("button", { name: "Masked phone. Click to reveal, double click to reveal and copy" });
+  await expect(phone).toContainText("+••••••0011");
+  await phone.click();
+  await expect(page.getByRole("button", { name: /Phone \+919900000011/ })).toBeVisible();
+
+  const revealed = page.getByRole("button", { name: /Phone \+919900000011/ });
+  await revealed.dblclick();
+  await expect(page.getByText("Number copied.", { exact: true })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe("+919900000011");
+});
+
+test("sourced Candidate 360 never exposes verified email or masked contact in its header", async ({ page }) => {
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/${sourcedCandidate}?from=discover`);
+
+  await expect(page.getByText("private@example.test", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Masked phone/ })).toHaveCount(0);
+});
