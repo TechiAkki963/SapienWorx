@@ -108,7 +108,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await expect(page.getByText("Jan 2024 – Present", { exact: false })).toBeVisible();
     await expect(page.getByText("Recent activity", { exact: true })).toBeVisible();
     await expect(page.getByRole("region", { name: "Candidate job match" })).toBeVisible();
-    await expect(page.getByRole("region", { name: "Candidate job match" })).toContainText("86%");
+    await expect(page.getByLabel("Job match score 86 percent")).toBeVisible();
     await expect(page.getByRole("region", { name: "Candidate job match" })).toContainText("Skills");
     await expect(page.getByRole("region", { name: "Candidate job match" })).toContainText("Experience");
     await expect(page.getByText("Stage changed to technical interview", { exact: true })).toBeVisible();
