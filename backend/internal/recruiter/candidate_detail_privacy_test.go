@@ -75,7 +75,6 @@ func TestCandidatePrivacyPredicatesFailClosed(t *testing.T) {
 	}
 }
 
-
 func TestMaskCandidatePhoneHidesEntireNumber(t *testing.T) {
 	for _, input := range []string{"+919876543210", "9876543210", "1234"} {
 		if got := maskCandidatePhone(input); got != "••••••••••" {
