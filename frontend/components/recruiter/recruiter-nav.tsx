@@ -108,7 +108,7 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
         {moreOpen && (
           <>
             <button type="button" aria-label="Close recruiter navigation" className="fixed inset-0 -z-10 bg-navy/10" onClick={() => setMoreOpen(false)} />
-            <div className="absolute bottom-[calc(100%+0.5rem)] right-3 w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-line bg-white p-2 shadow-[0_18px_50px_rgba(16,33,63,0.18)]" data-testid="recruiter-more-menu">
+            <div className="absolute bottom-[calc(100%+0.5rem)] right-3 w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-line bg-white p-2 shadow-[0_18px_50px_rgba(16,33,63,0.18)]" id="recruiter-more-menu" data-testid="recruiter-more-menu">
               <p className="px-3 pb-1.5 pt-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-muted">More recruiter tools</p>
               <nav aria-label="More recruiter tools" className="grid gap-1">
                 {mobileMore.map(({ label, href, icon }) => {
