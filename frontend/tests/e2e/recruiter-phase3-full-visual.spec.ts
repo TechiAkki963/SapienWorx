@@ -106,7 +106,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await expect(page.getByText("Preferred location:", { exact: true })).toBeVisible();
     await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
     await expect(page.getByText("Verified", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Masked phone. Click to reveal, double click to reveal and copy" })).toContainText("+••••••0011");
+    await expect(page.getByRole("button", { name: "Hidden phone number. Click once to show. Double click to copy" })).toContainText("••••••••••");
     await expect(page.getByText("8.4 · CGPA / 10", { exact: true })).toBeVisible();
     await expect(page.getByText("Jan 2024 – Present", { exact: false })).toBeVisible();
     await expect(page.getByText("Recent activity", { exact: true })).toBeVisible();
