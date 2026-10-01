@@ -161,7 +161,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
         >
           <div className="grid gap-4">
             <section className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-6">
-              <div className="candidate-profile-header grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+              <div className="candidate-profile-header grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
                 <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                   {candidate.photo_data_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -200,7 +200,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                           >
                             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 fill-none stroke-current stroke-[1.8]"><path d="M4 6h16v12H4z" /><path d="m4.5 7 7.5 6 7.5-6" /></svg>
                             <span className="max-w-[15rem] truncate">{candidate.email}</span>
-                            {candidate.email_verified && <span aria-label="Verified email, locked" className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-emerald-700"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-2.5 w-2.5 fill-none stroke-current stroke-2"><rect x="6" y="10" width="12" height="9" rx="2" /><path d="M9 10V7a3 3 0 0 1 6 0v3" /></svg>Verified</span>}
+                            {candidate.email_verified && <span aria-label="Verified email, locked" className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-emerald-700"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-2.5 w-2.5 fill-none stroke-current stroke-2"><rect x="6" y="10" width="12" height="9" rx="2" /><path d="M9 10V7a3 3 0 0 1 6 0v3" /></svg><span className="max-sm:sr-only">Verified</span><span className="max-sm:hidden">Verified</span></span>}
                           </span>
                         )}
                         {candidate.can_view_contact && candidate.masked_phone && (
