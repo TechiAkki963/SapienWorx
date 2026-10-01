@@ -8,8 +8,9 @@ import (
 )
 
 type CandidateCVObject struct {
-	Key      string `json:"-"`
-	Filename string `json:"filename"`
+	Key       string `json:"-"`
+	Filename  string `json:"filename"`
+	CompanyID string `json:"-"`
 }
 
 func (s *Service) CandidateCV(ctx context.Context, recruiterUserID, candidateUserID string) (CandidateCVObject, error) {
@@ -32,5 +33,9 @@ func (s *Service) CandidateCV(ctx context.Context, recruiterUserID, candidateUse
 	if errors.Is(err, pgx.ErrNoRows) {
 		return CandidateCVObject{}, ErrNotFound
 	}
-	return object, err
+	if err != nil {
+		return CandidateCVObject{}, err
+	}
+	object.CompanyID = companyID
+	return object, nil
 }
