@@ -196,6 +196,7 @@ export type RecruiterCandidateDetail = {
   can_view_contact: boolean;
   can_collaborate: boolean;
   saved: boolean;
+  talent_pool_tags: string[];
   current_city?: string;
   current_state?: string;
   country_code: string;
