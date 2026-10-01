@@ -19,8 +19,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var m=localStorage.getItem("swx-theme")||"system";var d=m==="dark"||(m==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=m;document.documentElement.classList.toggle("swx-dark",d);}catch(e){}})();` }} />
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>

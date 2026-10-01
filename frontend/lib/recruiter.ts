@@ -102,6 +102,7 @@ export type PipelineRow = {
   photo_data_url?: string;
   cv_filename?: string;
   saved: boolean;
+  talent_pool_tags: string[];
   comment_count: number;
   last_active_at?: string;
   profile_updated_at: string;
@@ -189,8 +190,13 @@ export type RecruiterCandidateDetail = {
   user_id: string;
   full_name: string;
   headline?: string;
-  email: string;
+  email?: string;
+  has_company_application: boolean;
+  can_view_cv: boolean;
+  can_view_contact: boolean;
+  can_collaborate: boolean;
   saved: boolean;
+  talent_pool_tags: string[];
   current_city?: string;
   current_state?: string;
   country_code: string;
@@ -201,6 +207,31 @@ export type RecruiterCandidateDetail = {
   profile_updated_at: string;
   photo_data_url?: string;
   details: Record<string, unknown>;
+};
+
+export type RecruiterCandidateMatch = {
+  job_id: string;
+  job_title: string;
+  score: number;
+  eligible: boolean;
+  components: Record<string, unknown>;
+  explanation: Record<string, unknown>;
+  model_version: string;
+  model_ref: string;
+  generated_at: string;
+};
+
+export type RecruiterCandidateActivityItem = {
+  type: "application" | "stage" | "interview" | "note" | string;
+  title: string;
+  description: string;
+  job_id?: string;
+  job_title?: string;
+  occurred_at: string;
+};
+
+export type RecruiterCandidateActivity = {
+  items: RecruiterCandidateActivityItem[];
 };
 
 export const stages = ["new_application","screening","shortlisted","technical_interview","hr_round","final_interview","offer","hired","rejected","withdrawn"] as const;

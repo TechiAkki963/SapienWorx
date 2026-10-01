@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,38 @@ import { PipelineRow } from "@/lib/recruiter";
 const controlClass = "min-h-11 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink outline-none transition focus:border-indigo/40 focus:ring-3 focus:ring-indigo-soft";
 const labelClass = "grid gap-1.5 text-xs font-bold text-ink";
 
-export function ScheduleInterviewForm({ applications }: { applications: PipelineRow[] }) {
+export function ScheduleInterviewForm({ applications, compactTrigger = false }: { applications: PipelineRow[]; compactTrigger?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const firstFieldRef = useRef<HTMLSelectElement>(null);
+  const wasOpen = useRef(false);
+
+  useEffect(() => {
+    if (open) {
+      wasOpen.current = true;
+      const frame = window.requestAnimationFrame(() => firstFieldRef.current?.focus());
+      return () => window.cancelAnimationFrame(frame);
+    }
+    if (wasOpen.current) {
+      wasOpen.current = false;
+      openerRef.current?.focus();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !busy) {
+        event.preventDefault();
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, busy]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,7 +71,7 @@ export function ScheduleInterviewForm({ applications }: { applications: Pipeline
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} disabled={!applications.length}>Schedule interview</Button>
+      <Button onClick={() => { openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setOpen(true); }} disabled={!applications.length} aria-haspopup="dialog" aria-expanded={open} variant={compactTrigger ? "secondary" : "primary"} size={compactTrigger ? "sm" : "md"} className={compactTrigger ? "max-sm:min-w-[6.5rem] max-sm:flex-1" : undefined}><span className={compactTrigger ? "sm:hidden" : "hidden"}>Interview</span><span className={compactTrigger ? "max-sm:hidden" : ""}>Schedule interview</span></Button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/35 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) setOpen(false); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="schedule-interview-title" className="w-full max-w-2xl rounded-t-3xl bg-white shadow-[0_24px_80px_rgba(7,29,73,0.28)] sm:rounded-3xl">
@@ -55,7 +82,7 @@ export function ScheduleInterviewForm({ applications }: { applications: Pipeline
             <form onSubmit={submit} className="p-5 sm:p-6">
               {error && <p role="alert" className="mb-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-700">{error}</p>}
               <div className="grid gap-4 md:grid-cols-2">
-                <label className={`${labelClass} md:col-span-2`}>Candidate and job<select name="application_id" required className={controlClass}>{applications.map((application) => <option key={application.application_id} value={application.application_id}>{application.candidate_name} — {application.job_title}</option>)}</select></label>
+                <label className={`${labelClass} md:col-span-2`}>Candidate and job<select ref={firstFieldRef} name="application_id" required className={controlClass}>{applications.map((application) => <option key={application.application_id} value={application.application_id}>{application.candidate_name} — {application.job_title}</option>)}</select></label>
                 <label className={`${labelClass} md:col-span-2`}>Interview round<input name="round_label" maxLength={120} defaultValue="First interview" required className={controlClass} /></label>
                 <label className={labelClass}>Date and time<input name="scheduled_at" type="datetime-local" required className={controlClass} /></label>
                 <label className={labelClass}>Duration (minutes)<input name="duration_minutes" type="number" min="10" max="480" defaultValue="45" className={controlClass} /></label>

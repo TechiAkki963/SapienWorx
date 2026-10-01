@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, LazyMotion, MotionConfig, domAnimation, m } from "motion/react";
 import Link from "next/link";
 
@@ -35,6 +35,7 @@ type Props = {
   composeOnOpen?: boolean;
   initialJobID?: string;
   requestContact?: boolean;
+  toolbarStart?: ReactNode;
 };
 
 const spring = { type: "spring" as const, stiffness: 245, damping: 28, mass: 0.85 };
@@ -45,7 +46,7 @@ function applyVariables(value: string, candidateName: string, jobTitle: string) 
     .replaceAll("{{JobTitle}}", jobTitle || "{{JobTitle}}");
 }
 
-export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children, composeOnOpen = false, initialJobID = "", requestContact = false }: Props) {
+export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children, composeOnOpen = false, initialJobID = "", requestContact = false, toolbarStart }: Props) {
   const [composerOpen, setComposerOpen] = useState(composeOnOpen);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -59,6 +60,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [sentThreadID, setSentThreadID] = useState("");
+  const openerRef = useRef<HTMLElement | null>(null);
 
   const selectedTemplate = useMemo(
     () => templates.find((template) => template.id === selectedTemplateID),
@@ -67,6 +69,15 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const selectedJob = useMemo(() => jobs.find((job) => job.id === selectedJobID), [jobs, selectedJobID]);
   const unresolvedJobVariable = subject.includes("{{JobTitle}}") || body.includes("{{JobTitle}}");
   const canSend = subject.trim().length > 0 && body.trim().length > 0 && !unresolvedJobVariable && !sending;
+
+  useEffect(() => {
+    const openComposer = () => {
+      openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setComposerOpen(true);
+    };
+    window.addEventListener("sapienworx:open-candidate-inmail", openComposer);
+    return () => window.removeEventListener("sapienworx:open-candidate-inmail", openComposer);
+  }, []);
 
   useEffect(() => {
     if (!composerOpen || templatesLoaded || templatesLoading) return;
@@ -126,7 +137,20 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     setComposerOpen(false);
     setError("");
     setSentThreadID("");
+    window.requestAnimationFrame(() => openerRef.current?.focus());
   }
+
+  useEffect(() => {
+    if (!composerOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !sending) {
+        event.preventDefault();
+        closeComposer();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [composerOpen, sending]);
 
   async function sendInMail() {
     if (!canSend) return;
@@ -154,13 +178,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
         <div className="grid gap-4">
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {!composerOpen && (
-              <Button type="button" onClick={() => setComposerOpen(true)} className="shadow-[0_12px_28px_rgba(79,70,229,0.18)]">
-                Send InMail
-              </Button>
-            )}
-          </div>
+          {toolbarStart && <div className="min-w-0">{toolbarStart}</div>}
 
           <m.div
             layout

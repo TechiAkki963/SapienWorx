@@ -37,6 +37,30 @@ func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 	}
 }
 
+func TestRecruiterVisibleCandidateDetailsSanitizesProfessionalRecords(t *testing.T) {
+	input := map[string]any{
+		"projects":           []any{map[string]any{"title": "Payments migration", "description": "Moved payment flows.", "private_note": "do not expose"}},
+		"accomplishments":    []any{map[string]any{"title": "Top performer", "issuer": "Example Ltd", "private_note": "hidden"}},
+		"professional_links": []any{map[string]any{"label": "Portfolio", "url": "https://example.com", "token": "secret"}},
+	}
+	got := recruiterVisibleCandidateDetails(input)
+	for _, tc := range []struct {
+		key, forbidden string
+	}{
+		{"projects", "private_note"},
+		{"accomplishments", "private_note"},
+		{"professional_links", "token"},
+	} {
+		records := got[tc.key].([]map[string]any)
+		if len(records) != 1 {
+			t.Fatalf("expected one sanitized %s record, got %#v", tc.key, records)
+		}
+		if _, exists := records[0][tc.forbidden]; exists {
+			t.Errorf("unexpected field %q exposed in %s", tc.forbidden, tc.key)
+		}
+	}
+}
+
 func TestCandidatePrivacyPredicatesFailClosed(t *testing.T) {
 	for name, predicate := range map[string]string{
 		"discovery": candidateDiscoverablePredicate,

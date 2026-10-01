@@ -61,6 +61,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
   test.setTimeout(240_000);
   await login(page, "recruiter");
   await fs.mkdir("visual-artifacts/phase3-full-workflow", { recursive: true });
+  await fs.mkdir("visual-artifacts/phase5-candidate-360", { recursive: true });
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -100,6 +101,19 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await assertNoHorizontalOverflow(page, `${viewport.name} candidate profile`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/03-candidate-${viewport.name}.png`, fullPage: true });
+    await expect(page.getByText("Candidate 360°", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Recruiter Notes/ })).toBeVisible();
+    await expect(page.getByText("Preferred location:", { exact: true })).toBeVisible();
+    await expect(page.getByText("8.4 · CGPA / 10", { exact: true })).toBeVisible();
+    await expect(page.getByText("Jan 2024 – Present", { exact: false })).toBeVisible();
+    await expect(page.getByText("Recent activity", { exact: true })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Candidate job match" })).toBeVisible();
+    await expect(page.getByLabel("Job match score 86 percent")).toBeVisible();
+    await expect(page.getByRole("region", { name: "Candidate job match" })).toContainText("Skills");
+    await expect(page.getByRole("region", { name: "Candidate job match" })).toContainText("Experience");
+    await expect(page.getByText("Stage changed to technical interview", { exact: true })).toBeVisible();
+    await expect(page.getByText("Recruiter note added", { exact: true })).toBeVisible();
+    await page.screenshot({ path: `visual-artifacts/phase5-candidate-360/candidate-360-${viewport.name}.png`, fullPage: true });
 
     // 4. Deterministic job analytics
     await page.goto(`/recruiter/jobs/${jobID}/analytics`);

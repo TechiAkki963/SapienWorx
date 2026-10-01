@@ -420,3 +420,79 @@ a {
   .swx-landing .swx-product-grid{gap:3rem}
   .swx-landing .swx-dashboard-wrap{padding-right:3.5rem}
 }
+
+
+/* Shared workspace appearance: System / Light / Dark. */
+.swx-dark {
+  --color-canvas: #0b1220;
+  --color-surface: #111827;
+  --color-ink: #e5edf8;
+  --color-ink-muted: #94a3b8;
+  --color-line: #273449;
+  --color-indigo-soft: #172554;
+  --color-lavender: #111c33;
+  --color-mint: #0f2a24;
+  --color-mint-strong: #164e3f;
+  --color-peach: #2a1d19;
+  --color-peach-strong: #5b3429;
+  --color-violet-ink: #93c5fd;
+  --color-navy: #172554;
+  color-scheme: dark;
+}
+.swx-dark html,
+.swx-dark body {
+  background: #0b1220;
+  color: var(--color-ink);
+}
+.swx-dark body {
+  background:
+    radial-gradient(circle at 8% 0%, rgb(30 58 138 / 0.16), transparent 32rem),
+    radial-gradient(circle at 94% 16%, rgb(14 116 144 / 0.10), transparent 30rem),
+    #0b1220;
+}
+.swx-dark .theme-surface {
+  background-color: #0b1220 !important;
+  color: var(--color-ink);
+}
+.swx-dark .theme-surface [class*="bg-white"],
+.swx-dark .theme-surface [class*="bg-[#f"],
+.swx-dark .theme-surface [class*="bg-slate-50"] {
+  background-color: #111827 !important;
+}
+.swx-dark .theme-surface [class*="bg-blue-50"] { background-color: #10244d !important; }
+.swx-dark .theme-surface [class*="bg-indigo-50"] { background-color: #172554 !important; }
+.swx-dark .theme-surface [class*="bg-emerald-50"] { background-color: #0c2d26 !important; }
+.swx-dark .theme-surface [class*="bg-amber-50"] { background-color: #33270f !important; }
+.swx-dark .theme-surface [class*="bg-rose-50"] { background-color: #35151d !important; }
+.swx-dark .theme-surface [class*="border-[#d"],
+.swx-dark .theme-surface [class*="border-[#e"] {
+  border-color: #273449 !important;
+}
+.swx-dark .theme-surface .text-navy { color: #dbeafe !important; }
+.swx-dark .theme-surface [class*="text-slate-950"],
+.swx-dark .theme-surface [class*="text-slate-900"],
+.swx-dark .theme-surface [class*="text-slate-800"],
+.swx-dark .theme-surface [class*="text-slate-700"] {
+  color: #e5edf8 !important;
+}
+.swx-dark .theme-surface [class*="text-slate-600"],
+.swx-dark .theme-surface [class*="text-slate-500"],
+.swx-dark .theme-surface [class*="text-slate-400"] {
+  color: #94a3b8 !important;
+}
+.swx-dark .theme-surface input,
+.swx-dark .theme-surface textarea,
+.swx-dark .theme-surface select {
+  color: #e5edf8;
+}
+.swx-dark .theme-surface input::placeholder,
+.swx-dark .theme-surface textarea::placeholder {
+  color: #7f8da3;
+}
+
+.swx-dark .theme-surface [class*="bg-[#edf1ff]"] {
+  background-color: #1e2b4d !important;
+}
+.swx-dark .admin-control-plane-banner {
+  background: linear-gradient(135deg, #172554, #111827) !important;
+}

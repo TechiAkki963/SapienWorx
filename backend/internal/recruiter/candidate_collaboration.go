@@ -19,6 +19,85 @@ type CandidateContact struct {
 	Alternate *string `json:"alternate,omitempty"`
 }
 
+type CandidateActivityItem struct {
+	Type        string    `json:"type"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	JobID       *string   `json:"job_id,omitempty"`
+	JobTitle    *string   `json:"job_title,omitempty"`
+	OccurredAt  time.Time `json:"occurred_at"`
+}
+
+type CandidateActivityList struct {
+	Items []CandidateActivityItem `json:"items"`
+}
+
+func (s *Service) CandidateActivity(ctx context.Context, recruiterID, candidateID string) (CandidateActivityList, error) {
+	companyID, err := s.candidateCompanyAccess(ctx, recruiterID, candidateID)
+	if err != nil {
+		return CandidateActivityList{}, err
+	}
+	rows, err := s.db.Query(ctx, `
+		SELECT event_type,title,description,job_id,job_title,occurred_at
+		FROM (
+			SELECT 'application'::text AS event_type,
+			       'Applied to ' || j.title AS title,
+			       'Application entered the pipeline at ' || replace(a.stage::text,'_',' ') AS description,
+			       j.id AS job_id,j.title AS job_title,a.applied_at AS occurred_at
+			FROM applications a
+			JOIN jobs j ON j.id=a.job_id
+			WHERE a.candidate_id=$1 AND j.company_id=$2
+
+			UNION ALL
+
+			SELECT 'stage'::text,
+			       'Stage changed to ' || replace(asa.new_stage::text,'_',' '),
+			       'Moved from ' || replace(asa.previous_stage::text,'_',' ') || ' to ' || replace(asa.new_stage::text,'_',' '),
+			       j.id,j.title,asa.changed_at
+			FROM application_stage_audit asa
+			JOIN applications a ON a.id=asa.application_id
+			JOIN jobs j ON j.id=a.job_id
+			WHERE a.candidate_id=$1 AND j.company_id=$2
+
+			UNION ALL
+
+			SELECT 'interview'::text,
+			       'Interview ' || lower(i.status),
+			       i.round_label || ' · ' || i.duration_minutes::text || ' min',
+			       j.id,j.title,i.created_at
+			FROM interviews i
+			JOIN applications a ON a.id=i.application_id
+			JOIN jobs j ON j.id=a.job_id
+			WHERE a.candidate_id=$1 AND j.company_id=$2
+
+			UNION ALL
+
+			SELECT 'note'::text,
+			       'Recruiter note added',
+			       left(c.comment_text,180),
+			       c.job_id,j.title,c.created_at
+			FROM recruiter_candidate_comments c
+			LEFT JOIN jobs j ON j.id=c.job_id
+			WHERE c.candidate_id=$1 AND c.company_id=$2 AND c.deleted_at IS NULL
+		) events
+		ORDER BY occurred_at DESC
+		LIMIT 30
+	`, candidateID, companyID)
+	if err != nil {
+		return CandidateActivityList{}, err
+	}
+	defer rows.Close()
+	result := CandidateActivityList{Items: []CandidateActivityItem{}}
+	for rows.Next() {
+		var item CandidateActivityItem
+		if err := rows.Scan(&item.Type, &item.Title, &item.Description, &item.JobID, &item.JobTitle, &item.OccurredAt); err != nil {
+			return CandidateActivityList{}, err
+		}
+		result.Items = append(result.Items, item)
+	}
+	return result, rows.Err()
+}
+
 type CandidateComment struct {
 	ID            string    `json:"id"`
 	AuthorName    string    `json:"author_name"`

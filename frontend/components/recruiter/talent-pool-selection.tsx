@@ -144,7 +144,7 @@ export function TalentPoolSelection({ items }: { items: TalentPoolCandidate[] })
                   </div>
 
                   <div className="min-w-0 flex-1 pt-0.5">
-                    <Link href={`/recruiter/candidates/${candidate.candidate_id}`} className="block truncate text-base font-extrabold tracking-[-0.02em] text-navy hover:text-indigo hover:underline hover:underline-offset-2">
+                    <Link href={`/recruiter/candidates/${candidate.candidate_id}?from=talent-pool`} className="block truncate text-base font-extrabold tracking-[-0.02em] text-navy hover:text-indigo hover:underline hover:underline-offset-2">
                       {candidate.full_name}
                     </Link>
                     <p className="mt-1 truncate text-xs font-medium text-ink-muted">{candidate.headline ?? "Candidate"}</p>
@@ -182,7 +182,7 @@ export function TalentPoolSelection({ items }: { items: TalentPoolCandidate[] })
 
                 <div className="mt-4 flex items-center justify-between gap-3 border-t border-line/60 pt-3">
                   <span className="text-[10px] font-semibold text-ink-muted">Saved {savedDate(candidate.saved_at)}</span>
-                  <Link href={`/recruiter/candidates/${candidate.candidate_id}`} className="text-xs font-extrabold text-indigo hover:underline hover:underline-offset-2">
+                  <Link href={`/recruiter/candidates/${candidate.candidate_id}?from=talent-pool`} className="text-xs font-extrabold text-indigo hover:underline hover:underline-offset-2">
                     View profile →
                   </Link>
                 </div>

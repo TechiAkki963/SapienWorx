@@ -155,7 +155,7 @@ export function ProfileForm({ profile, extended, onSaved, guided = false, sectio
       private_contact: data.get("private_contact") === "on",
       employment: collect("employment", employmentCount, ["company", "job_title", "employment_type", "joining_year", "joining_month", "end_year", "end_month", "current_company", "current_salary", "skills_used", "job_profile"]),
       it_skills: collect("skill", skillCount, ["name", "version", "last_used", "experience_years", "experience_months", "proficiency"]),
-      education: collect("education", educationCount, ["level", "university", "specialization", "course_type", "grading_system", "start_year", "end_year"]),
+      education: collect("education", educationCount, ["level", "university", "specialization", "course_type", "grading_system", "score", "start_year", "end_year"]),
       projects: String(data.get("projects") ?? ""),
       accomplishments: String(data.get("accomplishments") ?? ""),
       professional_links: String(data.get("professional_links") ?? ""),
@@ -336,7 +336,8 @@ export function ProfileForm({ profile, extended, onSaved, guided = false, sectio
               <label className={labelClass}>University / institute<input className={inputClass} name={`education_${index}_university`} defaultValue={recValue(initialEducation, index, "university")} /></label>
               <label className={labelClass}>Specialization<input className={inputClass} name={`education_${index}_specialization`} defaultValue={recValue(initialEducation, index, "specialization")} /></label>
               <label className={labelClass}>Course type<select className={inputClass} name={`education_${index}_course_type`} defaultValue={recValue(initialEducation, index, "course_type")}><option value="">Select</option><option>Full time</option><option>Part time</option><option>Distance</option></select></label>
-              <label className={labelClass}>Grading system<input className={inputClass} name={`education_${index}_grading_system`} defaultValue={recValue(initialEducation, index, "grading_system")} placeholder="CGPA, percentage or grade" /></label>
+              <label className={labelClass}>Grading system<input className={inputClass} name={`education_${index}_grading_system`} defaultValue={recValue(initialEducation, index, "grading_system")} placeholder="e.g. CGPA / 10, Percentage, GPA / 4" /></label>
+              <label className={labelClass}>Score / grade<input className={inputClass} name={`education_${index}_score`} defaultValue={recValue(initialEducation, index, "score")} placeholder="e.g. 8.4, 78%, A" /></label>
               <label className={labelClass}>Start year<input className={inputClass} name={`education_${index}_start_year`} defaultValue={recValue(initialEducation, index, "start_year")} /></label>
               <label className={labelClass}>End year<input className={inputClass} name={`education_${index}_end_year`} defaultValue={recValue(initialEducation, index, "end_year")} /></label>
             </div>

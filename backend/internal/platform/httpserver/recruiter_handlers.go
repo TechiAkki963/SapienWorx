@@ -237,6 +237,25 @@ func (s *Server) recruiterCandidateDetail(w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, result)
 }
 
+func (s *Server) recruiterCandidateMatch(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	jobID := strings.TrimSpace(r.URL.Query().Get("job_id"))
+	if jobID == "" {
+		s.writeRecruiterError(w, r, recruiter.ErrInvalid)
+		return
+	}
+	result, err := s.recruiter.CandidateMatch(r.Context(), id, r.PathValue("candidateID"), jobID)
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, http.StatusOK, result)
+}
+
 func (s *Server) recruiterApplicationStage(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
 	if !ok {

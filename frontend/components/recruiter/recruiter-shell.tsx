@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
+import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 import { RecruiterDashboard } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
 import type { ThreadListResponse } from "@/lib/messaging";
@@ -22,7 +23,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
   const unreadCount = conversations?.items?.reduce((total, thread) => total + thread.unread_count, 0) ?? 0;
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb] text-ink">
+    <div className="theme-surface min-h-screen bg-[#f5f7fb] text-ink">
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/95">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[108rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/recruiter" aria-label="Recruiter dashboard" className="shrink-0"><Wordmark /></Link>
@@ -36,19 +37,20 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
           </form>
 
           <div className="ml-auto flex items-center gap-2">
+            <ThemeModeControl compact />
             <Link href="/recruiter/interviews" aria-label={`Interview reminders${workspace?.upcoming_interviews ? `, ${workspace.upcoming_interviews} upcoming` : ""}`} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-white text-ink-muted transition hover:bg-slate-50 hover:text-ink">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.8]"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8M10 20h4" /></svg>
               {!!workspace?.upcoming_interviews && <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-indigo px-1.5 py-0.5 text-center text-[9px] font-extrabold text-white">{Math.min(workspace.upcoming_interviews, 99)}</span>}
             </Link>
 
             <details className="relative">
-              <summary aria-label={`Account menu for ${recruiterName}`} className="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-line bg-white py-1.5 pl-1.5 pr-2.5 transition hover:bg-slate-50">
+              <summary aria-label={`Account menu for ${recruiterName}`} className="flex cursor-pointer list-none items-center gap-0 rounded-xl border border-line bg-white p-1.5 transition hover:bg-slate-50 sm:gap-2 sm:pr-2.5">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-[10px] font-extrabold text-white">{initials(recruiterName)}</span>
                 <span className="hidden max-w-36 text-left lg:block">
                   <span className="block truncate text-xs font-bold text-ink">{recruiterName}</span>
                   <span className="block truncate text-[10px] text-ink-muted">{companyName}</span>
                 </span>
-                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3 fill-none stroke-current stroke-[1.7] text-ink-muted"><path d="m4 6 4 4 4-4" /></svg>
+                <svg aria-hidden="true" viewBox="0 0 16 16" className="hidden h-3 w-3 fill-none stroke-current stroke-[1.7] text-ink-muted sm:block"><path d="m4 6 4 4 4-4" /></svg>
               </summary>
               <div className="absolute right-0 mt-2 w-60 rounded-xl border border-line bg-white p-2 shadow-[0_16px_44px_rgba(16,33,63,0.14)]">
                 <div className="border-b border-line/70 px-2.5 py-2">
@@ -63,9 +65,9 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:px-8 lg:py-6">
+      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 pb-24 pt-4 sm:px-6 lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:px-8 lg:py-6 xl:grid-cols-[11.5rem_minmax(0,1fr)]">
         <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
-          <div className="min-w-0 rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]"><RecruiterNav unreadCount={unreadCount} /></div>
+          <RecruiterNav unreadCount={unreadCount} />
         </aside>
         <main id="main-content" className="min-w-0">{children}</main>
       </div>

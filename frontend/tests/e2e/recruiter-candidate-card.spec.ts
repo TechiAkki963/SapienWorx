@@ -47,7 +47,7 @@ test("candidate card keeps contact private and supports save, bulk selection, an
   }
 });
 
-test("internal recruiter comments lazy-load and support author edits and deletion", async ({ page }) => {
+test("internal recruiter notes lazy-load and support author edits and deletion", async ({ page }) => {
   let note = "";
   await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/comments(?:\/[^/]+)?(?:\?.*)?$/, async route => {
     const method = route.request().method();
@@ -64,18 +64,18 @@ test("internal recruiter comments lazy-load and support author edits and deletio
   await page.goto(`/recruiter/pipeline?job_id=${jobID}`);
 
   const card = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Candidate 001" }) });
-  await card.getByRole("button", { name: /Recruiter Comments/ }).click();
-  const dialog = page.getByRole("dialog", { name: "Recruiter comments" });
+  await card.getByRole("button", { name: /Recruiter Notes/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Recruiter notes" });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("No comments yet");
-  await dialog.getByRole("textbox", { name: "Add an internal comment" }).fill("Initial screening call completed.");
-  await dialog.getByRole("button", { name: "Post comment" }).click();
+  await expect(dialog).toContainText("No notes yet");
+  await dialog.getByRole("textbox", { name: "Add an internal note" }).fill("Initial screening call completed.");
+  await dialog.getByRole("button", { name: "Add note" }).click();
   await expect(dialog).toContainText("Initial screening call completed.");
   await dialog.getByRole("button", { name: "Edit" }).click();
-  await dialog.getByRole("textbox", { name: "Edit internal comment" }).fill("Screening call completed and documented.");
+  await dialog.getByRole("textbox", { name: "Edit internal note" }).fill("Screening call completed and documented.");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).toContainText("Screening call completed and documented.");
   await dialog.getByRole("button", { name: "Delete", exact: true }).click();
   await dialog.getByRole("button", { name: "Confirm delete" }).click();
-  await expect(dialog).toContainText("No comments yet");
+  await expect(dialog).toContainText("No notes yet");
 });

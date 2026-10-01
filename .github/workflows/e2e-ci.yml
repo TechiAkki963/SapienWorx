@@ -42,6 +42,22 @@ jobs:
         run: npm run test:e2e
       - name: Run isolated Master Admin journeys
         run: npx playwright test --config playwright.admin-access.config.ts
+      - name: Upload role theme visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: role-theme-visuals
+          path: frontend/visual-artifacts/theme-modes/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload Phase 5 Candidate 360 visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-candidate-360-visuals
+          path: frontend/visual-artifacts/phase5-candidate-360/
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload Phase 4 discovery visual screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -665,11 +665,60 @@ const server = http.createServer(async (req, res) => {
     referral_enabled: true, visibility: "public", internal_notes: "Priority role. Review referrals within 48 hours.",
     assigned_recruiter_id: recruiterID, openings: 3,
   });
+  if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001/match" && req.method === "GET") return json(res, 200, {
+    job_id: jobID,
+    job_title: "Senior Go Platform Engineer",
+    score: 86.4,
+    eligible: true,
+    components: {
+      skills: 66.7,
+      experience: 100,
+      location: 100,
+      availability: 90,
+      semantic: 75,
+      matched_skills: ["go", "postgresql"],
+    },
+    explanation: {
+      eligible: true,
+      matched_skills: ["go", "postgresql"],
+      experience_months: 25,
+      job_min_experience_months: 24,
+      location_alignment: true,
+      availability_signal: 0.9,
+      method: "deterministic-weighted-v1",
+    },
+    model_version: "1.0.0",
+    model_ref: "deterministic-weighted-v1",
+    generated_at: now(),
+  });
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
-    saved: false, current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
-    profile_completion: 65, last_active_at: now(), profile_updated_at: now(), details: {},
+    saved: true, talent_pool_tags: ["Priority", "Go Platform", "Mumbai"], current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
+    profile_completion: 92, last_active_at: now(), profile_updated_at: now(), has_company_application: true, can_view_cv: true, can_view_contact: true, can_collaborate: true,
+    details: {
+      professional_summary: "Backend engineer focused on reliable recruitment infrastructure, data quality, and operationally simple services.",
+      current_designation: "Backend Engineer", industry: "Recruitment Technology", department_role: "Engineering / Platform", preferred_locations: "Mumbai, Pune, Remote",
+      employment: [{ company: "Example Systems", job_title: "Backend Engineer", employment_type: "Full time", joining_month: "Jan", joining_year: "2024", end_month: "", end_year: "", current_company: "yes", skills_used: "Go, PostgreSQL, Redis", job_profile: "Built and operated recruiter workflow services with auditability and predictable performance." }],
+      it_skills: [{ name: "Go", proficiency: "Advanced" }, { name: "PostgreSQL", proficiency: "Advanced" }, { name: "Redis", proficiency: "Intermediate" }],
+      education: [{ education: "B.E. Computer Engineering", university: "University of Mumbai", specialization: "Computer Engineering", grading_system: "CGPA / 10", score: "8.4", start_year: "2018", end_year: "2022" }],
+      languages: [{ language: "English", proficiency: "Professional", read: "Yes", write: "Yes", speak: "Yes" }, { language: "Marathi", proficiency: "Native", read: "Yes", write: "Yes", speak: "Yes" }],
+      projects: [{ title: "Candidate workflow reliability programme", description: "Reworked asynchronous recruiter workflows to improve traceability, idempotency, and recovery during partial failures across high-volume hiring operations.", role: "Backend Engineer", skills: "Go, PostgreSQL", url: "https://portfolio.example.test/projects/candidate-workflow-reliability-programme/architecture-and-results" }],
+      accomplishments: [{ title: "Operational excellence recognition", issuer: "Example Systems", description: "Recognised for reducing recurring production support incidents through safer defaults and stronger automated regression coverage." }],
+      professional_links: [{ label: "Engineering portfolio", type: "portfolio", url: "https://portfolio.example.test/candidate-001/backend-engineering-and-reliability" }],
+    },
   });
+  if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000002" && req.method === "GET") return json(res, 200, {
+    user_id: "71000000-0000-4000-8000-000000000002", full_name: "Meera Nair", headline: "Critical care nursing professional",
+    saved: false, talent_pool_tags: [], current_city: "Navi Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 72,
+    profile_completion: 82, last_active_at: now(), profile_updated_at: now(), has_company_application: false, can_view_cv: false, can_view_contact: false, can_collaborate: false,
+    details: { professional_summary: "Critical care nursing professional focused on patient safety.", languages: [{ language: "English", proficiency: "Professional" }, { language: "Marathi", proficiency: "Native" }] },
+  });
+  if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001/activity" && req.method === "GET") return json(res, 200, { items: [
+    {type:"stage",title:"Stage changed to technical interview",description:"Moved from shortlisted to technical interview",job_id:jobID,job_title:"Senior Go Platform Engineer",occurred_at:new Date(Date.now()-3600000).toISOString()},
+    {type:"interview",title:"Interview scheduled",description:"Technical interview · 45 min",job_id:jobID,job_title:"Senior Go Platform Engineer",occurred_at:new Date(Date.now()-86400000).toISOString()},
+    {type:"note",title:"Recruiter note added",description:"Strong backend fundamentals; validate system design depth in the next round.",job_id:jobID,job_title:"Senior Go Platform Engineer",occurred_at:new Date(Date.now()-2*86400000).toISOString()},
+    {type:"application",title:"Applied to Senior Go Platform Engineer",description:"Application entered the pipeline at screening",job_id:jobID,job_title:"Senior Go Platform Engineer",occurred_at:new Date(Date.now()-5*86400000).toISOString()}
+  ]});
   if (url.pathname === "/api/v1/recruiter/discover" && req.method === "GET") return json(res, 200, { items: [
     {id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",designation:"Operations Manager",current_company:"Meridian Logistics",current_city:"Mumbai",current_state:"Maharashtra",experience_months:96,notice_period_days:30,preferred_locations:"Mumbai, Pune",skills:["Operations","Vendor Management","SAP"],education:"MBA · Operations",updated_at:now()},
     {id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",designation:"Senior Staff Nurse",current_company:"Harbour Health",current_city:"Navi Mumbai",current_state:"Maharashtra",experience_months:72,notice_period_days:15,preferred_locations:"Mumbai, Navi Mumbai",skills:["Critical Care","BLS","Patient Safety"],education:"B.Sc Nursing",updated_at:now()},
@@ -678,7 +727,8 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/saved-searches" && req.method === "GET") return json(res, 200, {items:[{id:"saved-1",name:"Mumbai operations",filters:{industry:"Logistics",location:"Mumbai"},updated_at:now()}]});
   if (url.pathname === "/api/v1/recruiter/saved-searches" && req.method === "POST") return json(res, 201, {id:"saved-new",name:payload.name,filters:payload.filters,updated_at:now()});
   if (url.pathname === "/api/v1/recruiter/recent-searches" && req.method === "GET") return json(res, 200, {items:[{id:1,filters:{q:"operations",location:"Mumbai"},created_at:now()}]});
-  if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "PUT") return json(res, 200, {recruiter_id:recruiterID,candidate_id:url.pathname.split("/").at(-1),tags:[],created_at:now(),updated_at:now()});
+  if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "PUT") return json(res, 200, {recruiter_id:recruiterID,candidate_id:url.pathname.split("/").at(-1),tags:Array.isArray(payload.tags)?payload.tags:[],created_at:now(),updated_at:now()});
+  if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "DELETE") return noContent(res);
   if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{

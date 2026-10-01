@@ -33,11 +33,23 @@ var recruiterSkillFields = map[string]struct{}{
 
 var recruiterEducationFields = map[string]struct{}{
 	"level": {}, "education": {}, "university": {}, "specialization": {},
-	"course_type": {}, "grading_system": {}, "start_year": {}, "end_year": {},
+	"course_type": {}, "grading_system": {}, "score": {}, "start_year": {}, "end_year": {},
 }
 
 var recruiterLanguageFields = map[string]struct{}{
 	"language": {}, "proficiency": {}, "read": {}, "write": {}, "speak": {},
+}
+
+var recruiterProjectFields = map[string]struct{}{
+	"title": {}, "name": {}, "description": {}, "role": {}, "skills": {}, "url": {}, "start_date": {}, "end_date": {},
+}
+
+var recruiterAccomplishmentFields = map[string]struct{}{
+	"title": {}, "name": {}, "description": {}, "issuer": {}, "date": {}, "url": {},
+}
+
+var recruiterProfessionalLinkFields = map[string]struct{}{
+	"label": {}, "name": {}, "url": {}, "type": {},
 }
 
 func recruiterVisibleCandidateDetails(details map[string]any) map[string]any {
@@ -55,6 +67,12 @@ func recruiterVisibleCandidateDetails(details map[string]any) map[string]any {
 			visible[key] = allowListedRecords(value, recruiterEducationFields)
 		case "languages":
 			visible[key] = allowListedRecords(value, recruiterLanguageFields)
+		case "projects":
+			visible[key] = allowListedRecords(value, recruiterProjectFields)
+		case "accomplishments":
+			visible[key] = allowListedRecords(value, recruiterAccomplishmentFields)
+		case "professional_links":
+			visible[key] = allowListedRecords(value, recruiterProfessionalLinkFields)
 		default:
 			visible[key] = value
 		}
