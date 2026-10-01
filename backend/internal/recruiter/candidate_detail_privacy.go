@@ -33,7 +33,7 @@ var recruiterSkillFields = map[string]struct{}{
 
 var recruiterEducationFields = map[string]struct{}{
 	"level": {}, "education": {}, "university": {}, "specialization": {},
-	"course_type": {}, "grading_system": {}, "start_year": {}, "end_year": {},
+	"course_type": {}, "grading_system": {}, "score": {}, "start_year": {}, "end_year": {},
 }
 
 var recruiterLanguageFields = map[string]struct{}{
