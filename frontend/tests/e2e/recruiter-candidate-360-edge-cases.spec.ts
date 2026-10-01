@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import fs from "node:fs/promises";
 
 import { login, MOCK_API, resetE2E } from "./helpers";
 
@@ -81,9 +82,18 @@ test("every recruiter CV open is metered once and appears in Command Centre orga
   expect(state.cvViews).toBe(2);
 
   await login(page, "master_admin");
-  await page.goto("/swx-command-centre/organizations");
-  const organization = page.getByRole("article", { name: "Organization Acme Hiring India" });
-  await expect(organization).toContainText("CV views");
-  await expect(organization).toContainText("2");
-  await expect(organization).toContainText("Metered recruiter opens");
+  await fs.mkdir("visual-artifacts/phase5-candidate-360", { recursive: true });
+  for (const viewport of [
+    { name: "desktop", width: 1440, height: 900 },
+    { name: "mobile-390", width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/swx-command-centre/organizations");
+    const organization = page.getByRole("article", { name: "Organization Acme Hiring India" });
+    await expect(organization).toContainText("CV views");
+    await expect(organization).toContainText("2");
+    await expect(organization).toContainText("Metered recruiter opens");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
+    await page.screenshot({ path: `visual-artifacts/phase5-candidate-360/command-centre-cv-usage-${viewport.name}.png`, fullPage: true });
+  }
 });
