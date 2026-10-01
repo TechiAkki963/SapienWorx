@@ -79,3 +79,42 @@ test("Recruiter workspace supports system, light and dark modes", async ({ page 
 test("Master Admin workspace supports system, light and dark modes", async ({ page }) => {
   await captureModes(page, "master_admin", "/swx-command-centre/overview");
 });
+
+
+test("Candidate 360 supports system, light and dark modes without losing recruiter data", async ({ page }) => {
+  const jobID = "60000000-0000-4000-8000-000000000001";
+  const candidateID = "71000000-0000-4000-8000-000000000001";
+  await fs.mkdir("visual-artifacts/theme-modes", { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/${candidateID}?job_id=${jobID}`);
+
+  const assertCandidate360 = async () => {
+    await expect(page.getByText("Candidate 360°", { exact: true })).toBeVisible();
+    await expect(page.getByText("Candidate 001", { exact: true }).first()).toBeVisible();
+    await expect(page.getByLabel("Job match score 86 percent")).toBeVisible();
+    await expect(page.getByRole("button", { name: /Recruiter Notes/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Professional Summary" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Employment" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Education" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Languages" })).toBeVisible();
+    await assertNoHorizontalOverflow(page, "Candidate 360 theme mode");
+  };
+
+  await chooseMode(page, "Light");
+  await expect(page.locator("html")).not.toHaveClass(/swx-dark/);
+  await assertCandidate360();
+  await page.screenshot({ path: "visual-artifacts/theme-modes/candidate-360-light.png", fullPage: true });
+
+  await chooseMode(page, "Dark");
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await assertCandidate360();
+  await page.screenshot({ path: "visual-artifacts/theme-modes/candidate-360-dark.png", fullPage: true });
+
+  await page.emulateMedia({ colorScheme: "dark" });
+  await chooseMode(page, "System");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "system");
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await assertCandidate360();
+  await page.screenshot({ path: "visual-artifacts/theme-modes/candidate-360-system.png", fullPage: true });
+});
