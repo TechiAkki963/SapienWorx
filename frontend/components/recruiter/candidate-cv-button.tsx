@@ -22,7 +22,7 @@ export function CandidateCVButton({ candidateID }: { candidateID: string }) {
     setBusy(true);
     setMessage("");
     try {
-      const result = await apiRequest<DownloadResponse>(`/api/v1/recruiter/candidates/${candidateID}/cv`);
+      const result = await apiRequest<DownloadResponse>(`/api/v1/recruiter/candidates/${candidateID}/cv?mode=view`);
       window.open(result.download.url, "_blank", "noopener,noreferrer");
     } catch (cause) {
       setMessage(cause instanceof Error ? cause.message : "Could not open candidate CV.");
