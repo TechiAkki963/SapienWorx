@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
+import fs from "node:fs/promises";
 
-import { login, resetE2E } from "./helpers";
+import { login, MOCK_API, resetE2E } from "./helpers";
 
 const jobID = "60000000-0000-4000-8000-000000000001";
 const candidateWithApplication = "71000000-0000-4000-8000-000000000001";
@@ -42,4 +43,58 @@ test("Talent Pool context preserves return navigation without inventing a job ma
   await expect(page.getByRole("region", { name: "Candidate job match" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Schedule interview/i })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
+});
+
+
+test("Candidate 360 header reveals masked contact, copies on double-click, and labels verified email as locked", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/${candidateWithApplication}?job_id=${jobID}`);
+
+  await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Verified email, locked")).toBeVisible();
+
+  const masked = page.getByRole("button", { name: /Masked contact \+91.*Single-click to reveal/ });
+  await expect(masked).toBeVisible();
+  await expect(masked).toContainText("+91••••••0011");
+  await masked.click();
+  await expect(page.getByRole("button", { name: /Contact \+919900000011/ })).toBeVisible();
+
+  await page.reload();
+  const maskedAgain = page.getByRole("button", { name: /Masked contact \+91.*double-click to copy/i });
+  await maskedAgain.dblclick();
+  await expect(page.getByText("Contact copied.", { exact: true })).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => navigator.clipboard.readText())).toBe("+919900000011");
+});
+
+test("every recruiter CV open is metered once and appears in Command Centre organization usage", async ({ page, request }) => {
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/${candidateWithApplication}?job_id=${jobID}`);
+  await page.evaluate(() => { window.open = () => null; });
+
+  const openCV = page.getByRole("button", { name: "Open private CV" });
+  await openCV.click();
+  await expect(openCV).toBeEnabled();
+  await openCV.click();
+  await expect(openCV).toBeEnabled();
+
+  const state = await (await request.get(`${MOCK_API}/__e2e/state`)).json();
+  expect(state.cvViews).toBe(2);
+
+  await page.context().clearCookies();
+  await login(page, "master_admin");
+  await fs.mkdir("visual-artifacts/phase5-candidate-360", { recursive: true });
+  for (const viewport of [
+    { name: "desktop", width: 1440, height: 900 },
+    { name: "mobile-390", width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/swx-command-centre/organizations");
+    const organization = page.getByRole("article", { name: "Organization Acme Hiring India" });
+    await expect(organization).toContainText("CV views");
+    await expect(organization).toContainText("2");
+    await expect(organization).toContainText("Metered recruiter opens");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
+    await page.screenshot({ path: `visual-artifacts/phase5-candidate-360/command-centre-cv-usage-${viewport.name}.png`, fullPage: true });
+  }
 });

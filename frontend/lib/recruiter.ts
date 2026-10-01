@@ -191,6 +191,8 @@ export type RecruiterCandidateDetail = {
   full_name: string;
   headline?: string;
   email?: string;
+  email_verified: boolean;
+  masked_contact?: string;
   has_company_application: boolean;
   can_view_cv: boolean;
   can_view_contact: boolean;

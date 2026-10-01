@@ -162,7 +162,8 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
           <div className="grid gap-4">
             <section className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-6">
               <div className="candidate-profile-header grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
-                <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+                <div className="min-w-0">
+                  <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                   {candidate.photo_data_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={candidate.photo_data_url} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
@@ -190,7 +191,32 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                         <span className="font-bold text-ink">Preferred location:</span> {preferredLocations}
                       </p>
                     )}
+
                   </div>
+                  </div>
+
+                  {candidate.has_company_application && (
+                    <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 sm:pl-20" aria-label="Candidate verified contact details">
+                      {candidate.email && (
+                        <span
+                          title={candidate.email_verified ? "Verified email · locked after verification" : "Email not verified"}
+                          className="inline-flex min-h-8 min-w-0 max-w-full items-center gap-1.5 rounded-lg border border-line/70 bg-white px-2.5 text-xs font-bold text-navy"
+                        >
+                          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 fill-none stroke-current stroke-[1.8]">
+                            <path d="M4 6.5h16v11H4z" /><path d="m5 8 7 5 7-5" />
+                          </svg>
+                          <span className="min-w-0 max-w-[15rem] truncate">{candidate.email}</span>
+                          {candidate.email_verified && (
+                            <span aria-label="Verified email, locked" className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-emerald-700">
+                              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-2.5 w-2.5 fill-none stroke-current stroke-2"><rect x="6" y="10" width="12" height="9" rx="2" /><path d="M9 10V7a3 3 0 0 1 6 0v3" /></svg>
+                              Verified
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      <CandidateContact candidateID={candidateID} maskedContact={candidate.masked_contact} compact />
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid gap-3 justify-items-end">
@@ -448,20 +474,6 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       : "CV remains private until the candidate applies to your company."}
                   </p>
                   {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
-                </section>
-
-                <section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Contact</p>
-                  <dl className="mt-3 grid gap-3 text-sm">
-                    <div>
-                      <dt className="text-xs text-ink-muted">Email</dt>
-                      <dd className="mt-0.5 break-all font-semibold text-ink">{candidate.has_company_application ? (candidate.email || "Not provided") : "Private until application"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-ink-muted">Phone</dt>
-                      <dd className="mt-1">{candidate.can_view_contact ? <CandidateContact candidateID={candidateID} /> : <span className="text-xs font-semibold text-ink-muted">Private until application</span>}</dd>
-                    </div>
-                  </dl>
                 </section>
 
                 {candidate.can_collaborate && (

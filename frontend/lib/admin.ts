@@ -98,7 +98,7 @@ export type AdminOrganization = {
   id: string; legal_name: string; display_name: string; website_url?: string | null;
   work_email_domain?: string | null; country_code?: string | null;
   verification_status: "pending" | "verified" | "rejected"; created_at: string;
-  recruiters: number; active_jobs: number; applications: number;
+  recruiters: number; active_jobs: number; applications: number; cv_views: number;
 };
 export type AdminOrganizationList = { items: AdminOrganization[]; page: number; limit: number; total: number };
 

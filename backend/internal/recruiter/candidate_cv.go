@@ -8,8 +8,11 @@ import (
 )
 
 type CandidateCVObject struct {
-	Key      string `json:"-"`
-	Filename string `json:"filename"`
+	Key         string `json:"-"`
+	Filename    string `json:"filename"`
+	CompanyID   string `json:"-"`
+	RecruiterID string `json:"-"`
+	CandidateID string `json:"-"`
 }
 
 func (s *Service) CandidateCV(ctx context.Context, recruiterUserID, candidateUserID string) (CandidateCVObject, error) {
@@ -18,6 +21,9 @@ func (s *Service) CandidateCV(ctx context.Context, recruiterUserID, candidateUse
 		return CandidateCVObject{}, err
 	}
 	var object CandidateCVObject
+	object.CompanyID = companyID
+	object.RecruiterID = recruiterUserID
+	object.CandidateID = candidateUserID
 	err = s.db.QueryRow(ctx, `SELECT cp.cv_s3_key,COALESCE(cp.cv_original_filename,'resume.pdf')
 		FROM candidate_profiles cp
 		WHERE cp.user_id=$1
@@ -33,4 +39,15 @@ func (s *Service) CandidateCV(ctx context.Context, recruiterUserID, candidateUse
 		return CandidateCVObject{}, ErrNotFound
 	}
 	return object, err
+}
+
+func (s *Service) RecordCandidateCVView(ctx context.Context, object CandidateCVObject) error {
+	if object.CompanyID == "" || object.RecruiterID == "" || object.CandidateID == "" {
+		return ErrInvalid
+	}
+	_, err := s.db.Exec(ctx, `
+		INSERT INTO subscription_usage_events(company_id,recruiter_id,candidate_id,event_type,quantity)
+		VALUES($1,$2,$3,'candidate_cv_view',1)
+	`, object.CompanyID, object.RecruiterID, object.CandidateID)
+	return err
 }
