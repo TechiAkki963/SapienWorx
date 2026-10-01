@@ -209,6 +209,18 @@ export type RecruiterCandidateDetail = {
   details: Record<string, unknown>;
 };
 
+export type RecruiterCandidateMatch = {
+  job_id: string;
+  job_title: string;
+  score: number;
+  eligible: boolean;
+  components: Record<string, unknown>;
+  explanation: Record<string, unknown>;
+  model_version: string;
+  model_ref: string;
+  generated_at: string;
+};
+
 export type RecruiterCandidateActivityItem = {
   type: "application" | "stage" | "interview" | "note" | string;
   title: string;
