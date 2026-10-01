@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { login, resetE2E } from "./helpers";
+import { login, MOCK_API, resetE2E } from "./helpers";
 
 const jobID = "60000000-0000-4000-8000-000000000001";
 const candidateWithApplication = "71000000-0000-4000-8000-000000000001";
@@ -77,7 +77,7 @@ test("every recruiter CV open is metered once and appears in Command Centre orga
   await openCV.click();
   await expect(openCV).toBeEnabled();
 
-  const state = await (await request.get("/__e2e/state")).json();
+  const state = await (await request.get(`${MOCK_API}/__e2e/state`)).json();
   expect(state.cvViews).toBe(2);
 
   await login(page, "master_admin");
