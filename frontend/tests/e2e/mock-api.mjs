@@ -665,6 +665,32 @@ const server = http.createServer(async (req, res) => {
     referral_enabled: true, visibility: "public", internal_notes: "Priority role. Review referrals within 48 hours.",
     assigned_recruiter_id: recruiterID, openings: 3,
   });
+  if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001/match" && req.method === "GET") return json(res, 200, {
+    job_id: jobID,
+    job_title: "Senior Go Platform Engineer",
+    score: 86.4,
+    eligible: true,
+    components: {
+      skills: 66.7,
+      experience: 100,
+      location: 100,
+      availability: 90,
+      semantic: 75,
+      matched_skills: ["go", "postgresql"],
+    },
+    explanation: {
+      eligible: true,
+      matched_skills: ["go", "postgresql"],
+      experience_months: 25,
+      job_min_experience_months: 24,
+      location_alignment: true,
+      availability_signal: 0.9,
+      method: "deterministic-weighted-v1",
+    },
+    model_version: "1.0.0",
+    model_ref: "deterministic-weighted-v1",
+    generated_at: now(),
+  });
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
     saved: true, talent_pool_tags: ["Priority", "Go Platform", "Mumbai"], current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
