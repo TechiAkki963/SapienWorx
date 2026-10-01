@@ -30,6 +30,8 @@ test("candidate card keeps contact private and supports save, bulk selection, an
   await card.getByRole("checkbox", { name: /Select Candidate 001/ }).check();
   await expect(page.getByRole("button", { name: "Save selected profiles" })).toBeEnabled();
 
+  await card.getByText("Details & actions", { exact: true }).click();
+  await expect(card.getByRole("button", { name: "View Contact" })).toBeVisible();
   await card.getByRole("button", { name: "View Contact" }).click();
   await expect(card).toContainText("+919900000011");
   await expect(card).not.toContainText("+919900000099");
@@ -41,8 +43,8 @@ test("candidate card keeps contact private and supports save, bulk selection, an
 
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: width > 768 ? 900 : 844 });
-    await expect(card.getByRole("link", { name: "View Profile" })).toBeVisible();
-    await expect(card.getByRole("link", { name: "Send InMail" })).toBeVisible();
+    await expect(card.getByRole("link", { name: /View profile/i })).toBeVisible();
+    await expect(card.getByRole("link", { name: /InMail/i })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   }
 });
@@ -64,6 +66,7 @@ test("internal recruiter notes lazy-load and support author edits and deletion",
   await page.goto(`/recruiter/pipeline?job_id=${jobID}`);
 
   const card = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Candidate 001" }) });
+  await card.getByText("Details & actions", { exact: true }).click();
   await card.getByRole("button", { name: /Recruiter Notes/ }).click();
   const dialog = page.getByRole("dialog", { name: "Recruiter notes" });
   await expect(dialog).toBeVisible();
