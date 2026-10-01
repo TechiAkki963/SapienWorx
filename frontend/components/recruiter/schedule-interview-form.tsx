@@ -10,7 +10,7 @@ import { PipelineRow } from "@/lib/recruiter";
 const controlClass = "min-h-11 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink outline-none transition focus:border-indigo/40 focus:ring-3 focus:ring-indigo-soft";
 const labelClass = "grid gap-1.5 text-xs font-bold text-ink";
 
-export function ScheduleInterviewForm({ applications }: { applications: PipelineRow[] }) {
+export function ScheduleInterviewForm({ applications, compactTrigger = false }: { applications: PipelineRow[]; compactTrigger?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
@@ -44,7 +44,7 @@ export function ScheduleInterviewForm({ applications }: { applications: Pipeline
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} disabled={!applications.length}>Schedule interview</Button>
+      <Button onClick={() => setOpen(true)} disabled={!applications.length} variant={compactTrigger ? "secondary" : "primary"} size={compactTrigger ? "sm" : "md"} className={compactTrigger ? "max-sm:min-w-[6.5rem] max-sm:flex-1" : undefined}><span className={compactTrigger ? "sm:hidden" : "hidden"}>Interview</span><span className={compactTrigger ? "max-sm:hidden" : ""}>Schedule interview</span></Button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/35 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) setOpen(false); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="schedule-interview-title" className="w-full max-w-2xl rounded-t-3xl bg-white shadow-[0_24px_80px_rgba(7,29,73,0.28)] sm:rounded-3xl">
