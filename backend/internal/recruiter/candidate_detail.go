@@ -103,13 +103,13 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	detail.CanViewContact = false
 	if detail.HasCompanyApplication {
 		var phone *string
-		err = s.db.QueryRow(ctx, `SELECT u.phone_e164
+		err = s.db.QueryRow(ctx, `SELECT COALESCE(u.phone_e164,cp.alternate_phone_e164)
 			FROM candidate_profiles cp
 			JOIN users u ON u.id=cp.user_id
 			WHERE cp.user_id=$1
 			  AND cp.contact_reveal_enabled
 			  AND `+candidateContactPublicPredicate+`
-			  AND u.phone_e164 IS NOT NULL`, candidateUserID).Scan(&phone)
+			  AND COALESCE(u.phone_e164,cp.alternate_phone_e164) IS NOT NULL`, candidateUserID).Scan(&phone)
 		if err == nil && phone != nil {
 			detail.CanViewContact = true
 			detail.MaskedPhone = maskCandidatePhone(*phone)
