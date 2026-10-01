@@ -7,7 +7,7 @@ import { CandidateProfileView } from "@/components/recruiter/candidate-profile-v
 import { SaveProfileButton } from "@/components/recruiter/save-profile-button";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
-import { experience, RecruiterCandidateDetail, RecruiterJob } from "@/lib/recruiter";
+import { experience, RecruiterCandidateActivity, RecruiterCandidateDetail, RecruiterJob } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +55,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
     recruiterAPI<{ items: RecruiterJob[] }>("/api/v1/recruiter/jobs"),
   ]);
   const jobs = jobsResponse.items ?? [];
+  const activity = candidate.can_collaborate ? await recruiterAPI<RecruiterCandidateActivity>(`/api/v1/recruiter/candidates/${candidateID}/activity`).catch(() => ({ items: [] })) : { items: [] };
   const employment = records(candidate.details, "employment");
   const skills = records(candidate.details, "it_skills");
   const education = records(candidate.details, "education");
@@ -100,7 +101,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       <span className="rounded-full bg-slate-100 px-2.5 py-1">{candidate.notice_period_days == null ? "Notice not specified" : `${candidate.notice_period_days}d notice`}</span>
                       <span className="rounded-full bg-blue-50 px-2.5 py-1 text-blue-700">{candidate.profile_completion}% profile</span>
                     </div>
-                    <div className="mt-3"><SaveProfileButton candidateID={candidateID} initialSaved={candidate.saved} /></div>
+                    <div className="mt-3"><SaveProfileButton candidateID={candidateID} initialSaved={candidate.saved} initialTags={candidate.talent_pool_tags ?? []} /></div>
                   </div>
                 </div>
 
@@ -134,6 +135,20 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                   </dl>
                 </section>
                 {candidate.can_collaborate ? <CandidateComments candidateID={candidateID} jobID={query.job_id} /> : <section className="rounded-2xl border border-line/70 bg-white p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Recruiter notes</p><p className="mt-2 text-xs leading-5 text-ink-muted">Internal application notes become available after the candidate applies to your company.</p></section>}
+                {candidate.can_collaborate && <section className="rounded-2xl border border-line/70 bg-white p-4">
+                  <div className="flex items-center justify-between gap-3"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Recent activity</p><span className="text-[10px] font-bold text-ink-muted">{activity.items.length} events</span></div>
+                  <div className="mt-3 grid gap-3">
+                    {activity.items.length ? activity.items.slice(0, 6).map((item, index) => <div key={`${item.type}-${item.occurred_at}-${index}`} className="grid grid-cols-[0.5rem_minmax(0,1fr)] gap-2.5">
+                      <span className="mt-1.5 h-2 w-2 rounded-full bg-indigo" aria-hidden="true" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-ink">{item.title}</p>
+                        <p className="mt-0.5 break-words text-[11px] leading-4 text-ink-muted">{item.description}</p>
+                        {item.job_title && <p className="mt-0.5 text-[10px] font-semibold text-indigo">{item.job_title}</p>}
+                        <time className="mt-1 block text-[10px] text-ink-muted" dateTime={item.occurred_at}>{formatDate(item.occurred_at)}</time>
+                      </div>
+                    </div>) : <p className="text-xs leading-5 text-ink-muted">No company activity recorded yet.</p>}
+                  </div>
+                </section>}
                 <section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Searchable context</p>
                   <dl className="mt-3 grid gap-3 text-sm">
