@@ -46,7 +46,7 @@ test("Talent Pool context preserves return navigation without inventing a job ma
   await expect(recruiterContext.getByText("Priority", { exact: true })).toBeVisible();
   await expect(recruiterContext.getByText("Go Platform", { exact: true })).toBeVisible();
   await expect(recruiterContext.getByText("Mumbai", { exact: true })).toBeVisible();
-  await expect(recruiterContext.getByRole("button", { name: /View notes/i })).toBeVisible();
+  await expect(recruiterContext.getByRole("button", { name: /Recruiter Notes/i })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
 
