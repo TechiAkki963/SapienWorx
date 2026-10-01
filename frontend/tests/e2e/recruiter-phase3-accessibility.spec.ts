@@ -69,3 +69,27 @@ test("Phase 3.8 focus states remain visually clear at desktop and mobile widths"
     expect(overflow, `${viewport.name} horizontal overflow`).toBeLessThanOrEqual(1);
   }
 });
+
+
+test("Candidate 360 header actions support keyboard entry, Escape and focus return", async ({ page }) => {
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/71000000-0000-4000-8000-000000000001?job_id=${jobID}`);
+
+  const inmail = page.getByRole("button", { name: "Send InMail" });
+  await inmail.focus();
+  await inmail.press("Enter");
+  await expect(page.getByRole("complementary", { name: "InMail composer" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("complementary", { name: "InMail composer" })).toHaveCount(0);
+  await expect(inmail).toBeFocused();
+
+  const interview = page.getByRole("button", { name: "Schedule interview" });
+  await interview.focus();
+  await interview.press("Enter");
+  const dialog = page.getByRole("dialog", { name: "Schedule interview" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("combobox", { name: "Candidate and job" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(interview).toBeFocused();
+});
