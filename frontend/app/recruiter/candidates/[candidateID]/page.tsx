@@ -237,7 +237,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       <p className="mt-1 break-words text-sm font-bold text-navy">{selectedJob.title}</p>
                     </div>
                     {match && (
-                      <div className="shrink-0 rounded-xl bg-indigo px-3 py-2 text-center text-white">
+                      <div aria-label={`Job match score ${Math.round(match.score)} percent`} className="shrink-0 rounded-xl bg-indigo px-3 py-2 text-center text-white">
                         <p className="text-xl font-extrabold leading-none">{Math.round(match.score)}%</p>
                         <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.08em] text-white/80">Match</p>
                       </div>
