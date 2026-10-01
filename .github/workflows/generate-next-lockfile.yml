@@ -1,0 +1,56 @@
+name: Generate patched Next.js lockfile
+
+on:
+  push:
+    branches: [phase5-1-candidate-360-shell]
+    paths:
+      - ".github/workflows/generate-next-lockfile.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v5
+        with:
+          ref: phase5-1-candidate-360-shell
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22.x"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Regenerate package metadata from npm registry
+        working-directory: frontend
+        run: npm install next@16.3.8 --save-exact --ignore-scripts --no-audit --no-fund
+
+      - name: Validate clean install
+        working-directory: frontend
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate production dependency audit
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Validate typecheck
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Validate production build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload regenerated package files
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-16-3-8-package-files
+          path: |
+            frontend/package.json
+            frontend/package-lock.json
+          if-no-files-found: error
+          retention-days: 2
