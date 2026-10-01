@@ -102,6 +102,11 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/03-candidate-${viewport.name}.png`, fullPage: true });
     await expect(page.getByText("Candidate 360°", { exact: true })).toBeVisible();
+    await expect(page.getByText("Priority", { exact: true })).toBeVisible();
+    await expect(page.getByText("Go Platform", { exact: true })).toBeVisible();
+    await expect(page.getByText("Recent activity", { exact: true })).toBeVisible();
+    await expect(page.getByText("Stage changed to technical interview", { exact: true })).toBeVisible();
+    await expect(page.getByText("Recruiter note added", { exact: true })).toBeVisible();
     await page.screenshot({ path: `visual-artifacts/phase5-candidate-360/candidate-360-${viewport.name}.png`, fullPage: true });
 
     // 4. Deterministic job analytics
