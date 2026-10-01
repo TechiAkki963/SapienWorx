@@ -124,14 +124,6 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 }
 
 
-func maskCandidatePhone(value string) string {
-	if len(value) <= 4 {
-		return "••••"
-	}
-	prefix := ""
-	if value[0] == '+' {
-		prefix = "+"
-	}
-	last := value[len(value)-4:]
-	return prefix + "••••••" + last
+func maskCandidatePhone(_ string) string {
+	return "••••••••••"
 }
