@@ -62,9 +62,20 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
   await login(page, "recruiter");
   await fs.mkdir("visual-artifacts/phase3-full-workflow", { recursive: true });
   await fs.mkdir("visual-artifacts/phase5-candidate-360", { recursive: true });
+  await fs.mkdir("visual-artifacts/phase5-application-pipeline", { recursive: true });
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
+
+    // 0. Global application pipeline
+    await page.goto("/recruiter/pipeline");
+    await expect(page.getByRole("heading", { name: "Applications" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Candidate 001" }).first()).toBeVisible();
+    await expect(page.getByText("Details & actions", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /View profile/i }).first()).toBeVisible();
+    await assertNoHorizontalOverflow(page, `${viewport.name} application pipeline`);
+    await prepareShot(page);
+    await page.screenshot({ path: `visual-artifacts/phase5-application-pipeline/application-pipeline-${viewport.name}.png`, fullPage: true });
 
     // 1. Job management
     await page.goto("/recruiter/jobs");
