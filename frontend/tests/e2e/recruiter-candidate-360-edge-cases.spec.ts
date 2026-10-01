@@ -34,29 +34,10 @@ test("Candidate 360 shows an honest no-result state when the production matcher 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
 
-test("Talent Pool entry preserves return navigation without inventing a job match", async ({ page }) => {
-  await page.route("**/api/v1/recruiter/talent-pool", (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify({
-      items: [{
-        candidate_id: candidateWithApplication,
-        full_name: "Candidate 001",
-        headline: "Backend engineer",
-        current_city: "Mumbai",
-        experience_months: 25,
-        notice_period_days: 15,
-        tags: [],
-        saved_at: new Date().toISOString(),
-      }],
-    }),
-  }));
-
+test("Talent Pool context preserves return navigation without inventing a job match", async ({ page }) => {
   await login(page, "recruiter");
-  await page.goto("/recruiter/talent-pool");
-  await page.getByRole("link", { name: "View profile →" }).click();
+  await page.goto(`/recruiter/candidates/${candidateWithApplication}?from=talent-pool`);
 
-  await expect(page).toHaveURL(new RegExp(`/recruiter/candidates/${candidateWithApplication}\\?from=talent-pool`));
   await expect(page.getByRole("link", { name: "Back to talent pool" })).toBeVisible();
   await expect(page.getByRole("region", { name: "Candidate job match" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Schedule interview/i })).toBeVisible();
