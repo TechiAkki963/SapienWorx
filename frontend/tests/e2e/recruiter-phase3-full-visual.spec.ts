@@ -114,7 +114,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/03-candidate-${viewport.name}.png`, fullPage: true });
     await expect(page.getByText("Candidate 360°", { exact: true })).toBeVisible();
     await expect(page.getByRole("region", { name: "Recruiter notes and tags" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /View notes/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Recruiter Notes/i })).toBeVisible();
     await expect(page.getByRole("region", { name: "Recruiter notes and tags" }).getByText("Priority", { exact: true })).toBeVisible();
     await expect(page.getByText("Preferred location:", { exact: true })).toBeVisible();
     await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
