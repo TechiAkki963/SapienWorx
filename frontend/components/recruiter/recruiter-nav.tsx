@@ -16,8 +16,8 @@ const sections: { title: string; items: NavItem[] }[] = [
   { title: "Recruiter workspace", items: [
     { label: "Dashboard", shortLabel: "Home", href: "/recruiter", icon: "overview" },
     { label: "Job Management", shortLabel: "Jobs", href: "/recruiter/jobs", icon: "jobs" },
-    { label: "Applications", shortLabel: "Applications", href: "/recruiter/pipeline", icon: "pipeline" },
-    { label: "Messages / InMail", shortLabel: "Messages", href: "/recruiter/messages", icon: "messages" },
+    { label: "Applications", shortLabel: "Apps", href: "/recruiter/pipeline", icon: "pipeline" },
+    { label: "Messages / InMail", shortLabel: "Inbox", href: "/recruiter/messages", icon: "messages" },
     { label: "Interviews", href: "/recruiter/interviews", icon: "interviews" },
   ] },
   { title: "Advanced recruitment tools", items: [
