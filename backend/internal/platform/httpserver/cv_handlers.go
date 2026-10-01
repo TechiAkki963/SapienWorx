@@ -127,10 +127,12 @@ func (s *Server) recruiterCandidateCVDownload(w http.ResponseWriter, r *http.Req
 		writeError(w, r, http.StatusServiceUnavailable, "storage_unavailable", "private CV storage is temporarily unavailable")
 		return
 	}
-	if err := s.recruiter.RecordCandidateCVView(r.Context(), object.CompanyID, recruiterID, r.PathValue("candidateID"), RequestIDFromContext(r.Context())); err != nil {
-		s.logger.Error("meter recruiter CV view failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
-		writeError(w, r, http.StatusInternalServerError, "usage_metering_failed", "candidate CV could not be opened because usage metering failed")
-		return
+	if r.URL.Query().Get("mode") == "view" {
+		if err := s.recruiter.RecordCandidateCVView(r.Context(), object.CompanyID, recruiterID, r.PathValue("candidateID"), RequestIDFromContext(r.Context())); err != nil {
+			s.logger.Error("meter recruiter CV view failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
+			writeError(w, r, http.StatusInternalServerError, "usage_metering_failed", "candidate CV could not be opened because usage metering failed")
+			return
+		}
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"download": presigned, "filename": object.Filename})
 }
