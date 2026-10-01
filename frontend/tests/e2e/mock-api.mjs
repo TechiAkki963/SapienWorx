@@ -694,6 +694,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
     saved: true, talent_pool_tags: ["Priority", "Go Platform", "Mumbai"], current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
+    email_verified: true, masked_phone: "+••••••0011",
     profile_completion: 92, last_active_at: now(), profile_updated_at: now(), has_company_application: true, can_view_cv: true, can_view_contact: true, can_collaborate: true,
     details: {
       professional_summary: "Backend engineer focused on reliable recruitment infrastructure, data quality, and operationally simple services.",
@@ -710,6 +711,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000002" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000002", full_name: "Meera Nair", headline: "Critical care nursing professional",
     saved: false, talent_pool_tags: [], current_city: "Navi Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 72,
+    email_verified: false,
     profile_completion: 82, last_active_at: now(), profile_updated_at: now(), has_company_application: false, can_view_cv: false, can_view_contact: false, can_collaborate: false,
     details: { professional_summary: "Critical care nursing professional focused on patient safety.", languages: [{ language: "English", proficiency: "Professional" }, { language: "Marathi", proficiency: "Native" }] },
   });
@@ -820,7 +822,7 @@ const server = http.createServer(async (req, res) => {
     return json(res,200,{ items, page: 1, limit: 25, total: items.length });
   }
   if (url.pathname === "/api/v1/admin/organizations" && req.method === "GET") {
-    let items = [{ id: companyID, legal_name: "Acme Hiring India Private Limited", display_name: "Acme Hiring India", work_email_domain: "acme.example.invalid", website_url: "https://acme.example.invalid", country_code: "IN", verification_status: state.verificationStatus === "approved" ? "verified" : "pending", created_at: now(), recruiters: 1, active_jobs: 1, applications: 4 }];
+    let items = [{ id: companyID, legal_name: "Acme Hiring India Private Limited", display_name: "Acme Hiring India", work_email_domain: "acme.example.invalid", website_url: "https://acme.example.invalid", country_code: "IN", verification_status: state.verificationStatus === "approved" ? "verified" : "pending", created_at: now(), recruiters: 1, active_jobs: 1, applications: 4, cv_views_current_month: 12 }];
     const q = (url.searchParams.get("q") || "").toLowerCase();
     items = items.filter((item) => (!q || `${item.id} ${item.display_name} ${item.legal_name} ${item.work_email_domain}`.toLowerCase().includes(q)) && (!url.searchParams.get("verification") || item.verification_status === url.searchParams.get("verification")) && (!url.searchParams.get("country") || item.country_code === url.searchParams.get("country").toUpperCase()));
     return json(res,200,{ items, page: 1, limit: 25, total: items.length });
