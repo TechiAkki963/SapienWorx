@@ -693,7 +693,7 @@ const server = http.createServer(async (req, res) => {
     generated_at: now(),
   });
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
-    user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test", email_verified: true, masked_contact: "+91•••••0011",
+    user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test", email_verified: true, masked_contact: "+91••••••0011",
     saved: true, talent_pool_tags: ["Priority", "Go Platform", "Mumbai"], current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
     profile_completion: 92, last_active_at: now(), profile_updated_at: now(), has_company_application: true, can_view_cv: true, can_view_contact: true, can_collaborate: true,
     details: {
