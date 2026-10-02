@@ -251,6 +251,10 @@ test.describe.serial("deployed staging acceptance", () => {
     expect(launched.body.delivery.deliveries).toHaveLength(1);
     expect(launched.body.delivery.deliveries[0].candidate_id).toBe("30000000-0000-4000-8000-000000000004");
     expect(launched.body.delivery.deliveries[0].thread_id).toBeTruthy();
+    const threadID = launched.body.delivery.deliveries[0].thread_id;
+    const snapshotMessages = await request(`/api/v1/messaging/threads/${threadID}/messages`, "GET");
+    expect(snapshotMessages.status).toBe(200);
+    expect(snapshotMessages.body.items[0].content).toContain("I would like to discuss an opportunity with you.");
 
     const retry = await request(
       `/api/v1/recruiter/outreach/campaigns/${campaign.body.id}/launch`,
