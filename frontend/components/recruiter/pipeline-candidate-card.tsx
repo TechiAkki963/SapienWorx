@@ -4,6 +4,7 @@ import Image from "next/image";
 import { domAnimation, LazyMotion, m, MotionConfig } from "motion/react";
 import { useState } from "react";
 
+import { RecruiterTagList } from "@/components/recruiter/recruiter-tag";
 import { apiRequest } from "@/lib/api";
 import type { PipelineRow } from "@/lib/recruiter";
 import { experience } from "@/lib/recruiter";
@@ -82,6 +83,7 @@ export function PipelineCandidateCard({
               {stack.length > 0 ? <span className="mt-1.5 flex min-w-0 flex-wrap gap-1.5">{stack.map((skill) => <span key={skill} className="rounded-full border border-[#dcebe6] bg-[#f3faf7] px-2 py-0.5 text-[10px] font-bold text-[#276f5d]">{skill}</span>)}</span> : fallbackHeadline ? <span className="mt-1 block truncate text-xs font-medium text-ink-muted sm:text-[13px]">{fallbackHeadline}</span> : null}
 
               <span className="mt-1.5 block truncate text-[10px] font-medium text-ink-muted/90 sm:text-xs">{candidateMeta(candidate)}</span>
+              {candidate.talent_pool_tags.length > 0 && <RecruiterTagList tags={candidate.talent_pool_tags.slice(0, 3)} className="mt-2" />}
             </span>
 
             <span className="flex shrink-0 flex-col items-end gap-2 pl-1">
