@@ -98,6 +98,9 @@ func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request)
 	}
 	s.recordAdminTelemetry("inmail", "messaging_api", "single_send", "ok", time.Since(started), result.Thread.ID, nil)
 	s.messages.hub.Broadcast(result.Thread.ID, messaging.NewMessageEvent(result.Message))
+	s.messages.hub.BroadcastUser(result.Thread.CandidateID, messaging.NewInboxChangedEvent())
+	s.messages.hub.BroadcastUser(result.Thread.CandidateID, messaging.NewNotificationsChangedEvent())
+	s.messages.hub.BroadcastUser(result.Thread.RecruiterID, messaging.NewInboxChangedEvent())
 	writeJSON(w, http.StatusCreated, result)
 }
 
@@ -120,6 +123,24 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.recordAdminTelemetry("inmail", "messaging_api", "bulk_send", "ok", time.Since(started), "", nil)
+	skipped := make(map[string]struct{}, len(result.SkippedCandidateIDs))
+	for _, candidateID := range result.SkippedCandidateIDs {
+		skipped[candidateID] = struct{}{}
+	}
+	for _, candidateID := range input.CandidateIDs {
+		candidateID = strings.TrimSpace(candidateID)
+		if candidateID == "" {
+			continue
+		}
+		if _, wasSkipped := skipped[candidateID]; wasSkipped {
+			continue
+		}
+		s.messages.hub.BroadcastUser(candidateID, messaging.NewInboxChangedEvent())
+		s.messages.hub.BroadcastUser(candidateID, messaging.NewNotificationsChangedEvent())
+	}
+	if result.SentCount > 0 {
+		s.messages.hub.BroadcastUser(claims.Subject, messaging.NewInboxChangedEvent())
+	}
 	writeJSON(w, http.StatusOK, result)
 }
 
@@ -175,7 +196,17 @@ func (s *Server) messagingMessages(w http.ResponseWriter, r *http.Request) {
 		s.writeMessagingError(w, r, err)
 		return
 	}
+	thread, err := s.messages.service.Thread(r.Context(), threadID, claims.Subject)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
 	s.messages.hub.Broadcast(threadID, messaging.NewMessageEvent(message))
+	s.messages.hub.BroadcastUser(thread.RecruiterID, messaging.NewInboxChangedEvent())
+	s.messages.hub.BroadcastUser(thread.CandidateID, messaging.NewInboxChangedEvent())
+	if sender == messaging.SenderTypeRecruiter {
+		s.messages.hub.BroadcastUser(thread.CandidateID, messaging.NewNotificationsChangedEvent())
+	}
 	writeJSON(w, http.StatusCreated, message)
 }
 
@@ -189,6 +220,7 @@ func (s *Server) messagingRead(w http.ResponseWriter, r *http.Request) {
 		s.writeMessagingError(w, r, err)
 		return
 	}
+	s.messages.hub.BroadcastUser(claims.Subject, messaging.NewInboxChangedEvent())
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -308,7 +340,17 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "message rejected"), time.Now().Add(time.Second))
 				return
 			}
+			thread, err := s.messages.service.Thread(r.Context(), threadID, claims.Subject)
+			if err != nil {
+				_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "thread state unavailable"), time.Now().Add(time.Second))
+				return
+			}
 			s.messages.hub.Broadcast(threadID, messaging.NewMessageEvent(message))
+			s.messages.hub.BroadcastUser(thread.RecruiterID, messaging.NewInboxChangedEvent())
+			s.messages.hub.BroadcastUser(thread.CandidateID, messaging.NewInboxChangedEvent())
+			if sender == messaging.SenderTypeRecruiter {
+				s.messages.hub.BroadcastUser(thread.CandidateID, messaging.NewNotificationsChangedEvent())
+			}
 
 		case messaging.EventTypeTyping:
 			var payload messaging.TypingPayload
@@ -356,11 +398,95 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 				for _, result := range results {
 					s.messages.hub.BroadcastToUser(threadID, result.SenderID, messaging.NewReadEvent(threadID, claims.Subject, result.MessageIDs))
 				}
+				s.messages.hub.BroadcastUser(claims.Subject, messaging.NewInboxChangedEvent())
 			}()
 
 		default:
 			_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseUnsupportedData, "unsupported event"), time.Now().Add(time.Second))
 			return
+		}
+	}
+}
+
+func (s *Server) messagingUserSocket(w http.ResponseWriter, r *http.Request) {
+	claims, _ := ClaimsFromContext(r.Context())
+	if _, ok := senderTypeFromClaims(claims.Role); !ok {
+		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
+		return
+	}
+	if s.messages == nil || s.messages.hub == nil || s.auth == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(request *http.Request) bool {
+			return originAllowed(request.Header.Get("Origin"), s.cfg.HTTP.AllowedOrigins)
+		},
+	}
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return
+	}
+	client := &messaging.Client{Conn: conn, UserID: claims.Subject, Send: make(chan messaging.WebSocketEvent, 16)}
+	if !s.messages.hub.RegisterUser(claims.Subject, client) {
+		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseTryAgainLater, "messaging capacity reached"), time.Now().Add(time.Second))
+		_ = conn.Close()
+		return
+	}
+	defer conn.Close()
+	defer s.messages.hub.UnregisterUser(claims.Subject, client)
+
+	conn.SetReadLimit(1024)
+	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	conn.SetPongHandler(func(string) error { return conn.SetReadDeadline(time.Now().Add(60 * time.Second)) })
+
+	writerDone := make(chan struct{})
+	go func() {
+		defer close(writerDone)
+		ticker := time.NewTicker(25 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case event, ok := <-client.Send:
+				if !ok {
+					return
+				}
+				allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+				if err != nil || !allowed {
+					return
+				}
+				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+				if err := conn.WriteJSON(event); err != nil {
+					return
+				}
+			case <-ticker.C:
+				allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+				if err != nil || !allowed {
+					return
+				}
+				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+				if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
+			}
+		}
+	}()
+
+	for {
+		if _, _, err := conn.ReadMessage(); err != nil {
+			return
+		}
+		allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+		if err != nil || !allowed {
+			return
+		}
+		select {
+		case <-writerDone:
+			return
+		default:
 		}
 	}
 }
