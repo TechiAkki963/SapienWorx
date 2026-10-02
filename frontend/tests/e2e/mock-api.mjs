@@ -65,6 +65,54 @@ function initialState() {
     verificationStatus: "pending",
     accountStatuses: {},
     accountResets: {},
+    messagingThreads: [
+      {
+        id: "73000000-0000-4000-8000-000000000001",
+        recruiter_id: recruiterID,
+        candidate_id: candidateID,
+        job_id: jobID,
+        subject: "Senior Go Platform Engineer opportunity",
+        status: "open",
+        candidate_name: "Aarav Candidate",
+        recruiter_name: "Riya Recruiter",
+        job_title: "Senior Go Platform Engineer",
+        last_message: "Thanks — I’m interested. Could you share the interview timeline?",
+        unread_candidate: 1,
+        unread_recruiter: 0,
+        created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+        updated_at: new Date(Date.now() - 12 * 60000).toISOString(),
+      },
+      {
+        id: "73000000-0000-4000-8000-000000000002",
+        recruiter_id: recruiterID,
+        candidate_id: candidateID,
+        job_id: null,
+        subject: "Operations leadership conversation",
+        status: "open",
+        candidate_name: "Aarav Candidate",
+        recruiter_name: "Riya Recruiter",
+        job_title: null,
+        last_message: "Happy to stay in touch for future roles.",
+        unread_candidate: 0,
+        unread_recruiter: 1,
+        created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+        updated_at: new Date(Date.now() - 5 * 3600000).toISOString(),
+      },
+    ],
+    messagingMessages: {
+      "73000000-0000-4000-8000-000000000001": [
+        {id:"74000000-0000-4000-8000-000000000001",thread_id:"73000000-0000-4000-8000-000000000001",sender_id:recruiterID,sender_type:"recruiter",content:"Hi Aarav, your background looks relevant for our Senior Go Platform Engineer role.",is_read:true,created_at:new Date(Date.now()-90*60000).toISOString()},
+        {id:"74000000-0000-4000-8000-000000000002",thread_id:"73000000-0000-4000-8000-000000000001",sender_id:candidateID,sender_type:"candidate",content:"Thanks — I’m interested. Could you share the interview timeline?",is_read:true,created_at:new Date(Date.now()-12*60000).toISOString()},
+        {id:"74000000-0000-4000-8000-000000000003",thread_id:"73000000-0000-4000-8000-000000000001",sender_id:recruiterID,sender_type:"recruiter",content:"Absolutely. The next step is a 45-minute technical discussion, followed by the hiring manager round.",is_read:false,created_at:new Date(Date.now()-8*60000).toISOString()},
+      ],
+      "73000000-0000-4000-8000-000000000002": [
+        {id:"74000000-0000-4000-8000-000000000004",thread_id:"73000000-0000-4000-8000-000000000002",sender_id:recruiterID,sender_type:"recruiter",content:"Thanks for connecting. I’ll keep you in mind for operations leadership opportunities.",is_read:true,created_at:new Date(Date.now()-6*3600000).toISOString()},
+        {id:"74000000-0000-4000-8000-000000000005",thread_id:"73000000-0000-4000-8000-000000000002",sender_id:candidateID,sender_type:"candidate",content:"Happy to stay in touch for future roles.",is_read:false,created_at:new Date(Date.now()-5*3600000).toISOString()},
+      ],
+    },
+    candidateNotifications: [
+      {id:"75000000-0000-4000-8000-000000000001",kind:"inmail",title:"New message from a recruiter",body:"Senior Go Platform Engineer opportunity",action_url:"/candidate/inbox?thread=73000000-0000-4000-8000-000000000001",read_at:null,created_at:new Date(Date.now()-8*60000).toISOString()},
+    ],
     adminAccess: { enabled: false, assigned: true, admin_role: "support_admin", mfa_enrolled: false, mfa_verified: false },
   };
 }
@@ -762,7 +810,80 @@ const server = http.createServer(async (req, res) => {
       status: "sent",
     });
   }
-  if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") return json(res, 200, { items: [] });
+  if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") {
+    const role = roleFromCookie(req);
+    const items = state.messagingThreads.map((thread) => ({
+      id: thread.id,
+      recruiter_id: thread.recruiter_id,
+      candidate_id: thread.candidate_id,
+      job_id: thread.job_id,
+      subject: thread.subject,
+      status: thread.status,
+      counterparty_name: role === "candidate" ? thread.recruiter_name : thread.candidate_name,
+      job_title: thread.job_title,
+      last_message: thread.last_message,
+      unread_count: role === "candidate" ? thread.unread_candidate : thread.unread_recruiter,
+      created_at: thread.created_at,
+      updated_at: thread.updated_at,
+    })).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+    return json(res, 200, { items });
+  }
+  const messagingMessagesMatch = url.pathname.match(/^\/api\/v1\/messaging\/threads\/([^/]+)\/messages$/);
+  if (messagingMessagesMatch && req.method === "GET") {
+    return json(res, 200, { items: state.messagingMessages[messagingMessagesMatch[1]] ?? [] });
+  }
+  if (messagingMessagesMatch && req.method === "POST") {
+    const threadID = messagingMessagesMatch[1];
+    const role = roleFromCookie(req);
+    const senderID = role === "candidate" ? candidateID : recruiterID;
+    const message = {
+      id: `74000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      thread_id: threadID,
+      sender_id: senderID,
+      sender_type: role,
+      content: String(payload.content ?? "").trim(),
+      is_read: false,
+      created_at: now(),
+    };
+    if (!message.content) return json(res, 400, { error: { message: "messaging input is invalid" } });
+    state.messagingMessages[threadID] = [...(state.messagingMessages[threadID] ?? []), message];
+    const thread = state.messagingThreads.find((item) => item.id === threadID);
+    if (thread) {
+      thread.last_message = message.content;
+      thread.updated_at = message.created_at;
+      if (role === "candidate") thread.unread_recruiter += 1;
+      else {
+        thread.unread_candidate += 1;
+        state.candidateNotifications.unshift({
+          id:`75000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+          kind:"inmail",
+          title:"New message from a recruiter",
+          body:thread.subject,
+          action_url:`/candidate/inbox?thread=${thread.id}`,
+          read_at:null,
+          created_at:message.created_at,
+        });
+      }
+    }
+    return json(res, 201, message);
+  }
+  const messagingReadMatch = url.pathname.match(/^\/api\/v1\/messaging\/threads\/([^/]+)\/read$/);
+  if (messagingReadMatch && req.method === "PATCH") {
+    const role = roleFromCookie(req);
+    const thread = state.messagingThreads.find((item) => item.id === messagingReadMatch[1]);
+    if (thread) {
+      if (role === "candidate") thread.unread_candidate = 0;
+      if (role === "recruiter") thread.unread_recruiter = 0;
+    }
+    return noContent(res);
+  }
+  if (url.pathname === "/api/v1/candidate/notifications" && req.method === "GET") return json(res, 200, { items: state.candidateNotifications });
+  const notificationReadMatch = url.pathname.match(/^\/api\/v1\/candidate\/notifications\/([^/]+)\/read$/);
+  if (notificationReadMatch && req.method === "PATCH") {
+    const item = state.candidateNotifications.find((notification) => notification.id === notificationReadMatch[1]);
+    if (item) item.read_at = now();
+    return noContent(res);
+  }
   if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{
     id: "80000000-0000-4000-8000-000000000001", application_id: "70000000-0000-4000-8000-000000000001",
     candidate_id: "71000000-0000-4000-8000-000000000001", job_id: jobID, job_reference: "SWX-JOB-2026-00001",

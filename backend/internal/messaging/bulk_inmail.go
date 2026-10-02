@@ -451,7 +451,7 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 			       'inmail',
 			       'New InMail from a recruiter',
 			       t.subject,
-			       '/candidate/inbox'
+			       '/candidate/inbox?thread=' || t.id::text
 			FROM inserted_threads t
 			RETURNING id
 		)

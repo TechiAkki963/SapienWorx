@@ -116,3 +116,62 @@ func TestValidateTemplateVariables(t *testing.T) {
 		t.Fatal("unsupported template variable should be rejected")
 	}
 }
+
+func TestInboxChannelAndEventAreUserScoped(t *testing.T) {
+	channel := InboxChannel("candidate-1")
+	if channel != "inbox:candidate-1" {
+		t.Fatalf("channel = %q", channel)
+	}
+	event := NewInboxEvent("thread-1", "recruiter-1")
+	if event.Type != EventTypeInbox || event.ThreadID != "thread-1" || event.SenderID != "recruiter-1" {
+		t.Fatalf("unexpected inbox event: %#v", event)
+	}
+	if string(event.Payload) != `{"reason":"thread_changed"}` {
+		t.Fatalf("unexpected inbox payload: %s", event.Payload)
+	}
+
+	notificationEvent := NewNotificationsEvent("recruiter-1")
+	if notificationEvent.Type != EventTypeNotifications || notificationEvent.SenderID != "recruiter-1" {
+		t.Fatalf("unexpected notifications event: %#v", notificationEvent)
+	}
+	if string(notificationEvent.Payload) != `{"reason":"notifications_changed"}` {
+		t.Fatalf("unexpected notifications payload: %s", notificationEvent.Payload)
+	}
+
+	hub := NewHub(2, 2)
+	candidate := &Client{UserID: "candidate-1", Send: make(chan WebSocketEvent, 2)}
+	other := &Client{UserID: "candidate-2", Send: make(chan WebSocketEvent, 2)}
+	if !hub.Register(InboxChannel("candidate-1"), candidate) || !hub.Register(InboxChannel("candidate-2"), other) {
+		t.Fatal("expected inbox clients to register")
+	}
+	hub.Broadcast(InboxChannel("candidate-1"), event)
+
+	select {
+	case got := <-candidate.Send:
+		if got.Type != EventTypeInbox || got.ThreadID != "thread-1" {
+			t.Fatalf("unexpected candidate inbox event: %#v", got)
+		}
+	default:
+		t.Fatal("candidate should receive its inbox event")
+	}
+	select {
+	case <-other.Send:
+		t.Fatal("another user's inbox must not receive the event")
+	default:
+	}
+
+	hub.Broadcast(InboxChannel("candidate-1"), notificationEvent)
+	select {
+	case got := <-candidate.Send:
+		if got.Type != EventTypeNotifications {
+			t.Fatalf("unexpected candidate notifications event: %#v", got)
+		}
+	default:
+		t.Fatal("candidate should receive its notifications event")
+	}
+	select {
+	case <-other.Send:
+		t.Fatal("another user's inbox must not receive notification invalidations")
+	default:
+	}
+}

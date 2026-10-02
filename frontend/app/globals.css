@@ -509,3 +509,72 @@ a {
 .swx-dark .theme-surface .swx-bulk-inmail [class*="bg-[#f4fbf8]"] {
   background-color: #0f2a24 !important;
 }
+
+
+/* P2.2 Messaging: explicit dark surfaces and accessible message contrast. */
+.swx-dark .theme-surface .swx-messaging-workspace {
+  border-color: #273449 !important;
+  background: #111827 !important;
+}
+.swx-dark .theme-surface .swx-messaging-list {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%) !important;
+  border-color: #273449 !important;
+}
+.swx-dark .theme-surface .swx-thread-row:hover {
+  background: #172033 !important;
+}
+.swx-dark .theme-surface .swx-thread-row-active {
+  background: #172554 !important;
+  box-shadow: 0 8px 24px rgb(2 6 23 / 0.32) !important;
+  --tw-ring-color: #334155 !important;
+}
+.swx-dark .theme-surface .swx-thread-row-active .text-ink,
+.swx-dark .theme-surface .swx-thread-row-active .text-navy {
+  color: #f8fafc !important;
+}
+.swx-dark .theme-surface .swx-messaging-pane {
+  background:
+    radial-gradient(circle at 90% 0%, rgb(30 64 175 / 0.16), transparent 28%),
+    linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
+}
+.swx-dark .theme-surface .swx-messaging-header,
+.swx-dark .theme-surface .swx-messaging-composer {
+  background: rgb(15 23 42 / 0.92) !important;
+  border-color: #273449 !important;
+}
+.swx-dark .theme-surface .swx-message-candidate {
+  background: #123a32 !important;
+  border-color: #1f5b4c !important;
+  color: #dcfce7 !important;
+}
+.swx-dark .theme-surface .swx-message-recruiter {
+  background: #251f47 !important;
+  border-color: #3b3269 !important;
+  color: #ede9fe !important;
+}
+.swx-dark .theme-surface .swx-message-candidate [class*="text-emerald-700"],
+.swx-dark .theme-surface .swx-message-candidate [class*="text-[#526B63]"] {
+  color: #86efac !important;
+}
+.swx-dark .theme-surface .swx-message-recruiter [class*="text-violet-700"] {
+  color: #c4b5fd !important;
+}
+
+
+.theme-surface .swx-thread-row-active {
+  background-color: rgb(255 255 255 / 0.96) !important;
+}
+.swx-dark {
+  --swx-messaging-active-row: #172554;
+}
+.swx-dark .theme-surface .swx-thread-row-active {
+  color: #f8fafc !important;
+}
+
+
+/* P2.2 final dark selected-row override: keep the active conversation readable. */
+.swx-dark .theme-surface button.swx-thread-row.swx-thread-row-active {
+  background-color: #172554 !important;
+  background-image: none !important;
+  color: #f8fafc !important;
+}
