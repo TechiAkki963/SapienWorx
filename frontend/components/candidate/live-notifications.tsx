@@ -19,7 +19,7 @@ export function LiveNotifications({ initialItems }: { initialItems: CandidateNot
   useEffect(() => {
     let cancelled = false;
     let socket: WebSocket | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnectTimer: number | null = null;
     let attempt = 0;
 
     async function refresh() {
