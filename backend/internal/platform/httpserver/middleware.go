@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/hex"
 	"log/slog"
 	"net"
@@ -110,6 +111,28 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 		next.ServeHTTP(w, r)
 	})
+}
+
+func RequireCSRF(cookieName string) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodGet || r.Method == http.MethodHead || r.Method == http.MethodOptions {
+				next.ServeHTTP(w, r)
+				return
+			}
+			cookie, err := r.Cookie(cookieName)
+			if err != nil || strings.TrimSpace(cookie.Value) == "" {
+				writeError(w, r, http.StatusForbidden, "csrf_required", "request verification failed")
+				return
+			}
+			header := strings.TrimSpace(r.Header.Get("X-CSRF-Token"))
+			if header == "" || subtle.ConstantTimeCompare([]byte(header), []byte(cookie.Value)) != 1 {
+				writeError(w, r, http.StatusForbidden, "csrf_invalid", "request verification failed")
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func MaxBodyBytes(limit int64) Middleware {
