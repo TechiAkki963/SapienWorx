@@ -74,7 +74,7 @@ let state = initialState();
 const corsHeaders = {
   "access-control-allow-origin": webOrigin,
   "access-control-allow-credentials": "true",
-  "access-control-allow-headers": "content-type,x-amz-server-side-encryption",
+  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id",
   "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
 };
 
@@ -370,7 +370,12 @@ const server = http.createServer(async (req, res) => {
     const role = String(payload.role ?? "candidate");
     return json(res, 200, { expires_in: 900, role }, { "set-cookie": [`swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax`, "sw_csrf=e2e-csrf-token; Path=/; SameSite=Lax"] });
   }
-  if (url.pathname === "/api/v1/auth/logout" && req.method === "POST") return json(res, 200, {}, { "set-cookie": "swx_e2e_role=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" });
+  if (url.pathname === "/api/v1/auth/refresh" && req.method === "POST") {
+    const role = roleFromCookie(req);
+    if (!role) return json(res, 401, { error: { message: "valid session required" } });
+    return json(res, 200, { expires_in: 900, role }, { "set-cookie": [`swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax`, "sw_csrf=e2e-csrf-token; Path=/; SameSite=Lax"] });
+  }
+  if (url.pathname === "/api/v1/auth/logout" && req.method === "POST") return json(res, 200, {}, { "set-cookie": ["swx_e2e_role=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0", "sw_csrf=; Path=/; SameSite=Lax; Max-Age=0"] });
   if (url.pathname === "/api/v1/auth/me" && req.method === "GET") {
     const role = roleFromCookie(req);
     if (!role) return json(res, 401, { error: { message: "authentication required" } });
