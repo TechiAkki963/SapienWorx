@@ -4,6 +4,7 @@ import { Rate, Trend } from 'k6/metrics';
 
 const BASE_URL = (__ENV.BASE_URL || 'http://127.0.0.1:8080').replace(/\/$/, '');
 const ACCESS_TOKEN = (__ENV.ACCESS_TOKEN || '').trim();
+const SESSION_COOKIE = (__ENV.SESSION_COOKIE || '').trim();
 
 function loadTokenPool() {
   if (__ENV.TOKENS_FILE) {
@@ -71,7 +72,7 @@ function choose(items, seedOffset = 0) {
 
 function candidateToken() {
   if (TOKENS.length === 0) {
-    fail('Set TOKENS_FILE (preferred), CANDIDATE_TOKENS, or ACCESS_TOKEN before running the load test.');
+    fail('Set TOKENS_FILE, CANDIDATE_TOKENS, ACCESS_TOKEN, or SESSION_COOKIE before running the load test.');
   }
   return TOKENS[(__VU - 1) % TOKENS.length];
 }
@@ -96,11 +97,11 @@ function buildSearchURL() {
 }
 
 export function setup() {
-  if (TOKENS.length === 0) {
-    fail('No candidate JWT supplied. Refusing to execute an unauthenticated load test.');
+  if (TOKENS.length === 0 && !SESSION_COOKIE) {
+    fail('No candidate authentication supplied. Refusing to execute an unauthenticated load test.');
   }
 
-  if (PEAK_VUS >= 1000 && TOKENS.length < 1000) {
+  if (PEAK_VUS >= 1000 && TOKENS.length < 1000 && !SESSION_COOKIE) {
     console.warn(
       `PEAK_VUS=${PEAK_VUS}, but only ${TOKENS.length} candidate token(s) supplied. ` +
         'For a production-representative 1,000-candidate test, provide 1,000 distinct JWTs using TOKENS_FILE.',
@@ -115,14 +116,17 @@ export function setup() {
     fail(`API preflight failed: ${BASE_URL}/health/ready returned HTTP ${health.status}`);
   }
 
-  return { baseURL: BASE_URL, tokenCount: TOKENS.length };
+  return { baseURL: BASE_URL, tokenCount: TOKENS.length, cookieSession: Boolean(SESSION_COOKIE) };
 }
 
 export function candidateSearch() {
   const started = Date.now();
+  const authHeaders = SESSION_COOKIE
+    ? { Cookie: SESSION_COOKIE }
+    : { Authorization: `Bearer ${candidateToken()}` };
   const response = http.get(buildSearchURL(), {
     headers: {
-      Authorization: `Bearer ${candidateToken()}`,
+      ...authHeaders,
       Accept: 'application/json',
       'X-Load-Test': 'phase-d-candidate-search',
     },
