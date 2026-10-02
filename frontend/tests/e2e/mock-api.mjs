@@ -814,9 +814,52 @@ const server = http.createServer(async (req, res) => {
     {candidate_id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",current_city:"Navi Mumbai",experience_months:72,notice_period_days:15,tags:["Healthcare","Critical Care"],saved_at:new Date(Date.now()-2*86400000).toISOString()},
     {candidate_id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",current_city:"Pune",experience_months:60,notice_period_days:0,tags:["B2B Sales","CRM"],saved_at:new Date(Date.now()-86400000).toISOString()}
   ] });
-  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "GET") return json(res, 200, { items: [
-    {id:"72000000-0000-4000-8000-000000000001",title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you."}
-  ] });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "GET") return json(res, 200, { items: state.messageTemplates });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "POST") {
+    const item={id:`72000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,title:String(payload.title??"").trim(),subject_template:String(payload.subject_template??"").trim(),body_template:String(payload.body_template??"").trim(),updated_at:now()};
+    if(!item.title||!item.subject_template||!item.body_template) return json(res,400,{error:{message:"messaging input is invalid"}});
+    state.messageTemplates.unshift(item); return json(res,201,item);
+  }
+  const templateMatch=url.pathname.match(/^\/api\/v1\/recruiter\/message-templates\/([^/]+)$/);
+  if(templateMatch&&req.method==="DELETE"){state.messageTemplates=state.messageTemplates.filter((item)=>item.id!==templateMatch[1]);return noContent(res);}
+  if(templateMatch&&req.method==="PATCH"){
+    const item=state.messageTemplates.find((entry)=>entry.id===templateMatch[1]); if(!item)return json(res,404,{error:{message:"resource was not found"}});
+    Object.assign(item,{title:String(payload.title??item.title).trim(),subject_template:String(payload.subject_template??item.subject_template).trim(),body_template:String(payload.body_template??item.body_template).trim(),updated_at:now()});
+    return json(res,200,item);
+  }
+
+  if (url.pathname === "/api/v1/recruiter/outreach/sequences" && req.method === "GET") return json(res,200,{items:state.outreachSequences});
+  if (url.pathname === "/api/v1/recruiter/outreach/sequences" && req.method === "POST") {
+    const item={id:`76000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,name:String(payload.name??"").trim(),description:String(payload.description??"").trim(),status:"draft",stop_on_reply:Boolean(payload.stop_on_reply),updated_at:now(),steps:(Array.isArray(payload.steps)?payload.steps:[]).map((step,index)=>({...step,id:`76100000-0000-4000-8000-${String(Date.now()+index).slice(-12).padStart(12,"0")}`,step_order:index+1,created_at:now(),updated_at:now()}))};
+    if(!item.name||!item.steps.length)return json(res,400,{error:{message:"messaging input is invalid"}});
+    state.outreachSequences.unshift(item); return json(res,201,item);
+  }
+  const sequenceMatch=url.pathname.match(/^\/api\/v1\/recruiter\/outreach\/sequences\/([^/]+)$/);
+  if(sequenceMatch&&req.method==="PATCH"){
+    const item=state.outreachSequences.find((entry)=>entry.id===sequenceMatch[1]); if(!item)return json(res,404,{error:{message:"resource was not found"}});
+    Object.assign(item,{name:String(payload.name??item.name).trim(),description:String(payload.description??item.description).trim(),stop_on_reply:Boolean(payload.stop_on_reply),steps:Array.isArray(payload.steps)?payload.steps:item.steps,updated_at:now()});
+    return json(res,200,item);
+  }
+  const sequenceStatusMatch=url.pathname.match(/^\/api\/v1\/recruiter\/outreach\/sequences\/([^/]+)\/status$/);
+  if(sequenceStatusMatch&&req.method==="PATCH"){
+    const item=state.outreachSequences.find((entry)=>entry.id===sequenceStatusMatch[1]); if(!item)return json(res,404,{error:{message:"resource was not found"}});
+    item.status=String(payload.status??item.status);item.updated_at=now();return noContent(res);
+  }
+
+  if (url.pathname === "/api/v1/recruiter/outreach/campaigns" && req.method === "GET") return json(res,200,{items:state.outreachCampaigns});
+  if (url.pathname === "/api/v1/recruiter/outreach/campaigns" && req.method === "POST") {
+    if(!req.headers["x-idempotency-key"])return json(res,400,{error:{message:"messaging input is invalid"}});
+    const ids=Array.isArray(payload.candidate_ids)?Array.from(new Set(payload.candidate_ids)):[];
+    const campaign={id:`77000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,sequence_id:String(payload.sequence_id??""),job_id:payload.job_id??null,name:String(payload.name??"").trim(),status:"active",stop_on_reply:true,requested_count:ids.length,enrolled_count:ids.length,skipped_count:0,created_at:now()};
+    if(!campaign.sequence_id||!campaign.name||!ids.length)return json(res,400,{error:{message:"messaging input is invalid"}});
+    state.outreachCampaigns.unshift(campaign);return json(res,201,{campaign,bulk:{requested_count:ids.length,recipient_count:ids.length,sent_count:ids.length,skipped_count:0,skipped_candidate_ids:[],cooldown_days:14,status:"sent"}});
+  }
+  const campaignStatusMatch=url.pathname.match(/^\/api\/v1\/recruiter\/outreach\/campaigns\/([^/]+)\/status$/);
+  if(campaignStatusMatch&&req.method==="PATCH"){
+    const item=state.outreachCampaigns.find((entry)=>entry.id===campaignStatusMatch[1]); if(!item)return json(res,404,{error:{message:"resource was not found"}});
+    item.status=payload.action==="pause"?"paused":payload.action==="resume"?"active":payload.action==="cancel"?"cancelled":item.status;return noContent(res);
+  }
+
   if (url.pathname === "/api/v1/recruiter/inmail/bulk" && req.method === "POST") {
     const ids = Array.isArray(payload.candidate_ids) ? Array.from(new Set(payload.candidate_ids)) : [];
     if (!req.headers["x-idempotency-key"]) return json(res, 400, { error: { code: "invalid_request", message: "messaging input is invalid" } });
