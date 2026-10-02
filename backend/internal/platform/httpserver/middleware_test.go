@@ -177,7 +177,6 @@ func TestRequireCSRFRejectsMismatchedToken(t *testing.T) {
 	}
 }
 
-
 func TestRequireCSRFAllowsBearerMutation(t *testing.T) {
 	handler := RequireCSRF("sw_csrf")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
