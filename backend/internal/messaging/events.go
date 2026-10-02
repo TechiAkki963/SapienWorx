@@ -8,6 +8,7 @@ const (
 	EventTypeMessage EventType = "message"
 	EventTypeTyping  EventType = "typing"
 	EventTypeRead    EventType = "read"
+	EventTypeInbox   EventType = "inbox"
 )
 
 const MaxReadReceiptBatch = 100
@@ -42,6 +43,10 @@ type ReadPayload struct {
 	MessageIDs []string `json:"message_ids"`
 }
 
+type InboxPayload struct {
+	Reason string `json:"reason"`
+}
+
 type ReadResult struct {
 	SenderID   string   `json:"sender_id"`
 	MessageIDs []string `json:"message_ids"`
@@ -66,4 +71,13 @@ func NewTypingEvent(threadID, senderID string, isTyping bool) WebSocketEvent {
 func NewReadEvent(threadID, senderID string, messageIDs []string) WebSocketEvent {
 	payload, _ := json.Marshal(ReadPayload{MessageIDs: messageIDs})
 	return WebSocketEvent{Type: EventTypeRead, ThreadID: threadID, SenderID: senderID, Payload: payload}
+}
+
+func InboxChannel(userID string) string {
+	return "inbox:" + userID
+}
+
+func NewInboxEvent(threadID, senderID string) WebSocketEvent {
+	payload, _ := json.Marshal(InboxPayload{Reason: "thread_changed"})
+	return WebSocketEvent{Type: EventTypeInbox, ThreadID: threadID, SenderID: senderID, Payload: payload}
 }
