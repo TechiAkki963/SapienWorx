@@ -499,18 +499,18 @@ func (s *Service) SetCampaignStatus(ctx context.Context, recruiterID, campaignID
 }
 
 type claimedOutreachStep struct {
-	CampaignID   string
-	CandidateID  string
-	RecruiterID  string
-	ThreadID     string
-	JobID        *string
-	StepOrder    int
-	StopOnReply  bool
-	Subject      string
-	Body         string
-	CompanyID    string
+	CampaignID    string
+	CandidateID   string
+	RecruiterID   string
+	ThreadID      string
+	JobID         *string
+	StepOrder     int
+	StopOnReply   bool
+	Subject       string
+	Body          string
+	CompanyID     string
 	CandidateName string
-	JobTitle     string
+	JobTitle      string
 }
 
 func (s *Service) claimOutreachStep(ctx context.Context) (claimedOutreachStep, bool, error) {
