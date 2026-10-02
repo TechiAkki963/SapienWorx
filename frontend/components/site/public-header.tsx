@@ -10,8 +10,8 @@ export function PublicHeader({ sessionRole }: { sessionRole?: Role }) {
   const workspaceLabel = sessionRole === "recruiter" ? "Recruiter workspace" : sessionRole === "candidate" ? "Candidate workspace" : "Admin workspace";
   return (
     <header className="sticky top-0 z-50 border-b border-white/60 bg-white/82 backdrop-blur-xl supports-[backdrop-filter]:bg-white/74">
-      <Container className="flex min-h-[72px] items-center justify-between gap-4 py-3">
-        <Link href="/" aria-label="SapienWorx home" className="shrink-0">
+      <Container className="flex min-h-[72px] min-w-0 items-center justify-between gap-2 py-3 sm:gap-4">
+        <Link href="/" aria-label="SapienWorx home" className="min-w-0 shrink">
           <Wordmark className="text-sm sm:text-lg" />
         </Link>
 
@@ -27,7 +27,7 @@ export function PublicHeader({ sessionRole }: { sessionRole?: Role }) {
             <span className="hidden sm:inline-flex"><Button href={workspaceHref} size="sm" className="px-3 sm:px-5">{workspaceLabel} <span aria-hidden="true">→</span></Button></span>
           ) : (
             <>
-              <Button href="/login" size="sm" variant="ghost" className="hidden sm:inline-flex">Log in</Button>
+              <Button href="/login" size="sm" variant="ghost" className="hidden md:inline-flex">Log in</Button>
               <Button href="/signup" size="sm" className="px-3 sm:px-5"><span className="sm:hidden">Join</span><span className="hidden sm:inline">Create Account</span><span aria-hidden="true">→</span></Button>
             </>
           )}
