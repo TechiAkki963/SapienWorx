@@ -168,6 +168,10 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("DELETE /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/inmail", Chain(http.HandlerFunc(s.recruiterInitiateInMail), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/inmail/bulk", Chain(http.HandlerFunc(s.recruiterBulkInMail), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/outreach/sequences", Chain(http.HandlerFunc(s.recruiterOutreachSequences), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/sequences", Chain(http.HandlerFunc(s.recruiterOutreachSequences), protected, recruiterOnly))
+	mux.Handle("DELETE /api/v1/recruiter/outreach/sequences/{sequenceID}", Chain(http.HandlerFunc(s.recruiterOutreachSequence), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/sequences/{sequenceID}/launch", Chain(http.HandlerFunc(s.recruiterLaunchOutreachSequence), protected, recruiterOnly))
 
 	messagingUsers := RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)
 	mux.Handle("GET /api/v1/messaging/threads", Chain(http.HandlerFunc(s.messagingThreads), protected, messagingUsers, candidateActivity))
