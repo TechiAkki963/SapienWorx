@@ -160,7 +160,9 @@ func TestRequireCSRFAcceptsMatchingDoubleSubmitToken(t *testing.T) {
 	req.Header.Set("X-CSRF-Token", "test-token")
 	res := httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
-	if res.Code != http.StatusNoContent { t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent) }
+	if res.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent)
+	}
 }
 
 func TestRequireCSRFRejectsMismatchedToken(t *testing.T) {
@@ -170,5 +172,21 @@ func TestRequireCSRFRejectsMismatchedToken(t *testing.T) {
 	req.Header.Set("X-CSRF-Token", "header-token")
 	res := httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
-	if res.Code != http.StatusForbidden { t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden) }
+	if res.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden)
+	}
+}
+
+
+func TestRequireCSRFAllowsBearerMutation(t *testing.T) {
+	handler := RequireCSRF("sw_csrf")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	req := httptest.NewRequest(http.MethodPatch, "/api/v1/candidate/profile", nil)
+	req.Header.Set("Authorization", "Bearer test-token")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent)
+	}
 }
