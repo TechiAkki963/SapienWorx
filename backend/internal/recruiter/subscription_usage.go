@@ -16,7 +16,7 @@ func (s *Service) RecordCandidateCVView(ctx context.Context, companyID, recruite
 	_, err := s.db.Exec(ctx, `
 		INSERT INTO subscription_usage_events(
 			company_id, actor_user_id, candidate_id, meter_key, quantity, metadata, request_id
-		) VALUES($1,$2,$3,'cv_view',1,$4::jsonb,NULLIF($5,''))
+		) VALUES($1,$2,$3,'cv_view',1,$4::jsonb,NULLIF($5,''))\n\t\tON CONFLICT (request_id) WHERE request_id IS NOT NULL DO NOTHING
 	`, companyID, recruiterUserID, candidateUserID, metadata, strings.TrimSpace(requestID))
 	return err
 }
