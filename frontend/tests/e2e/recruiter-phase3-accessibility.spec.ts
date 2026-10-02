@@ -76,6 +76,7 @@ test("Candidate 360 header actions support keyboard entry, Escape and focus retu
   await page.goto(`/recruiter/candidates/71000000-0000-4000-8000-000000000001?job_id=${jobID}`);
 
   const inmail = page.getByRole("button", { name: "Send InMail" });
+  await expect(inmail).toBeEnabled();
   await inmail.focus();
   await inmail.press("Enter");
   await expect(page.getByRole("complementary", { name: "InMail composer" })).toBeVisible();
