@@ -6,17 +6,17 @@ import (
 )
 
 type Subprocessor struct {
-	ID                  string    `json:"id"`
-	Name                string    `json:"name"`
-	Purpose             string    `json:"purpose"`
-	DataCategories      mapSlice  `json:"data_categories"`
-	ProcessingLocations mapSlice  `json:"processing_locations"`
-	WebsiteURL          *string   `json:"website_url,omitempty"`
-	DPAURL              *string   `json:"dpa_url,omitempty"`
-	TransferMechanism   *string   `json:"transfer_mechanism,omitempty"`
-	TIAStatus           string    `json:"tia_status"`
+	ID                  string     `json:"id"`
+	Name                string     `json:"name"`
+	Purpose             string     `json:"purpose"`
+	DataCategories      mapSlice   `json:"data_categories"`
+	ProcessingLocations mapSlice   `json:"processing_locations"`
+	WebsiteURL          *string    `json:"website_url,omitempty"`
+	DPAURL              *string    `json:"dpa_url,omitempty"`
+	TransferMechanism   *string    `json:"transfer_mechanism,omitempty"`
+	TIAStatus           string     `json:"tia_status"`
 	TIAReviewedAt       *time.Time `json:"tia_reviewed_at,omitempty"`
-	EffectiveFrom       time.Time `json:"effective_from"`
+	EffectiveFrom       time.Time  `json:"effective_from"`
 }
 
 type mapSlice []string
