@@ -132,3 +132,39 @@ func TestTrustedProxyRemoteAddrRejectsSpoofFromUntrustedPeer(t *testing.T) {
 		t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent)
 	}
 }
+
+func TestRequireCSRFSafeMethodDoesNotRequireToken(t *testing.T) {
+	handler := RequireCSRF("sw_csrf")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) }))
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/me", nil)
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusNoContent { t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent) }
+}
+
+func TestRequireCSRFRejectsMissingTokenOnMutation(t *testing.T) {
+	handler := RequireCSRF("sw_csrf")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) }))
+	req := httptest.NewRequest(http.MethodPatch, "/api/v1/candidate/profile", nil)
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusForbidden { t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden) }
+}
+
+func TestRequireCSRFAcceptsMatchingDoubleSubmitToken(t *testing.T) {
+	handler := RequireCSRF("sw_csrf")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) }))
+	req := httptest.NewRequest(http.MethodPatch, "/api/v1/candidate/profile", nil)
+	req.AddCookie(&http.Cookie{Name: "sw_csrf", Value: "test-token"})
+	req.Header.Set("X-CSRF-Token", "test-token")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusNoContent { t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent) }
+}
+
+func TestRequireCSRFRejectsMismatchedToken(t *testing.T) {
+	handler := RequireCSRF("sw_csrf")(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) }))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/logout", nil)
+	req.AddCookie(&http.Cookie{Name: "sw_csrf", Value: "cookie-token"})
+	req.Header.Set("X-CSRF-Token", "header-token")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusForbidden { t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden) }
+}
