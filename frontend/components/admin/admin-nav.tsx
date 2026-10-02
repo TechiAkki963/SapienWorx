@@ -20,11 +20,12 @@ const items = [
   ["/swx-command-centre/alerts", "Alerts & incidents"],
   ["/swx-command-centre/workforce-taxonomy", "Workforce taxonomy"],
   ["/swx-command-centre/intelligence", "Intelligence"],
+  ["/swx-command-centre/trust", "Trust & risk review"],
   ["/swx-command-centre/releases", "Release control"],
   ["/swx-command-centre/content-settings", "Content, settings & costs"],
 ] as const;
 
-const modulePermissions: (AdminPermission | null)[] = ["overview.read", "organizations.read", "users.read", "jobs.read", "privacy.read", "audit.read", "system.read", null, "organizations.read", "recruitment.read", "recruitment.read", "control_plane.read", "control_plane.read", "taxonomy.read", "intelligence.read", "release.manage", "control_plane.read"];
+const modulePermissions: (AdminPermission | null)[] = ["overview.read", "organizations.read", "users.read", "jobs.read", "privacy.read", "audit.read", "system.read", null, "organizations.read", "recruitment.read", "recruitment.read", "control_plane.read", "control_plane.read", "taxonomy.read", "intelligence.read", "trust_risk.read", "release.manage", "control_plane.read"];
 
 function Icon({ index }: { index: number }) {
   const paths = [
