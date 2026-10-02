@@ -6,14 +6,14 @@ import { createPortal } from "react-dom";
 
 import { apiRequest } from "@/lib/api";
 
-type MessageTemplate = {
+export type BulkMessageTemplate = {
   id: string;
   title: string;
   subject_template: string;
   body_template: string;
 };
 
-type RecruiterJob = {
+export type BulkRecruiterJob = {
   id: string;
   title: string;
   status: string;
@@ -58,19 +58,27 @@ function Spinner() {
   return <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white/45 border-t-white" />;
 }
 
-export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
+export function BulkInMailDrawer({
+  onSent,
+  initialTemplates,
+  initialJobs,
+}: {
+  onSent: () => void;
+  initialTemplates?: BulkMessageTemplate[];
+  initialJobs?: BulkRecruiterJob[];
+}) {
   const [open, setOpen] = useState(false);
   const [candidateIDs, setCandidateIDs] = useState<string[]>([]);
-  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [templates, setTemplates] = useState<BulkMessageTemplate[]>(initialTemplates ?? []);
   const [templateID, setTemplateID] = useState("");
-  const [jobs, setJobs] = useState<RecruiterJob[]>([]);
+  const [jobs, setJobs] = useState<BulkRecruiterJob[]>(initialJobs ?? []);
   const [jobID, setJobID] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [loadingTemplates, setLoadingTemplates] = useState(false);
-  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [templatesLoaded, setTemplatesLoaded] = useState(initialTemplates !== undefined);
   const [loadingJobs, setLoadingJobs] = useState(false);
-  const [jobsLoaded, setJobsLoaded] = useState(false);
+  const [jobsLoaded, setJobsLoaded] = useState(initialJobs !== undefined);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -101,7 +109,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     let cancelled = false;
     setLoadingTemplates(true);
 
-    apiRequest<{ items: MessageTemplate[] }>("/api/v1/recruiter/message-templates")
+    apiRequest<{ items: BulkMessageTemplate[] }>("/api/v1/recruiter/message-templates")
       .then(({ items }) => {
         if (!cancelled) setTemplates(items ?? []);
       })
@@ -126,7 +134,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     let cancelled = false;
     setLoadingJobs(true);
 
-    apiRequest<{ items: RecruiterJob[] }>("/api/v1/recruiter/jobs")
+    apiRequest<{ items: BulkRecruiterJob[] }>("/api/v1/recruiter/jobs")
       .then(({ items }) => {
         if (!cancelled) setJobs(items ?? []);
       })
