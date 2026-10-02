@@ -13,13 +13,16 @@ type Subprocessor struct {
 	ProcessingLocations mapSlice  `json:"processing_locations"`
 	WebsiteURL          *string   `json:"website_url,omitempty"`
 	DPAURL              *string   `json:"dpa_url,omitempty"`
+	TransferMechanism   *string   `json:"transfer_mechanism,omitempty"`
+	TIAStatus           string    `json:"tia_status"`
+	TIAReviewedAt       *time.Time `json:"tia_reviewed_at,omitempty"`
 	EffectiveFrom       time.Time `json:"effective_from"`
 }
 
 type mapSlice []string
 
 func (s *Service) PublicSubprocessors(ctx context.Context) ([]Subprocessor, error) {
-	rows, err := s.db.Query(ctx, `SELECT id,name,purpose,data_categories,processing_locations,website_url,dpa_url,effective_from FROM privacy_subprocessors WHERE active=true AND effective_from<=current_date AND (effective_to IS NULL OR effective_to>=current_date) ORDER BY lower(name)`)
+	rows, err := s.db.Query(ctx, `SELECT id,name,purpose,data_categories,processing_locations,website_url,dpa_url,transfer_mechanism,tia_status,tia_reviewed_at,effective_from FROM privacy_subprocessors WHERE active=true AND effective_from<=current_date AND (effective_to IS NULL OR effective_to>=current_date) ORDER BY lower(name)`)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +30,7 @@ func (s *Service) PublicSubprocessors(ctx context.Context) ([]Subprocessor, erro
 	items := make([]Subprocessor, 0)
 	for rows.Next() {
 		var item Subprocessor
-		if err := rows.Scan(&item.ID, &item.Name, &item.Purpose, &item.DataCategories, &item.ProcessingLocations, &item.WebsiteURL, &item.DPAURL, &item.EffectiveFrom); err != nil {
+		if err := rows.Scan(&item.ID, &item.Name, &item.Purpose, &item.DataCategories, &item.ProcessingLocations, &item.WebsiteURL, &item.DPAURL, &item.TransferMechanism, &item.TIAStatus, &item.TIAReviewedAt, &item.EffectiveFrom); err != nil {
 			return nil, err
 		}
 		items = append(items, item)
