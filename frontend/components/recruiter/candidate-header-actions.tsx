@@ -14,7 +14,7 @@ export function CandidateHeaderActions({
   applications: PipelineRow[];
 }) {
   return (
-    <div className="flex w-full flex-wrap items-center justify-end gap-2 xl:w-auto">
+    <div className="flex w-full flex-wrap items-center justify-end gap-2 lg:w-auto">
       <button
         type="button"
         onClick={() => window.dispatchEvent(new Event("sapienworx:open-candidate-inmail"))}

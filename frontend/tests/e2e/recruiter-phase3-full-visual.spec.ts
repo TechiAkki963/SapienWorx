@@ -116,6 +116,8 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await expect(page.getByRole("button", { name: /Recruiter Notes/ })).toBeVisible();
     await expect(page.getByText("Preferred location:", { exact: true })).toBeVisible();
     await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
+    await expect(page.getByTitle("Verified email · locked after verification")).toBeVisible();
+    await expect(page.getByLabel("Verified email, locked")).toBeVisible();
     await expect(page.getByText("Verified", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Hidden phone number. Click once to show. Double click to copy" })).toContainText("••••••••••");
     await expect(page.getByText("8.4 · CGPA / 10", { exact: true })).toBeVisible();

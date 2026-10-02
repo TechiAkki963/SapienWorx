@@ -352,8 +352,17 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		if err != nil {
 			t.Fatalf("same-company application detail rejected: %v", err)
 		}
-		if !applied.HasCompanyApplication || !applied.CanViewCV || !applied.CanViewContact || !applied.CanCollaborate || applied.Email == "" {
-			t.Fatalf("same-company application capabilities incorrect: %+v", applied)
+		if !applied.HasCompanyApplication || !applied.CanViewCV || applied.CanViewContact || !applied.CanCollaborate || applied.Email == "" {
+			t.Fatalf("same-company application capabilities incorrect before contact consent: %+v", applied)
+		}
+		exec(`UPDATE users SET phone_e164='+919876543210' WHERE id=$1`, appliedCandidate)
+		exec(`UPDATE candidate_profiles SET contact_reveal_enabled=true,profile_details=profile_details || '{"private_contact":"false"}'::jsonb WHERE user_id=$1`, appliedCandidate)
+		appliedWithContact, err := recruiterSvc.CandidateDetail(ctx, recruiterA, appliedCandidate)
+		if err != nil {
+			t.Fatalf("consented application detail rejected: %v", err)
+		}
+		if !appliedWithContact.CanViewContact || appliedWithContact.MaskedPhone != "••••••••••" {
+			t.Fatalf("consented contact capability incorrect: %+v", appliedWithContact)
 		}
 
 		discoverable, err := recruiterSvc.CandidateDetail(ctx, recruiterA, discoverableCandidate)

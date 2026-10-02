@@ -56,6 +56,8 @@ test("Candidate 360 header reveals masked contact on single click and copies on 
   await page.goto(`/recruiter/candidates/${candidateWithApplication}?job_id=${jobID}`);
 
   await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
+  await expect(page.getByTitle("Verified email · locked after verification")).toBeVisible();
+  await expect(page.getByLabel("Verified email, locked")).toBeVisible();
   await expect(page.getByText("Verified", { exact: true })).toBeVisible();
 
   const phone = page.getByRole("button", { name: "Hidden phone number. Click once to show. Double click to copy" });
