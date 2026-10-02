@@ -74,7 +74,7 @@ let state = initialState();
 const corsHeaders = {
   "access-control-allow-origin": webOrigin,
   "access-control-allow-credentials": "true",
-  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id",
+  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id,x-idempotency-key",
   "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
 };
 
