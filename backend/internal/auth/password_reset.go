@@ -38,8 +38,21 @@ func (s *Service) RequestPasswordReset(ctx context.Context, emailValue string) (
 	if err != nil {
 		return "", err
 	}
-	_, err = s.db.Exec(ctx, `INSERT INTO email_verification_challenges(user_id,email,purpose,code_hash,expires_at) VALUES($1,$2,$3,$4,$5)`, userID, email, PurposePasswordReset, otpHash([]byte(s.cfg.OTPSecret), userID, PurposePasswordReset, code), s.now().UTC().Add(s.cfg.OTPTTL))
+	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback(ctx)
+	var challengeID string
+	err = tx.QueryRow(ctx, `INSERT INTO email_verification_challenges(user_id,email,purpose,code_hash,expires_at) VALUES($1,$2,$3,$4,$5) RETURNING id`, userID, email, PurposePasswordReset, otpHash([]byte(s.cfg.OTPSecret), userID, PurposePasswordReset, code), s.now().UTC().Add(s.cfg.OTPTTL)).Scan(&challengeID)
+	if err != nil {
+		return "", err
+	}
+	subject, textBody, htmlBody := passwordResetEmailContent(code, s.cfg.OTPTTL)
+	if err = enqueueSecurityEmailTx(ctx, tx, "password_reset", email, "password-reset:"+challengeID, subject, textBody, htmlBody); err != nil {
+		return "", err
+	}
+	if err = tx.Commit(ctx); err != nil {
 		return "", err
 	}
 	if s.cfg.Development {
