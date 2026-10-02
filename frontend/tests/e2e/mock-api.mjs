@@ -741,7 +741,27 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/recent-searches" && req.method === "GET") return json(res, 200, {items:[{id:1,filters:{q:"operations",location:"Mumbai"},created_at:now()}]});
   if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "PUT") return json(res, 200, {recruiter_id:recruiterID,candidate_id:url.pathname.split("/").at(-1),tags:Array.isArray(payload.tags)?payload.tags:[],created_at:now(),updated_at:now()});
   if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "DELETE") return noContent(res);
-  if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [] });
+  if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [
+    {candidate_id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",current_city:"Mumbai",experience_months:96,notice_period_days:30,tags:["Operations","Leadership"],saved_at:new Date(Date.now()-3*86400000).toISOString()},
+    {candidate_id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",current_city:"Navi Mumbai",experience_months:72,notice_period_days:15,tags:["Healthcare","Critical Care"],saved_at:new Date(Date.now()-2*86400000).toISOString()},
+    {candidate_id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",current_city:"Pune",experience_months:60,notice_period_days:0,tags:["B2B Sales","CRM"],saved_at:new Date(Date.now()-86400000).toISOString()}
+  ] });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "GET") return json(res, 200, { items: [
+    {id:"72000000-0000-4000-8000-000000000001",title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you."}
+  ] });
+  if (url.pathname === "/api/v1/recruiter/inmail/bulk" && req.method === "POST") {
+    const ids = Array.isArray(payload.candidate_ids) ? Array.from(new Set(payload.candidate_ids)) : [];
+    if (!req.headers["x-idempotency-key"]) return json(res, 400, { error: { code: "invalid_request", message: "messaging input is invalid" } });
+    return json(res, 200, {
+      requested_count: ids.length,
+      recipient_count: ids.length,
+      sent_count: ids.length,
+      skipped_count: 0,
+      skipped_candidate_ids: [],
+      cooldown_days: 14,
+      status: "sent",
+    });
+  }
   if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{
     id: "80000000-0000-4000-8000-000000000001", application_id: "70000000-0000-4000-8000-000000000001",
