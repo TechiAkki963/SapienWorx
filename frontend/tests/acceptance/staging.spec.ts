@@ -225,7 +225,7 @@ test.describe.serial("deployed staging acceptance", () => {
     const campaign = await request("/api/v1/recruiter/outreach/campaigns", "POST", {
       name: `P2.3 deployed campaign ${suffix}`,
       sequence_id: sequence.body.id,
-      candidate_ids: ["30000000-0000-4000-8000-000000000003"],
+      candidate_ids: ["30000000-0000-4000-8000-000000000004"],
     });
     expect(campaign.status).toBe(201);
     expect(campaign.body.status).toBe("draft");
