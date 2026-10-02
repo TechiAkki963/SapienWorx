@@ -98,7 +98,6 @@ func (s *Server) recruiterOutreachCampaignLaunch(w http.ResponseWriter, r *http.
 	})
 }
 
-
 func (s *Server) recruiterOutreachCampaignStatus(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
 	if s.messages == nil || s.messages.service == nil {
