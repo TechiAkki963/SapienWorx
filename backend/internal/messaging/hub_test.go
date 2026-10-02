@@ -116,3 +116,40 @@ func TestValidateTemplateVariables(t *testing.T) {
 		t.Fatal("unsupported template variable should be rejected")
 	}
 }
+
+
+func TestInboxChannelAndEventAreUserScoped(t *testing.T) {
+	channel := InboxChannel("candidate-1")
+	if channel != "inbox:candidate-1" {
+		t.Fatalf("channel = %q", channel)
+	}
+	event := NewInboxEvent("thread-1", "recruiter-1")
+	if event.Type != EventTypeInbox || event.ThreadID != "thread-1" || event.SenderID != "recruiter-1" {
+		t.Fatalf("unexpected inbox event: %#v", event)
+	}
+	if string(event.Payload) != "{"reason":"thread_changed"}" {
+		t.Fatalf("unexpected inbox payload: %s", event.Payload)
+	}
+
+	hub := NewHub(2, 2)
+	candidate := &Client{UserID: "candidate-1", Send: make(chan WebSocketEvent, 1)}
+	other := &Client{UserID: "candidate-2", Send: make(chan WebSocketEvent, 1)}
+	if !hub.Register(InboxChannel("candidate-1"), candidate) || !hub.Register(InboxChannel("candidate-2"), other) {
+		t.Fatal("expected inbox clients to register")
+	}
+	hub.Broadcast(InboxChannel("candidate-1"), event)
+
+	select {
+	case got := <-candidate.Send:
+		if got.Type != EventTypeInbox || got.ThreadID != "thread-1" {
+			t.Fatalf("unexpected candidate inbox event: %#v", got)
+		}
+	default:
+		t.Fatal("candidate should receive its inbox event")
+	}
+	select {
+	case <-other.Send:
+		t.Fatal("another user's inbox must not receive the event")
+	default:
+	}
+}
