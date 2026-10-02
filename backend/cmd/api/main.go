@@ -13,12 +13,14 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/admin"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/database"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/storage"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/workforce"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 )
 
 func main() {
@@ -53,6 +55,21 @@ func run(logger *slog.Logger) error {
 	adminService := admin.NewService(db)
 	workforceService := workforce.NewService(db)
 	server := httpserver.New(cfg, db, tokens, authService, candidateService, recruiterService, adminService, workforceService, logger)
+	var emailProvider emaildelivery.Provider
+	if cfg.Email.Enabled {
+		awsCfg, awsErr := awsconfig.LoadDefaultConfig(ctx, awsconfig.WithRegion(cfg.AWS.Region))
+		if awsErr != nil {
+			return awsErr
+		}
+		emailProvider = emaildelivery.NewSESProvider(awsCfg, cfg.Email.FromAddress)
+	}
+	emailService := emaildelivery.NewService(db, emailProvider, emaildelivery.Config{Enabled: cfg.Email.Enabled, PollInterval: cfg.Email.WorkerInterval, BatchSize: cfg.Email.BatchSize, MaxAttempts: cfg.Email.MaxAttempts})
+	server.SetEmailDelivery(emailService)
+	if cfg.Email.Enabled {
+		go emailService.Run(ctx, func(runErr error) {
+			logger.Warn("email delivery pass failed", "error", runErr)
+		})
+	}
 	if cfg.AWS.S3Bucket != "" {
 		presigner, presignErr := storage.NewS3Presigner(ctx, cfg.AWS.Region, cfg.AWS.S3Bucket, cfg.AWS.S3PresignTTL)
 		if presignErr != nil {
