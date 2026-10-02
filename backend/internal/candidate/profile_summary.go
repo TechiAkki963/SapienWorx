@@ -80,14 +80,28 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 // SetDiscoverable is a separate opt-in from the shareable-link setting. Update only
 // this JSON key so an in-flight profile edit cannot overwrite unrelated details.
 func (s *Service) SetDiscoverable(ctx context.Context, userID string, enabled bool) error {
-	command, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET profile_details=jsonb_set(COALESCE(profile_details,'{}'::jsonb),'{discoverable_to_recruiters}',to_jsonb($2::boolean),true),updated_at=now() WHERE user_id=$1`, userID, enabled)
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	command, err := tx.Exec(ctx, `UPDATE candidate_profiles SET profile_details=jsonb_set(COALESCE(profile_details,'{}'::jsonb),'{discoverable_to_recruiters}',to_jsonb($2::boolean),true),updated_at=now() WHERE user_id=$1`, userID, enabled)
 	if err != nil {
 		return err
 	}
 	if command.RowsAffected() == 0 {
 		return ErrNotFound
 	}
-	return nil
+	if !enabled {
+		if _, err = tx.Exec(ctx, `UPDATE privacy_consents SET withdrawn_at=COALESCE(withdrawn_at,now()) WHERE user_id=$1 AND purpose='recruiter_search_discovery' AND granted=true AND withdrawn_at IS NULL`, userID); err != nil {
+			return err
+		}
+	}
+	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,metadata) VALUES($1,'recruiter_search_discovery','privacy-v3-2026-09-17',$2,'candidate_privacy_control',jsonb_build_object('action',CASE WHEN $2 THEN 'opt_in' ELSE 'opt_out' END,'scope','recruiter_search_and_sourcing'))`, userID, enabled); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func pointerValue(v *string) string {
