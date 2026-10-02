@@ -556,11 +556,11 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 	}
 	type due struct {
 		enrollmentID, campaignID, candidateID, threadID, recruiterID string
-		subjectTemplate, bodyTemplate                                            string
-		jobID                                                                    *string
-		stepOrder                                                                int
-		delay                                                                    int
-		lastSent                                                                 *time.Time
+		subjectTemplate, bodyTemplate                                string
+		jobID                                                        *string
+		stepOrder                                                    int
+		delay                                                        int
+		lastSent                                                     *time.Time
 	}
 	dueItems := make([]due, 0)
 	for rows.Next() {
