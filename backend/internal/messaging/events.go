@@ -5,9 +5,11 @@ import "encoding/json"
 type EventType string
 
 const (
-	EventTypeMessage EventType = "message"
-	EventTypeTyping  EventType = "typing"
-	EventTypeRead    EventType = "read"
+	EventTypeMessage             EventType = "message"
+	EventTypeTyping              EventType = "typing"
+	EventTypeRead                EventType = "read"
+	EventTypeInboxChanged        EventType = "inbox_changed"
+	EventTypeNotificationsChanged EventType = "notifications_changed"
 	EventTypeSync    EventType = "sync"
 )
 
@@ -72,6 +74,14 @@ func NewTypingEvent(threadID, senderID string, isTyping bool) WebSocketEvent {
 func NewReadEvent(threadID, senderID string, messageIDs []string) WebSocketEvent {
 	payload, _ := json.Marshal(ReadPayload{MessageIDs: messageIDs})
 	return WebSocketEvent{Type: EventTypeRead, ThreadID: threadID, SenderID: senderID, Payload: payload}
+}
+
+func NewInboxChangedEvent() WebSocketEvent {
+	return WebSocketEvent{Type: EventTypeInboxChanged, Payload: json.RawMessage(`{}`)}
+}
+
+func NewNotificationsChangedEvent() WebSocketEvent {
+	return WebSocketEvent{Type: EventTypeNotificationsChanged, Payload: json.RawMessage(`{}`)}
 }
 
 
