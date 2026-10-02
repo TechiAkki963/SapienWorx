@@ -127,7 +127,7 @@ func TestInboxChannelAndEventAreUserScoped(t *testing.T) {
 	if event.Type != EventTypeInbox || event.ThreadID != "thread-1" || event.SenderID != "recruiter-1" {
 		t.Fatalf("unexpected inbox event: %#v", event)
 	}
-	if string(event.Payload) != "{"reason":"thread_changed"}" {
+	if string(event.Payload) != `{"reason":"thread_changed"}` {
 		t.Fatalf("unexpected inbox payload: %s", event.Payload)
 	}
 
