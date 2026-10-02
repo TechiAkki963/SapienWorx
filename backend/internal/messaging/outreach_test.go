@@ -70,3 +70,43 @@ func TestValueOrEmpty(t *testing.T) {
 		t.Fatalf("valueOrEmpty = %q, want %q", got, value)
 	}
 }
+
+func TestCampaignLaunchPayloadHashIsStableAndPayloadBound(t *testing.T) {
+	ids := []string{
+		"11111111-1111-4111-8111-111111111111",
+		"22222222-2222-4222-8222-222222222222",
+	}
+	first, err := campaignLaunchPayloadHash(
+		"33333333-3333-4333-8333-333333333333",
+		"",
+		"Campaign",
+		ids,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := campaignLaunchPayloadHash(
+		"33333333-3333-4333-8333-333333333333",
+		"",
+		"Campaign",
+		ids,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	changed, err := campaignLaunchPayloadHash(
+		"33333333-3333-4333-8333-333333333333",
+		"",
+		"Changed campaign",
+		ids,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != second {
+		t.Fatal("same campaign launch payload produced different hashes")
+	}
+	if first == changed {
+		t.Fatal("different campaign launch payload reused the same hash")
+	}
+}
