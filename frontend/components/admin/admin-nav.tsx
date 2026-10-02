@@ -41,13 +41,13 @@ function Icon({ index }: { index: number }) {
   return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d={paths[index] ?? paths[1]} /></svg>;
 }
 
-export function AdminNav({ access }: { access: AdminAccess }) {
+export function AdminNav({ access, mobile = false }: { access: AdminAccess; mobile?: boolean }) {
   const pathname = usePathname();
-  return <nav aria-label="Master Admin navigation" className="flex max-w-full gap-2 overflow-x-auto lg:grid lg:gap-1 lg:overflow-visible">{items.map(([href, label], index) => {
+  return <nav aria-label="Master Admin navigation" className={mobile ? "flex max-w-full gap-1 overflow-x-auto [scrollbar-width:none]" : "grid gap-1 overflow-visible"}>{items.map(([href, label], index) => {
     const permission = modulePermissions[index];
     if (permission && !canAdmin(access, permission)) return null;
     const displayLabel = index === 7 && access.enabled ? "Access & permissions" : label;
     const active = pathname === href || pathname.startsWith(`${href}/`);
-    return <Link key={href} href={href} className={`group flex shrink-0 items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-semibold transition lg:whitespace-normal ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon index={index} /></span><span>{displayLabel}</span></Link>;
+    return <Link key={href} href={href} className={`group flex shrink-0 font-semibold transition ${mobile ? "min-w-[4.75rem] max-w-[5.5rem] flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] leading-3" : "items-center gap-3 rounded-xl px-3 py-2.5 text-sm"} ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon index={index} /></span><span className={mobile ? "text-center whitespace-normal" : ""}>{displayLabel}</span></Link>;
   })}</nav>;
 }
