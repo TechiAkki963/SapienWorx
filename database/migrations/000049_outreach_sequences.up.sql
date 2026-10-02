@@ -51,6 +51,20 @@ CREATE INDEX idx_outreach_campaigns_running
   ON outreach_campaigns(status, updated_at DESC)
   WHERE status='running';
 
+CREATE TABLE outreach_send_ledger (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  recruiter_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  company_id uuid NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  campaign_id uuid REFERENCES outreach_campaigns(id) ON DELETE CASCADE,
+  enrollment_id uuid,
+  recipient_count integer NOT NULL DEFAULT 1 CHECK (recipient_count >= 1),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_outreach_send_ledger_recruiter_created
+  ON outreach_send_ledger(recruiter_id, created_at DESC);
+CREATE INDEX idx_outreach_send_ledger_company_created
+  ON outreach_send_ledger(company_id, created_at DESC);
+
 CREATE TABLE outreach_campaign_enrollments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   campaign_id uuid NOT NULL REFERENCES outreach_campaigns(id) ON DELETE CASCADE,
@@ -65,6 +79,10 @@ CREATE TABLE outreach_campaign_enrollments (
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT outreach_campaign_enrollments_unique_candidate UNIQUE(campaign_id, candidate_id)
 );
+ALTER TABLE outreach_send_ledger
+  ADD CONSTRAINT outreach_send_ledger_enrollment_fk
+  FOREIGN KEY (enrollment_id) REFERENCES outreach_campaign_enrollments(id) ON DELETE CASCADE;
+
 CREATE INDEX idx_outreach_campaign_enrollments_due
   ON outreach_campaign_enrollments(next_run_at, id)
   WHERE status IN ('pending','active') AND next_run_at IS NOT NULL;
