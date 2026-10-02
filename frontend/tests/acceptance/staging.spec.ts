@@ -139,4 +139,85 @@ test.describe.serial("deployed staging acceptance", () => {
     await expect(candidatePage.getByRole("paragraph").filter({ hasText: reply })).toBeVisible();
     await candidateContext.close();
   });
+
+  test("enforces Bulk InMail idempotency, cooldown and recipient budgets", async ({ browser }) => {
+    const recruiterContext = await browser.newContext();
+    const recruiterPage = await recruiterContext.newPage();
+    await signIn(recruiterPage, "recruiter");
+
+    const csrfToken = (await recruiterContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(csrfToken).toBeTruthy();
+
+    const subject = `P2.1 bulk acceptance ${Date.now()}`;
+    const key = crypto.randomUUID();
+    const candidateIDs = [
+      "30000000-0000-4000-8000-000000000002",
+      "30000000-0000-4000-8000-000000000003",
+    ];
+
+    async function bulk(payload: Record<string, unknown>, idempotencyKey: string) {
+      return recruiterPage.evaluate(async ({ payload, idempotencyKey, csrfToken }) => {
+        const response = await fetch("/api/v1/recruiter/inmail/bulk", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken,
+            "X-Idempotency-Key": idempotencyKey,
+          },
+          body: JSON.stringify(payload),
+        });
+        return {
+          status: response.status,
+          retryAfter: response.headers.get("Retry-After"),
+          body: await response.json(),
+        };
+      }, { payload, idempotencyKey, csrfToken: csrfToken! });
+    }
+
+    const payload = {
+      candidate_ids: candidateIDs,
+      subject,
+      body: "Hi {{CandidateName}}, this is the deployed P2.1 bulk acceptance message.",
+    };
+
+    const first = await bulk(payload, key);
+    expect(first.status).toBe(200);
+    expect(first.body.status).toBe("sent");
+    expect(first.body.sent_count).toBe(2);
+    expect(first.body.skipped_count).toBe(0);
+
+    const retry = await bulk(payload, key);
+    expect(retry.status).toBe(200);
+    expect(retry.body).toEqual(first.body);
+
+    const conflict = await bulk({ ...payload, subject: `${subject} changed` }, key);
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.error?.code).toBe("idempotency_conflict");
+
+    const threads = await recruiterPage.evaluate(async () => {
+      const response = await fetch("/api/v1/messaging/threads", { credentials: "include" });
+      return { status: response.status, body: await response.json() };
+    });
+    expect(threads.status).toBe(200);
+    expect(threads.body.items.filter((thread: { subject: string }) => thread.subject === subject)).toHaveLength(2);
+
+    const cooldown = await bulk(payload, crypto.randomUUID());
+    expect(cooldown.status).toBe(200);
+    expect(cooldown.body.status).toBe("skipped");
+    expect(cooldown.body.sent_count).toBe(0);
+    expect(cooldown.body.skipped_count).toBe(2);
+
+    const limited = await bulk({
+      candidate_ids: ["30000000-0000-4000-8000-000000000004"],
+      subject: `${subject} rate limit`,
+      body: "Hi {{CandidateName}}, this request should hit the configured acceptance budget.",
+    }, crypto.randomUUID());
+    expect(limited.status).toBe(429);
+    expect(limited.body.error?.code).toBe("rate_limited");
+    expect(Number(limited.retryAfter)).toBeGreaterThan(0);
+
+    await recruiterContext.close();
+  });
+
 });
