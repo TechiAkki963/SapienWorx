@@ -109,6 +109,14 @@ func (s *Service) BuildSafeExport(ctx context.Context, userID string) (ExportBun
 		) ORDER BY m.created_at ASC),'[]'::jsonb)
 		FROM chat_messages m JOIN chat_threads t ON t.id=m.thread_id
 		WHERE t.candidate_id=$1 OR t.recruiter_id=$1`},
+		{"consents", `SELECT COALESCE(jsonb_agg(jsonb_build_object(
+			'purpose',purpose,'policy_version',policy_version,'granted',granted,'source',source,
+			'metadata',metadata,'recorded_at',recorded_at,'withdrawn_at',withdrawn_at
+		) ORDER BY recorded_at DESC),'[]'::jsonb) FROM privacy_consents WHERE user_id=$1`},
+		{"privacy_requests", `SELECT COALESCE(jsonb_agg(jsonb_build_object(
+			'id',id,'request_type',request_type,'status',status,'jurisdiction',jurisdiction,
+			'due_at',due_at,'completed_at',completed_at,'created_at',created_at,'updated_at',updated_at
+		) ORDER BY created_at DESC),'[]'::jsonb) FROM privacy_requests WHERE user_id=$1`},
 	}
 
 	for _, query := range queries {
@@ -127,7 +135,7 @@ func (s *Service) BuildSafeExport(ctx context.Context, userID string) (ExportBun
 		sections[query.name] = json.RawMessage(raw)
 	}
 
-	manifest, err := json.Marshal(map[string]any{"sections": []string{"account", "profile", "applications", "saved_jobs", "notifications", "messages"}, "complete": true})
+	manifest, err := json.Marshal(map[string]any{"sections": []string{"account", "profile", "applications", "saved_jobs", "notifications", "messages", "consents", "privacy_requests"}, "complete": true})
 	if err != nil {
 		return ExportBundle{}, err
 	}
