@@ -203,8 +203,10 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
         payload.body = body.trim();
       }
 
+      const idempotencyKey = window.crypto.randomUUID();
       const result = await apiRequest<BulkAccepted>("/api/v1/recruiter/inmail/bulk", {
         method: "POST",
+        headers: { "X-Idempotency-Key": idempotencyKey },
         body: JSON.stringify(payload),
       });
 
@@ -380,7 +382,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
 
               <div className="border-t border-line/70 bg-white/90 px-5 py-4 backdrop-blur-xl sm:px-6">
                 <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-[11px] leading-5 text-ink-muted">Up to 200 recipients per send. Candidates you contacted within the last 14 days are skipped automatically; messages and inbox notifications are committed atomically.</p>
+                  <p className="text-[11px] leading-5 text-ink-muted">Up to 200 recipients per send. Company-wide 14-day cooldown and hourly/daily outreach safeguards are applied automatically; messages and inbox notifications are committed atomically.</p>
                   <div className="flex shrink-0 gap-2">
                     <button type="button" onClick={closeDrawer} disabled={sending} className="min-h-11 rounded-xl border border-line bg-white px-4 text-sm font-bold text-ink-muted transition hover:bg-slate-50 hover:text-navy disabled:opacity-50">Cancel</button>
                     <button type="submit" disabled={sending || recipientCount === 0 || recipientCount > 200 || !subject.trim() || !body.trim() || (usesJobTitle && !jobID)} className="inline-flex min-h-11 min-w-[10.5rem] items-center justify-center gap-2 rounded-xl bg-[#24A47F] px-5 text-sm font-extrabold text-white shadow-[0_10px_26px_rgba(36,164,127,0.24)] transition hover:bg-[#1d8d6d] disabled:cursor-not-allowed disabled:opacity-50">
