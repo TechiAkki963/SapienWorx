@@ -117,7 +117,6 @@ func TestValidateTemplateVariables(t *testing.T) {
 	}
 }
 
-
 func TestInboxChannelAndEventAreUserScoped(t *testing.T) {
 	channel := InboxChannel("candidate-1")
 	if channel != "inbox:candidate-1" {
