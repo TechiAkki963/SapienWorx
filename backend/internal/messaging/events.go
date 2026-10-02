@@ -73,6 +73,8 @@ func NewReadEvent(threadID, senderID string, messageIDs []string) WebSocketEvent
 	return WebSocketEvent{Type: EventTypeRead, ThreadID: threadID, SenderID: senderID, Payload: payload}
 }
 
+// InboxChannel deliberately uses the authenticated user ID rather than a role or
+// company scope so thread-list refresh events cannot cross user boundaries.
 func InboxChannel(userID string) string {
 	return "inbox:" + userID
 }
