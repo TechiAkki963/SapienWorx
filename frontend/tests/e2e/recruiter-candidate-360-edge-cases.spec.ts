@@ -71,6 +71,15 @@ test("Candidate 360 header reveals masked contact on single click and copies on 
   await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe("+919900000011");
 });
 
+test("Candidate 360 recruiter tags stay visible without horizontal overflow", async ({ page }) => {
+  await login(page, "recruiter");
+  await page.goto(`/recruiter/candidates/${candidateWithApplication}?job_id=${jobID}`);
+
+  const tags = page.getByLabel("Recruiter tags");
+  await expect(tags).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
+});
+
 test("sourced Candidate 360 never exposes verified email or masked contact in its header", async ({ page }) => {
   await login(page, "recruiter");
   await page.goto(`/recruiter/candidates/${sourcedCandidate}?from=discover`);
