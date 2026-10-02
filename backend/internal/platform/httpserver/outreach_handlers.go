@@ -97,3 +97,29 @@ func (s *Server) recruiterOutreachCampaignLaunch(w http.ResponseWriter, r *http.
 		"delivery": delivery,
 	})
 }
+
+
+func (s *Server) recruiterOutreachCampaignStatus(w http.ResponseWriter, r *http.Request) {
+	claims, _ := ClaimsFromContext(r.Context())
+	if s.messages == nil || s.messages.service == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	var input struct {
+		Status string `json:"status"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	item, err := s.messages.service.SetOutreachCampaignStatus(
+		r.Context(),
+		claims.Subject,
+		r.PathValue("campaignID"),
+		input.Status,
+	)
+	if err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, item)
+}
