@@ -80,13 +80,13 @@ func (s *Service) ReviewTrustRiskFlag(ctx context.Context, id, actor, status, no
 	}
 	target := id
 	if err = insertAuditTx(ctx, tx, AuditInput{
-		AdminID: &actor,
-		ActionType: "trust.risk_reviewed",
+		AdminID:          &actor,
+		ActionType:       "trust.risk_reviewed",
 		TargetEntityType: "trust_risk_flag",
-		TargetEntityID: &target,
-		IPAddress: ip,
-		RequestID: requestID,
-		Metadata: map[string]any{"previous_status": current, "status": status, "human_review": true, "automatic_enforcement": false},
+		TargetEntityID:   &target,
+		IPAddress:        ip,
+		RequestID:        requestID,
+		Metadata:         map[string]any{"previous_status": current, "status": status, "human_review": true, "automatic_enforcement": false},
 	}); err != nil {
 		return err
 	}
