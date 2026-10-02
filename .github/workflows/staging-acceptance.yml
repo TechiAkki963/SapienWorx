@@ -10,6 +10,15 @@ on:
       - "database/**"
       - "performance/load_test.js"
       - ".github/workflows/staging-acceptance.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "deploy/**"
+      - "backend/**"
+      - "frontend/**"
+      - "database/**"
+      - "performance/load_test.js"
+      - ".github/workflows/staging-acceptance.yml"
   workflow_dispatch:
 
 permissions:
