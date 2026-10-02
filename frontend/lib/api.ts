@@ -12,13 +12,49 @@ export class APIRequestError extends Error {
   }
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+function csrfToken() {
+  if (typeof document === "undefined") return "";
+  const item = document.cookie.split("; ").find((part) => part.startsWith("sw_csrf="));
+  return item ? decodeURIComponent(item.slice("sw_csrf=".length)) : "";
+}
+
+function authHeaders(init: RequestInit) {
   const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
-  const response = await fetch(`${API_URL}${path}`, {
+  const headers = new Headers(init.headers ?? {});
+  if (!isFormData && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  const method = (init.method ?? "GET").toUpperCase();
+  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    const token = csrfToken();
+    if (token) headers.set("X-CSRF-Token", token);
+  }
+  return headers;
+}
+
+const refreshExcluded = new Set([
+  "/api/v1/auth/login",
+  "/api/v1/auth/candidate/register",
+  "/api/v1/auth/recruiter/register",
+  "/api/v1/auth/email/request",
+  "/api/v1/auth/email/verify",
+  "/api/v1/auth/password/forgot",
+  "/api/v1/auth/password/reset",
+  "/api/v1/auth/refresh",
+]);
+
+async function rawRequest(path: string, init: RequestInit) {
+  return fetch(`${API_URL}${path}`, {
     ...init,
     credentials: "include",
-    headers: { ...(isFormData ? {} : { "Content-Type": "application/json" }), ...(init.headers ?? {}) },
+    headers: authHeaders(init),
   });
+}
+
+export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  let response = await rawRequest(path, init);
+  if (response.status === 401 && !refreshExcluded.has(path)) {
+    const refreshed = await rawRequest("/api/v1/auth/refresh", { method: "POST" });
+    if (refreshed.ok) response = await rawRequest(path, init);
+  }
   if (!response.ok) {
     let message = "Request could not be completed.";
     let code = "unknown_error";
