@@ -130,9 +130,17 @@ func TestInboxChannelAndEventAreUserScoped(t *testing.T) {
 		t.Fatalf("unexpected inbox payload: %s", event.Payload)
 	}
 
+	notificationEvent := NewNotificationsEvent("recruiter-1")
+	if notificationEvent.Type != EventTypeNotifications || notificationEvent.SenderID != "recruiter-1" {
+		t.Fatalf("unexpected notifications event: %#v", notificationEvent)
+	}
+	if string(notificationEvent.Payload) != `{"reason":"notifications_changed"}` {
+		t.Fatalf("unexpected notifications payload: %s", notificationEvent.Payload)
+	}
+
 	hub := NewHub(2, 2)
-	candidate := &Client{UserID: "candidate-1", Send: make(chan WebSocketEvent, 1)}
-	other := &Client{UserID: "candidate-2", Send: make(chan WebSocketEvent, 1)}
+	candidate := &Client{UserID: "candidate-1", Send: make(chan WebSocketEvent, 2)}
+	other := &Client{UserID: "candidate-2", Send: make(chan WebSocketEvent, 2)}
 	if !hub.Register(InboxChannel("candidate-1"), candidate) || !hub.Register(InboxChannel("candidate-2"), other) {
 		t.Fatal("expected inbox clients to register")
 	}
@@ -149,6 +157,21 @@ func TestInboxChannelAndEventAreUserScoped(t *testing.T) {
 	select {
 	case <-other.Send:
 		t.Fatal("another user's inbox must not receive the event")
+	default:
+	}
+
+	hub.Broadcast(InboxChannel("candidate-1"), notificationEvent)
+	select {
+	case got := <-candidate.Send:
+		if got.Type != EventTypeNotifications {
+			t.Fatalf("unexpected candidate notifications event: %#v", got)
+		}
+	default:
+		t.Fatal("candidate should receive its notifications event")
+	}
+	select {
+	case <-other.Send:
+		t.Fatal("another user's inbox must not receive notification invalidations")
 	default:
 	}
 }
