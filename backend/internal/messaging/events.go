@@ -27,7 +27,6 @@ type WebSocketEvent struct {
 	// Step 2 of the receipt/typing upgrade will move the client to Payload.
 	Message *ChatMessage `json:"message,omitempty"`
 }
-
 type MessagePayload struct {
 	Message ChatMessage `json:"message"`
 }
@@ -43,7 +42,6 @@ type TypingPayload struct {
 type ReadPayload struct {
 	MessageIDs []string `json:"message_ids"`
 }
-
 
 type ReadResult struct {
 	SenderID   string   `json:"sender_id"`
@@ -78,4 +76,3 @@ func NewInboxChangedEvent() WebSocketEvent {
 func NewNotificationsChangedEvent() WebSocketEvent {
 	return WebSocketEvent{Type: EventTypeNotificationsChanged, Payload: json.RawMessage(`{}`)}
 }
-
