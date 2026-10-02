@@ -1,8 +1,13 @@
 import Link from "next/link";
 
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
+import {
+  type BulkMessageTemplate,
+  type BulkRecruiterJob,
+} from "@/components/recruiter/bulk-inmail-drawer";
 import { TalentPoolCandidate, TalentPoolSelection } from "@/components/recruiter/talent-pool-selection";
 import { requireRole } from "@/lib/auth-server";
+import { messagingAPI } from "@/lib/messaging-server";
 import { recruiterAPI } from "@/lib/recruiter-server";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +15,13 @@ export const dynamic = "force-dynamic";
 export default async function TalentPoolPage() {
   await requireRole("recruiter");
 
-  const { items } = await recruiterAPI<{ items: TalentPoolCandidate[] }>("/api/v1/recruiter/talent-pool");
+  const [{ items }, templateResponse, jobResponse] = await Promise.all([
+    recruiterAPI<{ items: TalentPoolCandidate[] }>("/api/v1/recruiter/talent-pool"),
+    messagingAPI<{ items: BulkMessageTemplate[] }>("/api/v1/recruiter/message-templates").catch(() => ({ items: [] })),
+    recruiterAPI<{ items: BulkRecruiterJob[] }>("/api/v1/recruiter/jobs?status=active&limit=100").catch(() => ({ items: [] })),
+  ]);
+  const messageTemplates = templateResponse.items ?? [];
+  const activeJobs = (jobResponse.items ?? []).filter((job) => job.status === "active");
 
   return (
     <RecruiterShell>
@@ -31,7 +42,7 @@ export default async function TalentPoolPage() {
             <Link href="/recruiter/pipeline" className="mt-5 inline-flex rounded-xl bg-[#24A47F] px-4 py-2.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(36,164,127,0.18)]">Browse pipeline</Link>
           </section>
         ) : (
-          <TalentPoolSelection items={items} />
+          <TalentPoolSelection items={items} messageTemplates={messageTemplates} activeJobs={activeJobs} />
         )}
       </div>
     </RecruiterShell>

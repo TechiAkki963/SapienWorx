@@ -11,10 +11,12 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("messaging resource not found")
-	ErrForbidden    = errors.New("messaging access forbidden")
-	ErrInvalidInput = errors.New("invalid messaging input")
-	ErrThreadClosed = errors.New("chat thread is closed")
+	ErrNotFound            = errors.New("messaging resource not found")
+	ErrForbidden           = errors.New("messaging access forbidden")
+	ErrInvalidInput        = errors.New("invalid messaging input")
+	ErrThreadClosed        = errors.New("chat thread is closed")
+	ErrRateLimited         = errors.New("messaging rate limit exceeded")
+	ErrIdempotencyConflict = errors.New("messaging idempotency conflict")
 )
 
 const (
@@ -31,9 +33,42 @@ var supportedTemplateVariables = map[string]struct{}{
 	"JobTitle":      {},
 }
 
-type Service struct{ db *pgxpool.Pool }
+type AntiSpamPolicy struct {
+	RecruiterHourlyLimit int
+	RecruiterDailyLimit  int
+	CompanyDailyLimit    int
+}
 
-func NewService(db *pgxpool.Pool) *Service { return &Service{db: db} }
+func DefaultAntiSpamPolicy() AntiSpamPolicy {
+	return AntiSpamPolicy{
+		RecruiterHourlyLimit: 300,
+		RecruiterDailyLimit:  1000,
+		CompanyDailyLimit:    5000,
+	}
+}
+
+type Service struct {
+	db             *pgxpool.Pool
+	antiSpamPolicy AntiSpamPolicy
+}
+
+func NewService(db *pgxpool.Pool) *Service {
+	return NewServiceWithPolicy(db, DefaultAntiSpamPolicy())
+}
+
+func NewServiceWithPolicy(db *pgxpool.Pool, policy AntiSpamPolicy) *Service {
+	defaults := DefaultAntiSpamPolicy()
+	if policy.RecruiterHourlyLimit < 1 {
+		policy.RecruiterHourlyLimit = defaults.RecruiterHourlyLimit
+	}
+	if policy.RecruiterDailyLimit < policy.RecruiterHourlyLimit {
+		policy.RecruiterDailyLimit = defaults.RecruiterDailyLimit
+	}
+	if policy.CompanyDailyLimit < policy.RecruiterDailyLimit {
+		policy.CompanyDailyLimit = defaults.CompanyDailyLimit
+	}
+	return &Service{db: db, antiSpamPolicy: policy}
+}
 
 func ValidateTemplate(input TemplateInput) error {
 	input.Title = strings.TrimSpace(input.Title)
@@ -163,11 +198,21 @@ func (s *Service) Initiate(ctx context.Context, recruiterID string, input Initia
 	if err := tx.QueryRow(ctx, `INSERT INTO chat_messages(thread_id,sender_id,sender_type,content) VALUES($1,$2,'recruiter',$3) RETURNING id,thread_id,sender_id,sender_type::text,content,is_read,created_at`, thread.ID, recruiterID, content).Scan(&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt); err != nil {
 		return ThreadWithMessage{}, err
 	}
+	if _, err := tx.Exec(ctx, `
+		INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url)
+		VALUES($1,'inmail','New InMail from a recruiter',$2,$3)
+	`, input.CandidateID, subject, "/candidate/inbox?thread="+thread.ID); err != nil {
+		return ThreadWithMessage{}, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return ThreadWithMessage{}, err
 	}
 	thread.UpdatedAt = message.CreatedAt
 	return ThreadWithMessage{Thread: thread, Message: message}, nil
+}
+
+func (s *Service) Thread(ctx context.Context, threadID, userID string) (ChatThread, error) {
+	return s.authorizeThread(ctx, threadID, userID)
 }
 
 func (s *Service) authorizeThread(ctx context.Context, threadID, userID string) (ChatThread, error) {
@@ -252,9 +297,37 @@ func (s *Service) SendMessage(ctx context.Context, threadID, userID string, send
 	if senderType == SenderTypeRecruiter && userID != thread.RecruiterID || senderType == SenderTypeCandidate && userID != thread.CandidateID {
 		return ChatMessage{}, ErrForbidden
 	}
+
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return ChatMessage{}, err
+	}
+	defer tx.Rollback(ctx)
+
 	var message ChatMessage
-	err = s.db.QueryRow(ctx, `INSERT INTO chat_messages(thread_id,sender_id,sender_type,content) VALUES($1,$2,$3,$4) RETURNING id,thread_id,sender_id,sender_type::text,content,is_read,created_at`, threadID, userID, senderType, content).Scan(&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt)
-	return message, err
+	if err := tx.QueryRow(ctx, `
+		INSERT INTO chat_messages(thread_id,sender_id,sender_type,content)
+		VALUES($1,$2,$3,$4)
+		RETURNING id,thread_id,sender_id,sender_type::text,content,is_read,created_at
+	`, threadID, userID, senderType, content).Scan(
+		&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt,
+	); err != nil {
+		return ChatMessage{}, err
+	}
+
+	if senderType == SenderTypeRecruiter {
+		if _, err := tx.Exec(ctx, `
+			INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url)
+			VALUES($1,'inmail','New message from a recruiter',$2,$3)
+		`, thread.CandidateID, thread.Subject, "/candidate/inbox?thread="+thread.ID); err != nil {
+			return ChatMessage{}, err
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return ChatMessage{}, err
+	}
+	return message, nil
 }
 
 func (s *Service) MarkRead(ctx context.Context, threadID, userID string) error {

@@ -74,7 +74,7 @@ let state = initialState();
 const corsHeaders = {
   "access-control-allow-origin": webOrigin,
   "access-control-allow-credentials": "true",
-  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id",
+  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id,x-idempotency-key",
   "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
 };
 
@@ -104,6 +104,64 @@ function roleFromCookie(req) {
   const cookie = req.headers.cookie ?? "";
   const match = cookie.match(/(?:^|;\s*)swx_e2e_role=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : "";
+}
+
+function p2MessagingFixture(req) {
+  return /(?:^|;\s*)swx_p2_messaging_fixture=1(?:;|$)/.test(req.headers.cookie ?? "");
+}
+
+function p2Threads(role) {
+  const base = [
+    {
+      id: "73000000-0000-4000-8000-000000000001",
+      recruiter_id: recruiterID,
+      candidate_id: candidateID,
+      job_id: jobID,
+      subject: "Senior Go Platform Engineer opportunity",
+      status: "open",
+      counterparty_name: role === "candidate" ? "Ananya Recruiter" : "Aarav Candidate",
+      job_title: "Senior Go Platform Engineer",
+      last_message: "The hiring manager is available tomorrow afternoon.",
+      unread_count: role === "candidate" ? 1 : 0,
+      created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+      updated_at: new Date(Date.now() - 12 * 60000).toISOString(),
+    },
+    {
+      id: "73000000-0000-4000-8000-000000000002",
+      recruiter_id: recruiterID,
+      candidate_id: candidateID,
+      subject: "Operations leadership conversation",
+      status: "open",
+      counterparty_name: role === "candidate" ? "Ananya Recruiter" : "Aarav Candidate",
+      job_title: null,
+      last_message: role === "candidate" ? "Thanks, I would be open to learning more." : "Thanks, I would be open to learning more.",
+      unread_count: role === "recruiter" ? 1 : 0,
+      created_at: new Date(Date.now() - 8 * 86400000).toISOString(),
+      updated_at: new Date(Date.now() - 3 * 3600000).toISOString(),
+    },
+  ];
+  return base;
+}
+
+function p2Messages(threadID) {
+  if (threadID === "73000000-0000-4000-8000-000000000002") {
+    return [
+      { id:"74000000-0000-4000-8000-000000000004", thread_id:threadID, sender_id:recruiterID, sender_type:"recruiter", content:"Your operations background stood out. Would you be open to a confidential conversation?", is_read:true, created_at:new Date(Date.now()-7*86400000).toISOString() },
+      { id:"74000000-0000-4000-8000-000000000005", thread_id:threadID, sender_id:candidateID, sender_type:"candidate", content:"Thanks, I would be open to learning more.", is_read:false, created_at:new Date(Date.now()-3*3600000).toISOString() },
+    ];
+  }
+  return [
+    { id:"74000000-0000-4000-8000-000000000001", thread_id:threadID, sender_id:recruiterID, sender_type:"recruiter", content:"Hi Aarav, your Go and PostgreSQL experience looks relevant for our platform team.", is_read:true, created_at:new Date(Date.now()-2*86400000).toISOString() },
+    { id:"74000000-0000-4000-8000-000000000002", thread_id:threadID, sender_id:candidateID, sender_type:"candidate", content:"Thanks Ananya. I’m interested and would like to understand the role scope.", is_read:true, created_at:new Date(Date.now()-86400000).toISOString() },
+    { id:"74000000-0000-4000-8000-000000000003", thread_id:threadID, sender_id:recruiterID, sender_type:"recruiter", content:"The hiring manager is available tomorrow afternoon.", is_read:false, created_at:new Date(Date.now()-12*60000).toISOString() },
+  ];
+}
+
+function p2Notifications() {
+  return [
+    { id:"75000000-0000-4000-8000-000000000001", kind:"inmail", title:"New message from a recruiter", body:"Senior Go Platform Engineer opportunity", action_url:"/candidate/inbox?thread=73000000-0000-4000-8000-000000000001", read_at:null, created_at:new Date(Date.now()-12*60000).toISOString() },
+    { id:"75000000-0000-4000-8000-000000000002", kind:"interview", title:"Technical interview scheduled", body:"Your interview is scheduled for tomorrow at 3:00 PM.", action_url:"/candidate/interviews", read_at:new Date(Date.now()-86400000).toISOString(), created_at:new Date(Date.now()-2*86400000).toISOString() },
+  ];
 }
 
 function logRequest(req, url, payload) {
@@ -741,8 +799,49 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/recent-searches" && req.method === "GET") return json(res, 200, {items:[{id:1,filters:{q:"operations",location:"Mumbai"},created_at:now()}]});
   if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "PUT") return json(res, 200, {recruiter_id:recruiterID,candidate_id:url.pathname.split("/").at(-1),tags:Array.isArray(payload.tags)?payload.tags:[],created_at:now(),updated_at:now()});
   if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "DELETE") return noContent(res);
-  if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [] });
-  if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") return json(res, 200, { items: [] });
+  if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [
+    {candidate_id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",current_city:"Mumbai",experience_months:96,notice_period_days:30,tags:["Operations","Leadership"],saved_at:new Date(Date.now()-3*86400000).toISOString()},
+    {candidate_id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",current_city:"Navi Mumbai",experience_months:72,notice_period_days:15,tags:["Healthcare","Critical Care"],saved_at:new Date(Date.now()-2*86400000).toISOString()},
+    {candidate_id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",current_city:"Pune",experience_months:60,notice_period_days:0,tags:["B2B Sales","CRM"],saved_at:new Date(Date.now()-86400000).toISOString()}
+  ] });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "GET") return json(res, 200, { items: [
+    {id:"72000000-0000-4000-8000-000000000001",title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you."}
+  ] });
+  if (url.pathname === "/api/v1/recruiter/inmail/bulk" && req.method === "POST") {
+    const ids = Array.isArray(payload.candidate_ids) ? Array.from(new Set(payload.candidate_ids)) : [];
+    if (!req.headers["x-idempotency-key"]) return json(res, 400, { error: { code: "invalid_request", message: "messaging input is invalid" } });
+    return json(res, 200, {
+      requested_count: ids.length,
+      recipient_count: ids.length,
+      sent_count: ids.length,
+      skipped_count: 0,
+      skipped_candidate_ids: [],
+      cooldown_days: 14,
+      status: "sent",
+    });
+  }
+  if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") {
+    if (p2MessagingFixture(req)) return json(res, 200, { items: p2Threads(roleFromCookie(req)) });
+    return json(res, 200, { items: [] });
+  }
+  const p2MessageMatch = url.pathname.match(/^\/api\/v1\/messaging\/threads\/([^/]+)\/messages$/);
+  if (p2MessageMatch && req.method === "GET" && p2MessagingFixture(req)) {
+    return json(res, 200, { items: p2Messages(p2MessageMatch[1]) });
+  }
+  if (p2MessageMatch && req.method === "POST" && p2MessagingFixture(req)) {
+    return json(res, 201, {
+      id: "74000000-0000-4000-8000-000000000099",
+      thread_id: p2MessageMatch[1],
+      sender_id: roleFromCookie(req) === "candidate" ? candidateID : recruiterID,
+      sender_type: roleFromCookie(req) === "candidate" ? "candidate" : "recruiter",
+      content: String(payload.content ?? ""),
+      is_read: false,
+      created_at: now(),
+    });
+  }
+  if (/^\/api\/v1\/messaging\/threads\/[^/]+\/read$/.test(url.pathname) && req.method === "PATCH" && p2MessagingFixture(req)) return noContent(res);
+  if (url.pathname === "/api/v1/candidate/notifications" && req.method === "GET" && p2MessagingFixture(req)) return json(res, 200, { items: p2Notifications() });
+  if (/^\/api\/v1\/candidate\/notifications\/[^/]+\/read$/.test(url.pathname) && req.method === "PATCH" && p2MessagingFixture(req)) return noContent(res);
   if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{
     id: "80000000-0000-4000-8000-000000000001", application_id: "70000000-0000-4000-8000-000000000001",
     candidate_id: "71000000-0000-4000-8000-000000000001", job_id: jobID, job_reference: "SWX-JOB-2026-00001",

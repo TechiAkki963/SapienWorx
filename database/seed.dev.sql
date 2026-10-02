@@ -151,6 +151,13 @@ INSERT INTO applications (id, candidate_id, job_id, stage, source, applied_at, u
   ('50000000-0000-4000-8000-000000000006', '30000000-0000-4000-8000-000000000001', '40000000-0000-4000-8000-000000000003', 'new_application', 'direct', now() - interval '1 day', now() - interval '1 day')
 ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO talent_pool_memberships (recruiter_id, candidate_id, tags) VALUES
+  ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000002', ARRAY['frontend','p2-acceptance']),
+  ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000003', ARRAY['analytics','p2-acceptance']),
+  ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000004', ARRAY['backend','p2-acceptance'])
+ON CONFLICT (recruiter_id, candidate_id) DO UPDATE
+SET tags=EXCLUDED.tags, updated_at=now();
+
 INSERT INTO saved_jobs (candidate_id, job_id, saved_at) VALUES
   ('30000000-0000-4000-8000-000000000001', '40000000-0000-4000-8000-000000000002', now() - interval '3 days'),
   ('30000000-0000-4000-8000-000000000001', '40000000-0000-4000-8000-000000000004', now() - interval '2 days')

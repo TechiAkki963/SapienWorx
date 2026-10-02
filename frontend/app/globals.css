@@ -496,3 +496,47 @@ a {
 .swx-dark .admin-control-plane-banner {
   background: linear-gradient(135deg, #172554, #111827) !important;
 }
+
+
+/* P2.1 Bulk InMail: fixed-position composer must follow workspace dark mode. */
+.swx-dark .theme-surface .swx-bulk-inmail {
+  background: linear-gradient(165deg, #111827 0%, #111a2d 48%, #0f1b30 100%) !important;
+  border-color: #273449 !important;
+}
+.swx-dark .theme-surface .swx-bulk-inmail [class*="bg-[#f7f7fd]"] {
+  background-color: #172554 !important;
+}
+.swx-dark .theme-surface .swx-bulk-inmail [class*="bg-[#f4fbf8]"] {
+  background-color: #0f2a24 !important;
+}
+
+
+/* P2.2 Messaging: explicit dark surfaces for gradient panels and semantic bubbles. */
+.swx-dark .theme-surface .swx-messaging-workspace {
+  border-color: #273449 !important;
+  background: #111827 !important;
+}
+.swx-dark .theme-surface .swx-messaging-list {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%) !important;
+}
+.swx-dark .theme-surface .swx-messaging-thread {
+  background:
+    radial-gradient(circle at 90% 0%, rgb(49 46 129 / 0.18), transparent 28%),
+    linear-gradient(180deg, #111827 0%, #0f172a 100%) !important;
+}
+.swx-dark .theme-surface .swx-message-bubble-candidate {
+  border-color: #1f5a4c !important;
+  background-color: #12352f !important;
+  color: #d1fae5 !important;
+}
+.swx-dark .theme-surface .swx-message-bubble-candidate [class*="text-emerald"] {
+  color: #6ee7b7 !important;
+}
+.swx-dark .theme-surface .swx-message-bubble-recruiter {
+  border-color: #43386e !important;
+  background-color: #211b3b !important;
+  color: #ede9fe !important;
+}
+.swx-dark .theme-surface .swx-message-bubble-recruiter [class*="text-violet"] {
+  color: #c4b5fd !important;
+}
