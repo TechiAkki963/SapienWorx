@@ -97,8 +97,14 @@ test.describe.serial("deployed staging acceptance", () => {
     await recruiterContext.close();
   });
 
-  test("delivers recruiter InMail and establishes the deployed candidate WebSocket", async ({ browser }) => {
-    const subject = `Step 6 staging acceptance ${Date.now()}`;
+  test("delivers new threads and replies through deployed realtime messaging", async ({ browser }) => {
+    const subject = `P2.2 realtime acceptance ${Date.now()}`;
+
+    const candidateContext = await browser.newContext();
+    const candidatePage = await candidateContext.newPage();
+    await signIn(candidatePage, "candidate");
+    await candidatePage.goto("/candidate/inbox");
+
     const recruiterContext = await browser.newContext();
     const recruiterPage = await recruiterContext.newPage();
     await signIn(recruiterPage, "recruiter");
@@ -115,28 +121,46 @@ test.describe.serial("deployed staging acceptance", () => {
           candidate_id: "30000000-0000-4000-8000-000000000001",
           job_id: "40000000-0000-4000-8000-000000000001",
           subject,
-          content: "Staging acceptance message from the deployed recruiter flow.",
+          content: "P2.2 deployed recruiter message delivered while the candidate inbox is already open.",
         }),
       });
       return { status: response.status, body: await response.json() };
     }, { subject, csrfToken: csrfToken! });
 
     expect(sendResult.status).toBe(201);
-    expect(sendResult.body.thread?.id).toBeTruthy();
-    await recruiterContext.close();
+    const threadID = String(sendResult.body.thread?.id ?? "");
+    expect(threadID).toBeTruthy();
 
-    const candidateContext = await browser.newContext();
-    const candidatePage = await candidateContext.newPage();
-    await signIn(candidatePage, "candidate");
-    await candidatePage.goto("/candidate/inbox");
-    await expect(candidatePage.getByText(subject).first()).toBeVisible();
-    await expect(candidatePage.getByRole("paragraph").filter({ hasText: "Staging acceptance message from the deployed recruiter flow." })).toBeVisible();
+    // The candidate page was open before the InMail was sent. Seeing the
+    // subject proves the user-scoped inbox socket refreshed the thread list.
+    await expect(candidatePage.getByText(subject).first()).toBeVisible({ timeout: 5000 });
+    await candidatePage.getByText(subject).first().click();
+    await expect(candidatePage.getByRole("paragraph").filter({ hasText: "P2.2 deployed recruiter message delivered while the candidate inbox is already open." })).toBeVisible();
     await expect(candidatePage.getByText("Live", { exact: true })).toBeVisible();
 
-    const reply = "Candidate staging acceptance reply.";
+    const notifications = await candidatePage.evaluate(async () => {
+      const response = await fetch("/api/v1/candidate/notifications", { credentials: "include" });
+      return { status: response.status, body: await response.json() };
+    });
+    expect(notifications.status).toBe(200);
+    expect(notifications.body.items.some((item: { kind: string; action_url?: string }) =>
+      item.kind === "inmail" && item.action_url === `/candidate/inbox?thread=${threadID}`)).toBeTruthy();
+
+    await recruiterPage.goto(`/recruiter/messages?thread=${threadID}`);
+    await expect(recruiterPage.getByText(subject).first()).toBeVisible();
+    await recruiterPage.getByText(subject).first().click();
+    await expect(recruiterPage.getByText("Live", { exact: true })).toBeVisible();
+
+    const reply = "Candidate P2.2 realtime reply.";
     await candidatePage.getByPlaceholder("Write a reply…").fill(reply);
     await candidatePage.getByRole("button", { name: "Send" }).click();
     await expect(candidatePage.getByRole("paragraph").filter({ hasText: reply })).toBeVisible();
+
+    // Recruiter conversation remains open; the thread socket must deliver the
+    // candidate reply without navigation or polling delay.
+    await expect(recruiterPage.getByRole("paragraph").filter({ hasText: reply })).toBeVisible({ timeout: 5000 });
+
+    await recruiterContext.close();
     await candidateContext.close();
   });
 
