@@ -129,9 +129,12 @@ func (s *Service) enforceBulkBudget(ctx context.Context, tx pgx.Tx, recruiterID,
 	var recruiterHour, recruiterDay, companyDay int
 	if err := tx.QueryRow(ctx, `
 		SELECT
-			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '1 hour'),0),
-			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '24 hours'),0),
+			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '1 hour'),0)
+			  + COALESCE((SELECT sum(recipient_count) FROM outreach_send_ledger WHERE recruiter_id=$1 AND created_at >= now()-interval '1 hour'),0),
+			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '24 hours'),0)
+			  + COALESCE((SELECT sum(recipient_count) FROM outreach_send_ledger WHERE recruiter_id=$1 AND created_at >= now()-interval '24 hours'),0),
 			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE company_id=$2 AND created_at >= now()-interval '24 hours'),0)
+			  + COALESCE((SELECT sum(recipient_count) FROM outreach_send_ledger WHERE company_id=$2 AND created_at >= now()-interval '24 hours'),0)
 	`, recruiterID, companyID).Scan(&recruiterHour, &recruiterDay, &companyDay); err != nil {
 		return err
 	}
