@@ -103,11 +103,14 @@ test.describe.serial("deployed staging acceptance", () => {
     const recruiterPage = await recruiterContext.newPage();
     await signIn(recruiterPage, "recruiter");
 
-    const sendResult = await recruiterPage.evaluate(async ({ subject }) => {
+    const csrfToken = (await recruiterContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(csrfToken).toBeTruthy();
+
+    const sendResult = await recruiterPage.evaluate(async ({ subject, csrfToken }) => {
       const response = await fetch("/api/v1/recruiter/inmail", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
         body: JSON.stringify({
           candidate_id: "30000000-0000-4000-8000-000000000001",
           job_id: "40000000-0000-4000-8000-000000000001",
@@ -116,7 +119,7 @@ test.describe.serial("deployed staging acceptance", () => {
         }),
       });
       return { status: response.status, body: await response.json() };
-    }, { subject });
+    }, { subject, csrfToken: csrfToken! });
 
     expect(sendResult.status).toBe(201);
     expect(sendResult.body.thread?.id).toBeTruthy();
