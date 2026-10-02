@@ -446,6 +446,7 @@ func (s *Server) messagingUserSocket(w http.ResponseWriter, r *http.Request) {
 	writerDone := make(chan struct{})
 	go func() {
 		defer close(writerDone)
+		defer conn.Close()
 		ticker := time.NewTicker(25 * time.Second)
 		defer ticker.Stop()
 		for {
