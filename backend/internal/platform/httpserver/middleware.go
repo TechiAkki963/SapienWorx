@@ -120,6 +120,11 @@ func RequireCSRF(cookieName string) Middleware {
 				next.ServeHTTP(w, r)
 				return
 			}
+			authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
+			if parts := strings.SplitN(authHeader, " ", 2); len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") && strings.TrimSpace(parts[1]) != "" {
+				next.ServeHTTP(w, r)
+				return
+			}
 			cookie, err := r.Cookie(cookieName)
 			if err != nil || strings.TrimSpace(cookie.Value) == "" {
 				writeError(w, r, http.StatusForbidden, "csrf_required", "request verification failed")
