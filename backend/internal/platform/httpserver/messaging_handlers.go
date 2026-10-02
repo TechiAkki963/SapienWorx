@@ -99,6 +99,8 @@ func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request)
 	s.recordAdminTelemetry("inmail", "messaging_api", "single_send", "ok", time.Since(started), result.Thread.ID, nil)
 	s.messages.hub.Broadcast(result.Thread.ID, messaging.NewMessageEvent(result.Message))
 	s.messages.hub.Broadcast(messaging.InboxChannel(result.Thread.CandidateID), messaging.NewInboxEvent(result.Thread.ID, result.Message.SenderID))
+	s.messages.hub.Broadcast(messaging.InboxChannel(result.Thread.CandidateID), messaging.NewNotificationsEvent(result.Message.SenderID))
+	s.messages.hub.Broadcast(messaging.InboxChannel(result.Thread.RecruiterID), messaging.NewInboxEvent(result.Thread.ID, result.Message.SenderID))
 	writeJSON(w, http.StatusCreated, result)
 }
 
@@ -126,10 +128,18 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 		skipped[candidateID] = struct{}{}
 	}
 	for _, candidateID := range input.CandidateIDs {
+		candidateID = strings.TrimSpace(candidateID)
+		if candidateID == "" {
+			continue
+		}
 		if _, wasSkipped := skipped[candidateID]; wasSkipped {
 			continue
 		}
 		s.messages.hub.Broadcast(messaging.InboxChannel(candidateID), messaging.NewInboxEvent("", claims.Subject))
+		s.messages.hub.Broadcast(messaging.InboxChannel(candidateID), messaging.NewNotificationsEvent(claims.Subject))
+	}
+	if result.SentCount > 0 {
+		s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent("", claims.Subject))
 	}
 	writeJSON(w, http.StatusOK, result)
 }
@@ -190,6 +200,9 @@ func (s *Server) messagingMessages(w http.ResponseWriter, r *http.Request) {
 	if counterpartyID, counterpartyErr := s.messages.service.CounterpartyID(r.Context(), threadID, claims.Subject); counterpartyErr == nil {
 		s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewInboxEvent(threadID, message.SenderID))
 		s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent(threadID, message.SenderID))
+		if sender == messaging.SenderTypeRecruiter {
+			s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewNotificationsEvent(message.SenderID))
+		}
 	}
 	writeJSON(w, http.StatusCreated, message)
 }
@@ -204,6 +217,7 @@ func (s *Server) messagingRead(w http.ResponseWriter, r *http.Request) {
 		s.writeMessagingError(w, r, err)
 		return
 	}
+	s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent(r.PathValue("threadID"), claims.Subject))
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -413,6 +427,9 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 			if counterpartyID, counterpartyErr := s.messages.service.CounterpartyID(r.Context(), threadID, claims.Subject); counterpartyErr == nil {
 				s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewInboxEvent(threadID, message.SenderID))
 				s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent(threadID, message.SenderID))
+				if sender == messaging.SenderTypeRecruiter {
+					s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewNotificationsEvent(message.SenderID))
+				}
 			}
 
 		case messaging.EventTypeTyping:
