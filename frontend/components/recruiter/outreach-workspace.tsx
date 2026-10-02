@@ -335,7 +335,7 @@ export function OutreachWorkspace({
   ];
 
   return (
-    <div className="grid gap-5 pb-28 sm:pb-24">
+    <div className="min-w-0 max-w-full grid gap-5 pb-28 sm:pb-24">
       <header className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">Governed recruiter outreach</p>
@@ -347,7 +347,7 @@ export function OutreachWorkspace({
         </div>
       </header>
 
-      <div className="flex overflow-x-auto rounded-2xl border border-line bg-white p-1.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]" role="tablist" aria-label="Outreach workspace sections">
+      <div className="flex min-w-0 max-w-full overflow-x-auto rounded-2xl border border-line bg-white p-1.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)]" role="tablist" aria-label="Outreach workspace sections">
         {tabs.map((item) => (
           <button
             key={item.id}
@@ -355,7 +355,7 @@ export function OutreachWorkspace({
             role="tab"
             aria-selected={tab === item.id}
             onClick={() => { setTab(item.id); setNotice(""); }}
-            className={`min-h-10 flex-1 whitespace-nowrap rounded-xl px-4 text-sm font-extrabold transition ${tab === item.id ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-50 hover:text-ink"}`}
+            className={`min-h-10 shrink-0 whitespace-nowrap rounded-xl px-3 text-sm font-extrabold transition sm:flex-1 sm:px-4 ${tab === item.id ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-50 hover:text-ink"}`}
           >
             {item.label} <span className="ml-1 opacity-70">{item.count}</span>
           </button>
@@ -365,8 +365,8 @@ export function OutreachWorkspace({
       {notice && <div role="status" className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-900">{notice}</div>}
 
       {tab === "campaigns" && (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,.85fr)]">
-          <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_4px_18px_rgba(16,33,63,0.05)]">
+        <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,.85fr)]">
+          <section className="min-w-0 overflow-hidden rounded-2xl border border-line bg-white shadow-[0_4px_18px_rgba(16,33,63,0.05)]">
             <div className="border-b border-line px-5 py-4">
               <h2 className="text-lg font-extrabold text-navy">Campaign activity</h2>
               <p className="mt-1 text-xs text-ink-muted">Pause, resume, or cancel without bypassing scheduled delivery safeguards.</p>
