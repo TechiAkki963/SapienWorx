@@ -446,7 +446,7 @@ func (s *Service) LaunchCampaign(ctx context.Context, recruiterID string, input 
 	}
 	campaignStatus := "active"
 	var completedAt any
-	if len(steps) == 1 {
+	if len(steps) == 1 || enrolled == 0 {
 		campaignStatus = "completed"
 		completedAt = time.Now().UTC()
 	}
