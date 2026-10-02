@@ -235,7 +235,7 @@ export function OutreachWorkspace({
   }
 
   return (
-    <div className="grid gap-5 pb-24">
+    <div className="min-w-0 max-w-full grid gap-5 pb-24">
       <section className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_6px_18px_rgba(16,33,63,0.04)]">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-muted">Running</p>
@@ -254,7 +254,7 @@ export function OutreachWorkspace({
         </div>
       </section>
 
-      <div className="flex gap-1 overflow-x-auto rounded-2xl border border-line/70 bg-white p-1.5" role="tablist" aria-label="Outreach workspace">
+      <div className="flex min-w-0 max-w-full gap-1 overflow-x-auto rounded-2xl border border-line/70 bg-white p-1.5" role="tablist" aria-label="Outreach workspace">
         {(["campaigns", "sequences", "templates"] as const).map((item) => (
           <button
             key={item}
@@ -262,7 +262,7 @@ export function OutreachWorkspace({
             role="tab"
             aria-selected={tab === item}
             onClick={() => setTab(item)}
-            className={`min-h-10 flex-1 rounded-xl px-4 text-sm font-bold capitalize transition ${tab === item ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-50 hover:text-navy"}`}
+            className={`min-h-10 min-w-0 flex-1 rounded-xl px-2 text-sm font-bold capitalize transition sm:px-4 ${tab === item ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-50 hover:text-navy"}`}
           >
             {item}
           </button>
@@ -276,7 +276,7 @@ export function OutreachWorkspace({
       )}
 
       {tab === "templates" && (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <form onSubmit={createTemplate} className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_8px_24px_rgba(16,33,63,0.05)]">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Reusable copy</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create message template</h2>
@@ -311,7 +311,7 @@ export function OutreachWorkspace({
       )}
 
       {tab === "sequences" && (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
           <form onSubmit={createSequence} className="rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Follow-up logic</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Build a sequence</h2>
@@ -366,7 +366,7 @@ export function OutreachWorkspace({
       )}
 
       {tab === "campaigns" && (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+        <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
           <form onSubmit={createCampaign} className="rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Targeted outreach</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create campaign</h2>
