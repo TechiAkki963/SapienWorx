@@ -138,7 +138,9 @@ func TestRequireCSRFSafeMethodDoesNotRequireToken(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/auth/me", nil)
 	res := httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
-	if res.Code != http.StatusNoContent { t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent) }
+	if res.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusNoContent)
+	}
 }
 
 func TestRequireCSRFRejectsMissingTokenOnMutation(t *testing.T) {
@@ -146,7 +148,9 @@ func TestRequireCSRFRejectsMissingTokenOnMutation(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPatch, "/api/v1/candidate/profile", nil)
 	res := httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
-	if res.Code != http.StatusForbidden { t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden) }
+	if res.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden)
+	}
 }
 
 func TestRequireCSRFAcceptsMatchingDoubleSubmitToken(t *testing.T) {
