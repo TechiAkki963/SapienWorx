@@ -496,3 +496,16 @@ a {
 .swx-dark .admin-control-plane-banner {
   background: linear-gradient(135deg, #172554, #111827) !important;
 }
+
+
+/* P2.1 Bulk InMail: fixed-position composer must follow workspace dark mode. */
+.swx-dark .theme-surface .swx-bulk-inmail {
+  background: linear-gradient(165deg, #111827 0%, #111a2d 48%, #0f1b30 100%) !important;
+  border-color: #273449 !important;
+}
+.swx-dark .theme-surface .swx-bulk-inmail [class*="bg-[#f7f7fd]"] {
+  background-color: #172554 !important;
+}
+.swx-dark .theme-surface .swx-bulk-inmail [class*="bg-[#f4fbf8]"] {
+  background-color: #0f2a24 !important;
+}
