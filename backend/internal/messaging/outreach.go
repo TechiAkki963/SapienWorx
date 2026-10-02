@@ -821,7 +821,8 @@ func (s *Service) SetOutreachCampaignStatus(ctx context.Context, recruiterID, ca
 	}
 	if _, err := tx.Exec(ctx, `
 		UPDATE outreach_campaigns
-		SET status=$3,completed_at=CASE WHEN $3='cancelled' THEN now() ELSE completed_at END
+		SET status=$3::outreach_campaign_status,
+		    completed_at=CASE WHEN $3::outreach_campaign_status='cancelled' THEN now() ELSE completed_at END
 		WHERE id=$1 AND recruiter_id=$2
 	`, campaignID, recruiterID, next); err != nil {
 		return OutreachCampaign{}, err
