@@ -355,7 +355,7 @@ test.describe.serial("deployed staging acceptance", () => {
     expect(cooldown.body.skipped_count).toBe(1);
 
     const limited = await bulk({
-      candidate_ids: ["30000000-0000-4000-8000-000000000004"],
+      candidate_ids: ["30000000-0000-4000-8000-000000000003"],
       subject: `${subject} rate limit`,
       body: "Hi {{CandidateName}}, this request should hit the configured acceptance budget.",
     }, crypto.randomUUID());
