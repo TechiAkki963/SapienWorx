@@ -113,6 +113,26 @@ function initialState() {
     candidateNotifications: [
       {id:"75000000-0000-4000-8000-000000000001",kind:"inmail",title:"New message from a recruiter",body:"Senior Go Platform Engineer opportunity",action_url:"/candidate/inbox?thread=73000000-0000-4000-8000-000000000001",read_at:null,created_at:new Date(Date.now()-8*60000).toISOString()},
     ],
+    messageTemplates: [
+      {id:"72000000-0000-4000-8000-000000000001",title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you.",updated_at:now()},
+    ],
+    outreachSequences: [
+      {
+        id:"76000000-0000-4000-8000-000000000001",
+        name:"Qualified candidate follow-up",
+        description:"A concise two-step sequence for warm candidates.",
+        status:"active",
+        stop_on_reply:true,
+        updated_at:now(),
+        steps:[
+          {id:"76100000-0000-4000-8000-000000000001",step_order:1,delay_hours:0,subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you.",created_at:now(),updated_at:now()},
+          {id:"76100000-0000-4000-8000-000000000002",step_order:2,delay_hours:48,subject_template:"Following up on {{JobTitle}}",body_template:"Hi {{CandidateName}}, just following up in case {{JobTitle}} is relevant for you.",created_at:now(),updated_at:now()},
+        ],
+      },
+    ],
+    outreachCampaigns: [
+      {id:"77000000-0000-4000-8000-000000000001",sequence_id:"76000000-0000-4000-8000-000000000001",job_id:jobID,name:"Mumbai operations outreach",status:"active",stop_on_reply:true,requested_count:18,enrolled_count:15,skipped_count:3,created_at:new Date(Date.now()-86400000).toISOString()},
+    ],
     adminAccess: { enabled: false, assigned: true, admin_role: "support_admin", mfa_enrolled: false, mfa_verified: false },
   };
 }
