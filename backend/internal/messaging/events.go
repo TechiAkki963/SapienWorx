@@ -5,9 +5,9 @@ import "encoding/json"
 type EventType string
 
 const (
-	EventTypeMessage EventType = "message"
-	EventTypeTyping  EventType = "typing"
-	EventTypeRead    EventType = "read"
+	EventTypeMessage       EventType = "message"
+	EventTypeTyping        EventType = "typing"
+	EventTypeRead          EventType = "read"
 	EventTypeInbox         EventType = "inbox"
 	EventTypeNotifications EventType = "notifications"
 )
@@ -88,7 +88,6 @@ func NewInboxEvent(threadID, senderID string) WebSocketEvent {
 	payload, _ := json.Marshal(InboxPayload{Reason: "thread_changed"})
 	return WebSocketEvent{Type: EventTypeInbox, ThreadID: threadID, SenderID: senderID, Payload: payload}
 }
-
 
 func NewNotificationsEvent(senderID string) WebSocketEvent {
 	payload, _ := json.Marshal(NotificationsPayload{Reason: "notifications_changed"})
