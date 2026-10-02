@@ -30,11 +30,13 @@ test("outreach campaigns stay compact from laptop to mobile", async ({ page }) =
   await noOverflow(page, "outreach campaigns 1440");
   await page.screenshot({ path: "../output/p2.3-outreach-campaigns-1440.png", fullPage: true });
 
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole("heading", { name: "Outreach" })).toBeVisible();
-  await expect(page.getByText("Mumbai platform hiring")).toBeVisible();
-  await noOverflow(page, "outreach campaigns 390");
-  await page.screenshot({ path: "../output/p2.3-outreach-campaigns-390.png", fullPage: true });
+  for (const width of [1024, 768, 390, 320]) {
+    await page.setViewportSize({ width, height: width >= 768 ? 900 : 844 });
+    await expect(page.getByRole("heading", { name: "Outreach" })).toBeVisible();
+    await expect(page.getByText("Mumbai platform hiring")).toBeVisible();
+    await noOverflow(page, `outreach campaigns ${width}`);
+    await page.screenshot({ path: `../output/p2.3-outreach-campaigns-${width}.png`, fullPage: true });
+  }
 });
 
 test("sequence builder exposes follow-up timing without clutter", async ({ page }) => {
