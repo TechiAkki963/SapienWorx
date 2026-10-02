@@ -198,6 +198,12 @@ func (s *Service) Initiate(ctx context.Context, recruiterID string, input Initia
 	if err := tx.QueryRow(ctx, `INSERT INTO chat_messages(thread_id,sender_id,sender_type,content) VALUES($1,$2,'recruiter',$3) RETURNING id,thread_id,sender_id,sender_type::text,content,is_read,created_at`, thread.ID, recruiterID, content).Scan(&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt); err != nil {
 		return ThreadWithMessage{}, err
 	}
+	if _, err := tx.Exec(ctx, `
+		INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url)
+		VALUES($1,'inmail','New InMail from a recruiter',$2,$3)
+	`, thread.CandidateID, thread.Subject, "/candidate/inbox?thread="+thread.ID); err != nil {
+		return ThreadWithMessage{}, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return ThreadWithMessage{}, err
 	}
@@ -288,8 +294,39 @@ func (s *Service) SendMessage(ctx context.Context, threadID, userID string, send
 		return ChatMessage{}, ErrForbidden
 	}
 	var message ChatMessage
-	err = s.db.QueryRow(ctx, `INSERT INTO chat_messages(thread_id,sender_id,sender_type,content) VALUES($1,$2,$3,$4) RETURNING id,thread_id,sender_id,sender_type::text,content,is_read,created_at`, threadID, userID, senderType, content).Scan(&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt)
+	err = s.db.QueryRow(ctx, `
+		WITH inserted_message AS (
+			INSERT INTO chat_messages(thread_id,sender_id,sender_type,content)
+			VALUES($1,$2,$3,$4)
+			RETURNING id,thread_id,sender_id,sender_type,content,is_read,created_at
+		),
+		inserted_notification AS (
+			INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url)
+			SELECT t.candidate_id,
+			       'inmail',
+			       'New message from a recruiter',
+			       t.subject,
+			       '/candidate/inbox?thread=' || t.id::text
+			FROM inserted_message m
+			JOIN chat_threads t ON t.id=m.thread_id
+			WHERE $3::text='recruiter'
+			RETURNING id
+		)
+		SELECT id,thread_id,sender_id,sender_type::text,content,is_read,created_at
+		FROM inserted_message
+	`, threadID, userID, senderType, content).Scan(&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt)
 	return message, err
+}
+
+func (s *Service) CounterpartyID(ctx context.Context, threadID, userID string) (string, error) {
+	thread, err := s.authorizeThread(ctx, threadID, userID)
+	if err != nil {
+		return "", err
+	}
+	if userID == thread.RecruiterID {
+		return thread.CandidateID, nil
+	}
+	return thread.RecruiterID, nil
 }
 
 func (s *Service) MarkRead(ctx context.Context, threadID, userID string) error {
