@@ -82,6 +82,29 @@ func run(logger *slog.Logger) error {
 			}
 		}()
 	}
+	if _, err := server.RunOutreachPass(ctx); err != nil {
+		logger.Warn("initial outreach pass failed", "error", err)
+	}
+	go func() {
+		ticker := time.NewTicker(time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				passCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+				processed, passErr := server.RunOutreachPass(passCtx)
+				cancel()
+				if passErr != nil {
+					logger.Warn("outreach pass failed", "error", passErr)
+				} else if processed > 0 {
+					logger.Info("outreach messages processed", "count", processed)
+				}
+			}
+		}
+	}()
+
 	errCh := make(chan error, 1)
 	go func() {
 		logger.Info("http server listening", "address", cfg.HTTP.Address)

@@ -152,6 +152,7 @@ INSERT INTO applications (id, candidate_id, job_id, stage, source, applied_at, u
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO talent_pool_memberships (recruiter_id, candidate_id, tags) VALUES
+  ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000001', ARRAY['product','p2.3-acceptance']),
   ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000002', ARRAY['frontend','p2-acceptance']),
   ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000003', ARRAY['analytics','p2-acceptance']),
   ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000004', ARRAY['backend','p2-acceptance'])

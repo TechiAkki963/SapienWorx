@@ -173,6 +173,122 @@ test.describe.serial("deployed staging acceptance", () => {
     await candidateContext.close();
   });
 
+  test("governs outreach sequences and reuses candidate cooldown safeguards", async ({ browser }) => {
+    const recruiterContext = await browser.newContext();
+    const recruiterPage = await recruiterContext.newPage();
+    await signIn(recruiterPage, "recruiter");
+
+    const csrfToken = (await recruiterContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(csrfToken).toBeTruthy();
+
+    const sequenceName = `P2.3 acceptance sequence ${Date.now()}`;
+    const sequence = await recruiterPage.evaluate(async ({ sequenceName, csrfToken }) => {
+      const response = await fetch("/api/v1/recruiter/outreach/sequences", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({
+          name: sequenceName,
+          description: "Deployed P2.3 governed sequence acceptance.",
+          stop_on_reply: true,
+          steps: [
+            {
+              delay_hours: 0,
+              subject_template: "{{JobTitle}} opportunity",
+              body_template: "Hi {{CandidateName}}, I wanted to discuss {{JobTitle}} with you.",
+            },
+            {
+              delay_hours: 48,
+              subject_template: "Following up on {{JobTitle}}",
+              body_template: "Hi {{CandidateName}}, following up in case {{JobTitle}} is relevant.",
+            },
+          ],
+        }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, { sequenceName, csrfToken: csrfToken! });
+
+    expect(sequence.status).toBe(201);
+    const sequenceID = String(sequence.body.id ?? "");
+    expect(sequenceID).toBeTruthy();
+    expect(sequence.body.status).toBe("draft");
+    expect(sequence.body.steps).toHaveLength(2);
+
+    const activate = await recruiterPage.evaluate(async ({ sequenceID, csrfToken }) => {
+      const response = await fetch(`/api/v1/recruiter/outreach/sequences/${sequenceID}/status`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({ status: "active" }),
+      });
+      return response.status;
+    }, { sequenceID, csrfToken: csrfToken! });
+    expect(activate).toBe(204);
+
+    const launchKey = crypto.randomUUID();
+    const launchPayload = {
+      sequence_id: sequenceID,
+      job_id: "40000000-0000-4000-8000-000000000001",
+      name: "P2.3 cooldown-safe launch",
+      candidate_ids: ["30000000-0000-4000-8000-000000000001"],
+    };
+
+    async function launch() {
+      return recruiterPage.evaluate(async ({ launchPayload, launchKey, csrfToken }) => {
+        const response = await fetch("/api/v1/recruiter/outreach/campaigns", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken,
+            "X-Idempotency-Key": launchKey,
+          },
+          body: JSON.stringify(launchPayload),
+        });
+        return { status: response.status, body: await response.json() };
+      }, { launchPayload, launchKey, csrfToken: csrfToken! });
+    }
+
+    const first = await launch();
+    expect(first.status).toBe(201);
+    expect(first.body.bulk.sent_count).toBe(0);
+    expect(first.body.bulk.skipped_count).toBe(1);
+    expect(first.body.campaign.enrolled_count).toBe(0);
+    expect(first.body.campaign.skipped_count).toBe(1);
+    expect(first.body.campaign.status).toBe("completed");
+
+    const retry = await launch();
+    expect(retry.status).toBe(201);
+    expect(retry.body.campaign.id).toBe(first.body.campaign.id);
+    expect(retry.body.campaign.requested_count).toBe(1);
+    expect(retry.body.campaign.enrolled_count).toBe(0);
+
+    const conflict = await recruiterPage.evaluate(async ({ launchPayload, launchKey, csrfToken }) => {
+      const response = await fetch("/api/v1/recruiter/outreach/campaigns", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+          "X-Idempotency-Key": launchKey,
+        },
+        body: JSON.stringify({ ...launchPayload, name: "P2.3 changed payload" }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, { launchPayload, launchKey, csrfToken: csrfToken! });
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.error?.code).toBe("idempotency_conflict");
+
+    const campaigns = await recruiterPage.evaluate(async () => {
+      const response = await fetch("/api/v1/recruiter/outreach/campaigns", { credentials: "include" });
+      return { status: response.status, body: await response.json() };
+    });
+    expect(campaigns.status).toBe(200);
+    expect(campaigns.body.items.filter((item: { id: string }) => item.id === first.body.campaign.id)).toHaveLength(1);
+
+    await recruiterContext.close();
+  });
+
   test("enforces Bulk InMail idempotency, cooldown and recipient budgets", async ({ browser }) => {
     const recruiterContext = await browser.newContext();
     const recruiterPage = await recruiterContext.newPage();

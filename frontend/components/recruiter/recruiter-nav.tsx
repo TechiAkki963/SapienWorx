@@ -8,7 +8,7 @@ import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { ThreadListResponse } from "@/lib/messaging";
 
-type IconName = "overview" | "discover" | "pipeline" | "talent" | "messages" | "jobs" | "interviews";
+type IconName = "overview" | "discover" | "pipeline" | "talent" | "messages" | "outreach" | "jobs" | "interviews";
 
 type NavItem = { label: string; shortLabel?: string; href: string; icon: IconName };
 
@@ -23,6 +23,7 @@ const sections: { title: string; items: NavItem[] }[] = [
   { title: "Advanced recruitment tools", items: [
     { label: "Discover Talent", href: "/recruiter/discover", icon: "discover" },
     { label: "Talent Pools", href: "/recruiter/talent-pool", icon: "talent" },
+    { label: "Outreach", href: "/recruiter/outreach", icon: "outreach" },
   ] },
 ];
 
@@ -36,6 +37,7 @@ function NavIcon({ name, className }: { name: IconName; className?: string }) {
   if (name === "pipeline") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M4 5h16M7 12h10M10 19h4" /><circle cx="5" cy="5" r="1" /><circle cx="8" cy="12" r="1" /><circle cx="11" cy="19" r="1" /></svg>;
   if (name === "talent") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.6-6 3.6v-15a1 1 0 0 1 1-1Z" /></svg>;
   if (name === "messages") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M4 5.5h16v11H9l-5 3v-14Z" /><path d="M7.5 9h9M7.5 12.5h6" /></svg>;
+  if (name === "outreach") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M4 7.5h10M4 12h7M4 16.5h5" /><path d="m14 15 5-5M15 10h4v4" /></svg>;
   if (name === "jobs") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><rect x="3.5" y="7" width="17" height="12" rx="2" /><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 11.5h17" /></svg>;
   return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><rect x="4" y="5.5" width="16" height="14" rx="2" /><path d="M8 3.5v4M16 3.5v4M4 10h16M8 14h3M13 14h3" /></svg>;
 }
