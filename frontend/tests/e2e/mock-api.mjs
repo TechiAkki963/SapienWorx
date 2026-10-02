@@ -264,6 +264,7 @@ function profileSummary() {
     profile_completion: state.profile.profile_completion,
     share_token: "e2e-public-profile-token",
     profile_visible: Boolean(state.profileDetails.details.profile_visible_in_sourcing),
+    discoverable_to_recruiters: Boolean(state.profileDetails.details.discoverable_to_recruiters),
   };
 }
 
@@ -401,6 +402,10 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, state.profileDetails);
   }
   if (url.pathname === "/api/v1/candidate/profile/summary" && req.method === "GET") return json(res, 200, profileSummary());
+  if (url.pathname === "/api/v1/candidate/profile/discovery" && req.method === "PATCH") {
+    state.profileDetails.details = { ...state.profileDetails.details, discoverable_to_recruiters: Boolean(payload.enabled) };
+    return json(res, 200, { discoverable_to_recruiters: Boolean(payload.enabled) });
+  }
   if (url.pathname === "/api/v1/candidate/cv/parse-preview" && req.method === "POST" && state.failCVPreview) return json(res, 422, { error: { message: "unable to read document" } });
   if (url.pathname === "/api/v1/candidate/cv/parse-preview" && req.method === "POST") return json(res, 200, {
     format: "DOCX",
