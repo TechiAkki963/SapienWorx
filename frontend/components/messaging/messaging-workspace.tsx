@@ -136,9 +136,9 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
   const error = sendError || loadError;
 
   return (
-    <section aria-label={role === "candidate" ? "Candidate inbox" : "Recruiter messages"} className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-[0_24px_70px_rgba(49,46,129,0.10)] backdrop-blur-xl">
+    <section aria-label={role === "candidate" ? "Candidate inbox" : "Recruiter messages"} className="swx-messaging-workspace overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-[0_24px_70px_rgba(49,46,129,0.10)] backdrop-blur-xl">
       <div className={`grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)] ${threads.length ? "min-h-[68vh]" : "min-h-[18rem]"}`}>
-        <aside className={`${showConversation ? "hidden lg:block" : "block"} border-b border-line/70 bg-[linear-gradient(180deg,#fbfaff_0%,#f6f7ff_100%)] lg:border-b-0 lg:border-r`}>
+        <aside className={`swx-messaging-list ${showConversation ? "hidden lg:block" : "block"} border-b border-line/70 bg-[linear-gradient(180deg,#fbfaff_0%,#f6f7ff_100%)] lg:border-b-0 lg:border-r`}>
           <div className="border-b border-line/70 px-4 py-4">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Conversations</p>
             <div className="mt-1 flex items-end justify-between gap-3">
@@ -186,7 +186,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
           </div>
         </aside>
 
-        <div className={`${showConversation ? "flex" : "hidden lg:flex"} ${threads.length ? "min-h-[34rem]" : "min-h-[18rem]"} min-w-0 flex-col bg-[radial-gradient(circle_at_90%_0%,rgba(196,181,253,0.18),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)]`}>
+        <div className={`swx-messaging-thread ${showConversation ? "flex" : "hidden lg:flex"} ${threads.length ? "min-h-[34rem]" : "min-h-[18rem]"} min-w-0 flex-col bg-[radial-gradient(circle_at_90%_0%,rgba(196,181,253,0.18),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)]`}>
           {activeThread ? (
             <>
               <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line/70 bg-white/70 px-4 py-4 sm:px-5">
