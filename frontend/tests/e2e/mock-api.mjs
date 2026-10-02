@@ -762,6 +762,21 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { updated: true });
   }
 
+  if (url.pathname === "/api/v1/admin/trust/risk-flags" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || !permissions.includes("trust_risk.read"))) return json(res, 403, { error: { message: "trust risk access denied" } });
+    return json(res, 200, { items: [
+      { id: "d1000000-0000-4000-8000-000000000001", subject_type: "job", subject_id: jobID, risk_type: "contact_pattern_anomaly", severity: "high", status: "pending_review", source: "rules-v1", explanation: "The signal requires human review before any administrative action.", evidence: { repeated_contact_pattern: true, sample_window_days: 7 }, created_at: now() },
+      { id: "d1000000-0000-4000-8000-000000000002", subject_type: "candidate", subject_id: candidateID, risk_type: "profile_consistency_review", severity: "medium", status: "reviewing", source: "rules-v1", explanation: "Profile evidence is inconsistent and should be reviewed by an authorized administrator.", evidence: { inconsistent_fields: 2 }, created_at: now() },
+    ] });
+  }
+  const trustReview = url.pathname.match(/^\/api\/v1\/admin\/trust\/risk-flags\/([^/]+)$/);
+  if (trustReview && req.method === "PATCH") {
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (roleFromCookie(req) !== "master_admin" || (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || !permissions.includes("trust_risk.review")))) return json(res, 403, { error: { message: "trust risk review denied" } });
+    return json(res, 200, { status: String(payload.status || "reviewing") });
+  }
   if (url.pathname === "/api/v1/admin/intelligence" && req.method === "GET") {
     if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
     const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
