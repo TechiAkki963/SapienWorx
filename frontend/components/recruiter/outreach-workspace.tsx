@@ -433,7 +433,7 @@ export function OutreachWorkspace({
               <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-line">
                 {candidates.map((candidate) => (
                   <label key={candidate.candidate_id} className="flex cursor-pointer items-start gap-3 border-b border-line/60 px-3 py-3 last:border-b-0 hover:bg-slate-50">
-                    <input type="checkbox" checked={selectedCandidates.has(candidate.candidate_id)} onChange={() => toggleCandidate(candidate.candidate_id)} className="mt-1 h-4 w-4 accent-indigo" />
+                    <input aria-label={`Select ${candidate.full_name}`} type="checkbox" checked={selectedCandidates.has(candidate.candidate_id)} onChange={() => toggleCandidate(candidate.candidate_id)} className="mt-1 h-4 w-4 accent-indigo" />
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-bold text-ink">{candidate.full_name}</span>
                       <span className="mt-0.5 block truncate text-xs text-ink-muted">{candidate.headline ?? "Candidate"}{candidate.current_city ? ` · ${candidate.current_city}` : ""}</span>
