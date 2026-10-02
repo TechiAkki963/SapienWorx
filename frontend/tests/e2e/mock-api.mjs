@@ -772,6 +772,34 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { updated: true });
   }
 
+  if (url.pathname === "/api/v1/admin/privacy/requests" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e1000000-0000-4000-8000-000000000001", user_id: candidateID, request_type: "export", status: "in_progress", due_at: new Date(Date.now()+14*86400000).toISOString(), created_at: now() },
+      { id: "e1000000-0000-4000-8000-000000000002", user_id: recruiterID, request_type: "erasure", status: "awaiting_review", due_at: new Date(Date.now()+21*86400000).toISOString(), created_at: now() },
+    ] });
+  }
+  if (url.pathname === "/api/v1/admin/privacy/incidents" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e2000000-0000-4000-8000-000000000001", title: "Synthetic incident readiness exercise", severity: "medium", status: "investigating", discovered_at: now(), notification_required: false },
+    ] });
+  }
+  if (url.pathname === "/api/v1/admin/privacy/processing-activities" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e3000000-0000-4000-8000-000000000001", activity_name: "Recruitment profile operations", purpose: "Operate candidate profiles and hiring workflows.", lawful_basis: "contract", retention_policy: "Account lifecycle plus approved retention window", owner: "Privacy Operations", reviewed_at: now() },
+      { id: "e3000000-0000-4000-8000-000000000002", activity_name: "Recruiter discovery consent", purpose: "Enable opt-in pre-application discovery and outreach.", lawful_basis: "consent", retention_policy: "Until consent withdrawal or account closure", owner: "Privacy Operations", reviewed_at: now() },
+    ] });
+  }
+  if (url.pathname === "/api/v1/admin/privacy/subprocessors" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e4000000-0000-4000-8000-000000000001", name: "Synthetic Cloud Processor", purpose: "Private object storage and delivery", processing_locations: ["IN"], transfer_mechanism: "Not required", tia_status: "not_required", effective_from: "2026-01-01" },
+      { id: "e4000000-0000-4000-8000-000000000002", name: "Synthetic Email Processor", purpose: "Transactional email delivery", processing_locations: ["IN"], transfer_mechanism: "DPA", tia_status: "approved", tia_reviewed_at: now(), effective_from: "2026-01-01" },
+    ] });
+  }
+
   if (url.pathname === "/api/v1/admin/trust/risk-flags" && req.method === "GET") {
     if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
     const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
