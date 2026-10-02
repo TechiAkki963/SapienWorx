@@ -534,13 +534,17 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 
 		var candidateName, subjectTemplate, bodyTemplate string
 		var jobTitle string
+		var jobArg any
+		if item.jobID != nil {
+			jobArg = *item.jobID
+		}
 		if err := s.db.QueryRow(ctx, `
 			SELECT cp.full_name,mt.subject_template,mt.body_template,COALESCE(j.title,'')
 			FROM candidate_profiles cp
 			JOIN message_templates mt ON mt.id=$2
-			LEFT JOIN jobs j ON j.id=$3
+			LEFT JOIN jobs j ON j.id=$3::uuid
 			WHERE cp.user_id=$1
-		`, item.candidateID,item.templateID,item.jobID).Scan(&candidateName,&subjectTemplate,&bodyTemplate,&jobTitle); err != nil {
+		`, item.candidateID,item.templateID,jobArg).Scan(&candidateName,&subjectTemplate,&bodyTemplate,&jobTitle); err != nil {
 			return events, err
 		}
 		content := strings.TrimSpace(renderBulkTemplate(bodyTemplate,candidateName,jobTitle))
@@ -612,16 +616,17 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 			tx.Rollback(ctx)
 			return events, err
 		}
-		var nextDelay *int
-		if err := tx.QueryRow(ctx,`
+		var nextDelay int
+		nextErr := tx.QueryRow(ctx,`
 			SELECT delay_hours FROM outreach_sequence_steps
 			WHERE sequence_id=(SELECT sequence_id FROM outreach_campaigns WHERE id=$1)
 			  AND step_order=$2
-		`,item.campaignID,item.stepOrder+1).Scan(&nextDelay); err != nil && !errors.Is(err,pgx.ErrNoRows) {
+		`,item.campaignID,item.stepOrder+1).Scan(&nextDelay)
+		if nextErr != nil && !errors.Is(nextErr,pgx.ErrNoRows) {
 			tx.Rollback(ctx)
-			return events, err
+			return events, nextErr
 		}
-		if nextDelay == nil {
+		if errors.Is(nextErr,pgx.ErrNoRows) {
 			if _, err := tx.Exec(ctx,`
 				UPDATE outreach_campaign_enrollments
 				SET status='completed',next_step_order=$2,next_run_at=NULL,last_sent_at=$3
@@ -635,7 +640,7 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 				UPDATE outreach_campaign_enrollments
 				SET next_step_order=$2,next_run_at=$3,last_sent_at=$4
 				WHERE id=$1
-			`,item.enrollmentID,item.stepOrder+1,message.CreatedAt.Add(time.Duration(*nextDelay)*time.Hour),message.CreatedAt); err != nil {
+			`,item.enrollmentID,item.stepOrder+1,message.CreatedAt.Add(time.Duration(nextDelay)*time.Hour),message.CreatedAt); err != nil {
 				tx.Rollback(ctx)
 				return events, err
 			}
