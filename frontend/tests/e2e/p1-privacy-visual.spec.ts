@@ -16,7 +16,7 @@ test.beforeEach(async ({ request }) => {
 });
 
 test("privacy operations remain readable across desktop, tablet and mobile", async ({ page }) => {
-  await fs.mkdir("output", { recursive: true });
+  await fs.mkdir("../output", { recursive: true });
   await login(page, "master_admin");
   await page.goto("/swx-command-centre/privacy");
 
@@ -29,12 +29,12 @@ test("privacy operations remain readable across desktop, tablet and mobile", asy
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     await noOverflow(page, `privacy operations ${width}px`);
-    await page.screenshot({ path: `output/admin-privacy-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `../output/admin-privacy-${width}.png`, fullPage: true });
   }
 });
 
 test("privacy operations support dark mode without losing governance data", async ({ page }) => {
-  await fs.mkdir("output", { recursive: true });
+  await fs.mkdir("../output", { recursive: true });
   await page.setViewportSize({ width: 1440, height: 960 });
   await login(page, "master_admin");
   await page.goto("/swx-command-centre/privacy");
@@ -46,11 +46,11 @@ test("privacy operations support dark mode without losing governance data", asyn
   await expect(page.getByText("Recruitment profile operations")).toBeVisible();
   await expect(page.getByText("Synthetic Cloud Processor")).toBeVisible();
   await noOverflow(page, "privacy operations dark");
-  await page.screenshot({ path: "output/admin-privacy-dark.png", fullPage: true });
+  await page.screenshot({ path: "../output/admin-privacy-dark.png", fullPage: true });
 });
 
 test("public cookie information states the essential-only policy without a fake consent choice", async ({ page }) => {
-  await fs.mkdir("output", { recursive: true });
+  await fs.mkdir("../output", { recursive: true });
   await page.goto("/cookies");
   await expect(page.getByRole("heading", { name: "Only essential cookies are used in the current product." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Why there is no consent banner" })).toBeVisible();
@@ -61,6 +61,6 @@ test("public cookie information states the essential-only policy without a fake 
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     await noOverflow(page, `cookie information ${width}px`);
-    await page.screenshot({ path: `output/cookie-information-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `../output/cookie-information-${width}.png`, fullPage: true });
   }
 });
