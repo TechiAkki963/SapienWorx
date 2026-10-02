@@ -230,7 +230,7 @@ func (c Config) Validate() error {
 	if c.Email.Enabled && strings.TrimSpace(c.Email.FromAddress) == "" {
 		problems = append(problems, "EMAIL_FROM_ADDRESS is required when email delivery is enabled")
 	}
-	if c.Email.WorkerInterval < time.Second || c.Email.WorkerInterval > time.Minute || c.Email.BatchSize < 1 || c.Email.BatchSize > 50 || c.Email.MaxAttempts < 1 || c.Email.MaxAttempts > 10 {
+	if c.Email.Enabled && (c.Email.WorkerInterval < time.Second || c.Email.WorkerInterval > time.Minute || c.Email.BatchSize < 1 || c.Email.BatchSize > 50 || c.Email.MaxAttempts < 1 || c.Email.MaxAttempts > 10) {
 		problems = append(problems, "email delivery worker settings are invalid")
 	}
 	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
