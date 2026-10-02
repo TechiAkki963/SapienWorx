@@ -95,7 +95,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
   }, []);
 
   useEffect(() => {
-    if (!open || templatesLoaded || loadingTemplates) return;
+    if (!open || templatesLoaded) return;
 
     let cancelled = false;
     setLoadingTemplates(true);
@@ -117,10 +117,10 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     return () => {
       cancelled = true;
     };
-  }, [loadingTemplates, open, templatesLoaded]);
+  }, [open, templatesLoaded]);
 
   useEffect(() => {
-    if (!open || jobsLoaded || loadingJobs) return;
+    if (!open || jobsLoaded) return;
 
     let cancelled = false;
     setLoadingJobs(true);
@@ -142,7 +142,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     return () => {
       cancelled = true;
     };
-  }, [jobsLoaded, loadingJobs, open]);
+  }, [jobsLoaded, open]);
 
   useEffect(() => {
     if (!selectedTemplate) return;
