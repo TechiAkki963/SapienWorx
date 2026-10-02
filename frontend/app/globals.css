@@ -564,7 +564,9 @@ a {
 .theme-surface .swx-thread-row-active {
   background-color: rgb(255 255 255 / 0.96) !important;
 }
+.swx-dark {
+  --swx-messaging-active-row: #172554;
+}
 .swx-dark .theme-surface .swx-thread-row-active {
-  background-color: #172554 !important;
   color: #f8fafc !important;
 }
