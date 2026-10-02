@@ -6,6 +6,7 @@ import { AnimatePresence } from "motion/react";
 import { apiRequest } from "@/lib/api";
 import { MessageBubble } from "@/components/messaging/message-bubble";
 import { TypingIndicator } from "@/components/messaging/typing-indicator";
+import { useMessagingEvents } from "@/hooks/use-messaging-events";
 import { useSapienChat } from "@/hooks/use-sapien-chat";
 import type { ChatMessage, MessagingSenderType, MessagingThread, ThreadListResponse } from "@/lib/messaging";
 
@@ -48,12 +49,14 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
     setUnreadOnly(initialUnreadOnly);
   }, [initialUnreadOnly]);
 
+  const inboxConnectionState = useMessagingEvents({ onInboxChanged: refreshThreads });
+
   useEffect(() => {
-    const timer = window.setInterval(() => { void refreshThreads(); }, 10000);
+    const timer = window.setInterval(() => { void refreshThreads(); }, inboxConnectionState === "live" ? 60000 : 15000);
     const onVisible = () => { if (document.visibilityState === "visible") void refreshThreads(); };
     document.addEventListener("visibilitychange", onVisible);
     return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
-  }, [refreshThreads]);
+  }, [inboxConnectionState, refreshThreads]);
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("thread");
@@ -194,7 +197,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
                 </div>
                 <div className="flex items-center gap-2 text-[11px] font-bold">
                   <span className={`h-2 w-2 rounded-full ${connectionState === "live" ? "bg-emerald-400" : connectionState === "connecting" ? "bg-amber-400" : "bg-slate-300"}`} />
-                  <span className="text-ink-muted">{connectionState === "live" ? "Live" : connectionState === "connecting" ? "Connecting" : "Reconnecting"}</span>
+                  <span className="text-ink-muted">{connectionState === "live" && inboxConnectionState === "live" ? "Live" : connectionState === "connecting" || inboxConnectionState === "connecting" ? "Connecting" : "Reconnecting"}</span>
                 </div>
               </header>
 
