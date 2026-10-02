@@ -39,6 +39,8 @@ CREATE TABLE outreach_campaigns (
   sent_count integer NOT NULL DEFAULT 0 CHECK (sent_count >= 0),
   skipped_count integer NOT NULL DEFAULT 0 CHECK (skipped_count >= 0),
   failed_count integer NOT NULL DEFAULT 0 CHECK (failed_count >= 0),
+  launch_idempotency_key varchar(128),
+  launch_result jsonb,
   launched_at timestamptz,
   completed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -50,6 +52,9 @@ CREATE INDEX idx_outreach_campaigns_recruiter_updated
 CREATE INDEX idx_outreach_campaigns_running
   ON outreach_campaigns(status, updated_at DESC)
   WHERE status='running';
+CREATE UNIQUE INDEX ux_outreach_campaigns_recruiter_launch_key
+  ON outreach_campaigns(recruiter_id, launch_idempotency_key)
+  WHERE launch_idempotency_key IS NOT NULL;
 
 CREATE TABLE outreach_send_ledger (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
