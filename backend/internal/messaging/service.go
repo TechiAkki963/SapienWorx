@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("messaging resource not found")
-	ErrForbidden    = errors.New("messaging access forbidden")
+	ErrNotFound            = errors.New("messaging resource not found")
+	ErrForbidden           = errors.New("messaging access forbidden")
 	ErrInvalidInput        = errors.New("invalid messaging input")
 	ErrThreadClosed        = errors.New("chat thread is closed")
 	ErrRateLimited         = errors.New("messaging rate limit exceeded")
