@@ -354,6 +354,9 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 	if !idempotencyKeyPattern.MatchString(idempotencyKey) {
 		return OutreachCampaign{}, BulkInMailResult{}, ErrInvalidInput
 	}
+	if storedLaunchKey != nil && *storedLaunchKey != idempotencyKey {
+		return OutreachCampaign{}, BulkInMailResult{}, ErrIdempotencyConflict
+	}
 	if campaign.Status != "draft" {
 		if storedLaunchKey != nil && *storedLaunchKey == idempotencyKey && len(storedLaunchResult) > 0 {
 			var previous BulkInMailResult
@@ -362,10 +365,34 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 			}
 			return campaign, previous, nil
 		}
-		if storedLaunchKey != nil && *storedLaunchKey != idempotencyKey {
-			return OutreachCampaign{}, BulkInMailResult{}, ErrIdempotencyConflict
-		}
 		return OutreachCampaign{}, BulkInMailResult{}, ErrInvalidInput
+	}
+	if storedLaunchKey == nil {
+		tag, err := s.db.Exec(ctx, `
+			UPDATE outreach_campaigns
+			SET launch_idempotency_key=$3
+			WHERE id=$1 AND recruiter_id=$2 AND status='draft' AND launch_idempotency_key IS NULL
+		`, campaignID, recruiterID, idempotencyKey)
+		if err != nil {
+			return OutreachCampaign{}, BulkInMailResult{}, err
+		}
+		if tag.RowsAffected() == 0 {
+			var claimedKey *string
+			if err := s.db.QueryRow(ctx, `
+				SELECT launch_idempotency_key
+				FROM outreach_campaigns
+				WHERE id=$1 AND recruiter_id=$2
+			`, campaignID, recruiterID).Scan(&claimedKey); err != nil {
+				if errors.Is(err, pgx.ErrNoRows) {
+					return OutreachCampaign{}, BulkInMailResult{}, ErrNotFound
+				}
+				return OutreachCampaign{}, BulkInMailResult{}, err
+			}
+			if claimedKey == nil || *claimedKey != idempotencyKey {
+				return OutreachCampaign{}, BulkInMailResult{}, ErrIdempotencyConflict
+			}
+		}
+		storedLaunchKey = &idempotencyKey
 	}
 
 	candidateRows, err := s.db.Query(ctx, `
