@@ -19,50 +19,9 @@ const (
 )
 
 var (
-	uuidPattern           = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}package messaging
-
-import (
-	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
-	"errors"
-	"regexp"
-	"strings"
-	"time"
-
-	"github.com/jackc/pgx/v5"
+	uuidPattern           = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$`)
+	idempotencyKeyPattern = regexp.MustCompile(`^[A-Za-z0-9._:-]{8,128}$`)
 )
-
-const (
-	MaxBulkInMailRecipients = 200
-	BulkInMailCooldownDays  = 14
-)
-
-)
-	idempotencyKeyPattern = regexp.MustCompile(`^[A-Za-z0-9._:-]{8,128}package messaging
-
-import (
-	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
-	"errors"
-	"regexp"
-	"strings"
-	"time"
-
-	"github.com/jackc/pgx/v5"
-)
-
-const (
-	MaxBulkInMailRecipients = 200
-	BulkInMailCooldownDays  = 14
-)
-
-)
-)
-
 type BulkInMailInput struct {
 	CandidateIDs   []string `json:"candidate_ids"`
 	JobID          string   `json:"job_id,omitempty"`
