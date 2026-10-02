@@ -410,7 +410,7 @@ export function OutreachWorkspace({
             </div>
           </section>
 
-          <section className="h-fit rounded-2xl border border-line bg-white p-5 shadow-[0_4px_18px_rgba(16,33,63,0.05)]">
+          <section className="min-w-0 h-fit rounded-2xl border border-line bg-white p-5 shadow-[0_4px_18px_rgba(16,33,63,0.05)]">
             <h2 className="text-lg font-extrabold text-navy">Launch campaign</h2>
             <p className="mt-1 text-xs leading-5 text-ink-muted">Only active sequences can launch. Recipients must already be in your Talent Pool and eligible for outreach.</p>
             <label className="mt-5 block text-xs font-bold text-ink-muted">Campaign name
@@ -428,9 +428,9 @@ export function OutreachWorkspace({
                 {jobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
               </select>
             </label>
-            <fieldset className="mt-4">
+            <fieldset className="mt-4 min-w-0 max-w-full">
               <legend className="text-xs font-bold text-ink-muted">Recipients · {selectedCandidates.size} selected</legend>
-              <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-line">
+              <div className="mt-2 min-w-0 max-w-full max-h-64 overflow-y-auto rounded-xl border border-line">
                 {candidates.map((candidate) => (
                   <label key={candidate.candidate_id} className="flex cursor-pointer items-start gap-3 border-b border-line/60 px-3 py-3 last:border-b-0 hover:bg-slate-50">
                     <input aria-label={`Select ${candidate.full_name}`} type="checkbox" checked={selectedCandidates.has(candidate.candidate_id)} onChange={() => toggleCandidate(candidate.candidate_id)} className="mt-1 h-4 w-4 accent-indigo" />
