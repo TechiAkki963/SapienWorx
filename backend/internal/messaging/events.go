@@ -5,12 +5,11 @@ import "encoding/json"
 type EventType string
 
 const (
-	EventTypeMessage             EventType = "message"
-	EventTypeTyping              EventType = "typing"
-	EventTypeRead                EventType = "read"
-	EventTypeInboxChanged        EventType = "inbox_changed"
+	EventTypeMessage              EventType = "message"
+	EventTypeTyping               EventType = "typing"
+	EventTypeRead                 EventType = "read"
+	EventTypeInboxChanged         EventType = "inbox_changed"
 	EventTypeNotificationsChanged EventType = "notifications_changed"
-	EventTypeSync    EventType = "sync"
 )
 
 const MaxReadReceiptBatch = 100
@@ -45,10 +44,6 @@ type ReadPayload struct {
 	MessageIDs []string `json:"message_ids"`
 }
 
-type SyncPayload struct {
-	Scope    string `json:"scope"`
-	ThreadID string `json:"thread_id,omitempty"`
-}
 
 type ReadResult struct {
 	SenderID   string   `json:"sender_id"`
@@ -84,8 +79,3 @@ func NewNotificationsChangedEvent() WebSocketEvent {
 	return WebSocketEvent{Type: EventTypeNotificationsChanged, Payload: json.RawMessage(`{}`)}
 }
 
-
-func NewSyncEvent(senderID, scope, threadID string) WebSocketEvent {
-	payload, _ := json.Marshal(SyncPayload{Scope: scope, ThreadID: threadID})
-	return WebSocketEvent{Type: EventTypeSync, ThreadID: threadID, SenderID: senderID, Payload: payload}
-}
