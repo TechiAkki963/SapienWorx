@@ -47,7 +47,7 @@ test("P2.2 candidate inbox stays readable across laptop, tablet and mobile", asy
 
     await page.getByRole("button", { name: /Senior Go Platform Engineer opportunity/ }).click();
     await expect(page.getByPlaceholder("Write a reply…")).toBeVisible();
-    await expect(page.getByText("The hiring manager is available tomorrow afternoon.")).toBeVisible();
+    await expect(page.getByRole("paragraph").filter({ hasText: "The hiring manager is available tomorrow afternoon." })).toBeVisible();
     await expectNoHorizontalOverflow(page, `candidate inbox thread ${width}px`);
     await page.screenshot({ path: `../output/p2.2-candidate-inbox-thread-${width}.png`, fullPage: true });
   }
