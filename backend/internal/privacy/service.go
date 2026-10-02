@@ -43,7 +43,7 @@ type Request struct {
 	CreatedAt   time.Time  `json:"created_at"`
 }
 
-func privacyDueAt(now time.Time) time.Time { return now.UTC().Add(30 * 24 * time.Hour) }
+func privacyDueAt(now time.Time) time.Time { return now.UTC().AddDate(0, 1, 0) }
 
 func (s *Service) CreateRequest(ctx context.Context, userID, requestType string) (Request, error) {
 	requestType = strings.TrimSpace(strings.ToLower(requestType))
