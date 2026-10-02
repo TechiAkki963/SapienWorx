@@ -44,8 +44,8 @@ export function MessageBubble({ message, currentSenderType, observe }: MessageBu
           <div
             className={`max-w-[82%] rounded-[1.35rem] px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.05)] sm:max-w-[72%] ${
               candidateMessage
-                ? "rounded-br-md border border-emerald-100 bg-emerald-50 text-emerald-950"
-                : "rounded-bl-md border border-violet-100 bg-violet-50 text-violet-950"
+                ? "swx-message-candidate rounded-br-md border border-emerald-100 bg-emerald-50 text-emerald-950"
+                : "swx-message-recruiter rounded-bl-md border border-violet-100 bg-violet-50 text-violet-950"
             }`}
           >
             <p className="whitespace-pre-wrap break-words text-sm leading-6">{message.content}</p>

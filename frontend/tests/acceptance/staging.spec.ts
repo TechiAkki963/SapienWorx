@@ -97,8 +97,18 @@ test.describe.serial("deployed staging acceptance", () => {
     await recruiterContext.close();
   });
 
-  test("delivers recruiter InMail and establishes the deployed candidate WebSocket", async ({ browser }) => {
-    const subject = `Step 6 staging acceptance ${Date.now()}`;
+  test("delivers new threads and replies through deployed realtime messaging", async ({ browser }) => {
+    const subject = `P2.2 realtime acceptance ${Date.now()}`;
+
+    const candidateContext = await browser.newContext();
+    const candidatePage = await candidateContext.newPage();
+    await signIn(candidatePage, "candidate");
+    await candidatePage.goto("/candidate/inbox");
+
+    const notificationsPage = await candidateContext.newPage();
+    await notificationsPage.goto("/candidate/notifications");
+    await expect(notificationsPage.getByRole("heading", { name: "Notifications" })).toBeVisible();
+
     const recruiterContext = await browser.newContext();
     const recruiterPage = await recruiterContext.newPage();
     await signIn(recruiterPage, "recruiter");
@@ -115,28 +125,248 @@ test.describe.serial("deployed staging acceptance", () => {
           candidate_id: "30000000-0000-4000-8000-000000000001",
           job_id: "40000000-0000-4000-8000-000000000001",
           subject,
-          content: "Staging acceptance message from the deployed recruiter flow.",
+          content: "P2.2 deployed recruiter message delivered while the candidate inbox is already open.",
         }),
       });
       return { status: response.status, body: await response.json() };
     }, { subject, csrfToken: csrfToken! });
 
     expect(sendResult.status).toBe(201);
-    expect(sendResult.body.thread?.id).toBeTruthy();
-    await recruiterContext.close();
+    const threadID = String(sendResult.body.thread?.id ?? "");
+    expect(threadID).toBeTruthy();
 
-    const candidateContext = await browser.newContext();
-    const candidatePage = await candidateContext.newPage();
-    await signIn(candidatePage, "candidate");
-    await candidatePage.goto("/candidate/inbox");
-    await expect(candidatePage.getByText(subject).first()).toBeVisible();
-    await expect(candidatePage.getByRole("paragraph").filter({ hasText: "Staging acceptance message from the deployed recruiter flow." })).toBeVisible();
+    // The candidate page was open before the InMail was sent. Seeing the
+    // subject proves the user-scoped inbox socket refreshed the thread list.
+    await expect(candidatePage.getByText(subject).first()).toBeVisible({ timeout: 5000 });
+    await candidatePage.getByText(subject).first().click();
+    await expect(candidatePage.getByRole("paragraph").filter({ hasText: "P2.2 deployed recruiter message delivered while the candidate inbox is already open." })).toBeVisible();
     await expect(candidatePage.getByText("Live", { exact: true })).toBeVisible();
 
-    const reply = "Candidate staging acceptance reply.";
+    const notifications = await candidatePage.evaluate(async () => {
+      const response = await fetch("/api/v1/candidate/notifications", { credentials: "include" });
+      return { status: response.status, body: await response.json() };
+    });
+    expect(notifications.status).toBe(200);
+    expect(notifications.body.items.some((item: { kind: string; action_url?: string }) =>
+      item.kind === "inmail" && item.action_url === `/candidate/inbox?thread=${threadID}`)).toBeTruthy();
+
+    // The notifications page was also open before the send. It must refresh
+    // from the authenticated user-scoped notification event without navigation.
+    await expect(notificationsPage.getByText("New InMail from a recruiter").first()).toBeVisible({ timeout: 5000 });
+    await expect(notificationsPage.getByText(subject).first()).toBeVisible({ timeout: 5000 });
+
+    await recruiterPage.goto(`/recruiter/messages?thread=${threadID}`);
+    await expect(recruiterPage.getByText(subject).first()).toBeVisible();
+    await recruiterPage.getByText(subject).first().click();
+    await expect(recruiterPage.getByText("Live", { exact: true })).toBeVisible();
+
+    const reply = "Candidate P2.2 realtime reply.";
     await candidatePage.getByPlaceholder("Write a reply…").fill(reply);
     await candidatePage.getByRole("button", { name: "Send" }).click();
     await expect(candidatePage.getByRole("paragraph").filter({ hasText: reply })).toBeVisible();
+
+    // Recruiter conversation remains open; the thread socket must deliver the
+    // candidate reply without navigation or polling delay.
+    await expect(recruiterPage.getByRole("paragraph").filter({ hasText: reply })).toBeVisible({ timeout: 5000 });
+
+    await recruiterContext.close();
     await candidateContext.close();
   });
+
+  test("governs outreach sequences and reuses candidate cooldown safeguards", async ({ browser }) => {
+    const recruiterContext = await browser.newContext();
+    const recruiterPage = await recruiterContext.newPage();
+    await signIn(recruiterPage, "recruiter");
+
+    const csrfToken = (await recruiterContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(csrfToken).toBeTruthy();
+
+    const sequenceName = `P2.3 acceptance sequence ${Date.now()}`;
+    const sequence = await recruiterPage.evaluate(async ({ sequenceName, csrfToken }) => {
+      const response = await fetch("/api/v1/recruiter/outreach/sequences", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({
+          name: sequenceName,
+          description: "Deployed P2.3 governed sequence acceptance.",
+          stop_on_reply: true,
+          steps: [
+            {
+              delay_hours: 0,
+              subject_template: "{{JobTitle}} opportunity",
+              body_template: "Hi {{CandidateName}}, I wanted to discuss {{JobTitle}} with you.",
+            },
+            {
+              delay_hours: 48,
+              subject_template: "Following up on {{JobTitle}}",
+              body_template: "Hi {{CandidateName}}, following up in case {{JobTitle}} is relevant.",
+            },
+          ],
+        }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, { sequenceName, csrfToken: csrfToken! });
+
+    expect(sequence.status).toBe(201);
+    const sequenceID = String(sequence.body.id ?? "");
+    expect(sequenceID).toBeTruthy();
+    expect(sequence.body.status).toBe("draft");
+    expect(sequence.body.steps).toHaveLength(2);
+
+    const activate = await recruiterPage.evaluate(async ({ sequenceID, csrfToken }) => {
+      const response = await fetch(`/api/v1/recruiter/outreach/sequences/${sequenceID}/status`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({ status: "active" }),
+      });
+      return response.status;
+    }, { sequenceID, csrfToken: csrfToken! });
+    expect(activate).toBe(204);
+
+    const launchKey = crypto.randomUUID();
+    const launchPayload = {
+      sequence_id: sequenceID,
+      job_id: "40000000-0000-4000-8000-000000000001",
+      name: "P2.3 cooldown-safe launch",
+      candidate_ids: ["30000000-0000-4000-8000-000000000001"],
+    };
+
+    async function launch() {
+      return recruiterPage.evaluate(async ({ launchPayload, launchKey, csrfToken }) => {
+        const response = await fetch("/api/v1/recruiter/outreach/campaigns", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken,
+            "X-Idempotency-Key": launchKey,
+          },
+          body: JSON.stringify(launchPayload),
+        });
+        return { status: response.status, body: await response.json() };
+      }, { launchPayload, launchKey, csrfToken: csrfToken! });
+    }
+
+    const first = await launch();
+    expect(first.status).toBe(201);
+    expect(first.body.bulk.sent_count).toBe(0);
+    expect(first.body.bulk.skipped_count).toBe(1);
+    expect(first.body.campaign.enrolled_count).toBe(0);
+    expect(first.body.campaign.skipped_count).toBe(1);
+    expect(first.body.campaign.status).toBe("completed");
+
+    const retry = await launch();
+    expect(retry.status).toBe(201);
+    expect(retry.body.campaign.id).toBe(first.body.campaign.id);
+    expect(retry.body.campaign.requested_count).toBe(1);
+    expect(retry.body.campaign.enrolled_count).toBe(0);
+
+    const conflict = await recruiterPage.evaluate(async ({ launchPayload, launchKey, csrfToken }) => {
+      const response = await fetch("/api/v1/recruiter/outreach/campaigns", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+          "X-Idempotency-Key": launchKey,
+        },
+        body: JSON.stringify({ ...launchPayload, name: "P2.3 changed payload" }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, { launchPayload, launchKey, csrfToken: csrfToken! });
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.error?.code).toBe("idempotency_conflict");
+
+    const campaigns = await recruiterPage.evaluate(async () => {
+      const response = await fetch("/api/v1/recruiter/outreach/campaigns", { credentials: "include" });
+      return { status: response.status, body: await response.json() };
+    });
+    expect(campaigns.status).toBe(200);
+    expect(campaigns.body.items.filter((item: { id: string }) => item.id === first.body.campaign.id)).toHaveLength(1);
+
+    await recruiterContext.close();
+  });
+
+  test("enforces Bulk InMail idempotency, cooldown and recipient budgets", async ({ browser }) => {
+    const recruiterContext = await browser.newContext();
+    const recruiterPage = await recruiterContext.newPage();
+    await signIn(recruiterPage, "recruiter");
+
+    const csrfToken = (await recruiterContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(csrfToken).toBeTruthy();
+
+    const subject = `P2.1 bulk acceptance ${Date.now()}`;
+    const key = crypto.randomUUID();
+    const candidateIDs = [
+      "30000000-0000-4000-8000-000000000002",
+      "30000000-0000-4000-8000-000000000003",
+    ];
+
+    async function bulk(payload: Record<string, unknown>, idempotencyKey: string) {
+      return recruiterPage.evaluate(async ({ payload, idempotencyKey, csrfToken }) => {
+        const response = await fetch("/api/v1/recruiter/inmail/bulk", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken,
+            "X-Idempotency-Key": idempotencyKey,
+          },
+          body: JSON.stringify(payload),
+        });
+        return {
+          status: response.status,
+          retryAfter: response.headers.get("Retry-After"),
+          body: await response.json(),
+        };
+      }, { payload, idempotencyKey, csrfToken: csrfToken! });
+    }
+
+    const payload = {
+      candidate_ids: candidateIDs,
+      subject,
+      body: "Hi {{CandidateName}}, this is the deployed P2.1 bulk acceptance message.",
+    };
+
+    const first = await bulk(payload, key);
+    expect(first.status).toBe(200);
+    expect(first.body.status).toBe("sent");
+    expect(first.body.sent_count).toBe(2);
+    expect(first.body.skipped_count).toBe(0);
+
+    const retry = await bulk(payload, key);
+    expect(retry.status).toBe(200);
+    expect(retry.body).toEqual(first.body);
+
+    const conflict = await bulk({ ...payload, subject: `${subject} changed` }, key);
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.error?.code).toBe("idempotency_conflict");
+
+    const threads = await recruiterPage.evaluate(async () => {
+      const response = await fetch("/api/v1/messaging/threads", { credentials: "include" });
+      return { status: response.status, body: await response.json() };
+    });
+    expect(threads.status).toBe(200);
+    expect(threads.body.items.filter((thread: { subject: string }) => thread.subject === subject)).toHaveLength(2);
+
+    const cooldown = await bulk(payload, crypto.randomUUID());
+    expect(cooldown.status).toBe(200);
+    expect(cooldown.body.status).toBe("skipped");
+    expect(cooldown.body.sent_count).toBe(0);
+    expect(cooldown.body.skipped_count).toBe(2);
+
+    const limited = await bulk({
+      candidate_ids: ["30000000-0000-4000-8000-000000000004"],
+      subject: `${subject} rate limit`,
+      body: "Hi {{CandidateName}}, this request should hit the configured acceptance budget.",
+    }, crypto.randomUUID());
+    expect(limited.status).toBe(429);
+    expect(limited.body.error?.code).toBe("rate_limited");
+    expect(Number(limited.retryAfter)).toBeGreaterThan(0);
+
+    await recruiterContext.close();
+  });
+
 });

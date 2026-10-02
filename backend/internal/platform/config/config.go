@@ -17,6 +17,7 @@ type Config struct {
 	Database    DatabaseConfig
 	Auth        AuthConfig
 	Admin       AdminConfig
+	Messaging   MessagingConfig
 	AWS         AWSConfig
 }
 
@@ -62,6 +63,12 @@ type AuthConfig struct {
 	CSRFCookieName    string
 }
 
+type MessagingConfig struct {
+	BulkRecruiterHourlyLimit int
+	BulkRecruiterDailyLimit  int
+	BulkCompanyDailyLimit    int
+}
+
 type AWSConfig struct {
 	Region       string
 	S3Bucket     string
@@ -100,6 +107,11 @@ func Load() (Config, error) {
 			AllowedOrigins:    csvEnv("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
 			MaxBodyBytes:      int64Env("HTTP_MAX_BODY_BYTES", 2<<20),
 			TrustedProxyCIDRs: csvEnv("HTTP_TRUSTED_PROXY_CIDRS", nil),
+		},
+		Messaging: MessagingConfig{
+			BulkRecruiterHourlyLimit: intEnv("INMAIL_BULK_RECRUITER_HOURLY_LIMIT", 300),
+			BulkRecruiterDailyLimit:  intEnv("INMAIL_BULK_RECRUITER_DAILY_LIMIT", 1000),
+			BulkCompanyDailyLimit:    intEnv("INMAIL_BULK_COMPANY_DAILY_LIMIT", 5000),
 		},
 		Database: DatabaseConfig{
 			URL:             strings.TrimSpace(os.Getenv("DATABASE_URL")),
@@ -193,6 +205,11 @@ func (c Config) Validate() error {
 	}
 	if c.Auth.AccessCookieName == "" || c.Auth.RefreshCookieName == "" || c.Auth.CSRFCookieName == "" {
 		problems = append(problems, "authentication cookie names are required")
+	}
+	if c.Messaging.BulkRecruiterHourlyLimit < 1 ||
+		c.Messaging.BulkRecruiterDailyLimit < c.Messaging.BulkRecruiterHourlyLimit ||
+		c.Messaging.BulkCompanyDailyLimit < c.Messaging.BulkRecruiterDailyLimit {
+		problems = append(problems, "InMail bulk rate-limit settings are invalid")
 	}
 	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
 		problems = append(problems, "S3_PRESIGN_TTL must be between 1m and 15m")

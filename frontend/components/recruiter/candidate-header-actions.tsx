@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { ScheduleInterviewForm } from "@/components/recruiter/schedule-interview-form";
 import { SaveProfileButton } from "@/components/recruiter/save-profile-button";
 import type { PipelineRow } from "@/lib/recruiter";
@@ -13,10 +15,17 @@ export function CandidateHeaderActions({
   initialSaved: boolean;
   applications: PipelineRow[];
 }) {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
   return (
     <div className="flex w-full flex-wrap items-center justify-end gap-2 xl:w-auto">
       <button
         type="button"
+        disabled={!hydrated}
         onClick={() => window.dispatchEvent(new Event("sapienworx:open-candidate-inmail"))}
         className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-indigo px-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(8,102,255,0.16)] transition hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/35 focus-visible:ring-offset-2 max-sm:flex-1 max-sm:px-3"
       >
