@@ -27,6 +27,27 @@ const items = [
 
 const modulePermissions: (AdminPermission | null)[] = ["overview.read", "organizations.read", "users.read", "jobs.read", "privacy.read", "audit.read", "system.read", null, "organizations.read", "recruitment.read", "recruitment.read", "control_plane.read", "control_plane.read", "taxonomy.read", "intelligence.read", "trust_risk.read", "release.manage", "control_plane.read"];
 
+const mobileLabels = [
+  "Overview",
+  "Tenants",
+  "Users",
+  "Jobs",
+  "Privacy",
+  "Audit",
+  "System",
+  "Access",
+  "Orgs",
+  "Apps",
+  "Interviews",
+  "Ops",
+  "Alerts",
+  "Taxonomy",
+  "AI",
+  "Trust",
+  "Releases",
+  "Settings",
+] as const;
+
 function Icon({ index }: { index: number }) {
   const paths = [
     "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
@@ -46,8 +67,8 @@ export function AdminNav({ access, mobile = false }: { access: AdminAccess; mobi
   return <nav aria-label="Master Admin navigation" className={mobile ? "flex max-w-full gap-1 overflow-x-auto [scrollbar-width:none]" : "grid gap-1 overflow-visible"}>{items.map(([href, label], index) => {
     const permission = modulePermissions[index];
     if (permission && !canAdmin(access, permission)) return null;
-    const displayLabel = index === 7 && access.enabled ? "Access & permissions" : label;
+    const displayLabel = mobile ? mobileLabels[index] : index === 7 && access.enabled ? "Access & permissions" : label;
     const active = pathname === href || pathname.startsWith(`${href}/`);
-    return <Link key={href} href={href} className={`group flex shrink-0 font-semibold transition ${mobile ? "min-w-[4.75rem] max-w-[5.5rem] flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] leading-3" : "items-center gap-3 rounded-xl px-3 py-2.5 text-sm"} ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon index={index} /></span><span className={mobile ? "text-center whitespace-normal" : ""}>{displayLabel}</span></Link>;
+    return <Link key={href} href={href} className={`group flex shrink-0 font-semibold transition ${mobile ? "min-w-[4.25rem] flex-col items-center gap-1 rounded-xl px-1.5 py-2 text-[10px] leading-3" : "items-center gap-3 rounded-xl px-3 py-2.5 text-sm"} ${active ? "bg-[#edf1ff] text-[#3147c8] shadow-[inset_0_0_0_1px_rgba(99,102,241,0.10)]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${active ? "bg-white text-[#4255d7] shadow-sm" : "bg-slate-50 text-slate-500 group-hover:bg-white"}`}><Icon index={index} /></span><span className={mobile ? "max-w-full truncate text-center" : ""}>{displayLabel}</span></Link>;
   })}</nav>;
 }
