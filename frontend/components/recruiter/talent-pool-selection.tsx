@@ -4,7 +4,8 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 
-import { BulkInMailDrawer } from "@/components/recruiter/bulk-inmail-drawer";\nimport { RecruiterTagList } from "@/components/recruiter/recruiter-tag";
+import { BulkInMailDrawer } from "@/components/recruiter/bulk-inmail-drawer";
+import { RecruiterTagList } from "@/components/recruiter/recruiter-tag";
 import { experience } from "@/lib/recruiter";
 
 export type TalentPoolCandidate = {
