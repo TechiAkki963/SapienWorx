@@ -29,11 +29,13 @@ test("outreach campaigns stay clear from laptop to mobile and dark mode", async 
   await noOverflow(page, "outreach campaigns 1440");
   await page.screenshot({ path: "../output/p2.3-outreach-campaigns-1440.png", fullPage: true });
 
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole("heading", { name: "Outreach", exact: true })).toBeVisible();
-  await expect(page.getByText("Mumbai operations outreach")).toBeVisible();
-  await noOverflow(page, "outreach campaigns 390");
-  await page.screenshot({ path: "../output/p2.3-outreach-campaigns-390.png", fullPage: true });
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect(page.getByRole("heading", { name: "Outreach", exact: true })).toBeVisible();
+    await expect(page.getByText("Mumbai operations outreach")).toBeVisible();
+    await noOverflow(page, `outreach campaigns ${width}`);
+    await page.screenshot({ path: `../output/p2.3-outreach-campaigns-${width}.png`, fullPage: true });
+  }
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.getByTitle("Appearance").click();
@@ -67,6 +69,10 @@ test("recruiter can create and activate a sequence then save a template", async 
   await newSequence.locator("xpath=ancestor::article").getByRole("button", { name: "Activate" }).click();
   await expect(page.getByText("Sequence activated.")).toBeVisible();
   await page.screenshot({ path: "../output/p2.3-outreach-sequences-1440.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await noOverflow(page, "outreach sequences 390");
+  await page.screenshot({ path: "../output/p2.3-outreach-sequences-390.png", fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
 
   await page.getByRole("tab", { name: /Templates/ }).click();
   await page.getByLabel("Template title").fill("Healthcare introduction");
@@ -76,6 +82,9 @@ test("recruiter can create and activate a sequence then save a template", async 
   await expect(page.getByText("Message template saved.")).toBeVisible();
   await expect(page.getByText("Healthcare introduction")).toBeVisible();
   await page.screenshot({ path: "../output/p2.3-outreach-templates-1440.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await noOverflow(page, "outreach templates 390");
+  await page.screenshot({ path: "../output/p2.3-outreach-templates-390.png", fullPage: true });
 });
 
 test("campaign launch is governed and pause resume controls remain usable", async ({ page }) => {
