@@ -121,6 +121,16 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.recordAdminTelemetry("inmail", "messaging_api", "bulk_send", "ok", time.Since(started), "", nil)
+	skipped := make(map[string]struct{}, len(result.SkippedCandidateIDs))
+	for _, candidateID := range result.SkippedCandidateIDs {
+		skipped[candidateID] = struct{}{}
+	}
+	for _, candidateID := range input.CandidateIDs {
+		if _, wasSkipped := skipped[candidateID]; wasSkipped {
+			continue
+		}
+		s.messages.hub.Broadcast(messaging.InboxChannel(candidateID), messaging.NewInboxEvent("", claims.Subject))
+	}
 	writeJSON(w, http.StatusOK, result)
 }
 
