@@ -99,6 +99,7 @@ func validProductionConfig() Config {
 			CookieSecure:      true,
 			AccessCookieName:  "sw_access",
 			RefreshCookieName: "sw_refresh",
+			CSRFCookieName:    "sw_csrf",
 		},
 		AWS: AWSConfig{S3PresignTTL: 5 * time.Minute},
 	}
