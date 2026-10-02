@@ -571,7 +571,7 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 			JOIN outreach_campaigns c ON c.id=e.campaign_id
 			WHERE e.id=$1
 			FOR UPDATE OF e,c
-		`, item.enrollmentID).Scan(&currentStatus,&currentStep,&currentNextRun,&currentLastSent,&campaignStatus); err != nil {
+		`, item.enrollmentID).Scan(&currentStatus, &currentStep, &currentNextRun, &currentLastSent, &campaignStatus); err != nil {
 			tx.Rollback(ctx)
 			if errors.Is(err, pgx.ErrNoRows) {
 				continue
@@ -589,7 +589,7 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 					SELECT 1 FROM chat_messages
 					WHERE thread_id=$1 AND sender_type='candidate' AND created_at>$2
 				)
-			`, item.threadID,*currentLastSent).Scan(&replied); err != nil {
+			`, item.threadID, *currentLastSent).Scan(&replied); err != nil {
 				tx.Rollback(ctx)
 				return events, err
 			}
