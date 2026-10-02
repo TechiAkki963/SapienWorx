@@ -41,6 +41,8 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
   ].slice(0, 3);
 
   async function toggleProfileVisibility(next: boolean) {
+    const previous = profileVisible;
+    setProfileVisible(next);
     setVisibilityBusy(true);
     setVisibilityMessage("");
     try {
@@ -55,10 +57,10 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
           expected_salary_currency: latest.expected_salary_currency || "INR",
         }),
       });
-      setProfileVisible(next);
       setVisibilityMessage(next ? "Your shareable profile link is on." : "Your shareable profile link is private.");
       router.refresh();
     } catch (cause) {
+      setProfileVisible(previous);
       setVisibilityMessage(cause instanceof Error ? cause.message : "Could not update profile visibility. Try again.");
     } finally {
       setVisibilityBusy(false);
@@ -66,14 +68,16 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
   }
 
   async function toggleDiscovery(next: boolean) {
+    const previous = discoverable;
+    setDiscoverable(next);
     setVisibilityBusy(true);
     setVisibilityMessage("");
     try {
       await apiRequest("/api/v1/candidate/profile/discovery", { method: "PATCH", body: JSON.stringify({ enabled: next }) });
-      setDiscoverable(next);
       setVisibilityMessage(next ? "Recruiter discovery and pre-application outreach are enabled." : "Recruiter discovery and pre-application outreach are off.");
       router.refresh();
     } catch (cause) {
+      setDiscoverable(previous);
       setVisibilityMessage(cause instanceof Error ? cause.message : "Could not update discovery preference.");
     } finally { setVisibilityBusy(false); }
   }
