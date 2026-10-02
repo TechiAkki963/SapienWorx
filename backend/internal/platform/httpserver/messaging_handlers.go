@@ -111,6 +111,7 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &input) {
 		return
 	}
+	input.IdempotencyKey = strings.TrimSpace(r.Header.Get("X-Idempotency-Key"))
 	started := time.Now()
 	result, err := s.messages.service.BulkInMail(r.Context(), claims.Subject, input)
 	if err != nil {
@@ -374,6 +375,18 @@ func (s *Server) writeMessagingError(w http.ResponseWriter, r *http.Request, err
 		writeError(w, r, http.StatusNotFound, "not_found", "messaging resource was not found")
 	case errors.Is(err, messaging.ErrThreadClosed):
 		writeError(w, r, http.StatusConflict, "thread_closed", "this conversation is closed")
+	case errors.Is(err, messaging.ErrIdempotencyConflict):
+		writeError(w, r, http.StatusConflict, "idempotency_conflict", "this idempotency key was already used for a different bulk message")
+	case errors.Is(err, messaging.ErrRateLimited):
+		var rateErr *messaging.RateLimitError
+		if errors.As(err, &rateErr) && rateErr.RetryAfter > 0 {
+			seconds := int(rateErr.RetryAfter.Seconds())
+			if seconds < 1 {
+				seconds = 1
+			}
+			w.Header().Set("Retry-After", strconvItoa(seconds))
+		}
+		writeError(w, r, http.StatusTooManyRequests, "rate_limited", "bulk outreach limit reached; try again later")
 	default:
 		s.logger.Error("messaging request failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
 		writeError(w, r, http.StatusInternalServerError, "internal_error", "messaging request failed")
