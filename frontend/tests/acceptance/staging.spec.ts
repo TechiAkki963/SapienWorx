@@ -173,6 +173,120 @@ test.describe.serial("deployed staging acceptance", () => {
     await candidateContext.close();
   });
 
+  test("creates and launches an outreach sequence through deployed anti-spam messaging", async ({ browser }) => {
+    const recruiterContext = await browser.newContext();
+    const recruiterPage = await recruiterContext.newPage();
+    await signIn(recruiterPage, "recruiter");
+
+    const csrfToken = (await recruiterContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(csrfToken).toBeTruthy();
+
+    async function request(path: string, method: string, payload?: Record<string, unknown>, headers?: Record<string, string>) {
+      return recruiterPage.evaluate(async ({ path, method, payload, headers, csrfToken }) => {
+        const response = await fetch(path, {
+          method,
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken,
+            ...(headers ?? {}),
+          },
+          body: payload ? JSON.stringify(payload) : undefined,
+        });
+        return { status: response.status, body: await response.json() };
+      }, { path, method, payload, headers, csrfToken: csrfToken! });
+    }
+
+    const suffix = Date.now();
+    const intro = await request("/api/v1/recruiter/message-templates", "POST", {
+      title: `P2.3 intro ${suffix}`,
+      subject_template: "Operations leadership conversation",
+      body_template: "Hi {{CandidateName}}, I would like to discuss an opportunity with you.",
+    });
+    expect(intro.status).toBe(201);
+
+    const followup = await request("/api/v1/recruiter/message-templates", "POST", {
+      title: `P2.3 follow-up ${suffix}`,
+      subject_template: "Following up",
+      body_template: "Hi {{CandidateName}}, following up on my earlier message.",
+    });
+    expect(followup.status).toBe(201);
+
+    const sequence = await request("/api/v1/recruiter/outreach/sequences", "POST", {
+      name: `P2.3 deployed sequence ${suffix}`,
+      steps: [
+        { template_id: intro.body.id, delay_hours: 0 },
+        { template_id: followup.body.id, delay_hours: 24 },
+      ],
+    });
+    expect(sequence.status).toBe(201);
+    expect(sequence.body.status).toBe("active");
+
+    const campaign = await request("/api/v1/recruiter/outreach/campaigns", "POST", {
+      name: `P2.3 deployed campaign ${suffix}`,
+      sequence_id: sequence.body.id,
+      candidate_ids: ["30000000-0000-4000-8000-000000000003"],
+    });
+    expect(campaign.status).toBe(201);
+    expect(campaign.body.status).toBe("draft");
+    expect(campaign.body.total_recipients).toBe(1);
+
+    const key = crypto.randomUUID();
+    const launched = await request(
+      `/api/v1/recruiter/outreach/campaigns/${campaign.body.id}/launch`,
+      "POST",
+      undefined,
+      { "X-Idempotency-Key": key },
+    );
+    expect(launched.status).toBe(200);
+    expect(launched.body.campaign.status).toBe("running");
+    expect(launched.body.delivery.sent_count).toBe(1);
+    expect(launched.body.delivery.deliveries).toHaveLength(1);
+    expect(launched.body.delivery.deliveries[0].candidate_id).toBe("30000000-0000-4000-8000-000000000004");
+    expect(launched.body.delivery.deliveries[0].thread_id).toBeTruthy();
+
+    const retry = await request(
+      `/api/v1/recruiter/outreach/campaigns/${campaign.body.id}/launch`,
+      "POST",
+      undefined,
+      { "X-Idempotency-Key": key },
+    );
+    expect(retry.status).toBe(200);
+    expect(retry.body.delivery).toEqual(launched.body.delivery);
+
+    const conflictingRetry = await request(
+      `/api/v1/recruiter/outreach/campaigns/${campaign.body.id}/launch`,
+      "POST",
+      undefined,
+      { "X-Idempotency-Key": crypto.randomUUID() },
+    );
+    expect(conflictingRetry.status).toBe(409);
+    expect(conflictingRetry.body.error?.code).toBe("idempotency_conflict");
+
+    const paused = await request(
+      `/api/v1/recruiter/outreach/campaigns/${campaign.body.id}`,
+      "PATCH",
+      { status: "paused" },
+    );
+    expect(paused.status).toBe(200);
+    expect(paused.body.status).toBe("paused");
+
+    const resumed = await request(
+      `/api/v1/recruiter/outreach/campaigns/${campaign.body.id}`,
+      "PATCH",
+      { status: "running" },
+    );
+    expect(resumed.status).toBe(200);
+    expect(resumed.body.status).toBe("running");
+
+    const campaigns = await request("/api/v1/recruiter/outreach/campaigns", "GET");
+    expect(campaigns.status).toBe(200);
+    expect(campaigns.body.items.some((item: { id: string; sent_count: number }) =>
+      item.id === campaign.body.id && item.sent_count === 1)).toBeTruthy();
+
+    await recruiterContext.close();
+  });
+
   test("enforces Bulk InMail idempotency, cooldown and recipient budgets", async ({ browser }) => {
     const recruiterContext = await browser.newContext();
     const recruiterPage = await recruiterContext.newPage();
@@ -185,7 +299,6 @@ test.describe.serial("deployed staging acceptance", () => {
     const key = crypto.randomUUID();
     const candidateIDs = [
       "30000000-0000-4000-8000-000000000002",
-      "30000000-0000-4000-8000-000000000003",
     ];
 
     async function bulk(payload: Record<string, unknown>, idempotencyKey: string) {
@@ -217,7 +330,7 @@ test.describe.serial("deployed staging acceptance", () => {
     const first = await bulk(payload, key);
     expect(first.status).toBe(200);
     expect(first.body.status).toBe("sent");
-    expect(first.body.sent_count).toBe(2);
+    expect(first.body.sent_count).toBe(1);
     expect(first.body.skipped_count).toBe(0);
 
     const retry = await bulk(payload, key);
@@ -233,13 +346,13 @@ test.describe.serial("deployed staging acceptance", () => {
       return { status: response.status, body: await response.json() };
     });
     expect(threads.status).toBe(200);
-    expect(threads.body.items.filter((thread: { subject: string }) => thread.subject === subject)).toHaveLength(2);
+    expect(threads.body.items.filter((thread: { subject: string }) => thread.subject === subject)).toHaveLength(1);
 
     const cooldown = await bulk(payload, crypto.randomUUID());
     expect(cooldown.status).toBe(200);
     expect(cooldown.body.status).toBe("skipped");
     expect(cooldown.body.sent_count).toBe(0);
-    expect(cooldown.body.skipped_count).toBe(2);
+    expect(cooldown.body.skipped_count).toBe(1);
 
     const limited = await bulk({
       candidate_ids: ["30000000-0000-4000-8000-000000000004"],
