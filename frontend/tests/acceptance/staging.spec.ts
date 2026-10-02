@@ -105,6 +105,10 @@ test.describe.serial("deployed staging acceptance", () => {
     await signIn(candidatePage, "candidate");
     await candidatePage.goto("/candidate/inbox");
 
+    const notificationsPage = await candidateContext.newPage();
+    await notificationsPage.goto("/candidate/notifications");
+    await expect(notificationsPage.getByRole("heading", { name: "Notifications" })).toBeVisible();
+
     const recruiterContext = await browser.newContext();
     const recruiterPage = await recruiterContext.newPage();
     await signIn(recruiterPage, "recruiter");
@@ -145,6 +149,11 @@ test.describe.serial("deployed staging acceptance", () => {
     expect(notifications.status).toBe(200);
     expect(notifications.body.items.some((item: { kind: string; action_url?: string }) =>
       item.kind === "inmail" && item.action_url === `/candidate/inbox?thread=${threadID}`)).toBeTruthy();
+
+    // The notifications page was also open before the send. It must refresh
+    // from the authenticated user-scoped notification event without navigation.
+    await expect(notificationsPage.getByText("New InMail from a recruiter").first()).toBeVisible({ timeout: 5000 });
+    await expect(notificationsPage.getByText(subject).first()).toBeVisible({ timeout: 5000 });
 
     await recruiterPage.goto(`/recruiter/messages?thread=${threadID}`);
     await expect(recruiterPage.getByText(subject).first()).toBeVisible();
