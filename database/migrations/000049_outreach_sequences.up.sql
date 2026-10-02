@@ -38,6 +38,7 @@ CREATE TABLE outreach_campaigns (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   recruiter_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   sequence_id uuid NOT NULL REFERENCES outreach_sequences(id) ON DELETE RESTRICT,
+  launch_key varchar(128) NOT NULL,
   job_id uuid REFERENCES jobs(id) ON DELETE SET NULL,
   name varchar(160) NOT NULL,
   status outreach_campaign_status NOT NULL DEFAULT 'launching',
@@ -48,7 +49,8 @@ CREATE TABLE outreach_campaigns (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   completed_at timestamptz,
-  CONSTRAINT outreach_campaigns_name_not_blank CHECK (length(trim(name)) > 0)
+  CONSTRAINT outreach_campaigns_name_not_blank CHECK (length(trim(name)) > 0),
+  CONSTRAINT outreach_campaigns_launch_key_unique UNIQUE(recruiter_id, launch_key)
 );
 CREATE INDEX ix_outreach_campaigns_recruiter_updated
   ON outreach_campaigns(recruiter_id, updated_at DESC);
