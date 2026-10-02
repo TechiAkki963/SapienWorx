@@ -25,6 +25,8 @@ test.describe("candidate profile", () => {
     const [coreRequest, detailRequest] = await Promise.all([coreSave, detailSave]);
 
     expect(coreRequest.postDataJSON()).toMatchObject({ current_city: "Mumbai", current_state: "Maharashtra", notice_period_days: null });
+    expect(coreRequest.headers()["x-csrf-token"]).toBe("e2e-csrf-token");
+    expect(detailRequest.headers()["x-csrf-token"]).toBe("e2e-csrf-token");
     expect(detailRequest.postDataJSON()).toMatchObject({
       details: { current_designation: "Platform Engineer" },
     });
