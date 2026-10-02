@@ -368,7 +368,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/auth/email/verify" && req.method === "POST") return json(res, 200, { status: "active" });
   if (url.pathname === "/api/v1/auth/login" && req.method === "POST") {
     const role = String(payload.role ?? "candidate");
-    return json(res, 200, { access_token: "e2e-access", refresh_token: "e2e-refresh", expires_in: 900 }, { "set-cookie": `swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax` });
+    return json(res, 200, { expires_in: 900, role }, { "set-cookie": [`swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax`, "sw_csrf=e2e-csrf-token; Path=/; SameSite=Lax"] });
   }
   if (url.pathname === "/api/v1/auth/logout" && req.method === "POST") return json(res, 200, {}, { "set-cookie": "swx_e2e_role=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" });
   if (url.pathname === "/api/v1/auth/me" && req.method === "GET") {
