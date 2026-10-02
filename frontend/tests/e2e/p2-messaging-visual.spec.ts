@@ -11,6 +11,15 @@ async function noOverflow(page: import("@playwright/test").Page, label: string) 
   expect(width, label).toBeLessThanOrEqual(viewport + 1);
 }
 
+async function drawerGeometry(page: import("@playwright/test").Page, dialog: import("@playwright/test").Locator, width: number) {
+  const box = await dialog.boundingBox();
+  expect(box, `Bulk InMail drawer has a box at ${width}px`).not.toBeNull();
+  if (!box) return;
+  expect(Math.round(box.x + box.width), `drawer is right-aligned at ${width}px`).toBeLessThanOrEqual(width + 1);
+  expect(Math.round(box.x + box.width), `drawer reaches viewport edge at ${width}px`).toBeGreaterThanOrEqual(width - 1);
+  expect(box.width, `drawer width at ${width}px`).toBeGreaterThanOrEqual(width < 608 ? width - 2 : 590);
+}
+
 test.beforeEach(async ({ request }) => {
   await resetE2E(request);
 });
@@ -36,10 +45,11 @@ test("Bulk InMail remains clean and usable across approved responsive widths", a
     await page.setViewportSize({ width, height: width >= 768 ? 900 : 844 });
     await noOverflow(page, `Bulk InMail ${width}px`);
     await expect(dialog).toBeVisible();
+    await drawerGeometry(page, dialog, width);
     await expect(page.getByLabel("Message template")).toBeVisible();
     await expect(page.getByLabel("Job context")).toBeVisible();
     await expect(page.getByRole("button", { name: "Send to 2" })).toBeVisible();
-    await page.screenshot({ path: `../output/p2-bulk-inmail-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `../output/p2-bulk-inmail-${width}.png` });
   }
 });
 
@@ -58,5 +68,6 @@ test("Bulk InMail follows recruiter dark mode", async ({ page }) => {
   const dialog = page.getByRole("dialog", { name: "Send Bulk InMail" });
   await expect(dialog).toBeVisible();
   await noOverflow(page, "Bulk InMail dark mode");
-  await page.screenshot({ path: "../output/p2-bulk-inmail-dark-1440.png", fullPage: true });
+  await drawerGeometry(page, dialog, 1440);
+  await page.screenshot({ path: "../output/p2-bulk-inmail-dark-1440.png" });
 });
