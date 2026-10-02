@@ -570,3 +570,11 @@ a {
 .swx-dark .theme-surface .swx-thread-row-active {
   color: #f8fafc !important;
 }
+
+
+/* P2.2 final dark selected-row override: keep the active conversation readable. */
+.swx-dark .theme-surface button.swx-thread-row.swx-thread-row-active {
+  background-color: #172554 !important;
+  background-image: none !important;
+  color: #f8fafc !important;
+}
