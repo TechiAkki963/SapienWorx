@@ -48,7 +48,7 @@ test("sequence builder exposes follow-up timing without clutter", async ({ page 
 
   await expect(page.getByRole("heading", { name: "Build a sequence" })).toBeVisible();
   await expect(page.getByText("Priority role follow-up")).toBeVisible();
-  await expect(page.getByText("48 hours later")).toBeVisible();
+  await expect(page.getByText("2 days later")).toBeVisible();
   await expect(page.getByRole("button", { name: "+ Add follow-up" })).toBeVisible();
   await noOverflow(page, "outreach sequences 1440");
   await page.screenshot({ path: "../output/p2.3-outreach-sequences-1440.png", fullPage: true });
