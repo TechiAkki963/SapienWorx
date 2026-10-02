@@ -298,6 +298,20 @@ func (s *Service) CreateOutreachCampaign(ctx context.Context, recruiterID string
 		return OutreachCampaign{}, err
 	}
 	campaign.SequenceName = sequenceName
+	snapshotTag, err := tx.Exec(ctx, `
+		INSERT INTO outreach_campaign_steps(campaign_id,step_order,delay_hours,subject_template,body_template)
+		SELECT $1,st.step_order,st.delay_hours,mt.subject_template,mt.body_template
+		FROM outreach_sequence_steps st
+		JOIN message_templates mt ON mt.id=st.template_id
+		WHERE st.sequence_id=$2
+		ORDER BY st.step_order
+	`, campaign.ID, input.SequenceID)
+	if err != nil {
+		return OutreachCampaign{}, err
+	}
+	if snapshotTag.RowsAffected() == 0 {
+		return OutreachCampaign{}, ErrInvalidInput
+	}
 	for _, candidateID := range candidateIDs {
 		if _, err := tx.Exec(ctx, `
 			INSERT INTO outreach_campaign_enrollments(campaign_id,candidate_id,status,next_step_order)
@@ -314,7 +328,7 @@ func (s *Service) CreateOutreachCampaign(ctx context.Context, recruiterID string
 
 func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campaignID, idempotencyKey string) (OutreachCampaign, BulkInMailResult, error) {
 	var campaign OutreachCampaign
-	var firstTemplate string
+	var firstSubject, firstBody string
 	var secondDelay *int
 	var storedLaunchKey *string
 	var storedLaunchResult []byte
@@ -323,13 +337,13 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 		       c.total_recipients,c.sent_count,c.skipped_count,c.failed_count,
 		       c.launched_at,c.completed_at,c.created_at,c.updated_at,
 		       c.launch_idempotency_key,c.launch_result,
-		       first_step.template_id,
+		       first_step.subject_template,first_step.body_template,
 		       second_step.delay_hours
 		FROM outreach_campaigns c
 		JOIN outreach_sequences s ON s.id=c.sequence_id
 		LEFT JOIN jobs j ON j.id=c.job_id
-		JOIN outreach_sequence_steps first_step ON first_step.sequence_id=c.sequence_id AND first_step.step_order=1
-		LEFT JOIN outreach_sequence_steps second_step ON second_step.sequence_id=c.sequence_id AND second_step.step_order=2
+		JOIN outreach_campaign_steps first_step ON first_step.campaign_id=c.id AND first_step.step_order=1
+		LEFT JOIN outreach_campaign_steps second_step ON second_step.campaign_id=c.id AND second_step.step_order=2
 		WHERE c.id=$1 AND c.recruiter_id=$2
 	`, campaignID, recruiterID)
 	if err != nil {
@@ -344,7 +358,7 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 		&campaign.TotalRecipients, &campaign.SentCount, &campaign.SkippedCount, &campaign.FailedCount,
 		&campaign.LaunchedAt, &campaign.CompletedAt, &campaign.CreatedAt, &campaign.UpdatedAt,
 		&storedLaunchKey, &storedLaunchResult,
-		&firstTemplate, &secondDelay,
+		&firstSubject, &firstBody, &secondDelay,
 	); err != nil {
 		rows.Close()
 		return OutreachCampaign{}, BulkInMailResult{}, err
@@ -421,7 +435,8 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 	result, err := s.BulkInMail(ctx, recruiterID, BulkInMailInput{
 		CandidateIDs:   candidateIDs,
 		JobID:          jobID,
-		TemplateID:     firstTemplate,
+		Subject:        firstSubject,
+		Body:           firstBody,
 		IdempotencyKey: idempotencyKey,
 	})
 	if err != nil {
@@ -525,10 +540,10 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 	}
 	rows, err := s.db.Query(ctx, `
 		SELECT e.id,e.campaign_id,e.candidate_id,e.thread_id,e.next_step_order,e.last_sent_at,
-		       c.recruiter_id,c.job_id,st.template_id,st.delay_hours
+		       c.recruiter_id,c.job_id,st.subject_template,st.body_template,st.delay_hours
 		FROM outreach_campaign_enrollments e
 		JOIN outreach_campaigns c ON c.id=e.campaign_id
-		JOIN outreach_sequence_steps st ON st.sequence_id=c.sequence_id AND st.step_order=e.next_step_order
+		JOIN outreach_campaign_steps st ON st.campaign_id=c.id AND st.step_order=e.next_step_order
 		WHERE c.status='running'
 		  AND e.status='active'
 		  AND e.next_run_at IS NOT NULL
@@ -540,7 +555,8 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 		return nil, err
 	}
 	type due struct {
-		enrollmentID, campaignID, candidateID, threadID, recruiterID, templateID string
+		enrollmentID, campaignID, candidateID, threadID, recruiterID string
+		subjectTemplate, bodyTemplate                                            string
 		jobID                                                                    *string
 		stepOrder                                                                int
 		delay                                                                    int
@@ -549,7 +565,7 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 	dueItems := make([]due, 0)
 	for rows.Next() {
 		var item due
-		if err := rows.Scan(&item.enrollmentID, &item.campaignID, &item.candidateID, &item.threadID, &item.stepOrder, &item.lastSent, &item.recruiterID, &item.jobID, &item.templateID, &item.delay); err != nil {
+		if err := rows.Scan(&item.enrollmentID, &item.campaignID, &item.candidateID, &item.threadID, &item.stepOrder, &item.lastSent, &item.recruiterID, &item.jobID, &item.subjectTemplate, &item.bodyTemplate, &item.delay); err != nil {
 			rows.Close()
 			return nil, err
 		}
@@ -583,23 +599,23 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 			}
 		}
 
-		var candidateName, subjectTemplate, bodyTemplate string
-		var jobTitle string
+		var candidateName, jobTitle string
 		var jobArg any
 		if item.jobID != nil {
 			jobArg = *item.jobID
 		}
 		if err := s.db.QueryRow(ctx, `
-			SELECT cp.full_name,mt.subject_template,mt.body_template,COALESCE(j.title,'')
+			SELECT cp.full_name,COALESCE(j.title,'')
 			FROM candidate_profiles cp
-			JOIN message_templates mt ON mt.id=$2
-			LEFT JOIN jobs j ON j.id=$3::uuid
+			LEFT JOIN jobs j ON j.id=$2::uuid
 			WHERE cp.user_id=$1
-		`, item.candidateID, item.templateID, jobArg).Scan(&candidateName, &subjectTemplate, &bodyTemplate, &jobTitle); err != nil {
+		`, item.candidateID, jobArg).Scan(&candidateName, &jobTitle); err != nil {
 			return events, err
 		}
-		content := strings.TrimSpace(renderBulkTemplate(bodyTemplate, candidateName, jobTitle))
-		if content == "" || len(content) > maxMessageLength || strings.Contains(content, "{{") || strings.Contains(content, "}}") {
+		subject := renderBulkTemplate(item.subjectTemplate, candidateName, jobTitle)
+		content := renderBulkTemplate(item.bodyTemplate, candidateName, jobTitle)
+		subject, content, err = normalizeMessage(subject, content)
+		if err != nil || strings.Contains(subject, "{{") || strings.Contains(subject, "}}") || strings.Contains(content, "{{") || strings.Contains(content, "}}") {
 			_, _ = s.db.Exec(ctx, `
 				UPDATE outreach_campaign_enrollments
 				SET status='failed',stop_reason='invalid_rendered_template',next_run_at=NULL
@@ -708,7 +724,7 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 			)
 			SELECT id,thread_id,sender_id,sender_type::text,content,is_read,created_at
 			FROM inserted_message
-		`, item.threadID, item.recruiterID, content, item.candidateID, strings.TrimSpace(renderBulkTemplate(subjectTemplate, candidateName, jobTitle))).Scan(
+		`, item.threadID, item.recruiterID, content, item.candidateID, subject).Scan(
 			&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt,
 		); err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -737,9 +753,8 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 		}
 		var nextDelay int
 		nextErr := tx.QueryRow(ctx, `
-			SELECT delay_hours FROM outreach_sequence_steps
-			WHERE sequence_id=(SELECT sequence_id FROM outreach_campaigns WHERE id=$1)
-			  AND step_order=$2
+			SELECT delay_hours FROM outreach_campaign_steps
+			WHERE campaign_id=$1 AND step_order=$2
 		`, item.campaignID, item.stepOrder+1).Scan(&nextDelay)
 		if nextErr != nil && !errors.Is(nextErr, pgx.ErrNoRows) {
 			tx.Rollback(ctx)
