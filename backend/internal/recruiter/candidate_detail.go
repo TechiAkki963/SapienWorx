@@ -123,7 +123,6 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	return detail, nil
 }
 
-
 func maskCandidatePhone(_ string) string {
 	return "••••••••••"
 }
