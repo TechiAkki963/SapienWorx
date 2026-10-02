@@ -32,7 +32,9 @@
     "intelligence.prompts.approve",
     "intelligence.config.update",
     "intelligence.kill_switch",
-    "intelligence.audit.read"
+    "intelligence.audit.read",
+    "trust_risk.read",
+    "trust_risk.review"
   ],
   "platform_admin": [
     "overview.read",
@@ -54,14 +56,18 @@
     "intelligence.feedback.read",
     "intelligence.feedback.review",
     "intelligence.models.read",
-    "intelligence.models.evaluate"
+    "intelligence.models.evaluate",
+    "trust_risk.read",
+    "trust_risk.review"
   ],
   "security_admin": [
     "users.read",
     "users.moderate",
     "audit.read",
     "control_plane.read",
-    "control_plane.manage"
+    "control_plane.manage",
+    "trust_risk.read",
+    "trust_risk.review"
   ],
   "privacy_admin": [
     "privacy.read",
@@ -95,6 +101,7 @@
     "intelligence.read",
     "intelligence.metrics.read",
     "intelligence.models.read",
-    "intelligence.audit.read"
+    "intelligence.audit.read",
+    "trust_risk.read"
   ]
 }
