@@ -122,6 +122,57 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
+func (s *Server) recruiterOutreachSequences(w http.ResponseWriter, r *http.Request) {
+	claims, _ := ClaimsFromContext(r.Context())
+	if s.messages == nil || s.messages.service == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	if r.Method == http.MethodGet {
+		items, err := s.messages.service.OutreachSequences(r.Context(), claims.Subject)
+		if err != nil { s.writeMessagingError(w, r, err); return }
+		writeJSON(w, http.StatusOK, map[string]any{"items": items})
+		return
+	}
+	var input messaging.OutreachSequenceInput
+	if !decodeJSON(w, r, &input) { return }
+	item, err := s.messages.service.CreateOutreachSequence(r.Context(), claims.Subject, input)
+	if err != nil { s.writeMessagingError(w, r, err); return }
+	writeJSON(w, http.StatusCreated, item)
+}
+
+func (s *Server) recruiterOutreachSequence(w http.ResponseWriter, r *http.Request) {
+	claims, _ := ClaimsFromContext(r.Context())
+	if s.messages == nil || s.messages.service == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	if err := s.messages.service.ArchiveOutreachSequence(r.Context(), claims.Subject, r.PathValue("sequenceID")); err != nil {
+		s.writeMessagingError(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) recruiterLaunchOutreachSequence(w http.ResponseWriter, r *http.Request) {
+	claims, _ := ClaimsFromContext(r.Context())
+	if s.messages == nil || s.messages.service == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	var input messaging.OutreachSequenceLaunchInput
+	if !decodeJSON(w, r, &input) { return }
+	started := time.Now()
+	result, err := s.messages.service.LaunchOutreachSequence(r.Context(), claims.Subject, r.PathValue("sequenceID"), input)
+	if err != nil {
+		s.recordAdminTelemetry("inmail", "messaging_api", "sequence_launch", "failed", time.Since(started), "", nil)
+		s.writeMessagingError(w, r, err)
+		return
+	}
+	s.recordAdminTelemetry("inmail", "messaging_api", "sequence_launch", "ok", time.Since(started), result.LaunchID, nil)
+	writeJSON(w, http.StatusOK, result)
+}
+
 func (s *Server) messagingThreads(w http.ResponseWriter, r *http.Request) {
 	claims, _ := ClaimsFromContext(r.Context())
 	sender, ok := senderTypeFromClaims(claims.Role)
