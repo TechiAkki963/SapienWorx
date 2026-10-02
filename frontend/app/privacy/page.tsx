@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           <div className="mt-8 rounded-2xl border border-indigo/15 bg-indigo-soft/35 p-6">
             <h2 className="text-lg font-bold text-navy">Subprocessors</h2>
             <p className="mt-2 text-sm leading-7 text-ink-muted">Service providers that process personal data on behalf of SapienWorx are maintained in a dedicated transparency register.</p>
-            <Link href="/subprocessors" className="mt-4 inline-flex font-semibold text-indigo hover:underline">View the subprocessor register →</Link>
+            <Link href="/subprocessors" className="mt-4 inline-flex font-semibold text-indigo hover:underline">View the subprocessor register →</Link>\n            <Link href="/cookies" className="ml-4 mt-4 inline-flex font-semibold text-indigo hover:underline">Cookie information →</Link>
           </div>
         </article>
       </Container>
