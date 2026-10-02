@@ -352,8 +352,11 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		if err != nil {
 			t.Fatalf("same-company application detail rejected: %v", err)
 		}
-		if !applied.HasCompanyApplication || !applied.CanViewCV || !applied.CanViewContact || !applied.CanCollaborate || applied.Email == "" {
+		if !applied.HasCompanyApplication || !applied.CanViewCV || applied.CanViewContact || !applied.CanCollaborate || applied.Email == "" {
 			t.Fatalf("same-company application capabilities incorrect: %+v", applied)
+		}
+		if applied.MaskedPhone != "" {
+			t.Fatalf("candidate contact exposed without explicit reveal consent: %+v", applied)
 		}
 
 		discoverable, err := recruiterSvc.CandidateDetail(ctx, recruiterA, discoverableCandidate)
