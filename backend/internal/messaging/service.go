@@ -13,8 +13,10 @@ import (
 var (
 	ErrNotFound     = errors.New("messaging resource not found")
 	ErrForbidden    = errors.New("messaging access forbidden")
-	ErrInvalidInput = errors.New("invalid messaging input")
-	ErrThreadClosed = errors.New("chat thread is closed")
+	ErrInvalidInput        = errors.New("invalid messaging input")
+	ErrThreadClosed        = errors.New("chat thread is closed")
+	ErrRateLimited         = errors.New("messaging rate limit exceeded")
+	ErrIdempotencyConflict = errors.New("messaging idempotency conflict")
 )
 
 const (
@@ -31,9 +33,42 @@ var supportedTemplateVariables = map[string]struct{}{
 	"JobTitle":      {},
 }
 
-type Service struct{ db *pgxpool.Pool }
+type AntiSpamPolicy struct {
+	RecruiterHourlyLimit int
+	RecruiterDailyLimit  int
+	CompanyDailyLimit    int
+}
 
-func NewService(db *pgxpool.Pool) *Service { return &Service{db: db} }
+func DefaultAntiSpamPolicy() AntiSpamPolicy {
+	return AntiSpamPolicy{
+		RecruiterHourlyLimit: 300,
+		RecruiterDailyLimit:  1000,
+		CompanyDailyLimit:    5000,
+	}
+}
+
+type Service struct {
+	db             *pgxpool.Pool
+	antiSpamPolicy AntiSpamPolicy
+}
+
+func NewService(db *pgxpool.Pool) *Service {
+	return NewServiceWithPolicy(db, DefaultAntiSpamPolicy())
+}
+
+func NewServiceWithPolicy(db *pgxpool.Pool, policy AntiSpamPolicy) *Service {
+	defaults := DefaultAntiSpamPolicy()
+	if policy.RecruiterHourlyLimit < 1 {
+		policy.RecruiterHourlyLimit = defaults.RecruiterHourlyLimit
+	}
+	if policy.RecruiterDailyLimit < policy.RecruiterHourlyLimit {
+		policy.RecruiterDailyLimit = defaults.RecruiterDailyLimit
+	}
+	if policy.CompanyDailyLimit < policy.RecruiterDailyLimit {
+		policy.CompanyDailyLimit = defaults.CompanyDailyLimit
+	}
+	return &Service{db: db, antiSpamPolicy: policy}
+}
 
 func ValidateTemplate(input TemplateInput) error {
 	input.Title = strings.TrimSpace(input.Title)
