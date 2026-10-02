@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { apiRequest } from "@/lib/api";
 
@@ -235,7 +236,11 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     }
   }
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  const portalTarget = document.querySelector(".theme-surface") ?? document.body;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -416,6 +421,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
           </motion.aside>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    portalTarget,
   );
 }
