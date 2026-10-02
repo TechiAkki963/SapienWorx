@@ -30,7 +30,7 @@ test("outreach campaigns stay clear from laptop to mobile and dark mode", async 
   await page.screenshot({ path: "../output/p2.3-outreach-campaigns-1440.png", fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole("heading", { name: "Outreach" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Outreach", exact: true })).toBeVisible();
   await expect(page.getByText("Mumbai operations outreach")).toBeVisible();
   await noOverflow(page, "outreach campaigns 390");
   await page.screenshot({ path: "../output/p2.3-outreach-campaigns-390.png", fullPage: true });
@@ -71,7 +71,7 @@ test("recruiter can create and activate a sequence then save a template", async 
   await page.getByRole("tab", { name: /Templates/ }).click();
   await page.getByLabel("Template title").fill("Healthcare introduction");
   await page.getByLabel("Subject").fill("{{JobTitle}} opportunity");
-  await page.getByLabel("Message").fill("Hi {{CandidateName}}, your experience looks relevant for {{JobTitle}}.");
+  await page.getByRole("textbox", { name: "Message", exact: true }).fill("Hi {{CandidateName}}, your experience looks relevant for {{JobTitle}}.");
   await page.getByRole("button", { name: "Save template" }).click();
   await expect(page.getByText("Message template saved.")).toBeVisible();
   await expect(page.getByText("Healthcare introduction")).toBeVisible();
