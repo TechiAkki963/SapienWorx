@@ -15,7 +15,7 @@ test.describe("Master Admin Trust review", () => {
     await page.goto("/swx-command-centre/trust");
     await expect(page.getByRole("heading", { name: "Human review of risk signals" })).toBeVisible();
     await expect(page.getByText(/do not automatically label a candidate or job as fraudulent/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Escalate for investigation" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Escalate for investigation" }).first()).toBeVisible();
     for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 960 });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
