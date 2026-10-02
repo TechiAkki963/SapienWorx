@@ -160,19 +160,19 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
           toolbarStart={<Link href={returnTarget} className="inline-flex min-h-10 items-center rounded-xl px-1 text-sm font-bold text-indigo hover:underline">← {returnLabel}</Link>}
         >
           <div className="grid gap-4">
-            <section className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-6">
+            <section className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] sm:p-6">
               <div className="candidate-profile-header grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
-                <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+                <div className="flex min-w-0 items-start gap-2.5 sm:gap-4">
                   {candidate.photo_data_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={candidate.photo_data_url} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
+                    <img src={candidate.photo_data_url} alt="" className="h-14 w-14 shrink-0 rounded-2xl object-cover sm:h-16 sm:w-16" />
                   ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-navy text-sm font-extrabold text-white">{initials}</div>
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-navy text-xs font-extrabold text-white sm:h-16 sm:w-16 sm:text-sm">{initials}</div>
                   )}
 
                   <div className="min-w-0">
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Candidate 360°</p>
-                    <h1 className="mt-1 break-words text-2xl font-bold tracking-[-0.035em] text-navy">{candidate.full_name}</h1>
+                    <h1 className="mt-1 break-words text-xl font-bold tracking-[-0.035em] text-navy sm:text-2xl">{candidate.full_name}</h1>
                     <p className="mt-1 text-sm text-ink-muted">{candidate.headline ?? "No professional headline"}</p>
 
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-ink-muted">
