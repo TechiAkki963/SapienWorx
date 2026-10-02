@@ -52,11 +52,24 @@ async function rawRequest(path: string, init: RequestInit) {
   });
 }
 
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshSession() {
+  if (!refreshPromise) {
+    refreshPromise = rawRequest("/api/v1/auth/refresh", { method: "POST" })
+      .then((response) => response.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   let response = await rawRequest(path, init);
   if (response.status === 401 && !refreshExcluded.has(path)) {
-    const refreshed = await rawRequest("/api/v1/auth/refresh", { method: "POST" });
-    if (refreshed.ok) response = await rawRequest(path, init);
+    if (await refreshSession()) response = await rawRequest(path, init);
   }
   if (!response.ok) {
     let message = "Request could not be completed.";
