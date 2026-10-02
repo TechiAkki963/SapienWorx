@@ -559,3 +559,12 @@ a {
 .swx-dark .theme-surface .swx-message-recruiter [class*="text-violet-700"] {
   color: #c4b5fd !important;
 }
+
+
+.theme-surface .swx-thread-row-active {
+  background-color: rgb(255 255 255 / 0.96) !important;
+}
+.swx-dark .theme-surface .swx-thread-row-active {
+  background-color: #172554 !important;
+  color: #f8fafc !important;
+}
