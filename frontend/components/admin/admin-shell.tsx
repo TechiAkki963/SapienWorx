@@ -15,7 +15,7 @@ function shortID(value: string) {
 export function AdminShell({ user, access, children }: { user: SessionUser; access: AdminAccess; children: React.ReactNode }) {
   const roleLabel=access.enabled?adminRoleLabel(access.admin_role):"Legacy Master Admin";
   return (
-    <div className="theme-surface min-h-screen bg-[#f6f7fb] text-ink">
+    <div className="theme-surface min-h-screen bg-[#f6f7fb] pb-24 text-ink lg:pb-0">
       <header className="sticky top-0 z-50 border-b border-[#dfe4f0] bg-white/96 backdrop-blur-xl">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[118rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/swx-command-centre/overview" aria-label="SapienWorx command centre" className="shrink-0">
@@ -50,7 +50,7 @@ export function AdminShell({ user, access, children }: { user: SessionUser; acce
       </header>
 
       <div className="mx-auto grid max-w-[118rem] gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:px-8 lg:py-6">
-        <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
+        <aside className="hidden min-w-0 lg:sticky lg:top-[5.75rem] lg:block lg:self-start">
           <div className="rounded-[1.25rem] border border-[#dfe4f0] bg-white p-2.5 shadow-[0_10px_35px_rgba(23,37,84,0.05)]">
             <div className="admin-control-plane-banner mb-2 rounded-xl bg-gradient-to-br from-[#eef1ff] to-[#f8f7ff] px-3 py-3">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#5262c9]">SapienWorx Control Plane</p>
@@ -63,6 +63,9 @@ export function AdminShell({ user, access, children }: { user: SessionUser; acce
           </div>
         </aside>
         <main id="main-content" className="min-w-0"><AdminAccessProvider access={access}>{!access.enabled&&<p role="note" className="mb-4 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">Legacy master-admin access: scoped roles and MFA are not enforced. Security activation requires a reviewed rollout.</p>}{children}</AdminAccessProvider></main>
+      </div>
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-[#dfe4f0] bg-white/96 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(23,37,84,0.08)] backdrop-blur-xl lg:hidden">
+        <AdminNav access={access} mobile />
       </div>
     </div>
   );
