@@ -89,3 +89,30 @@ test("candidate notification links open the exact InMail thread", async ({ page 
   await expect(page.getByText("Senior Go Platform Engineer opportunity").first()).toBeVisible();
   await expect(page.getByPlaceholder("Write a reply…")).toBeVisible();
 });
+
+
+test("candidate notifications remain clear across laptop mobile and dark mode", async ({ page }) => {
+  await fs.mkdir("../output", { recursive: true });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await login(page, "candidate");
+  await page.goto("/candidate/notifications");
+
+  await expect(page.getByRole("heading", { name: "Notifications" })).toBeVisible();
+  await expect(page.getByText(/Secure live updates/)).toBeVisible();
+  await expect(page.getByText("New message from a recruiter")).toBeVisible();
+  await noOverflow(page, "candidate notifications 1440");
+  await page.screenshot({ path: "../output/p2.2-candidate-notifications-1440.png", fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("heading", { name: "Notifications" })).toBeVisible();
+  await noOverflow(page, "candidate notifications 390");
+  await page.screenshot({ path: "../output/p2.2-candidate-notifications-390.png", fullPage: true });
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByTitle("Appearance").click();
+  await page.getByTitle("Dark mode").click();
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await expect(page.getByText("New message from a recruiter")).toBeVisible();
+  await noOverflow(page, "candidate notifications dark 1440");
+  await page.screenshot({ path: "../output/p2.2-candidate-notifications-dark-1440.png", fullPage: true });
+});
