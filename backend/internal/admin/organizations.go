@@ -9,17 +9,17 @@ import (
 )
 
 type OrganizationRecord struct {
-	ID                 string    `json:"id"`
-	LegalName          string    `json:"legal_name"`
-	DisplayName        string    `json:"display_name"`
-	WebsiteURL         *string   `json:"website_url,omitempty"`
-	WorkEmailDomain    *string   `json:"work_email_domain,omitempty"`
-	CountryCode        *string   `json:"country_code,omitempty"`
-	VerificationStatus string    `json:"verification_status"`
-	CreatedAt          time.Time `json:"created_at"`
-	Recruiters         int64     `json:"recruiters"`
-	ActiveJobs         int64     `json:"active_jobs"`
-	Applications       int64     `json:"applications"`
+	ID                  string    `json:"id"`
+	LegalName           string    `json:"legal_name"`
+	DisplayName         string    `json:"display_name"`
+	WebsiteURL          *string   `json:"website_url,omitempty"`
+	WorkEmailDomain     *string   `json:"work_email_domain,omitempty"`
+	CountryCode         *string   `json:"country_code,omitempty"`
+	VerificationStatus  string    `json:"verification_status"`
+	CreatedAt           time.Time `json:"created_at"`
+	Recruiters          int64     `json:"recruiters"`
+	ActiveJobs          int64     `json:"active_jobs"`
+	Applications        int64     `json:"applications"`
 	CVViewsCurrentMonth int64     `json:"cv_views_current_month"`
 }
 
