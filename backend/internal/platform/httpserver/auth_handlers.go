@@ -1,6 +1,8 @@
 package httpserver
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"io"
@@ -168,18 +170,31 @@ func (s *Server) verifyRecruiter(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]bool{"verified": true})
 }
 
+func newCSRFToken() (string, error) {
+	var raw [32]byte
+	if _, err := rand.Read(raw[:]); err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(raw[:]), nil
+}
+
 func (s *Server) setAuthCookies(w http.ResponseWriter, result auth.SessionResult) {
 	sameSite := http.SameSiteLaxMode
 	accessMaxAge := int(s.auth.AccessTokenTTL().Seconds())
 	refreshMaxAge := int(s.auth.RefreshTokenTTL().Seconds())
 	http.SetCookie(w, &http.Cookie{Name: s.cfg.Auth.AccessCookieName, Value: result.AccessToken, Path: "/", Domain: s.cfg.Auth.CookieDomain, MaxAge: accessMaxAge, HttpOnly: true, Secure: s.cfg.Auth.CookieSecure, SameSite: sameSite})
 	http.SetCookie(w, &http.Cookie{Name: s.cfg.Auth.RefreshCookieName, Value: result.RefreshToken, Path: "/api/v1/auth", Domain: s.cfg.Auth.CookieDomain, MaxAge: refreshMaxAge, HttpOnly: true, Secure: s.cfg.Auth.CookieSecure, SameSite: sameSite})
+	if csrfToken, err := newCSRFToken(); err == nil {
+		http.SetCookie(w, &http.Cookie{Name: s.cfg.Auth.CSRFCookieName, Value: csrfToken, Path: "/", Domain: s.cfg.Auth.CookieDomain, MaxAge: refreshMaxAge, HttpOnly: false, Secure: s.cfg.Auth.CookieSecure, SameSite: sameSite})
+	} else {
+		s.logger.Error("csrf token generation failed")
+	}
 }
 
 func (s *Server) clearAuthCookies(w http.ResponseWriter) {
 	expires := time.Unix(1, 0)
-	for _, cookie := range []struct{ name, path string }{{s.cfg.Auth.AccessCookieName, "/"}, {s.cfg.Auth.RefreshCookieName, "/api/v1/auth"}} {
-		http.SetCookie(w, &http.Cookie{Name: cookie.name, Value: "", Path: cookie.path, Domain: s.cfg.Auth.CookieDomain, MaxAge: -1, Expires: expires, HttpOnly: true, Secure: s.cfg.Auth.CookieSecure, SameSite: http.SameSiteLaxMode})
+	for _, cookie := range []struct{ name, path string }{{s.cfg.Auth.AccessCookieName, "/"}, {s.cfg.Auth.RefreshCookieName, "/api/v1/auth"}, {s.cfg.Auth.CSRFCookieName, "/"}} {
+		http.SetCookie(w, &http.Cookie{Name: cookie.name, Value: "", Path: cookie.path, Domain: s.cfg.Auth.CookieDomain, MaxAge: -1, Expires: expires, HttpOnly: cookie.name != s.cfg.Auth.CSRFCookieName, Secure: s.cfg.Auth.CookieSecure, SameSite: http.SameSiteLaxMode})
 	}
 }
 
