@@ -8,6 +8,7 @@ const (
 	EventTypeMessage EventType = "message"
 	EventTypeTyping  EventType = "typing"
 	EventTypeRead    EventType = "read"
+	EventTypeSync    EventType = "sync"
 )
 
 const MaxReadReceiptBatch = 100
@@ -42,6 +43,11 @@ type ReadPayload struct {
 	MessageIDs []string `json:"message_ids"`
 }
 
+type SyncPayload struct {
+	Scope    string `json:"scope"`
+	ThreadID string `json:"thread_id,omitempty"`
+}
+
 type ReadResult struct {
 	SenderID   string   `json:"sender_id"`
 	MessageIDs []string `json:"message_ids"`
@@ -66,4 +72,10 @@ func NewTypingEvent(threadID, senderID string, isTyping bool) WebSocketEvent {
 func NewReadEvent(threadID, senderID string, messageIDs []string) WebSocketEvent {
 	payload, _ := json.Marshal(ReadPayload{MessageIDs: messageIDs})
 	return WebSocketEvent{Type: EventTypeRead, ThreadID: threadID, SenderID: senderID, Payload: payload}
+}
+
+
+func NewSyncEvent(senderID, scope, threadID string) WebSocketEvent {
+	payload, _ := json.Marshal(SyncPayload{Scope: scope, ThreadID: threadID})
+	return WebSocketEvent{Type: EventTypeSync, ThreadID: threadID, SenderID: senderID, Payload: payload}
 }
