@@ -27,6 +27,9 @@ const groups = [
       ["About", "/#about"],
       ["How it works", "/#how-it-works"],
       ["Candidate Login", "/login"],
+      ["Privacy", "/privacy"],
+      ["Cookie information", "/cookies"],
+      ["Subprocessors", "/subprocessors"],
     ],
   },
 ];
