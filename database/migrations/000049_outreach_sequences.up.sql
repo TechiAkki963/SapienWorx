@@ -39,6 +39,7 @@ CREATE TABLE outreach_campaigns (
   recruiter_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   sequence_id uuid NOT NULL REFERENCES outreach_sequences(id) ON DELETE RESTRICT,
   launch_key varchar(128) NOT NULL,
+  launch_payload_hash char(64) NOT NULL,
   job_id uuid REFERENCES jobs(id) ON DELETE SET NULL,
   name varchar(160) NOT NULL,
   status outreach_campaign_status NOT NULL DEFAULT 'launching',
