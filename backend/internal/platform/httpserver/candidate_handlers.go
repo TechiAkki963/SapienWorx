@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/messaging"
 )
 
 func (s *Server) listJobs(w http.ResponseWriter, r *http.Request) {
@@ -222,6 +223,9 @@ func (s *Server) candidateNotificationRead(w http.ResponseWriter, r *http.Reques
 	if err := s.candidate.MarkNotificationRead(r.Context(), id, r.PathValue("notificationID")); err != nil {
 		s.writeCandidateError(w, r, err)
 		return
+	}
+	if s.messages != nil && s.messages.hub != nil {
+		s.messages.hub.Broadcast(messaging.InboxChannel(id), messaging.NewNotificationsEvent(id))
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
