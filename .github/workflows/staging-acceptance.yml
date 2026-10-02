@@ -96,14 +96,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          body="$(curl --fail --silent --show-error \
+          cookie_jar="/tmp/sapienworx-acceptance-cookies.txt"
+          curl --fail --silent --show-error \
+            -c "$cookie_jar" \
             -H 'Content-Type: application/json' \
             -d '{"email":"candidate.demo@sapienworx.local","password":"SapienDemo#2026","role":"candidate"}' \
-            "$STAGING_BASE_URL/api/v1/auth/login")"
-          token="$(printf '%s' "$body" | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')"
-          test -n "$token"
-          echo "::add-mask::$token"
-          echo "ACCEPTANCE_ACCESS_TOKEN=$token" >> "$GITHUB_ENV"
+            "$STAGING_BASE_URL/api/v1/auth/login" >/dev/null
+          access_cookie="$(awk '$6=="sw_access" {print $7}' "$cookie_jar" | tail -n1)"
+          test -n "$access_cookie"
+          session_cookie="sw_access=$access_cookie"
+          echo "::add-mask::$access_cookie"
+          echo "::add-mask::$session_cookie"
+          echo "ACCEPTANCE_SESSION_COOKIE=$session_cookie" >> "$GITHUB_ENV"
 
       - name: Set up Grafana k6
         uses: grafana/setup-k6-action@v1
@@ -111,7 +115,7 @@ jobs:
       - name: Run controlled 20-VU staging smoke
         env:
           BASE_URL: http://localhost:8080
-          ACCESS_TOKEN: ${{ env.ACCEPTANCE_ACCESS_TOKEN }}
+          SESSION_COOKIE: ${{ env.ACCEPTANCE_SESSION_COOKIE }}
           START_VUS: "1"
           PEAK_VUS: "20"
           RAMP_1: "5s"
