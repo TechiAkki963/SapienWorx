@@ -64,6 +64,7 @@ func TestValidateRejectsOversizedMicroPool(t *testing.T) {
 			OTPResendInterval: 60 * time.Second,
 			AccessCookieName:  "sw_access",
 			RefreshCookieName: "sw_refresh",
+			CSRFCookieName:    "sw_csrf",
 		},
 	}
 	if err := cfg.Validate(); err == nil {
@@ -98,6 +99,7 @@ func validProductionConfig() Config {
 			CookieSecure:      true,
 			AccessCookieName:  "sw_access",
 			RefreshCookieName: "sw_refresh",
+			CSRFCookieName:    "sw_csrf",
 		},
 		AWS: AWSConfig{S3PresignTTL: 5 * time.Minute},
 	}

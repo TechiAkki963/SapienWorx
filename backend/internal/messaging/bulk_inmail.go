@@ -210,7 +210,14 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 		  AND u.role='candidate'
 		  AND u.status='active'
 		  AND u.is_active=true
-	`, recruiterID, candidateIDs)
+		  AND (
+		    EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=u.id AND j.company_id=$3)
+		    OR (
+		      lower(trim(coalesce(cp.profile_details->>'discoverable_to_recruiters','')))='true'
+		      AND COALESCE((SELECT pc.granted AND pc.withdrawn_at IS NULL FROM privacy_consents pc WHERE pc.user_id=u.id AND pc.purpose='recruiter_search_discovery' ORDER BY pc.recorded_at DESC,pc.id DESC LIMIT 1),false)=true
+		    )
+		  )
+	`, recruiterID, candidateIDs, companyID)
 	if err != nil {
 		return BulkInMailResult{}, err
 	}

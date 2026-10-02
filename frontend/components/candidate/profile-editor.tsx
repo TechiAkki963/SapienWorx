@@ -41,6 +41,8 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
   ].slice(0, 3);
 
   async function toggleProfileVisibility(next: boolean) {
+    const previous = profileVisible;
+    setProfileVisible(next);
     setVisibilityBusy(true);
     setVisibilityMessage("");
     try {
@@ -55,10 +57,10 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
           expected_salary_currency: latest.expected_salary_currency || "INR",
         }),
       });
-      setProfileVisible(next);
       setVisibilityMessage(next ? "Your shareable profile link is on." : "Your shareable profile link is private.");
       router.refresh();
     } catch (cause) {
+      setProfileVisible(previous);
       setVisibilityMessage(cause instanceof Error ? cause.message : "Could not update profile visibility. Try again.");
     } finally {
       setVisibilityBusy(false);
@@ -66,14 +68,16 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
   }
 
   async function toggleDiscovery(next: boolean) {
+    const previous = discoverable;
+    setDiscoverable(next);
     setVisibilityBusy(true);
     setVisibilityMessage("");
     try {
       await apiRequest("/api/v1/candidate/profile/discovery", { method: "PATCH", body: JSON.stringify({ enabled: next }) });
-      setDiscoverable(next);
-      setVisibilityMessage(next ? "Recruiters can now discover your professional summary." : "You are hidden from recruiter discovery.");
+      setVisibilityMessage(next ? "Recruiter discovery and pre-application outreach are enabled." : "Recruiter discovery and pre-application outreach are off.");
       router.refresh();
     } catch (cause) {
+      setDiscoverable(previous);
       setVisibilityMessage(cause instanceof Error ? cause.message : "Could not update discovery preference.");
     } finally { setVisibilityBusy(false); }
   }
@@ -141,11 +145,11 @@ export function ProfileEditor({ profile, extended, summary }: { profile: Candida
             {visibilityMessage && <p role="status" className="mt-2 text-xs font-semibold text-indigo">{visibilityMessage}</p>}
             {profileVisible && <Link href={`/profile/${summary.share_token}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-10 items-center font-bold text-indigo hover:underline">Preview public profile →</Link>}
             <div className="mt-4 border-t border-line pt-4">
-              <h3 className="text-sm font-bold text-navy">Appear in recruiter search</h3>
-              <p className="mt-1 text-xs leading-5 text-ink-muted">Off by default. If enabled, recruiters can search your professional summary, experience, skills, education and preferred locations before you apply. Your email, phone, salary and CV are not shown in discovery. Turn this off at any time.</p>
+              <h3 className="text-sm font-bold text-navy">Recruiter discovery & outreach</h3>
+              <p className="mt-1 text-xs leading-5 text-ink-muted">Off by default. If enabled, verified recruiters can find your professional profile and start platform outreach before you apply. Discovery shows professional summary, experience, skills, education and preferred locations—not your email, phone, salary or CV. You can withdraw this consent at any time.</p>
               <label className="mt-3 flex min-h-11 items-center justify-between gap-3 rounded-xl border border-line px-3 py-2">
-                <span className="text-sm font-semibold text-navy">{discoverable ? "Visible to recruiters" : "Hidden from discovery"}</span>
-                <input type="checkbox" role="switch" aria-label="Appear in recruiter discovery" checked={discoverable} disabled={visibilityBusy || editing} onChange={(event) => void toggleDiscovery(event.target.checked)} className="h-5 w-9 accent-indigo disabled:cursor-not-allowed" />
+                <span className="text-sm font-semibold text-navy">{discoverable ? "Discovery and outreach enabled" : "Discovery and outreach off"}</span>
+                <input type="checkbox" role="switch" aria-label="Allow recruiter discovery and outreach" checked={discoverable} disabled={visibilityBusy || editing} onChange={(event) => void toggleDiscovery(event.target.checked)} className="h-5 w-9 accent-indigo disabled:cursor-not-allowed" />
               </label>
             </div>
             <ContactSharingControl details={extended} />

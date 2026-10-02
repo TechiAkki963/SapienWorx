@@ -75,7 +75,7 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 		return DiscoveryList{}, err
 	}
 	args := make([]any, 0, 16)
-	conditions := []string{`cp.profile_details->>'discoverable_to_recruiters'='true'`, `u.role='candidate'`, `u.status='active'`, `u.is_active=true`}
+	conditions := []string{candidateDiscoverablePredicate, `u.role='candidate'`, `u.status='active'`, `u.is_active=true`}
 	like := func(sql, value string) {
 		if value == "" {
 			return

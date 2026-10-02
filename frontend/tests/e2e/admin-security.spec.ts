@@ -58,7 +58,7 @@ test("enrollment, invalid code, confirmation and role-filtered controls", async 
   await confirm(page);
   await expect(page).toHaveURL(/\/swx-command-centre\/access$/);
   await expect(page.getByRole("note")).toContainText("Support Admin");
-  await expect(page.getByRole("link", { name: "Users & moderation", exact: true })).toBeVisible();
+  await expect(page.locator('a[href="/swx-command-centre/users"]:visible')).toBeVisible();
   await expect(page.getByRole("link", { name: "Audit logs", exact: true })).toHaveCount(0);
   await page.goto("/swx-command-centre/users");
   await expect(page.getByRole("heading", { name: "Account governance" })).toBeVisible();
@@ -112,7 +112,7 @@ test("expired MFA returns to confirmation before any data request", async ({ pag
   }
   await expect(page.getByRole("button", { name: "Start authenticator setup" })).toHaveCount(0);
   await confirm(page);
-  await page.getByRole("link", { name: "Users & moderation", exact: true }).click();
+  await page.locator('a[href="/swx-command-centre/users"]:visible').click();
   await expect(page.getByRole("button", { name: "Suspend", exact: true })).toBeVisible();
   await configure(request, { mfa_verified: false });
   await page.reload();

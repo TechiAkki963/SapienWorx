@@ -6,6 +6,9 @@ export type Subprocessor = {
   processing_locations: string[];
   website_url?: string;
   dpa_url?: string;
+  transfer_mechanism?: string;
+  tia_status: string;
+  tia_reviewed_at?: string;
   effective_from: string;
 };
 
@@ -53,6 +56,14 @@ export function SubprocessorRegister({
             <div>
               <dt className="font-bold text-navy">Processing locations</dt>
               <dd className="mt-1 text-ink-muted">{item.processing_locations?.join(", ") || "Not specified"}</dd>
+            </div>
+            <div>
+              <dt className="font-bold text-navy">Transfer mechanism</dt>
+              <dd className="mt-1 text-ink-muted">{item.transfer_mechanism || "Not recorded"}</dd>
+            </div>
+            <div>
+              <dt className="font-bold text-navy">Transfer assessment</dt>
+              <dd className="mt-1 capitalize text-ink-muted">{item.tia_status.replaceAll("_", " ")}</dd>
             </div>
           </dl>
           {(item.website_url || item.dpa_url) && (

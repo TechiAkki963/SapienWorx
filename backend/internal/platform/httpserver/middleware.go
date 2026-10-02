@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/hex"
 	"log/slog"
 	"net"
@@ -112,6 +113,33 @@ func SecurityHeaders(next http.Handler) http.Handler {
 	})
 }
 
+func RequireCSRF(cookieName string) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodGet || r.Method == http.MethodHead || r.Method == http.MethodOptions {
+				next.ServeHTTP(w, r)
+				return
+			}
+			authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
+			if parts := strings.SplitN(authHeader, " ", 2); len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") && strings.TrimSpace(parts[1]) != "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			cookie, err := r.Cookie(cookieName)
+			if err != nil || strings.TrimSpace(cookie.Value) == "" {
+				writeError(w, r, http.StatusForbidden, "csrf_required", "request verification failed")
+				return
+			}
+			header := strings.TrimSpace(r.Header.Get("X-CSRF-Token"))
+			if header == "" || subtle.ConstantTimeCompare([]byte(header), []byte(cookie.Value)) != 1 {
+				writeError(w, r, http.StatusForbidden, "csrf_invalid", "request verification failed")
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func MaxBodyBytes(limit int64) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +174,7 @@ func CORS(allowedOrigins []string) Middleware {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
 				w.Header().Set("Vary", "Origin")
 				w.Header().Set("Access-Control-Allow-Credentials", "true")
-				w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Request-ID")
+				w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Request-ID, X-CSRF-Token")
 				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 			}
 			if r.Method == http.MethodOptions {

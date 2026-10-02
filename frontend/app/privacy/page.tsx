@@ -14,6 +14,7 @@ const sections = [
   ["What SapienWorx processes", "Account identifiers, contact details, candidate profile and CV information, applications, recruiter hiring activity, interview records and messages needed to operate the recruitment platform."],
   ["Why it is processed", "To create and secure accounts, provide candidate and recruiter workflows, support hiring communications, maintain platform integrity, fulfil user requests and meet applicable legal or regulatory obligations."],
   ["Account verification", "The current SapienWorx product uses email OTP for account verification. SMS OTP is not enabled."],
+  ["Cookies and tracking", "SapienWorx currently uses essential authentication and security cookies. No non-essential advertising or behavioral tracking integration is enabled in this codebase; a consent mechanism and preference controls are required before such tracking is introduced."],
   ["Your controls", "Authenticated users can request access, export, rectification, restriction, objection or erasure through the privacy request workflow. Candidate self-erasure is automated where safe; records that require retention or ownership review are routed to an administrator review gate."],
   ["Retention and deletion", "SapienWorx records retention rules by data category and trigger event. Erasure is not reported as complete while an external private object, such as a CV file, still has a pending deletion fulfilment job."],
   ["Recruitment fairness", "Anonymous Pitch Mode uses a server-side redacted response that excludes identity and direct contact information. Protected or sensitive attributes are not intended to be used as ordinary sourcing or ranking criteria."],
@@ -36,7 +37,7 @@ export default function PrivacyPage() {
           <div className="mt-8 rounded-2xl border border-indigo/15 bg-indigo-soft/35 p-6">
             <h2 className="text-lg font-bold text-navy">Subprocessors</h2>
             <p className="mt-2 text-sm leading-7 text-ink-muted">Service providers that process personal data on behalf of SapienWorx are maintained in a dedicated transparency register.</p>
-            <Link href="/subprocessors" className="mt-4 inline-flex font-semibold text-indigo hover:underline">View the subprocessor register →</Link>
+            <Link href="/subprocessors" className="mt-4 inline-flex font-semibold text-indigo hover:underline">View the subprocessor register →</Link>\n            <Link href="/cookies" className="ml-4 mt-4 inline-flex font-semibold text-indigo hover:underline">Cookie information →</Link>
           </div>
         </article>
       </Container>

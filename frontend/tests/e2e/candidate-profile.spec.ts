@@ -25,6 +25,8 @@ test.describe("candidate profile", () => {
     const [coreRequest, detailRequest] = await Promise.all([coreSave, detailSave]);
 
     expect(coreRequest.postDataJSON()).toMatchObject({ current_city: "Mumbai", current_state: "Maharashtra", notice_period_days: null });
+    expect(coreRequest.headers()["x-csrf-token"]).toBe("e2e-csrf-token");
+    expect(detailRequest.headers()["x-csrf-token"]).toBe("e2e-csrf-token");
     expect(detailRequest.postDataJSON()).toMatchObject({
       details: { current_designation: "Platform Engineer" },
     });
@@ -69,6 +71,25 @@ test.describe("candidate profile", () => {
     await expect(page.getByRole("heading", { name: "About Me" })).not.toBeVisible();
   });
 
+  test("recruiter discovery consent is explicit and reversible", async ({ page, request }) => {
+    await login(page, "candidate");
+    await page.goto("/candidate/profile");
+
+    await expect(page.getByRole("heading", { name: "Recruiter discovery & outreach" })).toBeVisible();
+    await expect(page.getByText(/start platform outreach before you apply/i)).toBeVisible();
+    const toggle = page.getByRole("switch", { name: "Allow recruiter discovery and outreach" });
+    await expect(toggle).not.toBeChecked();
+
+    await toggle.check();
+    await expect(page.getByText("Recruiter discovery and pre-application outreach are enabled.")).toBeVisible();
+    let saved = await (await request.get(`${MOCK_API}/__e2e/state`)).json();
+    expect(saved.profileDetails.details.discoverable_to_recruiters).toBe(true);
+
+    await toggle.uncheck();
+    await expect(page.getByText("Recruiter discovery and pre-application outreach are off.")).toBeVisible();
+    saved = await (await request.get(`${MOCK_API}/__e2e/state`)).json();
+    expect(saved.profileDetails.details.discoverable_to_recruiters).toBe(false);
+  });
   test("uploads a private CV through a signed request and restores its filename after reload", async ({ page }) => {
     await login(page, "candidate");
     await page.goto("/candidate/profile");

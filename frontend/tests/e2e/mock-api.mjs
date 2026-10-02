@@ -74,7 +74,7 @@ let state = initialState();
 const corsHeaders = {
   "access-control-allow-origin": webOrigin,
   "access-control-allow-credentials": "true",
-  "access-control-allow-headers": "content-type,x-amz-server-side-encryption",
+  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id",
   "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
 };
 
@@ -264,6 +264,7 @@ function profileSummary() {
     profile_completion: state.profile.profile_completion,
     share_token: "e2e-public-profile-token",
     profile_visible: Boolean(state.profileDetails.details.profile_visible_in_sourcing),
+    discoverable_to_recruiters: Boolean(state.profileDetails.details.discoverable_to_recruiters),
   };
 }
 
@@ -367,9 +368,14 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/auth/email/verify" && req.method === "POST") return json(res, 200, { status: "active" });
   if (url.pathname === "/api/v1/auth/login" && req.method === "POST") {
     const role = String(payload.role ?? "candidate");
-    return json(res, 200, { access_token: "e2e-access", refresh_token: "e2e-refresh", expires_in: 900 }, { "set-cookie": `swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax` });
+    return json(res, 200, { expires_in: 900, role }, { "set-cookie": [`swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax`, "sw_csrf=e2e-csrf-token; Path=/; SameSite=Lax"] });
   }
-  if (url.pathname === "/api/v1/auth/logout" && req.method === "POST") return json(res, 200, {}, { "set-cookie": "swx_e2e_role=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" });
+  if (url.pathname === "/api/v1/auth/refresh" && req.method === "POST") {
+    const role = roleFromCookie(req);
+    if (!role) return json(res, 401, { error: { message: "valid session required" } });
+    return json(res, 200, { expires_in: 900, role }, { "set-cookie": [`swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax`, "sw_csrf=e2e-csrf-token; Path=/; SameSite=Lax"] });
+  }
+  if (url.pathname === "/api/v1/auth/logout" && req.method === "POST") return json(res, 200, {}, { "set-cookie": ["swx_e2e_role=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0", "sw_csrf=; Path=/; SameSite=Lax; Max-Age=0"] });
   if (url.pathname === "/api/v1/auth/me" && req.method === "GET") {
     const role = roleFromCookie(req);
     if (!role) return json(res, 401, { error: { message: "authentication required" } });
@@ -401,6 +407,10 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, state.profileDetails);
   }
   if (url.pathname === "/api/v1/candidate/profile/summary" && req.method === "GET") return json(res, 200, profileSummary());
+  if (url.pathname === "/api/v1/candidate/profile/discovery" && req.method === "PATCH") {
+    state.profileDetails.details = { ...state.profileDetails.details, discoverable_to_recruiters: Boolean(payload.enabled) };
+    return json(res, 200, { discoverable_to_recruiters: Boolean(payload.enabled) });
+  }
   if (url.pathname === "/api/v1/candidate/cv/parse-preview" && req.method === "POST" && state.failCVPreview) return json(res, 422, { error: { message: "unable to read document" } });
   if (url.pathname === "/api/v1/candidate/cv/parse-preview" && req.method === "POST") return json(res, 200, {
     format: "DOCX",
@@ -762,6 +772,49 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { updated: true });
   }
 
+  if (url.pathname === "/api/v1/admin/privacy/requests" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e1000000-0000-4000-8000-000000000001", user_id: candidateID, request_type: "export", status: "in_progress", due_at: new Date(Date.now()+14*86400000).toISOString(), created_at: now() },
+      { id: "e1000000-0000-4000-8000-000000000002", user_id: recruiterID, request_type: "erasure", status: "awaiting_review", due_at: new Date(Date.now()+21*86400000).toISOString(), created_at: now() },
+    ] });
+  }
+  if (url.pathname === "/api/v1/admin/privacy/incidents" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e2000000-0000-4000-8000-000000000001", title: "Synthetic incident readiness exercise", severity: "medium", status: "investigating", discovered_at: now(), notification_required: false },
+    ] });
+  }
+  if (url.pathname === "/api/v1/admin/privacy/processing-activities" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e3000000-0000-4000-8000-000000000001", activity_name: "Recruitment profile operations", purpose: "Operate candidate profiles and hiring workflows.", lawful_basis: "contract", retention_policy: "Account lifecycle plus approved retention window", owner: "Privacy Operations", reviewed_at: now() },
+      { id: "e3000000-0000-4000-8000-000000000002", activity_name: "Recruiter discovery consent", purpose: "Enable opt-in pre-application discovery and outreach.", lawful_basis: "consent", retention_policy: "Until consent withdrawal or account closure", owner: "Privacy Operations", reviewed_at: now() },
+    ] });
+  }
+  if (url.pathname === "/api/v1/admin/privacy/subprocessors" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    return json(res, 200, { items: [
+      { id: "e4000000-0000-4000-8000-000000000001", name: "Synthetic Cloud Processor", purpose: "Private object storage and delivery", processing_locations: ["IN"], transfer_mechanism: "Not required", tia_status: "not_required", effective_from: "2026-01-01" },
+      { id: "e4000000-0000-4000-8000-000000000002", name: "Synthetic Email Processor", purpose: "Transactional email delivery", processing_locations: ["IN"], transfer_mechanism: "DPA", tia_status: "approved", tia_reviewed_at: now(), effective_from: "2026-01-01" },
+    ] });
+  }
+
+  if (url.pathname === "/api/v1/admin/trust/risk-flags" && req.method === "GET") {
+    if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || !permissions.includes("trust_risk.read"))) return json(res, 403, { error: { message: "trust risk access denied" } });
+    return json(res, 200, { items: [
+      { id: "d1000000-0000-4000-8000-000000000001", subject_type: "job", subject_id: jobID, risk_type: "contact_pattern_anomaly", severity: "high", status: "pending_review", source: "rules-v1", explanation: "The signal requires human review before any administrative action.", evidence: { repeated_contact_pattern: true, sample_window_days: 7 }, created_at: now() },
+      { id: "d1000000-0000-4000-8000-000000000002", subject_type: "candidate", subject_id: candidateID, risk_type: "profile_consistency_review", severity: "medium", status: "reviewing", source: "rules-v1", explanation: "Profile evidence is inconsistent and should be reviewed by an authorized administrator.", evidence: { inconsistent_fields: 2 }, created_at: now() },
+    ] });
+  }
+  const trustReview = url.pathname.match(/^\/api\/v1\/admin\/trust\/risk-flags\/([^/]+)$/);
+  if (trustReview && req.method === "PATCH") {
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (roleFromCookie(req) !== "master_admin" || (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || !permissions.includes("trust_risk.review")))) return json(res, 403, { error: { message: "trust risk review denied" } });
+    return json(res, 200, { status: String(payload.status || "reviewing") });
+  }
   if (url.pathname === "/api/v1/admin/intelligence" && req.method === "GET") {
     if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
     const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];

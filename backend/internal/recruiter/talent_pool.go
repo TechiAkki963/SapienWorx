@@ -12,7 +12,7 @@ import (
 // TalentPoolMembership is a private recruiter bookmark for a candidate.
 // The database primary key is (recruiter_id, candidate_id), which prevents
 // duplicate saves while allowing lightweight optional tags for organization.
-const candidateDiscoverablePredicate = `lower(trim(coalesce(cp.profile_details->>'discoverable_to_recruiters','')))='true'`
+const candidateDiscoverablePredicate = `lower(trim(coalesce(cp.profile_details->>'discoverable_to_recruiters','')))='true' AND COALESCE((SELECT pc.granted AND pc.withdrawn_at IS NULL FROM privacy_consents pc WHERE pc.user_id=cp.user_id AND pc.purpose='recruiter_search_discovery' ORDER BY pc.recorded_at DESC,pc.id DESC LIMIT 1),false)=true`
 
 type TalentPoolMembership struct {
 	RecruiterID string    `json:"recruiter_id"`

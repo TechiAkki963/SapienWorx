@@ -137,7 +137,7 @@ func (s *Service) Initiate(ctx context.Context, recruiterID string, input Initia
 		return ThreadWithMessage{}, err
 	}
 	var candidateExists bool
-	if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1 AND role='candidate' AND status='active' AND is_active=true)`, input.CandidateID).Scan(&candidateExists); err != nil {
+	if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users u JOIN candidate_profiles cp ON cp.user_id=u.id WHERE u.id=$1 AND u.role='candidate' AND u.status='active' AND u.is_active=true AND (EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=u.id AND j.company_id=$2) OR (lower(trim(coalesce(cp.profile_details->>'discoverable_to_recruiters','')))='true' AND COALESCE((SELECT pc.granted AND pc.withdrawn_at IS NULL FROM privacy_consents pc WHERE pc.user_id=u.id AND pc.purpose='recruiter_search_discovery' ORDER BY pc.recorded_at DESC,pc.id DESC LIMIT 1),false)=true)))`, input.CandidateID, companyID).Scan(&candidateExists); err != nil {
 		return ThreadWithMessage{}, err
 	}
 	if !candidateExists {

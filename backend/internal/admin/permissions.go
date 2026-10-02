@@ -38,17 +38,19 @@ const (
 	IntelligenceConfigUpdate   Permission = "intelligence.config.update"
 	IntelligenceKillSwitch     Permission = "intelligence.kill_switch"
 	IntelligenceAuditRead      Permission = "intelligence.audit.read"
+	TrustRiskRead              Permission = "trust_risk.read"
+	TrustRiskReview            Permission = "trust_risk.review"
 )
 
 var rolePermissions = map[string][]Permission{
-	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage, TaxonomyRead, TaxonomyManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceFeedbackReview, IntelligenceModelsRead, IntelligenceModelsEvaluate, IntelligenceModelsApprove, IntelligencePromptsApprove, IntelligenceConfigUpdate, IntelligenceKillSwitch, IntelligenceAuditRead},
-	"platform_admin": {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ReleaseManage, TaxonomyRead, TaxonomyManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceFeedbackReview, IntelligenceModelsRead, IntelligenceModelsEvaluate},
-	"security_admin": {UsersRead, UsersModerate, AuditRead, ControlPlaneRead, ControlPlaneManage},
+	"super_admin":    {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, PrivacyRead, PrivacyManage, AuditRead, SystemRead, SystemConfigure, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ContentRead, ContentManage, CostsRead, ReleaseManage, TaxonomyRead, TaxonomyManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceFeedbackReview, IntelligenceModelsRead, IntelligenceModelsEvaluate, IntelligenceModelsApprove, IntelligencePromptsApprove, IntelligenceConfigUpdate, IntelligenceKillSwitch, IntelligenceAuditRead, TrustRiskRead, TrustRiskReview},
+	"platform_admin": {OverviewRead, OrganizationsRead, OrganizationsReview, OrganizationsDocuments, UsersRead, UsersModerate, JobsRead, JobsModerate, RecruitmentRead, ControlPlaneRead, ControlPlaneManage, ReleaseManage, TaxonomyRead, TaxonomyManage, IntelligenceRead, IntelligenceMetricsRead, IntelligenceFeedbackRead, IntelligenceFeedbackReview, IntelligenceModelsRead, IntelligenceModelsEvaluate, TrustRiskRead, TrustRiskReview},
+	"security_admin": {UsersRead, UsersModerate, AuditRead, ControlPlaneRead, ControlPlaneManage, TrustRiskRead, TrustRiskReview},
 	"privacy_admin":  {PrivacyRead, PrivacyManage, AuditRead, ControlPlaneRead, ControlPlaneManage},
 	"support_admin":  {UsersRead, OrganizationsRead, JobsRead},
 	"finance_admin":  {SystemRead, CostsRead, ControlPlaneRead},
 	"content_admin":  {ContentRead, ContentManage, ControlPlaneRead},
-	"auditor":        {OverviewRead, AuditRead, ControlPlaneRead, CostsRead, ContentRead, TaxonomyRead, IntelligenceRead, IntelligenceMetricsRead, IntelligenceModelsRead, IntelligenceAuditRead},
+	"auditor":        {OverviewRead, AuditRead, ControlPlaneRead, CostsRead, ContentRead, TaxonomyRead, IntelligenceRead, IntelligenceMetricsRead, IntelligenceModelsRead, IntelligenceAuditRead, TrustRiskRead},
 }
 
 func PermissionsForRole(role string) []Permission {

@@ -56,7 +56,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/auth/password/forgot", Chain(http.HandlerFunc(s.forgotPassword), otpGuard))
 	mux.Handle("POST /api/v1/auth/password/reset", Chain(http.HandlerFunc(s.resetPassword), otpGuard))
 	mux.HandleFunc("POST /api/v1/auth/refresh", s.refresh)
-	mux.HandleFunc("POST /api/v1/auth/logout", s.logout)
+	mux.Handle("POST /api/v1/auth/logout", Chain(http.HandlerFunc(s.logout), RequireCSRF(cfg.Auth.CSRFCookieName)))
 	mux.HandleFunc("GET /api/v1/jobs", s.listJobs)
 	mux.HandleFunc("GET /api/v1/jobs/{jobID}", s.getJob)
 	mux.HandleFunc("GET /api/v1/profiles/{token}", s.publicCandidateProfile)
@@ -64,18 +64,18 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("POST /api/v1/admin/collector/events", s.adminCollectorIngest)
 
 	protected := func(next http.Handler) http.Handler {
-		return Chain(next, Authenticate(tokens, cfg.Auth.AccessCookieName), RequireCurrentSession(authService))
+		return Chain(next, Authenticate(tokens, cfg.Auth.AccessCookieName), RequireCurrentSession(authService), RequireCSRF(cfg.Auth.CSRFCookieName))
 	}
 	candidateOnly := RequireRoles(auth.RoleCandidate)
 	recruiterOnly := RequireRoles(auth.RoleRecruiter)
 	candidateActivity := CandidateActivity(candidateService, logger)
 	adminOnly := MasterAdminOnly(tokens, cfg.Auth.AccessCookieName, adminService, logger)
 	adminGuard := func(permissions ...admin.Permission) Middleware {
-		if !cfg.Admin.AccessEnabled {
-			return adminOnly
-		}
 		return func(next http.Handler) http.Handler {
-			return Chain(next, adminOnly, scopedAdminPermission(adminService, logger, permissions...))
+			if !cfg.Admin.AccessEnabled {
+				return Chain(next, adminOnly, RequireCSRF(cfg.Auth.CSRFCookieName))
+			}
+			return Chain(next, adminOnly, scopedAdminPermission(adminService, logger, permissions...), RequireCSRF(cfg.Auth.CSRFCookieName))
 		}
 	}
 	mux.Handle("GET /api/v1/admin/access", Chain(http.HandlerFunc(s.adminAccessStatus), adminGuard()))
@@ -209,6 +209,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/admin/alerts/{alertID}", Chain(http.HandlerFunc(s.adminAlertTransition), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("GET /api/v1/admin/workforce-taxonomy", Chain(http.HandlerFunc(s.adminWorkforceTaxonomy), adminGuard(admin.TaxonomyRead)))
 	mux.Handle("POST /api/v1/admin/workforce-taxonomy/provisional/{termID}/resolve", Chain(http.HandlerFunc(s.adminResolveWorkforceTaxonomyTerm), adminGuard(admin.TaxonomyManage)))
+	mux.Handle("GET /api/v1/admin/trust/risk-flags", Chain(http.HandlerFunc(s.adminTrustRiskFlags), adminGuard(admin.TrustRiskRead)))
+	mux.Handle("PATCH /api/v1/admin/trust/risk-flags/{flagID}", Chain(http.HandlerFunc(s.adminTrustRiskReview), adminGuard(admin.TrustRiskReview)))
 	mux.Handle("GET /api/v1/admin/intelligence", Chain(http.HandlerFunc(s.adminIntelligence), adminGuard(admin.IntelligenceRead, admin.IntelligenceMetricsRead)))
 	mux.Handle("POST /api/v1/admin/intelligence/run", Chain(http.HandlerFunc(s.adminRunIntelligence), adminGuard(admin.IntelligenceModelsEvaluate)))
 	mux.Handle("PATCH /api/v1/admin/intelligence/insights/{insightID}", Chain(http.HandlerFunc(s.adminReviewIntelligenceInsight), adminGuard(admin.IntelligenceFeedbackReview)))

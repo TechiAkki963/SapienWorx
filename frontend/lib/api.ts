@@ -12,13 +12,65 @@ export class APIRequestError extends Error {
   }
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_CSRF_COOKIE_NAME?.trim() || "sw_csrf";
+
+function csrfToken() {
+  if (typeof document === "undefined") return "";
+  const prefix = `${CSRF_COOKIE_NAME}=`;
+  const item = document.cookie.split("; ").find((part) => part.startsWith(prefix));
+  return item ? decodeURIComponent(item.slice(prefix.length)) : "";
+}
+
+function authHeaders(init: RequestInit) {
   const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
-  const response = await fetch(`${API_URL}${path}`, {
+  const headers = new Headers(init.headers ?? {});
+  if (!isFormData && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  const method = (init.method ?? "GET").toUpperCase();
+  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    const token = csrfToken();
+    if (token) headers.set("X-CSRF-Token", token);
+  }
+  return headers;
+}
+
+const refreshExcluded = new Set([
+  "/api/v1/auth/login",
+  "/api/v1/auth/candidate/register",
+  "/api/v1/auth/recruiter/register",
+  "/api/v1/auth/email/request",
+  "/api/v1/auth/email/verify",
+  "/api/v1/auth/password/forgot",
+  "/api/v1/auth/password/reset",
+  "/api/v1/auth/refresh",
+]);
+
+async function rawRequest(path: string, init: RequestInit) {
+  return fetch(`${API_URL}${path}`, {
     ...init,
     credentials: "include",
-    headers: { ...(isFormData ? {} : { "Content-Type": "application/json" }), ...(init.headers ?? {}) },
+    headers: authHeaders(init),
   });
+}
+
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshSession() {
+  if (!refreshPromise) {
+    refreshPromise = rawRequest("/api/v1/auth/refresh", { method: "POST" })
+      .then((response) => response.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  let response = await rawRequest(path, init);
+  if (response.status === 401 && !refreshExcluded.has(path)) {
+    if (await refreshSession()) response = await rawRequest(path, init);
+  }
   if (!response.ok) {
     let message = "Request could not be completed.";
     let code = "unknown_error";
