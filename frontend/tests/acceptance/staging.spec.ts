@@ -263,6 +263,22 @@ test.describe.serial("deployed staging acceptance", () => {
     expect(retry.body.campaign.requested_count).toBe(1);
     expect(retry.body.campaign.enrolled_count).toBe(0);
 
+    const conflict = await recruiterPage.evaluate(async ({ launchPayload, launchKey, csrfToken }) => {
+      const response = await fetch("/api/v1/recruiter/outreach/campaigns", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+          "X-Idempotency-Key": launchKey,
+        },
+        body: JSON.stringify({ ...launchPayload, name: "P2.3 changed payload" }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, { launchPayload, launchKey, csrfToken: csrfToken! });
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.error?.code).toBe("idempotency_conflict");
+
     const campaigns = await recruiterPage.evaluate(async () => {
       const response = await fetch("/api/v1/recruiter/outreach/campaigns", { credentials: "include" });
       return { status: response.status, body: await response.json() };
