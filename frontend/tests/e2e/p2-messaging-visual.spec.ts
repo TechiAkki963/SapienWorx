@@ -12,12 +12,20 @@ async function noOverflow(page: import("@playwright/test").Page, label: string) 
 }
 
 async function drawerGeometry(page: import("@playwright/test").Page, dialog: import("@playwright/test").Locator, width: number) {
-  const box = await dialog.boundingBox();
-  expect(box, `Bulk InMail drawer has a box at ${width}px`).not.toBeNull();
-  if (!box) return;
-  expect(Math.round(box.x + box.width), `drawer is right-aligned at ${width}px`).toBeLessThanOrEqual(width + 1);
-  expect(Math.round(box.x + box.width), `drawer reaches viewport edge at ${width}px`).toBeGreaterThanOrEqual(width - 1);
-  expect(box.width, `drawer width at ${width}px`).toBeGreaterThanOrEqual(width < 608 ? width - 2 : 590);
+  await expect.poll(async () => {
+    const box = await dialog.boundingBox();
+    if (!box) return null;
+    return {
+      right: Math.round(box.x + box.width),
+      width: Math.round(box.width),
+    };
+  }, {
+    message: `Bulk InMail drawer settles against the viewport edge at ${width}px`,
+    timeout: 5_000,
+  }).toEqual({
+    right: width,
+    width: width < 608 ? width : 608,
+  });
 }
 
 test.beforeEach(async ({ request }) => {
