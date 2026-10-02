@@ -173,6 +173,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/recruiter/outreach/campaigns", Chain(http.HandlerFunc(s.recruiterOutreachCampaigns), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/outreach/campaigns", Chain(http.HandlerFunc(s.recruiterOutreachCampaigns), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/outreach/campaigns/{campaignID}/launch", Chain(http.HandlerFunc(s.recruiterOutreachCampaignLaunch), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/outreach/campaigns/{campaignID}", Chain(http.HandlerFunc(s.recruiterOutreachCampaignStatus), protected, recruiterOnly))
 
 	messagingUsers := RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)
 	mux.Handle("GET /api/v1/messaging/threads", Chain(http.HandlerFunc(s.messagingThreads), protected, messagingUsers, candidateActivity))
