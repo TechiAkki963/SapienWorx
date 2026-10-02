@@ -561,6 +561,54 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 		if err != nil {
 			return events, err
 		}
+
+		var currentStatus, campaignStatus string
+		var currentStep int
+		var currentNextRun, currentLastSent *time.Time
+		if err := tx.QueryRow(ctx, `
+			SELECT e.status::text,e.next_step_order,e.next_run_at,e.last_sent_at,c.status::text
+			FROM outreach_campaign_enrollments e
+			JOIN outreach_campaigns c ON c.id=e.campaign_id
+			WHERE e.id=$1
+			FOR UPDATE OF e,c
+		`, item.enrollmentID).Scan(&currentStatus,&currentStep,&currentNextRun,&currentLastSent,&campaignStatus); err != nil {
+			tx.Rollback(ctx)
+			if errors.Is(err, pgx.ErrNoRows) {
+				continue
+			}
+			return events, err
+		}
+		if currentStatus != "active" || campaignStatus != "running" || currentStep != item.stepOrder || currentNextRun == nil || currentNextRun.After(time.Now()) {
+			tx.Rollback(ctx)
+			continue
+		}
+		if currentLastSent != nil {
+			var replied bool
+			if err := tx.QueryRow(ctx, `
+				SELECT EXISTS(
+					SELECT 1 FROM chat_messages
+					WHERE thread_id=$1 AND sender_type='candidate' AND created_at>$2
+				)
+			`, item.threadID,*currentLastSent).Scan(&replied); err != nil {
+				tx.Rollback(ctx)
+				return events, err
+			}
+			if replied {
+				if _, err := tx.Exec(ctx, `
+					UPDATE outreach_campaign_enrollments
+					SET status='stopped',stop_reason='candidate_replied',next_run_at=NULL
+					WHERE id=$1
+				`, item.enrollmentID); err != nil {
+					tx.Rollback(ctx)
+					return events, err
+				}
+				if err := tx.Commit(ctx); err != nil {
+					return events, err
+				}
+				continue
+			}
+		}
+
 		var companyID string
 		if err := tx.QueryRow(ctx, `SELECT company_id FROM recruiter_profiles WHERE user_id=$1`, item.recruiterID).Scan(&companyID); err != nil {
 			tx.Rollback(ctx)
@@ -575,11 +623,21 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 			return events, err
 		}
 		if err := s.enforceBulkBudget(ctx, tx, item.recruiterID, companyID, 1); err != nil {
-			tx.Rollback(ctx)
 			if errors.Is(err, ErrRateLimited) {
-				_, _ = s.db.Exec(ctx, `UPDATE outreach_campaign_enrollments SET next_run_at=now()+interval '1 hour' WHERE id=$1`, item.enrollmentID)
+				if _, updateErr := tx.Exec(ctx, `
+					UPDATE outreach_campaign_enrollments
+					SET next_run_at=now()+interval '1 hour'
+					WHERE id=$1
+				`, item.enrollmentID); updateErr != nil {
+					tx.Rollback(ctx)
+					return events, updateErr
+				}
+				if commitErr := tx.Commit(ctx); commitErr != nil {
+					return events, commitErr
+				}
 				continue
 			}
+			tx.Rollback(ctx)
 			return events, err
 		}
 		var message ChatMessage
@@ -602,11 +660,21 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 		`, item.threadID, item.recruiterID, content, item.candidateID, strings.TrimSpace(renderBulkTemplate(subjectTemplate, candidateName, jobTitle))).Scan(
 			&message.ID, &message.ThreadID, &message.SenderID, &message.SenderType, &message.Content, &message.IsRead, &message.CreatedAt,
 		); err != nil {
-			tx.Rollback(ctx)
 			if errors.Is(err, pgx.ErrNoRows) {
-				_, _ = s.db.Exec(ctx, `UPDATE outreach_campaign_enrollments SET status='stopped',stop_reason='thread_closed',next_run_at=NULL WHERE id=$1`, item.enrollmentID)
+				if _, updateErr := tx.Exec(ctx, `
+					UPDATE outreach_campaign_enrollments
+					SET status='stopped',stop_reason='thread_closed',next_run_at=NULL
+					WHERE id=$1
+				`, item.enrollmentID); updateErr != nil {
+					tx.Rollback(ctx)
+					return events, updateErr
+				}
+				if commitErr := tx.Commit(ctx); commitErr != nil {
+					return events, commitErr
+				}
 				continue
 			}
+			tx.Rollback(ctx)
 			return events, err
 		}
 		if _, err := tx.Exec(ctx, `
