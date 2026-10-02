@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 
 import { BulkInMailDrawer } from "@/components/recruiter/bulk-inmail-drawer";
+import { RecruiterTagList } from "@/components/recruiter/recruiter-tag";
 import { experience } from "@/lib/recruiter";
 
 export type TalentPoolCandidate = {
@@ -169,15 +170,7 @@ export function TalentPoolSelection({ items }: { items: TalentPoolCandidate[] })
                 </dl>
 
                 <div className="mt-3 flex min-h-7 flex-wrap gap-1.5">
-                  {candidate.tags.length ? (
-                    candidate.tags.map((tag) => (
-                      <span key={tag} className="rounded-full border border-[#dcebe6] bg-[#f3faf7] px-2 py-1 text-[10px] font-bold text-[#276f5d]">
-                        {tag}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-ink-muted">No tags yet</span>
-                  )}
+                  <RecruiterTagList tags={candidate.tags} />
                 </div>
 
                 <div className="mt-4 flex items-center justify-between gap-3 border-t border-line/60 pt-3">

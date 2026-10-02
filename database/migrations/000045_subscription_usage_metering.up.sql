@@ -18,6 +18,12 @@ CREATE INDEX subscription_usage_events_actor_time_idx
     ON subscription_usage_events(actor_user_id, occurred_at DESC)
     WHERE actor_user_id IS NOT NULL;
 
+-- A single HTTP request must never consume subscription usage twice if it is retried.
+-- Keep NULL request IDs available for non-request-driven ledger events.
+CREATE UNIQUE INDEX subscription_usage_events_request_id_uidx
+    ON subscription_usage_events(request_id)
+    WHERE request_id IS NOT NULL;
+
 COMMENT ON TABLE subscription_usage_events IS
     'Append-only company usage ledger for subscription metering. One successful recruiter CV view records quantity=1 under meter_key=cv_view.';
 

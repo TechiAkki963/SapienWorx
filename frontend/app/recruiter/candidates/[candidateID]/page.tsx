@@ -6,6 +6,7 @@ import { CandidateContact } from "@/components/recruiter/candidate-contact";
 import { CandidateHeaderActions } from "@/components/recruiter/candidate-header-actions";
 import { CandidateProfileView } from "@/components/recruiter/candidate-profile-view";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
+import { RecruiterTagList } from "@/components/recruiter/recruiter-tag";
 import { requireRole } from "@/lib/auth-server";
 import { experience, PipelineList, RecruiterCandidateActivity, RecruiterCandidateDetail, RecruiterCandidateMatch, RecruiterJob } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
@@ -184,6 +185,12 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                         {candidate.notice_period_days == null ? "Notice not specified" : `${candidate.notice_period_days}d notice`}
                       </span>
                     </div>
+
+                    {candidate.talent_pool_tags.length > 0 && (
+                      <div className="mt-3" aria-label="Recruiter tags">
+                        <RecruiterTagList tags={candidate.talent_pool_tags} />
+                      </div>
+                    )}
 
                     {preferredLocations !== "—" && (
                       <p className="mt-3 text-xs leading-5 text-ink-muted">
