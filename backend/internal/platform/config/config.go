@@ -59,6 +59,7 @@ type AuthConfig struct {
 	CookieSecure      bool
 	AccessCookieName  string
 	RefreshCookieName string
+	CSRFCookieName    string
 }
 
 type AWSConfig struct {
@@ -126,6 +127,7 @@ func Load() (Config, error) {
 			CookieSecure:      boolEnv("AUTH_COOKIE_SECURE", environment == "production"),
 			AccessCookieName:  env("AUTH_ACCESS_COOKIE_NAME", "sw_access"),
 			RefreshCookieName: env("AUTH_REFRESH_COOKIE_NAME", "sw_refresh"),
+			CSRFCookieName:    env("AUTH_CSRF_COOKIE_NAME", "sw_csrf"),
 		},
 		AWS: AWSConfig{
 			Region:       env("AWS_REGION", "ap-south-1"),
@@ -189,7 +191,7 @@ func (c Config) Validate() error {
 	if c.Auth.OTPIPLimit < 1 || c.Auth.OTPIPWindow < time.Minute || c.Auth.LoginIPLimit < 1 || c.Auth.LoginIPWindow < time.Minute {
 		problems = append(problems, "authentication rate-limit settings are invalid")
 	}
-	if c.Auth.AccessCookieName == "" || c.Auth.RefreshCookieName == "" {
+	if c.Auth.AccessCookieName == "" || c.Auth.RefreshCookieName == "" || c.Auth.CSRFCookieName == "" {
 		problems = append(problems, "authentication cookie names are required")
 	}
 	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
