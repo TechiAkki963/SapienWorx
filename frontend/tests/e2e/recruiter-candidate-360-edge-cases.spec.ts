@@ -41,6 +41,12 @@ test("Talent Pool context preserves return navigation without inventing a job ma
   await expect(page.getByRole("link", { name: "Back to talent pool" })).toBeVisible();
   await expect(page.getByRole("region", { name: "Candidate job match" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Schedule interview/i })).toBeVisible();
+  const recruiterContext = page.getByRole("region", { name: "Recruiter notes and tags" });
+  await expect(recruiterContext).toBeVisible();
+  await expect(recruiterContext.getByText("Priority", { exact: true })).toBeVisible();
+  await expect(recruiterContext.getByText("Go Platform", { exact: true })).toBeVisible();
+  await expect(recruiterContext.getByText("Mumbai", { exact: true })).toBeVisible();
+  await expect(recruiterContext.getByRole("button", { name: /Recruiter Notes/i })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
 

@@ -306,14 +306,20 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
 
               <div className="grid gap-5 xl:col-start-1 xl:row-span-2 xl:row-start-1">
                 {candidate.can_collaborate ? (
-                  <CandidateComments candidateID={candidateID} jobID={query.job_id} applicationID={candidateApplications[0]?.application_id} />
+                  <CandidateComments candidateID={candidateID} jobID={query.job_id} applicationID={candidateApplications[0]?.application_id} tags={candidate.talent_pool_tags} />
                 ) : (
-                  <section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <section className="rounded-2xl border border-line/70 bg-white p-5" aria-label="Recruiter notes and tags">
                     <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-base font-bold text-navy">Recruiter Notes</h2>
+                      <h2 className="text-base font-bold text-navy">Recruiter&apos;s Notes</h2>
                       <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold text-ink-muted">Internal</span>
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-ink-muted">Internal recruiter notes become available after the candidate applies to your company.</p>
+                    {candidate.talent_pool_tags.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Recruiter tags">
+                        {candidate.talent_pool_tags.slice(0, 3).map((tag) => <span key={tag} className="inline-flex min-h-7 max-w-full items-center rounded-full border border-indigo/15 bg-indigo-soft/60 px-2.5 py-1 text-[11px] font-bold leading-none text-indigo"><span className="max-w-[12rem] truncate">{tag}</span></span>)}
+                        {candidate.talent_pool_tags.length > 3 && <span className="inline-flex min-h-7 items-center rounded-full border border-line bg-slate-50 px-2.5 py-1 text-[11px] font-bold leading-none text-ink-muted">+{candidate.talent_pool_tags.length - 3}</span>}
+                      </div>
+                    )}
+                    <p className="mt-3 text-sm leading-6 text-ink-muted">Internal recruiter notes become available after the candidate applies to your company.</p>
                   </section>
                 )}
 
