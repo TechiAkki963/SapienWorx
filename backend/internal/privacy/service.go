@@ -26,6 +26,8 @@ var SafeExportSections = map[string]struct{}{
 	"saved_jobs":    {},
 	"notifications": {},
 	"messages":      {},
+	"consents":      {},
+	"privacy_requests": {},
 }
 
 type Service struct{ db *pgxpool.Pool }
