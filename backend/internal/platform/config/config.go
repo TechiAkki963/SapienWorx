@@ -18,6 +18,7 @@ type Config struct {
 	Auth        AuthConfig
 	Admin       AdminConfig
 	Messaging   MessagingConfig
+	Email       EmailConfig
 	AWS         AWSConfig
 }
 
@@ -69,6 +70,14 @@ type MessagingConfig struct {
 	BulkCompanyDailyLimit    int
 }
 
+type EmailConfig struct {
+	Enabled bool
+	FromAddress string
+	WorkerInterval time.Duration
+	BatchSize int
+	MaxAttempts int
+}
+
 type AWSConfig struct {
 	Region       string
 	S3Bucket     string
@@ -112,6 +121,13 @@ func Load() (Config, error) {
 			BulkRecruiterHourlyLimit: intEnv("INMAIL_BULK_RECRUITER_HOURLY_LIMIT", 300),
 			BulkRecruiterDailyLimit:  intEnv("INMAIL_BULK_RECRUITER_DAILY_LIMIT", 1000),
 			BulkCompanyDailyLimit:    intEnv("INMAIL_BULK_COMPANY_DAILY_LIMIT", 5000),
+		},
+		Email: EmailConfig{
+			Enabled: boolEnv("EMAIL_DELIVERY_ENABLED", false),
+			FromAddress: env("EMAIL_FROM_ADDRESS", "info@sapienworx.com"),
+			WorkerInterval: durationEnv("EMAIL_WORKER_INTERVAL", 5*time.Second),
+			BatchSize: intEnv("EMAIL_WORKER_BATCH_SIZE", 10),
+			MaxAttempts: intEnv("EMAIL_MAX_ATTEMPTS", 5),
 		},
 		Database: DatabaseConfig{
 			URL:             strings.TrimSpace(os.Getenv("DATABASE_URL")),
@@ -210,6 +226,12 @@ func (c Config) Validate() error {
 		c.Messaging.BulkRecruiterDailyLimit < c.Messaging.BulkRecruiterHourlyLimit ||
 		c.Messaging.BulkCompanyDailyLimit < c.Messaging.BulkRecruiterDailyLimit {
 		problems = append(problems, "InMail bulk rate-limit settings are invalid")
+	}
+	if c.Email.Enabled && strings.TrimSpace(c.Email.FromAddress) == "" {
+		problems = append(problems, "EMAIL_FROM_ADDRESS is required when email delivery is enabled")
+	}
+	if c.Email.WorkerInterval < time.Second || c.Email.WorkerInterval > time.Minute || c.Email.BatchSize < 1 || c.Email.BatchSize > 50 || c.Email.MaxAttempts < 1 || c.Email.MaxAttempts > 10 {
+		problems = append(problems, "email delivery worker settings are invalid")
 	}
 	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
 		problems = append(problems, "S3_PRESIGN_TTL must be between 1m and 15m")
@@ -324,5 +346,5 @@ func boolEnv(key string, fallback bool) bool {
 }
 
 func (c Config) String() string {
-	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d s3=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.S3Bucket != "")
+	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d s3=%t email=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.S3Bucket != "", c.Email.Enabled)
 }
