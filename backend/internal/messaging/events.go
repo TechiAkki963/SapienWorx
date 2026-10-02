@@ -8,7 +8,8 @@ const (
 	EventTypeMessage EventType = "message"
 	EventTypeTyping  EventType = "typing"
 	EventTypeRead    EventType = "read"
-	EventTypeInbox   EventType = "inbox"
+	EventTypeInbox         EventType = "inbox"
+	EventTypeNotifications EventType = "notifications"
 )
 
 const MaxReadReceiptBatch = 100
@@ -47,6 +48,10 @@ type InboxPayload struct {
 	Reason string `json:"reason"`
 }
 
+type NotificationsPayload struct {
+	Reason string `json:"reason"`
+}
+
 type ReadResult struct {
 	SenderID   string   `json:"sender_id"`
 	MessageIDs []string `json:"message_ids"`
@@ -82,4 +87,10 @@ func InboxChannel(userID string) string {
 func NewInboxEvent(threadID, senderID string) WebSocketEvent {
 	payload, _ := json.Marshal(InboxPayload{Reason: "thread_changed"})
 	return WebSocketEvent{Type: EventTypeInbox, ThreadID: threadID, SenderID: senderID, Payload: payload}
+}
+
+
+func NewNotificationsEvent(senderID string) WebSocketEvent {
+	payload, _ := json.Marshal(NotificationsPayload{Reason: "notifications_changed"})
+	return WebSocketEvent{Type: EventTypeNotifications, SenderID: senderID, Payload: payload}
 }
