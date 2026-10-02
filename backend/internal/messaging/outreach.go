@@ -2,6 +2,9 @@ package messaging
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -86,6 +89,25 @@ type OutreachDeliveryEvent struct {
 	CandidateID string      `json:"candidate_id"`
 	ThreadID    string      `json:"thread_id"`
 	Message     ChatMessage `json:"message"`
+}
+
+func campaignLaunchPayloadHash(sequenceID, jobID, name string, candidateIDs []string) (string, error) {
+	raw, err := json.Marshal(struct {
+		SequenceID   string   `json:"sequence_id"`
+		JobID        string   `json:"job_id,omitempty"`
+		Name         string   `json:"name"`
+		CandidateIDs []string `json:"candidate_ids"`
+	}{
+		SequenceID:   strings.TrimSpace(sequenceID),
+		JobID:        strings.TrimSpace(jobID),
+		Name:         strings.TrimSpace(name),
+		CandidateIDs: candidateIDs,
+	})
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256(raw)
+	return hex.EncodeToString(sum[:]), nil
 }
 
 func validateSequenceInput(input SequenceInput) error {
