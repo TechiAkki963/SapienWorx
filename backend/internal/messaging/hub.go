@@ -69,6 +69,20 @@ func (h *Hub) Broadcast(threadID string, event WebSocketEvent) {
 	h.broadcast(threadID, event, "", "")
 }
 
+func userChannel(userID string) string { return "user:" + userID }
+
+func (h *Hub) RegisterUser(userID string, client *Client) bool {
+	return h.Register(userChannel(userID), client)
+}
+
+func (h *Hub) UnregisterUser(userID string, client *Client) {
+	h.Unregister(userChannel(userID), client)
+}
+
+func (h *Hub) BroadcastUser(userID string, event WebSocketEvent) {
+	h.Broadcast(userChannel(userID), event)
+}
+
 // BroadcastExceptUser is used for transient presence signals such as typing.
 // It avoids echoing the signal back to any of the sender's open tabs.
 func (h *Hub) BroadcastExceptUser(threadID, excludedUserID string, event WebSocketEvent) {

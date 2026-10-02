@@ -116,3 +116,43 @@ func TestValidateTemplateVariables(t *testing.T) {
 		t.Fatal("unsupported template variable should be rejected")
 	}
 }
+
+func TestHubUserChannelsStayIsolated(t *testing.T) {
+	hub := NewHub(8, 4)
+	candidate := &Client{UserID: "candidate", Send: make(chan WebSocketEvent, 2)}
+	recruiter := &Client{UserID: "recruiter", Send: make(chan WebSocketEvent, 2)}
+	if !hub.RegisterUser("candidate", candidate) || !hub.RegisterUser("recruiter", recruiter) {
+		t.Fatal("expected user event clients to register")
+	}
+
+	hub.BroadcastUser("candidate", NewInboxChangedEvent())
+	select {
+	case event := <-candidate.Send:
+		if event.Type != EventTypeInboxChanged {
+			t.Fatalf("candidate event = %q, want inbox_changed", event.Type)
+		}
+	default:
+		t.Fatal("candidate should receive its own user event")
+	}
+	select {
+	case <-recruiter.Send:
+		t.Fatal("recruiter must not receive another user's invalidation")
+	default:
+	}
+
+	hub.BroadcastUser("candidate", NewNotificationsChangedEvent())
+	select {
+	case event := <-candidate.Send:
+		if event.Type != EventTypeNotificationsChanged {
+			t.Fatalf("candidate event = %q, want notifications_changed", event.Type)
+		}
+	default:
+		t.Fatal("candidate should receive notification invalidation")
+	}
+
+	hub.UnregisterUser("candidate", candidate)
+	hub.UnregisterUser("recruiter", recruiter)
+	if got := hub.ConnectionCount(); got != 0 {
+		t.Fatalf("connections = %d, want 0", got)
+	}
+}

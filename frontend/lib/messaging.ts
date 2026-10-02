@@ -1,6 +1,6 @@
 export type MessagingSenderType = "candidate" | "recruiter";
 export type MessagingThreadStatus = "open" | "closed";
-export type SapienChatEventType = "message" | "typing" | "read";
+export type SapienChatEventType = "message" | "typing" | "read" | "inbox_changed" | "notifications_changed";
 
 export type MessagingThread = {
   id: string;

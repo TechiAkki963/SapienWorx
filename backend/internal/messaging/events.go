@@ -5,9 +5,11 @@ import "encoding/json"
 type EventType string
 
 const (
-	EventTypeMessage EventType = "message"
-	EventTypeTyping  EventType = "typing"
-	EventTypeRead    EventType = "read"
+	EventTypeMessage              EventType = "message"
+	EventTypeTyping               EventType = "typing"
+	EventTypeRead                 EventType = "read"
+	EventTypeInboxChanged         EventType = "inbox_changed"
+	EventTypeNotificationsChanged EventType = "notifications_changed"
 )
 
 const MaxReadReceiptBatch = 100
@@ -25,7 +27,6 @@ type WebSocketEvent struct {
 	// Step 2 of the receipt/typing upgrade will move the client to Payload.
 	Message *ChatMessage `json:"message,omitempty"`
 }
-
 type MessagePayload struct {
 	Message ChatMessage `json:"message"`
 }
@@ -66,4 +67,12 @@ func NewTypingEvent(threadID, senderID string, isTyping bool) WebSocketEvent {
 func NewReadEvent(threadID, senderID string, messageIDs []string) WebSocketEvent {
 	payload, _ := json.Marshal(ReadPayload{MessageIDs: messageIDs})
 	return WebSocketEvent{Type: EventTypeRead, ThreadID: threadID, SenderID: senderID, Payload: payload}
+}
+
+func NewInboxChangedEvent() WebSocketEvent {
+	return WebSocketEvent{Type: EventTypeInboxChanged, Payload: json.RawMessage(`{}`)}
+}
+
+func NewNotificationsChangedEvent() WebSocketEvent {
+	return WebSocketEvent{Type: EventTypeNotificationsChanged, Payload: json.RawMessage(`{}`)}
 }
