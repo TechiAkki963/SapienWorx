@@ -277,25 +277,25 @@ export function OutreachWorkspace({
 
       {tab === "templates" && (
         <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <form onSubmit={createTemplate} className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_8px_24px_rgba(16,33,63,0.05)]">
+          <form onSubmit={createTemplate} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5 shadow-[0_8px_24px_rgba(16,33,63,0.05)]">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Reusable copy</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create message template</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">Use CandidateName and JobTitle variables. Every sequence step references one saved template.</p>
             <div className="mt-5 grid gap-4">
-              <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Template name
-                <input value={templateTitle} onChange={(e) => setTemplateTitle(e.target.value)} required maxLength={160} className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm font-semibold text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
+              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Template name
+                <input value={templateTitle} onChange={(e) => setTemplateTitle(e.target.value)} required maxLength={160} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm font-semibold text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
               </label>
-              <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Subject
-                <input value={templateSubject} onChange={(e) => setTemplateSubject(e.target.value)} required maxLength={255} placeholder="{{JobTitle}} opportunity" className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
+              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Subject
+                <input value={templateSubject} onChange={(e) => setTemplateSubject(e.target.value)} required maxLength={255} placeholder="{{JobTitle}} opportunity" className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
               </label>
-              <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Message
-                <textarea value={templateBody} onChange={(e) => setTemplateBody(e.target.value)} required rows={7} placeholder="Hi {{CandidateName}}, ..." className="rounded-xl border border-line bg-white px-3 py-3 text-sm leading-6 text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
+              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Message
+                <textarea value={templateBody} onChange={(e) => setTemplateBody(e.target.value)} required rows={7} placeholder="Hi {{CandidateName}}, ..." className="w-full min-w-0 rounded-xl border border-line bg-white px-3 py-3 text-sm leading-6 text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
               </label>
               <button disabled={busy === "template"} className="min-h-11 rounded-xl bg-indigo px-4 text-sm font-extrabold text-white disabled:opacity-50">{busy === "template" ? "Creating…" : "Create template"}</button>
             </div>
           </form>
 
-          <section className="rounded-2xl border border-line/70 bg-white p-5">
+          <section className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <h2 className="text-lg font-bold text-navy">Saved templates</h2>
             <div className="mt-4 grid gap-3">
               {templates.length === 0 ? <p className="rounded-xl border border-dashed border-line p-5 text-sm text-ink-muted">Create your first template to build a sequence.</p> : templates.map((template) => (
@@ -312,12 +312,12 @@ export function OutreachWorkspace({
 
       {tab === "sequences" && (
         <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <form onSubmit={createSequence} className="rounded-2xl border border-line/70 bg-white p-5">
+          <form onSubmit={createSequence} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Follow-up logic</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Build a sequence</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">The first step sends immediately. Later steps run server-side and stop automatically after a candidate replies.</p>
             <label className="mt-5 grid gap-1.5 text-xs font-bold text-ink-muted">Sequence name
-              <input value={sequenceName} onChange={(e) => setSequenceName(e.target.value)} required maxLength={160} className="min-h-11 rounded-xl border border-line px-3 text-sm font-semibold text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
+              <input value={sequenceName} onChange={(e) => setSequenceName(e.target.value)} required maxLength={160} className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm font-semibold text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
             </label>
             <div className="mt-4 grid gap-3">
               {sequenceSteps.map((step, index) => (
@@ -327,14 +327,14 @@ export function OutreachWorkspace({
                     {index > 0 && <button type="button" onClick={() => setSequenceSteps((current) => current.filter((_, i) => i !== index))} className="text-xs font-bold text-rose-600">Remove</button>}
                   </div>
                   <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_10rem]">
-                    <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Template
-                      <select value={step.template_id} required onChange={(e) => setSequenceSteps((current) => current.map((candidate, i) => i === index ? { ...candidate, template_id: e.target.value } : candidate))} className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm text-ink">
+                    <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Template
+                      <select value={step.template_id} required onChange={(e) => setSequenceSteps((current) => current.map((candidate, i) => i === index ? { ...candidate, template_id: e.target.value } : candidate))} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink">
                         <option value="">Select template</option>
                         {templates.map((template) => <option key={template.id} value={template.id}>{template.title}</option>)}
                       </select>
                     </label>
-                    <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Delay hours
-                      <input type="number" min={index === 0 ? 0 : 1} max={720} disabled={index === 0} value={step.delay_hours} onChange={(e) => setSequenceSteps((current) => current.map((candidate, i) => i === index ? { ...candidate, delay_hours: Number(e.target.value) } : candidate))} className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm text-ink disabled:bg-slate-100" />
+                    <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Delay hours
+                      <input type="number" min={index === 0 ? 0 : 1} max={720} disabled={index === 0} value={step.delay_hours} onChange={(e) => setSequenceSteps((current) => current.map((candidate, i) => i === index ? { ...candidate, delay_hours: Number(e.target.value) } : candidate))} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink disabled:bg-slate-100" />
                     </label>
                   </div>
                 </div>
@@ -346,7 +346,7 @@ export function OutreachWorkspace({
             </div>
           </form>
 
-          <section className="rounded-2xl border border-line/70 bg-white p-5">
+          <section className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <h2 className="text-lg font-bold text-navy">Active sequences</h2>
             <div className="mt-4 grid gap-3">
               {sequences.length === 0 ? <p className="rounded-xl border border-dashed border-line p-5 text-sm text-ink-muted">No sequences yet.</p> : sequences.map((sequence) => (
@@ -367,27 +367,27 @@ export function OutreachWorkspace({
 
       {tab === "campaigns" && (
         <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-          <form onSubmit={createCampaign} className="rounded-2xl border border-line/70 bg-white p-5">
+          <form onSubmit={createCampaign} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Targeted outreach</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create campaign</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">Campaigns start as drafts so you can verify the sequence, job context and recipients before launch.</p>
             <div className="mt-5 grid gap-4">
-              <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Campaign name
-                <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} required maxLength={160} className="min-h-11 rounded-xl border border-line px-3 text-sm font-semibold text-ink" />
+              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Campaign name
+                <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} required maxLength={160} className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm font-semibold text-ink" />
               </label>
-              <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Sequence
-                <select value={campaignSequenceID} onChange={(e) => setCampaignSequenceID(e.target.value)} required className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm text-ink">
+              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Sequence
+                <select value={campaignSequenceID} onChange={(e) => setCampaignSequenceID(e.target.value)} required className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink">
                   <option value="">Select sequence</option>
                   {sequences.filter((sequence) => sequence.status === "active").map((sequence) => <option key={sequence.id} value={sequence.id}>{sequence.name}</option>)}
                 </select>
               </label>
-              <label className="grid gap-1.5 text-xs font-bold text-ink-muted">Job context <span className="font-medium">(optional)</span>
-                <select value={campaignJobID} onChange={(e) => setCampaignJobID(e.target.value)} className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm text-ink">
+              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Job context <span className="font-medium">(optional)</span>
+                <select value={campaignJobID} onChange={(e) => setCampaignJobID(e.target.value)} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink">
                   <option value="">No job context</option>
                   {activeJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
                 </select>
               </label>
-              <fieldset className="rounded-xl border border-line/70">
+              <fieldset className="min-w-0 max-w-full rounded-xl border border-line/70">
                 <legend className="ml-3 px-2 text-xs font-bold text-ink-muted">Recipients · {selectedCount} selected</legend>
                 <div className="max-h-72 overflow-y-auto p-2">
                   {candidates.length === 0 ? <p className="p-3 text-sm text-ink-muted">Save candidates to Talent Pools before creating a campaign.</p> : candidates.map((candidate) => (
@@ -402,7 +402,7 @@ export function OutreachWorkspace({
             </div>
           </form>
 
-          <section className="rounded-2xl border border-line/70 bg-white p-5">
+          <section className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <h2 className="text-lg font-bold text-navy">Campaigns</h2>
             <div className="mt-4 grid gap-3">
               {campaigns.length === 0 ? <p className="rounded-xl border border-dashed border-line p-5 text-sm text-ink-muted">No campaigns yet. Create a sequence first, then target candidates from your talent pool.</p> : campaigns.map((campaign) => (
