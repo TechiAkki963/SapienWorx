@@ -209,6 +209,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/admin/alerts/{alertID}", Chain(http.HandlerFunc(s.adminAlertTransition), adminGuard(admin.ControlPlaneManage)))
 	mux.Handle("GET /api/v1/admin/workforce-taxonomy", Chain(http.HandlerFunc(s.adminWorkforceTaxonomy), adminGuard(admin.TaxonomyRead)))
 	mux.Handle("POST /api/v1/admin/workforce-taxonomy/provisional/{termID}/resolve", Chain(http.HandlerFunc(s.adminResolveWorkforceTaxonomyTerm), adminGuard(admin.TaxonomyManage)))
+	mux.Handle("GET /api/v1/admin/trust/risk-flags", Chain(http.HandlerFunc(s.adminTrustRiskFlags), adminGuard(admin.TrustRiskRead)))
+	mux.Handle("PATCH /api/v1/admin/trust/risk-flags/{flagID}", Chain(http.HandlerFunc(s.adminTrustRiskReview), adminGuard(admin.TrustRiskReview)))
 	mux.Handle("GET /api/v1/admin/intelligence", Chain(http.HandlerFunc(s.adminIntelligence), adminGuard(admin.IntelligenceRead, admin.IntelligenceMetricsRead)))
 	mux.Handle("POST /api/v1/admin/intelligence/run", Chain(http.HandlerFunc(s.adminRunIntelligence), adminGuard(admin.IntelligenceModelsEvaluate)))
 	mux.Handle("PATCH /api/v1/admin/intelligence/insights/{insightID}", Chain(http.HandlerFunc(s.adminReviewIntelligenceInsight), adminGuard(admin.IntelligenceFeedbackReview)))
