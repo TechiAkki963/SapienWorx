@@ -2,6 +2,7 @@ package messaging
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -315,10 +316,13 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 	var campaign OutreachCampaign
 	var firstTemplate string
 	var secondDelay *int
+	var storedLaunchKey *string
+	var storedLaunchResult []byte
 	rows, err := s.db.Query(ctx, `
 		SELECT c.id,c.name,c.sequence_id,s.name,c.job_id,j.title,c.status::text,
 		       c.total_recipients,c.sent_count,c.skipped_count,c.failed_count,
 		       c.launched_at,c.completed_at,c.created_at,c.updated_at,
+		       c.launch_idempotency_key,c.launch_result,
 		       first_step.template_id,
 		       second_step.delay_hours
 		FROM outreach_campaigns c
@@ -339,13 +343,28 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 		&campaign.ID, &campaign.Name, &campaign.SequenceID, &campaign.SequenceName, &campaign.JobID, &campaign.JobTitle, &campaign.Status,
 		&campaign.TotalRecipients, &campaign.SentCount, &campaign.SkippedCount, &campaign.FailedCount,
 		&campaign.LaunchedAt, &campaign.CompletedAt, &campaign.CreatedAt, &campaign.UpdatedAt,
+		&storedLaunchKey, &storedLaunchResult,
 		&firstTemplate, &secondDelay,
 	); err != nil {
 		rows.Close()
 		return OutreachCampaign{}, BulkInMailResult{}, err
 	}
 	rows.Close()
+	idempotencyKey = strings.TrimSpace(idempotencyKey)
+	if !idempotencyKeyPattern.MatchString(idempotencyKey) {
+		return OutreachCampaign{}, BulkInMailResult{}, ErrInvalidInput
+	}
 	if campaign.Status != "draft" {
+		if storedLaunchKey != nil && *storedLaunchKey == idempotencyKey && len(storedLaunchResult) > 0 {
+			var previous BulkInMailResult
+			if err := json.Unmarshal(storedLaunchResult, &previous); err != nil {
+				return OutreachCampaign{}, BulkInMailResult{}, err
+			}
+			return campaign, previous, nil
+		}
+		if storedLaunchKey != nil && *storedLaunchKey != idempotencyKey {
+			return OutreachCampaign{}, BulkInMailResult{}, ErrIdempotencyConflict
+		}
 		return OutreachCampaign{}, BulkInMailResult{}, ErrInvalidInput
 	}
 
@@ -438,6 +457,10 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 			}
 		}
 	}
+	launchResultJSON, err := json.Marshal(result)
+	if err != nil {
+		return OutreachCampaign{}, BulkInMailResult{}, err
+	}
 	status := "running"
 	var completedAt any
 	if secondDelay == nil {
@@ -448,9 +471,10 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 		UPDATE outreach_campaigns
 		SET status=$2,total_recipients=$3,sent_count=$4,skipped_count=$5,
 		    failed_count=(SELECT count(*) FROM outreach_campaign_enrollments WHERE campaign_id=$1 AND status='failed'),
-		    launched_at=COALESCE(launched_at,$6),completed_at=$7
+		    launched_at=COALESCE(launched_at,$6),completed_at=$7,
+		    launch_idempotency_key=$8,launch_result=$9::jsonb
 		WHERE id=$1
-	`, campaignID, status, len(candidateIDs), result.SentCount, result.SkippedCount, now, completedAt); err != nil {
+	`, campaignID, status, len(candidateIDs), result.SentCount, result.SkippedCount, now, completedAt, idempotencyKey, string(launchResultJSON)); err != nil {
 		return OutreachCampaign{}, BulkInMailResult{}, err
 	}
 	if err := tx.Commit(ctx); err != nil {
