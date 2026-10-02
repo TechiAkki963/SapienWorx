@@ -1,0 +1,3 @@
+BEGIN;
+DROP TABLE IF EXISTS trust_risk_flags;
+COMMIT;
