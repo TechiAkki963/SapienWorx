@@ -665,3 +665,69 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 	`)
 	return events,nil
 }
+
+
+func (s *Service) SetOutreachCampaignStatus(ctx context.Context, recruiterID, campaignID, next string) (OutreachCampaign, error) {
+	next = strings.ToLower(strings.TrimSpace(next))
+	if next != "paused" && next != "running" && next != "cancelled" {
+		return OutreachCampaign{}, ErrInvalidInput
+	}
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return OutreachCampaign{}, err
+	}
+	defer tx.Rollback(ctx)
+
+	var current string
+	if err := tx.QueryRow(ctx, `
+		SELECT status::text FROM outreach_campaigns
+		WHERE id=$1 AND recruiter_id=$2
+		FOR UPDATE
+	`, campaignID, recruiterID).Scan(&current); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return OutreachCampaign{}, ErrNotFound
+		}
+		return OutreachCampaign{}, err
+	}
+	allowed := false
+	switch current {
+	case "running":
+		allowed = next == "paused" || next == "cancelled"
+	case "paused":
+		allowed = next == "running" || next == "cancelled"
+	case "draft":
+		allowed = next == "cancelled"
+	}
+	if !allowed {
+		return OutreachCampaign{}, ErrInvalidInput
+	}
+	if _, err := tx.Exec(ctx, `
+		UPDATE outreach_campaigns
+		SET status=$3,completed_at=CASE WHEN $3='cancelled' THEN now() ELSE completed_at END
+		WHERE id=$1 AND recruiter_id=$2
+	`, campaignID, recruiterID, next); err != nil {
+		return OutreachCampaign{}, err
+	}
+	if next == "cancelled" {
+		if _, err := tx.Exec(ctx, `
+			UPDATE outreach_campaign_enrollments
+			SET status='stopped',stop_reason='campaign_cancelled',next_run_at=NULL
+			WHERE campaign_id=$1 AND status IN ('pending','active')
+		`, campaignID); err != nil {
+			return OutreachCampaign{}, err
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return OutreachCampaign{}, err
+	}
+	items, err := s.OutreachCampaigns(ctx, recruiterID)
+	if err != nil {
+		return OutreachCampaign{}, err
+	}
+	for _, item := range items {
+		if item.ID == campaignID {
+			return item, nil
+		}
+	}
+	return OutreachCampaign{}, ErrNotFound
+}
