@@ -207,9 +207,15 @@ func (s *Service) UpdateSequence(ctx context.Context, recruiterID, sequenceID st
 		return OutreachSequence{}, err
 	}
 	defer tx.Rollback(ctx)
-	var hasCampaign bool
-	if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM outreach_campaigns WHERE sequence_id=$1)`, sequenceID).Scan(&hasCampaign); err != nil {
+	var owned, hasCampaign bool
+	if err := tx.QueryRow(ctx, `
+		SELECT EXISTS(SELECT 1 FROM outreach_sequences WHERE id=$1 AND recruiter_id=$2),
+		       EXISTS(SELECT 1 FROM outreach_campaigns WHERE sequence_id=$1 AND recruiter_id=$2)
+	`, sequenceID, recruiterID).Scan(&owned, &hasCampaign); err != nil {
 		return OutreachSequence{}, err
+	}
+	if !owned {
+		return OutreachSequence{}, ErrNotFound
 	}
 	if hasCampaign {
 		return OutreachSequence{}, ErrForbidden
@@ -654,6 +660,10 @@ func (s *Service) processOutreachStep(ctx context.Context, job claimedOutreachSt
 	}
 
 	key := fmt.Sprintf("campaign:%s:%s:step:%d", job.CampaignID, job.CandidateID, job.StepOrder)
+	payloadHash, err := bulkPayloadHash([]string{job.CandidateID}, strings.TrimSpace(valueOrEmpty(job.JobID)), "", renderBulkTemplate(job.Subject, job.CandidateName, job.JobTitle), content)
+	if err != nil {
+		return OutreachDeliveryEvent{}, false, err
+	}
 	if _, err := tx.Exec(ctx, `
 		INSERT INTO outreach_delivery_log(campaign_id,candidate_id,step_order,thread_id,message_id,idempotency_key,status)
 		VALUES($1,$2,$3,$4,$5,$6,'sent')
@@ -662,7 +672,7 @@ func (s *Service) processOutreachStep(ctx context.Context, job claimedOutreachSt
 		return OutreachDeliveryEvent{}, false, err
 	}
 	result := BulkInMailResult{RequestedCount: 1, RecipientCount: 1, SentCount: 1, Status: "sent"}
-	if err := recordBulkBatch(ctx, tx, job.RecruiterID, job.CompanyID, key, key, result); err != nil {
+	if err := recordBulkBatch(ctx, tx, job.RecruiterID, job.CompanyID, key, payloadHash, result); err != nil {
 		return OutreachDeliveryEvent{}, false, err
 	}
 
@@ -702,6 +712,13 @@ func (s *Service) processOutreachStep(ctx context.Context, job claimedOutreachSt
 		  )
 	`, job.CampaignID)
 	return OutreachDeliveryEvent{CandidateID: job.CandidateID, ThreadID: job.ThreadID, Message: message}, true, nil
+}
+
+func valueOrEmpty(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
 }
 
 func limitOutreachError(value string) string {
