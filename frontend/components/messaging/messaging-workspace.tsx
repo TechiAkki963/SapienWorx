@@ -58,7 +58,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
   useEffect(() => {
     let disposed = false;
     let socket: WebSocket | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnectTimer: number | null = null;
     let attempt = 0;
 
     const base = (API_URL || window.location.origin).replace(/^http:/, "ws:").replace(/^https:/, "wss:");
