@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 
-import { apiRequest } from "@/lib/api";
+import { API_URL, apiRequest } from "@/lib/api";
 import { MessageBubble } from "@/components/messaging/message-bubble";
 import { TypingIndicator } from "@/components/messaging/typing-indicator";
 import { useSapienChat } from "@/hooks/use-sapien-chat";
@@ -53,6 +53,42 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
     const onVisible = () => { if (document.visibilityState === "visible") void refreshThreads(); };
     document.addEventListener("visibilitychange", onVisible);
     return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
+  }, [refreshThreads]);
+
+  useEffect(() => {
+    let disposed = false;
+    let socket: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let attempt = 0;
+
+    const base = (API_URL || window.location.origin).replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+
+    function connect() {
+      if (disposed) return;
+      socket = new WebSocket(`${base}/api/v1/messaging/inbox/ws`);
+      socket.onopen = () => { attempt = 0; };
+      socket.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(String(event.data)) as { type?: string };
+          if (payload.type === "inbox") void refreshThreads();
+        } catch {
+          // Ignore malformed server frames; periodic refresh remains the fallback.
+        }
+      };
+      socket.onerror = () => socket?.close();
+      socket.onclose = () => {
+        if (disposed) return;
+        attempt += 1;
+        reconnectTimer = window.setTimeout(connect, Math.min(10000, 750 * 2 ** Math.min(attempt, 4)));
+      };
+    }
+
+    connect();
+    return () => {
+      disposed = true;
+      if (reconnectTimer) window.clearTimeout(reconnectTimer);
+      socket?.close();
+    };
   }, [refreshThreads]);
 
   useEffect(() => {
