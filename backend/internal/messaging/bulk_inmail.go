@@ -32,14 +32,20 @@ type BulkInMailInput struct {
 	IdempotencyKey string   `json:"-"`
 }
 
+type BulkInMailDelivery struct {
+	CandidateID string `json:"candidate_id"`
+	ThreadID    string `json:"thread_id"`
+}
+
 type BulkInMailResult struct {
-	RequestedCount      int      `json:"requested_count"`
-	RecipientCount      int      `json:"recipient_count"`
-	SentCount           int      `json:"sent_count"`
-	SkippedCount        int      `json:"skipped_count"`
-	SkippedCandidateIDs []string `json:"skipped_candidate_ids"`
-	CooldownDays        int      `json:"cooldown_days"`
-	Status              string   `json:"status"`
+	RequestedCount      int                  `json:"requested_count"`
+	RecipientCount      int                  `json:"recipient_count"`
+	SentCount           int                  `json:"sent_count"`
+	SkippedCount        int                  `json:"skipped_count"`
+	SkippedCandidateIDs []string             `json:"skipped_candidate_ids"`
+	Deliveries          []BulkInMailDelivery `json:"deliveries,omitempty"`
+	CooldownDays        int                  `json:"cooldown_days"`
+	Status              string               `json:"status"`
 }
 
 type bulkRecipientPayload struct {
@@ -426,6 +432,7 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 	}
 
 	var inserted int
+	var deliveryJSON []byte
 	if err := tx.QueryRow(ctx, `
 		WITH payload AS (
 			SELECT *
@@ -454,9 +461,18 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 			       '/candidate/inbox?thread=' || t.id::text
 			FROM inserted_threads t
 			RETURNING id
+		),
+		deliveries AS (
+			SELECT COALESCE(jsonb_agg(jsonb_build_object(
+				'candidate_id', candidate_id::text,
+				'thread_id', id::text
+			) ORDER BY candidate_id), '[]'::jsonb) AS value
+			FROM inserted_threads
 		)
-		SELECT count(*) FROM inserted_messages
-	`, recruiterID, jobArg, string(payloadJSON)).Scan(&inserted); err != nil {
+		SELECT
+			(SELECT count(*) FROM inserted_messages),
+			(SELECT value FROM deliveries)
+	`, recruiterID, jobArg, string(payloadJSON)).Scan(&inserted, &deliveryJSON); err != nil {
 		return BulkInMailResult{}, err
 	}
 	if inserted != len(payload) {
@@ -465,6 +481,11 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 
 	result.RecipientCount = inserted
 	result.SentCount = inserted
+	if len(deliveryJSON) > 0 {
+		if err := json.Unmarshal(deliveryJSON, &result.Deliveries); err != nil {
+			return BulkInMailResult{}, err
+		}
+	}
 	if result.SkippedCount > 0 {
 		result.Status = "partial"
 	} else {
