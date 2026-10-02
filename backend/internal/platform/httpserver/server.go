@@ -33,6 +33,7 @@ type Server struct {
 	workforce     *workforce.Service
 	privacy       *privacy.Service
 	messages      *messagingRuntime
+	emailDelivery emailDeliveryRuntime
 	objectStorage storage.ObjectStore
 	cfg           config.Config
 }
@@ -79,6 +80,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 		}
 	}
 	mux.Handle("GET /api/v1/admin/access", Chain(http.HandlerFunc(s.adminAccessStatus), adminGuard()))
+	mux.Handle("GET /api/v1/admin/email-health", Chain(http.HandlerFunc(s.adminEmailHealth), adminGuard(admin.SystemRead)))
 	mux.Handle("POST /api/v1/admin/security/mfa/enroll", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 	mux.Handle("POST /api/v1/admin/security/mfa/verify", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 
