@@ -12,10 +12,13 @@ export class APIRequestError extends Error {
   }
 }
 
+const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_CSRF_COOKIE_NAME?.trim() || "sw_csrf";
+
 function csrfToken() {
   if (typeof document === "undefined") return "";
-  const item = document.cookie.split("; ").find((part) => part.startsWith("sw_csrf="));
-  return item ? decodeURIComponent(item.slice("sw_csrf=".length)) : "";
+  const prefix = `${CSRF_COOKIE_NAME}=`;
+  const item = document.cookie.split("; ").find((part) => part.startsWith(prefix));
+  return item ? decodeURIComponent(item.slice(prefix.length)) : "";
 }
 
 function authHeaders(init: RequestInit) {
