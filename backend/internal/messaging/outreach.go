@@ -329,16 +329,25 @@ func (s *Service) LaunchCampaign(ctx context.Context, recruiterID string, input 
 	if input.JobID != "" && !uuidPattern.MatchString(strings.TrimSpace(input.JobID)) {
 		return CampaignLaunchResult{}, ErrInvalidInput
 	}
+	payloadHash, err := campaignLaunchPayloadHash(input.SequenceID, input.JobID, name, candidateIDs)
+	if err != nil {
+		return CampaignLaunchResult{}, err
+	}
 
 	var existing OutreachCampaign
+	var existingPayloadHash string
 	err = s.db.QueryRow(ctx, `
 		SELECT id,recruiter_id,sequence_id,job_id,name,status::text,stop_on_reply,
-		       requested_count,enrolled_count,skipped_count,created_at,updated_at,completed_at
+		       requested_count,enrolled_count,skipped_count,created_at,updated_at,completed_at,
+		       launch_payload_hash
 		FROM outreach_campaigns
 		WHERE recruiter_id=$1 AND launch_key=$2
 	`, recruiterID, input.LaunchKey).
-		Scan(&existing.ID, &existing.RecruiterID, &existing.SequenceID, &existing.JobID, &existing.Name, &existing.Status, &existing.StopOnReply, &existing.RequestedCount, &existing.EnrolledCount, &existing.SkippedCount, &existing.CreatedAt, &existing.UpdatedAt, &existing.CompletedAt)
+		Scan(&existing.ID, &existing.RecruiterID, &existing.SequenceID, &existing.JobID, &existing.Name, &existing.Status, &existing.StopOnReply, &existing.RequestedCount, &existing.EnrolledCount, &existing.SkippedCount, &existing.CreatedAt, &existing.UpdatedAt, &existing.CompletedAt, &existingPayloadHash)
 	if err == nil {
+		if existingPayloadHash != payloadHash {
+			return CampaignLaunchResult{}, ErrIdempotencyConflict
+		}
 		return CampaignLaunchResult{Campaign: existing, Bulk: BulkInMailResult{
 			RequestedCount: existing.RequestedCount,
 			RecipientCount: existing.EnrolledCount,
@@ -376,11 +385,11 @@ func (s *Service) LaunchCampaign(ctx context.Context, recruiterID string, input 
 		jobArg = input.JobID
 	}
 	err = s.db.QueryRow(ctx, `
-		INSERT INTO outreach_campaigns(recruiter_id,sequence_id,launch_key,job_id,name,status,stop_on_reply,requested_count)
-		VALUES($1,$2,$3,$4,$5,'launching',$6,$7)
+		INSERT INTO outreach_campaigns(recruiter_id,sequence_id,launch_key,launch_payload_hash,job_id,name,status,stop_on_reply,requested_count)
+		VALUES($1,$2,$3,$4,$5,$6,'launching',$7,$8)
 		RETURNING id,recruiter_id,sequence_id,job_id,name,status::text,stop_on_reply,
 		          requested_count,enrolled_count,skipped_count,created_at,updated_at,completed_at
-	`, recruiterID, sequence.ID, input.LaunchKey, jobArg, name, sequence.StopOnReply, len(candidateIDs)).
+	`, recruiterID, sequence.ID, input.LaunchKey, payloadHash, jobArg, name, sequence.StopOnReply, len(candidateIDs)).
 		Scan(&campaign.ID, &campaign.RecruiterID, &campaign.SequenceID, &campaign.JobID, &campaign.Name, &campaign.Status, &campaign.StopOnReply, &campaign.RequestedCount, &campaign.EnrolledCount, &campaign.SkippedCount, &campaign.CreatedAt, &campaign.UpdatedAt, &campaign.CompletedAt)
 	if err != nil {
 		return CampaignLaunchResult{}, err
@@ -485,14 +494,19 @@ func (s *Service) LaunchCampaign(ctx context.Context, recruiterID string, input 
 }
 
 func (s *Service) SetCampaignStatus(ctx context.Context, recruiterID, campaignID, action string) error {
+	action = strings.TrimSpace(action)
 	var target string
-	switch strings.TrimSpace(action) {
+	var allowed []string
+	switch action {
 	case "pause":
 		target = "paused"
+		allowed = []string{"active"}
 	case "resume":
 		target = "active"
+		allowed = []string{"paused"}
 	case "cancel":
 		target = "cancelled"
+		allowed = []string{"launching", "active", "paused"}
 	default:
 		return ErrInvalidInput
 	}
@@ -502,8 +516,8 @@ func (s *Service) SetCampaignStatus(ctx context.Context, recruiterID, campaignID
 		    completed_at=CASE WHEN $3='cancelled' THEN now() ELSE completed_at END,
 		    updated_at=now()
 		WHERE id=$1 AND recruiter_id=$2
-		  AND status NOT IN ('completed','cancelled','failed')
-	`, campaignID, recruiterID, target)
+		  AND status::text=ANY($4::text[])
+	`, campaignID, recruiterID, target, allowed)
 	if err != nil {
 		return err
 	}
