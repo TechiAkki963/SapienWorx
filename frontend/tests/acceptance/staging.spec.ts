@@ -231,6 +231,13 @@ test.describe.serial("deployed staging acceptance", () => {
     expect(campaign.body.status).toBe("draft");
     expect(campaign.body.total_recipients).toBe(1);
 
+    const edited = await request(`/api/v1/recruiter/message-templates/${intro.body.id}`, "PATCH", {
+      title: `P2.3 intro edited ${suffix}`,
+      subject_template: "Edited after campaign review",
+      body_template: "Hi {{CandidateName}}, edited reusable template content.",
+    });
+    expect(edited.status).toBe(200);
+
     const key = crypto.randomUUID();
     const launched = await request(
       `/api/v1/recruiter/outreach/campaigns/${campaign.body.id}/launch`,
