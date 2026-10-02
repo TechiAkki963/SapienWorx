@@ -198,8 +198,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
                   type="button"
                   aria-current={active ? "true" : undefined}
                   onClick={() => selectThread(thread.id)}
-                  style={active ? { backgroundColor: "var(--swx-messaging-active-row, rgb(255 255 255 / 0.96))" } : undefined}
-                  className={`swx-thread-row ${active ? "swx-thread-row-active" : ""} mb-1 flex w-full gap-3 rounded-2xl p-3 text-left transition ${active ? "shadow-[0_8px_24px_rgba(79,70,229,0.10)] ring-1 ring-indigo-100" : "hover:bg-white/75"}`}
+                  className={`swx-thread-row ${active ? "swx-thread-row-active" : ""} mb-1 flex w-full gap-3 rounded-2xl p-3 text-left transition-shadow ${active ? "shadow-[0_8px_24px_rgba(79,70,229,0.10)] ring-1 ring-indigo-100" : "hover:bg-white/75"}`}
                 >
                   <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xs font-extrabold ${active ? "bg-indigo text-white" : "bg-indigo-100 text-indigo-700"}`}>{initials(thread.counterparty_name)}</span>
                   <span className="min-w-0 flex-1">
