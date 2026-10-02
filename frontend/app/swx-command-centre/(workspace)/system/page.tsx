@@ -3,6 +3,19 @@ import { adminAPI } from "@/lib/admin-server";
 import { requireAdminWorkspace } from "@/lib/admin-access-server";
 import type { AdminBudgetSettings, AdminMetrics } from "@/lib/admin";
 
+type EmailHealth = {
+  enabled: boolean;
+  provider: { provider?: string; region?: string; from_address?: string; sending_enabled?: boolean; production_access_enabled?: boolean; enforcement_status?: string };
+  pending: number;
+  failed: number;
+  sent_24h: number;
+  suppressed: number;
+  bounces: number;
+  complaints: number;
+  oldest_pending_at?: string;
+  checked_at: string;
+};
+
 function HealthCard({ label, value, detail, tone = "indigo" }: { label: string; value: string; detail: string; tone?: "indigo" | "emerald" | "amber" | "red" }) {
   const styles = tone === "emerald" ? "from-emerald-50 to-white border-emerald-100" : tone === "amber" ? "from-amber-50 to-white border-amber-100" : tone === "red" ? "from-red-50 to-white border-red-100" : "from-indigo-50 to-white border-indigo-100";
   return <div className={`rounded-[1.3rem] border bg-gradient-to-br p-5 shadow-[0_12px_32px_rgba(23,37,84,0.045)] ${styles}`}><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-500">{label}</p><p className="mt-3 text-3xl font-black tracking-[-0.04em] text-slate-950">{value}</p><p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p></div>;
@@ -10,9 +23,10 @@ function HealthCard({ label, value, detail, tone = "indigo" }: { label: string; 
 
 export default async function AdminSystemPage() {
   await requireAdminWorkspace("system.read");
-  const [metrics, settings] = await Promise.all([
+  const [metrics, settings, email] = await Promise.all([
     adminAPI<AdminMetrics>("/api/v1/admin/metrics"),
     adminAPI<AdminBudgetSettings>("/api/v1/admin/budget-settings"),
+    adminAPI<EmailHealth>("/api/v1/admin/email-health"),
   ]);
   const cycle = metrics.sns_sms_sent_billing_cycle;
   const severity = cycle >= settings.sns_sms_critical_count ? "critical" : cycle >= settings.sns_sms_warning_count ? "warning" : "normal";
@@ -31,6 +45,29 @@ export default async function AdminSystemPage() {
         <HealthCard label="Candidates" value={metrics.total_candidates.toLocaleString("en-IN")} detail="Total candidate accounts tracked by the platform" />
         <HealthCard label="SNS SMS today" value={metrics.sns_sms_sent_today.toLocaleString("en-IN")} detail="Successful AWS SNS sends recorded today" tone="amber" />
         <HealthCard label="SNS billing cycle" value={cycle.toLocaleString("en-IN")} detail={`Messages since ${new Date(metrics.sns_billing_cycle_start).toLocaleDateString("en-IN")}`} tone={severity === "critical" ? "red" : "amber"} />
+      </div>
+
+      <div className="rounded-[1.35rem] border border-[#e1e5ef] bg-white p-5 shadow-[0_10px_30px_rgba(23,37,84,0.04)]">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#5262c9]">Transactional email</p>
+            <h2 className="mt-2 text-lg font-bold text-slate-950">Amazon SES delivery health</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Security-code email delivery, retry state and suppression protection. Production access remains a separate AWS approval gate.</p>
+          </div>
+          <span className={`rounded-full border px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] ${email.enabled ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>{email.enabled ? "Dispatcher enabled" : "Dispatcher disabled"}</span>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <HealthCard label="Queued" value={email.pending.toLocaleString("en-IN")} detail={email.oldest_pending_at ? `Oldest waiting since ${new Date(email.oldest_pending_at).toLocaleString("en-IN")}` : "No waiting email"} tone={email.pending > 0 ? "amber" : "emerald"} />
+          <HealthCard label="Failed" value={email.failed.toLocaleString("en-IN")} detail="Messages waiting for a bounded retry" tone={email.failed > 0 ? "red" : "emerald"} />
+          <HealthCard label="Sent · 24h" value={email.sent_24h.toLocaleString("en-IN")} detail="Accepted by the configured email provider" tone="indigo" />
+          <HealthCard label="Suppressed" value={email.suppressed.toLocaleString("en-IN")} detail={`${email.bounces.toLocaleString("en-IN")} bounce · ${email.complaints.toLocaleString("en-IN")} complaint`} tone={email.suppressed > 0 ? "amber" : "emerald"} />
+        </div>
+        <div className="mt-4 grid gap-3 rounded-xl bg-slate-50 p-4 text-xs text-slate-500 sm:grid-cols-2 lg:grid-cols-4">
+          <div><span className="block font-bold text-slate-700">Region</span>{email.provider.region ?? "Not connected"}</div>
+          <div><span className="block font-bold text-slate-700">Sender</span>{email.provider.from_address ?? "Not connected"}</div>
+          <div><span className="block font-bold text-slate-700">SES sending</span>{email.provider.sending_enabled === undefined ? "Not checked" : email.provider.sending_enabled ? "Enabled" : "Disabled"}</div>
+          <div><span className="block font-bold text-slate-700">Production access</span>{email.provider.production_access_enabled === undefined ? "Separate AWS gate" : email.provider.production_access_enabled ? "Approved" : "Sandbox / not approved"}</div>
+        </div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_.8fr]">
