@@ -26,7 +26,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
     <div className="theme-surface min-h-screen bg-[#f5f7fb] text-ink">
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/95">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[108rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <Link href="/recruiter" aria-label="Recruiter dashboard" className="shrink-0"><Wordmark /></Link>
+          <Link href="/recruiter" aria-label="Recruiter dashboard" className="shrink-0 max-[340px]:[&_.swx-wordmark-label]:hidden"><Wordmark /></Link>
 
           <form action="/recruiter/pipeline" className="hidden min-w-0 max-w-xl flex-1 md:block">
             <label className="relative block">

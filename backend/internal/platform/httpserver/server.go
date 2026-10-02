@@ -38,7 +38,7 @@ type Server struct {
 }
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, workforceService *workforce.Service, logger *slog.Logger) *Server {
-	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, workforce: workforceService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db, cfg.Messaging), cfg: cfg}
+	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, workforce: workforceService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db, cfg.Messaging, logger), cfg: cfg}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health/live", s.live)
 	mux.HandleFunc("GET /health/ready", s.ready)
@@ -168,6 +168,12 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("DELETE /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/inmail", Chain(http.HandlerFunc(s.recruiterInitiateInMail), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/inmail/bulk", Chain(http.HandlerFunc(s.recruiterBulkInMail), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/outreach/sequences", Chain(http.HandlerFunc(s.recruiterOutreachSequences), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/sequences", Chain(http.HandlerFunc(s.recruiterOutreachSequences), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/outreach/campaigns", Chain(http.HandlerFunc(s.recruiterOutreachCampaigns), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/campaigns", Chain(http.HandlerFunc(s.recruiterOutreachCampaigns), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/campaigns/{campaignID}/launch", Chain(http.HandlerFunc(s.recruiterOutreachCampaignLaunch), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/outreach/campaigns/{campaignID}", Chain(http.HandlerFunc(s.recruiterOutreachCampaignStatus), protected, recruiterOnly))
 
 	messagingUsers := RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)
 	mux.Handle("GET /api/v1/messaging/threads", Chain(http.HandlerFunc(s.messagingThreads), protected, messagingUsers, candidateActivity))

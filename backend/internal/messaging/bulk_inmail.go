@@ -32,14 +32,20 @@ type BulkInMailInput struct {
 	IdempotencyKey string   `json:"-"`
 }
 
+type BulkInMailDelivery struct {
+	CandidateID string `json:"candidate_id"`
+	ThreadID    string `json:"thread_id"`
+}
+
 type BulkInMailResult struct {
-	RequestedCount      int      `json:"requested_count"`
-	RecipientCount      int      `json:"recipient_count"`
-	SentCount           int      `json:"sent_count"`
-	SkippedCount        int      `json:"skipped_count"`
-	SkippedCandidateIDs []string `json:"skipped_candidate_ids"`
-	CooldownDays        int      `json:"cooldown_days"`
-	Status              string   `json:"status"`
+	RequestedCount      int                  `json:"requested_count"`
+	RecipientCount      int                  `json:"recipient_count"`
+	SentCount           int                  `json:"sent_count"`
+	SkippedCount        int                  `json:"skipped_count"`
+	SkippedCandidateIDs []string             `json:"skipped_candidate_ids"`
+	Deliveries          []BulkInMailDelivery `json:"deliveries,omitempty"`
+	CooldownDays        int                  `json:"cooldown_days"`
+	Status              string               `json:"status"`
 }
 
 type bulkRecipientPayload struct {
@@ -123,9 +129,12 @@ func (s *Service) enforceBulkBudget(ctx context.Context, tx pgx.Tx, recruiterID,
 	var recruiterHour, recruiterDay, companyDay int
 	if err := tx.QueryRow(ctx, `
 		SELECT
-			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '1 hour'),0),
-			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '24 hours'),0),
+			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '1 hour'),0)
+			  + COALESCE((SELECT sum(recipient_count) FROM outreach_send_ledger WHERE recruiter_id=$1 AND created_at >= now()-interval '1 hour'),0),
+			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE recruiter_id=$1 AND created_at >= now()-interval '24 hours'),0)
+			  + COALESCE((SELECT sum(recipient_count) FROM outreach_send_ledger WHERE recruiter_id=$1 AND created_at >= now()-interval '24 hours'),0),
 			COALESCE((SELECT sum(recipient_count) FROM bulk_inmail_batches WHERE company_id=$2 AND created_at >= now()-interval '24 hours'),0)
+			  + COALESCE((SELECT sum(recipient_count) FROM outreach_send_ledger WHERE company_id=$2 AND created_at >= now()-interval '24 hours'),0)
 	`, recruiterID, companyID).Scan(&recruiterHour, &recruiterDay, &companyDay); err != nil {
 		return err
 	}
@@ -426,6 +435,7 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 	}
 
 	var inserted int
+	var deliveryJSON []byte
 	if err := tx.QueryRow(ctx, `
 		WITH payload AS (
 			SELECT *
@@ -454,9 +464,18 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 			       '/candidate/inbox?thread=' || t.id::text
 			FROM inserted_threads t
 			RETURNING id
+		),
+		deliveries AS (
+			SELECT COALESCE(jsonb_agg(jsonb_build_object(
+				'candidate_id', candidate_id::text,
+				'thread_id', id::text
+			) ORDER BY candidate_id), '[]'::jsonb) AS value
+			FROM inserted_threads
 		)
-		SELECT count(*) FROM inserted_messages
-	`, recruiterID, jobArg, string(payloadJSON)).Scan(&inserted); err != nil {
+		SELECT
+			(SELECT count(*) FROM inserted_messages),
+			(SELECT value FROM deliveries)
+	`, recruiterID, jobArg, string(payloadJSON)).Scan(&inserted, &deliveryJSON); err != nil {
 		return BulkInMailResult{}, err
 	}
 	if inserted != len(payload) {
@@ -465,6 +484,11 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 
 	result.RecipientCount = inserted
 	result.SentCount = inserted
+	if len(deliveryJSON) > 0 {
+		if err := json.Unmarshal(deliveryJSON, &result.Deliveries); err != nil {
+			return BulkInMailResult{}, err
+		}
+	}
 	if result.SkippedCount > 0 {
 		result.Status = "partial"
 	} else {

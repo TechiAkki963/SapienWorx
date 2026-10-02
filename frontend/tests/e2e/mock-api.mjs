@@ -113,6 +113,41 @@ function initialState() {
     candidateNotifications: [
       {id:"75000000-0000-4000-8000-000000000001",kind:"inmail",title:"New message from a recruiter",body:"Senior Go Platform Engineer opportunity",action_url:"/candidate/inbox?thread=73000000-0000-4000-8000-000000000001",read_at:null,created_at:new Date(Date.now()-8*60000).toISOString()},
     ],
+    messageTemplates: [
+      {id:"72000000-0000-4000-8000-000000000001",recruiter_id:recruiterID,title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you.",created_at:new Date(Date.now()-4*86400000).toISOString(),updated_at:new Date(Date.now()-4*86400000).toISOString()},
+      {id:"72000000-0000-4000-8000-000000000002",recruiter_id:recruiterID,title:"Gentle follow-up",subject_template:"Following up about {{JobTitle}}",body_template:"Hi {{CandidateName}}, just following up in case our {{JobTitle}} opportunity is relevant for you.",created_at:new Date(Date.now()-3*86400000).toISOString(),updated_at:new Date(Date.now()-3*86400000).toISOString()},
+    ],
+    outreachSequences: [
+      {
+        id:"76000000-0000-4000-8000-000000000001",
+        name:"Priority role follow-up",
+        status:"active",
+        steps:[
+          {id:"76100000-0000-4000-8000-000000000001",step_order:1,delay_hours:0,template_id:"72000000-0000-4000-8000-000000000001",title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you."},
+          {id:"76100000-0000-4000-8000-000000000002",step_order:2,delay_hours:48,template_id:"72000000-0000-4000-8000-000000000002",title:"Gentle follow-up",subject_template:"Following up about {{JobTitle}}",body_template:"Hi {{CandidateName}}, just following up in case our {{JobTitle}} opportunity is relevant for you."},
+        ],
+        created_at:new Date(Date.now()-2*86400000).toISOString(),
+        updated_at:new Date(Date.now()-2*86400000).toISOString(),
+      },
+    ],
+    outreachCampaigns: [
+      {
+        id:"77000000-0000-4000-8000-000000000001",
+        name:"Mumbai platform hiring",
+        sequence_id:"76000000-0000-4000-8000-000000000001",
+        sequence_name:"Priority role follow-up",
+        job_id:jobID,
+        job_title:"Senior Go Platform Engineer",
+        status:"running",
+        total_recipients:3,
+        sent_count:3,
+        skipped_count:0,
+        failed_count:0,
+        launched_at:new Date(Date.now()-6*3600000).toISOString(),
+        created_at:new Date(Date.now()-7*3600000).toISOString(),
+        updated_at:new Date(Date.now()-6*3600000).toISOString(),
+      },
+    ],
     adminAccess: { enabled: false, assigned: true, admin_role: "support_admin", mfa_enrolled: false, mfa_verified: false },
   };
 }
@@ -794,9 +829,87 @@ const server = http.createServer(async (req, res) => {
     {candidate_id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",current_city:"Navi Mumbai",experience_months:72,notice_period_days:15,tags:["Healthcare","Critical Care"],saved_at:new Date(Date.now()-2*86400000).toISOString()},
     {candidate_id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",current_city:"Pune",experience_months:60,notice_period_days:0,tags:["B2B Sales","CRM"],saved_at:new Date(Date.now()-86400000).toISOString()}
   ] });
-  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "GET") return json(res, 200, { items: [
-    {id:"72000000-0000-4000-8000-000000000001",title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you."}
-  ] });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "GET") return json(res, 200, { items: state.messageTemplates });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "POST") {
+    const item = {
+      id:`72000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      recruiter_id:recruiterID,
+      title:String(payload.title ?? ""),
+      subject_template:String(payload.subject_template ?? ""),
+      body_template:String(payload.body_template ?? ""),
+      created_at:now(),
+      updated_at:now(),
+    };
+    state.messageTemplates.unshift(item);
+    return json(res, 201, item);
+  }
+  if (url.pathname === "/api/v1/recruiter/outreach/sequences" && req.method === "GET") return json(res, 200, { items: state.outreachSequences });
+  if (url.pathname === "/api/v1/recruiter/outreach/sequences" && req.method === "POST") {
+    const steps = Array.isArray(payload.steps) ? payload.steps : [];
+    const item = {
+      id:`76000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      name:String(payload.name ?? ""),
+      status:"active",
+      steps:steps.map((step,index) => {
+        const template=state.messageTemplates.find((candidate)=>candidate.id===step.template_id);
+        return {
+          id:`76100000-0000-4000-8000-${String(Date.now()+index).slice(-12).padStart(12,"0")}`,
+          step_order:index+1,
+          delay_hours:Number(step.delay_hours ?? 0),
+          template_id:String(step.template_id ?? ""),
+          title:template?.title ?? "Template",
+          subject_template:template?.subject_template ?? "",
+          body_template:template?.body_template ?? "",
+        };
+      }),
+      created_at:now(),
+      updated_at:now(),
+    };
+    state.outreachSequences.unshift(item);
+    return json(res, 201, item);
+  }
+  if (url.pathname === "/api/v1/recruiter/outreach/campaigns" && req.method === "GET") return json(res, 200, { items: state.outreachCampaigns });
+  if (url.pathname === "/api/v1/recruiter/outreach/campaigns" && req.method === "POST") {
+    const sequence=state.outreachSequences.find((candidate)=>candidate.id===payload.sequence_id);
+    const selectedJob=String(payload.job_id ?? "");
+    const item={
+      id:`77000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      name:String(payload.name ?? ""),
+      sequence_id:String(payload.sequence_id ?? ""),
+      sequence_name:sequence?.name ?? "Sequence",
+      job_id:selectedJob || undefined,
+      job_title:selectedJob ? "Senior Go Platform Engineer" : undefined,
+      status:"draft",
+      total_recipients:Array.isArray(payload.candidate_ids) ? payload.candidate_ids.length : 0,
+      sent_count:0,
+      skipped_count:0,
+      failed_count:0,
+      created_at:now(),
+      updated_at:now(),
+    };
+    state.outreachCampaigns.unshift(item);
+    return json(res, 201, item);
+  }
+  const outreachLaunchMatch=url.pathname.match(/^\/api\/v1\/recruiter\/outreach\/campaigns\/([^/]+)\/launch$/);
+  if (outreachLaunchMatch && req.method === "POST") {
+    if (!req.headers["x-idempotency-key"]) return json(res, 400, {error:{code:"invalid_request",message:"messaging input is invalid"}});
+    const item=state.outreachCampaigns.find((candidate)=>candidate.id===outreachLaunchMatch[1]);
+    if (!item) return json(res,404,{error:{code:"not_found",message:"messaging resource was not found"}});
+    item.status="running";
+    item.sent_count=item.total_recipients;
+    item.launched_at=now();
+    item.updated_at=now();
+    return json(res,200,{campaign:item,delivery:{requested_count:item.total_recipients,recipient_count:item.total_recipients,sent_count:item.total_recipients,skipped_count:0,skipped_candidate_ids:[],cooldown_days:14,status:"sent"}});
+  }
+  const outreachCampaignMatch=url.pathname.match(/^\/api\/v1\/recruiter\/outreach\/campaigns\/([^/]+)$/);
+  if (outreachCampaignMatch && req.method === "PATCH") {
+    const item=state.outreachCampaigns.find((candidate)=>candidate.id===outreachCampaignMatch[1]);
+    if (!item) return json(res,404,{error:{code:"not_found",message:"messaging resource was not found"}});
+    item.status=String(payload.status ?? item.status);
+    item.updated_at=now();
+    if (item.status==="cancelled") item.completed_at=now();
+    return json(res,200,item);
+  }
   if (url.pathname === "/api/v1/recruiter/inmail/bulk" && req.method === "POST") {
     const ids = Array.isArray(payload.candidate_ids) ? Array.from(new Set(payload.candidate_ids)) : [];
     if (!req.headers["x-idempotency-key"]) return json(res, 400, { error: { code: "invalid_request", message: "messaging input is invalid" } });
