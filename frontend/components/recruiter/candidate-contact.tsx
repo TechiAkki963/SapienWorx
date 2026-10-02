@@ -73,7 +73,7 @@ export function CandidateContact({
   }
 
   if (compact) {
-    const label = contact ? current : maskedPhone || "Contact unavailable";
+    const label = contact ? current : maskedPhone ? "••••••••••" : "Contact unavailable";
     return (
       <div className="min-w-0">
         <button
