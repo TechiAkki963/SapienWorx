@@ -23,9 +23,9 @@ test("outreach campaigns stay clear from laptop to mobile and dark mode", async 
   await login(page, "recruiter");
   await page.goto("/recruiter/outreach");
 
-  await expect(page.getByRole("heading", { name: "Outreach" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Outreach", exact: true })).toBeVisible();
   await expect(page.getByText("Mumbai operations outreach")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Campaigns/ })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tab", { name: /Campaigns/ })).toHaveAttribute("aria-selected", "true");
   await noOverflow(page, "outreach campaigns 1440");
   await page.screenshot({ path: "../output/p2.3-outreach-campaigns-1440.png", fullPage: true });
 
@@ -50,7 +50,7 @@ test("recruiter can create and activate a sequence then save a template", async 
   await login(page, "recruiter");
   await page.goto("/recruiter/outreach");
 
-  await page.getByRole("button", { name: /Sequences/ }).click();
+  await page.getByRole("tab", { name: /Sequences/ }).click();
   await page.getByLabel("Sequence name").fill("Healthcare specialist follow-up");
   await page.getByLabel("Description").fill("A careful two-step follow-up for shortlisted healthcare candidates.");
   await page.getByLabel("Step 1 subject").fill("{{JobTitle}} opportunity");
@@ -68,7 +68,7 @@ test("recruiter can create and activate a sequence then save a template", async 
   await expect(page.getByText("Sequence activated.")).toBeVisible();
   await page.screenshot({ path: "../output/p2.3-outreach-sequences-1440.png", fullPage: true });
 
-  await page.getByRole("button", { name: /Templates/ }).click();
+  await page.getByRole("tab", { name: /Templates/ }).click();
   await page.getByLabel("Template title").fill("Healthcare introduction");
   await page.getByLabel("Subject").fill("{{JobTitle}} opportunity");
   await page.getByLabel("Message").fill("Hi {{CandidateName}}, your experience looks relevant for {{JobTitle}}.");
