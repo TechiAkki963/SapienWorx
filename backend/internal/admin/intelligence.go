@@ -103,26 +103,49 @@ type IntelligenceGatewayMetrics struct {
 }
 
 type IntelligenceStoreMetrics struct {
-	PendingEvents     int64 `json:"pending_events"`
-	FailedEvents      int64 `json:"failed_events"`
-	CandidateFeatures int64 `json:"candidate_features"`
-	JobFeatures       int64 `json:"job_features"`
-	MatchResults      int64 `json:"match_results"`
-	FeedbackEvents    int64 `json:"feedback_events"`
+	PendingEvents        int64   `json:"pending_events"`
+	FailedEvents         int64   `json:"failed_events"`
+	DeadLetters          int64   `json:"dead_letters"`
+	CandidateFeatures    int64   `json:"candidate_features"`
+	JobFeatures          int64   `json:"job_features"`
+	MatchResults         int64   `json:"match_results"`
+	FeedbackEvents       int64   `json:"feedback_events"`
+	EmbeddingDocuments   int64   `json:"embedding_documents"`
+	OpenHumanReviews     int64   `json:"open_human_reviews"`
+	OldestPendingSeconds float64 `json:"oldest_pending_seconds"`
 }
 
 type IntelligenceDashboard struct {
-	Runs         []IntelligenceRunRecord        `json:"runs"`
-	Insights     []IntelligenceInsightRecord    `json:"insights"`
-	Models       []IntelligenceModelRecord      `json:"models"`
-	Evaluations  []IntelligenceEvaluationRecord `json:"evaluations"`
-	Switches     []IntelligenceSwitchRecord     `json:"switches"`
-	Heartbeats   []IntelligenceHeartbeatRecord  `json:"heartbeats"`
-	Prompts      []IntelligencePromptRecord     `json:"prompts"`
-	Gateway      IntelligenceGatewayMetrics     `json:"gateway"`
-	Store        IntelligenceStoreMetrics       `json:"store"`
-	ComputedAt   time.Time                      `json:"computed_at"`
-	AdvisoryOnly bool                           `json:"advisory_only"`
+	Runs         []IntelligenceRunRecord         `json:"runs"`
+	Insights     []IntelligenceInsightRecord     `json:"insights"`
+	Models       []IntelligenceModelRecord       `json:"models"`
+	Evaluations  []IntelligenceEvaluationRecord  `json:"evaluations"`
+	Switches     []IntelligenceSwitchRecord      `json:"switches"`
+	Heartbeats   []IntelligenceHeartbeatRecord   `json:"heartbeats"`
+	Prompts      []IntelligencePromptRecord      `json:"prompts"`
+	HumanReviews []IntelligenceHumanReviewRecord `json:"human_reviews"`
+	Gateway      IntelligenceGatewayMetrics      `json:"gateway"`
+	Store        IntelligenceStoreMetrics        `json:"store"`
+	ComputedAt   time.Time                       `json:"computed_at"`
+	AdvisoryOnly bool                            `json:"advisory_only"`
+}
+
+type IntelligenceHumanReviewRecord struct {
+	ID             string         `json:"id"`
+	ReviewType     string         `json:"review_type"`
+	SubjectType    string         `json:"subject_type"`
+	SubjectID      *string        `json:"subject_id,omitempty"`
+	Priority       string         `json:"priority"`
+	ReasonCode     string         `json:"reason_code"`
+	Evidence       map[string]any `json:"evidence"`
+	Recommendation map[string]any `json:"recommendation"`
+	Status         string         `json:"status"`
+	AssignedTo     *string        `json:"assigned_to,omitempty"`
+	ReviewedBy     *string        `json:"reviewed_by,omitempty"`
+	ReviewNote     string         `json:"review_note"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	ReviewedAt     *time.Time     `json:"reviewed_at,omitempty"`
 }
 
 type IntelligenceQueueResult struct {
@@ -148,7 +171,7 @@ func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, erro
 	out := IntelligenceDashboard{
 		ComputedAt: s.now().UTC(), AdvisoryOnly: true,
 		Runs: []IntelligenceRunRecord{}, Insights: []IntelligenceInsightRecord{}, Models: []IntelligenceModelRecord{},
-		Evaluations: []IntelligenceEvaluationRecord{}, Switches: []IntelligenceSwitchRecord{}, Heartbeats: []IntelligenceHeartbeatRecord{}, Prompts: []IntelligencePromptRecord{},
+		Evaluations: []IntelligenceEvaluationRecord{}, Switches: []IntelligenceSwitchRecord{}, Heartbeats: []IntelligenceHeartbeatRecord{}, Prompts: []IntelligencePromptRecord{}, HumanReviews: []IntelligenceHumanReviewRecord{},
 	}
 	rows, err := s.db.Query(ctx, `SELECT id,engine_version,status,metrics,requested_by,started_at,completed_at FROM intelligence_runs ORDER BY completed_at DESC LIMIT 20`)
 	if err != nil {
@@ -286,17 +309,57 @@ func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, erro
 	}
 	rows.Close()
 
+	rows, err = s.db.Query(ctx, `SELECT id,review_type,subject_type,subject_id,priority,reason_code,evidence,recommendation,status,assigned_to,reviewed_by,review_note,created_at,updated_at,reviewed_at
+		FROM intelligence.human_review_queue
+		WHERE status IN ('open','in_review')
+		ORDER BY CASE priority WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END, created_at
+		LIMIT 100`)
+	if err != nil {
+		return out, err
+	}
+	for rows.Next() {
+		var v IntelligenceHumanReviewRecord
+		var evidenceRaw, recommendationRaw []byte
+		if err = rows.Scan(&v.ID, &v.ReviewType, &v.SubjectType, &v.SubjectID, &v.Priority, &v.ReasonCode, &evidenceRaw, &recommendationRaw, &v.Status, &v.AssignedTo, &v.ReviewedBy, &v.ReviewNote, &v.CreatedAt, &v.UpdatedAt, &v.ReviewedAt); err != nil {
+			rows.Close()
+			return out, err
+		}
+		_ = json.Unmarshal(evidenceRaw, &v.Evidence)
+		_ = json.Unmarshal(recommendationRaw, &v.Recommendation)
+		out.HumanReviews = append(out.HumanReviews, v)
+	}
+	if err = rows.Err(); err != nil {
+		rows.Close()
+		return out, err
+	}
+	rows.Close()
+
 	err = s.db.QueryRow(ctx, `SELECT count(*),count(*) FILTER(WHERE status='failed'),count(*) FILTER(WHERE status='blocked'),COALESCE(sum(estimated_cost),0)::float8,COALESCE(avg(latency_ms),0)::float8,COALESCE(sum(redaction_count),0) FROM intelligence.gateway_requests WHERE occurred_at>=now()-interval '24 hours'`).Scan(&out.Gateway.Requests24h, &out.Gateway.Failures24h, &out.Gateway.Blocked24h, &out.Gateway.EstimatedCost24h, &out.Gateway.AvgLatencyMS24h, &out.Gateway.Redactions24h)
 	if err != nil {
 		return out, err
 	}
 	err = s.db.QueryRow(ctx, `SELECT
 		(SELECT count(*) FROM intelligence.events WHERE status='pending'),
-		(SELECT count(*) FROM intelligence.events WHERE status='failed'),
+		(SELECT count(*) FROM intelligence.events WHERE status='failed' AND available_at < now()+interval '1 year'),
+		(SELECT count(*) FROM intelligence.dead_letters),
 		(SELECT count(*) FROM intelligence.candidate_features),
 		(SELECT count(*) FROM intelligence.job_features),
 		(SELECT count(*) FROM intelligence.match_results),
-		(SELECT count(*) FROM intelligence.feedback_events)`).Scan(&out.Store.PendingEvents, &out.Store.FailedEvents, &out.Store.CandidateFeatures, &out.Store.JobFeatures, &out.Store.MatchResults, &out.Store.FeedbackEvents)
+		(SELECT count(*) FROM intelligence.feedback_events),
+		(SELECT count(*) FROM intelligence.embedding_documents),
+		(SELECT count(*) FROM intelligence.human_review_queue WHERE status IN ('open','in_review')),
+		COALESCE((SELECT extract(epoch FROM (now()-min(created_at))) FROM intelligence.events WHERE status='pending'),0)::float8`).Scan(
+		&out.Store.PendingEvents,
+		&out.Store.FailedEvents,
+		&out.Store.DeadLetters,
+		&out.Store.CandidateFeatures,
+		&out.Store.JobFeatures,
+		&out.Store.MatchResults,
+		&out.Store.FeedbackEvents,
+		&out.Store.EmbeddingDocuments,
+		&out.Store.OpenHumanReviews,
+		&out.Store.OldestPendingSeconds,
+	)
 	return out, err
 }
 
@@ -580,4 +643,47 @@ func (s *Service) ActivateIntelligencePrompt(ctx context.Context, promptID, acto
 		return err
 	}
 	return s.Audit(ctx, AuditInput{AdminID: &actor, ActionType: "intelligence.prompt.activated", TargetEntityType: "intelligence_prompt", TargetEntityID: &promptID, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"prompt_key": promptKey, "approval_id": approvalID}})
+}
+
+func (s *Service) ReviewIntelligenceCase(ctx context.Context, id, actor, status, note, ip, requestID string) error {
+	id = strings.TrimSpace(id)
+	actor = strings.TrimSpace(actor)
+	status = strings.ToLower(strings.TrimSpace(status))
+	note = strings.TrimSpace(note)
+	if !validResourceID(id) || !validResourceID(actor) || (status != "resolved" && status != "dismissed" && status != "in_review") || len(note) > 4000 {
+		return ErrInvalid
+	}
+	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	var current string
+	if err = tx.QueryRow(ctx, `SELECT status FROM intelligence.human_review_queue WHERE id=$1 FOR UPDATE`, id).Scan(&current); errors.Is(err, pgx.ErrNoRows) {
+		return ErrNotFound
+	} else if err != nil {
+		return err
+	}
+	if current == "resolved" || current == "dismissed" {
+		return ErrConflict
+	}
+	_, err = tx.Exec(ctx, `UPDATE intelligence.human_review_queue
+		SET status=$2,
+		    reviewed_by=CASE WHEN $2 IN ('resolved','dismissed') THEN $3::uuid ELSE reviewed_by END,
+		    reviewed_at=CASE WHEN $2 IN ('resolved','dismissed') THEN now() ELSE reviewed_at END,
+		    review_note=$4,
+		    updated_at=now()
+		WHERE id=$1`, id, status, actor, note)
+	if err != nil {
+		return err
+	}
+	meta, _ := json.Marshal(map[string]any{"status": status})
+	if _, err = tx.Exec(ctx, `INSERT INTO intelligence.audit_events(actor_id,event_type,target_type,target_id,metadata)
+		VALUES($1,'intelligence.review.updated','human_review',$2,$3)`, actor, id, meta); err != nil {
+		return err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return err
+	}
+	return s.Audit(ctx, AuditInput{AdminID: &actor, ActionType: "intelligence.review.updated", TargetEntityType: "intelligence_human_review", TargetEntityID: &id, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"status": status}})
 }
