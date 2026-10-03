@@ -17,6 +17,7 @@ export function RecruiterProductHeader({
 }) {
   return (
     <header
+      data-testid="recruiter-product-header"
       className={cn(
         "swx-recruiter-product-header flex min-w-0 flex-wrap items-end justify-between gap-4",
         tone === "soft" && "rounded-2xl border border-indigo/10 bg-[linear-gradient(120deg,#f2f6ff,#f4faf8)] p-5 sm:p-6",
