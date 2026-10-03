@@ -76,7 +76,7 @@ func savedSearchDiscoveryFilters(filters map[string]any, since time.Time) Discov
 		MaxExperience:     intFilter(filters, "max_experience"),
 		MaxNoticeDays:     intFilter(filters, "max_notice_days"),
 		HasMaxNotice:      stringFilter(filters, "max_notice_days") != "",
-		UpdatedSince:      since.UTC().Format("2006-01-02"),
+		UpdatedSince:      since.UTC().Format(time.RFC3339Nano),
 		Page:              1,
 	}
 }
