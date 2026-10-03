@@ -16,7 +16,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const Version = "engine-v1"
+const Version = "engine-v2"
 
 var errCapabilityPaused = errors.New("intelligence capability paused")
 
@@ -157,6 +157,20 @@ func (p *Processor) failEvent(ctx context.Context, id string, attempts int, caus
 			return err
 		}
 		if _, err = tx.Exec(ctx, `UPDATE intelligence.events SET status='failed',locked_at=NULL,last_error=$2,available_at=now()+interval '100 years' WHERE id=$1`, id, message); err != nil {
+			return err
+		}
+		if _, err = tx.Exec(ctx, `
+			INSERT INTO intelligence.human_review_queue(review_type,subject_type,subject_id,priority,reason_code,evidence,recommendation)
+			SELECT 'event_failure','event',e.id,'high','intelligence.event.max_attempts',
+			       jsonb_build_object('event_type',e.event_type,'aggregate_type',e.aggregate_type,'attempts',e.attempts),
+			       jsonb_build_object('action','review failure and explicitly replay only after the underlying cause is fixed')
+			FROM intelligence.events e
+			WHERE e.id=$1
+			  AND EXISTS (SELECT 1 FROM intelligence.engine_switches WHERE switch_key='human_review_queue' AND enabled)
+			  AND NOT EXISTS (
+			    SELECT 1 FROM intelligence.human_review_queue q
+			    WHERE q.subject_type='event' AND q.subject_id=e.id AND q.reason_code='intelligence.event.max_attempts' AND q.status IN ('open','in_review')
+			  )`, id); err != nil {
 			return err
 		}
 		return tx.Commit(ctx)
@@ -639,14 +653,18 @@ func (p *Processor) normalizeSkills(ctx context.Context, values []string) ([]str
 		}
 		var canonical string
 		err := p.db.QueryRow(ctx, `
-			SELECT s.normalized_name
-			FROM intelligence.skills s
-			LEFT JOIN intelligence.skill_aliases a ON a.skill_id=s.id
-			WHERE s.normalized_name=$1 OR a.alias=$1
-			ORDER BY CASE WHEN s.normalized_name=$1 THEN 0 ELSE 1 END
+			SELECT e.normalized_name
+			FROM workforce.taxonomy_entities e
+			LEFT JOIN workforce.taxonomy_aliases a ON a.entity_id=e.id AND a.status='active'
+			WHERE e.status='active'
+			  AND e.entity_type IN ('skill','competency','tool','technology','equipment','certification','licence','methodology')
+			  AND (e.normalized_name=workforce.normalize_term($1) OR a.normalized_alias=workforce.normalize_term($1))
+			ORDER BY CASE WHEN e.normalized_name=workforce.normalize_term($1) THEN 0 ELSE 1 END, e.usage_count DESC, e.canonical_name
 			LIMIT 1`, key).Scan(&canonical)
 		if errors.Is(err, pgx.ErrNoRows) {
-			canonical = key
+			if err := p.db.QueryRow(ctx, `SELECT workforce.normalize_term($1)`, key).Scan(&canonical); err != nil {
+				return nil, err
+			}
 		} else if err != nil {
 			return nil, err
 		}
