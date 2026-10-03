@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"html"
 	"net/url"
-	"strconv"
+	stdstrconv "strconv"
 	"strings"
 	"time"
 )
@@ -33,7 +33,7 @@ func stringFilter(filters map[string]any, key string) string {
 	case json.Number:
 		return typed.String()
 	case float64:
-		return strconv.FormatFloat(typed, 'f', -1, 64)
+		return stdstrconv.FormatFloat(typed, 'f', -1, 64)
 	default:
 		return ""
 	}
@@ -44,7 +44,7 @@ func intFilter(filters map[string]any, key string) int {
 	if raw == "" {
 		return 0
 	}
-	value, err := strconv.Atoi(raw)
+	value, err := stdstrconv.Atoi(raw)
 	if err != nil {
 		return 0
 	}
