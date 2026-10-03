@@ -71,11 +71,11 @@ type MessagingConfig struct {
 }
 
 type EmailConfig struct {
-	Enabled bool
-	FromAddress string
+	Enabled        bool
+	FromAddress    string
 	WorkerInterval time.Duration
-	BatchSize int
-	MaxAttempts int
+	BatchSize      int
+	MaxAttempts    int
 }
 
 type AWSConfig struct {
@@ -123,11 +123,11 @@ func Load() (Config, error) {
 			BulkCompanyDailyLimit:    intEnv("INMAIL_BULK_COMPANY_DAILY_LIMIT", 5000),
 		},
 		Email: EmailConfig{
-			Enabled: boolEnv("EMAIL_DELIVERY_ENABLED", false),
-			FromAddress: env("EMAIL_FROM_ADDRESS", "info@sapienworx.com"),
+			Enabled:        boolEnv("EMAIL_DELIVERY_ENABLED", false),
+			FromAddress:    env("EMAIL_FROM_ADDRESS", "info@sapienworx.com"),
 			WorkerInterval: durationEnv("EMAIL_WORKER_INTERVAL", 5*time.Second),
-			BatchSize: intEnv("EMAIL_WORKER_BATCH_SIZE", 10),
-			MaxAttempts: intEnv("EMAIL_MAX_ATTEMPTS", 5),
+			BatchSize:      intEnv("EMAIL_WORKER_BATCH_SIZE", 10),
+			MaxAttempts:    intEnv("EMAIL_MAX_ATTEMPTS", 5),
 		},
 		Database: DatabaseConfig{
 			URL:             strings.TrimSpace(os.Getenv("DATABASE_URL")),
