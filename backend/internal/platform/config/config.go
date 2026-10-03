@@ -125,7 +125,7 @@ func Load() (Config, error) {
 		Email: EmailConfig{
 			Enabled:        boolEnv("EMAIL_DELIVERY_ENABLED", false),
 			FromAddress:    env("EMAIL_FROM_ADDRESS", "info@sapienworx.com"),
-			WorkerInterval: durationEnv("EMAIL_WORKER_INTERVAL", 5 * time.Second),
+			WorkerInterval: durationEnv("EMAIL_WORKER_INTERVAL", 5*time.Second),
 			BatchSize:      intEnv("EMAIL_WORKER_BATCH_SIZE", 10),
 			MaxAttempts:    intEnv("EMAIL_MAX_ATTEMPTS", 5),
 		},
