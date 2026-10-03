@@ -28,6 +28,7 @@ type Service struct {
 type Health struct {
 	Enabled         bool          `json:"enabled"`
 	Provider        AccountStatus `json:"provider"`
+	ProviderError   string        `json:"provider_error,omitempty"`
 	Pending         int64         `json:"pending"`
 	Failed          int64         `json:"failed"`
 	Sent24H         int64         `json:"sent_24h"`
@@ -90,13 +91,17 @@ func (s *Service) DispatchPass(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	processed := 0
+	var firstErr error
 	for _, item := range items {
 		if err := s.dispatchOne(ctx, item); err != nil {
-			return processed, err
+			if firstErr == nil {
+				firstErr = err
+			}
+			continue
 		}
 		processed++
 	}
-	return processed, nil
+	return processed, firstErr
 }
 
 func (s *Service) expireSensitiveContent(ctx context.Context) error {
@@ -319,9 +324,10 @@ func (s *Service) Health(ctx context.Context) (Health, error) {
 	if s.Enabled() {
 		provider, accountErr := s.provider.Account(ctx)
 		if accountErr != nil {
-			return Health{}, fmt.Errorf("SES account health: %w", accountErr)
+			result.ProviderError = truncate(fmt.Sprintf("SES account health: %v", accountErr), 500)
+		} else {
+			result.Provider = provider
 		}
-		result.Provider = provider
 	}
 	return result, nil
 }
