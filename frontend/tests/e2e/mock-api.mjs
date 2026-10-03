@@ -1151,6 +1151,19 @@ const server = http.createServer(async (req, res) => {
   }
   if (url.pathname === "/api/v1/admin/jobs" && req.method === "GET") return json(res, 200, { items: [{ ...job(), company_id: companyID, recruiter_user_id: recruiterID, recruiter_name: "Example Recruiter", status: "active", updated_at: now(), application_count: 4 }], page: 1, limit: 25, total: 1 });
   if (url.pathname === "/api/v1/admin/budget-settings" && req.method === "GET") return json(res, 200, { sns_sms_warning_count: 1000, sns_sms_critical_count: 2000, updated_at: now() });
+  if (url.pathname === "/api/v1/admin/email-health" && req.method === "GET") return json(res, 200, {
+    enabled: false,
+    provider: {},
+    pending: 2,
+    failed: 1,
+    sent_24h: 0,
+    suppressed: 2,
+    bounces: 1,
+    complaints: 1,
+    oldest_pending_at: "2026-10-03T06:10:00Z",
+    checked_at: now(),
+  });
+
   if (url.pathname === "/api/v1/admin/audit-logs" && req.method === "GET") return json(res, 200, { items: [], total: 0, page: 1, limit: 50 });
   if (url.pathname.startsWith("/api/v1/admin/privacy/") && req.method === "GET") return json(res, 200, { items: [] });
   const approveMatch = url.pathname.match(/^\/api\/v1\/admin\/company-verifications\/([^/]+)\/approve$/);
