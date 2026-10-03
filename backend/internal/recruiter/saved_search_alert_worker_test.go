@@ -9,13 +9,13 @@ import (
 func TestSavedSearchDiscoveryFiltersPreserveSourcingContract(t *testing.T) {
 	since := time.Date(2026, 10, 2, 13, 30, 0, 0, time.UTC)
 	filters := map[string]any{
-		"q":                "Go AND PostgreSQL",
-		"location":         "Mumbai",
-		"min_experience":   "3",
-		"max_experience":   float64(8),
-		"max_notice_days":  "30",
-		"industry":         "Logistics",
-		"sort":             "least_notice",
+		"q":               "Go AND PostgreSQL",
+		"location":        "Mumbai",
+		"min_experience":  "3",
+		"max_experience":  float64(8),
+		"max_notice_days": "30",
+		"industry":        "Logistics",
+		"sort":            "least_notice",
 	}
 	got := savedSearchDiscoveryFilters(filters, since)
 	if got.Query != "Go AND PostgreSQL" || got.Location != "Mumbai" || got.MinExperience != 3 || got.MaxExperience != 8 || got.MaxNoticeDays != 30 || !got.HasMaxNotice || got.Industry != "Logistics" || got.Sort != "least_notice" {
