@@ -30,6 +30,12 @@ test.describe("P2.4 SES health visual validation", () => {
 
     await page.emulateMedia({ colorScheme: "dark" });
     await page.setViewportSize({ width: 1440, height: 960 });
+    const darkCard = page.locator(".swx-system-health-card").first();
+    await expect(darkCard).toBeVisible();
+    expect(await darkCard.evaluate((node) => {
+      const style = getComputedStyle(node);
+      return style.backgroundImage === "none" && style.backgroundColor !== "rgb(255, 255, 255)";
+    })).toBe(true);
     await page.screenshot({ path: "visual-artifacts/p2.4-ses-health/p2.4-ses-system-dark-1440.png", fullPage: true });
   });
 });
