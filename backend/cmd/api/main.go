@@ -68,6 +68,31 @@ func run(logger *slog.Logger) error {
 	go emailService.Run(ctx, func(runErr error) {
 		logger.Warn("email delivery pass failed", "error", runErr)
 	})
+	if cfg.Email.Enabled {
+		runSavedSearchAlerts := func() {
+			passCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			defer cancel()
+			queued, alertErr := recruiterService.ProcessSavedSearchAlerts(passCtx, 20)
+			if alertErr != nil {
+				logger.Warn("saved search alert pass failed", "error", alertErr)
+			} else if queued > 0 {
+				logger.Info("saved search alerts queued", "count", queued)
+			}
+		}
+		runSavedSearchAlerts()
+		go func() {
+			ticker := time.NewTicker(time.Hour)
+			defer ticker.Stop()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					runSavedSearchAlerts()
+				}
+			}
+		}()
+	}
 	if cfg.AWS.S3Bucket != "" {
 		presigner, presignErr := storage.NewS3Presigner(ctx, cfg.AWS.Region, cfg.AWS.S3Bucket, cfg.AWS.S3PresignTTL)
 		if presignErr != nil {
