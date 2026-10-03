@@ -1,5 +1,13 @@
 # P3 evidence and task matrix — 4 October 2026
 
+**Latest checkpoint: infrastructure applied and verified.** The explicitly approved
+saved plan completed with 42 additions, 0 changes/deletions; post-apply drift is
+zero. Existing EC2/RDS, production trust/uploads and public holding page are
+preserved. See [BETA-INFRA-APPLY-RESULT.md](BETA-INFRA-APPLY-RESULT.md) for actual
+outputs, all 42 resources and costs. Beta DB/roles, real secrets, host runtime,
+merge/release and TLS remain unexecuted and require separate approval. The earlier
+apply-gate text below is a historical checkpoint, now satisfied.
+
 **4 October verification update:** Owner selected existing EC2 **and existing RDS**, with an empty `sapienworx_beta` logical database and three beta-only PostgreSQL roles. The refreshed plan is **42 creates, zero updates/deletes**, no new EC2/RDS/security groups. Only the beta assume-role policy attachment affects the existing host. Earlier separate-RDS/database-egress instructions and $30–50 estimates below are superseded; no fixed second EC2/RDS charge is planned. Beta S3/ECR/logging remain usage-billed. DNS already resolves to `13.206.138.176`; beta TLS/runtime are absent. See [current audit](CURRENT-DEPLOYMENT-AUDIT.md) (under `docs/p3`) and the corrected `deploy/beta/README.md`. No apply has run.
 
 

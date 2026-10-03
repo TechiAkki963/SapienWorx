@@ -19,7 +19,7 @@
       "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
       "Vary": "Accept-Encoding",
       "X-Content-Type-Options": "nosniff",
-      "Date": "Sat, 03 Oct 2026 21:22:41 GMT",
+      "Date": "Sat, 03 Oct 2026 21:42:15 GMT",
       "Connection": "close"
     }
   },
@@ -30,7 +30,7 @@
     "url": "https://www.sapienworx.com/mascot.png",
     "bytes": 1901997,
     "sha256": "3cd3d1027b374dbedc415bdd3405d6544b4f339290401ce1268f0347f4f04dc4",
-    "seconds": 0.234,
+    "seconds": 0.219,
     "headers": {
       "Accept-Ranges": "bytes",
       "Alt-Svc": "h3=\":443\"; ma=2592000",
@@ -43,7 +43,7 @@
       "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
       "Vary": "Accept-Encoding",
       "X-Content-Type-Options": "nosniff",
-      "Date": "Sat, 03 Oct 2026 21:22:41 GMT",
+      "Date": "Sat, 03 Oct 2026 21:42:15 GMT",
       "Connection": "close"
     }
   },
@@ -79,7 +79,7 @@
     "url": "https://sapienworx.com/",
     "bytes": 2118,
     "sha256": "d35c4a69f4858622a5e561b4a38414b22f74f2481a08a2990014a29fb80b8188",
-    "seconds": 0.079,
+    "seconds": 0.047,
     "headers": {
       "Accept-Ranges": "bytes",
       "Alt-Svc": "h3=\":443\"; ma=2592000",
@@ -92,7 +92,7 @@
       "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
       "Vary": "Accept-Encoding",
       "X-Content-Type-Options": "nosniff",
-      "Date": "Sat, 03 Oct 2026 21:22:42 GMT",
+      "Date": "Sat, 03 Oct 2026 21:42:16 GMT",
       "Connection": "close"
     }
   },
@@ -103,7 +103,7 @@
     "url": "https://sapienworx.com/mascot.png",
     "bytes": 1901997,
     "sha256": "3cd3d1027b374dbedc415bdd3405d6544b4f339290401ce1268f0347f4f04dc4",
-    "seconds": 0.218,
+    "seconds": 0.25,
     "headers": {
       "Accept-Ranges": "bytes",
       "Alt-Svc": "h3=\":443\"; ma=2592000",
@@ -116,7 +116,7 @@
       "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
       "Vary": "Accept-Encoding",
       "X-Content-Type-Options": "nosniff",
-      "Date": "Sat, 03 Oct 2026 21:22:42 GMT",
+      "Date": "Sat, 03 Oct 2026 21:42:16 GMT",
       "Connection": "close"
     }
   },

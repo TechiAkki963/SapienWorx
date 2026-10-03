@@ -1,0 +1,254 @@
+[
+  {
+    "address": "module.beta.aws_cloudwatch_log_group.application",
+    "type": "aws_cloudwatch_log_group",
+    "id": "/sapienworx/beta/application",
+    "cost": "meaningful recurring cost (usage-dependent at scale)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_log_group.host",
+    "type": "aws_cloudwatch_log_group",
+    "id": "/sapienworx/beta/host",
+    "cost": "meaningful recurring cost (usage-dependent at scale)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_metric_alarm.ec2_cpu",
+    "type": "aws_cloudwatch_metric_alarm",
+    "id": "sapienworx-beta-ec2-high-cpu",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_metric_alarm.ec2_disk",
+    "type": "aws_cloudwatch_metric_alarm",
+    "id": "sapienworx-beta-ec2-root-disk",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_metric_alarm.ec2_memory",
+    "type": "aws_cloudwatch_metric_alarm",
+    "id": "sapienworx-beta-ec2-high-memory",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_metric_alarm.ec2_status",
+    "type": "aws_cloudwatch_metric_alarm",
+    "id": "sapienworx-beta-ec2-status-check",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_metric_alarm.rds_connections",
+    "type": "aws_cloudwatch_metric_alarm",
+    "id": "sapienworx-beta-rds-connections",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_metric_alarm.rds_cpu",
+    "type": "aws_cloudwatch_metric_alarm",
+    "id": "sapienworx-beta-rds-high-cpu",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_cloudwatch_metric_alarm.rds_free_storage",
+    "type": "aws_cloudwatch_metric_alarm",
+    "id": "sapienworx-beta-rds-low-storage",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_ecr_lifecycle_policy.application[\"backend\"]",
+    "type": "aws_ecr_lifecycle_policy",
+    "id": "sapienworx-beta/backend",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ecr_lifecycle_policy.application[\"frontend\"]",
+    "type": "aws_ecr_lifecycle_policy",
+    "id": "sapienworx-beta/frontend",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ecr_lifecycle_policy.application[\"intelligence\"]",
+    "type": "aws_ecr_lifecycle_policy",
+    "id": "sapienworx-beta/intelligence",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ecr_lifecycle_policy.application[\"migration\"]",
+    "type": "aws_ecr_lifecycle_policy",
+    "id": "sapienworx-beta/migration",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ecr_repository.application[\"backend\"]",
+    "type": "aws_ecr_repository",
+    "id": "sapienworx-beta/backend",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_ecr_repository.application[\"frontend\"]",
+    "type": "aws_ecr_repository",
+    "id": "sapienworx-beta/frontend",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_ecr_repository.application[\"intelligence\"]",
+    "type": "aws_ecr_repository",
+    "id": "sapienworx-beta/intelligence",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_ecr_repository.application[\"migration\"]",
+    "type": "aws_ecr_repository",
+    "id": "sapienworx-beta/migration",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_iam_policy.application",
+    "type": "aws_iam_policy",
+    "id": "arn:aws:iam::327301848391:policy/sapienworx-beta-application",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_iam_policy.github_deployment",
+    "type": "aws_iam_policy",
+    "id": "arn:aws:iam::327301848391:policy/sapienworx-beta-github-deployment",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_iam_policy.host_assume_beta",
+    "type": "aws_iam_policy",
+    "id": "arn:aws:iam::327301848391:policy/sapienworx-beta-host-assume-runtime",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_iam_role.application",
+    "type": "aws_iam_role",
+    "id": "sapienworx-beta-application",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_iam_role.github_deployment",
+    "type": "aws_iam_role",
+    "id": "sapienworx-beta-github-deployment",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_iam_role_policy_attachment.application",
+    "type": "aws_iam_role_policy_attachment",
+    "id": "sapienworx-beta-application/arn:aws:iam::327301848391:policy/sapienworx-beta-application",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_iam_role_policy_attachment.github_deployment",
+    "type": "aws_iam_role_policy_attachment",
+    "id": "sapienworx-beta-github-deployment/arn:aws:iam::327301848391:policy/sapienworx-beta-github-deployment",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_iam_role_policy_attachment.host_assume_beta",
+    "type": "aws_iam_role_policy_attachment",
+    "id": "sapienworx-production-application/arn:aws:iam::327301848391:policy/sapienworx-beta-host-assume-runtime",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket.documents",
+    "type": "aws_s3_bucket",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket_cors_configuration.documents",
+    "type": "aws_s3_bucket_cors_configuration",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket_lifecycle_configuration.documents",
+    "type": "aws_s3_bucket_lifecycle_configuration",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket_ownership_controls.documents",
+    "type": "aws_s3_bucket_ownership_controls",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket_policy.documents",
+    "type": "aws_s3_bucket_policy",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket_public_access_block.documents",
+    "type": "aws_s3_bucket_public_access_block",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket_server_side_encryption_configuration.documents",
+    "type": "aws_s3_bucket_server_side_encryption_configuration",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_s3_bucket_versioning.documents",
+    "type": "aws_s3_bucket_versioning",
+    "id": "sapienworx-beta-documents-327301848391-ap-south-1",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_sns_topic.operations",
+    "type": "aws_sns_topic",
+    "id": "arn:aws:sns:ap-south-1:327301848391:sapienworx-beta-operations",
+    "cost": "low recurring cost (usage-dependent)"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_config[\"AWS_REGION\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/AWS_REGION",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_config[\"RDS_ENDPOINT\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/RDS_ENDPOINT",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_config[\"S3_BUCKET\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/S3_BUCKET",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_secret[\"AUTH_OTP_HMAC_SECRET\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/AUTH_OTP_HMAC_SECRET",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_secret[\"DATABASE_URL\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/DATABASE_URL",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_secret[\"INTELLIGENCE_DATABASE_URL\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/INTELLIGENCE_DATABASE_URL",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_secret[\"JWT_SECRET\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/JWT_SECRET",
+    "cost": "negligible/no recurring cost"
+  },
+  {
+    "address": "module.beta.aws_ssm_parameter.application_secret[\"MIGRATION_DATABASE_URL\"]",
+    "type": "aws_ssm_parameter",
+    "id": "/sapienworx/beta/MIGRATION_DATABASE_URL",
+    "cost": "negligible/no recurring cost"
+  }
+]
