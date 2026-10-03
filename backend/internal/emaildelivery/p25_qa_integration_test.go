@@ -113,6 +113,31 @@ func TestP25EmailDeliverySuppressionAndRetryIsolatedDatabase(t *testing.T) {
 		}
 	})
 
+	t.Run("successful send records provider message and event", func(t *testing.T) {
+		email := "p25-success@example.invalid"
+		id := insert(email)
+		provider := &qaProvider{suppressions: map[string]Suppression{}}
+		svc := NewService(db, provider, Config{Enabled: true, BatchSize: 10, MaxAttempts: 3})
+		processed, err := svc.DispatchPass(ctx)
+		if err != nil || processed != 1 {
+			t.Fatalf("dispatch: processed=%d err=%v", processed, err)
+		}
+		if len(provider.sent) != 1 || provider.sent[0].To != email {
+			t.Fatalf("provider sends=%+v", provider.sent)
+		}
+		var status, messageID string
+		var events int
+		if err := db.QueryRow(ctx, `SELECT status,provider_message_id FROM email_outbox WHERE id=$1`, id).Scan(&status, &messageID); err != nil {
+			t.Fatal(err)
+		}
+		if err := db.QueryRow(ctx, `SELECT count(*) FROM email_delivery_events WHERE provider_message_id=$1 AND event_type='send'`, messageID).Scan(&events); err != nil {
+			t.Fatal(err)
+		}
+		if status != "sent" || messageID != "qa-message-id" || events != 1 {
+			t.Fatalf("send ledger status=%s message=%s events=%d", status, messageID, events)
+		}
+	})
+
 	t.Run("transient provider failure schedules bounded retry", func(t *testing.T) {
 		email := "p25-retry@example.invalid"
 		id := insert(email)
