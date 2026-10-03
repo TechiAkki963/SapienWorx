@@ -65,11 +65,9 @@ func run(logger *slog.Logger) error {
 	}
 	emailService := emaildelivery.NewService(db, emailProvider, emaildelivery.Config{Enabled: cfg.Email.Enabled, PollInterval: cfg.Email.WorkerInterval, BatchSize: cfg.Email.BatchSize, MaxAttempts: cfg.Email.MaxAttempts})
 	server.SetEmailDelivery(emailService)
-	if cfg.Email.Enabled {
-		go emailService.Run(ctx, func(runErr error) {
-			logger.Warn("email delivery pass failed", "error", runErr)
-		})
-	}
+	go emailService.Run(ctx, func(runErr error) {
+		logger.Warn("email delivery pass failed", "error", runErr)
+	})
 	if cfg.AWS.S3Bucket != "" {
 		presigner, presignErr := storage.NewS3Presigner(ctx, cfg.AWS.Region, cfg.AWS.S3Bucket, cfg.AWS.S3PresignTTL)
 		if presignErr != nil {
