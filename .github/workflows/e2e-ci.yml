@@ -74,6 +74,14 @@ jobs:
           path: frontend/visual-artifacts/phase4-discovery/
           if-no-files-found: error
           retention-days: 7
+      - name: Upload P2.4 SES health visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2.4-ses-health-visuals
+          path: frontend/visual-artifacts/p2.4-ses-health/
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload successful visual acceptance screenshots
         if: always()
         uses: actions/upload-artifact@v4
