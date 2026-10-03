@@ -32,7 +32,7 @@ const sections: { title: string; items: NavItem[] }[] = [
 ];
 
 const mobilePrimary = sections[0].items.slice(0, 4);
-const mobileMore = [sections[0].items[4], ...sections[1].items];
+const mobileMore = [...sections[0].items.slice(4), ...sections[1].items];
 
 function NavIcon({ name, className }: { name: IconName; className?: string }) {
   const common = cn("h-[18px] w-[18px] shrink-0 fill-none stroke-current stroke-[1.8]", className);
