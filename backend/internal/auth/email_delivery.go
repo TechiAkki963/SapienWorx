@@ -11,7 +11,9 @@ import (
 
 func verificationEmailContent(code string, ttl time.Duration) (string, string, string) {
 	minutes := int(ttl.Round(time.Minute) / time.Minute)
-	if minutes < 1 { minutes = 10 }
+	if minutes < 1 {
+		minutes = 10
+	}
 	subject := "Verify your SapienWorx email"
 	text := fmt.Sprintf("Your SapienWorx verification code is %s. It expires in %d minutes. Do not share this code. If you did not request this, you can ignore this email. Support: info@sapienworx.com", code, minutes)
 	html := fmt.Sprintf("<p>Your SapienWorx verification code is <strong>%s</strong>.</p><p>It expires in %d minutes. Do not share this code.</p><p>If you did not request this, you can ignore this email.</p><p>Support: info@sapienworx.com</p>", code, minutes)
@@ -20,7 +22,9 @@ func verificationEmailContent(code string, ttl time.Duration) (string, string, s
 
 func passwordResetEmailContent(code string, ttl time.Duration) (string, string, string) {
 	minutes := int(ttl.Round(time.Minute) / time.Minute)
-	if minutes < 1 { minutes = 10 }
+	if minutes < 1 {
+		minutes = 10
+	}
 	subject := "Reset your SapienWorx password"
 	text := fmt.Sprintf("Your SapienWorx password reset code is %s. It expires in %d minutes. Do not share this code. If you did not request a password reset, ignore this email and your password will remain unchanged. Support: info@sapienworx.com", code, minutes)
 	html := fmt.Sprintf("<p>Your SapienWorx password reset code is <strong>%s</strong>.</p><p>It expires in %d minutes. Do not share this code.</p><p>If you did not request a password reset, ignore this email and your password will remain unchanged.</p><p>Support: info@sapienworx.com</p>", code, minutes)
