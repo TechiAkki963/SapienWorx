@@ -103,31 +103,31 @@ type IntelligenceGatewayMetrics struct {
 }
 
 type IntelligenceStoreMetrics struct {
-	PendingEvents          int64   `json:"pending_events"`
-	FailedEvents           int64   `json:"failed_events"`
-	DeadLetters            int64   `json:"dead_letters"`
-	CandidateFeatures      int64   `json:"candidate_features"`
-	JobFeatures            int64   `json:"job_features"`
-	MatchResults           int64   `json:"match_results"`
-	FeedbackEvents         int64   `json:"feedback_events"`
-	EmbeddingDocuments     int64   `json:"embedding_documents"`
-	OpenHumanReviews       int64   `json:"open_human_reviews"`
-	OldestPendingSeconds   float64 `json:"oldest_pending_seconds"`
+	PendingEvents        int64   `json:"pending_events"`
+	FailedEvents         int64   `json:"failed_events"`
+	DeadLetters          int64   `json:"dead_letters"`
+	CandidateFeatures    int64   `json:"candidate_features"`
+	JobFeatures          int64   `json:"job_features"`
+	MatchResults         int64   `json:"match_results"`
+	FeedbackEvents       int64   `json:"feedback_events"`
+	EmbeddingDocuments   int64   `json:"embedding_documents"`
+	OpenHumanReviews     int64   `json:"open_human_reviews"`
+	OldestPendingSeconds float64 `json:"oldest_pending_seconds"`
 }
 
 type IntelligenceDashboard struct {
-	Runs         []IntelligenceRunRecord        `json:"runs"`
-	Insights     []IntelligenceInsightRecord    `json:"insights"`
-	Models       []IntelligenceModelRecord      `json:"models"`
-	Evaluations  []IntelligenceEvaluationRecord `json:"evaluations"`
-	Switches     []IntelligenceSwitchRecord     `json:"switches"`
-	Heartbeats   []IntelligenceHeartbeatRecord  `json:"heartbeats"`
-	Prompts      []IntelligencePromptRecord     `json:"prompts"`
+	Runs         []IntelligenceRunRecord         `json:"runs"`
+	Insights     []IntelligenceInsightRecord     `json:"insights"`
+	Models       []IntelligenceModelRecord       `json:"models"`
+	Evaluations  []IntelligenceEvaluationRecord  `json:"evaluations"`
+	Switches     []IntelligenceSwitchRecord      `json:"switches"`
+	Heartbeats   []IntelligenceHeartbeatRecord   `json:"heartbeats"`
+	Prompts      []IntelligencePromptRecord      `json:"prompts"`
 	HumanReviews []IntelligenceHumanReviewRecord `json:"human_reviews"`
-	Gateway      IntelligenceGatewayMetrics     `json:"gateway"`
-	Store        IntelligenceStoreMetrics       `json:"store"`
-	ComputedAt   time.Time                      `json:"computed_at"`
-	AdvisoryOnly bool                           `json:"advisory_only"`
+	Gateway      IntelligenceGatewayMetrics      `json:"gateway"`
+	Store        IntelligenceStoreMetrics        `json:"store"`
+	ComputedAt   time.Time                       `json:"computed_at"`
+	AdvisoryOnly bool                            `json:"advisory_only"`
 }
 
 type IntelligenceHumanReviewRecord struct {
@@ -349,17 +349,17 @@ func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, erro
 		(SELECT count(*) FROM intelligence.embedding_documents),
 		(SELECT count(*) FROM intelligence.human_review_queue WHERE status IN ('open','in_review')),
 		COALESCE((SELECT extract(epoch FROM (now()-min(created_at))) FROM intelligence.events WHERE status='pending'),0)::float8`).Scan(
-			&out.Store.PendingEvents,
-			&out.Store.FailedEvents,
-			&out.Store.DeadLetters,
-			&out.Store.CandidateFeatures,
-			&out.Store.JobFeatures,
-			&out.Store.MatchResults,
-			&out.Store.FeedbackEvents,
-			&out.Store.EmbeddingDocuments,
-			&out.Store.OpenHumanReviews,
-			&out.Store.OldestPendingSeconds,
-		)
+		&out.Store.PendingEvents,
+		&out.Store.FailedEvents,
+		&out.Store.DeadLetters,
+		&out.Store.CandidateFeatures,
+		&out.Store.JobFeatures,
+		&out.Store.MatchResults,
+		&out.Store.FeedbackEvents,
+		&out.Store.EmbeddingDocuments,
+		&out.Store.OpenHumanReviews,
+		&out.Store.OldestPendingSeconds,
+	)
 	return out, err
 }
 
@@ -644,7 +644,6 @@ func (s *Service) ActivateIntelligencePrompt(ctx context.Context, promptID, acto
 	}
 	return s.Audit(ctx, AuditInput{AdminID: &actor, ActionType: "intelligence.prompt.activated", TargetEntityType: "intelligence_prompt", TargetEntityID: &promptID, IPAddress: ip, RequestID: requestID, Metadata: map[string]any{"prompt_key": promptKey, "approval_id": approvalID}})
 }
-
 
 func (s *Service) ReviewIntelligenceCase(ctx context.Context, id, actor, status, note, ip, requestID string) error {
 	id = strings.TrimSpace(id)
