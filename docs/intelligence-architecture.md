@@ -1,7 +1,7 @@
 # SapienWorx Intelligence Architecture
 
-Branch: `p2.8-production-intelligence`  
-Status: P2.8 production foundation under review; all governed capabilities remain disabled until separate activation approval.
+Branch: `p2-completion-audit-20261003`  
+Status: Consolidated P2 release candidate under audit; all governed Intelligence capabilities remain disabled until separate activation approval.
 
 ## Boundary
 
@@ -43,7 +43,7 @@ Candidate features are stored separately from verified core profile data. The en
 
 ## Embeddings and semantic search
 
-Migration 000048 adds a governed embedding model/document store using PostgreSQL arrays plus a database-native cosine search primitive. This avoids requiring an external vector database or a local `pgvector` extension during P2.8 foundation work. Embedding generation and semantic search have independent kill switches and default to OFF. Structured/lexical recruitment search remains the fallback and must remain functional when semantic retrieval is disabled.
+Migration 000053 adds a governed embedding model/document store using PostgreSQL arrays plus a database-native cosine search primitive. This avoids requiring an external vector database or a local `pgvector` extension during P2.8 foundation work. Embedding generation and semantic search have independent kill switches and default to OFF. Structured/lexical recruitment search remains the fallback and must remain functional when semantic retrieval is disabled.
 
 No external model provider is enabled by this work. A production embedding generator must be registered, evaluated and approved through the governed model/provider path before the embedding switch can be enabled.
 
