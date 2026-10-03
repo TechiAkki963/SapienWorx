@@ -100,9 +100,7 @@ test("P2.5 bulk InMail drawer responsive matrix", async ({ page }) => {
       path: `visual-artifacts/p2.5-messaging-qa/bulk-inmail-light-${viewport.label}.png`,
       fullPage: true,
     });
-    await page.getByRole("button", { name: "Close" }).click().catch(async () => {
-      await page.keyboard.press("Escape");
-    });
+    await page.getByRole("button", { name: "Close drawer" }).click();
   }
 });
 
