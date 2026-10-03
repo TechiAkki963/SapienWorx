@@ -1,0 +1,5 @@
+PASS: https://www.sapienworx.com/ serves exact approved HTML (SHA256 D35C4A69F4858622A5E561B4A38414B22F74F2481A08A2990014A29FB80B8188)
+PASS: https://www.sapienworx.com/api/v1/auth/login -> 404
+PASS: https://sapienworx.com/ serves exact approved HTML (SHA256 D35C4A69F4858622A5E561B4A38414B22F74F2481A08A2990014A29FB80B8188)
+PASS: https://sapienworx.com/api/v1/auth/login -> 404
+PASS: unchanged mascot asset (SHA256 3CD3D1027B374DBEDC415BDD3405D6544B4F339290401CE1268F0347F4F04DC4)

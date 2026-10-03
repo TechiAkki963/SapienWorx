@@ -1,6 +1,7 @@
 # Public mascot holding bundle
 
-Prepared for owner review; not deployed. `public/mascot.png` is the owner's
+Published on 2026-10-04 (Asia/Calcutta) following the owner's explicit instruction
+to push the existing local page unchanged. `public/mascot.png` is the owner's
 original `SapienWorx Mascot Asset Sheet.png`, supplied on 2026-10-04. CSS frames
 the welcome pose (x=20, y=344, width=196, height=230 in the 1536x1024 sheet)
 without modifying its pixels or displaying the sheet's labels. The companion
@@ -25,3 +26,32 @@ Publication readiness requires the mascot file, mobile/desktop visual review,
 adapted Caddy host/upstream checks, HTTP checks proving public `/api` is 404,
 beta login verification and the backup/DNS/recovery steps in
 `../../docs/p3/PUBLIC-HOLDING-PLAN.md`.
+
+## Current production deployment
+
+Both `https://www.sapienworx.com/` and `https://sapienworx.com/` serve the exact
+approved HTML and image bytes; public API paths return 404. External HTTPS and
+visual checks are recorded in `../../docs/p3/evidence/holding-live.txt` and
+`holding-live.png`. DNS was unchanged. Beta infrastructure was not created.
+
+The existing production EC2 serves the static page through a separate Compose
+project/network. Its application frontend/backend containers remain running
+without a public Caddy route, for recovery. RDS, S3 uploads, certificates, secrets
+and the original application release `4e41999fb1bf4ec352da037e7d39e140191ff70c`
+are preserved. This publication does not stop EC2 billing.
+
+Release: `/opt/sapienworx/holding/releases/775f239`.
+Preserved edge container: `sapienworx-caddy-pre-holding-775f239`.
+Recovery metadata: `/opt/sapienworx/runtime/holding-backup-775f239`, mode-restricted
+on the host; never export its container inspection file because it can contain
+runtime environment values. Original production Caddyfile remains untouched.
+
+To recover the public application, send `rollback-775f239.sh` through an authorized
+SSM RunShellScript command to instance `i-0356b55e3d7eaf72a`, then verify public
+application HTTPS and `/health/ready`. No reverse migration or data restore is
+needed for this static-page change. Rollback is prepared, not executed.
+
+The manual production application workflow must remain paused during the holding
+period; running it can conflict with or replace the static edge container.
+Before eventual production launch, perform the deliberate holding rollback or
+prepare a reviewed application-edge replacement.

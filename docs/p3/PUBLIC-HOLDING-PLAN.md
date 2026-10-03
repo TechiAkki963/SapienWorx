@@ -1,5 +1,12 @@
 # Public holding page and beta-first releases
 
+Current state on 2026-10-04 (Asia/Calcutta): the owner approved publishing the
+unchanged local mascot page. It is live on both public hostnames using the existing
+production EC2 and certificates, with no DNS change. Database/uploads and original
+application containers/configuration are preserved. Beta is not provisioned and
+production EC2 has not been stopped, so the projected cost-saving transition below
+has not occurred. See `../../deploy/holding/README.md` for actual cutover/recovery.
+
 Owner decision: preserve the production database and uploads; replace the public
 application with a mascot holding page. Production deployment remains a separate,
 manual release after complete beta acceptance. Do not merge this branch or apply
