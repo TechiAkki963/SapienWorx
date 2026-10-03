@@ -208,26 +208,24 @@ func (s *Service) SetOfferStatus(ctx context.Context, recruiterID, offerID, stat
 	if current == status {
 		return nil
 	}
-	if current == "accepted" || current == "declined" || current == "withdrawn" || current == "expired" {
+	allowed := (current == "draft" && (status == "sent" || status == "withdrawn")) ||
+		(current == "sent" && (status == "accepted" || status == "declined" || status == "withdrawn" || status == "expired"))
+	if !allowed {
 		return ErrInvalid
 	}
 	if status == "sent" {
-		_, err = tx.Exec(ctx, `UPDATE recruiter_offers SET status='sent',sent_at=COALESCE(sent_at,now()) WHERE id=$1`, offerID)
-		if err != nil {
+		if _, err = tx.Exec(ctx, `UPDATE recruiter_offers SET status='sent',sent_at=COALESCE(sent_at,now()) WHERE id=$1`, offerID); err != nil {
 			return err
 		}
-		_, err = tx.Exec(ctx, `UPDATE applications SET stage='offer' WHERE id=$1 AND stage NOT IN('hired','rejected','withdrawn')`, applicationID)
-		if err != nil {
+		if _, err = tx.Exec(ctx, `UPDATE applications SET stage='offer' WHERE id=$1 AND stage NOT IN('hired','rejected','withdrawn')`, applicationID); err != nil {
 			return err
 		}
-		_, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'offer','Offer shared',$2,'/candidate/applications')`, candidateID, "An offer has been shared for "+jobTitle+".")
-		if err != nil {
+		if _, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'offer','Offer shared',$2,'/candidate/applications')`, candidateID, "An offer has been shared for "+jobTitle+"."); err != nil {
 			return err
 		}
 	} else {
 		responded := status == "accepted" || status == "declined"
-		_, err = tx.Exec(ctx, `UPDATE recruiter_offers SET status=$2,responded_at=CASE WHEN $3 THEN now() ELSE responded_at END WHERE id=$1`, offerID, status, responded)
-		if err != nil {
+		if _, err = tx.Exec(ctx, `UPDATE recruiter_offers SET status=$2,responded_at=CASE WHEN $3 THEN now() ELSE responded_at END WHERE id=$1`, offerID, status, responded); err != nil {
 			return err
 		}
 	}
