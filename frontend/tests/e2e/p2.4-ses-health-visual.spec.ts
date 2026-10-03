@@ -25,6 +25,11 @@ test.describe("P2.4 SES health visual validation", () => {
       await page.setViewportSize({ width, height: 960 });
       await expect(page.getByRole("heading", { name: "Amazon SES delivery health" })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      if (width === 1024) {
+        const governanceCard = page.getByText("Governance load", { exact: true }).locator("..");
+        const box = await governanceCard.boundingBox();
+        expect(box?.width ?? 0).toBeGreaterThan(500);
+      }
       await page.screenshot({ path: `visual-artifacts/p2.4-ses-health/p2.4-ses-system-${width}.png`, fullPage: true });
     }
 
