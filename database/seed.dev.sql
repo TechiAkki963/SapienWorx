@@ -224,4 +224,19 @@ INSERT INTO interviews (
   )
 ON CONFLICT (id) DO NOTHING;
 
+
+INSERT INTO recruiter_saved_searches(id,recruiter_id,name,filters,alert_enabled,alert_frequency,updated_at) VALUES
+ ('a1000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Mumbai engineering talent','{"location":"Mumbai","functional_area":"Technology"}'::jsonb,true,'daily',now()-interval '1 day'),
+ ('a1000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000001','Immediate analytics candidates','{"skills":"SQL, Python","max_notice_days":"30"}'::jsonb,false,'weekly',now()-interval '2 days')
+ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name,filters=EXCLUDED.filters,alert_enabled=EXCLUDED.alert_enabled,alert_frequency=EXCLUDED.alert_frequency,updated_at=EXCLUDED.updated_at;
+
+INSERT INTO recruiter_offers(id,application_id,company_id,recruiter_id,title,currency,annual_compensation,joining_date,expires_at,status,notes,sent_at,updated_at) VALUES
+ ('a2000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000005','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Talent Operations Specialist offer','INR',900000,current_date+30,current_date+7,'sent','Demo offer for recruiter product QA.',now()-interval '4 hours',now()-interval '4 hours')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO recruiter_referrals(id,company_id,recruiter_id,candidate_id,job_id,referrer_name,referrer_email,source,status,reward_status,notes,updated_at) VALUES
+ ('a3000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002','40000000-0000-4000-8000-000000000002','Neha Kulkarni','neha@example.test','employee','applied','pending','Strong frontend referral.',now()-interval '3 hours'),
+ ('a3000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000003',NULL,'Arjun Menon','arjun@example.test','partner','referred','not_eligible','General analytics talent referral.',now()-interval '1 day')
+ON CONFLICT (id) DO NOTHING;
+
 COMMIT;
