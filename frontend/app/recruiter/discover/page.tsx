@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { DiscoveryCandidateActions, SaveDiscoverySearch } from "@/components/recruiter/discovery-actions";
 import { TaxonomyInput } from "@/components/workforce/taxonomy-input";
@@ -49,11 +50,12 @@ export default async function DiscoverTalentPage({ searchParams }: Props) {
   const searchHref=(values:Record<string,string>)=>{const p=new URLSearchParams();for(const name of names)if(values[name])p.set(name,values[name]);return `/recruiter/discover?${p}`};
 
   return <RecruiterShell><div className="grid gap-5 pb-24">
-    <header className="rounded-2xl border border-indigo/10 bg-[linear-gradient(120deg,#f1f1ff,#f3faf7)] p-5 sm:p-6">
-      <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-indigo">Recruiter workspace</p>
-      <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-navy sm:text-3xl">Discover Talent</h1>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">Find candidates who chose to appear in recruiter search, before they apply. Search professional details only; private contact information and CVs remain protected.</p>
-    </header>
+    <RecruiterProductHeader
+      eyebrow="Recruiter workspace"
+      title="Discover Talent"
+      description="Find candidates who chose to appear in recruiter search, before they apply. Search professional details only; private contact information and CVs remain protected."
+      tone="soft"
+    />
     <div className="grid items-start gap-5 xl:grid-cols-[17rem_minmax(0,1fr)_14rem]">
       <aside className="xl:sticky xl:top-5"><div className="rounded-2xl border border-line/70 bg-white shadow-sm xl:border-0 xl:bg-transparent xl:shadow-none"><input id="discovery-filter-toggle" type="checkbox" className="peer sr-only" /><label htmlFor="discovery-filter-toggle" className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 text-sm font-extrabold text-navy xl:hidden">Search & filters <span aria-hidden="true" className="text-indigo transition peer-checked:rotate-180">⌄</span></label><form action="/recruiter/discover" method="get" className="hidden gap-3 border-t border-line/70 p-4 peer-checked:grid xl:grid xl:rounded-2xl xl:border xl:bg-white xl:shadow-sm">
         <div><h2 className="text-sm font-bold text-navy">Search & filters</h2><p className="mt-1 text-xs leading-5 text-ink-muted">Use AND, OR, NOT, quotes and parentheses. Filters stay in the URL so you can bookmark this search.</p></div>

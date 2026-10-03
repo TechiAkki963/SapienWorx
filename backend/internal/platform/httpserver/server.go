@@ -33,12 +33,13 @@ type Server struct {
 	workforce     *workforce.Service
 	privacy       *privacy.Service
 	messages      *messagingRuntime
+	emailDelivery emailDeliveryRuntime
 	objectStorage storage.ObjectStore
 	cfg           config.Config
 }
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, workforceService *workforce.Service, logger *slog.Logger) *Server {
-	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, workforce: workforceService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db), cfg: cfg}
+	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, workforce: workforceService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db, cfg.Messaging, logger), cfg: cfg}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health/live", s.live)
 	mux.HandleFunc("GET /health/ready", s.ready)
@@ -79,6 +80,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 		}
 	}
 	mux.Handle("GET /api/v1/admin/access", Chain(http.HandlerFunc(s.adminAccessStatus), adminGuard()))
+	mux.Handle("GET /api/v1/admin/email-health", Chain(http.HandlerFunc(s.adminEmailHealth), adminGuard(admin.SystemRead)))
 	mux.Handle("POST /api/v1/admin/security/mfa/enroll", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 	mux.Handle("POST /api/v1/admin/security/mfa/verify", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 
@@ -162,18 +164,33 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/interviews/{interviewID}", Chain(http.HandlerFunc(s.recruiterInterviewChange), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/interviews/{interviewID}/history", Chain(http.HandlerFunc(s.recruiterInterviewHistory), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/offers", Chain(http.HandlerFunc(s.recruiterOffers), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/offers", Chain(http.HandlerFunc(s.recruiterOffers), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/offers/{offerID}", Chain(http.HandlerFunc(s.recruiterOfferStatus), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/referrals", Chain(http.HandlerFunc(s.recruiterReferrals), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/referrals", Chain(http.HandlerFunc(s.recruiterReferrals), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/referrals/{referralID}", Chain(http.HandlerFunc(s.recruiterReferralStatus), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/analytics", Chain(http.HandlerFunc(s.recruiterAnalytics), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/saved-searches/{searchID}", Chain(http.HandlerFunc(s.recruiterSavedSearchAlert), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
 	mux.Handle("DELETE /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/inmail", Chain(http.HandlerFunc(s.recruiterInitiateInMail), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/inmail/bulk", Chain(http.HandlerFunc(s.recruiterBulkInMail), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/outreach/sequences", Chain(http.HandlerFunc(s.recruiterOutreachSequences), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/sequences", Chain(http.HandlerFunc(s.recruiterOutreachSequences), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/outreach/campaigns", Chain(http.HandlerFunc(s.recruiterOutreachCampaigns), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/campaigns", Chain(http.HandlerFunc(s.recruiterOutreachCampaigns), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/outreach/campaigns/{campaignID}/launch", Chain(http.HandlerFunc(s.recruiterOutreachCampaignLaunch), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/outreach/campaigns/{campaignID}", Chain(http.HandlerFunc(s.recruiterOutreachCampaignStatus), protected, recruiterOnly))
 
 	messagingUsers := RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)
 	mux.Handle("GET /api/v1/messaging/threads", Chain(http.HandlerFunc(s.messagingThreads), protected, messagingUsers, candidateActivity))
 	mux.Handle("GET /api/v1/messaging/threads/{threadID}/messages", Chain(http.HandlerFunc(s.messagingMessages), protected, messagingUsers, candidateActivity))
 	mux.Handle("POST /api/v1/messaging/threads/{threadID}/messages", Chain(http.HandlerFunc(s.messagingMessages), protected, messagingUsers, candidateActivity))
 	mux.Handle("PATCH /api/v1/messaging/threads/{threadID}/read", Chain(http.HandlerFunc(s.messagingRead), protected, messagingUsers, candidateActivity))
+	mux.Handle("GET /api/v1/messaging/inbox/ws", Chain(http.HandlerFunc(s.messagingInboxSocket), protected, messagingUsers, candidateActivity))
 	mux.Handle("GET /api/v1/messaging/threads/{threadID}/ws", Chain(http.HandlerFunc(s.messagingSocket), protected, messagingUsers, candidateActivity))
 
 	mux.Handle("GET /api/v1/admin/metrics", Chain(http.HandlerFunc(s.adminMetrics), adminGuard(admin.OverviewRead, admin.SystemRead)))
@@ -214,6 +231,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/intelligence", Chain(http.HandlerFunc(s.adminIntelligence), adminGuard(admin.IntelligenceRead, admin.IntelligenceMetricsRead)))
 	mux.Handle("POST /api/v1/admin/intelligence/run", Chain(http.HandlerFunc(s.adminRunIntelligence), adminGuard(admin.IntelligenceModelsEvaluate)))
 	mux.Handle("PATCH /api/v1/admin/intelligence/insights/{insightID}", Chain(http.HandlerFunc(s.adminReviewIntelligenceInsight), adminGuard(admin.IntelligenceFeedbackReview)))
+	mux.Handle("PATCH /api/v1/admin/intelligence/reviews/{reviewID}", Chain(http.HandlerFunc(s.adminReviewIntelligenceCase), adminGuard(admin.IntelligenceFeedbackReview)))
 	mux.Handle("PATCH /api/v1/admin/intelligence/switches/{switchKey}", Chain(http.HandlerFunc(s.adminUpdateIntelligenceSwitch), adminGuard(admin.IntelligenceKillSwitch)))
 	mux.Handle("POST /api/v1/admin/intelligence/models", Chain(http.HandlerFunc(s.adminRegisterIntelligenceModel), adminGuard(admin.IntelligenceConfigUpdate)))
 	mux.Handle("POST /api/v1/admin/intelligence/models/{modelID}/evaluate", Chain(http.HandlerFunc(s.adminRequestIntelligenceModelEvaluation), adminGuard(admin.IntelligenceModelsEvaluate)))

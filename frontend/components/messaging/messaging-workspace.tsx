@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 
-import { apiRequest } from "@/lib/api";
+import { API_URL, apiRequest } from "@/lib/api";
 import { MessageBubble } from "@/components/messaging/message-bubble";
 import { TypingIndicator } from "@/components/messaging/typing-indicator";
 import { useSapienChat } from "@/hooks/use-sapien-chat";
@@ -53,6 +53,42 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
     const onVisible = () => { if (document.visibilityState === "visible") void refreshThreads(); };
     document.addEventListener("visibilitychange", onVisible);
     return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
+  }, [refreshThreads]);
+
+  useEffect(() => {
+    let disposed = false;
+    let socket: WebSocket | null = null;
+    let reconnectTimer: number | null = null;
+    let attempt = 0;
+
+    const base = (API_URL || window.location.origin).replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+
+    function connect() {
+      if (disposed) return;
+      socket = new WebSocket(`${base}/api/v1/messaging/inbox/ws`);
+      socket.onopen = () => { attempt = 0; };
+      socket.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(String(event.data)) as { type?: string };
+          if (payload.type === "inbox") void refreshThreads();
+        } catch {
+          // Ignore malformed server frames; periodic refresh remains the fallback.
+        }
+      };
+      socket.onerror = () => socket?.close();
+      socket.onclose = () => {
+        if (disposed) return;
+        attempt += 1;
+        reconnectTimer = window.setTimeout(connect, Math.min(10000, 750 * 2 ** Math.min(attempt, 4)));
+      };
+    }
+
+    connect();
+    return () => {
+      disposed = true;
+      if (reconnectTimer) window.clearTimeout(reconnectTimer);
+      socket?.close();
+    };
   }, [refreshThreads]);
 
   useEffect(() => {
@@ -133,9 +169,9 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
   const error = sendError || loadError;
 
   return (
-    <section aria-label={role === "candidate" ? "Candidate inbox" : "Recruiter messages"} className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-[0_24px_70px_rgba(49,46,129,0.10)] backdrop-blur-xl">
+    <section aria-label={role === "candidate" ? "Candidate inbox" : "Recruiter messages"} className="swx-messaging-workspace overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-[0_24px_70px_rgba(49,46,129,0.10)] backdrop-blur-xl">
       <div className={`grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)] ${threads.length ? "min-h-[68vh]" : "min-h-[18rem]"}`}>
-        <aside className={`${showConversation ? "hidden lg:block" : "block"} border-b border-line/70 bg-[linear-gradient(180deg,#fbfaff_0%,#f6f7ff_100%)] lg:border-b-0 lg:border-r`}>
+        <aside className={`swx-messaging-list ${showConversation ? "hidden lg:block" : "block"} border-b border-line/70 bg-[linear-gradient(180deg,#fbfaff_0%,#f6f7ff_100%)] lg:border-b-0 lg:border-r`}>
           <div className="border-b border-line/70 px-4 py-4">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Conversations</p>
             <div className="mt-1 flex items-end justify-between gap-3">
@@ -162,7 +198,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
                   type="button"
                   aria-current={active ? "true" : undefined}
                   onClick={() => selectThread(thread.id)}
-                  className={`mb-1 flex w-full gap-3 rounded-2xl p-3 text-left transition ${active ? "bg-white shadow-[0_8px_24px_rgba(79,70,229,0.10)] ring-1 ring-indigo-100" : "hover:bg-white/75"}`}
+                  className={`swx-thread-row ${active ? "swx-thread-row-active" : ""} mb-1 flex w-full gap-3 rounded-2xl p-3 text-left transition-shadow ${active ? "shadow-[0_8px_24px_rgba(79,70,229,0.10)] ring-1 ring-indigo-100" : "hover:bg-white/75"}`}
                 >
                   <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xs font-extrabold ${active ? "bg-indigo text-white" : "bg-indigo-100 text-indigo-700"}`}>{initials(thread.counterparty_name)}</span>
                   <span className="min-w-0 flex-1">
@@ -183,10 +219,10 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
           </div>
         </aside>
 
-        <div className={`${showConversation ? "flex" : "hidden lg:flex"} ${threads.length ? "min-h-[34rem]" : "min-h-[18rem]"} min-w-0 flex-col bg-[radial-gradient(circle_at_90%_0%,rgba(196,181,253,0.18),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)]`}>
+        <div className={`swx-messaging-pane ${showConversation ? "flex" : "hidden lg:flex"} ${threads.length ? "min-h-[34rem]" : "min-h-[18rem]"} min-w-0 flex-col bg-[radial-gradient(circle_at_90%_0%,rgba(196,181,253,0.18),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfcff_100%)]`}>
           {activeThread ? (
             <>
-              <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line/70 bg-white/70 px-4 py-4 sm:px-5">
+              <header className="swx-messaging-header flex flex-wrap items-center justify-between gap-3 border-b border-line/70 bg-white/70 px-4 py-4 sm:px-5">
                 <button type="button" onClick={() => setShowConversation(false)} className="rounded-lg px-2 py-1 text-sm font-semibold text-indigo lg:hidden">← Back</button>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-extrabold text-navy">{activeThread.subject}</p>
@@ -226,7 +262,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
                 )}
               </div>
 
-              <form onSubmit={submitMessage} className="border-t border-line/70 bg-white/80 p-3 sm:p-4">
+              <form onSubmit={submitMessage} className="swx-messaging-composer border-t border-line/70 bg-white/80 p-3 sm:p-4">
                 {error && <p role="alert" className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{error}</p>}
                 <div className="flex items-end gap-2 rounded-2xl border border-indigo-100 bg-white p-2 shadow-[0_10px_28px_rgba(79,70,229,0.08)] focus-within:ring-4 focus-within:ring-indigo-100/60">
                   <textarea

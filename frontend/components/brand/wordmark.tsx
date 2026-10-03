@@ -6,7 +6,7 @@ export function Wordmark({ className }: { className?: string }) {
       <span className="grid h-9 w-9 place-items-center rounded-full bg-indigo text-sm text-white shadow-sm" aria-hidden="true">
         S
       </span>
-      SapienWorx
+      <span className="swx-wordmark-label">SapienWorx</span>
     </span>
   );
 }

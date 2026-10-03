@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BulkJobToolbar } from "@/components/recruiter/bulk-job-toolbar";
 import { JobShareMenu } from "@/components/recruiter/job-share-menu";
 import { JobStatusControl } from "@/components/recruiter/job-status-control";
+import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
 import { RecruiterJob, RecruiterJobWorkspace, RecruiterTeamMember, compactDate, label } from "@/lib/recruiter";
@@ -99,14 +100,12 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
   return (
     <RecruiterShell>
       <div className="grid gap-5">
-        <section className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Vacancy control</p>
-            <h1 className="mt-1.5 text-2xl font-bold tracking-[-0.04em] text-navy sm:text-[2rem]">Job management</h1>
-            <p className="mt-1 max-w-3xl text-sm text-ink-muted">A compact operating workspace for vacancies across every hiring domain.</p>
-          </div>
-          <Link href="/recruiter/jobs/new" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>
-        </section>
+        <RecruiterProductHeader
+          eyebrow="Vacancy control"
+          title="Job management"
+          description="A compact operating workspace for vacancies across every hiring domain."
+          actions={<Link href="/recruiter/jobs/new" className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-violet-ink">+ Post a job</Link>}
+        />
 
         <section className="grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Job summary">
           <div className="rounded-2xl border border-line/70 bg-white p-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Active roles</p><p className="mt-2 text-2xl font-black tracking-[-0.04em] text-navy">{result.summary.active_jobs}</p></div>

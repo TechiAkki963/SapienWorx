@@ -98,6 +98,9 @@ func (s *Server) recruiterInitiateInMail(w http.ResponseWriter, r *http.Request)
 	}
 	s.recordAdminTelemetry("inmail", "messaging_api", "single_send", "ok", time.Since(started), result.Thread.ID, nil)
 	s.messages.hub.Broadcast(result.Thread.ID, messaging.NewMessageEvent(result.Message))
+	s.messages.hub.Broadcast(messaging.InboxChannel(result.Thread.CandidateID), messaging.NewInboxEvent(result.Thread.ID, result.Message.SenderID))
+	s.messages.hub.Broadcast(messaging.InboxChannel(result.Thread.CandidateID), messaging.NewNotificationsEvent(result.Message.SenderID))
+	s.messages.hub.Broadcast(messaging.InboxChannel(result.Thread.RecruiterID), messaging.NewInboxEvent(result.Thread.ID, result.Message.SenderID))
 	writeJSON(w, http.StatusCreated, result)
 }
 
@@ -111,6 +114,7 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &input) {
 		return
 	}
+	input.IdempotencyKey = strings.TrimSpace(r.Header.Get("X-Idempotency-Key"))
 	started := time.Now()
 	result, err := s.messages.service.BulkInMail(r.Context(), claims.Subject, input)
 	if err != nil {
@@ -119,6 +123,24 @@ func (s *Server) recruiterBulkInMail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.recordAdminTelemetry("inmail", "messaging_api", "bulk_send", "ok", time.Since(started), "", nil)
+	skipped := make(map[string]struct{}, len(result.SkippedCandidateIDs))
+	for _, candidateID := range result.SkippedCandidateIDs {
+		skipped[candidateID] = struct{}{}
+	}
+	for _, candidateID := range input.CandidateIDs {
+		candidateID = strings.TrimSpace(candidateID)
+		if candidateID == "" {
+			continue
+		}
+		if _, wasSkipped := skipped[candidateID]; wasSkipped {
+			continue
+		}
+		s.messages.hub.Broadcast(messaging.InboxChannel(candidateID), messaging.NewInboxEvent("", claims.Subject))
+		s.messages.hub.Broadcast(messaging.InboxChannel(candidateID), messaging.NewNotificationsEvent(claims.Subject))
+	}
+	if result.SentCount > 0 {
+		s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent("", claims.Subject))
+	}
 	writeJSON(w, http.StatusOK, result)
 }
 
@@ -175,6 +197,13 @@ func (s *Server) messagingMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.messages.hub.Broadcast(threadID, messaging.NewMessageEvent(message))
+	if counterpartyID, counterpartyErr := s.messages.service.CounterpartyID(r.Context(), threadID, claims.Subject); counterpartyErr == nil {
+		s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewInboxEvent(threadID, message.SenderID))
+		s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent(threadID, message.SenderID))
+		if sender == messaging.SenderTypeRecruiter {
+			s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewNotificationsEvent(message.SenderID))
+		}
+	}
 	writeJSON(w, http.StatusCreated, message)
 }
 
@@ -188,7 +217,94 @@ func (s *Server) messagingRead(w http.ResponseWriter, r *http.Request) {
 		s.writeMessagingError(w, r, err)
 		return
 	}
+	s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent(r.PathValue("threadID"), claims.Subject))
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) messagingInboxSocket(w http.ResponseWriter, r *http.Request) {
+	claims, _ := ClaimsFromContext(r.Context())
+	if _, ok := senderTypeFromClaims(claims.Role); !ok {
+		writeError(w, r, http.StatusForbidden, "forbidden", "messaging is limited to candidates and recruiters")
+		return
+	}
+	if s.messages == nil || s.messages.hub == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "messaging_unavailable", "messaging service is unavailable")
+		return
+	}
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  512,
+		WriteBufferSize: 512,
+		CheckOrigin: func(request *http.Request) bool {
+			return originAllowed(request.Header.Get("Origin"), s.cfg.HTTP.AllowedOrigins)
+		},
+	}
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return
+	}
+	channel := messaging.InboxChannel(claims.Subject)
+	client := &messaging.Client{Conn: conn, UserID: claims.Subject, Send: make(chan messaging.WebSocketEvent, 16)}
+	if !s.messages.hub.Register(channel, client) {
+		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseTryAgainLater, "messaging capacity reached"), time.Now().Add(time.Second))
+		_ = conn.Close()
+		return
+	}
+	defer conn.Close()
+	defer s.messages.hub.Unregister(channel, client)
+
+	conn.SetReadLimit(1024)
+	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	conn.SetPongHandler(func(string) error { return conn.SetReadDeadline(time.Now().Add(60 * time.Second)) })
+
+	done := make(chan struct{})
+	defer close(done)
+	go func() {
+		ticker := time.NewTicker(25 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-done:
+				return
+			case event, ok := <-client.Send:
+				if !ok || s.auth == nil {
+					return
+				}
+				allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+				if err != nil || !allowed {
+					return
+				}
+				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+				if err := conn.WriteJSON(event); err != nil {
+					return
+				}
+			case <-ticker.C:
+				if s.auth == nil {
+					return
+				}
+				allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+				if err != nil || !allowed {
+					return
+				}
+				_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+				if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
+			}
+		}
+	}()
+
+	for {
+		if _, _, err := conn.ReadMessage(); err != nil {
+			return
+		}
+		if s.auth == nil {
+			return
+		}
+		allowed, err := s.auth.SessionAllowed(r.Context(), claims)
+		if err != nil || !allowed {
+			return
+		}
+	}
 }
 
 func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
@@ -308,6 +424,13 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			s.messages.hub.Broadcast(threadID, messaging.NewMessageEvent(message))
+			if counterpartyID, counterpartyErr := s.messages.service.CounterpartyID(r.Context(), threadID, claims.Subject); counterpartyErr == nil {
+				s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewInboxEvent(threadID, message.SenderID))
+				s.messages.hub.Broadcast(messaging.InboxChannel(claims.Subject), messaging.NewInboxEvent(threadID, message.SenderID))
+				if sender == messaging.SenderTypeRecruiter {
+					s.messages.hub.Broadcast(messaging.InboxChannel(counterpartyID), messaging.NewNotificationsEvent(message.SenderID))
+				}
+			}
 
 		case messaging.EventTypeTyping:
 			var payload messaging.TypingPayload
@@ -374,6 +497,18 @@ func (s *Server) writeMessagingError(w http.ResponseWriter, r *http.Request, err
 		writeError(w, r, http.StatusNotFound, "not_found", "messaging resource was not found")
 	case errors.Is(err, messaging.ErrThreadClosed):
 		writeError(w, r, http.StatusConflict, "thread_closed", "this conversation is closed")
+	case errors.Is(err, messaging.ErrIdempotencyConflict):
+		writeError(w, r, http.StatusConflict, "idempotency_conflict", "this idempotency key was already used for a different bulk message")
+	case errors.Is(err, messaging.ErrRateLimited):
+		var rateErr *messaging.RateLimitError
+		if errors.As(err, &rateErr) && rateErr.RetryAfter > 0 {
+			seconds := int(rateErr.RetryAfter.Seconds())
+			if seconds < 1 {
+				seconds = 1
+			}
+			w.Header().Set("Retry-After", strconvItoa(seconds))
+		}
+		writeError(w, r, http.StatusTooManyRequests, "rate_limited", "bulk outreach limit reached; try again later")
 	default:
 		s.logger.Error("messaging request failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
 		writeError(w, r, http.StatusInternalServerError, "internal_error", "messaging request failed")

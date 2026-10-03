@@ -31,6 +31,9 @@ func TestLoadUsesEnvironment(t *testing.T) {
 	if cfg.Database.MaxConns != 6 || cfg.Database.MinConns != 0 {
 		t.Fatalf("database pool = %d/%d, want 0/6", cfg.Database.MinConns, cfg.Database.MaxConns)
 	}
+	if cfg.Messaging.BulkRecruiterHourlyLimit != 300 || cfg.Messaging.BulkRecruiterDailyLimit != 1000 || cfg.Messaging.BulkCompanyDailyLimit != 5000 {
+		t.Fatalf("unexpected InMail defaults: %+v", cfg.Messaging)
+	}
 }
 
 func TestAdminSecurityRequiresDedicatedKeyOnlyWhenEnabled(t *testing.T) {
@@ -101,7 +104,27 @@ func validProductionConfig() Config {
 			RefreshCookieName: "sw_refresh",
 			CSRFCookieName:    "sw_csrf",
 		},
+		Messaging: MessagingConfig{
+			BulkRecruiterHourlyLimit: 300,
+			BulkRecruiterDailyLimit:  1000,
+			BulkCompanyDailyLimit:    5000,
+		},
 		AWS: AWSConfig{S3PresignTTL: 5 * time.Minute},
+	}
+}
+
+func TestValidateRejectsInvalidInMailLimits(t *testing.T) {
+	cfg := validProductionConfig()
+	cfg.Messaging.BulkRecruiterHourlyLimit = 1001
+	cfg.Messaging.BulkRecruiterDailyLimit = 1000
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected hourly recruiter limit above daily limit to be rejected")
+	}
+
+	cfg = validProductionConfig()
+	cfg.Messaging.BulkCompanyDailyLimit = 999
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected company daily limit below recruiter daily limit to be rejected")
 	}
 }
 

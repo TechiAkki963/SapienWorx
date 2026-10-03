@@ -59,3 +59,56 @@ func TestValidateBulkTemplateText(t *testing.T) {
 		t.Fatalf("expected oversized body to fail, got %v", err)
 	}
 }
+
+func TestBulkPayloadHashIsStableAndPayloadBound(t *testing.T) {
+	ids := []string{
+		"11111111-1111-4111-8111-111111111111",
+		"22222222-2222-4222-8222-222222222222",
+	}
+	first, err := bulkPayloadHash(ids, "", "", "Hello", "Hi {{CandidateName}}")
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := bulkPayloadHash(ids, "", "", "Hello", "Hi {{CandidateName}}")
+	if err != nil {
+		t.Fatal(err)
+	}
+	changed, err := bulkPayloadHash(ids, "", "", "Different", "Hi {{CandidateName}}")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != second {
+		t.Fatal("same canonical bulk request produced different hashes")
+	}
+	if first == changed {
+		t.Fatal("different bulk payload reused the same hash")
+	}
+}
+
+func TestBulkIdempotencyKeyValidation(t *testing.T) {
+	for _, value := range []string{"12345678", "batch:2026-10-02.01", "550e8400-e29b-41d4-a716-446655440000"} {
+		if !idempotencyKeyPattern.MatchString(value) {
+			t.Fatalf("valid idempotency key rejected: %q", value)
+		}
+	}
+	for _, value := range []string{"short", "has spaces", strings.Repeat("x", 129)} {
+		if idempotencyKeyPattern.MatchString(value) {
+			t.Fatalf("invalid idempotency key accepted: %q", value)
+		}
+	}
+}
+
+func TestNewServiceWithPolicyFallsBackToSafeDefaults(t *testing.T) {
+	service := NewServiceWithPolicy(nil, AntiSpamPolicy{})
+	defaults := DefaultAntiSpamPolicy()
+	if service.antiSpamPolicy != defaults {
+		t.Fatalf("policy = %+v, want %+v", service.antiSpamPolicy, defaults)
+	}
+}
+
+func TestRateLimitErrorWrapsSentinel(t *testing.T) {
+	err := &RateLimitError{}
+	if !errors.Is(err, ErrRateLimited) {
+		t.Fatal("RateLimitError must wrap ErrRateLimited")
+	}
+}

@@ -4,6 +4,7 @@
 -- Demo accounts (both use password: SapienDemo#2026)
 --   candidate.demo@sapienworx.local
 --   recruiter.demo@sapienworx.local
+--   recruiter.second@sapienworx.local
 --
 -- Run after all migrations:
 --   psql "$DATABASE_URL" -f database/seed.dev.sql
@@ -26,6 +27,21 @@ INSERT INTO companies (
   now() - interval '180 days'
 ) ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO companies (
+  id, legal_name, display_name, website_url, work_email_domain,
+  country_code, city, verification_status, verified_at
+) VALUES (
+  '10000000-0000-4000-8000-000000000002',
+  'Harbor Talent Systems Private Limited',
+  'Harbor Talent Systems',
+  'https://harbor.example',
+  'harbor.example',
+  'IN',
+  'Pune',
+  'verified',
+  now() - interval '120 days'
+) ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO users (
   id, email, password_hash, role, status, phone_e164,
   email_verified_at, phone_verified_at, last_login_at, is_active
@@ -36,6 +52,13 @@ INSERT INTO users (
     crypt('SapienDemo#2026', gen_salt('bf', 12)),
     'recruiter', 'active', '+919900000001', now() - interval '90 days',
     now() - interval '90 days', now() - interval '2 hours', true
+  ),
+  (
+    '20000000-0000-4000-8000-000000000002',
+    'recruiter.second@sapienworx.local',
+    crypt('SapienDemo#2026', gen_salt('bf', 12)),
+    'recruiter', 'active', '+919900000002', now() - interval '80 days',
+    now() - interval '80 days', now() - interval '4 hours', true
   ),
   (
     '30000000-0000-4000-8000-000000000001',
@@ -83,6 +106,14 @@ INSERT INTO recruiter_profiles (
   'Senior Talent Partner',
   'verified',
   now() - interval '90 days'
+),
+(
+  '20000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000002',
+  'Kabir Malhotra',
+  'Talent Partner',
+  'verified',
+  now() - interval '80 days'
 ) ON CONFLICT (user_id) DO NOTHING;
 
 INSERT INTO candidate_profiles (
@@ -151,6 +182,13 @@ INSERT INTO applications (id, candidate_id, job_id, stage, source, applied_at, u
   ('50000000-0000-4000-8000-000000000006', '30000000-0000-4000-8000-000000000001', '40000000-0000-4000-8000-000000000003', 'new_application', 'direct', now() - interval '1 day', now() - interval '1 day')
 ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO talent_pool_memberships (recruiter_id, candidate_id, tags) VALUES
+  ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000002', ARRAY['frontend','p2-acceptance']),
+  ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000003', ARRAY['analytics','p2-acceptance']),
+  ('20000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000004', ARRAY['backend','p2-acceptance'])
+ON CONFLICT (recruiter_id, candidate_id) DO UPDATE
+SET tags=EXCLUDED.tags, updated_at=now();
+
 INSERT INTO saved_jobs (candidate_id, job_id, saved_at) VALUES
   ('30000000-0000-4000-8000-000000000001', '40000000-0000-4000-8000-000000000002', now() - interval '3 days'),
   ('30000000-0000-4000-8000-000000000001', '40000000-0000-4000-8000-000000000004', now() - interval '2 days')
@@ -184,6 +222,21 @@ INSERT INTO interviews (
     'https://meet.example.com/backend-final-demo', 'scheduled',
     'Final engineering and team-fit conversation.'
   )
+ON CONFLICT (id) DO NOTHING;
+
+
+INSERT INTO recruiter_saved_searches(id,recruiter_id,name,filters,alert_enabled,alert_frequency,updated_at) VALUES
+ ('a1000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Mumbai engineering talent','{"location":"Mumbai","functional_area":"Technology"}'::jsonb,true,'daily',now()-interval '1 day'),
+ ('a1000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000001','Immediate analytics candidates','{"skills":"SQL, Python","max_notice_days":"30"}'::jsonb,false,'weekly',now()-interval '2 days')
+ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name,filters=EXCLUDED.filters,alert_enabled=EXCLUDED.alert_enabled,alert_frequency=EXCLUDED.alert_frequency,updated_at=EXCLUDED.updated_at;
+
+INSERT INTO recruiter_offers(id,application_id,company_id,recruiter_id,title,currency,annual_compensation,joining_date,expires_at,status,notes,sent_at,updated_at) VALUES
+ ('a2000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000005','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Talent Operations Specialist offer','INR',900000,current_date+30,current_date+7,'sent','Demo offer for recruiter product QA.',now()-interval '4 hours',now()-interval '4 hours')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO recruiter_referrals(id,company_id,recruiter_id,candidate_id,job_id,referrer_name,referrer_email,source,status,reward_status,notes,updated_at) VALUES
+ ('a3000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002','40000000-0000-4000-8000-000000000002','Neha Kulkarni','neha@example.test','employee','applied','pending','Strong frontend referral.',now()-interval '3 hours'),
+ ('a3000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000003',NULL,'Arjun Menon','arjun@example.test','partner','referred','not_eligible','General analytics talent referral.',now()-interval '1 day')
 ON CONFLICT (id) DO NOTHING;
 
 COMMIT;

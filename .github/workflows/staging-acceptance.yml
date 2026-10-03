@@ -55,6 +55,9 @@ jobs:
           S3_BUCKET=
           DB_MAX_CONNS=6
           DB_MIN_CONNS=0
+          INMAIL_BULK_RECRUITER_HOURLY_LIMIT=2
+          INMAIL_BULK_RECRUITER_DAILY_LIMIT=4
+          INMAIL_BULK_COMPANY_DAILY_LIMIT=8
           EOF
 
       - name: Build and start ephemeral staging

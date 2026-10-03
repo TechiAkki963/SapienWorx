@@ -4,7 +4,11 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 
-import { BulkInMailDrawer } from "@/components/recruiter/bulk-inmail-drawer";
+import {
+  BulkInMailDrawer,
+  type BulkMessageTemplate,
+  type BulkRecruiterJob,
+} from "@/components/recruiter/bulk-inmail-drawer";
 import { RecruiterTagList } from "@/components/recruiter/recruiter-tag";
 import { experience } from "@/lib/recruiter";
 
@@ -66,7 +70,15 @@ function SelectionCheckbox({
   );
 }
 
-export function TalentPoolSelection({ items }: { items: TalentPoolCandidate[] }) {
+export function TalentPoolSelection({
+  items,
+  messageTemplates,
+  activeJobs,
+}: {
+  items: TalentPoolCandidate[];
+  messageTemplates: BulkMessageTemplate[];
+  activeJobs: BulkRecruiterJob[];
+}) {
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
 
   const allSelected = items.length > 0 && selected.size === items.length;
@@ -224,7 +236,7 @@ export function TalentPoolSelection({ items }: { items: TalentPoolCandidate[] })
         )}
       </AnimatePresence>
 
-      <BulkInMailDrawer onSent={clearSelection} />
+      <BulkInMailDrawer onSent={clearSelection} initialTemplates={messageTemplates} initialJobs={activeJobs} />
     </>
   );
 }

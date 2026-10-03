@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { InterviewCandidateCard } from "@/components/recruiter/applicant-card-workspace";
 import { InterviewCalendar } from "@/components/recruiter/interview-calendar";
+import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { ScheduleInterviewForm } from "@/components/recruiter/schedule-interview-form";
 import { InterviewActions } from "@/components/recruiter/interview-actions";
@@ -26,14 +27,12 @@ export default async function InterviewsPage({ searchParams }: { searchParams: P
   return (
     <RecruiterShell>
       <div className="grid gap-5">
-        <section className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Interview operations</p>
-            <h1 className="mt-1.5 text-2xl font-bold tracking-[-0.04em] text-navy sm:text-[2rem]">Interviews</h1>
-            <p className="mt-1 text-sm text-ink-muted">Coordinate interviews while keeping the meeting itself in the external tool your team already uses.</p>
-          </div>
-          <ScheduleInterviewForm applications={pipeline.items} />
-        </section>
+        <RecruiterProductHeader
+          eyebrow="Interview operations"
+          title="Interviews"
+          description="Coordinate interviews while keeping the meeting itself in the external tool your team already uses."
+          actions={<ScheduleInterviewForm applications={pipeline.items} />}
+        />
 
         <nav aria-label="Interview views" className="flex flex-wrap items-center gap-2"><Link href="/recruiter/interviews" aria-current={!calendar ? "page" : undefined} className={`rounded-lg px-3 py-2 text-sm font-bold ${!calendar ? "bg-indigo text-white" : "border border-line bg-white text-navy"}`}>List view</Link><Link href="/recruiter/interviews?view=calendar&mode=week" aria-current={calendar ? "page" : undefined} className={`rounded-lg px-3 py-2 text-sm font-bold ${calendar ? "bg-indigo text-white" : "border border-line bg-white text-navy"}`}>Calendar view</Link>{status === "upcoming" && <Link href="/recruiter/interviews" className="ml-auto text-sm font-bold text-indigo hover:underline">Show all interviews</Link>}</nav>
         {interview_id && <Link href="/recruiter/interviews" className="text-sm font-bold text-indigo hover:underline">← All interviews</Link>}

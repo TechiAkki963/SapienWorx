@@ -8,7 +8,7 @@ import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { ThreadListResponse } from "@/lib/messaging";
 
-type IconName = "overview" | "discover" | "pipeline" | "talent" | "messages" | "jobs" | "interviews";
+type IconName = "overview" | "discover" | "pipeline" | "talent" | "messages" | "jobs" | "interviews" | "outreach";
 
 type NavItem = { label: string; shortLabel?: string; href: string; icon: IconName };
 
@@ -19,15 +19,20 @@ const sections: { title: string; items: NavItem[] }[] = [
     { label: "Applications", shortLabel: "Apps", href: "/recruiter/pipeline", icon: "pipeline" },
     { label: "Messages / InMail", shortLabel: "Inbox", href: "/recruiter/messages", icon: "messages" },
     { label: "Interviews", href: "/recruiter/interviews", icon: "interviews" },
+    { label: "Offers", href: "/recruiter/offers", icon: "jobs" },
   ] },
   { title: "Advanced recruitment tools", items: [
     { label: "Discover Talent", href: "/recruiter/discover", icon: "discover" },
     { label: "Talent Pools", href: "/recruiter/talent-pool", icon: "talent" },
+    { label: "Saved Searches", href: "/recruiter/saved-searches", icon: "discover" },
+    { label: "Referrals", href: "/recruiter/referrals", icon: "talent" },
+    { label: "Outreach", href: "/recruiter/outreach", icon: "outreach" },
+    { label: "Analytics", href: "/recruiter/analytics", icon: "overview" },
   ] },
 ];
 
 const mobilePrimary = sections[0].items.slice(0, 4);
-const mobileMore = [sections[0].items[4], ...sections[1].items];
+const mobileMore = [...sections[0].items.slice(4), ...sections[1].items];
 
 function NavIcon({ name, className }: { name: IconName; className?: string }) {
   const common = cn("h-[18px] w-[18px] shrink-0 fill-none stroke-current stroke-[1.8]", className);
@@ -37,6 +42,7 @@ function NavIcon({ name, className }: { name: IconName; className?: string }) {
   if (name === "talent") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.6-6 3.6v-15a1 1 0 0 1 1-1Z" /></svg>;
   if (name === "messages") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M4 5.5h16v11H9l-5 3v-14Z" /><path d="M7.5 9h9M7.5 12.5h6" /></svg>;
   if (name === "jobs") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><rect x="3.5" y="7" width="17" height="12" rx="2" /><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 11.5h17" /></svg>;
+  if (name === "outreach") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="m4 5 16 7-16 7 3-7-3-7Z" /><path d="M7 12h8" /></svg>;
   return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><rect x="4" y="5.5" width="16" height="14" rx="2" /><path d="M8 3.5v4M16 3.5v4M4 10h16M8 14h3M13 14h3" /></svg>;
 }
 

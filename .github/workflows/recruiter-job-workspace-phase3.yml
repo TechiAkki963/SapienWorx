@@ -104,11 +104,21 @@ jobs:
         env:
           RECRUITER_JOB_SECURITY_TEST_DATABASE_URL: postgres://sapienworx:sapienworx_ci@127.0.0.1:5432/sapienworx_ci?sslmode=disable
         run: go test -race ./internal/recruiter -run TestRecruiterJobSecurityIsolatedDatabase -count=1
+      - name: P2.5 messaging email suppression and retry QA
+        working-directory: backend
+        env:
+          MESSAGING_QA_TEST_DATABASE_URL: postgres://sapienworx:sapienworx_ci@127.0.0.1:5432/sapienworx_ci?sslmode=disable
+        run: go test -race ./internal/emaildelivery -run TestP25EmailDeliverySuppressionAndRetryIsolatedDatabase -count=1 -v
       - name: Phase 3.6 recruiter job scale and query-plan gate
         working-directory: backend
         env:
           RECRUITER_JOB_SCALE_TEST_DATABASE_URL: postgres://sapienworx:sapienworx_ci@127.0.0.1:5432/sapienworx_ci?sslmode=disable
         run: go test ./internal/recruiter -run TestRecruiterJobWorkspaceScaleIsolatedDatabase -count=1 -v
+      - name: P2.6 recruiter product contracts and Task 49 scale gate
+        working-directory: backend
+        env:
+          RECRUITER_PRODUCT_SCALE_TEST_DATABASE_URL: postgres://sapienworx:sapienworx_ci@127.0.0.1:5432/sapienworx_ci?sslmode=disable
+        run: go test ./internal/recruiter -run TestP26RecruiterProductAreasScaleAndIsolation -count=1 -v
       - name: Roll back all migrations
         run: |
           set -euo pipefail
@@ -192,3 +202,19 @@ jobs:
           path: frontend/visual-artifacts/stack-integration
           if-no-files-found: ignore
           retention-days: 7
+      - name: Upload P2.6 recruiter product visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2.6-recruiter-product-visuals
+          path: frontend/visual-artifacts/p2.6-recruiter-product-areas
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload P2.7 UI mockup contract review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2.7-ui-mockup-review
+          path: frontend/visual-artifacts/p2.7-ui-mockup/
+          if-no-files-found: error
+          retention-days: 14

@@ -73,6 +73,29 @@ data "aws_iam_policy_document" "application" {
   }
 
   statement {
+    sid    = "SendTransactionalEmail"
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail",
+    ]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:ses:${var.aws_region}:${data.aws_caller_identity.current.account_id}:identity/${var.domain_name}",
+    ]
+  }
+
+  statement {
+    sid    = "ReadSESSendingAndSuppressionState"
+    effect = "Allow"
+    actions = [
+      "ses:GetAccount",
+      "ses:GetSuppressedDestination",
+      "ses:ListSuppressedDestinations",
+      "ses:ListSuppressedDestinations",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "UsePrivateUserAndCandidateDocuments"
     effect = "Allow"
     actions = [

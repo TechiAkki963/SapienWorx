@@ -2,17 +2,18 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { apiRequest } from "@/lib/api";
 
-type MessageTemplate = {
+export type BulkMessageTemplate = {
   id: string;
   title: string;
   subject_template: string;
   body_template: string;
 };
 
-type RecruiterJob = {
+export type BulkRecruiterJob = {
   id: string;
   title: string;
   status: string;
@@ -57,19 +58,27 @@ function Spinner() {
   return <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white/45 border-t-white" />;
 }
 
-export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
+export function BulkInMailDrawer({
+  onSent,
+  initialTemplates,
+  initialJobs,
+}: {
+  onSent: () => void;
+  initialTemplates?: BulkMessageTemplate[];
+  initialJobs?: BulkRecruiterJob[];
+}) {
   const [open, setOpen] = useState(false);
   const [candidateIDs, setCandidateIDs] = useState<string[]>([]);
-  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [templates, setTemplates] = useState<BulkMessageTemplate[]>(initialTemplates ?? []);
   const [templateID, setTemplateID] = useState("");
-  const [jobs, setJobs] = useState<RecruiterJob[]>([]);
+  const [jobs, setJobs] = useState<BulkRecruiterJob[]>(initialJobs ?? []);
   const [jobID, setJobID] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [loadingTemplates, setLoadingTemplates] = useState(false);
-  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [templatesLoaded, setTemplatesLoaded] = useState(initialTemplates !== undefined);
   const [loadingJobs, setLoadingJobs] = useState(false);
-  const [jobsLoaded, setJobsLoaded] = useState(false);
+  const [jobsLoaded, setJobsLoaded] = useState(initialJobs !== undefined);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -95,12 +104,12 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
   }, []);
 
   useEffect(() => {
-    if (!open || templatesLoaded || loadingTemplates) return;
+    if (!open || templatesLoaded) return;
 
     let cancelled = false;
     setLoadingTemplates(true);
 
-    apiRequest<{ items: MessageTemplate[] }>("/api/v1/recruiter/message-templates")
+    apiRequest<{ items: BulkMessageTemplate[] }>("/api/v1/recruiter/message-templates")
       .then(({ items }) => {
         if (!cancelled) setTemplates(items ?? []);
       })
@@ -117,15 +126,15 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     return () => {
       cancelled = true;
     };
-  }, [loadingTemplates, open, templatesLoaded]);
+  }, [open, templatesLoaded]);
 
   useEffect(() => {
-    if (!open || jobsLoaded || loadingJobs) return;
+    if (!open || jobsLoaded) return;
 
     let cancelled = false;
     setLoadingJobs(true);
 
-    apiRequest<{ items: RecruiterJob[] }>("/api/v1/recruiter/jobs")
+    apiRequest<{ items: BulkRecruiterJob[] }>("/api/v1/recruiter/jobs")
       .then(({ items }) => {
         if (!cancelled) setJobs(items ?? []);
       })
@@ -142,7 +151,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     return () => {
       cancelled = true;
     };
-  }, [jobsLoaded, loadingJobs, open]);
+  }, [jobsLoaded, open]);
 
   useEffect(() => {
     if (!selectedTemplate) return;
@@ -203,8 +212,10 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
         payload.body = body.trim();
       }
 
+      const idempotencyKey = window.crypto.randomUUID();
       const result = await apiRequest<BulkAccepted>("/api/v1/recruiter/inmail/bulk", {
         method: "POST",
+        headers: { "X-Idempotency-Key": idempotencyKey },
         body: JSON.stringify(payload),
       });
 
@@ -233,7 +244,11 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
     }
   }
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  const portalTarget = document.querySelector(".theme-surface") ?? document.body;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -255,7 +270,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.9 }}
-            className="fixed inset-y-0 right-0 z-[70] flex w-full max-w-[38rem] flex-col border-l border-white/70 bg-[linear-gradient(165deg,#ffffff_0%,#f7f6ff_48%,#effaf6_100%)] shadow-[-24px_0_70px_rgba(16,33,63,0.16)]"
+            className="swx-bulk-inmail fixed inset-y-0 right-0 z-[70] flex w-full max-w-[38rem] flex-col border-l border-white/70 bg-[linear-gradient(165deg,#ffffff_0%,#f7f8ff_48%,#f3f7ff_100%)] shadow-[-24px_0_70px_rgba(16,33,63,0.16)]"
           >
             <div className="flex items-start justify-between gap-4 border-b border-line/70 bg-white/80 px-5 py-5 backdrop-blur-xl sm:px-6">
               <div>
@@ -375,15 +390,18 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
                   </div>
                 </section>
 
+                <div className="rounded-xl border border-[#dfe4f7] bg-[#f7f8ff] px-3.5 py-3 text-[11px] leading-5 text-ink-muted">
+                  Up to 200 recipients per send. Company-wide 14-day cooldown and hourly/daily outreach safeguards are applied automatically; messages and inbox notifications are committed atomically.
+                </div>
+
                 {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-sm font-semibold text-red-700">{error}</p>}
               </div>
 
-              <div className="border-t border-line/70 bg-white/90 px-5 py-4 backdrop-blur-xl sm:px-6">
-                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-[11px] leading-5 text-ink-muted">Up to 200 recipients per send. Candidates you contacted within the last 14 days are skipped automatically; messages and inbox notifications are committed atomically.</p>
-                  <div className="flex shrink-0 gap-2">
-                    <button type="button" onClick={closeDrawer} disabled={sending} className="min-h-11 rounded-xl border border-line bg-white px-4 text-sm font-bold text-ink-muted transition hover:bg-slate-50 hover:text-navy disabled:opacity-50">Cancel</button>
-                    <button type="submit" disabled={sending || recipientCount === 0 || recipientCount > 200 || !subject.trim() || !body.trim() || (usesJobTitle && !jobID)} className="inline-flex min-h-11 min-w-[10.5rem] items-center justify-center gap-2 rounded-xl bg-[#24A47F] px-5 text-sm font-extrabold text-white shadow-[0_10px_26px_rgba(36,164,127,0.24)] transition hover:bg-[#1d8d6d] disabled:cursor-not-allowed disabled:opacity-50">
+              <div className="border-t border-line/70 bg-white/90 px-5 py-3.5 backdrop-blur-xl sm:px-6">
+                <div className="flex justify-end gap-2">
+                  <div className="flex w-full gap-2 sm:w-auto">
+                    <button type="button" onClick={closeDrawer} disabled={sending} className="min-h-11 flex-1 rounded-xl border border-line bg-white px-4 text-sm font-bold text-ink-muted transition hover:bg-slate-50 hover:text-navy disabled:opacity-50 sm:flex-none">Cancel</button>
+                    <button type="submit" disabled={sending || recipientCount === 0 || recipientCount > 200 || !subject.trim() || !body.trim() || (usesJobTitle && !jobID)} className="inline-flex min-h-11 min-w-0 flex-[1.35] items-center justify-center gap-2 rounded-xl bg-indigo px-5 text-sm font-extrabold text-white shadow-[0_10px_26px_rgba(79,70,229,0.22)] transition hover:bg-indigo/90 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[10.5rem] sm:flex-none">
                       {sending && <Spinner />}
                       {sending ? "Sending…" : `Send to ${recipientCount}`}
                     </button>
@@ -414,6 +432,7 @@ export function BulkInMailDrawer({ onSent }: { onSent: () => void }) {
           </motion.aside>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    portalTarget,
   );
 }

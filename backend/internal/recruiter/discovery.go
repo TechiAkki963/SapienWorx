@@ -59,13 +59,16 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 	if len(strings.Split(f.Skills, ",")) > 10 {
 		return DiscoveryList{}, ErrInvalid
 	}
-	if len(f.UpdatedSince) > 10 {
+	if len(f.UpdatedSince) > 40 {
 		return DiscoveryList{}, ErrInvalid
 	}
 	var since time.Time
 	if f.UpdatedSince != "" {
 		var err error
-		since, err = time.Parse("2006-01-02", f.UpdatedSince)
+		since, err = time.Parse(time.RFC3339Nano, f.UpdatedSince)
+		if err != nil {
+			since, err = time.Parse("2006-01-02", f.UpdatedSince)
+		}
 		if err != nil {
 			return DiscoveryList{}, ErrInvalid
 		}

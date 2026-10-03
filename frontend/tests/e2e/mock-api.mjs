@@ -65,6 +65,89 @@ function initialState() {
     verificationStatus: "pending",
     accountStatuses: {},
     accountResets: {},
+    messagingThreads: [
+      {
+        id: "73000000-0000-4000-8000-000000000001",
+        recruiter_id: recruiterID,
+        candidate_id: candidateID,
+        job_id: jobID,
+        subject: "Senior Go Platform Engineer opportunity",
+        status: "open",
+        candidate_name: "Aarav Candidate",
+        recruiter_name: "Riya Recruiter",
+        job_title: "Senior Go Platform Engineer",
+        last_message: "Thanks — I’m interested. Could you share the interview timeline?",
+        unread_candidate: 1,
+        unread_recruiter: 0,
+        created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+        updated_at: new Date(Date.now() - 12 * 60000).toISOString(),
+      },
+      {
+        id: "73000000-0000-4000-8000-000000000002",
+        recruiter_id: recruiterID,
+        candidate_id: candidateID,
+        job_id: null,
+        subject: "Operations leadership conversation",
+        status: "open",
+        candidate_name: "Aarav Candidate",
+        recruiter_name: "Riya Recruiter",
+        job_title: null,
+        last_message: "Happy to stay in touch for future roles.",
+        unread_candidate: 0,
+        unread_recruiter: 1,
+        created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+        updated_at: new Date(Date.now() - 5 * 3600000).toISOString(),
+      },
+    ],
+    messagingMessages: {
+      "73000000-0000-4000-8000-000000000001": [
+        {id:"74000000-0000-4000-8000-000000000001",thread_id:"73000000-0000-4000-8000-000000000001",sender_id:recruiterID,sender_type:"recruiter",content:"Hi Aarav, your background looks relevant for our Senior Go Platform Engineer role.",is_read:true,created_at:new Date(Date.now()-90*60000).toISOString()},
+        {id:"74000000-0000-4000-8000-000000000002",thread_id:"73000000-0000-4000-8000-000000000001",sender_id:candidateID,sender_type:"candidate",content:"Thanks — I’m interested. Could you share the interview timeline?",is_read:true,created_at:new Date(Date.now()-12*60000).toISOString()},
+        {id:"74000000-0000-4000-8000-000000000003",thread_id:"73000000-0000-4000-8000-000000000001",sender_id:recruiterID,sender_type:"recruiter",content:"Absolutely. The next step is a 45-minute technical discussion, followed by the hiring manager round.",is_read:false,created_at:new Date(Date.now()-8*60000).toISOString()},
+      ],
+      "73000000-0000-4000-8000-000000000002": [
+        {id:"74000000-0000-4000-8000-000000000004",thread_id:"73000000-0000-4000-8000-000000000002",sender_id:recruiterID,sender_type:"recruiter",content:"Thanks for connecting. I’ll keep you in mind for operations leadership opportunities.",is_read:true,created_at:new Date(Date.now()-6*3600000).toISOString()},
+        {id:"74000000-0000-4000-8000-000000000005",thread_id:"73000000-0000-4000-8000-000000000002",sender_id:candidateID,sender_type:"candidate",content:"Happy to stay in touch for future roles.",is_read:false,created_at:new Date(Date.now()-5*3600000).toISOString()},
+      ],
+    },
+    candidateNotifications: [
+      {id:"75000000-0000-4000-8000-000000000001",kind:"inmail",title:"New message from a recruiter",body:"Senior Go Platform Engineer opportunity",action_url:"/candidate/inbox?thread=73000000-0000-4000-8000-000000000001",read_at:null,created_at:new Date(Date.now()-8*60000).toISOString()},
+    ],
+    messageTemplates: [
+      {id:"72000000-0000-4000-8000-000000000001",recruiter_id:recruiterID,title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you.",created_at:new Date(Date.now()-4*86400000).toISOString(),updated_at:new Date(Date.now()-4*86400000).toISOString()},
+      {id:"72000000-0000-4000-8000-000000000002",recruiter_id:recruiterID,title:"Gentle follow-up",subject_template:"Following up about {{JobTitle}}",body_template:"Hi {{CandidateName}}, just following up in case our {{JobTitle}} opportunity is relevant for you.",created_at:new Date(Date.now()-3*86400000).toISOString(),updated_at:new Date(Date.now()-3*86400000).toISOString()},
+    ],
+    outreachSequences: [
+      {
+        id:"76000000-0000-4000-8000-000000000001",
+        name:"Priority role follow-up",
+        status:"active",
+        steps:[
+          {id:"76100000-0000-4000-8000-000000000001",step_order:1,delay_hours:0,template_id:"72000000-0000-4000-8000-000000000001",title:"Role introduction",subject_template:"{{JobTitle}} opportunity",body_template:"Hi {{CandidateName}}, I would like to discuss our {{JobTitle}} opportunity with you."},
+          {id:"76100000-0000-4000-8000-000000000002",step_order:2,delay_hours:48,template_id:"72000000-0000-4000-8000-000000000002",title:"Gentle follow-up",subject_template:"Following up about {{JobTitle}}",body_template:"Hi {{CandidateName}}, just following up in case our {{JobTitle}} opportunity is relevant for you."},
+        ],
+        created_at:new Date(Date.now()-2*86400000).toISOString(),
+        updated_at:new Date(Date.now()-2*86400000).toISOString(),
+      },
+    ],
+    outreachCampaigns: [
+      {
+        id:"77000000-0000-4000-8000-000000000001",
+        name:"Mumbai platform hiring",
+        sequence_id:"76000000-0000-4000-8000-000000000001",
+        sequence_name:"Priority role follow-up",
+        job_id:jobID,
+        job_title:"Senior Go Platform Engineer",
+        status:"running",
+        total_recipients:3,
+        sent_count:3,
+        skipped_count:0,
+        failed_count:0,
+        launched_at:new Date(Date.now()-6*3600000).toISOString(),
+        created_at:new Date(Date.now()-7*3600000).toISOString(),
+        updated_at:new Date(Date.now()-6*3600000).toISOString(),
+      },
+    ],
     adminAccess: { enabled: false, assigned: true, admin_role: "support_admin", mfa_enrolled: false, mfa_verified: false },
   };
 }
@@ -74,7 +157,7 @@ let state = initialState();
 const corsHeaders = {
   "access-control-allow-origin": webOrigin,
   "access-control-allow-credentials": "true",
-  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id",
+  "access-control-allow-headers": "content-type,x-amz-server-side-encryption,x-csrf-token,authorization,x-request-id,x-idempotency-key",
   "access-control-allow-methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
 };
 
@@ -180,14 +263,18 @@ function intelligenceDashboard() {
     switches: [
       ["global_intelligence", false, "Master switch for intelligence processing."],
       ["candidate_intelligence", false, "Generate normalized candidate feature records."],
+      ["job_intelligence", false, "Generate normalized job feature records."],
       ["cv_intelligence", false, "Process CV-derived intelligence."],
       ["matching", false, "Generate deterministic match results."],
       ["learning_collection", false, "Collect outcome feedback."],
       ["automated_recommendations", false, "Serve intelligence recommendations."],
       ["ai_gateway", false, "Allow governed external AI routing."],
       ["model_deployment", false, "Allow approved model promotion."],
+      ["embedding_generation", false, "Generate governed embedding documents."],
+      ["semantic_search", false, "Use approved embeddings as a retrieval signal."],
+      ["human_review_queue", false, "Create Master Admin review cases for intelligence outputs."],
     ].map(([key, enabled, description]) => ({ key, enabled, requires_approval_to_enable: true, description, changed_at: now() })),
-    heartbeats: [{ engine_key: "sapienworx-intelligence", status: "healthy", version: "engine-v1", metadata: { advisory_only: true }, last_seen_at: now() }],
+    heartbeats: [{ engine_key: "sapienworx-intelligence", status: "healthy", version: "engine-v2", metadata: { advisory_only: true }, last_seen_at: now() }],
     prompts: [
       {
         id: "a5000000-0000-4000-8000-000000000001",
@@ -209,8 +296,22 @@ function intelligenceDashboard() {
         created_at: now(),
       },
     ],
+    human_reviews: [{
+      id: "a6000000-0000-4000-8000-000000000001",
+      review_type: "event_failure",
+      subject_type: "event",
+      subject_id: "a7000000-0000-4000-8000-000000000001",
+      priority: "high",
+      reason_code: "intelligence.event.max_attempts",
+      evidence: { event_type: "job.updated", aggregate_type: "job", attempts: 8 },
+      recommendation: { action: "review failure and explicitly replay only after the underlying cause is fixed" },
+      status: "open",
+      review_note: "",
+      created_at: now(),
+      updated_at: now(),
+    }],
     gateway: { requests_24h: 0, failures_24h: 0, blocked_24h: 0, estimated_cost_24h: 0, avg_latency_ms_24h: 0, redactions_24h: 0 },
-    store: { pending_events: 12, failed_events: 0, candidate_features: 42, job_features: 12, match_results: 180, feedback_events: 55 },
+    store: { pending_events: 12, failed_events: 0, dead_letters: 1, candidate_features: 42, job_features: 12, match_results: 180, feedback_events: 55, embedding_documents: 0, open_human_reviews: 2, oldest_pending_seconds: 35 },
     computed_at: now(),
     advisory_only: true,
   };
@@ -736,13 +837,192 @@ const server = http.createServer(async (req, res) => {
     {id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",designation:"Senior Staff Nurse",current_company:"Harbour Health",current_city:"Navi Mumbai",current_state:"Maharashtra",experience_months:72,notice_period_days:15,preferred_locations:"Mumbai, Navi Mumbai",skills:["Critical Care","BLS","Patient Safety"],education:"B.Sc Nursing",updated_at:now()},
     {id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",designation:"Relationship Manager",current_company:"Unity Finance",current_city:"Pune",current_state:"Maharashtra",experience_months:60,notice_period_days:0,preferred_locations:"Pune, Mumbai",skills:["B2B Sales","CRM","Portfolio Management"],education:"B.Com · Finance",updated_at:now()}
   ], page: 1, limit: 12, total: 3 });
-  if (url.pathname === "/api/v1/recruiter/saved-searches" && req.method === "GET") return json(res, 200, {items:[{id:"saved-1",name:"Mumbai operations",filters:{industry:"Logistics",location:"Mumbai"},updated_at:now()}]});
+  if (url.pathname === "/api/v1/recruiter/saved-searches" && req.method === "GET") return json(res, 200, {items:[{id:"saved-1",name:"Mumbai operations",filters:{industry:"Logistics",location:"Mumbai"},alert_enabled:true,alert_frequency:"daily",updated_at:now()}]});
   if (url.pathname === "/api/v1/recruiter/saved-searches" && req.method === "POST") return json(res, 201, {id:"saved-new",name:payload.name,filters:payload.filters,updated_at:now()});
+  if (/^\/api\/v1\/recruiter\/saved-searches\/[^/]+$/.test(url.pathname) && req.method === "PATCH") return json(res, 200, {id:url.pathname.split("/").at(-1),name:"Mumbai operations",filters:{industry:"Logistics",location:"Mumbai"},alert_enabled:Boolean(payload.enabled),alert_frequency:String(payload.frequency||"daily"),updated_at:now()});
+  if (url.pathname === "/api/v1/recruiter/offers" && req.method === "GET") return json(res, 200, {items:[{id:"of-1",application_id:"70000000-0000-4000-8000-000000000001",candidate_id:"71000000-0000-4000-8000-000000000001",candidate_name:"Aarav Mehta",job_id:jobID,job_title:"Senior Go Platform Engineer",job_reference:"SWX-JOB-2026-00001",title:"Employment offer",currency:"INR",annual_compensation:1800000,joining_date:"2026-11-15",expires_at:"2026-10-20",status:"sent",updated_at:now()}]});
+  if (url.pathname === "/api/v1/recruiter/offers" && req.method === "POST") return json(res, 201, {id:"of-new",application_id:String(payload.application_id||""),candidate_name:"Aarav Mehta",job_title:"Senior Go Platform Engineer",job_reference:"SWX-JOB-2026-00001",title:String(payload.title||"Employment offer"),currency:String(payload.currency||"INR"),annual_compensation:payload.annual_compensation,status:"draft",updated_at:now()});
+  if (/^\/api\/v1\/recruiter\/offers\/[^/]+$/.test(url.pathname) && req.method === "PATCH") return noContent(res);
+  if (url.pathname === "/api/v1/recruiter/referrals" && req.method === "GET") return json(res, 200, {items:[{id:"ref-1",candidate_id:"71000000-0000-4000-8000-000000000002",candidate_name:"Meera Nair",job_id:jobID,job_title:"Senior Go Platform Engineer",referrer_name:"Nisha Rao",referrer_email:"nisha@example.test",source:"employee",status:"contacted",reward_status:"pending",updated_at:now()}]});
+  if (url.pathname === "/api/v1/recruiter/referrals" && req.method === "POST") return json(res, 201, {id:"ref-new",candidate_id:String(payload.candidate_id||""),candidate_name:"Aarav Mehta",job_title:"Senior Go Platform Engineer",referrer_name:String(payload.referrer_name||""),referrer_email:String(payload.referrer_email||""),source:String(payload.source||"employee"),status:"referred",reward_status:"not_eligible",updated_at:now()});
+  if (/^\/api\/v1\/recruiter\/referrals\/[^/]+$/.test(url.pathname) && req.method === "PATCH") return noContent(res);
+  if (url.pathname === "/api/v1/recruiter/analytics" && req.method === "GET") return json(res, 200, {active_jobs:8,applications:186,shortlisted:62,interviews:31,offers:9,hires:6,placement_rate:3.2,source_performance:[{source:"direct",applications:92,hires:2,conversion:2.2},{source:"referral",applications:54,hires:3,conversion:5.6},{source:"linkedin",applications:40,hires:1,conversion:2.5}],monthly_trend:[{month:"2026-05",applications:22,hires:0},{month:"2026-06",applications:28,hires:1},{month:"2026-07",applications:31,hires:1},{month:"2026-08",applications:35,hires:1},{month:"2026-09",applications:33,hires:2},{month:"2026-10",applications:37,hires:1}]});
   if (url.pathname === "/api/v1/recruiter/recent-searches" && req.method === "GET") return json(res, 200, {items:[{id:1,filters:{q:"operations",location:"Mumbai"},created_at:now()}]});
   if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "PUT") return json(res, 200, {recruiter_id:recruiterID,candidate_id:url.pathname.split("/").at(-1),tags:Array.isArray(payload.tags)?payload.tags:[],created_at:now(),updated_at:now()});
   if (/^\/api\/v1\/recruiter\/talent-pool\/[^/]+$/.test(url.pathname) && req.method === "DELETE") return noContent(res);
-  if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [] });
-  if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") return json(res, 200, { items: [] });
+  if (url.pathname === "/api/v1/recruiter/talent-pool" && req.method === "GET") return json(res, 200, { items: [
+    {candidate_id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",current_city:"Mumbai",experience_months:96,notice_period_days:30,tags:["Operations","Leadership"],saved_at:new Date(Date.now()-3*86400000).toISOString()},
+    {candidate_id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",current_city:"Navi Mumbai",experience_months:72,notice_period_days:15,tags:["Healthcare","Critical Care"],saved_at:new Date(Date.now()-2*86400000).toISOString()},
+    {candidate_id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",current_city:"Pune",experience_months:60,notice_period_days:0,tags:["B2B Sales","CRM"],saved_at:new Date(Date.now()-86400000).toISOString()}
+  ] });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "GET") return json(res, 200, { items: state.messageTemplates });
+  if (url.pathname === "/api/v1/recruiter/message-templates" && req.method === "POST") {
+    const item = {
+      id:`72000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      recruiter_id:recruiterID,
+      title:String(payload.title ?? ""),
+      subject_template:String(payload.subject_template ?? ""),
+      body_template:String(payload.body_template ?? ""),
+      created_at:now(),
+      updated_at:now(),
+    };
+    state.messageTemplates.unshift(item);
+    return json(res, 201, item);
+  }
+  if (url.pathname === "/api/v1/recruiter/outreach/sequences" && req.method === "GET") return json(res, 200, { items: state.outreachSequences });
+  if (url.pathname === "/api/v1/recruiter/outreach/sequences" && req.method === "POST") {
+    const steps = Array.isArray(payload.steps) ? payload.steps : [];
+    const item = {
+      id:`76000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      name:String(payload.name ?? ""),
+      status:"active",
+      steps:steps.map((step,index) => {
+        const template=state.messageTemplates.find((candidate)=>candidate.id===step.template_id);
+        return {
+          id:`76100000-0000-4000-8000-${String(Date.now()+index).slice(-12).padStart(12,"0")}`,
+          step_order:index+1,
+          delay_hours:Number(step.delay_hours ?? 0),
+          template_id:String(step.template_id ?? ""),
+          title:template?.title ?? "Template",
+          subject_template:template?.subject_template ?? "",
+          body_template:template?.body_template ?? "",
+        };
+      }),
+      created_at:now(),
+      updated_at:now(),
+    };
+    state.outreachSequences.unshift(item);
+    return json(res, 201, item);
+  }
+  if (url.pathname === "/api/v1/recruiter/outreach/campaigns" && req.method === "GET") return json(res, 200, { items: state.outreachCampaigns });
+  if (url.pathname === "/api/v1/recruiter/outreach/campaigns" && req.method === "POST") {
+    const sequence=state.outreachSequences.find((candidate)=>candidate.id===payload.sequence_id);
+    const selectedJob=String(payload.job_id ?? "");
+    const item={
+      id:`77000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      name:String(payload.name ?? ""),
+      sequence_id:String(payload.sequence_id ?? ""),
+      sequence_name:sequence?.name ?? "Sequence",
+      job_id:selectedJob || undefined,
+      job_title:selectedJob ? "Senior Go Platform Engineer" : undefined,
+      status:"draft",
+      total_recipients:Array.isArray(payload.candidate_ids) ? payload.candidate_ids.length : 0,
+      sent_count:0,
+      skipped_count:0,
+      failed_count:0,
+      created_at:now(),
+      updated_at:now(),
+    };
+    state.outreachCampaigns.unshift(item);
+    return json(res, 201, item);
+  }
+  const outreachLaunchMatch=url.pathname.match(/^\/api\/v1\/recruiter\/outreach\/campaigns\/([^/]+)\/launch$/);
+  if (outreachLaunchMatch && req.method === "POST") {
+    if (!req.headers["x-idempotency-key"]) return json(res, 400, {error:{code:"invalid_request",message:"messaging input is invalid"}});
+    const item=state.outreachCampaigns.find((candidate)=>candidate.id===outreachLaunchMatch[1]);
+    if (!item) return json(res,404,{error:{code:"not_found",message:"messaging resource was not found"}});
+    item.status="running";
+    item.sent_count=item.total_recipients;
+    item.launched_at=now();
+    item.updated_at=now();
+    return json(res,200,{campaign:item,delivery:{requested_count:item.total_recipients,recipient_count:item.total_recipients,sent_count:item.total_recipients,skipped_count:0,skipped_candidate_ids:[],cooldown_days:14,status:"sent"}});
+  }
+  const outreachCampaignMatch=url.pathname.match(/^\/api\/v1\/recruiter\/outreach\/campaigns\/([^/]+)$/);
+  if (outreachCampaignMatch && req.method === "PATCH") {
+    const item=state.outreachCampaigns.find((candidate)=>candidate.id===outreachCampaignMatch[1]);
+    if (!item) return json(res,404,{error:{code:"not_found",message:"messaging resource was not found"}});
+    item.status=String(payload.status ?? item.status);
+    item.updated_at=now();
+    if (item.status==="cancelled") item.completed_at=now();
+    return json(res,200,item);
+  }
+  if (url.pathname === "/api/v1/recruiter/inmail/bulk" && req.method === "POST") {
+    const ids = Array.isArray(payload.candidate_ids) ? Array.from(new Set(payload.candidate_ids)) : [];
+    if (!req.headers["x-idempotency-key"]) return json(res, 400, { error: { code: "invalid_request", message: "messaging input is invalid" } });
+    return json(res, 200, {
+      requested_count: ids.length,
+      recipient_count: ids.length,
+      sent_count: ids.length,
+      skipped_count: 0,
+      skipped_candidate_ids: [],
+      cooldown_days: 14,
+      status: "sent",
+    });
+  }
+  if (url.pathname === "/api/v1/messaging/threads" && req.method === "GET") {
+    const role = roleFromCookie(req);
+    const items = state.messagingThreads.map((thread) => ({
+      id: thread.id,
+      recruiter_id: thread.recruiter_id,
+      candidate_id: thread.candidate_id,
+      job_id: thread.job_id,
+      subject: thread.subject,
+      status: thread.status,
+      counterparty_name: role === "candidate" ? thread.recruiter_name : thread.candidate_name,
+      job_title: thread.job_title,
+      last_message: thread.last_message,
+      unread_count: role === "candidate" ? thread.unread_candidate : thread.unread_recruiter,
+      created_at: thread.created_at,
+      updated_at: thread.updated_at,
+    })).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+    return json(res, 200, { items });
+  }
+  const messagingMessagesMatch = url.pathname.match(/^\/api\/v1\/messaging\/threads\/([^/]+)\/messages$/);
+  if (messagingMessagesMatch && req.method === "GET") {
+    return json(res, 200, { items: state.messagingMessages[messagingMessagesMatch[1]] ?? [] });
+  }
+  if (messagingMessagesMatch && req.method === "POST") {
+    const threadID = messagingMessagesMatch[1];
+    const role = roleFromCookie(req);
+    const senderID = role === "candidate" ? candidateID : recruiterID;
+    const message = {
+      id: `74000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+      thread_id: threadID,
+      sender_id: senderID,
+      sender_type: role,
+      content: String(payload.content ?? "").trim(),
+      is_read: false,
+      created_at: now(),
+    };
+    if (!message.content) return json(res, 400, { error: { message: "messaging input is invalid" } });
+    state.messagingMessages[threadID] = [...(state.messagingMessages[threadID] ?? []), message];
+    const thread = state.messagingThreads.find((item) => item.id === threadID);
+    if (thread) {
+      thread.last_message = message.content;
+      thread.updated_at = message.created_at;
+      if (role === "candidate") thread.unread_recruiter += 1;
+      else {
+        thread.unread_candidate += 1;
+        state.candidateNotifications.unshift({
+          id:`75000000-0000-4000-8000-${String(Date.now()).slice(-12).padStart(12,"0")}`,
+          kind:"inmail",
+          title:"New message from a recruiter",
+          body:thread.subject,
+          action_url:`/candidate/inbox?thread=${thread.id}`,
+          read_at:null,
+          created_at:message.created_at,
+        });
+      }
+    }
+    return json(res, 201, message);
+  }
+  const messagingReadMatch = url.pathname.match(/^\/api\/v1\/messaging\/threads\/([^/]+)\/read$/);
+  if (messagingReadMatch && req.method === "PATCH") {
+    const role = roleFromCookie(req);
+    const thread = state.messagingThreads.find((item) => item.id === messagingReadMatch[1]);
+    if (thread) {
+      if (role === "candidate") thread.unread_candidate = 0;
+      if (role === "recruiter") thread.unread_recruiter = 0;
+    }
+    return noContent(res);
+  }
+  if (url.pathname === "/api/v1/candidate/notifications" && req.method === "GET") return json(res, 200, { items: state.candidateNotifications });
+  const notificationReadMatch = url.pathname.match(/^\/api\/v1\/candidate\/notifications\/([^/]+)\/read$/);
+  if (notificationReadMatch && req.method === "PATCH") {
+    const item = state.candidateNotifications.find((notification) => notification.id === notificationReadMatch[1]);
+    if (item) item.read_at = now();
+    return noContent(res);
+  }
   if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{
     id: "80000000-0000-4000-8000-000000000001", application_id: "70000000-0000-4000-8000-000000000001",
     candidate_id: "71000000-0000-4000-8000-000000000001", job_id: jobID, job_reference: "SWX-JOB-2026-00001",
@@ -823,6 +1103,14 @@ const server = http.createServer(async (req, res) => {
     }
     return json(res, 200, intelligenceDashboard());
   }
+  const intelligenceReview = url.pathname.match(/^\/api\/v1\/admin\/intelligence\/reviews\/([^/]+)$/);
+  if (intelligenceReview && req.method === "PATCH") {
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (roleFromCookie(req) !== "master_admin" || (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || !permissions.includes("intelligence.feedback.review")))) {
+      return json(res, 403, { error: { message: "intelligence review denied" } });
+    }
+    return json(res, 200, { updated: true });
+  }
 
   // Aggregate fixtures for the isolated admin dashboard UI; never production data.
   if (url.pathname === "/api/v1/admin/dashboard" && req.method === "GET") {
@@ -897,6 +1185,19 @@ const server = http.createServer(async (req, res) => {
   }
   if (url.pathname === "/api/v1/admin/jobs" && req.method === "GET") return json(res, 200, { items: [{ ...job(), company_id: companyID, recruiter_user_id: recruiterID, recruiter_name: "Example Recruiter", status: "active", updated_at: now(), application_count: 4 }], page: 1, limit: 25, total: 1 });
   if (url.pathname === "/api/v1/admin/budget-settings" && req.method === "GET") return json(res, 200, { sns_sms_warning_count: 1000, sns_sms_critical_count: 2000, updated_at: now() });
+  if (url.pathname === "/api/v1/admin/email-health" && req.method === "GET") return json(res, 200, {
+    enabled: false,
+    provider: {},
+    pending: 2,
+    failed: 1,
+    sent_24h: 0,
+    suppressed: 2,
+    bounces: 1,
+    complaints: 1,
+    oldest_pending_at: "2026-10-03T06:10:00Z",
+    checked_at: now(),
+  });
+
   if (url.pathname === "/api/v1/admin/audit-logs" && req.method === "GET") return json(res, 200, { items: [], total: 0, page: 1, limit: 50 });
   if (url.pathname.startsWith("/api/v1/admin/privacy/") && req.method === "GET") return json(res, 200, { items: [] });
   const approveMatch = url.pathname.match(/^\/api\/v1\/admin\/company-verifications\/([^/]+)\/approve$/);

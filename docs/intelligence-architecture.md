@@ -1,7 +1,7 @@
 # SapienWorx Intelligence Architecture
 
-Branch: `MasterAdmin`  
-Status: review-only; not approved for production activation.
+Branch: `p2-completion-audit-20261003`  
+Status: Consolidated P2 release candidate under audit; all governed Intelligence capabilities remain disabled until separate activation approval.
 
 ## Boundary
 
@@ -19,13 +19,33 @@ Core database transactions create intelligence events in `intelligence.events` t
 - application creation/stage transition
 - job save/unsave feedback
 
-The standalone Intelligence Engine claims events using `FOR UPDATE SKIP LOCKED`, retries failures with bounded exponential backoff, and records heartbeats.
+The standalone Intelligence Engine claims events using `FOR UPDATE SKIP LOCKED`, retries failures with bounded exponential backoff, reclaims stale `processing` locks after five minutes, moves max-attempt failures into `intelligence.dead_letters`, and records heartbeats. Dead-letter failures can optionally create Master-Admin-only human-review cases when the governed review switch is enabled.
 
-## Knowledge and candidate intelligence
+## P2.8 activation order
 
-`intelligence.skills`, `skill_aliases` and `skill_relations` provide the first recruitment knowledge layer.
+Production activation must follow this dependency order; later capabilities must not be enabled to compensate for an unstable earlier contract:
+
+1. Intelligence runtime + transactional event/outbox reliability.
+2. AI Gateway boundary and redaction/telemetry.
+3. Cross-industry workforce taxonomy and knowledge mappings.
+4. Candidate intelligence and job intelligence.
+5. Deterministic matching/ranking and evidence explanations.
+6. Governed embedding generation/storage and semantic retrieval.
+7. Evaluation, model/prompt registries, kill switches, RBAC and observability.
+8. Command Centre cockpit and Master Admin human review.
+9. User-facing automated recommendations only after the preceding gates pass.
+
+## Knowledge and candidate/job intelligence
+
+The canonical production normalization boundary is the cross-industry `workforce` taxonomy. Intelligence feature extraction resolves skills, competencies, tools, technology, equipment, certifications, licences and methodologies through that taxonomy; unknown terms remain conservatively normalized rather than being forced into a technology-only vocabulary.
 
 Candidate features are stored separately from verified core profile data. The engine does not overwrite candidate verified profile fields. Candidate feature records include normalized skills, experience/education/certification/project arrays, seniority, domains, location/availability fields, source event and confidence.
+
+## Embeddings and semantic search
+
+Migration 000053 adds a governed embedding model/document store using PostgreSQL arrays plus a database-native cosine search primitive. This avoids requiring an external vector database or a local `pgvector` extension during P2.8 foundation work. Embedding generation and semantic search have independent kill switches and default to OFF. Structured/lexical recruitment search remains the fallback and must remain functional when semantic retrieval is disabled.
+
+No external model provider is enabled by this work. A production embedding generator must be registered, evaluated and approved through the governed model/provider path before the embedding switch can be enabled.
 
 ## Matching
 
@@ -91,9 +111,13 @@ Only the approved active prompt version should be consumed by future provider ad
 Current switches:
 - global_intelligence
 - candidate_intelligence
+- job_intelligence
 - cv_intelligence
 - matching
 - learning_collection
+- embedding_generation
+- semantic_search
+- human_review_queue
 - automated_recommendations
 - ai_gateway
 - model_deployment
@@ -133,3 +157,18 @@ Do not enable production Intelligence until all of the following are independent
 - model promotion dual approval tested
 - rollback tested
 - full E2E and deployment CI green
+
+
+## Human review boundary
+
+`intelligence.human_review_queue` is for operational/model/taxonomy/match-quality review only. Fraud, fake-job and suspicious-candidate signals remain isolated in the separate Master Admin trust/risk workspace. They must not be exposed to recruiters, companies, consultants or candidates and must never become automatic public labels.
+
+## P2.8 production hardening additions
+
+- stale event-lock recovery;
+- dead-letter capture after bounded retries;
+- independent `job_intelligence` gating;
+- cross-industry taxonomy normalization for intelligence features;
+- embedding model/document storage and cosine retrieval primitive;
+- Master Admin human-review queue;
+- Command Centre scorecard for pending age, retry failures, dead letters, review backlog and embedding document count.

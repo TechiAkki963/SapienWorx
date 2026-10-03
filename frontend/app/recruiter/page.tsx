@@ -39,7 +39,7 @@ export default async function RecruiterDashboardPage() {
             <div className="flex h-full flex-col justify-center pr-0 lg:pr-64">
               <div>
                 <span className="block text-xs font-bold uppercase tracking-wider text-blue-600">{data.company_name}</span>
-                <h1 className="mt-1.5 text-3xl font-extrabold text-slate-900"><LocalTimeGreeting firstName={session.first_name || firstName} />.</h1>
+                <h1 className="swx-recruiter-display mt-1.5 text-3xl font-semibold tracking-[-0.035em] text-slate-900"><LocalTimeGreeting firstName={session.first_name || firstName} />.</h1>
                 <p className="mt-2 text-sm text-slate-500">Hiring workspace. Here&apos;s what needs movement today.</p>
               </div>
               <div className="mt-4 flex items-center gap-3 lg:absolute lg:right-6 lg:top-[15px] lg:mt-0">
