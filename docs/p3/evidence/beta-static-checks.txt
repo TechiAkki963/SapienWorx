@@ -5,6 +5,7 @@ PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 4
 PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 5
 PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 6
 PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 7
+PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 8
 PASS: shell syntax: .github/workflows/beta-ci.yml database-rehearsal step 1
 PASS: shell syntax: .github/workflows/beta-ci.yml database-rehearsal step 2
 PASS: YAML parses: .github/workflows/beta-deploy.yml

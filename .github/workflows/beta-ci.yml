@@ -27,6 +27,9 @@ jobs:
       - name: Test runtime production-isolation guards
         working-directory: deploy/beta
         run: python3 -m unittest test_runtime.py
+      - name: Verify adapted Caddy hostname and upstream boundaries
+        working-directory: .
+        run: python3 scripts/verify-beta-routing.py
   database-rehearsal:
     runs-on: ubuntu-24.04
     timeout-minutes: 20

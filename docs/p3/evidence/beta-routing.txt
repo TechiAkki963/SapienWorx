@@ -1,0 +1,1 @@
+PASS: adapted Caddy exposes application upstreams only on beta.sapienworx.com; no production hostname or redirect.

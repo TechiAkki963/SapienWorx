@@ -7,11 +7,7 @@ http://127.0.0.1:2019 {
 	respond /healthz 200
 }
 
-www.beta.sapienworx.com {
-	redir https://sapienworx.com{uri} permanent
-}
-
-sapienworx.com {
+beta.sapienworx.com {
 	encode zstd gzip
 
 	header {
