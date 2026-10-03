@@ -1,0 +1,79 @@
+module.beta.data.aws_db_instance.shared: Reading...
+module.beta.data.aws_instance.shared: Reading...
+module.beta.data.aws_subnet.shared_application: Reading...
+module.beta.data.aws_iam_role.shared: Reading...
+module.beta.data.aws_caller_identity.current: Reading...
+data.aws_caller_identity.current: Reading...
+data.aws_partition.current: Reading...
+module.beta.data.aws_partition.current: Reading...
+module.beta.aws_cloudwatch_log_group.host: Refreshing state... [id=/sapienworx/beta/host]
+module.beta.aws_cloudwatch_log_group.application: Refreshing state... [id=/sapienworx/beta/application]
+data.aws_partition.current: Read complete after 0s [id=aws]
+module.beta.data.aws_partition.current: Read complete after 0s [id=aws]
+module.beta.aws_ecr_repository.application["frontend"]: Refreshing state... [id=sapienworx-beta/frontend]
+module.beta.aws_sns_topic.operations: Refreshing state... [id=arn:aws:sns:ap-south-1:327301848391:sapienworx-beta-operations]
+module.beta.data.aws_caller_identity.current: Read complete after 0s [id=327301848391]
+module.beta.aws_ecr_repository.application["intelligence"]: Refreshing state... [id=sapienworx-beta/intelligence]
+data.aws_caller_identity.current: Read complete after 0s [id=327301848391]
+module.beta.aws_ecr_repository.application["migration"]: Refreshing state... [id=sapienworx-beta/migration]
+module.beta.aws_ecr_repository.application["backend"]: Refreshing state... [id=sapienworx-beta/backend]
+module.beta.aws_ssm_parameter.application_secret["JWT_SECRET"]: Refreshing state... [id=/sapienworx/beta/JWT_SECRET]
+module.beta.aws_ssm_parameter.application_secret["MIGRATION_DATABASE_URL"]: Refreshing state... [id=/sapienworx/beta/MIGRATION_DATABASE_URL]
+module.beta.aws_ssm_parameter.application_secret["DATABASE_URL"]: Refreshing state... [id=/sapienworx/beta/DATABASE_URL]
+module.beta.aws_ssm_parameter.application_secret["AUTH_OTP_HMAC_SECRET"]: Refreshing state... [id=/sapienworx/beta/AUTH_OTP_HMAC_SECRET]
+module.beta.aws_ssm_parameter.application_secret["INTELLIGENCE_DATABASE_URL"]: Refreshing state... [id=/sapienworx/beta/INTELLIGENCE_DATABASE_URL]
+module.beta.data.aws_subnet.shared_private["subnet-00695605c628f7cd6"]: Reading...
+module.beta.data.aws_subnet.shared_application: Read complete after 0s [id=subnet-0dd7e43718bafce5e]
+module.beta.data.aws_subnet.shared_private["subnet-03e71aa881ba365d0"]: Reading...
+module.beta.data.aws_db_instance.shared: Read complete after 0s [id=sapienworx-production-postgres]
+module.beta.aws_ecr_lifecycle_policy.application["backend"]: Refreshing state... [id=sapienworx-beta/backend]
+module.beta.aws_ecr_lifecycle_policy.application["migration"]: Refreshing state... [id=sapienworx-beta/migration]
+module.beta.aws_ecr_lifecycle_policy.application["intelligence"]: Refreshing state... [id=sapienworx-beta/intelligence]
+module.beta.aws_ecr_lifecycle_policy.application["frontend"]: Refreshing state... [id=sapienworx-beta/frontend]
+module.beta.aws_cloudwatch_metric_alarm.rds_connections: Refreshing state... [id=sapienworx-beta-rds-connections]
+module.beta.aws_cloudwatch_metric_alarm.rds_cpu: Refreshing state... [id=sapienworx-beta-rds-high-cpu]
+module.beta.aws_cloudwatch_metric_alarm.rds_free_storage: Refreshing state... [id=sapienworx-beta-rds-low-storage]
+module.beta.data.aws_iam_policy_document.github_assume_role: Reading...
+module.beta.aws_s3_bucket.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.data.aws_iam_policy_document.github_assume_role: Read complete after 0s [id=3134402410]
+module.beta.aws_iam_role.github_deployment: Refreshing state... [id=sapienworx-beta-github-deployment]
+module.beta.data.aws_subnet.shared_private["subnet-00695605c628f7cd6"]: Read complete after 0s [id=subnet-00695605c628f7cd6]
+module.beta.data.aws_subnet.shared_private["subnet-03e71aa881ba365d0"]: Read complete after 0s [id=subnet-03e71aa881ba365d0]
+module.beta.aws_s3_bucket_versioning.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_s3_bucket_public_access_block.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_s3_bucket_server_side_encryption_configuration.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_s3_bucket_ownership_controls.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_s3_bucket_cors_configuration.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.data.aws_iam_policy_document.application: Reading...
+module.beta.data.aws_iam_policy_document.application: Read complete after 0s [id=3346935456]
+module.beta.data.aws_iam_policy_document.documents_bucket: Reading...
+module.beta.data.aws_iam_policy_document.documents_bucket: Read complete after 0s [id=2684821362]
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_ssm_parameter.application_config["RDS_ENDPOINT"]: Refreshing state... [id=/sapienworx/beta/RDS_ENDPOINT]
+module.beta.aws_ssm_parameter.application_config["S3_BUCKET"]: Refreshing state... [id=/sapienworx/beta/S3_BUCKET]
+module.beta.aws_ssm_parameter.application_config["AWS_REGION"]: Refreshing state... [id=/sapienworx/beta/AWS_REGION]
+module.beta.aws_iam_policy.application: Refreshing state... [id=arn:aws:iam::327301848391:policy/sapienworx-beta-application]
+module.beta.aws_s3_bucket_policy.documents: Refreshing state... [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.data.aws_instance.shared: Read complete after 1s [id=i-0356b55e3d7eaf72a]
+module.beta.aws_cloudwatch_metric_alarm.ec2_status: Refreshing state... [id=sapienworx-beta-ec2-status-check]
+module.beta.aws_cloudwatch_metric_alarm.ec2_memory: Refreshing state... [id=sapienworx-beta-ec2-high-memory]
+module.beta.data.aws_iam_policy_document.github_deployment: Reading...
+module.beta.aws_cloudwatch_metric_alarm.ec2_cpu: Refreshing state... [id=sapienworx-beta-ec2-high-cpu]
+module.beta.aws_cloudwatch_metric_alarm.ec2_disk: Refreshing state... [id=sapienworx-beta-ec2-root-disk]
+module.beta.data.aws_iam_policy_document.github_deployment: Read complete after 0s [id=1560416704]
+module.beta.aws_iam_policy.github_deployment: Refreshing state... [id=arn:aws:iam::327301848391:policy/sapienworx-beta-github-deployment]
+module.beta.data.aws_iam_role.shared: Read complete after 1s [id=sapienworx-production-application]
+module.beta.data.aws_iam_policy_document.runtime_assume_role: Reading...
+module.beta.data.aws_iam_policy_document.runtime_assume_role: Read complete after 0s [id=2268228759]
+module.beta.aws_iam_role.application: Refreshing state... [id=sapienworx-beta-application]
+module.beta.aws_iam_role_policy_attachment.github_deployment: Refreshing state... [id=sapienworx-beta-github-deployment/arn:aws:iam::327301848391:policy/sapienworx-beta-github-deployment]
+module.beta.aws_iam_role_policy_attachment.application: Refreshing state... [id=sapienworx-beta-application/arn:aws:iam::327301848391:policy/sapienworx-beta-application]
+module.beta.data.aws_iam_policy_document.host_assume_beta: Reading...
+module.beta.data.aws_iam_policy_document.host_assume_beta: Read complete after 0s [id=2878967280]
+module.beta.aws_iam_policy.host_assume_beta: Refreshing state... [id=arn:aws:iam::327301848391:policy/sapienworx-beta-host-assume-runtime]
+module.beta.aws_iam_role_policy_attachment.host_assume_beta: Refreshing state... [id=sapienworx-production-application/arn:aws:iam::327301848391:policy/sapienworx-beta-host-assume-runtime]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.

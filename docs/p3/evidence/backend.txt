@@ -1,0 +1,19 @@
+ok      github.com/TechiAkki963/SapienWorx/backend/cmd/admin-recovery   0.008s
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/api  [no test files]
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/intelligence [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/admin   0.021s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/auth    0.530s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/candidate   0.007s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery   0.007s
+?       github.com/TechiAkki963/SapienWorx/backend/internal/intelligence    [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/engine 0.006s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway    0.006s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/messaging   0.010s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/config 0.010s
+?       github.com/TechiAkki963/SapienWorx/backend/internal/platform/database   [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver 0.217s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/privacy 0.007s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/recruiter   0.005s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/resume  0.041s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/storage 0.004s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/workforce   0.005s

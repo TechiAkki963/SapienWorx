@@ -1,0 +1,11 @@
+[
+    {
+        "Id": "sapienworx-production-postgres",
+        "Status": "available",
+        "Endpoint": "sapienworx-production-postgres.cj2gqggw8nlj.ap-south-1.rds.amazonaws.com",
+        "Private": false,
+        "Encrypted": true,
+        "Retention": 7,
+        "Protection": true
+    }
+]

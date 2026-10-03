@@ -1,0 +1,3 @@
+PASS: sapienworx.com exact approved page/asset; application paths return 404.
+PASS: www.sapienworx.com exact approved page/asset; application paths return 404.
+PASS: beta host routes frontend/API to beta-only stubs; unknown host has no application content.

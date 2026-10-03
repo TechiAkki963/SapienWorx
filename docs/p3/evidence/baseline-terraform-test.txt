@@ -1,0 +1,6 @@
+tests/offline_plan.tftest.hcl... in progress
+  run "production_safety_plan"... pass
+tests/offline_plan.tftest.hcl... tearing down
+tests/offline_plan.tftest.hcl... pass
+
+Success! 1 passed, 0 failed.

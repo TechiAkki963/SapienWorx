@@ -1,0 +1,52 @@
+name: Beta foundation safety
+on:
+  pull_request:
+    paths: ["deploy/beta/**", "infrastructure/terraform/beta/**", "infrastructure/terraform/modules/**", ".github/workflows/beta-*.yml", "backend/cmd/beta-accounts/**", "scripts/verify-beta-*.py", "scripts/verify-shared-edge.py", "database/migrations/**"]
+  push:
+    branches: [main]
+    paths: ["deploy/beta/**", "infrastructure/terraform/beta/**", "infrastructure/terraform/modules/**", ".github/workflows/beta-*.yml", "backend/cmd/beta-accounts/**", "scripts/verify-beta-*.py", "scripts/verify-shared-edge.py", "database/migrations/**"]
+permissions:
+  contents: read
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: infrastructure/terraform/beta
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+      - run: terraform fmt -check -recursive
+      - run: terraform -chdir=../modules/shared-host-beta fmt -check -recursive
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
+      - run: terraform test
+      - name: Test runtime production-isolation guards
+        working-directory: deploy/beta
+        run: python3 -m unittest test_runtime.py
+      - name: Verify adapted Caddy hostname and upstream boundaries
+        working-directory: .
+        run: python3 scripts/verify-beta-routing.py
+      - name: Exercise public and beta routing on a shared edge
+        working-directory: .
+        run: |
+          mkdir -p tmp
+          python3 scripts/verify-shared-edge.py
+  database-rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build isolated beta migration and account tools
+        run: docker build -f deploy/beta/Dockerfile.migrate -t sapienworx-p3-beta-migration:test .
+      - name: Rehearse repeatable seed and isolated backup/restore
+        run: python3 scripts/verify-beta-database.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: beta-database-rehearsal
+          path: docs/p3/evidence/beta-database.txt
+          retention-days: 14

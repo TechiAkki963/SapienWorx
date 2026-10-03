@@ -1,0 +1,1 @@
+PASS: 42 beta creates, zero updates/deletes; no new EC2/RDS/SG/EIP/VPC/subnet/profile; existing compute/database reused.

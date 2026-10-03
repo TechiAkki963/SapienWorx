@@ -1,0 +1,153 @@
+module.beta.aws_cloudwatch_log_group.application: Creating...
+module.beta.aws_sns_topic.operations: Creating...
+module.beta.aws_ssm_parameter.application_secret["MIGRATION_DATABASE_URL"]: Creating...
+module.beta.aws_ssm_parameter.application_secret["JWT_SECRET"]: Creating...
+module.beta.aws_ssm_parameter.application_secret["AUTH_OTP_HMAC_SECRET"]: Creating...
+module.beta.aws_cloudwatch_log_group.host: Creating...
+module.beta.aws_ssm_parameter.application_secret["DATABASE_URL"]: Creating...
+module.beta.aws_ecr_repository.application["migration"]: Creating...
+module.beta.aws_iam_role.application: Creating...
+module.beta.aws_ecr_repository.application["frontend"]: Creating...
+module.beta.aws_cloudwatch_log_group.application: Creation complete after 0s [id=/sapienworx/beta/application]
+module.beta.aws_cloudwatch_log_group.host: Creation complete after 0s [id=/sapienworx/beta/host]
+module.beta.aws_ssm_parameter.application_secret["INTELLIGENCE_DATABASE_URL"]: Creating...
+module.beta.aws_ecr_repository.application["intelligence"]: Creating...
+module.beta.aws_ecr_repository.application["frontend"]: Creation complete after 0s [id=sapienworx-beta/frontend]
+module.beta.aws_ecr_repository.application["backend"]: Creating...
+module.beta.aws_ecr_repository.application["migration"]: Creation complete after 0s [id=sapienworx-beta/migration]
+module.beta.aws_iam_role.github_deployment: Creating...
+module.beta.aws_ssm_parameter.application_secret["DATABASE_URL"]: Creation complete after 0s [id=/sapienworx/beta/DATABASE_URL]
+module.beta.aws_ssm_parameter.application_secret["AUTH_OTP_HMAC_SECRET"]: Creation complete after 0s [id=/sapienworx/beta/AUTH_OTP_HMAC_SECRET]
+module.beta.aws_ssm_parameter.application_secret["MIGRATION_DATABASE_URL"]: Creation complete after 0s [id=/sapienworx/beta/MIGRATION_DATABASE_URL]
+module.beta.aws_ssm_parameter.application_secret["JWT_SECRET"]: Creation complete after 0s [id=/sapienworx/beta/JWT_SECRET]
+module.beta.aws_s3_bucket.documents: Creating...
+module.beta.aws_sns_topic.operations: Creation complete after 0s [id=arn:aws:sns:ap-south-1:327301848391:sapienworx-beta-operations]
+module.beta.aws_cloudwatch_metric_alarm.ec2_cpu: Creating...
+module.beta.aws_cloudwatch_metric_alarm.rds_cpu: Creating...
+module.beta.aws_cloudwatch_metric_alarm.ec2_status: Creating...
+module.beta.aws_cloudwatch_metric_alarm.rds_connections: Creating...
+module.beta.aws_ecr_repository.application["intelligence"]: Creation complete after 0s [id=sapienworx-beta/intelligence]
+module.beta.aws_cloudwatch_metric_alarm.ec2_disk: Creating...
+module.beta.aws_ecr_repository.application["backend"]: Creation complete after 0s [id=sapienworx-beta/backend]
+module.beta.aws_cloudwatch_metric_alarm.ec2_memory: Creating...
+module.beta.aws_ssm_parameter.application_secret["INTELLIGENCE_DATABASE_URL"]: Creation complete after 0s [id=/sapienworx/beta/INTELLIGENCE_DATABASE_URL]
+module.beta.aws_cloudwatch_metric_alarm.rds_free_storage: Creating...
+module.beta.aws_cloudwatch_metric_alarm.rds_cpu: Creation complete after 0s [id=sapienworx-beta-rds-high-cpu]
+module.beta.aws_ecr_lifecycle_policy.application["intelligence"]: Creating...
+module.beta.aws_cloudwatch_metric_alarm.rds_connections: Creation complete after 0s [id=sapienworx-beta-rds-connections]
+module.beta.aws_cloudwatch_metric_alarm.ec2_cpu: Creation complete after 0s [id=sapienworx-beta-ec2-high-cpu]
+module.beta.aws_ecr_lifecycle_policy.application["migration"]: Creating...
+module.beta.aws_ecr_lifecycle_policy.application["frontend"]: Creating...
+module.beta.aws_cloudwatch_metric_alarm.ec2_status: Creation complete after 0s [id=sapienworx-beta-ec2-status-check]
+module.beta.aws_ecr_lifecycle_policy.application["backend"]: Creating...
+module.beta.aws_cloudwatch_metric_alarm.ec2_disk: Creation complete after 0s [id=sapienworx-beta-ec2-root-disk]
+module.beta.aws_cloudwatch_metric_alarm.rds_free_storage: Creation complete after 0s [id=sapienworx-beta-rds-low-storage]
+module.beta.aws_cloudwatch_metric_alarm.ec2_memory: Creation complete after 0s [id=sapienworx-beta-ec2-high-memory]
+module.beta.aws_ecr_lifecycle_policy.application["migration"]: Creation complete after 0s [id=sapienworx-beta/migration]
+module.beta.aws_ecr_lifecycle_policy.application["frontend"]: Creation complete after 0s [id=sapienworx-beta/frontend]
+module.beta.aws_ecr_lifecycle_policy.application["intelligence"]: Creation complete after 0s [id=sapienworx-beta/intelligence]
+module.beta.aws_ecr_lifecycle_policy.application["backend"]: Creation complete after 0s [id=sapienworx-beta/backend]
+module.beta.aws_s3_bucket.documents: Creation complete after 1s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_s3_bucket_ownership_controls.documents: Creating...
+module.beta.aws_s3_bucket_versioning.documents: Creating...
+module.beta.aws_s3_bucket_public_access_block.documents: Creating...
+module.beta.aws_s3_bucket_server_side_encryption_configuration.documents: Creating...
+module.beta.data.aws_iam_policy_document.github_deployment: Reading...
+module.beta.data.aws_iam_policy_document.application: Reading...
+module.beta.aws_s3_bucket_cors_configuration.documents: Creating...
+module.beta.data.aws_iam_policy_document.github_deployment: Read complete after 0s [id=1560416704]
+module.beta.data.aws_iam_policy_document.application: Read complete after 0s [id=3346935456]
+module.beta.data.aws_iam_policy_document.documents_bucket: Reading...
+module.beta.data.aws_iam_policy_document.documents_bucket: Read complete after 0s [id=2684821362]
+module.beta.aws_ssm_parameter.application_config["S3_BUCKET"]: Creating...
+module.beta.aws_ssm_parameter.application_config["AWS_REGION"]: Creating...
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Creating...
+module.beta.aws_ssm_parameter.application_config["S3_BUCKET"]: Creation complete after 0s [id=/sapienworx/beta/S3_BUCKET]
+module.beta.aws_ssm_parameter.application_config["RDS_ENDPOINT"]: Creating...
+module.beta.aws_s3_bucket_public_access_block.documents: Creation complete after 0s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_ssm_parameter.application_config["AWS_REGION"]: Creation complete after 0s [id=/sapienworx/beta/AWS_REGION]
+module.beta.aws_iam_policy.github_deployment: Creating...
+module.beta.aws_iam_policy.application: Creating...
+module.beta.aws_s3_bucket_ownership_controls.documents: Creation complete after 0s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_s3_bucket_policy.documents: Creating...
+module.beta.aws_ssm_parameter.application_config["RDS_ENDPOINT"]: Creation complete after 0s [id=/sapienworx/beta/RDS_ENDPOINT]
+module.beta.aws_s3_bucket_policy.documents: Creation complete after 0s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_s3_bucket_server_side_encryption_configuration.documents: Creation complete after 0s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_iam_role.application: Creation complete after 2s [id=sapienworx-beta-application]
+module.beta.data.aws_iam_policy_document.host_assume_beta: Reading...
+module.beta.data.aws_iam_policy_document.host_assume_beta: Read complete after 0s [id=2878967280]
+module.beta.aws_iam_policy.host_assume_beta: Creating...
+module.beta.aws_s3_bucket_cors_configuration.documents: Creation complete after 1s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_iam_role.github_deployment: Creation complete after 2s [id=sapienworx-beta-github-deployment]
+module.beta.aws_iam_policy.github_deployment: Creation complete after 1s [id=arn:aws:iam::327301848391:policy/sapienworx-beta-github-deployment]
+module.beta.aws_iam_role_policy_attachment.github_deployment: Creating...
+module.beta.aws_iam_policy.application: Creation complete after 1s [id=arn:aws:iam::327301848391:policy/sapienworx-beta-application]
+module.beta.aws_iam_role_policy_attachment.application: Creating...
+module.beta.aws_iam_policy.host_assume_beta: Creation complete after 0s [id=arn:aws:iam::327301848391:policy/sapienworx-beta-host-assume-runtime]
+module.beta.aws_iam_role_policy_attachment.host_assume_beta: Creating...
+module.beta.aws_s3_bucket_versioning.documents: Creation complete after 1s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+module.beta.aws_iam_role_policy_attachment.github_deployment: Creation complete after 0s [id=sapienworx-beta-github-deployment/arn:aws:iam::327301848391:policy/sapienworx-beta-github-deployment]
+module.beta.aws_iam_role_policy_attachment.application: Creation complete after 0s [id=sapienworx-beta-application/arn:aws:iam::327301848391:policy/sapienworx-beta-application]
+module.beta.aws_iam_role_policy_attachment.host_assume_beta: Creation complete after 1s [id=sapienworx-production-application/arn:aws:iam::327301848391:policy/sapienworx-beta-host-assume-runtime]
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Still creating... [10s elapsed]
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Still creating... [20s elapsed]
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Still creating... [30s elapsed]
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Still creating... [40s elapsed]
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Still creating... [50s elapsed]
+module.beta.aws_s3_bucket_lifecycle_configuration.documents: Creation complete after 56s [id=sapienworx-beta-documents-327301848391-ap-south-1]
+
+Apply complete! Resources: 42 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+beta_runtime_role_arn = "arn:aws:iam::327301848391:role/sapienworx-beta-application"
+documents_bucket_name = "sapienworx-beta-documents-327301848391-ap-south-1"
+ec2_instance_id = "i-0356b55e3d7eaf72a"
+ec2_public_ip = "13.206.138.176"
+ecr_repository_urls = {
+  "backend" = "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/backend"
+  "frontend" = "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/frontend"
+  "intelligence" = "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/intelligence"
+  "migration" = "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/migration"
+}
+github_deployment_role_arn = "arn:aws:iam::327301848391:role/sapienworx-beta-github-deployment"
+instance_role_name = "sapienworx-beta-application"
+isolation = {
+  "database_backups" = 7
+  "database_encrypted" = true
+  "database_name" = "sapienworx_beta"
+  "database_private" = true
+  "image_immutable" = true
+  "image_names" = {
+    "backend" = "sapienworx-beta/backend"
+    "frontend" = "sapienworx-beta/frontend"
+    "intelligence" = "sapienworx-beta/intelligence"
+    "migration" = "sapienworx-beta/migration"
+  }
+  "imdsv2" = true
+  "log_names" = [
+    "/sapienworx/beta/host",
+    "/sapienworx/beta/application",
+  ]
+  "oidc_subject" = "repo:TechiAkki963@57339768/SapienWorx@1340540005:environment:beta"
+  "root_encrypted" = true
+  "shared_database" = true
+  "shared_host" = true
+  "shared_instance_id" = "i-0356b55e3d7eaf72a"
+  "storage_origins" = toset([
+    "https://beta.sapienworx.com",
+  ])
+  "storage_private" = true
+  "storage_versioned" = true
+}
+private_db_subnet_ids = tolist([
+  "subnet-00695605c628f7cd6",
+  "subnet-03e71aa881ba365d0",
+])
+public_subnet_ids = [
+  "subnet-0dd7e43718bafce5e",
+]
+rds_endpoint = "sapienworx-production-postgres.cj2gqggw8nlj.ap-south-1.rds.amazonaws.com"
+sns_topic_arn = "arn:aws:sns:ap-south-1:327301848391:sapienworx-beta-operations"
+ssm_parameter_path = "/sapienworx/beta"
+vpc_id = "vpc-0bd9180256c8ce970"

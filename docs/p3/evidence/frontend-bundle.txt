@@ -1,0 +1,26 @@
+
+> @sapienworx/frontend@0.1.0 bundle:report
+> node scripts/bundle-report.mjs
+
+Largest client JavaScript chunks (gzip):
+   69.9 KiB gzip |   223.6 KiB raw | .next\static\chunks\3g4px251sg85e.js
+   46.5 KiB gzip |   143.2 KiB raw | .next\static\chunks\0yd-z_asuy13p.js
+   42.9 KiB gzip |   156.4 KiB raw | .next\static\chunks\41klls328a34t.js
+   38.7 KiB gzip |   110.0 KiB raw | .next\static\chunks\0cz1d0mv5g_q7.js
+   19.9 KiB gzip |    68.1 KiB raw | .next\static\chunks\2apjg3ltxvahq.js
+   14.9 KiB gzip |    47.6 KiB raw | .next\static\chunks\30kms7z6iuxba.js
+   14.9 KiB gzip |    49.9 KiB raw | .next\static\chunks\43_j2enpc34qy.js
+   11.4 KiB gzip |    41.7 KiB raw | .next\static\chunks\3ljd7a70gt2c-.js
+   11.0 KiB gzip |    34.9 KiB raw | .next\static\chunks\3d7uj-vcryuvg.js
+   10.7 KiB gzip |    43.8 KiB raw | .next\static\chunks\3jh8bz_v2uznq.js
+   10.7 KiB gzip |    34.0 KiB raw | .next\static\chunks\279ehe45aimxl.js
+   10.3 KiB gzip |    28.5 KiB raw | .next\static\chunks\1r_7jtsxgta55.js
+    9.8 KiB gzip |    27.3 KiB raw | .next\static\chunks\3u4uq79fa6edf.js
+    9.8 KiB gzip |    35.8 KiB raw | .next\static\chunks\2vhfic07zjxs5.js
+    9.4 KiB gzip |    27.7 KiB raw | .next\static\chunks\1qr9qb_moopw_.js
+    9.3 KiB gzip |    30.0 KiB raw | .next\static\chunks\10wi-ulpremvv.js
+    9.1 KiB gzip |    28.9 KiB raw | .next\static\chunks\240w0tg2upc79.js
+    8.5 KiB gzip |    33.9 KiB raw | .next\static\chunks\2mmpezlrfmbu5.js
+    8.5 KiB gzip |    25.0 KiB raw | .next\static\chunks\0j5vx-lh7z-ol.js
+    8.4 KiB gzip |    23.0 KiB raw | .next\static\chunks\3o2zlhm24bkm5.js
+Total static JS: 510.8 KiB gzip | 1602.3 KiB raw across 57 chunks

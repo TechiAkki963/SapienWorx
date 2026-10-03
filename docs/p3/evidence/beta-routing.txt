@@ -1,0 +1,2 @@
+PASS: Caddyfile exposes application upstreams only on beta.sapienworx.com.
+PASS: Caddyfile.shared exposes application upstreams only on beta.sapienworx.com.

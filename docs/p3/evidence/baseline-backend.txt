@@ -1,0 +1,48 @@
+go: downloading github.com/jackc/pgx/v5 v5.11.0
+go: downloading github.com/aws/aws-sdk-go-v2 v1.47.0
+go: downloading github.com/aws/aws-sdk-go-v2/config v1.33.4
+go: downloading github.com/gen2brain/webp v0.6.4
+go: downloading github.com/giraffesyo/pdf v0.6.0
+go: downloading github.com/gorilla/websocket v1.5.3
+go: downloading golang.org/x/crypto v0.57.0
+go: downloading github.com/jackc/puddle/v2 v2.2.2
+go: downloading golang.org/x/text v0.42.0
+go: downloading github.com/jackc/pgpassfile v1.0.0
+go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+go: downloading github.com/aws/aws-sdk-go-v2/credentials v1.20.4
+go: downloading github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/ssooidc v1.43.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/signin v1.10.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/sso v1.38.0
+go: downloading github.com/aws/aws-sdk-go-v2/service/sts v1.50.0
+go: downloading github.com/aws/smithy-go v1.28.1
+go: downloading golang.org/x/sync v0.23.0
+go: downloading github.com/ebitengine/purego v0.10.1
+go: downloading github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.3
+go: downloading github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.3
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.19
+go: downloading github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.3
+go: downloading github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.3
+ok      github.com/TechiAkki963/SapienWorx/backend/cmd/admin-recovery   0.011s
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/api  [no test files]
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/intelligence [no test files]
+--- FAIL: TestPreviewMatchesBackendCatalog (0.00s)
+    permissions_test.go:68: open ../../../frontend/lib/admin-permission-catalog.json: no such file or directory
+FAIL
+FAIL    github.com/TechiAkki963/SapienWorx/backend/internal/admin   0.008s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/auth    0.485s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/candidate   0.008s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery   0.008s
+?       github.com/TechiAkki963/SapienWorx/backend/internal/intelligence    [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/engine 0.011s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway    0.015s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/messaging   0.008s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/config 0.011s
+?       github.com/TechiAkki963/SapienWorx/backend/internal/platform/database   [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver 0.229s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/privacy 0.008s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/recruiter   0.009s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/resume  0.037s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/storage 0.007s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/workforce   0.008s
+FAIL

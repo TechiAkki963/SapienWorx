@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ff">
+  <meta name="description" content="SapienWorx is getting ready for its next chapter. We’ll be back soon.">
+  <title>SapienWorx — We’ll be back soon</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: clamp(20px, 5vw, 64px); background: #f5f3ff; color: #25204c; font-family: system-ui, sans-serif; }
+    main { width: 100%; max-width: 1040px; text-align: center; }
+    .brand { margin: 0 0 24px; font-size: 20px; font-weight: 750; letter-spacing: -.025em; }
+    .art { margin: 0 auto; display: grid; place-items: center; min-height: clamp(320px, 38vw, 440px); padding: 24px; border-radius: 24px; background: radial-gradient(ellipse at 50% 65%, #ffffff 0%, #eef6ff 45%, #ede9fe 100%); box-shadow: 0 24px 70px #43387812; }
+    /* Frame the supplied welcome pose at x=20,y=344,w=196,h=230
+       in the original 1536x1024 sheet. Keep the source image unchanged. */
+    .mascot { position: relative; width: min(100%, 280px); aspect-ratio: 196 / 230; overflow: hidden; border-radius: 20px; background: #fff; }
+    .mascot img { position: absolute; display: block; max-width: none; width: 783.673469%; height: 445.217391%; left: -10.204082%; top: -149.565217%; }
+    h1 { margin: 32px 0 12px; font-size: clamp(28px, 5vw, 48px); line-height: 1.15; letter-spacing: -.035em; }
+    .message { max-width: 42ch; margin: auto; color: #575273; font-size: clamp(16px, 2vw, 20px); line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="brand">SapienWorx</p>
+    <div class="art"><div class="mascot"><img src="/mascot.png?v=welcome-sheet-1" alt="The SapienWorx woodpecker mascot waves a warm welcome." width="1536" height="1024"></div></div>
+    <h1>We’ll be back soon.</h1>
+    <p class="message">We’re preparing the next chapter of SapienWorx. Thank you for being part of the journey.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,10 @@
+PASS: sapienworx.com / -> 200
+PASS: sapienworx.com /mascot.png -> 200
+PASS: sapienworx.com /api -> 404
+PASS: sapienworx.com /api/auth/login -> 404
+PASS: sapienworx.com /health/ready -> 404
+PASS: www.sapienworx.com / -> 200
+PASS: www.sapienworx.com /mascot.png -> 200
+PASS: www.sapienworx.com /api -> 404
+PASS: www.sapienworx.com /api/auth/login -> 404
+PASS: www.sapienworx.com /health/ready -> 404

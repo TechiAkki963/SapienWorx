@@ -1,0 +1,20 @@
+ok  	github.com/TechiAkki963/SapienWorx/backend/cmd/admin-recovery	(cached)
+?   	github.com/TechiAkki963/SapienWorx/backend/cmd/api	[no test files]
+?   	github.com/TechiAkki963/SapienWorx/backend/cmd/beta-accounts	[no test files]
+?   	github.com/TechiAkki963/SapienWorx/backend/cmd/intelligence	[no test files]
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/admin	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/auth	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/candidate	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery	(cached)
+?   	github.com/TechiAkki963/SapienWorx/backend/internal/intelligence	[no test files]
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/engine	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/messaging	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/platform/config	(cached)
+?   	github.com/TechiAkki963/SapienWorx/backend/internal/platform/database	[no test files]
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/privacy	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/recruiter	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/resume	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/storage	(cached)
+ok  	github.com/TechiAkki963/SapienWorx/backend/internal/workforce	(cached)

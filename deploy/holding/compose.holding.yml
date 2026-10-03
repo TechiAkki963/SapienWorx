@@ -1,0 +1,29 @@
+name: sapienworx-holding
+services:
+  caddy:
+    image: caddy:2.10.2-alpine
+    container_name: sapienworx-caddy
+    restart: unless-stopped
+    environment:
+      ACME_EMAIL: info@sapienworx.com
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./public:/srv/holding:ro
+      - /opt/sapienworx/runtime/caddy-data:/data
+      - /opt/sapienworx/runtime/caddy-config:/config
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    pids_limit: 128
+    mem_limit: 256m
+    cpus: 0.25
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "5"}
+    healthcheck:
+      test: [CMD, wget, -qO-, http://127.0.0.1:2019/healthz]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s

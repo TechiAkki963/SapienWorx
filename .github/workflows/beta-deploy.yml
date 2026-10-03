@@ -1,0 +1,184 @@
+name: Beta immutable release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full main commit SHA to deploy or roll back to
+        required: true
+        type: string
+      action:
+        description: Application rollback skips reverse migrations
+        type: choice
+        options: [deploy, rollback]
+        default: deploy
+      confirm_beta:
+        description: Type BETA (production is separately gated)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sapienworx-beta-release
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-south-1
+  RELEASE_SHA: ${{ inputs.release_sha }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Validate beta-only request
+        env:
+          CONFIRM: ${{ inputs.confirm_beta }}
+          WORKFLOW_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$CONFIRM" = BETA
+          test "$WORKFLOW_REF" = refs/heads/main
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_sha }}
+      - name: Verify immutable main source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor "$RELEASE_SHA" origin/main
+          test -f deploy/beta/compose.beta.yml
+      - name: Verify beta hostname and runtime isolation before release
+        run: |
+          python3 scripts/verify-beta-routing.py
+          python3 -m unittest discover -s deploy/beta -p test_runtime.py
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.x
+          cache-dependency-path: backend/go.sum
+      - name: Backend regression checks
+        working-directory: backend
+        run: |
+          go vet ./...
+          go test -race ./...
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Frontend release checks
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm run build
+          npm audit --omit=dev --audit-level=high
+
+  release:
+    needs: validate
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    environment: beta
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_sha }}
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+      - uses: docker/setup-buildx-action@v3
+      - name: Build only missing immutable images
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          RELEASE_ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+          for component in backend frontend intelligence migration; do
+            if aws ecr describe-images --repository-name "sapienworx-beta/$component" --image-ids "imageTag=$RELEASE_SHA" >/dev/null 2>&1; then
+              continue
+            fi
+            test "$RELEASE_ACTION" = deploy || { echo "Rollback image is missing."; exit 1; }
+            case "$component" in
+              backend) context=backend; dockerfile=backend/Dockerfile ;;
+              frontend) context=frontend; dockerfile=frontend/Dockerfile ;;
+              intelligence) context=backend; dockerfile=backend/Dockerfile.intelligence ;;
+              migration) context=.; dockerfile=deploy/beta/Dockerfile.migrate ;;
+            esac
+            docker buildx build --platform linux/arm64 --provenance=mode=max --sbom=true \
+              --build-arg NEXT_PUBLIC_API_URL= --file "$dockerfile" \
+              --tag "$REGISTRY/sapienworx-beta/$component:$RELEASE_SHA" --push "$context"
+          done
+      - name: Publish and deploy the reviewed runtime
+        env:
+          INSTANCE_ID: ${{ vars.BETA_INSTANCE_ID }}
+          BUCKET: ${{ vars.BETA_DOCUMENTS_BUCKET }}
+          RELEASE_ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+          [[ "$INSTANCE_ID" =~ ^i-[0-9a-f]+$ ]]
+          test "$INSTANCE_ID" = i-0356b55e3d7eaf72a
+          [[ "$BUCKET" =~ ^sapienworx-beta-documents-[0-9]{12}-ap-south-1$ ]]
+          tar -czf /tmp/beta-runtime.tar.gz -C deploy/beta \
+            compose.beta.yml Caddyfile Caddyfile.shared compose.edge.yml activate-shared-edge.sh \
+            aws-config.example aws-sdk-config.example block-metadata.sh refresh-credentials.sh \
+            sapienworx-beta-credentials.service sapienworx-beta-credentials.timer \
+            deploy.sh rollback.sh health-check.sh validate-runtime.py beta-data.py
+          checksum="$(sha256sum /tmp/beta-runtime.tar.gz | cut -d' ' -f1)"
+          aws s3 cp /tmp/beta-runtime.tar.gz "s3://$BUCKET/releases/$RELEASE_SHA/runtime.tar.gz" --only-show-errors
+          script=deploy.sh
+          test "$RELEASE_ACTION" != rollback || script=rollback.sh
+          # Secrets remain on the instance. Inputs above are validated before shell construction.
+          export RUNTIME_CHECKSUM="$checksum" RELEASE_SCRIPT="$script"
+          python3 - <<'PY' > /tmp/beta-command.json
+          import json, os
+          bucket, sha = os.environ['BUCKET'], os.environ['RELEASE_SHA']
+          checksum, script = os.environ['RUNTIME_CHECKSUM'], os.environ['RELEASE_SCRIPT']
+          commands = [
+              'set -eu',
+              'install -d -m 0750 /opt/sapienworx-beta',
+              'test -f /opt/sapienworx-beta/runtime/aws-config',
+              'export AWS_CONFIG_FILE=/opt/sapienworx-beta/runtime/aws-config AWS_PROFILE=beta',
+              'release_tmp=$(mktemp -d)',
+              "trap 'rm -rf -- \"$release_tmp\"' EXIT",
+              f'aws s3 cp s3://{bucket}/releases/{sha}/runtime.tar.gz "$release_tmp/runtime.tar.gz" --region ap-south-1 --only-show-errors',
+              f'printf "%s  %s\\n" "{checksum}" "$release_tmp/runtime.tar.gz" | sha256sum -c -',
+              'tar -xzf "$release_tmp/runtime.tar.gz" --no-same-owner -C /opt/sapienworx-beta',
+              'chmod 0750 /opt/sapienworx-beta/*.sh',
+              f'/opt/sapienworx-beta/{script} {sha}',
+          ]
+          print(json.dumps({'commands': commands}))
+          PY
+          command_id="$(aws ssm send-command --instance-ids "$INSTANCE_ID" --document-name AWS-RunShellScript \
+            --parameters file:///tmp/beta-command.json --comment "Beta $RELEASE_ACTION $RELEASE_SHA" \
+            --query Command.CommandId --output text)"
+          # Standard SSM waiter is shorter than image pulls/migrations. Poll for up to 30 minutes.
+          for attempt in $(seq 1 180); do
+            status="$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query Status --output text 2>/dev/null || true)"
+            case "$status" in
+              Success) break ;;
+              Failed|Cancelled|TimedOut) echo "Beta deployment failed ($status), command $command_id."; exit 1 ;;
+            esac
+            sleep 10
+          done
+          test "$status" = Success
+          printf 'SHA=%s\nACTION=%s\nSSM_COMMAND=%s\n' "$RELEASE_SHA" "$RELEASE_ACTION" "$command_id" > beta-release.txt
+      - name: Verify deployed public beta
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 15 https://beta.sapienworx.com/health/live
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 15 https://beta.sapienworx.com/health/ready
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: beta-release-${{ inputs.release_sha }}
+          path: beta-release.txt
+          retention-days: 30

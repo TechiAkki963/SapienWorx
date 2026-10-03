@@ -1,0 +1,3 @@
+bucket  = "sapienworx-terraform-state-ACCOUNT_ID-ap-south-1"
+region  = "ap-south-1"
+profile = "sapienworx_admin"

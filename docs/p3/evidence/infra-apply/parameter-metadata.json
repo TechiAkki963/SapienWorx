@@ -1,0 +1,42 @@
+[
+    {
+        "Name": "/sapienworx/beta/AUTH_OTP_HMAC_SECRET",
+        "Type": "SecureString",
+        "Tier": "Standard"
+    },
+    {
+        "Name": "/sapienworx/beta/AWS_REGION",
+        "Type": "String",
+        "Tier": "Standard"
+    },
+    {
+        "Name": "/sapienworx/beta/DATABASE_URL",
+        "Type": "SecureString",
+        "Tier": "Standard"
+    },
+    {
+        "Name": "/sapienworx/beta/INTELLIGENCE_DATABASE_URL",
+        "Type": "SecureString",
+        "Tier": "Standard"
+    },
+    {
+        "Name": "/sapienworx/beta/JWT_SECRET",
+        "Type": "SecureString",
+        "Tier": "Standard"
+    },
+    {
+        "Name": "/sapienworx/beta/MIGRATION_DATABASE_URL",
+        "Type": "SecureString",
+        "Tier": "Standard"
+    },
+    {
+        "Name": "/sapienworx/beta/RDS_ENDPOINT",
+        "Type": "String",
+        "Tier": "Standard"
+    },
+    {
+        "Name": "/sapienworx/beta/S3_BUCKET",
+        "Type": "String",
+        "Tier": "Standard"
+    }
+]

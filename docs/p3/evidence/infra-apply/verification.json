@@ -1,0 +1,12 @@
+{
+  "created_managed_resources": 42,
+  "production_upload_objects_compared": 1,
+  "production_upload_metadata_unchanged": true,
+  "production_trust_unchanged": true,
+  "holding_byte_hashes_unchanged": true,
+  "ec2_count": 1,
+  "rds_count": 1,
+  "beta_oidc_exact_subject": true,
+  "database_bootstrap_executed": false,
+  "database_isolation_live_verified": false
+}

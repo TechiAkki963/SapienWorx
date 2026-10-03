@@ -1,0 +1,65 @@
+{
+  "target": "sapienworx-production-postgres.cj2gqggw8nlj.ap-south-1.rds.amazonaws.com",
+  "production_db": "sapienworx",
+  "database_acl": [
+    [
+      "postgres",
+      "sapienworx_admin",
+      null
+    ],
+    [
+      "rdsadmin",
+      "rdsadmin",
+      "{rdsadmin=CTc/rdsadmin}"
+    ],
+    [
+      "sapienworx",
+      "sapienworx_admin",
+      "{=Tc/sapienworx_admin,sapienworx_admin=CTc/sapienworx_admin,sapienworx_migrator=c/sapienworx_admin,sapienworx_app=c/sapienworx_admin}"
+    ],
+    [
+      "template1",
+      "sapienworx_admin",
+      "{=c/sapienworx_admin,sapienworx_admin=CTc/sapienworx_admin}"
+    ]
+  ],
+  "roles": [
+    [
+      "sapienworx_admin",
+      false,
+      true,
+      true,
+      false,
+      false
+    ],
+    [
+      "sapienworx_app",
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      "sapienworx_migrator",
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  ],
+  "public_table_grants": [],
+  "server_settings": {
+    "log_min_error_statement": "error",
+    "log_statement": "none",
+    "password_encryption": "scram-sha-256",
+    "shared_preload_libraries": "rdsutils,pg_tle,pg_stat_statements,rds_casts"
+  },
+  "tls": [
+    true,
+    "TLSv1.3"
+  ],
+  "production_migrations": 23,
+  "production_tables_counted": 31
+}

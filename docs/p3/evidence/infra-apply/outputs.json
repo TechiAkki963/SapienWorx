@@ -1,0 +1,162 @@
+{
+  "beta_runtime_role_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:iam::327301848391:role/sapienworx-beta-application"
+  },
+  "documents_bucket_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "sapienworx-beta-documents-327301848391-ap-south-1"
+  },
+  "ec2_instance_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "i-0356b55e3d7eaf72a"
+  },
+  "ec2_public_ip": {
+    "sensitive": false,
+    "type": "string",
+    "value": "13.206.138.176"
+  },
+  "ecr_repository_urls": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "backend": "string",
+        "frontend": "string",
+        "intelligence": "string",
+        "migration": "string"
+      }
+    ],
+    "value": {
+      "backend": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/backend",
+      "frontend": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/frontend",
+      "intelligence": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/intelligence",
+      "migration": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/migration"
+    }
+  },
+  "github_deployment_role_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:iam::327301848391:role/sapienworx-beta-github-deployment"
+  },
+  "instance_role_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "sapienworx-beta-application"
+  },
+  "isolation": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "database_backups": "number",
+        "database_encrypted": "bool",
+        "database_name": "string",
+        "database_private": "bool",
+        "image_immutable": "bool",
+        "image_names": [
+          "object",
+          {
+            "backend": "string",
+            "frontend": "string",
+            "intelligence": "string",
+            "migration": "string"
+          }
+        ],
+        "imdsv2": "bool",
+        "log_names": [
+          "tuple",
+          [
+            "string",
+            "string"
+          ]
+        ],
+        "oidc_subject": "string",
+        "root_encrypted": "bool",
+        "shared_database": "bool",
+        "shared_host": "bool",
+        "shared_instance_id": "string",
+        "storage_origins": [
+          "set",
+          "string"
+        ],
+        "storage_private": "bool",
+        "storage_versioned": "bool"
+      }
+    ],
+    "value": {
+      "database_backups": 7,
+      "database_encrypted": true,
+      "database_name": "sapienworx_beta",
+      "database_private": true,
+      "image_immutable": true,
+      "image_names": {
+        "backend": "sapienworx-beta/backend",
+        "frontend": "sapienworx-beta/frontend",
+        "intelligence": "sapienworx-beta/intelligence",
+        "migration": "sapienworx-beta/migration"
+      },
+      "imdsv2": true,
+      "log_names": [
+        "/sapienworx/beta/host",
+        "/sapienworx/beta/application"
+      ],
+      "oidc_subject": "repo:TechiAkki963@57339768/SapienWorx@1340540005:environment:beta",
+      "root_encrypted": true,
+      "shared_database": true,
+      "shared_host": true,
+      "shared_instance_id": "i-0356b55e3d7eaf72a",
+      "storage_origins": [
+        "https://beta.sapienworx.com"
+      ],
+      "storage_private": true,
+      "storage_versioned": true
+    }
+  },
+  "private_db_subnet_ids": {
+    "sensitive": false,
+    "type": [
+      "list",
+      "string"
+    ],
+    "value": [
+      "subnet-00695605c628f7cd6",
+      "subnet-03e71aa881ba365d0"
+    ]
+  },
+  "public_subnet_ids": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "subnet-0dd7e43718bafce5e"
+    ]
+  },
+  "rds_endpoint": {
+    "sensitive": false,
+    "type": "string",
+    "value": "sapienworx-production-postgres.cj2gqggw8nlj.ap-south-1.rds.amazonaws.com"
+  },
+  "sns_topic_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:sns:ap-south-1:327301848391:sapienworx-beta-operations"
+  },
+  "ssm_parameter_path": {
+    "sensitive": false,
+    "type": "string",
+    "value": "/sapienworx/beta"
+  },
+  "vpc_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "vpc-0bd9180256c8ce970"
+  }
+}

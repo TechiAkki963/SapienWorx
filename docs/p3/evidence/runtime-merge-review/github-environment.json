@@ -1,0 +1,21 @@
+{
+  "environment": "beta",
+  "variable_matches": {
+    "AWS_DEPLOY_ROLE_ARN": false,
+    "BETA_INSTANCE_ID": false,
+    "BETA_DOCUMENTS_BUCKET": false
+  },
+  "configured_variable_names": [
+    "AWS_DEPLOY_ROLE_ARN",
+    "BETA_DOCUMENTS_BUCKET",
+    "BETA_INSTANCE_ID"
+  ],
+  "matching_secret_names": [],
+  "protection_rules": [],
+  "deployment_branch_policy": null,
+  "oidc_customization": {
+    "use_default": true,
+    "use_immutable_subject": true,
+    "sub_claim_prefix": "repo:TechiAkki963@57339768/SapienWorx@1340540005"
+  }
+}

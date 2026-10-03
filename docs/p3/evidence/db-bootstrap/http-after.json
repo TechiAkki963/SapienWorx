@@ -1,0 +1,183 @@
+[
+  {
+    "host": "www.sapienworx.com",
+    "path": "/",
+    "status": 200,
+    "url": "https://www.sapienworx.com/",
+    "bytes": 2118,
+    "sha256": "d35c4a69f4858622a5e561b4a38414b22f74f2481a08a2990014a29fb80b8188",
+    "seconds": 0.141,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Alt-Svc": "h3=\":443\"; ma=2592000",
+      "Content-Length": "2118",
+      "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      "Content-Type": "text/html; charset=utf-8",
+      "Etag": "\"dlvhjku9435s1mu\"",
+      "Last-Modified": "Sat, 03 Oct 2026 20:28:49 GMT",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Vary": "Accept-Encoding",
+      "X-Content-Type-Options": "nosniff",
+      "Date": "Sat, 03 Oct 2026 22:07:00 GMT",
+      "Connection": "close"
+    }
+  },
+  {
+    "host": "www.sapienworx.com",
+    "path": "/mascot.png",
+    "status": 200,
+    "url": "https://www.sapienworx.com/mascot.png",
+    "bytes": 1901997,
+    "sha256": "3cd3d1027b374dbedc415bdd3405d6544b4f339290401ce1268f0347f4f04dc4",
+    "seconds": 0.219,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Alt-Svc": "h3=\":443\"; ma=2592000",
+      "Content-Length": "1901997",
+      "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      "Content-Type": "image/png",
+      "Etag": "\"dlvhdk08i0ao14rl9\"",
+      "Last-Modified": "Sat, 03 Oct 2026 20:20:57 GMT",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Vary": "Accept-Encoding",
+      "X-Content-Type-Options": "nosniff",
+      "Date": "Sat, 03 Oct 2026 22:07:00 GMT",
+      "Connection": "close"
+    }
+  },
+  {
+    "host": "www.sapienworx.com",
+    "path": "/api/v1/auth/login",
+    "status": 404
+  },
+  {
+    "host": "www.sapienworx.com",
+    "path": "/health/ready",
+    "status": 404
+  },
+  {
+    "host": "www.sapienworx.com",
+    "path": "/admin",
+    "status": 404
+  },
+  {
+    "host": "www.sapienworx.com",
+    "path": "/recruiter",
+    "status": 404
+  },
+  {
+    "host": "www.sapienworx.com",
+    "path": "/candidate",
+    "status": 404
+  },
+  {
+    "host": "sapienworx.com",
+    "path": "/",
+    "status": 200,
+    "url": "https://sapienworx.com/",
+    "bytes": 2118,
+    "sha256": "d35c4a69f4858622a5e561b4a38414b22f74f2481a08a2990014a29fb80b8188",
+    "seconds": 0.094,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Alt-Svc": "h3=\":443\"; ma=2592000",
+      "Content-Length": "2118",
+      "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      "Content-Type": "text/html; charset=utf-8",
+      "Etag": "\"dlvhjku9435s1mu\"",
+      "Last-Modified": "Sat, 03 Oct 2026 20:28:49 GMT",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Vary": "Accept-Encoding",
+      "X-Content-Type-Options": "nosniff",
+      "Date": "Sat, 03 Oct 2026 22:07:01 GMT",
+      "Connection": "close"
+    }
+  },
+  {
+    "host": "sapienworx.com",
+    "path": "/mascot.png",
+    "status": 200,
+    "url": "https://sapienworx.com/mascot.png",
+    "bytes": 1901997,
+    "sha256": "3cd3d1027b374dbedc415bdd3405d6544b4f339290401ce1268f0347f4f04dc4",
+    "seconds": 0.234,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Alt-Svc": "h3=\":443\"; ma=2592000",
+      "Content-Length": "1901997",
+      "Content-Security-Policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      "Content-Type": "image/png",
+      "Etag": "\"dlvhdk08i0ao14rl9\"",
+      "Last-Modified": "Sat, 03 Oct 2026 20:20:57 GMT",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Vary": "Accept-Encoding",
+      "X-Content-Type-Options": "nosniff",
+      "Date": "Sat, 03 Oct 2026 22:07:01 GMT",
+      "Connection": "close"
+    }
+  },
+  {
+    "host": "sapienworx.com",
+    "path": "/api/v1/auth/login",
+    "status": 404
+  },
+  {
+    "host": "sapienworx.com",
+    "path": "/health/ready",
+    "status": 404
+  },
+  {
+    "host": "sapienworx.com",
+    "path": "/admin",
+    "status": 404
+  },
+  {
+    "host": "sapienworx.com",
+    "path": "/recruiter",
+    "status": 404
+  },
+  {
+    "host": "sapienworx.com",
+    "path": "/candidate",
+    "status": 404
+  },
+  {
+    "host": "beta.sapienworx.com",
+    "path": "/",
+    "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+  },
+  {
+    "host": "beta.sapienworx.com",
+    "path": "/mascot.png",
+    "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+  },
+  {
+    "host": "beta.sapienworx.com",
+    "path": "/api/v1/auth/login",
+    "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+  },
+  {
+    "host": "beta.sapienworx.com",
+    "path": "/health/ready",
+    "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+  },
+  {
+    "host": "beta.sapienworx.com",
+    "path": "/admin",
+    "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+  },
+  {
+    "host": "beta.sapienworx.com",
+    "path": "/recruiter",
+    "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+  },
+  {
+    "host": "beta.sapienworx.com",
+    "path": "/candidate",
+    "error": "<urlopen error [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1010)>"
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "runtime_parameters_required": 8,
+  "runtime_parameters_populated": 8,
+  "total_beta_parameters": 11,
+  "remaining_placeholders": 0,
+  "migration_checksums": "PASS",
+  "schema_owners": [
+    [
+      "intelligence",
+      "sapienworx_beta_migrator"
+    ],
+    [
+      "public",
+      "pg_database_owner"
+    ],
+    [
+      "workforce",
+      "sapienworx_beta_migrator"
+    ]
+  ],
+  "active_synthetic_accounts": [
+    [
+      "candidate",
+      1
+    ],
+    [
+      "recruiter",
+      1
+    ],
+    [
+      "master_admin",
+      1
+    ]
+  ],
+  "database_acls": [
+    [
+      "sapienworx",
+      "{sapienworx_admin=CTc/sapienworx_admin,sapienworx_migrator=Tc/sapienworx_admin,sapienworx_app=Tc/sapienworx_admin}"
+    ],
+    [
+      "sapienworx_beta",
+      "{sapienworx_admin=CTc/sapienworx_admin,sapienworx_beta_app=c/sapienworx_admin,sapienworx_beta_migrator=Cc/sapienworx_admin,sapienworx_beta_intelligence=c/sapienworx_admin}"
+    ]
+  ],
+  "new_production_connections": [
+    {
+      "role": "sapienworx_app",
+      "new_connection": "PASS",
+      "migration_count": 23
+    },
+    {
+      "role": "sapienworx_migrator",
+      "new_connection": "PASS",
+      "migration_count": 23
+    }
+  ],
+  "harmless_bucket_versions_removed": true
+}

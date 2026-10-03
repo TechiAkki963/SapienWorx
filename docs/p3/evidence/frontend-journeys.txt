@@ -1,0 +1,69 @@
+
+[WebServer] (node:6132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:34404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:33848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[WebServer] (node:31352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 24 tests using 1 worker
+
+
+(node:28148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/24] [chromium] › tests\e2e\admin-intelligence.spec.ts:13:7 › Master Admin Intelligence Centre › renders the governed Intelligence cockpit with fail-safe switches across supported viewports
+[2/24] [chromium] › tests\e2e\admin-intelligence.spec.ts:61:7 › Master Admin Intelligence Centre › auditor can inspect intelligence but cannot mutate models, feedback or kill switches
+[3/24] [chromium] › tests\e2e\admin-trust.spec.ts:13:7 › Master Admin Trust review › keeps risk signals inside the Master Admin human-review workspace across viewports
+[4/24] [chromium] › tests\e2e\admin-trust.spec.ts:26:7 › Master Admin Trust review › auditor can inspect signals but cannot disposition them
+[5/24] [chromium] › tests\e2e\candidate-jobs.spec.ts:8:7 › candidate job discovery › keeps salary fields inside the filter card and rejects a reversed range
+[6/24] [chromium] › tests\e2e\candidate-jobs.spec.ts:35:7 › candidate job discovery › preserves structured facets in the URL/UI and forwards them to server-side job search
+[7/24] [chromium] › tests\e2e\candidate-jobs.spec.ts:102:7 › candidate job discovery › explains a cross-industry taxonomy alias and remains responsive across target widths
+[8/24] [chromium] › tests\e2e\recruiter.spec.ts:8:7 › recruiter pipeline › renders approved applicant cards and preserves organization-scoped filters
+[9/24] [chromium] › tests\e2e\recruiter.spec.ts:40:7 › recruiter pipeline › changes only the selected application stage through its card
+[10/24] [chromium] › tests\e2e\recruiter.spec.ts:54:7 › recruiter pipeline › uses a collapsible mobile filter panel without hiding applicant actions
+[11/24] [chromium] › tests\e2e\recruiter.spec.ts:64:8 › recruiter pipeline › drags a candidate across Kanban columns and persists the stage
+[12/24] [chromium] › tests\e2e\recruiter.spec.ts:72:7 › job applicant workspace › uses a server-filtered table-first job workspace while keeping mobile actions
+[13/24] [chromium] › tests\e2e\recruiter.spec.ts:112:7 › job applicant workspace › does not expose public preview or sharing for an active private job
+[14/24] [chromium] › tests\e2e\recruiter.spec.ts:122:7 › job applicant workspace › requires confirmation before governed bulk job actions
+[15/24] [chromium] › tests\e2e\recruiter.spec.ts:142:7 › job applicant workspace › offers only organization-scoped recruiters for bulk reassignment
+[16/24] [chromium] › tests\e2e\recruiter.spec.ts:155:7 › job applicant workspace › shows the stable job reference and opens applicants from job management
+
+[WebServer] (node:34572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[17/24] [chromium] › tests\e2e\recruiter.spec.ts:167:7 › job applicant workspace › locks the job scope even if the URL supplies a different job_id
+
+[WebServer] (node:34064) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[18/24] [chromium] › tests\e2e\recruiter.spec.ts:180:7 › job applicant workspace › opens deterministic job analytics and keeps the workspace responsive
+
+[WebServer] (node:3824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[19/24] [chromium] › tests\e2e\recruiter.spec.ts:193:7 › job applicant workspace › keeps job cards and their applicant page usable on desktop, tablet, and mobile
+
+[WebServer] (node:15524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:21480) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:25616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[20/24] [chromium] › tests\e2e\theme-modes-visual.spec.ts:71:5 › Candidate workspace supports system, light and dark modes
+[21/24] [chromium] › tests\e2e\theme-modes-visual.spec.ts:75:5 › Recruiter workspace supports system, light and dark modes
+[22/24] [chromium] › tests\e2e\theme-modes-visual.spec.ts:79:5 › Master Admin workspace supports system, light and dark modes
+[23/24] [chromium] › tests\e2e\theme-modes-visual.spec.ts:84:5 › Candidate 360 supports system, light and dark modes without losing recruiter data
+
+[WebServer] (node:26736) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[24/24] [chromium] › tests\e2e\theme-modes-visual.spec.ts:125:5 › Application pipeline supports system, light and dark modes with scan-first rows
+  1 skipped
+  23 passed (54.9s)
