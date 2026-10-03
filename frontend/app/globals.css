@@ -578,3 +578,10 @@ a {
   background-image: none !important;
   color: #f8fafc !important;
 }
+
+/* P2.4 System health: gradient metric cards need an explicit dark surface. */
+.swx-dark .theme-surface .swx-system-health-card {
+  background-color: #111827 !important;
+  background-image: none !important;
+  border-color: #273449 !important;
+}
