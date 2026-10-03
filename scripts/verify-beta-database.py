@@ -37,7 +37,13 @@ try:
     for _ in range(60):
         if subprocess.run(['docker','exec',container,'pg_isready','-U','sapienworx_admin','-d','sapienworx_beta'],capture_output=True).returncode==0: break
         time.sleep(1)
-    migration=envfile({'DATABASE_URL':f'postgres://sapienworx_admin:{password}@{container}/sapienworx_beta?sslmode=disable'})
+    run('exec',container,'psql','-U','sapienworx_admin','-d','sapienworx_beta','-v','ON_ERROR_STOP=1','-c','CREATE ROLE sapienworx_app NOLOGIN; CREATE ROLE sapienworx_migrator NOLOGIN; CREATE ROLE sapienworx_intelligence NOLOGIN;')
+    role_passwords={key:secrets.token_urlsafe(32) for key in ['SAPIENWORX_APP_PASSWORD','SAPIENWORX_MIGRATION_PASSWORD','SAPIENWORX_INTELLIGENCE_PASSWORD']}
+    bootstrap=envfile({'PGHOST':container,'PGDATABASE':'sapienworx_beta','PGUSER':'sapienworx_admin','PGPASSWORD':password,**role_passwords})
+    files.append(bootstrap)
+    logs.append(run('run','--rm','--network',network,'--env-file',bootstrap,'--entrypoint','psql',image,'-v','ON_ERROR_STOP=1','-v','database_name=sapienworx_beta','-f','/beta-bootstrap-roles.sql').decode())
+    migration_password=role_passwords['SAPIENWORX_MIGRATION_PASSWORD']
+    migration=envfile({'DATABASE_URL':f'postgres://sapienworx_beta_migrator:{migration_password}@{container}/sapienworx_beta?sslmode=disable'})
     files.append(migration)
     logs.append(run('run','--rm','--network',network,'--env-file',migration,image).decode())
     accounts=json.loads(run('run','--rm','--entrypoint','sapienworx-beta-accounts',image))
@@ -51,13 +57,16 @@ try:
     logs.append(report)
     migration_count=len(list((root/'database/migrations').glob('*.up.sql')))
     assert report.strip().splitlines()==['candidate|1','recruiter|1','master_admin|1','20',str(migration_count),'0']
+    privileges=run('exec',container,'psql','-U','sapienworx_admin','-d','sapienworx_beta','-Atc',"SELECT has_table_privilege('sapienworx_beta_app','jobs','SELECT'), has_table_privilege('sapienworx_app','jobs','SELECT'); SELECT count(*) FROM pg_roles WHERE rolname IN ('sapienworx_app','sapienworx_migrator','sapienworx_intelligence') AND NOT rolcanlogin;").decode()
+    assert privileges.strip().splitlines()==['t|f','3'], privileges
+    logs.append('PASS: beta application has read privileges; production role names receive no beta job access and remain unchanged NOLOGIN fixture roles.\n')
     dump=run('exec',container,'pg_dump','-U','sapienworx_admin','-d','sapienworx_beta','-Fc','--no-owner','--no-acl')
     run('exec',container,'createdb','-U','sapienworx_admin','sapienworx_beta_restore')
     run('exec','-i',container,'pg_restore','-U','sapienworx_admin','-d','sapienworx_beta_restore','--exit-on-error','--no-owner','--no-acl',input=dump)
     source=run('exec',container,'psql','-U','sapienworx_admin','-d','sapienworx_beta','-Atc','SELECT count(*) FROM jobs;')
     restored=run('exec',container,'psql','-U','sapienworx_admin','-d','sapienworx_beta_restore','-Atc','SELECT count(*) FROM jobs;')
     assert source==restored
-    logs.append('PASS: all migrations; seed twice; bcrypt hashes only; backup/restore to a separate local database; identical job counts.\n')
+    logs.append('PASS: isolated beta roles; all migrations as beta migrator; seed twice; bcrypt hashes only; backup/restore to a separate local database; identical job counts.\n')
 finally:
     if container_created: subprocess.run(['docker','rm','-f',container],capture_output=True)
     if network_created: subprocess.run(['docker','network','rm',network],capture_output=True)

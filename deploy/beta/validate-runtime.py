@@ -13,12 +13,12 @@ def validate(response):
     values = {p["Name"].removeprefix(ROOT): p["Value"] for p in response["Parameters"]
               if p["Name"].startswith(ROOT)}
     endpoint = values["RDS_ENDPOINT"]
-    if not re.fullmatch(r"sapienworx-beta-postgres\.[a-z0-9.-]+\.rds\.amazonaws\.com", endpoint):
-        raise ValueError("expected the beta RDS endpoint")
+    if not re.fullmatch(r"sapienworx-production-postgres\.[a-z0-9.-]+\.rds\.amazonaws\.com", endpoint):
+        raise ValueError("expected the approved shared RDS endpoint")
     passwords = []
-    for key, role in [("DATABASE_URL", "sapienworx_app"),
-                      ("INTELLIGENCE_DATABASE_URL", "sapienworx_intelligence"),
-                      ("MIGRATION_DATABASE_URL", "sapienworx_migrator")]:
+    for key, role in [("DATABASE_URL", "sapienworx_beta_app"),
+                      ("INTELLIGENCE_DATABASE_URL", "sapienworx_beta_intelligence"),
+                      ("MIGRATION_DATABASE_URL", "sapienworx_beta_migrator")]:
         value = values[key]
         if any(c in value for c in "\r\n$'\\\"\x00"):
             raise ValueError("unsafe dotenv characters in database URL")

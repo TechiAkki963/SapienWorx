@@ -1,5 +1,8 @@
 # Beta on the existing EC2 — owner-approved architecture
 
+**4 October verification update:** Owner selected existing EC2 **and existing RDS**, with an empty `sapienworx_beta` logical database and three beta-only PostgreSQL roles. The refreshed plan is **42 creates, zero updates/deletes**, no new EC2/RDS/security groups. Only the beta assume-role policy attachment affects the existing host. Earlier separate-RDS/database-egress instructions and $30–50 estimates below are superseded; no fixed second EC2/RDS charge is planned. Beta S3/ECR/logging remain usage-billed. DNS already resolves to `13.206.138.176`; beta TLS/runtime are absent. See [current audit](../../docs/p3/CURRENT-DEPLOYMENT-AUDIT.md) (under `docs/p3`) and the corrected `deploy/beta/README.md`. No apply has run.
+
+
 The owner chose to reuse `i-0356b55e3d7eaf72a` (m6g.medium, 1 vCPU / 4 GiB RAM)
 and its Elastic IP `13.206.138.176`. No second EC2, disk, IP, VPC or subnets are
 created. The old 73-resource dedicated-host plan is superseded.

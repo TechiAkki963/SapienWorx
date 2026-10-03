@@ -7,8 +7,14 @@ RUN CGO_ENABLED=0 go build -trimpath -o /out/sapienworx-beta-accounts ./cmd/beta
 
 FROM postgres:17-alpine
 COPY database/migrations /migrations
+# Roles are cluster-wide: rewrite grants only in the beta migration image.
+RUN find /migrations -type f -name '*.sql' -exec sed -i \
+    -e 's/sapienworx_app/sapienworx_beta_app/g' \
+    -e 's/sapienworx_intelligence/sapienworx_beta_intelligence/g' \
+    -e 's/sapienworx_migrator/sapienworx_beta_migrator/g' {} \;
 COPY database/migrate.sh /usr/local/bin/sapienworx-migrate
 COPY deploy/beta/seed.sql /beta-seed.sql
+COPY deploy/beta/bootstrap-roles.sql /beta-bootstrap-roles.sql
 COPY --from=accounts /out/sapienworx-beta-accounts /usr/local/bin/sapienworx-beta-accounts
 RUN chmod 0555 /usr/local/bin/sapienworx-migrate
 USER postgres

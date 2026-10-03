@@ -106,7 +106,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu" {
   alarm_actions       = [aws_sns_topic.operations.arn]
   ok_actions          = [aws_sns_topic.operations.arn]
 
-  dimensions = { DBInstanceIdentifier = aws_db_instance.environment.identifier }
+  dimensions = { DBInstanceIdentifier = data.aws_db_instance.shared.db_instance_identifier }
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_free_storage" {
@@ -123,7 +123,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage" {
   alarm_actions       = [aws_sns_topic.operations.arn]
   ok_actions          = [aws_sns_topic.operations.arn]
 
-  dimensions = { DBInstanceIdentifier = aws_db_instance.environment.identifier }
+  dimensions = { DBInstanceIdentifier = data.aws_db_instance.shared.db_instance_identifier }
 }
 
 resource "aws_cloudwatch_metric_alarm" "rds_connections" {
@@ -140,5 +140,5 @@ resource "aws_cloudwatch_metric_alarm" "rds_connections" {
   alarm_actions       = [aws_sns_topic.operations.arn]
   ok_actions          = [aws_sns_topic.operations.arn]
 
-  dimensions = { DBInstanceIdentifier = aws_db_instance.environment.identifier }
+  dimensions = { DBInstanceIdentifier = data.aws_db_instance.shared.db_instance_identifier }
 }

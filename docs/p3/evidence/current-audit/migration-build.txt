@@ -1,0 +1,76 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.migrate
+#1 transferring dockerfile: 1.02kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/postgres:17-alpine
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/golang:1.26-alpine
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [stage-1 1/8] FROM docker.io/library/postgres:17-alpine@sha256:f02121de6f74d30d8a94cd1d9584125e2178d7e6c377d8130112d4e52d867995
+#5 resolve docker.io/library/postgres:17-alpine@sha256:f02121de6f74d30d8a94cd1d9584125e2178d7e6c377d8130112d4e52d867995 0.0s done
+#5 DONE 0.0s
+
+#6 [accounts 1/6] FROM docker.io/library/golang:1.26-alpine@sha256:51a7c389a5ddaf82f527191a1e9bff9928655130a44e4975dd1d7e0acf59f1ae
+#6 resolve docker.io/library/golang:1.26-alpine@sha256:51a7c389a5ddaf82f527191a1e9bff9928655130a44e4975dd1d7e0acf59f1ae 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 28.25kB 0.0s done
+#7 DONE 0.0s
+
+#8 [accounts 2/6] WORKDIR /src
+#8 CACHED
+
+#9 [accounts 5/6] COPY backend/ ./
+#9 CACHED
+
+#10 [accounts 3/6] COPY backend/go.mod backend/go.sum ./
+#10 CACHED
+
+#11 [accounts 4/6] RUN go mod download
+#11 CACHED
+
+#12 [stage-1 2/8] COPY database/migrations /migrations
+#12 CACHED
+
+#13 [stage-1 3/8] RUN find /migrations -type f -name '*.sql' -exec sed -i     -e 's/sapienworx_app/sapienworx_beta_app/g'     -e 's/sapienworx_intelligence/sapienworx_beta_intelligence/g'     -e 's/sapienworx_migrator/sapienworx_beta_migrator/g' {} ;
+#13 CACHED
+
+#14 [stage-1 4/8] COPY database/migrate.sh /usr/local/bin/sapienworx-migrate
+#14 CACHED
+
+#15 [accounts 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/sapienworx-beta-accounts ./cmd/beta-accounts
+#15 CACHED
+
+#16 [stage-1 5/8] COPY deploy/beta/seed.sql /beta-seed.sql
+#16 CACHED
+
+#17 [stage-1 6/8] COPY deploy/beta/bootstrap-roles.sql /beta-bootstrap-roles.sql
+#17 DONE 0.0s
+
+#18 [stage-1 7/8] COPY --from=accounts /out/sapienworx-beta-accounts /usr/local/bin/sapienworx-beta-accounts
+#18 DONE 0.0s
+
+#19 [stage-1 8/8] RUN chmod 0555 /usr/local/bin/sapienworx-migrate
+#19 DONE 0.2s
+
+#20 exporting to image
+#20 exporting layers
+#20 exporting layers 0.2s done
+#20 exporting manifest sha256:3aa3491067cd673f740190ba93b0a49b00cf9d55f06e507c49d5266a127f768d 0.0s done
+#20 exporting config sha256:e4fcb014ebe7da028bdba299fe9bcf78be748bc8fff5bec20d3f2821489ae803 0.0s done
+#20 exporting attestation manifest sha256:da4ff48f4c5e5411643f490b0bb7b5aa803cf74e8357b202f8cce6d6cfc5d2a4 0.0s done
+#20 exporting manifest list sha256:1024a19f5b7818152e870078c1de1f1eb62e11d39bf7d7c74eaa1afa52ce825f 0.0s done
+#20 naming to docker.io/library/sapienworx-p3-beta-migration:test done
+#20 unpacking to docker.io/library/sapienworx-p3-beta-migration:test 0.1s done
+#20 DONE 0.3s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/llbyrtutiz1g7t5tjo6aph5i7

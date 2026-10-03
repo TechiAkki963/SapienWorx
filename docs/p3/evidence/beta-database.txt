@@ -1,3 +1,27 @@
+CREATE EXTENSION
+CREATE EXTENSION
+CREATE ROLE
+CREATE ROLE
+CREATE ROLE
+ALTER ROLE
+ALTER ROLE
+ALTER ROLE
+GRANT
+GRANT
+REVOKE
+GRANT
+GRANT
+GRANT ROLE
+SET
+ALTER DEFAULT PRIVILEGES
+ALTER DEFAULT PRIVILEGES
+ALTER DEFAULT PRIVILEGES
+RESET
+REVOKE ROLE
+ALTER ROLE
+ALTER ROLE
+ALTER ROLE
+REVOKE
 CREATE TABLE
 Applying migration 000001_core_schema
 BEGIN
@@ -716,4 +740,5 @@ master_admin|1
 20
 53
 0
-PASS: all migrations; seed twice; bcrypt hashes only; backup/restore to a separate local database; identical job counts.
+PASS: beta application has read privileges; production role names receive no beta job access and remain unchanged NOLOGIN fixture roles.
+PASS: isolated beta roles; all migrations as beta migrator; seed twice; bcrypt hashes only; backup/restore to a separate local database; identical job counts.

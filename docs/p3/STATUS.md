@@ -1,5 +1,8 @@
 # P3 evidence and task matrix — 4 October 2026
 
+**4 October verification update:** Owner selected existing EC2 **and existing RDS**, with an empty `sapienworx_beta` logical database and three beta-only PostgreSQL roles. The refreshed plan is **42 creates, zero updates/deletes**, no new EC2/RDS/security groups. Only the beta assume-role policy attachment affects the existing host. Earlier separate-RDS/database-egress instructions and $30–50 estimates below are superseded; no fixed second EC2/RDS charge is planned. Beta S3/ECR/logging remain usage-billed. DNS already resolves to `13.206.138.176`; beta TLS/runtime are absent. See [current audit](CURRENT-DEPLOYMENT-AUDIT.md) (under `docs/p3`) and the corrected `deploy/beta/README.md`. No apply has run.
+
+
 **Checkpoint: beta infrastructure apply gate.**
 **Interim classification: NOT READY FOR BETA ACCEPTANCE.**
 

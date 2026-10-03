@@ -26,7 +26,7 @@ resource "aws_ssm_parameter" "application_config" {
   for_each = {
     AWS_REGION   = var.aws_region
     S3_BUCKET    = aws_s3_bucket.documents.id
-    RDS_ENDPOINT = aws_db_instance.environment.address
+    RDS_ENDPOINT = data.aws_db_instance.shared.address
   }
 
   name        = "${local.parameter_path}/${each.key}"

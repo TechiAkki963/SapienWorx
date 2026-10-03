@@ -12,36 +12,17 @@ mode `0600`; they never enter GitHub, source control or chat.
 ## Database and runtime secret bootstrap (after approved apply)
 
 1. Run `aws sso login --profile sapienworx_admin` in a private owner session.
-2. Obtain the actual beta RDS endpoint and instance ID using the beta Terraform
-   outputs. RDS identifier is `sapienworx-beta-postgres`, database is
-   `sapienworx_beta`. Its master password stays in its RDS-managed Secrets Manager
-   secret. Retrieve it only in the private administrative session, never print it.
-3. Establish a private RDS path using Session Manager port forwarding. From the
-   owner PC with the AWS Session Manager plugin installed:
-
-   ```powershell
-   aws ssm start-session --profile sapienworx_admin --region ap-south-1 `
-     --target <ACTUAL_BETA_INSTANCE_ID> `
-     --document-name AWS-StartPortForwardingSessionToRemoteHost `
-     --parameters '{"host":["<ACTUAL_BETA_RDS_ENDPOINT>"],"portNumber":["5432"],"localPortNumber":["15433"]}'
-   ```
-
-4. Following `docs/deployment/DATABASE_ROLES.md`, run
-   `database/bootstrap/production_roles.sql` against **beta only**, with
-   `database_name=sapienworx_beta`, as the RDS administrator. Supply independently
-   generated role passwords via the documented environment variables, never
-   command arguments. The script name describes the established role policy;
-   it does not choose the target database. Verify the selected endpoint and
-   `SELECT current_database()` before execution. Use the existing application,
-   migrator and Intelligence least-privilege role model; no shared password.
+2. Reuse RDS `sapienworx-production-postgres`; obtain its endpoint from the revised beta Terraform output. Create a new **empty logical database** `sapienworx_beta` through a private RDS administrator session. Never run migrations in `sapienworx` or reuse production role passwords.
+3. Use SSM port forwarding to existing EC2 `i-0356b55e3d7eaf72a` and the actual shared RDS endpoint, remote port `5432`, local port `15433`. Retrieve the existing RDS administrator credential privately; it never goes to EC2/GitHub runtime roles.
+4. In `sapienworx_beta` only, run `deploy/beta/bootstrap-roles.sql` with `database_name=sapienworx_beta` and the three short-lived password environment variables documented in `docs/deployment/DATABASE_ROLES.md`. This guarded beta-specific script creates `sapienworx_beta_app`, `sapienworx_beta_migrator`, `sapienworx_beta_intelligence`. **Do not run the production role bootstrap against this shared instance for beta**: its ALTER ROLE statements would rotate production passwords. Audit cross-database privileges before enabling beta: distinct role names do not alone prove isolation if production grants to PUBLIC exist. Do not silently change production ACLs. See `docs/p3/CURRENT-DEPLOYMENT-AUDIT.md` for prerequisites.
 5. Generate separate random JWT and OTP secrets (48 random bytes as Base64, or
    equivalent strength). Store these SecureStrings:
 
    | SSM name | Value policy |
    | --- | --- |
-   | `/sapienworx/beta/DATABASE_URL` | beta endpoint, `sapienworx_app`, `/sapienworx_beta?sslmode=require` |
-   | `/sapienworx/beta/INTELLIGENCE_DATABASE_URL` | same beta endpoint/database, separate `sapienworx_intelligence` credentials |
-   | `/sapienworx/beta/MIGRATION_DATABASE_URL` | same beta endpoint/database, separate `sapienworx_migrator` credentials |
+   | `/sapienworx/beta/DATABASE_URL` | beta endpoint, `sapienworx_beta_app`, `/sapienworx_beta?sslmode=require` |
+   | `/sapienworx/beta/INTELLIGENCE_DATABASE_URL` | same beta endpoint/database, separate `sapienworx_beta_intelligence` credentials |
+   | `/sapienworx/beta/MIGRATION_DATABASE_URL` | same beta endpoint/database, separate `sapienworx_beta_migrator` credentials |
    | `/sapienworx/beta/JWT_SECRET` | independent random value, at least 32 bytes |
    | `/sapienworx/beta/AUTH_OTP_HMAC_SECRET` | different independent random value |
 

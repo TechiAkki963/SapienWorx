@@ -1,0 +1,32 @@
+[
+    [
+        {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "UserIdGroupPairs": [],
+            "IpRanges": [
+                {
+                    "Description": "Public HTTP for redirect and ACME",
+                    "CidrIp": "0.0.0.0/0"
+                }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": []
+        },
+        {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "UserIdGroupPairs": [],
+            "IpRanges": [
+                {
+                    "Description": "Public HTTPS",
+                    "CidrIp": "0.0.0.0/0"
+                }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": []
+        }
+    ]
+]

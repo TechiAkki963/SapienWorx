@@ -38,7 +38,7 @@ def account_secrets():
 def seed_environment(values, accounts):
     db = urlsplit(values["MIGRATION_DATABASE_URL"])
     return {"PGHOST": db.hostname, "PGPORT": str(db.port or 5432), "PGDATABASE": "sapienworx_beta",
-            "PGUSER": "sapienworx_migrator", "PGPASSWORD": unquote(db.password), "PGSSLMODE": "require",
+            "PGUSER": "sapienworx_beta_migrator", "PGPASSWORD": unquote(db.password), "PGSSLMODE": "require",
             **{f"BETA_{role.upper()}_HASH": a["hash"] for role, a in accounts.items()},
             **({"BETA_FIXTURE_HASH": accounts["candidate"]["hash"]} if accounts else {})}
 

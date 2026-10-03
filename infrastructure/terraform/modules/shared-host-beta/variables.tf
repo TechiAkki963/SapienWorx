@@ -1,4 +1,11 @@
 variable "shared_instance_id" { type = string }
+variable "shared_db_instance_identifier" {
+  type = string
+  validation {
+    condition     = var.shared_db_instance_identifier == "sapienworx-production-postgres"
+    error_message = "Reuse the approved existing RDS instance."
+  }
+}
 variable "shared_application_subnet_id" { type = string }
 variable "shared_instance_role_name" { type = string }
 variable "shared_vpc_id" { type = string }

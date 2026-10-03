@@ -1,4 +1,5 @@
 module "beta" {
+  shared_db_instance_identifier        = "sapienworx-production-postgres"
   shared_application_subnet_id         = "subnet-0dd7e43718bafce5e"
   source                               = "../modules/shared-host-beta"
   shared_instance_id                   = "i-0356b55e3d7eaf72a"

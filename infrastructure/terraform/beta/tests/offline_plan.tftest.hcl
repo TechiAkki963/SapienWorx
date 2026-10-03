@@ -68,8 +68,19 @@ run "beta_safety_plan" {
     values = { json = "{\"Version\":\"2012-10-17\",\"Statement\":[]}" }
   }
 
+  override_data {
+    target = module.beta.data.aws_db_instance.shared
+    values = {
+      db_instance_identifier  = "sapienworx-production-postgres"
+      address                 = "sapienworx-production-postgres.example.ap-south-1.rds.amazonaws.com"
+      engine                  = "postgres"
+      publicly_accessible     = false
+      storage_encrypted       = true
+      backup_retention_period = 7
+    }
+  }
   assert {
-    condition     = module.beta.isolation.database_private && module.beta.isolation.database_encrypted && module.beta.isolation.database_backups >= 7 && module.beta.isolation.postgres_ingress_private
+    condition     = module.beta.isolation.database_private && module.beta.isolation.database_encrypted && module.beta.isolation.database_backups >= 7 && module.beta.isolation.shared_database
     error_message = "Beta RDS must be private, encrypted and backed up."
   }
   assert {

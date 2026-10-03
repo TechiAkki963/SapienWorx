@@ -19,4 +19,4 @@ PASS: shell syntax: .github/workflows/beta-deploy.yml release step 4
 PASS: shell syntax: .github/workflows/beta-deploy.yml release step 5
 PASS: shell syntax: .github/workflows/beta-deploy.yml release step 6
 PASS: YAML parses: deploy/beta/compose.beta.yml
-PASS: 48 beta creates; zero changes/deletes; beta auth/origin/image boundary; protected beta OIDC environment.
+PASS: 42 beta creates; zero changes/deletes; beta auth/origin/image boundary; protected beta OIDC environment.
