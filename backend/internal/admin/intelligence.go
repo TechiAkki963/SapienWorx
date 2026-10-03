@@ -103,12 +103,16 @@ type IntelligenceGatewayMetrics struct {
 }
 
 type IntelligenceStoreMetrics struct {
-	PendingEvents     int64 `json:"pending_events"`
-	FailedEvents      int64 `json:"failed_events"`
-	CandidateFeatures int64 `json:"candidate_features"`
-	JobFeatures       int64 `json:"job_features"`
-	MatchResults      int64 `json:"match_results"`
-	FeedbackEvents    int64 `json:"feedback_events"`
+	PendingEvents          int64   `json:"pending_events"`
+	FailedEvents           int64   `json:"failed_events"`
+	DeadLetters            int64   `json:"dead_letters"`
+	CandidateFeatures      int64   `json:"candidate_features"`
+	JobFeatures            int64   `json:"job_features"`
+	MatchResults           int64   `json:"match_results"`
+	FeedbackEvents         int64   `json:"feedback_events"`
+	EmbeddingDocuments     int64   `json:"embedding_documents"`
+	OpenHumanReviews       int64   `json:"open_human_reviews"`
+	OldestPendingSeconds   float64 `json:"oldest_pending_seconds"`
 }
 
 type IntelligenceDashboard struct {
@@ -292,11 +296,26 @@ func (s *Service) Intelligence(ctx context.Context) (IntelligenceDashboard, erro
 	}
 	err = s.db.QueryRow(ctx, `SELECT
 		(SELECT count(*) FROM intelligence.events WHERE status='pending'),
-		(SELECT count(*) FROM intelligence.events WHERE status='failed'),
+		(SELECT count(*) FROM intelligence.events WHERE status='failed' AND available_at < now()+interval '1 year'),
+		(SELECT count(*) FROM intelligence.dead_letters),
 		(SELECT count(*) FROM intelligence.candidate_features),
 		(SELECT count(*) FROM intelligence.job_features),
 		(SELECT count(*) FROM intelligence.match_results),
-		(SELECT count(*) FROM intelligence.feedback_events)`).Scan(&out.Store.PendingEvents, &out.Store.FailedEvents, &out.Store.CandidateFeatures, &out.Store.JobFeatures, &out.Store.MatchResults, &out.Store.FeedbackEvents)
+		(SELECT count(*) FROM intelligence.feedback_events),
+		(SELECT count(*) FROM intelligence.embedding_documents),
+		(SELECT count(*) FROM intelligence.human_review_queue WHERE status IN ('open','in_review')),
+		COALESCE((SELECT extract(epoch FROM (now()-min(created_at))) FROM intelligence.events WHERE status='pending'),0)::float8`).Scan(
+			&out.Store.PendingEvents,
+			&out.Store.FailedEvents,
+			&out.Store.DeadLetters,
+			&out.Store.CandidateFeatures,
+			&out.Store.JobFeatures,
+			&out.Store.MatchResults,
+			&out.Store.FeedbackEvents,
+			&out.Store.EmbeddingDocuments,
+			&out.Store.OpenHumanReviews,
+			&out.Store.OldestPendingSeconds,
+		)
 	return out, err
 }
 
