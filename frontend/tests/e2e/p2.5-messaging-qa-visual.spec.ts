@@ -96,9 +96,23 @@ test("P2.5 bulk InMail drawer responsive matrix", async ({ page }) => {
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(/14-day cooldown/i)).toBeVisible();
     await noOverflow(page, "bulk InMail " + viewport.label);
+    await expect.poll(async () => {
+      const box = await dialog.boundingBox();
+      if (!box) return null;
+      return {
+        right: Math.round(box.x + box.width),
+        width: Math.round(box.width),
+      };
+    }, {
+      message: "Bulk InMail drawer geometry at " + viewport.label,
+      timeout: 5_000,
+    }).toEqual({
+      right: viewport.width,
+      width: viewport.width < 608 ? viewport.width : 608,
+    });
     await page.screenshot({
       path: `visual-artifacts/p2.5-messaging-qa/bulk-inmail-light-${viewport.label}.png`,
-      fullPage: true,
+      fullPage: false,
     });
     await page.getByRole("button", { name: "Close drawer" }).click();
   }
