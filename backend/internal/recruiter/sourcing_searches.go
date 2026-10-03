@@ -125,6 +125,9 @@ func (s *Service) UpdateSavedSearchAlert(ctx context.Context, recruiterID, searc
 	if errors.Is(err, pgx.ErrNoRows) {
 		return SavedSearch{}, ErrNotFound
 	}
+	if errors.Is(err, pgx.ErrNoRows) {
+		return SavedSearch{}, ErrNotFound
+	}
 	if err != nil {
 		return SavedSearch{}, err
 	}
