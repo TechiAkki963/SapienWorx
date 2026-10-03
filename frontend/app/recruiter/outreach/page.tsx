@@ -1,6 +1,7 @@
 import { OutreachWorkspace, type OutreachCampaign, type OutreachSequence } from "@/components/recruiter/outreach-workspace";
 import type { BulkMessageTemplate, BulkRecruiterJob } from "@/components/recruiter/bulk-inmail-drawer";
 import type { TalentPoolCandidate } from "@/components/recruiter/talent-pool-selection";
+import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
 import { messagingAPI } from "@/lib/messaging-server";
@@ -22,13 +23,11 @@ export default async function RecruiterOutreachPage() {
   return (
     <RecruiterShell>
       <div className="grid gap-4">
-        <header>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Structured candidate engagement</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-[-0.035em] text-navy sm:text-3xl">Outreach</h1>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-ink-muted">
-            Build reusable templates and follow-up sequences, then launch controlled outreach from your saved talent pool. Replies automatically stop future sequence steps.
-          </p>
-        </header>
+        <RecruiterProductHeader
+          eyebrow="Structured candidate engagement"
+          title="Outreach"
+          description="Build reusable templates and follow-up sequences, then launch controlled outreach from your saved talent pool. Replies automatically stop future sequence steps."
+        />
 
         <OutreachWorkspace
           initialTemplates={templateResponse.items ?? []}

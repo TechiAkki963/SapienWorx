@@ -210,3 +210,11 @@ jobs:
           path: frontend/visual-artifacts/p2.6-recruiter-product-areas
           if-no-files-found: error
           retention-days: 14
+      - name: Upload P2.7 UI mockup contract review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2.7-ui-mockup-review
+          path: frontend/visual-artifacts/p2.7-ui-mockup/
+          if-no-files-found: error
+          retention-days: 14

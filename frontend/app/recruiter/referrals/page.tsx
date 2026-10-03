@@ -1,4 +1,5 @@
 import { ReferralsWorkspace, type ReferralCandidate, type ReferralItem, type ReferralJob } from "@/components/recruiter/referrals-workspace";
+import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
 import { recruiterAPI } from "@/lib/recruiter-server";
@@ -13,7 +14,7 @@ export default async function ReferralsPage(){
   ]);
   const candidates:ReferralCandidate[]=pool.items??[];
   return <RecruiterShell><div className="grid gap-5 pb-24">
-    <header><p className="text-[10px] font-extrabold uppercase tracking-[.14em] text-indigo">Referral engine</p><h1 className="mt-1 text-2xl font-bold tracking-[-.035em] text-navy sm:text-3xl">Referrals</h1><p className="mt-1 max-w-3xl text-sm leading-6 text-ink-muted">Track referred talent, hiring progress and reward status with company-scoped records.</p></header>
+    <RecruiterProductHeader eyebrow="Referral engine" title="Referrals" description="Track referred talent, hiring progress and reward status with company-scoped records." />
     <ReferralsWorkspace initialItems={items??[]} candidates={candidates} jobs={jobs.items??[]}/>
   </div></RecruiterShell>;
 }
