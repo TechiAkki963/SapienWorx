@@ -19,16 +19,20 @@ const sections: { title: string; items: NavItem[] }[] = [
     { label: "Applications", shortLabel: "Apps", href: "/recruiter/pipeline", icon: "pipeline" },
     { label: "Messages / InMail", shortLabel: "Inbox", href: "/recruiter/messages", icon: "messages" },
     { label: "Interviews", href: "/recruiter/interviews", icon: "interviews" },
+    { label: "Offers", href: "/recruiter/offers", icon: "jobs" },
   ] },
   { title: "Advanced recruitment tools", items: [
     { label: "Discover Talent", href: "/recruiter/discover", icon: "discover" },
     { label: "Talent Pools", href: "/recruiter/talent-pool", icon: "talent" },
+    { label: "Saved Searches", href: "/recruiter/saved-searches", icon: "discover" },
+    { label: "Referrals", href: "/recruiter/referrals", icon: "talent" },
     { label: "Outreach", href: "/recruiter/outreach", icon: "outreach" },
+    { label: "Analytics", href: "/recruiter/analytics", icon: "overview" },
   ] },
 ];
 
 const mobilePrimary = sections[0].items.slice(0, 4);
-const mobileMore = [sections[0].items[4], ...sections[1].items];
+const mobileMore = [...sections[0].items.slice(4), ...sections[1].items];
 
 function NavIcon({ name, className }: { name: IconName; className?: string }) {
   const common = cn("h-[18px] w-[18px] shrink-0 fill-none stroke-current stroke-[1.8]", className);

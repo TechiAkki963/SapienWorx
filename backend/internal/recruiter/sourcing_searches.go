@@ -3,15 +3,21 @@ package recruiter
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type SavedSearch struct {
-	ID        string         `json:"id"`
-	Name      string         `json:"name"`
-	Filters   map[string]any `json:"filters"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID             string         `json:"id"`
+	Name           string         `json:"name"`
+	Filters        map[string]any `json:"filters"`
+	AlertEnabled   bool           `json:"alert_enabled"`
+	AlertFrequency string         `json:"alert_frequency"`
+	LastAlertedAt  *time.Time     `json:"last_alerted_at,omitempty"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }
 
 type RecentSearch struct {
@@ -34,7 +40,7 @@ func (s *Service) SaveSearch(ctx context.Context, recruiterID, name string, filt
 	}
 	var item SavedSearch
 	var stored []byte
-	err = s.db.QueryRow(ctx, `INSERT INTO recruiter_saved_searches(recruiter_id,name,filters) VALUES($1,$2,$3::jsonb) RETURNING id,name,filters,updated_at`, recruiterID, name, string(raw)).Scan(&item.ID, &item.Name, &stored, &item.UpdatedAt)
+	err = s.db.QueryRow(ctx, `INSERT INTO recruiter_saved_searches(recruiter_id,name,filters) VALUES($1,$2,$3::jsonb) RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`, recruiterID, name, string(raw)).Scan(&item.ID, &item.Name, &stored, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
 	if err == nil {
 		err = json.Unmarshal(stored, &item.Filters)
 	}
@@ -45,7 +51,7 @@ func (s *Service) SavedSearches(ctx context.Context, recruiterID string) ([]Save
 	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Query(ctx, `SELECT id,name,filters,updated_at FROM recruiter_saved_searches WHERE recruiter_id=$1 ORDER BY updated_at DESC LIMIT 20`, recruiterID)
+	rows, err := s.db.Query(ctx, `SELECT id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at FROM recruiter_saved_searches WHERE recruiter_id=$1 ORDER BY updated_at DESC LIMIT 20`, recruiterID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +60,7 @@ func (s *Service) SavedSearches(ctx context.Context, recruiterID string) ([]Save
 	for rows.Next() {
 		var x SavedSearch
 		var raw []byte
-		if err := rows.Scan(&x.ID, &x.Name, &raw, &x.UpdatedAt); err != nil {
+		if err := rows.Scan(&x.ID, &x.Name, &raw, &x.AlertEnabled, &x.AlertFrequency, &x.LastAlertedAt, &x.UpdatedAt); err != nil {
 			return nil, err
 		}
 		if err := json.Unmarshal(raw, &x.Filters); err != nil {
@@ -103,4 +109,27 @@ func (s *Service) RecentSearches(ctx context.Context, recruiterID string) ([]Rec
 		items = append(items, x)
 	}
 	return items, rows.Err()
+}
+
+func (s *Service) UpdateSavedSearchAlert(ctx context.Context, recruiterID, searchID string, enabled bool, frequency string) (SavedSearch, error) {
+	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
+		return SavedSearch{}, err
+	}
+	frequency = strings.TrimSpace(frequency)
+	if !validEnum(frequency, "daily", "weekly") {
+		return SavedSearch{}, ErrInvalid
+	}
+	var item SavedSearch
+	var raw []byte
+	err := s.db.QueryRow(ctx, `UPDATE recruiter_saved_searches SET alert_enabled=$3,alert_frequency=$4,updated_at=now() WHERE id=$1 AND recruiter_id=$2 RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`, searchID, recruiterID, enabled, frequency).Scan(&item.ID, &item.Name, &raw, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return SavedSearch{}, ErrNotFound
+	}
+	if err != nil {
+		return SavedSearch{}, err
+	}
+	if err = json.Unmarshal(raw, &item.Filters); err != nil {
+		return SavedSearch{}, err
+	}
+	return item, nil
 }
