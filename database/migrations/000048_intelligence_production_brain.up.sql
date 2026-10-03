@@ -133,7 +133,8 @@ DO $grant$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_app') THEN
     EXECUTE 'GRANT SELECT ON intelligence.dead_letters, intelligence.embedding_models, intelligence.embedding_documents, intelligence.human_review_queue TO sapienworx_app';
-    EXECUTE 'GRANT INSERT, UPDATE ON intelligence.embedding_models, intelligence.human_review_queue TO sapienworx_app';
+    EXECUTE 'GRANT INSERT, UPDATE ON intelligence.embedding_models TO sapienworx_app';
+    EXECUTE 'GRANT UPDATE ON intelligence.human_review_queue TO sapienworx_app';
     EXECUTE 'GRANT EXECUTE ON FUNCTION intelligence.cosine_similarity(real[],real[]) TO sapienworx_app';
     EXECUTE 'GRANT EXECUTE ON FUNCTION intelligence.search_embeddings(uuid,real[],text,integer) TO sapienworx_app';
   END IF;
