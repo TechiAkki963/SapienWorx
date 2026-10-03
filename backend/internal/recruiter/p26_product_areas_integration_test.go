@@ -105,6 +105,16 @@ func TestP26RecruiterProductAreasScaleAndIsolation(t *testing.T) {
 	if err := svc.SetOfferStatus(ctx, recB, offer.ID, "sent"); err != ErrNotFound {
 		t.Fatalf("cross-company offer mutation=%v", err)
 	}
+	if err := svc.SetOfferStatus(ctx, recA, offer.ID, "sent"); err != nil {
+		t.Fatal(err)
+	}
+	var previousStage, newStage string
+	if err := db.QueryRow(ctx, "SELECT previous_stage::text,new_stage::text FROM application_stage_audit WHERE application_id=$1 ORDER BY changed_at DESC LIMIT 1", appA).Scan(&previousStage, &newStage); err != nil {
+		t.Fatal(err)
+	}
+	if previousStage != "final_interview" || newStage != "offer" {
+		t.Fatalf("offer stage audit=%s -> %s", previousStage, newStage)
+	}
 	if _, err := svc.CreateReferral(ctx, recA, RecruiterReferralInput{CandidateID: candidateID, JobID: jobB, ReferrerName: "Wrong tenant", Source: "employee"}); err != ErrNotFound {
 		t.Fatalf("cross-company referral job=%v", err)
 	}
