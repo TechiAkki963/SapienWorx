@@ -4,6 +4,7 @@
 -- Demo accounts (both use password: SapienDemo#2026)
 --   candidate.demo@sapienworx.local
 --   recruiter.demo@sapienworx.local
+--   recruiter.second@sapienworx.local
 --
 -- Run after all migrations:
 --   psql "$DATABASE_URL" -f database/seed.dev.sql
@@ -26,6 +27,21 @@ INSERT INTO companies (
   now() - interval '180 days'
 ) ON CONFLICT (id) DO NOTHING;
 
+INSERT INTO companies (
+  id, legal_name, display_name, website_url, work_email_domain,
+  country_code, city, verification_status, verified_at
+) VALUES (
+  '10000000-0000-4000-8000-000000000002',
+  'Harbor Talent Systems Private Limited',
+  'Harbor Talent Systems',
+  'https://harbor.example',
+  'harbor.example',
+  'IN',
+  'Pune',
+  'verified',
+  now() - interval '120 days'
+) ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO users (
   id, email, password_hash, role, status, phone_e164,
   email_verified_at, phone_verified_at, last_login_at, is_active
@@ -36,6 +52,13 @@ INSERT INTO users (
     crypt('SapienDemo#2026', gen_salt('bf', 12)),
     'recruiter', 'active', '+919900000001', now() - interval '90 days',
     now() - interval '90 days', now() - interval '2 hours', true
+  ),
+  (
+    '20000000-0000-4000-8000-000000000002',
+    'recruiter.second@sapienworx.local',
+    crypt('SapienDemo#2026', gen_salt('bf', 12)),
+    'recruiter', 'active', '+919900000002', now() - interval '80 days',
+    now() - interval '80 days', now() - interval '4 hours', true
   ),
   (
     '30000000-0000-4000-8000-000000000001',
@@ -83,6 +106,14 @@ INSERT INTO recruiter_profiles (
   'Senior Talent Partner',
   'verified',
   now() - interval '90 days'
+),
+(
+  '20000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000002',
+  'Kabir Malhotra',
+  'Talent Partner',
+  'verified',
+  now() - interval '80 days'
 ) ON CONFLICT (user_id) DO NOTHING;
 
 INSERT INTO candidate_profiles (
