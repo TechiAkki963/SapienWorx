@@ -9,7 +9,7 @@ type Eval={id:string;model_version_id:string;dataset_ref:string;metrics:Record<s
 type Switch={key:string;enabled:boolean;requires_approval_to_enable:boolean;description:string;changed_at:string};
 type Heartbeat={engine_key:string;status:string;version:string;metadata:Record<string,unknown>;last_seen_at:string};
 type Prompt={id:string;prompt_key:string;version:number;template:string;variables:string[];status:string;model_version_id?:string;approval_id?:string;created_at:string;activated_at?:string};
-type Dashboard={runs:Run[];insights:Insight[];models:Model[];evaluations:Eval[];switches:Switch[];heartbeats:Heartbeat[];prompts:Prompt[];gateway:{requests_24h:number;failures_24h:number;blocked_24h:number;estimated_cost_24h:number;avg_latency_ms_24h:number;redactions_24h:number};store:{pending_events:number;failed_events:number;candidate_features:number;job_features:number;match_results:number;feedback_events:number};computed_at:string;advisory_only:boolean};
+type Dashboard={runs:Run[];insights:Insight[];models:Model[];evaluations:Eval[];switches:Switch[];heartbeats:Heartbeat[];prompts:Prompt[];gateway:{requests_24h:number;failures_24h:number;blocked_24h:number;estimated_cost_24h:number;avg_latency_ms_24h:number;redactions_24h:number};store:{pending_events:number;failed_events:number;dead_letters:number;candidate_features:number;job_features:number;match_results:number;feedback_events:number;embedding_documents:number;open_human_reviews:number;oldest_pending_seconds:number};computed_at:string;advisory_only:boolean};
 
 function Pill({value}:{value:string}){const good=["healthy","production","passed","enabled","approved"].includes(value);const bad=["failed","degraded","rejected","stopped"].includes(value);return <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${good?"bg-emerald-50 text-emerald-700":bad?"bg-red-50 text-red-700":"bg-amber-50 text-amber-800"}`}>{value.replaceAll("_"," ")}</span>}
 function Metric({label,value}:{label:string;value:string|number}){return <div className="rounded-xl border border-slate-100 bg-slate-50 p-3"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</p><p className="mt-1 text-2xl font-black text-slate-950">{value}</p></div>}
@@ -23,17 +23,21 @@ export default async function IntelligencePage(){
     <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <p className="text-xs font-bold uppercase tracking-widest text-indigo-600">SapienWorx Intelligence Centre</p>
       <h1 className="mt-3 text-3xl font-bold text-slate-950">Control plane for the separate Intelligence Engine</h1>
-      <p className="mt-3 max-w-5xl text-sm leading-7 text-slate-600">Master Admin governs intelligence; the separate <code>sapienworx-intelligence</code> runtime processes events, features, matching, feedback and evaluations. Browser clients never call the processing engine directly.</p>
-      <div role="note" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"><strong>Human-controlled by design.</strong> Learning signals do not directly modify production models. Promotion requires a passed evaluation and an independently approved governance request.</div>
+      <p className="mt-3 max-w-5xl text-sm leading-7 text-slate-600">Master Admin governs intelligence; the separate <code>sapienworx-intelligence</code> runtime processes the outbox, cross-industry taxonomy features, candidate/job intelligence, matching, governed embedding documents, feedback and evaluations. Browser clients never call the processing engine directly.</p>
+      <div role="note" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"><strong>Human-controlled by design.</strong> Learning signals do not directly modify production models. Promotion requires a passed evaluation and an independently approved governance request. Fraud and suspicious-candidate/job intelligence remains isolated to the Master Admin trust-review area and is never exposed as recruiter-facing labels.</div>
       <div className="mt-5"><RunIntelligenceButton/></div>
     </header>
 
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+    <section aria-label="Intelligence runtime scorecard" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <Metric label="Pending events" value={data.store.pending_events}/>
-      <Metric label="Failed events" value={data.store.failed_events}/>
+      <Metric label="Retrying failures" value={data.store.failed_events}/>
+      <Metric label="Dead letters" value={data.store.dead_letters}/>
+      <Metric label="Oldest pending" value={data.store.oldest_pending_seconds<60?Math.round(data.store.oldest_pending_seconds)+" s":Math.round(data.store.oldest_pending_seconds/60)+" min"}/>
+      <Metric label="Human reviews" value={data.store.open_human_reviews}/>
       <Metric label="Candidate features" value={data.store.candidate_features}/>
       <Metric label="Job features" value={data.store.job_features}/>
       <Metric label="Match results" value={data.store.match_results}/>
+      <Metric label="Embedding docs" value={data.store.embedding_documents}/>
       <Metric label="Feedback labels" value={data.store.feedback_events}/>
     </section>
 
