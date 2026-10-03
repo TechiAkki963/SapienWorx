@@ -460,3 +460,24 @@ func (s *Server) adminActivateIntelligencePrompt(w http.ResponseWriter, r *http.
 	}
 	writeJSON(w, http.StatusOK, map[string]bool{"activated": true})
 }
+
+
+func (s *Server) adminReviewIntelligenceCase(w http.ResponseWriter, r *http.Request) {
+	actor, ok := adminClaimsID(r)
+	if !ok {
+		writeError(w, r, http.StatusForbidden, "admin_forbidden", "master admin access denied")
+		return
+	}
+	var input struct {
+		Status string `json:"status"`
+		Note   string `json:"note"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	if err := s.admin.ReviewIntelligenceCase(r.Context(), strings.TrimSpace(r.PathValue("reviewID")), actor, input.Status, input.Note, clientIP(r.RemoteAddr), RequestIDFromContext(r.Context())); err != nil {
+		s.writeAdminError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]bool{"updated": true})
+}
