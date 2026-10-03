@@ -1,0 +1,65 @@
+{
+  "database": "sapienworx_beta",
+  "migrator": "sapienworx_beta_migrator",
+  "runtime": "sapienworx_beta_app",
+  "intelligence": "sapienworx_beta_intelligence",
+  "expected_migrations": 53,
+  "applied_migrations": 53,
+  "synthetic_jobs": 20,
+  "roles": [
+    {
+      "role": "sapienworx_beta_app",
+      "beta_connect": true,
+      "production_connect_denied": true,
+      "privileged_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "tls": [
+        true,
+        "TLSv1.3"
+      ]
+    },
+    {
+      "role": "sapienworx_beta_intelligence",
+      "beta_connect": true,
+      "production_connect_denied": true,
+      "privileged_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "tls": [
+        true,
+        "TLSv1.3"
+      ]
+    },
+    {
+      "role": "sapienworx_beta_migrator",
+      "beta_connect": true,
+      "production_connect_denied": true,
+      "privileged_flags": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "tls": [
+        true,
+        "TLSv1.3"
+      ]
+    }
+  ],
+  "production_schema_ledger_counts_unchanged": true,
+  "production_permissions_changed_by_separate_approval": true,
+  "secrets_exposed": false,
+  "runtime_validation": "PASS",
+  "application_deployed": false,
+  "beta_tls_activated": false
+}

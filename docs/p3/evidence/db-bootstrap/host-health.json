@@ -1,0 +1,22 @@
+{
+    "CommandId": "3a8ce9db-a469-4959-b54e-0a650930c474",
+    "InstanceId": "i-0356b55e3d7eaf72a",
+    "Comment": "Read-only health after approved beta DB bootstrap",
+    "DocumentName": "AWS-RunShellScript",
+    "DocumentVersion": "$DEFAULT",
+    "PluginName": "aws:runShellScript",
+    "ResponseCode": 0,
+    "ExecutionStartDateTime": "2026-10-03T22:07:00.831Z",
+    "ExecutionElapsedTime": "PT3.554S",
+    "ExecutionEndDateTime": "2026-10-03T22:07:03.831Z",
+    "Status": "Success",
+    "StatusDetails": "Success",
+    "StandardOutputContent": "Sat Oct  3 22:07:00 UTC 2026\nsapienworx-caddy Up 2 hours (healthy) 0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp, 443/udp, 2019/tcp\nsapienworx-frontend Up 9 days (healthy) 3000/tcp\nsapienworx-backend Up 9 days (healthy) 8080/tcp\nsapienworx-caddy-pre-holding-775f239 Exited (0) 2 hours ago \n               total        used        free      shared  buff/cache   available\nMem:            3790         551         507           0        2730        3050\nSwap:              0           0           0\nFilesystem      Size  Used Avail Use% Mounted on\n/dev/nvme0n1p1   20G  4.0G   16G  21% /\nsapienworx-caddy CPU=0.59% Memory=14.31MiB / 256MiB\nsapienworx-frontend CPU=0.00% Memory=62.21MiB / 1GiB\nsapienworx-backend CPU=0.00% Memory=4.617MiB / 768MiB\nBETA_RUNTIME_ABSENT\nValid configuration\n{\n\temail {$ACME_EMAIL}\n\tadmin off\n}\n\nhttp://127.0.0.1:2019 {\n\trespond /healthz 200\n}\n\nsapienworx.com, www.sapienworx.com {\n\troot * /srv/holding\n\tencode zstd gzip\n\theader {\n\t\tStrict-Transport-Security \"max-age=31536000; includeSubDomains\"\n\t\tX-Content-Type-Options \"nosniff\"\n\t\tReferrer-Policy \"strict-origin-when-cross-origin\"\n\t\tContent-Security-Policy \"default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'\"\n\t\t-Server\n\t}\n\t@application path /api /api/* /health /health/*\n\trespond @application 404\n\tfile_server\n}\n{\"status\":\"ready\"}\nState  Recv-Q Send-Q Local Address:Port  Peer Address:Port\nLISTEN 0      4096       127.0.0.1:37525      0.0.0.0:*   \nLISTEN 0      4096         0.0.0.0:443        0.0.0.0:*   \nLISTEN 0      128          0.0.0.0:22         0.0.0.0:*   \nLISTEN 0      4096         0.0.0.0:80         0.0.0.0:*   \nLISTEN 0      4096            [::]:443           [::]:*   \nLISTEN 0      128             [::]:22            [::]:*   \nLISTEN 0      4096            [::]:80            [::]:*   \n{\"container\": \"sapienworx-caddy\", \"log_lines_2h\": 23, \"critical_lines\": 0, \"database_error_lines\": 0, \"logs_command_exit\": 0}\n{\"container\": \"sapienworx-backend\", \"log_lines_2h\": 720, \"critical_lines\": 0, \"database_error_lines\": 0, \"logs_command_exit\": 0}\n{\"container\": \"sapienworx-frontend\", \"log_lines_2h\": 0, \"critical_lines\": 0, \"database_error_lines\": 0, \"logs_command_exit\": 0}\n",
+    "StandardOutputUrl": "",
+    "StandardErrorContent": "{\"level\":\"info\",\"ts\":1791065223.5776188,\"msg\":\"using config from file\",\"file\":\"/etc/caddy/Caddyfile\"}\n{\"level\":\"info\",\"ts\":1791065223.5812235,\"msg\":\"adapted config to JSON\",\"adapter\":\"caddyfile\"}\n{\"level\":\"info\",\"ts\":1791065223.5821757,\"logger\":\"http.auto_https\",\"msg\":\"server is listening only on the HTTPS port but has no TLS connection policies; adding one to enable TLS\",\"server_name\":\"srv1\",\"https_port\":443}\n{\"level\":\"info\",\"ts\":1791065223.5826895,\"logger\":\"http.auto_https\",\"msg\":\"enabling automatic HTTP->HTTPS redirects\",\"server_name\":\"srv1\"}\n{\"level\":\"info\",\"ts\":1791065223.5832264,\"logger\":\"http\",\"msg\":\"servers shutting down with eternal grace period\"}\n{\"level\":\"info\",\"ts\":1791065223.5836742,\"logger\":\"tls.cache.maintenance\",\"msg\":\"started background certificate maintenance\",\"cache\":\"0x4000892e80\"}\n{\"level\":\"info\",\"ts\":1791065223.5838184,\"logger\":\"tls.cache.maintenance\",\"msg\":\"stopped background certificate maintenance\",\"cache\":\"0x4000892e80\"}\nwget: server returned error: HTTP/1.1 404 Not Found\n",
+    "StandardErrorUrl": "",
+    "CloudWatchOutputConfig": {
+        "CloudWatchLogGroupName": "",
+        "CloudWatchOutputEnabled": false
+    }
+}

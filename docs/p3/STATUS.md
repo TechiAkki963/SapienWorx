@@ -1,5 +1,12 @@
 # P3 evidence and task matrix — 4 October 2026
 
+**Latest checkpoint: BETA DATABASE READY.** Approved beta database/roles, 53 forward
+migrations, synthetic seed and all eight startup secrets/config parameters are
+complete and verified. The separately approved production PUBLIC permission
+correction preserves existing production role access; production schema, ledger
+and table counts match. See [database bootstrap report](BETA-DATABASE-BOOTSTRAP-RESULT.md).
+Application deployment, merge/release, runtime setup and beta TLS remain unexecuted.
+
 **Latest checkpoint: infrastructure applied and verified.** The explicitly approved
 saved plan completed with 42 additions, 0 changes/deletions; post-apply drift is
 zero. Existing EC2/RDS, production trust/uploads and public holding page are

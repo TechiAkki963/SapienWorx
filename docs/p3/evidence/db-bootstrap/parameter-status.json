@@ -1,0 +1,79 @@
+[
+  {
+    "PARAMETER": "/sapienworx/beta/AUTH_OTP_HMAC_SECRET",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/AWS_REGION",
+    "TYPE": "String",
+    "POPULATED": "YES",
+    "SENSITIVE": "NO",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/DATABASE_URL",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/INTELLIGENCE_DATABASE_URL",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/JWT_SECRET",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/MIGRATION_DATABASE_URL",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/RDS_ENDPOINT",
+    "TYPE": "String",
+    "POPULATED": "YES",
+    "SENSITIVE": "NO",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/S3_BUCKET",
+    "TYPE": "String",
+    "POPULATED": "YES",
+    "SENSITIVE": "NO",
+    "USED BY": "beta runtime/deployment"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/test-accounts/candidate",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "synthetic account bootstrap"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/test-accounts/recruiter",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "synthetic account bootstrap"
+  },
+  {
+    "PARAMETER": "/sapienworx/beta/test-accounts/master_admin",
+    "TYPE": "SecureString",
+    "POPULATED": "YES",
+    "SENSITIVE": "YES",
+    "USED BY": "synthetic account bootstrap"
+  }
+]
