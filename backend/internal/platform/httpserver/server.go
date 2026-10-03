@@ -214,6 +214,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/admin/intelligence", Chain(http.HandlerFunc(s.adminIntelligence), adminGuard(admin.IntelligenceRead, admin.IntelligenceMetricsRead)))
 	mux.Handle("POST /api/v1/admin/intelligence/run", Chain(http.HandlerFunc(s.adminRunIntelligence), adminGuard(admin.IntelligenceModelsEvaluate)))
 	mux.Handle("PATCH /api/v1/admin/intelligence/insights/{insightID}", Chain(http.HandlerFunc(s.adminReviewIntelligenceInsight), adminGuard(admin.IntelligenceFeedbackReview)))
+	mux.Handle("PATCH /api/v1/admin/intelligence/reviews/{reviewID}", Chain(http.HandlerFunc(s.adminReviewIntelligenceCase), adminGuard(admin.IntelligenceFeedbackReview)))
 	mux.Handle("PATCH /api/v1/admin/intelligence/switches/{switchKey}", Chain(http.HandlerFunc(s.adminUpdateIntelligenceSwitch), adminGuard(admin.IntelligenceKillSwitch)))
 	mux.Handle("POST /api/v1/admin/intelligence/models", Chain(http.HandlerFunc(s.adminRegisterIntelligenceModel), adminGuard(admin.IntelligenceConfigUpdate)))
 	mux.Handle("POST /api/v1/admin/intelligence/models/{modelID}/evaluate", Chain(http.HandlerFunc(s.adminRequestIntelligenceModelEvaluation), adminGuard(admin.IntelligenceModelsEvaluate)))
