@@ -11,10 +11,16 @@ const recruiter = {
   password: "SapienDemo#2026",
 };
 
-async function signIn(page: import("@playwright/test").Page, role: "candidate" | "recruiter") {
+const secondRecruiter = {
+  email: "recruiter.second@sapienworx.local",
+  password: "SapienDemo#2026",
+};
+
+async function signIn(page: import("@playwright/test").Page, role: "candidate" | "recruiter", emailOverride?: string) {
   await page.goto(role === "candidate" ? "/login" : "/recruiter/login");
-  await page.getByLabel(role === "recruiter" ? "Work email" : "Email").fill(role === "candidate" ? candidate.email : recruiter.email);
-  await page.getByLabel("Password").fill(candidate.password);
+  const account = role === "candidate" ? candidate : recruiter;
+  await page.getByLabel(role === "recruiter" ? "Work email" : "Email").fill(emailOverride ?? account.email);
+  await page.getByLabel("Password").fill(account.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(role === "candidate" ? /\/candidate(?:$|\?)/ : /\/recruiter(?:$|\?)/);
 }
@@ -170,6 +176,99 @@ test.describe.serial("deployed staging acceptance", () => {
     await expect(recruiterPage.getByRole("paragraph").filter({ hasText: reply })).toBeVisible({ timeout: 5000 });
 
     await recruiterContext.close();
+    await candidateContext.close();
+  });
+
+  test("P2.5 blocks unauthorized and cross-company messaging access", async ({ browser, request }) => {
+    const anonymous = await request.get("/api/v1/messaging/threads");
+    expect(anonymous.status()).toBe(401);
+
+    const candidateContext = await browser.newContext();
+    const candidatePage = await candidateContext.newPage();
+    await signIn(candidatePage, "candidate");
+    const candidateCsrf = (await candidateContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(candidateCsrf).toBeTruthy();
+
+    const wrongRole = await candidatePage.evaluate(async (csrfToken) => {
+      const response = await fetch("/api/v1/recruiter/inmail", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({
+          candidate_id: "30000000-0000-4000-8000-000000000001",
+          subject: "Forbidden candidate initiated recruiter message",
+          content: "This must never be accepted.",
+        }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, candidateCsrf!);
+    expect(wrongRole.status).toBe(403);
+
+    const primaryContext = await browser.newContext();
+    const primaryPage = await primaryContext.newPage();
+    await signIn(primaryPage, "recruiter");
+    const primaryCsrf = (await primaryContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(primaryCsrf).toBeTruthy();
+
+    const created = await primaryPage.evaluate(async (csrfToken) => {
+      const response = await fetch("/api/v1/recruiter/inmail", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({
+          candidate_id: "30000000-0000-4000-8000-000000000001",
+          job_id: "40000000-0000-4000-8000-000000000001",
+          subject: "P2.5 tenant isolation thread",
+          content: "Only the owning recruiter and candidate may access this thread.",
+        }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, primaryCsrf!);
+    expect(created.status).toBe(201);
+    const threadID = String(created.body.thread?.id ?? "");
+    expect(threadID).toBeTruthy();
+
+    const secondContext = await browser.newContext();
+    const secondPage = await secondContext.newPage();
+    await signIn(secondPage, "recruiter", secondRecruiter.email);
+    const secondCsrf = (await secondContext.cookies()).find((cookie) => cookie.name === "sw_csrf")?.value;
+    expect(secondCsrf).toBeTruthy();
+
+    const foreignRead = await secondPage.evaluate(async (threadID) => {
+      const response = await fetch(`/api/v1/messaging/threads/${threadID}/messages`, { credentials: "include" });
+      return { status: response.status, body: await response.json() };
+    }, threadID);
+    expect(foreignRead.status).toBe(403);
+
+    const foreignReply = await secondPage.evaluate(async ({ threadID, csrfToken }) => {
+      const response = await fetch(`/api/v1/messaging/threads/${threadID}/messages`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({ content: "Cross-company reply must be denied." }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, { threadID, csrfToken: secondCsrf! });
+    expect(foreignReply.status).toBe(403);
+
+    const foreignJob = await secondPage.evaluate(async (csrfToken) => {
+      const response = await fetch("/api/v1/recruiter/inmail", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({
+          candidate_id: "30000000-0000-4000-8000-000000000001",
+          job_id: "40000000-0000-4000-8000-000000000001",
+          subject: "Cross-company job context",
+          content: "This must not cross tenant boundaries.",
+        }),
+      });
+      return { status: response.status, body: await response.json() };
+    }, secondCsrf!);
+    expect([403, 404]).toContain(foreignJob.status);
+
+    await secondContext.close();
+    await primaryContext.close();
     await candidateContext.close();
   });
 
