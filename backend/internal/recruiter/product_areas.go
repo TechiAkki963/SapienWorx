@@ -179,7 +179,15 @@ func (s *Service) CreateReferral(ctx context.Context,recruiterID string,in Recru
 	in.CandidateID=strings.TrimSpace(in.CandidateID);in.JobID=strings.TrimSpace(in.JobID);in.ReferrerName=strings.TrimSpace(in.ReferrerName);in.ReferrerEmail=strings.TrimSpace(in.ReferrerEmail);in.Source=strings.TrimSpace(in.Source)
 	if in.CandidateID==""||in.ReferrerName==""||len(in.ReferrerName)>160||len(in.ReferrerEmail)>320||len(in.Notes)>5000||!validEnum(in.Source,"employee","partner","recruiter","other"){return RecruiterReferral{},ErrInvalid}
 	var candidateExists bool
-	if err=s.db.QueryRow(ctx,`SELECT EXISTS(SELECT 1 FROM candidate_profiles WHERE user_id=$1)`,in.CandidateID).Scan(&candidateExists);err!=nil{return RecruiterReferral{},err}
+	if err=s.db.QueryRow(ctx,`SELECT EXISTS(
+		SELECT 1 FROM candidate_profiles cp
+		WHERE cp.user_id=$1
+		  AND (`+candidateDiscoverablePredicate+` OR EXISTS(
+			SELECT 1 FROM applications a
+			JOIN jobs j ON j.id=a.job_id
+			WHERE a.candidate_id=cp.user_id AND j.company_id=$2
+		  ))
+	)`,in.CandidateID,companyID).Scan(&candidateExists);err!=nil{return RecruiterReferral{},err}
 	if !candidateExists{return RecruiterReferral{},ErrNotFound}
 	if in.JobID!="" {var owned bool;if err=s.db.QueryRow(ctx,`SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND company_id=$2)`,in.JobID,companyID).Scan(&owned);err!=nil{return RecruiterReferral{},err};if !owned{return RecruiterReferral{},ErrNotFound}}
 	var id string
