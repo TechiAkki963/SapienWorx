@@ -461,7 +461,6 @@ func (s *Server) adminActivateIntelligencePrompt(w http.ResponseWriter, r *http.
 	writeJSON(w, http.StatusOK, map[string]bool{"activated": true})
 }
 
-
 func (s *Server) adminReviewIntelligenceCase(w http.ResponseWriter, r *http.Request) {
 	actor, ok := adminClaimsID(r)
 	if !ok {
