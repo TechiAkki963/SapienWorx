@@ -263,14 +263,18 @@ function intelligenceDashboard() {
     switches: [
       ["global_intelligence", false, "Master switch for intelligence processing."],
       ["candidate_intelligence", false, "Generate normalized candidate feature records."],
+      ["job_intelligence", false, "Generate normalized job feature records."],
       ["cv_intelligence", false, "Process CV-derived intelligence."],
       ["matching", false, "Generate deterministic match results."],
       ["learning_collection", false, "Collect outcome feedback."],
       ["automated_recommendations", false, "Serve intelligence recommendations."],
       ["ai_gateway", false, "Allow governed external AI routing."],
       ["model_deployment", false, "Allow approved model promotion."],
+      ["embedding_generation", false, "Generate governed embedding documents."],
+      ["semantic_search", false, "Use approved embeddings as a retrieval signal."],
+      ["human_review_queue", false, "Create Master Admin review cases for intelligence outputs."],
     ].map(([key, enabled, description]) => ({ key, enabled, requires_approval_to_enable: true, description, changed_at: now() })),
-    heartbeats: [{ engine_key: "sapienworx-intelligence", status: "healthy", version: "engine-v1", metadata: { advisory_only: true }, last_seen_at: now() }],
+    heartbeats: [{ engine_key: "sapienworx-intelligence", status: "healthy", version: "engine-v2", metadata: { advisory_only: true }, last_seen_at: now() }],
     prompts: [
       {
         id: "a5000000-0000-4000-8000-000000000001",
@@ -292,8 +296,22 @@ function intelligenceDashboard() {
         created_at: now(),
       },
     ],
+    human_reviews: [{
+      id: "a6000000-0000-4000-8000-000000000001",
+      review_type: "event_failure",
+      subject_type: "event",
+      subject_id: "a7000000-0000-4000-8000-000000000001",
+      priority: "high",
+      reason_code: "intelligence.event.max_attempts",
+      evidence: { event_type: "job.updated", aggregate_type: "job", attempts: 8 },
+      recommendation: { action: "review failure and explicitly replay only after the underlying cause is fixed" },
+      status: "open",
+      review_note: "",
+      created_at: now(),
+      updated_at: now(),
+    }],
     gateway: { requests_24h: 0, failures_24h: 0, blocked_24h: 0, estimated_cost_24h: 0, avg_latency_ms_24h: 0, redactions_24h: 0 },
-    store: { pending_events: 12, failed_events: 0, candidate_features: 42, job_features: 12, match_results: 180, feedback_events: 55 },
+    store: { pending_events: 12, failed_events: 0, dead_letters: 1, candidate_features: 42, job_features: 12, match_results: 180, feedback_events: 55, embedding_documents: 0, open_human_reviews: 2, oldest_pending_seconds: 35 },
     computed_at: now(),
     advisory_only: true,
   };
@@ -1084,6 +1102,14 @@ const server = http.createServer(async (req, res) => {
       return json(res, 403, { error: { message: "intelligence access denied" } });
     }
     return json(res, 200, intelligenceDashboard());
+  }
+  const intelligenceReview = url.pathname.match(/^\/api\/v1\/admin\/intelligence\/reviews\/([^/]+)$/);
+  if (intelligenceReview && req.method === "PATCH") {
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (roleFromCookie(req) !== "master_admin" || (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || !permissions.includes("intelligence.feedback.review")))) {
+      return json(res, 403, { error: { message: "intelligence review denied" } });
+    }
+    return json(res, 200, { updated: true });
   }
 
   // Aggregate fixtures for the isolated admin dashboard UI; never production data.
