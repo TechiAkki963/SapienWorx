@@ -21,7 +21,7 @@ func TestSavedSearchDiscoveryFiltersPreserveSourcingContract(t *testing.T) {
 	if got.Query != "Go AND PostgreSQL" || got.Location != "Mumbai" || got.MinExperience != 3 || got.MaxExperience != 8 || got.MaxNoticeDays != 30 || !got.HasMaxNotice || got.Industry != "Logistics" || got.Sort != "least_notice" {
 		t.Fatalf("unexpected saved-search filter mapping: %+v", got)
 	}
-	if got.UpdatedSince != "2026-10-02" || got.Page != 1 {
+	if got.UpdatedSince != "2026-10-02T13:30:00Z" || got.Page != 1 {
 		t.Fatalf("unexpected alert window: %+v", got)
 	}
 }
