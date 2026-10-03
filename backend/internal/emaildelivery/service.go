@@ -76,6 +76,12 @@ func (s *Service) PollInterval() time.Duration {
 }
 
 func (s *Service) DispatchPass(ctx context.Context) (int, error) {
+	if s == nil || s.db == nil {
+		return 0, nil
+	}
+	if err := s.expireSensitiveContent(ctx); err != nil {
+		return 0, err
+	}
 	if !s.Enabled() {
 		return 0, nil
 	}
@@ -91,6 +97,16 @@ func (s *Service) DispatchPass(ctx context.Context) (int, error) {
 		processed++
 	}
 	return processed, nil
+}
+
+func (s *Service) expireSensitiveContent(ctx context.Context) error {
+	_, err := s.db.Exec(ctx, `UPDATE email_outbox
+		SET status='expired',
+		    text_body='[redacted expired security code]',
+		    html_body=NULL,
+		    last_error=COALESCE(last_error,'security code expired before delivery')
+		WHERE status IN ('pending','failed','sending') AND expires_at<=now()`)
+	return err
 }
 
 func (s *Service) claim(ctx context.Context) ([]queuedMessage, error) {
@@ -111,7 +127,7 @@ func (s *Service) claim(ctx context.Context) ([]queuedMessage, error) {
 
 	rows, err := tx.Query(ctx, `SELECT id,kind,recipient_email,subject,text_body,html_body,attempts
 		FROM email_outbox
-		WHERE status IN ('pending','failed') AND next_attempt_at<=now() AND attempts<$1
+		WHERE status IN ('pending','failed') AND next_attempt_at<=now() AND expires_at>now() AND attempts<$1
 		ORDER BY created_at
 		FOR UPDATE SKIP LOCKED
 		LIMIT $2`, s.cfg.MaxAttempts, s.cfg.BatchSize)
@@ -194,7 +210,7 @@ func (s *Service) dispatchOne(ctx context.Context, item queuedMessage) error {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if _, err = tx.Exec(ctx, "UPDATE email_outbox SET status='sent',provider_message_id=$2,sent_at=now(),last_error=NULL WHERE id=$1", item.ID, messageID); err != nil {
+	if _, err = tx.Exec(ctx, "UPDATE email_outbox SET status='sent',provider_message_id=$2,sent_at=now(),last_error=NULL,text_body='[redacted after delivery]',html_body=NULL WHERE id=$1", item.ID, messageID); err != nil {
 		return err
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO email_delivery_events(provider,provider_message_id,event_type,recipient_email,payload)
@@ -215,7 +231,7 @@ func (s *Service) markSuppressed(ctx context.Context, item queuedMessage, reason
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if _, err = tx.Exec(ctx, "UPDATE email_outbox SET status='suppressed',last_error=$2 WHERE id=$1", item.ID, truncate(detail, 1000)); err != nil {
+	if _, err = tx.Exec(ctx, "UPDATE email_outbox SET status='suppressed',last_error=$2,text_body='[redacted suppressed security code]',html_body=NULL WHERE id=$1", item.ID, truncate(detail, 1000)); err != nil {
 		return err
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO email_delivery_events(provider,event_type,recipient_email,payload)
@@ -229,9 +245,10 @@ func (s *Service) markSuppressed(ctx context.Context, item queuedMessage, reason
 func (s *Service) markFailed(ctx context.Context, item queuedMessage, cause error) error {
 	delay := retryDelay(item.Attempts)
 	if item.Attempts >= s.cfg.MaxAttempts {
-		delay = 365 * 24 * time.Hour
+		_, err := s.db.Exec(ctx, "UPDATE email_outbox SET status='failed',last_error=$2,next_attempt_at=expires_at,text_body='[redacted after final delivery failure]',html_body=NULL WHERE id=$1", item.ID, truncate(cause.Error(), 1000))
+		return err
 	}
-	_, err := s.db.Exec(ctx, "UPDATE email_outbox SET status='failed',last_error=$2,next_attempt_at=$3 WHERE id=$1", item.ID, truncate(cause.Error(), 1000), s.now().UTC().Add(delay))
+	_, err := s.db.Exec(ctx, "UPDATE email_outbox SET status='failed',last_error=$2,next_attempt_at=LEAST($3,expires_at) WHERE id=$1", item.ID, truncate(cause.Error(), 1000), s.now().UTC().Add(delay))
 	return err
 }
 
@@ -284,7 +301,7 @@ func (s *Service) Health(ctx context.Context) (Health, error) {
 }
 
 func (s *Service) Run(ctx context.Context, onError func(error)) {
-	if !s.Enabled() {
+	if s == nil || s.db == nil {
 		return
 	}
 	ticker := time.NewTicker(s.PollInterval())
