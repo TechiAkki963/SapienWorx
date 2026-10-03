@@ -272,6 +272,32 @@ func truncate(value string, max int) string {
 	return value[:max]
 }
 
+func (s *Service) SyncSuppressions(ctx context.Context) (int, error) {
+	if !s.Enabled() {
+		return 0, nil
+	}
+	items, err := s.provider.Suppressions(ctx)
+	if err != nil {
+		return 0, err
+	}
+	updated := 0
+	for _, item := range items {
+		reason := strings.ToLower(strings.TrimSpace(item.Reason))
+		if reason != "bounce" && reason != "complaint" {
+			reason = "manual"
+		}
+		if _, err := s.db.Exec(ctx, `INSERT INTO email_suppressions(email,reason,source,detail)
+			VALUES(lower($1),$2,'ses',$3)
+			ON CONFLICT(email) DO UPDATE
+			SET reason=EXCLUDED.reason,source=EXCLUDED.source,detail=EXCLUDED.detail,last_seen_at=now()`,
+			item.Email, reason, item.Detail); err != nil {
+			return updated, err
+		}
+		updated++
+	}
+	return updated, nil
+}
+
 func (s *Service) Health(ctx context.Context) (Health, error) {
 	result := Health{Enabled: s.Enabled(), CheckedAt: s.now().UTC()}
 	err := s.db.QueryRow(ctx, `SELECT
@@ -306,6 +332,11 @@ func (s *Service) Run(ctx context.Context, onError func(error)) {
 	}
 	ticker := time.NewTicker(s.PollInterval())
 	defer ticker.Stop()
+	suppressionTicker := time.NewTicker(5 * time.Minute)
+	defer suppressionTicker.Stop()
+	if _, err := s.SyncSuppressions(ctx); err != nil && onError != nil {
+		onError(err)
+	}
 	for {
 		if _, err := s.DispatchPass(ctx); err != nil && onError != nil {
 			onError(err)
@@ -313,6 +344,10 @@ func (s *Service) Run(ctx context.Context, onError func(error)) {
 		select {
 		case <-ctx.Done():
 			return
+		case <-suppressionTicker.C:
+			if _, err := s.SyncSuppressions(ctx); err != nil && onError != nil {
+				onError(err)
+			}
 		case <-ticker.C:
 		}
 	}
