@@ -149,7 +149,9 @@ func (s *Service) SetOfferStatus(ctx context.Context,recruiterID,offerID,status 
 	err=tx.QueryRow(ctx,`SELECT o.application_id,a.candidate_id,j.title,o.status FROM recruiter_offers o JOIN applications a ON a.id=o.application_id JOIN jobs j ON j.id=a.job_id WHERE o.id=$1 AND o.company_id=$2 FOR UPDATE OF o`,offerID,companyID).Scan(&applicationID,&candidateID,&jobTitle,&current)
 	if errors.Is(err,pgx.ErrNoRows){return ErrNotFound};if err!=nil{return err}
 	if current==status{return nil}
-	if current=="accepted"||current=="declined"||current=="withdrawn"||current=="expired"{return ErrInvalid}
+	allowed := (current=="draft" && (status=="sent" || status=="withdrawn")) ||
+		(current=="sent" && (status=="accepted" || status=="declined" || status=="withdrawn" || status=="expired"))
+	if !allowed { return ErrInvalid }
 	if status=="sent" {
 		_,err=tx.Exec(ctx,`UPDATE recruiter_offers SET status='sent',sent_at=COALESCE(sent_at,now()) WHERE id=$1`,offerID);if err!=nil{return err}
 		_,err=tx.Exec(ctx,`UPDATE applications SET stage='offer' WHERE id=$1 AND stage NOT IN('hired','rejected','withdrawn')`,applicationID);if err!=nil{return err}
