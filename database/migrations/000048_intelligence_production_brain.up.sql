@@ -78,6 +78,27 @@ AS $$
   END;
 $$;
 
+CREATE OR REPLACE FUNCTION intelligence.search_embeddings(
+  p_model_id uuid,
+  p_query real[],
+  p_subject_type text DEFAULT NULL,
+  p_limit integer DEFAULT 25
+)
+RETURNS TABLE(subject_id uuid, similarity real, metadata jsonb)
+LANGUAGE sql
+STABLE
+AS $
+  SELECT d.subject_id,
+         intelligence.cosine_similarity(d.embedding,p_query) AS similarity,
+         d.metadata
+  FROM intelligence.embedding_documents d
+  WHERE d.model_id=p_model_id
+    AND (p_subject_type IS NULL OR d.subject_type=p_subject_type)
+    AND cardinality(d.embedding)=cardinality(p_query)
+  ORDER BY intelligence.cosine_similarity(d.embedding,p_query) DESC NULLS LAST, d.generated_at DESC
+  LIMIT LEAST(GREATEST(p_limit,1),100);
+$;
+
 CREATE TABLE intelligence.human_review_queue (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   review_type text NOT NULL CHECK (review_type IN ('match_quality','taxonomy','model_evaluation','event_failure','recommendation_quality')),
@@ -114,11 +135,13 @@ BEGIN
     EXECUTE 'GRANT SELECT ON intelligence.dead_letters, intelligence.embedding_models, intelligence.embedding_documents, intelligence.human_review_queue TO sapienworx_app';
     EXECUTE 'GRANT INSERT, UPDATE ON intelligence.embedding_models, intelligence.human_review_queue TO sapienworx_app';
     EXECUTE 'GRANT EXECUTE ON FUNCTION intelligence.cosine_similarity(real[],real[]) TO sapienworx_app';
+    EXECUTE 'GRANT EXECUTE ON FUNCTION intelligence.search_embeddings(uuid,real[],text,integer) TO sapienworx_app';
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname='sapienworx_intelligence') THEN
     EXECUTE 'GRANT SELECT, INSERT, UPDATE ON intelligence.dead_letters, intelligence.embedding_documents, intelligence.human_review_queue TO sapienworx_intelligence';
     EXECUTE 'GRANT SELECT ON intelligence.embedding_models TO sapienworx_intelligence';
     EXECUTE 'GRANT EXECUTE ON FUNCTION intelligence.cosine_similarity(real[],real[]) TO sapienworx_intelligence';
+    EXECUTE 'GRANT EXECUTE ON FUNCTION intelligence.search_embeddings(uuid,real[],text,integer) TO sapienworx_intelligence';
   END IF;
 END $grant$;
 
