@@ -89,6 +89,7 @@ data "aws_iam_policy_document" "application" {
     actions = [
       "ses:GetAccount",
       "ses:GetSuppressedDestination",
+      "ses:ListSuppressedDestinations",
     ]
     resources = ["*"]
   }
