@@ -25,6 +25,9 @@ test.describe("Master Admin Intelligence Centre", () => {
     await expect(page.getByRole("heading", { name: "Model & engine registry" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Prompt Registry" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Evaluations" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Human review queue" })).toBeVisible();
+    await expect(page.getByText("intelligence.event.max_attempts", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Start review" })).toBeVisible();
 
     const switches = page.getByRole("heading", { name: "Intelligence kill switches" }).locator("..");
     await expect(switches.getByText("global_intelligence", { exact: true })).toBeVisible();
