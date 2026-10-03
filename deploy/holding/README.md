@@ -1,10 +1,14 @@
 # Public mascot holding bundle
 
-Prepared for owner review; not deployed. `public/mascot.png` is the original
-3D woodpecker reference `1000185808.png` retrieved from the owner's
-“Create Sapienworx Mascot” chat. CSS frames its central banner without modifying
-the original image. No generated image is included. The page is self-contained
-HTML/CSS with no JavaScript or external URLs.
+Prepared for owner review; not deployed. `public/mascot.png` is the owner's
+original `SapienWorx Mascot Asset Sheet.png`, supplied on 2026-10-04. CSS frames
+the welcome pose (x=20, y=344, width=196, height=230 in the 1536x1024 sheet)
+without modifying its pixels or displaying the sheet's labels. The companion
+`SapienWorx Woodpecker Mascot System.png` is preserved in
+`references/woodpecker-system.png`, outside the served public directory.
+No generated image is included. The page is self-contained HTML/CSS with no
+JavaScript or external URLs. The printed filenames in the asset sheet are
+reference labels; individual PNG files were not supplied.
 
 `Caddyfile` serves only apex/www static files and returns 404 for API/health paths.
 Other missing paths return 404 rather than falling through to a live application.

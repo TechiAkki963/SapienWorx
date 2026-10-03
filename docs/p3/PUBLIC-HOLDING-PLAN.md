@@ -49,8 +49,8 @@ and IPv4 pricing at https://aws.amazon.com/vpc/pricing/.
 
 ## Ordered cutover and recovery
 
-1. The original 3D woodpecker reference has been retrieved from the owner's
-   “Create Sapienworx Mascot” chat and included in `deploy/holding/public`.
+1. The owner's supplied mascot asset sheet is included in `deploy/holding/public`;
+   the welcome pose is framed in CSS and both supplied source sheets are preserved.
    Visually review the static page at mobile and desktop sizes. Assets are
    served locally, with no tracking, external integrations, login or API proxy.
 2. Complete the beta infrastructure approval gate (`APPROVE BETA INFRA APPLY`),
