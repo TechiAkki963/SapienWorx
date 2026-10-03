@@ -1,0 +1,2174 @@
+module.beta.data.aws_caller_identity.current: Reading...
+data.aws_partition.current: Reading...
+module.beta.data.aws_iam_policy_document.ec2_assume_role: Reading...
+module.beta.data.aws_partition.current: Reading...
+data.aws_partition.current: Read complete after 0s [id=aws]
+module.beta.data.aws_partition.current: Read complete after 0s [id=aws]
+module.beta.data.aws_iam_policy_document.ec2_assume_role: Read complete after 0s [id=2851119427]
+data.aws_caller_identity.current: Reading...
+module.beta.data.aws_ssm_parameter.al2023_arm64_ami: Reading...
+module.beta.data.aws_caller_identity.current: Read complete after 0s [id=327301848391]
+data.aws_caller_identity.current: Read complete after 0s [id=327301848391]
+module.beta.data.aws_iam_policy_document.github_assume_role: Reading...
+module.beta.data.aws_iam_policy_document.github_assume_role: Read complete after 0s [id=3134402410]
+module.beta.data.aws_ssm_parameter.al2023_arm64_ami: Read complete after 0s [id=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # module.beta.data.aws_iam_policy_document.application will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "application" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions   = [
+              + "s3:GetObject",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+            ]
+          + sid       = "ReadBetaRuntimeReleases"
+        }
+      + statement {
+          + actions   = [
+              + "ecr:GetAuthorizationToken",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+          + sid       = "ECRAuthorization"
+        }
+      + statement {
+          + actions   = [
+              + "ecr:BatchCheckLayerAvailability",
+              + "ecr:BatchGetImage",
+              + "ecr:GetDownloadUrlForLayer",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+              + (known after apply),
+              + (known after apply),
+              + (known after apply),
+            ]
+          + sid       = "PullApplicationImages"
+        }
+      + statement {
+          + actions   = [
+              + "ssm:GetParameter",
+              + "ssm:GetParameters",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "arn:aws:ssm:ap-south-1:327301848391:parameter/sapienworx/beta/*",
+            ]
+          + sid       = "ReadRuntimeParameters"
+        }
+      + statement {
+          + actions   = [
+              + "kms:Decrypt",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+          + sid       = "DecryptSSMParameters"
+
+          + condition {
+              + test     = "StringEquals"
+              + values   = [
+                  + "ssm.ap-south-1.amazonaws.com",
+                ]
+              + variable = "kms:ViaService"
+            }
+          + condition {
+              + test     = "StringLike"
+              + values   = [
+                  + "arn:aws:ssm:ap-south-1:327301848391:parameter/sapienworx/beta/*",
+                ]
+              + variable = "kms:EncryptionContext:PARAMETER_ARN"
+            }
+        }
+      + statement {
+          + actions   = [
+              + "ses:SendEmail",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "arn:aws:ses:ap-south-1:327301848391:identity/sapienworx.com",
+            ]
+          + sid       = "SendTransactionalEmail"
+        }
+      + statement {
+          + actions   = [
+              + "ses:GetAccount",
+              + "ses:GetSuppressedDestination",
+              + "ses:ListSuppressedDestinations",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+          + sid       = "ReadSESSendingAndSuppressionState"
+        }
+      + statement {
+          + actions   = [
+              + "s3:DeleteObject",
+              + "s3:GetObject",
+              + "s3:PutObject",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+              + (known after apply),
+            ]
+          + sid       = "UsePrivateUserAndCandidateDocuments"
+        }
+      + statement {
+          + actions   = [
+              + "cloudwatch:PutMetricData",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+          + sid       = "PublishHostMetrics"
+
+          + condition {
+              + test     = "StringEquals"
+              + values   = [
+                  + "SapienWorx/Host",
+                ]
+              + variable = "cloudwatch:namespace"
+            }
+        }
+      + statement {
+          + actions   = [
+              + "logs:CreateLogStream",
+              + "logs:DescribeLogStreams",
+              + "logs:PutLogEvents",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+              + (known after apply),
+              + (known after apply),
+              + (known after apply),
+            ]
+          + sid       = "PublishApplicationLogs"
+        }
+    }
+
+  # module.beta.data.aws_iam_policy_document.documents_bucket will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "documents_bucket" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions   = [
+              + "s3:*",
+            ]
+          + effect    = "Deny"
+          + resources = [
+              + (known after apply),
+              + (known after apply),
+            ]
+          + sid       = "DenyInsecureTransport"
+
+          + condition {
+              + test     = "Bool"
+              + values   = [
+                  + "false",
+                ]
+              + variable = "aws:SecureTransport"
+            }
+
+          + principals {
+              + identifiers = [
+                  + "*",
+                ]
+              + type        = "*"
+            }
+        }
+    }
+
+  # module.beta.data.aws_iam_policy_document.github_deployment will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "github_deployment" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions   = [
+              + "s3:GetObject",
+              + "s3:PutObject",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+            ]
+          + sid       = "PublishBetaRuntimeReleases"
+        }
+      + statement {
+          + actions   = [
+              + "ecr:GetAuthorizationToken",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+          + sid       = "ECRAuthorization"
+        }
+      + statement {
+          + actions   = [
+              + "ecr:BatchCheckLayerAvailability",
+              + "ecr:BatchGetImage",
+              + "ecr:CompleteLayerUpload",
+              + "ecr:DescribeImages",
+              + "ecr:GetDownloadUrlForLayer",
+              + "ecr:InitiateLayerUpload",
+              + "ecr:PutImage",
+              + "ecr:UploadLayerPart",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+              + (known after apply),
+              + (known after apply),
+              + (known after apply),
+            ]
+          + sid       = "PushImmutableReleaseImages"
+        }
+      + statement {
+          + actions   = [
+              + "ssm:SendCommand",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "arn:aws:ssm:ap-south-1::document/AWS-RunShellScript",
+              + (known after apply),
+            ]
+          + sid       = "DeployToProductionInstance"
+        }
+      + statement {
+          + actions   = [
+              + "ec2:DescribeInstances",
+              + "ssm:GetCommandInvocation",
+              + "ssm:ListCommandInvocations",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+          + sid       = "ReadDeploymentStatus"
+        }
+    }
+
+  # module.beta.aws_cloudwatch_log_group.application will be created
+  + resource "aws_cloudwatch_log_group" "application" {
+      + arn                         = (known after apply)
+      + deletion_protection_enabled = (known after apply)
+      + id                          = (known after apply)
+      + log_group_class             = (known after apply)
+      + name                        = "/sapienworx/beta/application"
+      + name_prefix                 = (known after apply)
+      + region                      = "ap-south-1"
+      + retention_in_days           = 30
+      + skip_destroy                = false
+      + tags_all                    = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+    }
+
+  # module.beta.aws_cloudwatch_log_group.host will be created
+  + resource "aws_cloudwatch_log_group" "host" {
+      + arn                         = (known after apply)
+      + deletion_protection_enabled = (known after apply)
+      + id                          = (known after apply)
+      + log_group_class             = (known after apply)
+      + name                        = "/sapienworx/beta/host"
+      + name_prefix                 = (known after apply)
+      + region                      = "ap-south-1"
+      + retention_in_days           = 30
+      + skip_destroy                = false
+      + tags_all                    = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+    }
+
+  # module.beta.aws_cloudwatch_metric_alarm.ec2_cpu will be created
+  + resource "aws_cloudwatch_metric_alarm" "ec2_cpu" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "EC2 CPU has exceeded 80 percent for 15 minutes."
+      + alarm_name                            = "sapienworx-beta-ec2-high-cpu"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanThreshold"
+      + dimensions                            = (known after apply)
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 3
+      + id                                    = (known after apply)
+      + metric_name                           = "CPUUtilization"
+      + namespace                             = "AWS/EC2"
+      + ok_actions                            = (known after apply)
+      + period                                = 300
+      + region                                = "ap-south-1"
+      + statistic                             = "Average"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + threshold                             = 80
+      + treat_missing_data                    = "notBreaching"
+    }
+
+  # module.beta.aws_cloudwatch_metric_alarm.ec2_disk will be created
+  + resource "aws_cloudwatch_metric_alarm" "ec2_disk" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "Host root filesystem usage has exceeded 85 percent."
+      + alarm_name                            = "sapienworx-beta-ec2-root-disk"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanThreshold"
+      + dimensions                            = (known after apply)
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 2
+      + id                                    = (known after apply)
+      + metric_name                           = "disk_used_percent"
+      + namespace                             = "SapienWorx/Host"
+      + ok_actions                            = (known after apply)
+      + period                                = 300
+      + region                                = "ap-south-1"
+      + statistic                             = "Average"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + threshold                             = 85
+      + treat_missing_data                    = "notBreaching"
+    }
+
+  # module.beta.aws_cloudwatch_metric_alarm.ec2_memory will be created
+  + resource "aws_cloudwatch_metric_alarm" "ec2_memory" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "Host memory usage has exceeded 85 percent for 15 minutes."
+      + alarm_name                            = "sapienworx-beta-ec2-high-memory"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanThreshold"
+      + dimensions                            = (known after apply)
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 3
+      + id                                    = (known after apply)
+      + metric_name                           = "mem_used_percent"
+      + namespace                             = "SapienWorx/Host"
+      + ok_actions                            = (known after apply)
+      + period                                = 300
+      + region                                = "ap-south-1"
+      + statistic                             = "Average"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + threshold                             = 85
+      + treat_missing_data                    = "notBreaching"
+    }
+
+  # module.beta.aws_cloudwatch_metric_alarm.ec2_status will be created
+  + resource "aws_cloudwatch_metric_alarm" "ec2_status" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "EC2 system or instance status check failed."
+      + alarm_name                            = "sapienworx-beta-ec2-status-check"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanThreshold"
+      + dimensions                            = (known after apply)
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 2
+      + id                                    = (known after apply)
+      + metric_name                           = "StatusCheckFailed"
+      + namespace                             = "AWS/EC2"
+      + ok_actions                            = (known after apply)
+      + period                                = 60
+      + region                                = "ap-south-1"
+      + statistic                             = "Maximum"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + threshold                             = 0
+      + treat_missing_data                    = "breaching"
+    }
+
+  # module.beta.aws_cloudwatch_metric_alarm.rds_connections will be created
+  + resource "aws_cloudwatch_metric_alarm" "rds_connections" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "RDS database connections have exceeded the initial micro-instance operating threshold."
+      + alarm_name                            = "sapienworx-beta-rds-connections"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanThreshold"
+      + dimensions                            = {
+          + "DBInstanceIdentifier" = "sapienworx-beta-postgres"
+        }
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 2
+      + id                                    = (known after apply)
+      + metric_name                           = "DatabaseConnections"
+      + namespace                             = "AWS/RDS"
+      + ok_actions                            = (known after apply)
+      + period                                = 300
+      + region                                = "ap-south-1"
+      + statistic                             = "Average"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + threshold                             = 70
+      + treat_missing_data                    = "notBreaching"
+    }
+
+  # module.beta.aws_cloudwatch_metric_alarm.rds_cpu will be created
+  + resource "aws_cloudwatch_metric_alarm" "rds_cpu" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "RDS CPU has exceeded 80 percent for 15 minutes."
+      + alarm_name                            = "sapienworx-beta-rds-high-cpu"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanThreshold"
+      + dimensions                            = {
+          + "DBInstanceIdentifier" = "sapienworx-beta-postgres"
+        }
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 3
+      + id                                    = (known after apply)
+      + metric_name                           = "CPUUtilization"
+      + namespace                             = "AWS/RDS"
+      + ok_actions                            = (known after apply)
+      + period                                = 300
+      + region                                = "ap-south-1"
+      + statistic                             = "Average"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + threshold                             = 80
+      + treat_missing_data                    = "notBreaching"
+    }
+
+  # module.beta.aws_cloudwatch_metric_alarm.rds_free_storage will be created
+  + resource "aws_cloudwatch_metric_alarm" "rds_free_storage" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "RDS free storage has fallen below 5 GiB."
+      + alarm_name                            = "sapienworx-beta-rds-low-storage"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "LessThanThreshold"
+      + dimensions                            = {
+          + "DBInstanceIdentifier" = "sapienworx-beta-postgres"
+        }
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 2
+      + id                                    = (known after apply)
+      + metric_name                           = "FreeStorageSpace"
+      + namespace                             = "AWS/RDS"
+      + ok_actions                            = (known after apply)
+      + period                                = 300
+      + region                                = "ap-south-1"
+      + statistic                             = "Average"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + threshold                             = 5368709120
+      + treat_missing_data                    = "notBreaching"
+    }
+
+  # module.beta.aws_db_instance.environment will be created
+  + resource "aws_db_instance" "environment" {
+      + address                               = (known after apply)
+      + allocated_storage                     = 20
+      + apply_immediately                     = false
+      + arn                                   = (known after apply)
+      + auto_minor_version_upgrade            = true
+      + availability_zone                     = (known after apply)
+      + backup_retention_period               = 7
+      + backup_target                         = (known after apply)
+      + backup_window                         = "18:00-18:30"
+      + ca_cert_identifier                    = (known after apply)
+      + character_set_name                    = (known after apply)
+      + copy_tags_to_snapshot                 = true
+      + database_insights_mode                = (known after apply)
+      + db_name                               = "sapienworx_beta"
+      + db_subnet_group_name                  = "sapienworx-beta-database"
+      + dedicated_log_volume                  = false
+      + delete_automated_backups              = true
+      + deletion_protection                   = true
+      + domain_fqdn                           = (known after apply)
+      + enabled_cloudwatch_logs_exports       = [
+          + "postgresql",
+          + "upgrade",
+        ]
+      + endpoint                              = (known after apply)
+      + engine                                = "postgres"
+      + engine_lifecycle_support              = (known after apply)
+      + engine_version                        = "17.11"
+      + engine_version_actual                 = (known after apply)
+      + final_snapshot_identifier             = "sapienworx-beta-postgres-final"
+      + hosted_zone_id                        = (known after apply)
+      + id                                    = (known after apply)
+      + identifier                            = "sapienworx-beta-postgres"
+      + identifier_prefix                     = (known after apply)
+      + instance_class                        = "db.t3.micro"
+      + iops                                  = (known after apply)
+      + kms_key_id                            = (known after apply)
+      + latest_restorable_time                = (known after apply)
+      + license_model                         = (known after apply)
+      + listener_endpoint                     = (known after apply)
+      + maintenance_window                    = "sun:19:00-sun:19:30"
+      + manage_master_user_password           = true
+      + master_user_secret                    = (known after apply)
+      + master_user_secret_kms_key_id         = (known after apply)
+      + max_allocated_storage                 = 30
+      + monitoring_interval                   = 0
+      + monitoring_role_arn                   = (known after apply)
+      + multi_az                              = false
+      + nchar_character_set_name              = (known after apply)
+      + network_type                          = (known after apply)
+      + option_group_name                     = (known after apply)
+      + parameter_group_name                  = "sapienworx-beta-postgres17"
+      + performance_insights_enabled          = false
+      + performance_insights_kms_key_id       = (known after apply)
+      + performance_insights_retention_period = (known after apply)
+      + port                                  = (known after apply)
+      + publicly_accessible                   = false
+      + region                                = "ap-south-1"
+      + replica_mode                          = (known after apply)
+      + replicas                              = (known after apply)
+      + resource_id                           = (known after apply)
+      + skip_final_snapshot                   = false
+      + snapshot_identifier                   = (known after apply)
+      + status                                = (known after apply)
+      + storage_encrypted                     = true
+      + storage_throughput                    = (known after apply)
+      + storage_type                          = "gp3"
+      + tags_all                              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + timezone                              = (known after apply)
+      + upgrade_rollout_order                 = (known after apply)
+      + username                              = "sapienworx_admin"
+      + vpc_security_group_ids                = (known after apply)
+    }
+
+  # module.beta.aws_db_parameter_group.environment will be created
+  + resource "aws_db_parameter_group" "environment" {
+      + arn          = (known after apply)
+      + description  = "Managed by Terraform"
+      + family       = "postgres17"
+      + id           = (known after apply)
+      + name         = "sapienworx-beta-postgres17"
+      + name_prefix  = (known after apply)
+      + region       = "ap-south-1"
+      + skip_destroy = false
+      + tags_all     = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+
+      + parameter {
+          + apply_method = "pending-reboot"
+          + name         = "rds.force_ssl"
+          + value        = "1"
+        }
+    }
+
+  # module.beta.aws_db_subnet_group.environment will be created
+  + resource "aws_db_subnet_group" "environment" {
+      + arn                     = (known after apply)
+      + description             = "Managed by Terraform"
+      + id                      = (known after apply)
+      + name                    = "sapienworx-beta-database"
+      + name_prefix             = (known after apply)
+      + region                  = "ap-south-1"
+      + subnet_ids              = (known after apply)
+      + supported_network_types = (known after apply)
+      + tags                    = {
+          + "Name" = "sapienworx-beta-database"
+        }
+      + tags_all                = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-database"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + vpc_id                  = (known after apply)
+    }
+
+  # module.beta.aws_ecr_lifecycle_policy.application["backend"] will be created
+  + resource "aws_ecr_lifecycle_policy" "application" {
+      + id          = (known after apply)
+      + policy      = jsonencode(
+            {
+              + rules = [
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Delete untagged images after seven days"
+                      + rulePriority = 1
+                      + selection    = {
+                          + countNumber = 7
+                          + countType   = "sinceImagePushed"
+                          + countUnit   = "days"
+                          + tagStatus   = "untagged"
+                        }
+                    },
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Retain the newest twenty immutable releases"
+                      + rulePriority = 2
+                      + selection    = {
+                          + countNumber    = 20
+                          + countType      = "imageCountMoreThan"
+                          + tagPatternList = [
+                              + "*",
+                            ]
+                          + tagStatus      = "tagged"
+                        }
+                    },
+                ]
+            }
+        )
+      + region      = "ap-south-1"
+      + registry_id = (known after apply)
+      + repository  = "sapienworx-beta/backend"
+    }
+
+  # module.beta.aws_ecr_lifecycle_policy.application["frontend"] will be created
+  + resource "aws_ecr_lifecycle_policy" "application" {
+      + id          = (known after apply)
+      + policy      = jsonencode(
+            {
+              + rules = [
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Delete untagged images after seven days"
+                      + rulePriority = 1
+                      + selection    = {
+                          + countNumber = 7
+                          + countType   = "sinceImagePushed"
+                          + countUnit   = "days"
+                          + tagStatus   = "untagged"
+                        }
+                    },
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Retain the newest twenty immutable releases"
+                      + rulePriority = 2
+                      + selection    = {
+                          + countNumber    = 20
+                          + countType      = "imageCountMoreThan"
+                          + tagPatternList = [
+                              + "*",
+                            ]
+                          + tagStatus      = "tagged"
+                        }
+                    },
+                ]
+            }
+        )
+      + region      = "ap-south-1"
+      + registry_id = (known after apply)
+      + repository  = "sapienworx-beta/frontend"
+    }
+
+  # module.beta.aws_ecr_lifecycle_policy.application["intelligence"] will be created
+  + resource "aws_ecr_lifecycle_policy" "application" {
+      + id          = (known after apply)
+      + policy      = jsonencode(
+            {
+              + rules = [
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Delete untagged images after seven days"
+                      + rulePriority = 1
+                      + selection    = {
+                          + countNumber = 7
+                          + countType   = "sinceImagePushed"
+                          + countUnit   = "days"
+                          + tagStatus   = "untagged"
+                        }
+                    },
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Retain the newest twenty immutable releases"
+                      + rulePriority = 2
+                      + selection    = {
+                          + countNumber    = 20
+                          + countType      = "imageCountMoreThan"
+                          + tagPatternList = [
+                              + "*",
+                            ]
+                          + tagStatus      = "tagged"
+                        }
+                    },
+                ]
+            }
+        )
+      + region      = "ap-south-1"
+      + registry_id = (known after apply)
+      + repository  = "sapienworx-beta/intelligence"
+    }
+
+  # module.beta.aws_ecr_lifecycle_policy.application["migration"] will be created
+  + resource "aws_ecr_lifecycle_policy" "application" {
+      + id          = (known after apply)
+      + policy      = jsonencode(
+            {
+              + rules = [
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Delete untagged images after seven days"
+                      + rulePriority = 1
+                      + selection    = {
+                          + countNumber = 7
+                          + countType   = "sinceImagePushed"
+                          + countUnit   = "days"
+                          + tagStatus   = "untagged"
+                        }
+                    },
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Retain the newest twenty immutable releases"
+                      + rulePriority = 2
+                      + selection    = {
+                          + countNumber    = 20
+                          + countType      = "imageCountMoreThan"
+                          + tagPatternList = [
+                              + "*",
+                            ]
+                          + tagStatus      = "tagged"
+                        }
+                    },
+                ]
+            }
+        )
+      + region      = "ap-south-1"
+      + registry_id = (known after apply)
+      + repository  = "sapienworx-beta/migration"
+    }
+
+  # module.beta.aws_ecr_repository.application["backend"] will be created
+  + resource "aws_ecr_repository" "application" {
+      + arn                  = (known after apply)
+      + id                   = (known after apply)
+      + image_tag_mutability = "IMMUTABLE"
+      + name                 = "sapienworx-beta/backend"
+      + region               = "ap-south-1"
+      + registry_id          = (known after apply)
+      + repository_url       = (known after apply)
+      + tags                 = {
+          + "Component" = "backend"
+        }
+      + tags_all             = {
+          + "Component"   = "backend"
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+
+      + encryption_configuration {
+          + encryption_type = "AES256"
+          + kms_key         = (known after apply)
+        }
+
+      + image_scanning_configuration {
+          + scan_on_push = true
+        }
+    }
+
+  # module.beta.aws_ecr_repository.application["frontend"] will be created
+  + resource "aws_ecr_repository" "application" {
+      + arn                  = (known after apply)
+      + id                   = (known after apply)
+      + image_tag_mutability = "IMMUTABLE"
+      + name                 = "sapienworx-beta/frontend"
+      + region               = "ap-south-1"
+      + registry_id          = (known after apply)
+      + repository_url       = (known after apply)
+      + tags                 = {
+          + "Component" = "frontend"
+        }
+      + tags_all             = {
+          + "Component"   = "frontend"
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+
+      + encryption_configuration {
+          + encryption_type = "AES256"
+          + kms_key         = (known after apply)
+        }
+
+      + image_scanning_configuration {
+          + scan_on_push = true
+        }
+    }
+
+  # module.beta.aws_ecr_repository.application["intelligence"] will be created
+  + resource "aws_ecr_repository" "application" {
+      + arn                  = (known after apply)
+      + id                   = (known after apply)
+      + image_tag_mutability = "IMMUTABLE"
+      + name                 = "sapienworx-beta/intelligence"
+      + region               = "ap-south-1"
+      + registry_id          = (known after apply)
+      + repository_url       = (known after apply)
+      + tags                 = {
+          + "Component" = "intelligence"
+        }
+      + tags_all             = {
+          + "Component"   = "intelligence"
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+
+      + encryption_configuration {
+          + encryption_type = "AES256"
+          + kms_key         = (known after apply)
+        }
+
+      + image_scanning_configuration {
+          + scan_on_push = true
+        }
+    }
+
+  # module.beta.aws_ecr_repository.application["migration"] will be created
+  + resource "aws_ecr_repository" "application" {
+      + arn                  = (known after apply)
+      + id                   = (known after apply)
+      + image_tag_mutability = "IMMUTABLE"
+      + name                 = "sapienworx-beta/migration"
+      + region               = "ap-south-1"
+      + registry_id          = (known after apply)
+      + repository_url       = (known after apply)
+      + tags                 = {
+          + "Component" = "migration"
+        }
+      + tags_all             = {
+          + "Component"   = "migration"
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+
+      + encryption_configuration {
+          + encryption_type = "AES256"
+          + kms_key         = (known after apply)
+        }
+
+      + image_scanning_configuration {
+          + scan_on_push = true
+        }
+    }
+
+  # module.beta.aws_eip.application will be created
+  + resource "aws_eip" "application" {
+      + allocation_id        = (known after apply)
+      + arn                  = (known after apply)
+      + association_id       = (known after apply)
+      + carrier_ip           = (known after apply)
+      + customer_owned_ip    = (known after apply)
+      + domain               = "vpc"
+      + id                   = (known after apply)
+      + instance             = (known after apply)
+      + ipam_pool_id         = (known after apply)
+      + network_border_group = (known after apply)
+      + network_interface    = (known after apply)
+      + private_dns          = (known after apply)
+      + private_ip           = (known after apply)
+      + ptr_record           = (known after apply)
+      + public_dns           = (known after apply)
+      + public_ip            = (known after apply)
+      + public_ipv4_pool     = (known after apply)
+      + region               = "ap-south-1"
+      + tags                 = {
+          + "Name" = "sapienworx-beta-application"
+        }
+      + tags_all             = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-application"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+    }
+
+  # module.beta.aws_eip_association.application will be created
+  + resource "aws_eip_association" "application" {
+      + allocation_id        = (known after apply)
+      + id                   = (known after apply)
+      + instance_id          = (known after apply)
+      + network_interface_id = (known after apply)
+      + private_ip_address   = (known after apply)
+      + public_ip            = (known after apply)
+      + region               = "ap-south-1"
+    }
+
+  # module.beta.aws_iam_instance_profile.application will be created
+  + resource "aws_iam_instance_profile" "application" {
+      + arn         = (known after apply)
+      + create_date = (known after apply)
+      + id          = (known after apply)
+      + name        = "sapienworx-beta-application"
+      + name_prefix = (known after apply)
+      + path        = "/"
+      + role        = "sapienworx-beta-application"
+      + tags_all    = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + unique_id   = (known after apply)
+    }
+
+  # module.beta.aws_iam_policy.application will be created
+  + resource "aws_iam_policy" "application" {
+      + arn              = (known after apply)
+      + attachment_count = (known after apply)
+      + id               = (known after apply)
+      + name             = "sapienworx-beta-application"
+      + name_prefix      = (known after apply)
+      + path             = "/"
+      + policy           = (known after apply)
+      + policy_id        = (known after apply)
+      + tags_all         = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+    }
+
+  # module.beta.aws_iam_policy.github_deployment will be created
+  + resource "aws_iam_policy" "github_deployment" {
+      + arn              = (known after apply)
+      + attachment_count = (known after apply)
+      + id               = (known after apply)
+      + name             = "sapienworx-beta-github-deployment"
+      + name_prefix      = (known after apply)
+      + path             = "/"
+      + policy           = (known after apply)
+      + policy_id        = (known after apply)
+      + tags_all         = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+    }
+
+  # module.beta.aws_iam_role.application will be created
+  + resource "aws_iam_role" "application" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ec2.amazonaws.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "sapienworx-beta-application"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags_all              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # module.beta.aws_iam_role.github_deployment will be created
+  + resource "aws_iam_role" "github_deployment" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRoleWithWebIdentity"
+                      + Condition = {
+                          + StringEquals = {
+                              + "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+                              + "token.actions.githubusercontent.com:sub" = "repo:TechiAkki963@57339768/SapienWorx@1340540005:environment:beta"
+                            }
+                        }
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Federated = "arn:aws:iam::327301848391:oidc-provider/token.actions.githubusercontent.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "sapienworx-beta-github-deployment"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags_all              = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # module.beta.aws_iam_role_policy_attachment.application will be created
+  + resource "aws_iam_role_policy_attachment" "application" {
+      + id         = (known after apply)
+      + policy_arn = (known after apply)
+      + role       = "sapienworx-beta-application"
+    }
+
+  # module.beta.aws_iam_role_policy_attachment.application_ssm will be created
+  + resource "aws_iam_role_policy_attachment" "application_ssm" {
+      + id         = (known after apply)
+      + policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      + role       = "sapienworx-beta-application"
+    }
+
+  # module.beta.aws_iam_role_policy_attachment.github_deployment will be created
+  + resource "aws_iam_role_policy_attachment" "github_deployment" {
+      + id         = (known after apply)
+      + policy_arn = (known after apply)
+      + role       = "sapienworx-beta-github-deployment"
+    }
+
+  # module.beta.aws_instance.application will be created
+  + resource "aws_instance" "application" {
+      + ami                                  = (sensitive value)
+      + arn                                  = (known after apply)
+      + associate_public_ip_address          = false
+      + availability_zone                    = (known after apply)
+      + disable_api_stop                     = (known after apply)
+      + disable_api_termination              = (known after apply)
+      + ebs_optimized                        = (known after apply)
+      + enable_primary_ipv6                  = (known after apply)
+      + force_destroy                        = false
+      + get_password_data                    = false
+      + host_id                              = (known after apply)
+      + host_resource_group_arn              = (known after apply)
+      + iam_instance_profile                 = "sapienworx-beta-application"
+      + id                                   = (known after apply)
+      + instance_initiated_shutdown_behavior = (known after apply)
+      + instance_lifecycle                   = (known after apply)
+      + instance_state                       = (known after apply)
+      + instance_type                        = "m6g.medium"
+      + ipv6_address_count                   = (known after apply)
+      + ipv6_addresses                       = (known after apply)
+      + key_name                             = (known after apply)
+      + monitoring                           = false
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      + placement_group_id                   = (known after apply)
+      + placement_partition_number           = (known after apply)
+      + primary_network_interface_id         = (known after apply)
+      + private_dns                          = (known after apply)
+      + private_ip                           = (known after apply)
+      + public_dns                           = (known after apply)
+      + public_ip                            = (known after apply)
+      + region                               = "ap-south-1"
+      + secondary_private_ips                = (known after apply)
+      + security_groups                      = (known after apply)
+      + source_dest_check                    = true
+      + spot_instance_request_id             = (known after apply)
+      + subnet_id                            = (known after apply)
+      + tags                                 = {
+          + "Name" = "sapienworx-beta-application"
+        }
+      + tags_all                             = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-application"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tenancy                              = (known after apply)
+      + user_data_base64                     = "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"
+      + user_data_replace_on_change          = true
+      + vpc_security_group_ids               = (known after apply)
+
+      + capacity_reservation_specification (known after apply)
+
+      + cpu_options (known after apply)
+
+      + ebs_block_device (known after apply)
+
+      + enclave_options (known after apply)
+
+      + ephemeral_block_device (known after apply)
+
+      + instance_market_options (known after apply)
+
+      + maintenance_options (known after apply)
+
+      + metadata_options {
+          + http_endpoint               = "enabled"
+          + http_protocol_ipv6          = "disabled"
+          + http_put_response_hop_limit = 2
+          + http_tokens                 = "required"
+          + instance_metadata_tags      = "disabled"
+        }
+
+      + network_interface (known after apply)
+
+      + primary_network_interface (known after apply)
+
+      + private_dns_name_options (known after apply)
+
+      + root_block_device {
+          + delete_on_termination = true
+          + device_name           = (known after apply)
+          + encrypted             = true
+          + iops                  = (known after apply)
+          + kms_key_id            = (known after apply)
+          + tags_all              = (known after apply)
+          + throughput            = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = 20
+          + volume_type           = "gp3"
+        }
+
+      + secondary_network_interface (known after apply)
+    }
+
+  # module.beta.aws_internet_gateway.environment will be created
+  + resource "aws_internet_gateway" "environment" {
+      + arn      = (known after apply)
+      + id       = (known after apply)
+      + owner_id = (known after apply)
+      + region   = "ap-south-1"
+      + tags     = {
+          + "Name" = "sapienworx-beta-igw"
+        }
+      + tags_all = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-igw"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + vpc_id   = (known after apply)
+    }
+
+  # module.beta.aws_route.public_internet will be created
+  + resource "aws_route" "public_internet" {
+      + destination_cidr_block = "0.0.0.0/0"
+      + gateway_id             = (known after apply)
+      + id                     = (known after apply)
+      + instance_id            = (known after apply)
+      + instance_owner_id      = (known after apply)
+      + network_interface_id   = (known after apply)
+      + origin                 = (known after apply)
+      + region                 = "ap-south-1"
+      + route_table_id         = (known after apply)
+      + state                  = (known after apply)
+    }
+
+  # module.beta.aws_route_table.private_db will be created
+  + resource "aws_route_table" "private_db" {
+      + arn              = (known after apply)
+      + id               = (known after apply)
+      + owner_id         = (known after apply)
+      + propagating_vgws = (known after apply)
+      + region           = "ap-south-1"
+      + route            = (known after apply)
+      + tags             = {
+          + "Name" = "sapienworx-beta-private-db"
+        }
+      + tags_all         = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-private-db"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + vpc_id           = (known after apply)
+    }
+
+  # module.beta.aws_route_table.public will be created
+  + resource "aws_route_table" "public" {
+      + arn              = (known after apply)
+      + id               = (known after apply)
+      + owner_id         = (known after apply)
+      + propagating_vgws = (known after apply)
+      + region           = "ap-south-1"
+      + route            = (known after apply)
+      + tags             = {
+          + "Name" = "sapienworx-beta-public"
+        }
+      + tags_all         = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-public"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + vpc_id           = (known after apply)
+    }
+
+  # module.beta.aws_route_table_association.private_db[0] will be created
+  + resource "aws_route_table_association" "private_db" {
+      + id             = (known after apply)
+      + region         = "ap-south-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # module.beta.aws_route_table_association.private_db[1] will be created
+  + resource "aws_route_table_association" "private_db" {
+      + id             = (known after apply)
+      + region         = "ap-south-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # module.beta.aws_route_table_association.public[0] will be created
+  + resource "aws_route_table_association" "public" {
+      + id             = (known after apply)
+      + region         = "ap-south-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # module.beta.aws_route_table_association.public[1] will be created
+  + resource "aws_route_table_association" "public" {
+      + id             = (known after apply)
+      + region         = "ap-south-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # module.beta.aws_route_table_association.public_ap_south_1c will be created
+  + resource "aws_route_table_association" "public_ap_south_1c" {
+      + id             = (known after apply)
+      + region         = "ap-south-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # module.beta.aws_s3_bucket.documents will be created
+  + resource "aws_s3_bucket" "documents" {
+      + acceleration_status         = (known after apply)
+      + acl                         = (known after apply)
+      + arn                         = (known after apply)
+      + bucket                      = "sapienworx-beta-documents-327301848391-ap-south-1"
+      + bucket_domain_name          = (known after apply)
+      + bucket_namespace            = (known after apply)
+      + bucket_prefix               = (known after apply)
+      + bucket_region               = (known after apply)
+      + bucket_regional_domain_name = (known after apply)
+      + force_destroy               = false
+      + hosted_zone_id              = (known after apply)
+      + id                          = (known after apply)
+      + object_lock_enabled         = (known after apply)
+      + policy                      = (known after apply)
+      + region                      = "ap-south-1"
+      + request_payer               = (known after apply)
+      + tags_all                    = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + website_domain              = (known after apply)
+      + website_endpoint            = (known after apply)
+
+      + cors_rule (known after apply)
+
+      + grant (known after apply)
+
+      + lifecycle_rule (known after apply)
+
+      + logging (known after apply)
+
+      + object_lock_configuration (known after apply)
+
+      + replication_configuration (known after apply)
+
+      + server_side_encryption_configuration (known after apply)
+
+      + versioning (known after apply)
+
+      + website (known after apply)
+    }
+
+  # module.beta.aws_s3_bucket_cors_configuration.documents will be created
+  + resource "aws_s3_bucket_cors_configuration" "documents" {
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + region = "ap-south-1"
+
+      + cors_rule {
+          + allowed_headers = [
+              + "content-type",
+            ]
+          + allowed_methods = [
+              + "GET",
+              + "HEAD",
+              + "PUT",
+            ]
+          + allowed_origins = [
+              + "https://beta.sapienworx.com",
+            ]
+          + expose_headers  = [
+              + "ETag",
+            ]
+            id              = null
+          + max_age_seconds = 300
+        }
+    }
+
+  # module.beta.aws_s3_bucket_lifecycle_configuration.documents will be created
+  + resource "aws_s3_bucket_lifecycle_configuration" "documents" {
+      + bucket                                 = (known after apply)
+      + expected_bucket_owner                  = (known after apply)
+      + id                                     = (known after apply)
+      + region                                 = "ap-south-1"
+      + transition_default_minimum_object_size = "all_storage_classes_128K"
+
+      + rule {
+          + id     = "private-document-retention"
+          + status = "Enabled"
+            # (1 unchanged attribute hidden)
+
+          + abort_incomplete_multipart_upload {
+              + days_after_initiation = 7
+            }
+
+          + filter {
+                # (1 unchanged attribute hidden)
+            }
+
+          + noncurrent_version_expiration {
+              + noncurrent_days = 90
+            }
+        }
+    }
+
+  # module.beta.aws_s3_bucket_ownership_controls.documents will be created
+  + resource "aws_s3_bucket_ownership_controls" "documents" {
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + region = "ap-south-1"
+
+      + rule {
+          + object_ownership = "BucketOwnerEnforced"
+        }
+    }
+
+  # module.beta.aws_s3_bucket_policy.documents will be created
+  + resource "aws_s3_bucket_policy" "documents" {
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + policy = (known after apply)
+      + region = "ap-south-1"
+    }
+
+  # module.beta.aws_s3_bucket_public_access_block.documents will be created
+  + resource "aws_s3_bucket_public_access_block" "documents" {
+      + block_public_acls       = true
+      + block_public_policy     = true
+      + bucket                  = (known after apply)
+      + id                      = (known after apply)
+      + ignore_public_acls      = true
+      + region                  = "ap-south-1"
+      + restrict_public_buckets = true
+    }
+
+  # module.beta.aws_s3_bucket_server_side_encryption_configuration.documents will be created
+  + resource "aws_s3_bucket_server_side_encryption_configuration" "documents" {
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + region = "ap-south-1"
+
+      + rule {
+          + blocked_encryption_types = (known after apply)
+          + bucket_key_enabled       = (known after apply)
+
+          + apply_server_side_encryption_by_default {
+              + kms_master_key_id = (known after apply)
+              + sse_algorithm     = "AES256"
+            }
+        }
+    }
+
+  # module.beta.aws_s3_bucket_versioning.documents will be created
+  + resource "aws_s3_bucket_versioning" "documents" {
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + region = "ap-south-1"
+
+      + versioning_configuration {
+          + mfa_delete = (known after apply)
+          + status     = "Enabled"
+        }
+    }
+
+  # module.beta.aws_security_group.application will be created
+  + resource "aws_security_group" "application" {
+      + arn                    = (known after apply)
+      + description            = "Public HTTPS/HTTP ingress for Caddy; no administrative ingress"
+      + egress                 = (known after apply)
+      + id                     = (known after apply)
+      + ingress                = (known after apply)
+      + name                   = "sapienworx-beta-application"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "ap-south-1"
+      + revoke_rules_on_delete = true
+      + tags                   = {
+          + "Name" = "sapienworx-beta-application"
+        }
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-application"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + vpc_id                 = (known after apply)
+    }
+
+  # module.beta.aws_security_group.database will be created
+  + resource "aws_security_group" "database" {
+      + arn                    = (known after apply)
+      + description            = "Private PostgreSQL access from the application host only"
+      + egress                 = (known after apply)
+      + id                     = (known after apply)
+      + ingress                = (known after apply)
+      + name                   = "sapienworx-beta-database"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "ap-south-1"
+      + revoke_rules_on_delete = true
+      + tags                   = {
+          + "Name" = "sapienworx-beta-database"
+        }
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-database"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + vpc_id                 = (known after apply)
+    }
+
+  # module.beta.aws_sns_topic.operations will be created
+  + resource "aws_sns_topic" "operations" {
+      + arn                         = (known after apply)
+      + beginning_archive_time      = (known after apply)
+      + content_based_deduplication = false
+      + fifo_throughput_scope       = (known after apply)
+      + fifo_topic                  = false
+      + id                          = (known after apply)
+      + name                        = "sapienworx-beta-operations"
+      + name_prefix                 = (known after apply)
+      + owner                       = (known after apply)
+      + policy                      = (known after apply)
+      + region                      = "ap-south-1"
+      + signature_version           = (known after apply)
+      + tags_all                    = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tracing_config              = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_config["AWS_REGION"] will be created
+  + resource "aws_ssm_parameter" "application_config" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime configuration"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/AWS_REGION"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "String"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_config["RDS_ENDPOINT"] will be created
+  + resource "aws_ssm_parameter" "application_config" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime configuration"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/RDS_ENDPOINT"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "String"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_config["S3_BUCKET"] will be created
+  + resource "aws_ssm_parameter" "application_config" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime configuration"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/S3_BUCKET"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "String"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_secret["AUTH_OTP_HMAC_SECRET"] will be created
+  + resource "aws_ssm_parameter" "application_secret" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime secret managed out-of-band"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/AUTH_OTP_HMAC_SECRET"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "SecureString"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_secret["DATABASE_URL"] will be created
+  + resource "aws_ssm_parameter" "application_secret" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime secret managed out-of-band"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/DATABASE_URL"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "SecureString"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_secret["INTELLIGENCE_DATABASE_URL"] will be created
+  + resource "aws_ssm_parameter" "application_secret" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime secret managed out-of-band"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/INTELLIGENCE_DATABASE_URL"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "SecureString"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_secret["JWT_SECRET"] will be created
+  + resource "aws_ssm_parameter" "application_secret" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime secret managed out-of-band"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/JWT_SECRET"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "SecureString"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_ssm_parameter.application_secret["MIGRATION_DATABASE_URL"] will be created
+  + resource "aws_ssm_parameter" "application_secret" {
+      + arn            = (known after apply)
+      + data_type      = (known after apply)
+      + description    = "SapienWorx beta runtime secret managed out-of-band"
+      + has_value_wo   = (known after apply)
+      + id             = (known after apply)
+      + insecure_value = (known after apply)
+      + key_id         = (known after apply)
+      + name           = "/sapienworx/beta/MIGRATION_DATABASE_URL"
+      + region         = "ap-south-1"
+      + tags_all       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + tier           = "Standard"
+      + type           = "SecureString"
+      + value          = (sensitive value)
+      + version        = (known after apply)
+    }
+
+  # module.beta.aws_subnet.private_db[0] will be created
+  + resource "aws_subnet" "private_db" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "ap-south-1a"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.43.10.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = false
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "ap-south-1"
+      + tags                                           = {
+          + "Name" = "sapienworx-beta-private-db-ap-south-1a"
+          + "Tier" = "private-database"
+        }
+      + tags_all                                       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-private-db-ap-south-1a"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+          + "Tier"        = "private-database"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # module.beta.aws_subnet.private_db[1] will be created
+  + resource "aws_subnet" "private_db" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "ap-south-1b"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.43.11.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = false
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "ap-south-1"
+      + tags                                           = {
+          + "Name" = "sapienworx-beta-private-db-ap-south-1b"
+          + "Tier" = "private-database"
+        }
+      + tags_all                                       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-private-db-ap-south-1b"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+          + "Tier"        = "private-database"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # module.beta.aws_subnet.public[0] will be created
+  + resource "aws_subnet" "public" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "ap-south-1a"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.43.0.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = false
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "ap-south-1"
+      + tags                                           = {
+          + "Name" = "sapienworx-beta-public-ap-south-1a"
+          + "Tier" = "public-application"
+        }
+      + tags_all                                       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-public-ap-south-1a"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+          + "Tier"        = "public-application"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # module.beta.aws_subnet.public[1] will be created
+  + resource "aws_subnet" "public" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "ap-south-1b"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.43.1.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = false
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "ap-south-1"
+      + tags                                           = {
+          + "Name" = "sapienworx-beta-public-ap-south-1b"
+          + "Tier" = "public-application"
+        }
+      + tags_all                                       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-public-ap-south-1b"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+          + "Tier"        = "public-application"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # module.beta.aws_subnet.public_ap_south_1c will be created
+  + resource "aws_subnet" "public_ap_south_1c" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "ap-south-1c"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.43.2.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = false
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "ap-south-1"
+      + tags                                           = {
+          + "Name" = "sapienworx-beta-public-ap-south-1c"
+          + "Tier" = "public-application"
+        }
+      + tags_all                                       = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-public-ap-south-1c"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+          + "Tier"        = "public-application"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # module.beta.aws_vpc.environment will be created
+  + resource "aws_vpc" "environment" {
+      + arn                                  = (known after apply)
+      + cidr_block                           = "10.43.0.0/16"
+      + default_network_acl_id               = (known after apply)
+      + default_route_table_id               = (known after apply)
+      + default_security_group_id            = (known after apply)
+      + dhcp_options_id                      = (known after apply)
+      + enable_dns_hostnames                 = true
+      + enable_dns_support                   = true
+      + enable_network_address_usage_metrics = (known after apply)
+      + id                                   = (known after apply)
+      + instance_tenancy                     = "default"
+      + ipv6_association_id                  = (known after apply)
+      + ipv6_cidr_block                      = (known after apply)
+      + ipv6_cidr_block_network_border_group = (known after apply)
+      + main_route_table_id                  = (known after apply)
+      + owner_id                             = (known after apply)
+      + region                               = "ap-south-1"
+      + tags                                 = {
+          + "Name" = "sapienworx-beta-vpc"
+        }
+      + tags_all                             = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Name"        = "sapienworx-beta-vpc"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+    }
+
+  # module.beta.aws_vpc_security_group_egress_rule.application_dns_tcp will be created
+  + resource "aws_vpc_security_group_egress_rule" "application_dns_tcp" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "10.43.0.2/32"
+      + description            = "VPC DNS resolver fallback"
+      + from_port              = 53
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "ap-south-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                = 53
+    }
+
+  # module.beta.aws_vpc_security_group_egress_rule.application_dns_udp will be created
+  + resource "aws_vpc_security_group_egress_rule" "application_dns_udp" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "10.43.0.2/32"
+      + description            = "VPC DNS resolver"
+      + from_port              = 53
+      + id                     = (known after apply)
+      + ip_protocol            = "udp"
+      + region                 = "ap-south-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                = 53
+    }
+
+  # module.beta.aws_vpc_security_group_egress_rule.application_http will be created
+  + resource "aws_vpc_security_group_egress_rule" "application_http" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "0.0.0.0/0"
+      + description            = "Package repositories and certificate redirects"
+      + from_port              = 80
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "ap-south-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                = 80
+    }
+
+  # module.beta.aws_vpc_security_group_egress_rule.application_https will be created
+  + resource "aws_vpc_security_group_egress_rule" "application_https" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "0.0.0.0/0"
+      + description            = "AWS APIs, ECR, S3 and certificate services"
+      + from_port              = 443
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "ap-south-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                = 443
+    }
+
+  # module.beta.aws_vpc_security_group_egress_rule.application_postgresql will be created
+  + resource "aws_vpc_security_group_egress_rule" "application_postgresql" {
+      + arn                          = (known after apply)
+      + description                  = "PostgreSQL to private RDS"
+      + from_port                    = 5432
+      + id                           = (known after apply)
+      + ip_protocol                  = "tcp"
+      + referenced_security_group_id = (known after apply)
+      + region                       = "ap-south-1"
+      + security_group_id            = (known after apply)
+      + security_group_rule_id       = (known after apply)
+      + tags_all                     = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                      = 5432
+    }
+
+  # module.beta.aws_vpc_security_group_ingress_rule.application_http will be created
+  + resource "aws_vpc_security_group_ingress_rule" "application_http" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "0.0.0.0/0"
+      + description            = "Public HTTP for redirect and ACME"
+      + from_port              = 80
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "ap-south-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                = 80
+    }
+
+  # module.beta.aws_vpc_security_group_ingress_rule.application_https will be created
+  + resource "aws_vpc_security_group_ingress_rule" "application_https" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "0.0.0.0/0"
+      + description            = "Public HTTPS"
+      + from_port              = 443
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "ap-south-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                = 443
+    }
+
+  # module.beta.aws_vpc_security_group_ingress_rule.database_postgresql will be created
+  + resource "aws_vpc_security_group_ingress_rule" "database_postgresql" {
+      + arn                          = (known after apply)
+      + description                  = "PostgreSQL from application security group"
+      + from_port                    = 5432
+      + id                           = (known after apply)
+      + ip_protocol                  = "tcp"
+      + referenced_security_group_id = (known after apply)
+      + region                       = "ap-south-1"
+      + security_group_id            = (known after apply)
+      + security_group_rule_id       = (known after apply)
+      + tags_all                     = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+      + to_port                      = 5432
+    }
+
+Plan: 73 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + documents_bucket_name      = (known after apply)
+  + ec2_instance_id            = (known after apply)
+  + ec2_public_ip              = (known after apply)
+  + ecr_repository_urls        = {
+      + backend      = (known after apply)
+      + frontend     = (known after apply)
+      + intelligence = (known after apply)
+      + migration    = (known after apply)
+    }
+  + github_deployment_role_arn = (known after apply)
+  + instance_role_name         = "sapienworx-beta-application"
+  + isolation                  = {
+      + database_backups         = 7
+      + database_encrypted       = true
+      + database_name            = "sapienworx_beta"
+      + database_private         = true
+      + image_immutable          = true
+      + image_names              = {
+          + backend      = "sapienworx-beta/backend"
+          + frontend     = "sapienworx-beta/frontend"
+          + intelligence = "sapienworx-beta/intelligence"
+          + migration    = "sapienworx-beta/migration"
+        }
+      + imdsv2                   = true
+      + log_names                = [
+          + "/sapienworx/beta/host",
+          + "/sapienworx/beta/application",
+        ]
+      + oidc_subject             = "repo:TechiAkki963@57339768/SapienWorx@1340540005:environment:beta"
+      + postgres_ingress_private = true
+      + root_encrypted           = true
+      + storage_origins          = [
+          + "https://beta.sapienworx.com",
+        ]
+      + storage_private          = true
+      + storage_versioned        = true
+      + subnet_cidr              = "10.43.2.0/24"
+    }
+  + private_db_subnet_ids      = [
+      + (known after apply),
+      + (known after apply),
+    ]
+  + public_subnet_ids          = [
+      + (known after apply),
+      + (known after apply),
+    ]
+  + rds_endpoint               = (known after apply)
+  + sns_topic_arn              = (known after apply)
+  + ssm_parameter_path         = "/sapienworx/beta"
+  + vpc_id                     = (known after apply)
+
+─────────────────────────────────────────────────────────────────────────────
+
+Saved the plan to: beta.tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "beta.tfplan"

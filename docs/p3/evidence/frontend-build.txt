@@ -1,0 +1,104 @@
+
+> @sapienworx/frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.3.8 (Turbopack)
+✓ Running next.config.ts took 92ms
+- Experiments (use with caution):
+  · optimizePackageImports
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 8.2s
+  Running TypeScript ...
+
+  We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+  The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+    - include was updated to add '.next/dev/types/**/*.ts'
+
+  Finished TypeScript in 6.5s ...
+  Collecting page data using 13 workers ...
+  Generating static pages using 13 workers (0/35) ...
+  Generating static pages using 13 workers (8/35)
+  Generating static pages using 13 workers (17/35)
+  Generating static pages using 13 workers (26/35)
+✓ Generating static pages using 13 workers (35/35) in 338ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /candidate
+├ ƒ /candidate/applications
+├ ƒ /candidate/inbox
+├ ƒ /candidate/interviews
+├ ƒ /candidate/jobs
+├ ƒ /candidate/jobs/[jobID]
+├ ƒ /candidate/notifications
+├ ƒ /candidate/onboarding
+├ ƒ /candidate/profile
+├ ƒ /candidate/saved
+├ ○ /cookies
+├ ○ /forgot-password
+├ ƒ /jobs
+├ ƒ /jobs/[jobID]
+├ ƒ /login
+├ ○ /privacy
+├ ƒ /profile/[token]
+├ ƒ /recruiter
+├ ƒ /recruiter/analytics
+├ ƒ /recruiter/candidates/[candidateID]
+├ ƒ /recruiter/discover
+├ ƒ /recruiter/interviews
+├ ƒ /recruiter/jobs
+├ ƒ /recruiter/jobs/[jobID]/analytics
+├ ƒ /recruiter/jobs/[jobID]/applicants
+├ ƒ /recruiter/jobs/[jobID]/edit
+├ ƒ /recruiter/jobs/new
+├ ○ /recruiter/login
+├ ƒ /recruiter/messages
+├ ƒ /recruiter/offers
+├ ƒ /recruiter/outreach
+├ ƒ /recruiter/pipeline
+├ ƒ /recruiter/referrals
+├ ƒ /recruiter/saved-searches
+├ ○ /recruiter/signup
+├ ƒ /recruiter/talent-pool
+├ ○ /resources
+├   /resources/[slug]
+│ ├ ● /resources/build-a-resume
+│ ├ ● /resources/prepare-for-an-interview
+│ ├ ● /resources/practical-skill-growth-plan
+│ └ ● /resources/humans-and-ai-together
+├ ƒ /signup
+├ ƒ /subprocessors
+├ ƒ /swx-command-centre
+├ ƒ /swx-command-centre/access
+├ ƒ /swx-command-centre/alerts
+├ ƒ /swx-command-centre/applications
+├ ƒ /swx-command-centre/applications/[applicationID]
+├ ƒ /swx-command-centre/audit
+├ ƒ /swx-command-centre/content-settings
+├ ƒ /swx-command-centre/control-plane
+├ ƒ /swx-command-centre/control-plane/cases/[id]
+├ ƒ /swx-command-centre/intelligence
+├ ƒ /swx-command-centre/interviews
+├ ƒ /swx-command-centre/jobs
+├ ƒ /swx-command-centre/organizations
+├ ƒ /swx-command-centre/overview
+├ ƒ /swx-command-centre/privacy
+├ ƒ /swx-command-centre/releases
+├ ƒ /swx-command-centre/security
+├ ƒ /swx-command-centre/system
+├ ƒ /swx-command-centre/tenants
+├ ƒ /swx-command-centre/trust
+├ ƒ /swx-command-centre/users
+├ ƒ /swx-command-centre/users/[userID]
+├ ƒ /swx-command-centre/workforce-taxonomy
+├ ○ /verify-email
+└ ƒ /welcome
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand

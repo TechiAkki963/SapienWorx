@@ -1,0 +1,74 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.migrate
+#1 transferring dockerfile: 626B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/golang:1.26-alpine
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/postgres:17-alpine
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [accounts 1/6] FROM docker.io/library/golang:1.26-alpine@sha256:51a7c389a5ddaf82f527191a1e9bff9928655130a44e4975dd1d7e0acf59f1ae
+#6 resolve docker.io/library/golang:1.26-alpine@sha256:51a7c389a5ddaf82f527191a1e9bff9928655130a44e4975dd1d7e0acf59f1ae 0.0s done
+#6 DONE 0.0s
+
+#7 [stage-1 1/6] FROM docker.io/library/postgres:17-alpine@sha256:f02121de6f74d30d8a94cd1d9584125e2178d7e6c377d8130112d4e52d867995
+#7 resolve docker.io/library/postgres:17-alpine@sha256:f02121de6f74d30d8a94cd1d9584125e2178d7e6c377d8130112d4e52d867995 0.0s done
+#7 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 41.30kB 0.0s done
+#5 DONE 0.0s
+
+#8 [accounts 2/6] WORKDIR /src
+#8 CACHED
+
+#9 [accounts 3/6] COPY backend/go.mod backend/go.sum ./
+#9 CACHED
+
+#10 [accounts 4/6] RUN go mod download
+#10 CACHED
+
+#11 [stage-1 2/6] COPY database/migrations /migrations
+#11 CACHED
+
+#12 [stage-1 3/6] COPY database/migrate.sh /usr/local/bin/sapienworx-migrate
+#12 CACHED
+
+#13 [stage-1 4/6] COPY deploy/beta/seed.sql /beta-seed.sql
+#13 DONE 0.0s
+
+#14 [accounts 5/6] COPY backend/ ./
+#14 DONE 0.1s
+
+#15 [accounts 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/sapienworx-beta-accounts ./cmd/beta-accounts
+#15 DONE 5.0s
+
+#16 [stage-1 5/6] COPY --from=accounts /out/sapienworx-beta-accounts /usr/local/bin/sapienworx-beta-accounts
+#16 DONE 0.0s
+
+#17 [stage-1 6/6] RUN chmod 0555 /usr/local/bin/sapienworx-migrate
+#17 DONE 0.2s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 0.2s done
+#18 exporting manifest sha256:a12cc138befa9e5dcff34c372d06606d8ab78caa2a6cdb6f6f9682f33a74003b 0.0s done
+#18 exporting config sha256:f9d7f3645b0b7d322d54a83de2a4e83ae9398152143f8722fdcaa3edff3485cb 0.0s done
+#18 exporting attestation manifest sha256:b59b931f06fedb25862adb4e71c0fdf6693513d2510d140f63822d0aef19589c 0.0s done
+#18 exporting manifest list sha256:73d98280b5ade49205961dc87a1f38e6f03266550a9311a8e83209b5ad0b0b89 0.0s done
+#18 naming to docker.io/library/sapienworx-p3-beta-migration:test done
+#18 unpacking to docker.io/library/sapienworx-p3-beta-migration:test
+#18 unpacking to docker.io/library/sapienworx-p3-beta-migration:test 0.2s done
+#18 DONE 0.5s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ve2t0b1ajk8ypba2ahh8au2vc

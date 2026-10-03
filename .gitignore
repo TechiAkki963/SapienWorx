@@ -49,3 +49,11 @@ backend.hcl
 crash.log
 crash.*.log
 .terraform/
+
+# Beta local secrets and generated infrastructure plans
+deploy/beta/runtime/
+__pycache__/
+*.pyc
+# Generated local browser QA artifacts (retained locally for visual inspection)
+frontend/visual-artifacts/
+output/

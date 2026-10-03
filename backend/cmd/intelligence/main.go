@@ -76,7 +76,7 @@ func intelligenceDatabaseConfig() (string, config.DatabaseConfig, error) {
 	if databaseURL == "" {
 		databaseURL = strings.TrimSpace(os.Getenv("DATABASE_URL"))
 	}
-	if strings.EqualFold(environment, "production") && strings.TrimSpace(os.Getenv("INTELLIGENCE_DATABASE_URL")) == "" {
+	if (strings.EqualFold(environment, "production") || strings.EqualFold(environment, "beta")) && strings.TrimSpace(os.Getenv("INTELLIGENCE_DATABASE_URL")) == "" {
 		return "", config.DatabaseConfig{}, fmt.Errorf("INTELLIGENCE_DATABASE_URL is required in production for the separate Intelligence Engine database role")
 	}
 	if databaseURL == "" {

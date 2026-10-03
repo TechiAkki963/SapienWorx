@@ -152,7 +152,7 @@ func Load() (Config, error) {
 			LoginIPLimit:      intEnv("AUTH_LOGIN_IP_LIMIT", 12),
 			LoginIPWindow:     durationEnv("AUTH_LOGIN_IP_WINDOW", 5*time.Minute),
 			CookieDomain:      strings.TrimSpace(os.Getenv("AUTH_COOKIE_DOMAIN")),
-			CookieSecure:      boolEnv("AUTH_COOKIE_SECURE", environment == "production"),
+			CookieSecure:      boolEnv("AUTH_COOKIE_SECURE", environment == "production" || environment == "beta"),
 			AccessCookieName:  env("AUTH_ACCESS_COOKIE_NAME", "sw_access"),
 			RefreshCookieName: env("AUTH_REFRESH_COOKIE_NAME", "sw_refresh"),
 			CSRFCookieName:    env("AUTH_CSRF_COOKIE_NAME", "sw_csrf"),
@@ -236,7 +236,7 @@ func (c Config) Validate() error {
 	if c.AWS.S3PresignTTL < time.Minute || c.AWS.S3PresignTTL > 15*time.Minute {
 		problems = append(problems, "S3_PRESIGN_TTL must be between 1m and 15m")
 	}
-	if strings.EqualFold(strings.TrimSpace(c.Environment), "production") {
+	if strings.EqualFold(strings.TrimSpace(c.Environment), "production") || strings.EqualFold(strings.TrimSpace(c.Environment), "beta") {
 		if !c.Auth.CookieSecure {
 			problems = append(problems, "AUTH_COOKIE_SECURE must be true in production")
 		}
@@ -254,10 +254,33 @@ func (c Config) Validate() error {
 			problems = append(problems, "DATABASE_URL must not disable TLS in production")
 		}
 	}
+	if strings.EqualFold(strings.TrimSpace(c.Environment), "beta") {
+		if c.Auth.CookieDomain != "" {
+			problems = append(problems, "beta authentication cookies must be host-only")
+		}
+		if c.Auth.Issuer != "sapienworx-beta-api" || c.Auth.Audience != "sapienworx-beta-web" {
+			problems = append(problems, "beta requires its dedicated JWT issuer and audience")
+		}
+		if len(c.HTTP.AllowedOrigins) != 1 || c.HTTP.AllowedOrigins[0] != "https://beta.sapienworx.com" {
+			problems = append(problems, "beta requires its exact HTTPS origin")
+		}
+		parsed, err := url.Parse(c.Database.URL)
+		if err != nil || parsed.Hostname() == "" || parsed.Path != "/sapienworx_beta" || parsed.Fragment != "" ||
+			!containsTLSMode(parsed.Query().Get("sslmode")) || len(parsed.Query()) != 1 || len(parsed.Query()["sslmode"]) != 1 {
+			problems = append(problems, "beta requires the dedicated sapienworx_beta database with explicit TLS")
+		}
+		if !strings.HasPrefix(c.AWS.S3Bucket, "sapienworx-beta-documents-") {
+			problems = append(problems, "beta requires its dedicated document bucket")
+		}
+	}
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "; "))
 	}
 	return nil
+}
+
+func containsTLSMode(mode string) bool {
+	return mode == "require" || mode == "verify-ca" || mode == "verify-full"
 }
 
 func env(key, fallback string) string {

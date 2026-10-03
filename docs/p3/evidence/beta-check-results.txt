@@ -1,0 +1,1 @@
+PASS: final module terraform fmt -check -recursive (exit 0); beta all-profile docker compose config --quiet (exit 0).

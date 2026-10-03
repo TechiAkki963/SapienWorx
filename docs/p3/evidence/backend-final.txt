@@ -1,0 +1,54 @@
+ok      github.com/TechiAkki963/SapienWorx/backend/cmd/admin-recovery   (cached)
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/api  [no test files]
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/beta-accounts    [no test files]
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/intelligence [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/admin   (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/auth    (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/candidate   (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery   (cached)
+?       github.com/TechiAkki963/SapienWorx/backend/internal/intelligence    [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/engine (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway    (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/messaging   (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/config (cached)
+?       github.com/TechiAkki963/SapienWorx/backend/internal/platform/database   [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/privacy (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/recruiter   (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/resume  (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/storage (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/workforce   (cached)
+ok      github.com/TechiAkki963/SapienWorx/backend/cmd/admin-recovery   1.016s
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/api  [no test files]
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/beta-accounts    [no test files]
+?       github.com/TechiAkki963/SapienWorx/backend/cmd/intelligence [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/admin   1.032s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/auth    7.293s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/candidate   1.019s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery   1.019s
+?       github.com/TechiAkki963/SapienWorx/backend/internal/intelligence    [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/engine 1.029s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway    1.032s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/messaging   1.031s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/config 1.026s
+?       github.com/TechiAkki963/SapienWorx/backend/internal/platform/database   [no test files]
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver 5.288s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/privacy 1.011s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/recruiter   1.013s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/resume  1.255s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/storage 1.014s
+ok      github.com/TechiAkki963/SapienWorx/backend/internal/workforce   1.012s
+go: downloading golang.org/x/vuln v1.1.4
+go: downloading golang.org/x/telemetry v0.0.0-20240522233618-39ace7a40ae7
+go: downloading golang.org/x/mod v0.22.0
+go: downloading golang.org/x/tools v0.29.0
+go: downloading golang.org/x/sync v0.10.0
+=== Symbol Results ===
+
+No vulnerabilities found.
+
+Your code is affected by 0 vulnerabilities.
+This scan also found 0 vulnerabilities in packages you import and 1
+vulnerability in modules you require, but your code doesn't appear to call these
+vulnerabilities.
+Use '-show verbose' for more details.

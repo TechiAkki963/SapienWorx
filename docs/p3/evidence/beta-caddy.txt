@@ -1,0 +1,29 @@
+Unable to find image 'caddy:2.10.2-alpine' locally
+2.10.2-alpine: Pulling from library/caddy
+4f4fb700ef54: Pulling fs layer
+15dab9c57989: Pulling fs layer
+d49a2dee86fb: Pulling fs layer
+c108b7dc59eb: Pulling fs layer
+0f5b24603697: Pulling fs layer
+4f4fb700ef54: Already exists
+4f4fb700ef54: Pull complete
+15dab9c57989: Download complete
+c108b7dc59eb: Download complete
+d49a2dee86fb: Download complete
+d49a2dee86fb: Pull complete
+15dab9c57989: Pull complete
+c108b7dc59eb: Pull complete
+dfa8d6bed712: Download complete
+7441b80a9e30: Download complete
+0f5b24603697: Download complete
+0f5b24603697: Pull complete
+Digest: sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
+Status: Downloaded newer image for caddy:2.10.2-alpine
+{"level":"info","ts":1791055607.054939,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
+{"level":"info","ts":1791055607.0556457,"msg":"adapted config to JSON","adapter":"caddyfile"}
+{"level":"info","ts":1791055607.055891,"logger":"http.auto_https","msg":"server is listening only on the HTTPS port but has no TLS connection policies; adding one to enable TLS","server_name":"srv1","https_port":443}
+{"level":"info","ts":1791055607.0558999,"logger":"http.auto_https","msg":"enabling automatic HTTP->HTTPS redirects","server_name":"srv1"}
+Valid configuration
+{"level":"info","ts":1791055607.0560179,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0xc000123780"}
+{"level":"info","ts":1791055607.056083,"logger":"tls.cache.maintenance","msg":"stopped background certificate maintenance","cache":"0xc000123780"}
+{"level":"info","ts":1791055607.0561054,"logger":"http","msg":"servers shutting down with eternal grace period"}

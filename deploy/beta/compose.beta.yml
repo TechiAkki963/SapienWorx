@@ -1,0 +1,159 @@
+name: sapienworx-beta
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+  migration:
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/sapienworx-beta/migration:${IMAGE_TAG:?IMAGE_TAG is required}
+    profiles: [migration]
+    env_file:
+      - ./runtime/migration.env
+    networks: [proxy]
+    restart: "no"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    pids_limit: 80
+    mem_limit: 256m
+    cpus: 0.50
+
+  backend:
+    <<: *service-defaults
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/sapienworx-beta/backend:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: sapienworx-beta-backend
+    env_file:
+      - ./runtime/beta.env
+    environment:
+      APP_ENV: beta
+      API_PORT: "8080"
+      AUTH_COOKIE_DOMAIN: ""
+      AUTH_COOKIE_SECURE: "true"
+      CORS_ALLOWED_ORIGINS: https://beta.sapienworx.com
+      JWT_ISSUER: sapienworx-beta-api
+      JWT_AUDIENCE: sapienworx-beta-web
+      AWS_REGION: ap-south-1
+      S3_PRESIGN_TTL: 5m
+      EMAIL_DELIVERY_ENABLED: "false"
+      EMAIL_FROM_ADDRESS: info@sapienworx.com
+      DB_MAX_CONNS: "6"
+      DB_MIN_CONNS: "0"
+      HTTP_TRUSTED_PROXY_CIDRS: 172.28.0.0/24
+    networks: [proxy]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop: [ALL]
+    pids_limit: 160
+    mem_limit: 768m
+    cpus: 0.70
+    healthcheck:
+      test: [CMD, wget, -qO-, http://127.0.0.1:8080/health/ready]
+      interval: 10s
+      timeout: 4s
+      retries: 12
+      start_period: 20s
+
+  intelligence:
+    <<: *service-defaults
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/sapienworx-beta/intelligence:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: sapienworx-beta-intelligence
+    environment:
+      APP_ENV: beta
+      INTELLIGENCE_DATABASE_URL: ${INTELLIGENCE_DATABASE_URL:?INTELLIGENCE_DATABASE_URL is required}
+      DB_MAX_CONNS: "2"
+      DB_MIN_CONNS: "0"
+    networks: [intelligence]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    cap_drop: [ALL]
+    pids_limit: 96
+    mem_limit: 384m
+    cpus: 0.35
+    healthcheck:
+      test: [CMD, sapienworx-beta-intelligence, healthcheck]
+      interval: 15s
+      timeout: 3s
+      retries: 4
+      start_period: 5s
+
+  frontend:
+    <<: *service-defaults
+    image: ${ECR_REGISTRY:?ECR_REGISTRY is required}/sapienworx-beta/frontend:${IMAGE_TAG:?IMAGE_TAG is required}
+    container_name: sapienworx-beta-frontend
+    environment:
+      NODE_ENV: production
+      INTERNAL_API_URL: http://backend:8080
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [proxy]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+    cap_drop: [ALL]
+    pids_limit: 256
+    mem_limit: 1024m
+    cpus: 0.70
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  caddy:
+    <<: *service-defaults
+    image: caddy:2.10.2-alpine
+    container_name: sapienworx-beta-caddy
+    profiles: [edge]
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required when Caddy is enabled}
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./runtime/caddy-data:/data
+      - ./runtime/caddy-config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    networks: [proxy]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    pids_limit: 128
+    mem_limit: 256m
+    cpus: 0.25
+    healthcheck:
+      test: [CMD, wget, -qO-, http://127.0.0.1:2019/healthz]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+networks:
+  proxy:
+    name: sapienworx_beta_proxy
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
+  intelligence:
+    name: sapienworx_beta_intelligence
+    driver: bridge

@@ -1,0 +1,19 @@
+PASS: YAML parses: .github/workflows/beta-ci.yml
+PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 2
+PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 3
+PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 4
+PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 5
+PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 6
+PASS: shell syntax: .github/workflows/beta-ci.yml terraform step 7
+PASS: shell syntax: .github/workflows/beta-ci.yml database-rehearsal step 1
+PASS: shell syntax: .github/workflows/beta-ci.yml database-rehearsal step 2
+PASS: YAML parses: .github/workflows/beta-deploy.yml
+PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 0
+PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 2
+PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 4
+PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 6
+PASS: shell syntax: .github/workflows/beta-deploy.yml release step 4
+PASS: shell syntax: .github/workflows/beta-deploy.yml release step 5
+PASS: shell syntax: .github/workflows/beta-deploy.yml release step 6
+PASS: YAML parses: deploy/beta/compose.beta.yml
+PASS: 73 beta creates; zero changes/deletes; beta auth/origin/image boundary; protected beta OIDC environment.
