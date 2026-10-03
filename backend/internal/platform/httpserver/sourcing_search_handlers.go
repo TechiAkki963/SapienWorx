@@ -44,11 +44,22 @@ func (s *Server) recruiterRecentSearches(w http.ResponseWriter, r *http.Request)
 	writeJSON(w, http.StatusOK, map[string]any{"items": items})
 }
 
-func (s *Server) recruiterSavedSearchAlert(w http.ResponseWriter,r *http.Request){
-	id,ok:=recruiterID(r);if !ok{return}
-	var input struct{Enabled bool `json:"enabled"`;Frequency string `json:"frequency"`}
-	if !decodeJSON(w,r,&input){return}
-	item,err:=s.recruiter.UpdateSavedSearchAlert(r.Context(),id,r.PathValue("searchID"),input.Enabled,input.Frequency)
-	if err!=nil{s.writeRecruiterError(w,r,err);return}
-	writeJSON(w,http.StatusOK,item)
+func (s *Server) recruiterSavedSearchAlert(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	var input struct {
+		Enabled   bool   `json:"enabled"`
+		Frequency string `json:"frequency"`
+	}
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	item, err := s.recruiter.UpdateSavedSearchAlert(r.Context(), id, r.PathValue("searchID"), input.Enabled, input.Frequency)
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, item)
 }
