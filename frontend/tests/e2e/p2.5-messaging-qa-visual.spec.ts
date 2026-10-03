@@ -45,6 +45,13 @@ test("P2.5 candidate inbox responsive matrix", async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/candidate/inbox");
     await expect(page.getByText("Riya Recruiter").first()).toBeVisible();
+    if (viewport.width <= 428) {
+      const active = page.getByRole("link", { name: "Inbox" });
+      await expect(active).toHaveAttribute("aria-current", "page");
+      const box = await active.boundingBox();
+      expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport.width);
+    }
     await noOverflow(page, "candidate inbox " + viewport.label);
     await page.screenshot({
       path: `visual-artifacts/p2.5-messaging-qa/candidate-inbox-light-${viewport.label}.png`,
@@ -77,6 +84,13 @@ test("P2.5 candidate notifications responsive matrix", async ({ page }) => {
     await page.goto("/candidate/notifications");
     await expect(page.getByRole("heading", { name: "Notifications" })).toBeVisible();
     await expect(page.getByText("New message from a recruiter")).toBeVisible();
+    if (viewport.width <= 428) {
+      const active = page.getByRole("link", { name: "Notifications" });
+      await expect(active).toHaveAttribute("aria-current", "page");
+      const box = await active.boundingBox();
+      expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport.width);
+    }
     await noOverflow(page, "candidate notifications " + viewport.label);
     await page.screenshot({
       path: `visual-artifacts/p2.5-messaging-qa/candidate-notifications-light-${viewport.label}.png`,
