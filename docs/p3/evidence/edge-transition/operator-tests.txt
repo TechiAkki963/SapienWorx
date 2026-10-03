@@ -1,0 +1,5 @@
+Holding-only admin bootstrap verified. Beta has not been activated.
+Shared edge verified through supported graceful reload; public holding page unchanged.
+Holding-only edge restored gracefully; beta containers/database/uploads unchanged.
+PASS: explicit restart gate; managed prerequisite; failed TLS restores holding config; activation/rollback use reload only.
+Approved one-time admin bootstrap is required first.

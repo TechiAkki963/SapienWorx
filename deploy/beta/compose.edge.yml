@@ -9,7 +9,7 @@ services:
       ACME_EMAIL: info@sapienworx.com
     ports: ["80:80", "443:443"]
     volumes:
-      - ./Caddyfile.shared:/etc/caddy/Caddyfile:ro
+      - ./edge:/etc/caddy:ro
       - /opt/sapienworx/holding/releases/775f239/public:/srv/holding:ro
       - /opt/sapienworx/runtime/caddy-data:/data
       - /opt/sapienworx/runtime/caddy-config:/config
@@ -18,7 +18,7 @@ services:
     cap_drop: [ALL]
     cap_add: [NET_BIND_SERVICE]
     mem_limit: 256m
-    cpus: 0.20
+    cpus: 0.25
     pids_limit: 128
     logging:
       driver: json-file

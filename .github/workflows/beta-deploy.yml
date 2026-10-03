@@ -129,7 +129,7 @@ jobs:
           test "$INSTANCE_ID" = i-0356b55e3d7eaf72a
           [[ "$BUCKET" =~ ^sapienworx-beta-documents-[0-9]{12}-ap-south-1$ ]]
           tar -czf /tmp/beta-runtime.tar.gz -C deploy/beta \
-            compose.beta.yml Caddyfile Caddyfile.shared compose.edge.yml activate-shared-edge.sh \
+            compose.beta.yml Caddyfile Caddyfile.shared Caddyfile.holding-admin compose.edge.yml activate-shared-edge.sh rollback-shared-edge.sh verify-public-edge.sh \
             aws-config.example aws-sdk-config.example block-metadata.sh refresh-credentials.sh \
             sapienworx-beta-credentials.service sapienworx-beta-credentials.timer \
             deploy.sh rollback.sh health-check.sh validate-runtime.py beta-data.py
