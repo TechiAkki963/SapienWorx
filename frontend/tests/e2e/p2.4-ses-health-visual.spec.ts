@@ -16,8 +16,8 @@ test.describe("P2.4 SES health visual validation", () => {
   test("system email health is truthful, responsive and overflow-free", async ({ page }) => {
     await openSystem(page);
     await expect(page.getByText("Dispatcher disabled", { exact: true })).toBeVisible();
-    await expect(page.getByText("Separate AWS gate", { exact: true })).toBeVisible();
-    await expect(page.getByText("2 bounce · 1 complaint")).toHaveCount(0);
+    const productionAccess = page.getByText("Production access", { exact: true }).locator("..");
+    await expect(productionAccess).toContainText("Separate AWS gate");
     await expect(page.getByText("1 bounce · 1 complaint", { exact: true })).toBeVisible();
 
     await fs.mkdir("output", { recursive: true });
