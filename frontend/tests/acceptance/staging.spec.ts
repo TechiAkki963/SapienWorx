@@ -409,6 +409,7 @@ test.describe.serial("deployed staging acceptance", () => {
     const key = crypto.randomUUID();
     const candidateIDs = [
       "30000000-0000-4000-8000-000000000002",
+      "30000000-0000-4000-8000-000000000002",
     ];
 
     async function bulk(payload: Record<string, unknown>, idempotencyKey: string) {
@@ -440,8 +441,11 @@ test.describe.serial("deployed staging acceptance", () => {
     const first = await bulk(payload, key);
     expect(first.status).toBe(200);
     expect(first.body.status).toBe("sent");
+    expect(first.body.requested_count).toBe(1);
+    expect(first.body.recipient_count).toBe(1);
     expect(first.body.sent_count).toBe(1);
     expect(first.body.skipped_count).toBe(0);
+    expect(first.body.deliveries).toHaveLength(1);
 
     const retry = await bulk(payload, key);
     expect(retry.status).toBe(200);
