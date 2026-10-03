@@ -1,6 +1,7 @@
 BEGIN;
 DROP TABLE IF EXISTS recruiter_referrals;
 DROP TABLE IF EXISTS recruiter_offers;
+DROP INDEX IF EXISTS ix_recruiter_saved_search_alert_due;
 DROP INDEX IF EXISTS ix_recruiter_saved_search_alerts;
 ALTER TABLE recruiter_saved_searches
   DROP CONSTRAINT IF EXISTS recruiter_saved_searches_alert_frequency,
