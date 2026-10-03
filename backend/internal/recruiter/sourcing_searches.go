@@ -3,11 +3,8 @@ package recruiter
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"strings"
 	"time"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type SavedSearch struct {
@@ -111,16 +108,22 @@ func (s *Service) RecentSearches(ctx context.Context, recruiterID string) ([]Rec
 	return items, rows.Err()
 }
 
-
-func (s *Service) UpdateSavedSearchAlert(ctx context.Context,recruiterID,searchID string,enabled bool,frequency string)(SavedSearch,error){
-	if _,_,_,err:=s.recruiterCompany(ctx,recruiterID);err!=nil{return SavedSearch{},err}
-	frequency=strings.TrimSpace(frequency)
-	if !validEnum(frequency,"daily","weekly"){return SavedSearch{},ErrInvalid}
+func (s *Service) UpdateSavedSearchAlert(ctx context.Context, recruiterID, searchID string, enabled bool, frequency string) (SavedSearch, error) {
+	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
+		return SavedSearch{}, err
+	}
+	frequency = strings.TrimSpace(frequency)
+	if !validEnum(frequency, "daily", "weekly") {
+		return SavedSearch{}, ErrInvalid
+	}
 	var item SavedSearch
 	var raw []byte
-	err:=s.db.QueryRow(ctx,`UPDATE recruiter_saved_searches SET alert_enabled=$3,alert_frequency=$4,updated_at=now() WHERE id=$1 AND recruiter_id=$2 RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`,searchID,recruiterID,enabled,frequency).Scan(&item.ID,&item.Name,&raw,&item.AlertEnabled,&item.AlertFrequency,&item.LastAlertedAt,&item.UpdatedAt)
-	if errors.Is(err, pgx.ErrNoRows) { return SavedSearch{}, ErrNotFound }
-	if err!=nil{return SavedSearch{},err}
-	if err=json.Unmarshal(raw,&item.Filters);err!=nil{return SavedSearch{},err}
-	return item,nil
+	err := s.db.QueryRow(ctx, `UPDATE recruiter_saved_searches SET alert_enabled=$3,alert_frequency=$4,updated_at=now() WHERE id=$1 AND recruiter_id=$2 RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`, searchID, recruiterID, enabled, frequency).Scan(&item.ID, &item.Name, &raw, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
+	if err != nil {
+		return SavedSearch{}, err
+	}
+	if err = json.Unmarshal(raw, &item.Filters); err != nil {
+		return SavedSearch{}, err
+	}
+	return item, nil
 }
