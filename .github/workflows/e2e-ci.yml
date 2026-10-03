@@ -82,6 +82,14 @@ jobs:
           path: frontend/visual-artifacts/p2.5-messaging-qa/
           if-no-files-found: error
           retention-days: 14
+      - name: Upload P2.6 recruiter product area screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2.6-recruiter-product-area-visuals
+          path: frontend/visual-artifacts/p2.6-recruiter-product-areas/
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload P2.4 SES health visual screenshots
         if: always()
         uses: actions/upload-artifact@v4
