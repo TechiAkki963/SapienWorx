@@ -41,18 +41,19 @@ func (s *Service) RequestEmailVerification(ctx context.Context, emailValue strin
 	if err != nil {
 		return "", err
 	}
+	expiresAt := s.now().UTC().Add(s.cfg.OTPTTL)
 	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return "", err
 	}
 	defer tx.Rollback(ctx)
 	var challengeID string
-	err = tx.QueryRow(ctx, `INSERT INTO email_verification_challenges(user_id,email,purpose,code_hash,expires_at) VALUES($1,$2,$3,$4,$5) RETURNING id`, userID, email, emailVerificationPurpose, otpHash([]byte(s.cfg.OTPSecret), userID, emailVerificationPurpose, code), s.now().UTC().Add(s.cfg.OTPTTL)).Scan(&challengeID)
+	err = tx.QueryRow(ctx, `INSERT INTO email_verification_challenges(user_id,email,purpose,code_hash,expires_at) VALUES($1,$2,$3,$4,$5) RETURNING id`, userID, email, emailVerificationPurpose, otpHash([]byte(s.cfg.OTPSecret), userID, emailVerificationPurpose, code), expiresAt).Scan(&challengeID)
 	if err != nil {
 		return "", err
 	}
 	subject, textBody, htmlBody := verificationEmailContent(code, s.cfg.OTPTTL)
-	if err = enqueueSecurityEmailTx(ctx, tx, "email_verification", email, "email-verification:"+challengeID, subject, textBody, htmlBody); err != nil {
+	if err = enqueueSecurityEmailTx(ctx, tx, "email_verification", email, "email-verification:"+challengeID, subject, textBody, htmlBody, expiresAt); err != nil {
 		return "", err
 	}
 	if err = tx.Commit(ctx); err != nil {
