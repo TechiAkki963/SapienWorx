@@ -23,6 +23,10 @@ ALTER TABLE recruiter_saved_searches
 CREATE INDEX ix_recruiter_saved_search_alerts
   ON recruiter_saved_searches (recruiter_id, alert_enabled, updated_at DESC);
 
+CREATE INDEX ix_recruiter_saved_search_alert_due
+  ON recruiter_saved_searches (last_alerted_at, updated_at)
+  WHERE alert_enabled=true;
+
 -- Structured offers; application stage remains the pipeline source of truth.
 CREATE TABLE recruiter_offers (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
