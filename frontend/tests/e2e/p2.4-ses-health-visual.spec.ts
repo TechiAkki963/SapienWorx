@@ -20,16 +20,16 @@ test.describe("P2.4 SES health visual validation", () => {
     await expect(productionAccess).toContainText("Separate AWS gate");
     await expect(page.getByText("1 bounce · 1 complaint", { exact: true })).toBeVisible();
 
-    await fs.mkdir("output", { recursive: true });
+    await fs.mkdir("visual-artifacts/p2.4-ses-health", { recursive: true });
     for (const width of [1440, 1024, 768, 428, 390, 360, 320]) {
       await page.setViewportSize({ width, height: 960 });
       await expect(page.getByRole("heading", { name: "Amazon SES delivery health" })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-      await page.screenshot({ path: `output/p2.4-ses-system-${width}.png`, fullPage: true });
+      await page.screenshot({ path: `visual-artifacts/p2.4-ses-health/p2.4-ses-system-${width}.png`, fullPage: true });
     }
 
     await page.emulateMedia({ colorScheme: "dark" });
     await page.setViewportSize({ width: 1440, height: 960 });
-    await page.screenshot({ path: "output/p2.4-ses-system-dark-1440.png", fullPage: true });
+    await page.screenshot({ path: "visual-artifacts/p2.4-ses-health/p2.4-ses-system-dark-1440.png", fullPage: true });
   });
 });
