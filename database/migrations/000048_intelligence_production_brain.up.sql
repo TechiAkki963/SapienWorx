@@ -87,7 +87,7 @@ CREATE OR REPLACE FUNCTION intelligence.search_embeddings(
 RETURNS TABLE(subject_id uuid, similarity real, metadata jsonb)
 LANGUAGE sql
 STABLE
-AS $
+AS $search$
   SELECT d.subject_id,
          intelligence.cosine_similarity(d.embedding,p_query) AS similarity,
          d.metadata
@@ -97,7 +97,7 @@ AS $
     AND cardinality(d.embedding)=cardinality(p_query)
   ORDER BY intelligence.cosine_similarity(d.embedding,p_query) DESC NULLS LAST, d.generated_at DESC
   LIMIT LEAST(GREATEST(p_limit,1),100);
-$;
+$search$;
 
 CREATE TABLE intelligence.human_review_queue (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
