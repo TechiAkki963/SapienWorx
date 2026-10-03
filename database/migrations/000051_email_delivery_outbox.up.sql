@@ -17,17 +17,19 @@ CREATE TABLE email_outbox (
   text_body text NOT NULL,
   html_body text,
   dedupe_key varchar(160),
-  status varchar(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','sending','sent','failed','suppressed')),
+  status varchar(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','sending','sent','failed','suppressed','expired')),
   provider_message_id varchar(255),
   attempts integer NOT NULL DEFAULT 0 CHECK (attempts >= 0),
   next_attempt_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL,
   last_error text,
   created_at timestamptz NOT NULL DEFAULT now(),
   sent_at timestamptz,
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT email_outbox_recipient_not_blank CHECK (length(trim(recipient_email)) > 3),
   CONSTRAINT email_outbox_subject_not_blank CHECK (length(trim(subject)) > 0),
-  CONSTRAINT email_outbox_text_not_blank CHECK (length(trim(text_body)) > 0)
+  CONSTRAINT email_outbox_text_not_blank CHECK (length(trim(text_body)) > 0),
+  CONSTRAINT email_outbox_expiry_valid CHECK (expires_at > created_at)
 );
 CREATE UNIQUE INDEX idx_email_outbox_dedupe ON email_outbox(dedupe_key) WHERE dedupe_key IS NOT NULL;
 CREATE INDEX idx_email_outbox_dispatch ON email_outbox(status,next_attempt_at,created_at);
