@@ -1,3 +1,25 @@
+module.beta.data.aws_iam_role.shared: Reading...
+module.beta.data.aws_partition.current: Reading...
+module.beta.data.aws_caller_identity.current: Reading...
+data.aws_partition.current: Reading...
+data.aws_partition.current: Read complete after 0s [id=aws]
+module.beta.data.aws_partition.current: Read complete after 0s [id=aws]
+data.aws_caller_identity.current: Reading...
+module.beta.data.aws_instance.shared: Reading...
+module.beta.data.aws_caller_identity.current: Read complete after 1s [id=327301848391]
+module.beta.data.aws_subnet.shared_application: Reading...
+module.beta.data.aws_subnet.shared_private["subnet-03e71aa881ba365d0"]: Reading...
+module.beta.data.aws_subnet.shared_private["subnet-00695605c628f7cd6"]: Reading...
+data.aws_caller_identity.current: Read complete after 1s [id=327301848391]
+module.beta.data.aws_iam_policy_document.github_assume_role: Reading...
+module.beta.data.aws_iam_policy_document.github_assume_role: Read complete after 0s [id=3134402410]
+module.beta.data.aws_subnet.shared_application: Read complete after 0s [id=subnet-0dd7e43718bafce5e]
+module.beta.data.aws_subnet.shared_private["subnet-03e71aa881ba365d0"]: Read complete after 0s [id=subnet-03e71aa881ba365d0]
+module.beta.data.aws_subnet.shared_private["subnet-00695605c628f7cd6"]: Read complete after 0s [id=subnet-00695605c628f7cd6]
+module.beta.data.aws_instance.shared: Read complete after 1s [id=i-0356b55e3d7eaf72a]
+module.beta.data.aws_iam_role.shared: Read complete after 1s [id=sapienworx-production-application]
+module.beta.data.aws_iam_policy_document.runtime_assume_role: Reading...
+module.beta.data.aws_iam_policy_document.runtime_assume_role: Read complete after 0s [id=2268228759]
 
 Terraform used the selected providers to generate the following execution
 plan. Resource actions are indicated with the following symbols:
@@ -243,10 +265,10 @@ Terraform will perform the following actions:
             ]
           + effect    = "Allow"
           + resources = [
+              + "arn:aws:ec2:ap-south-1:327301848391:instance/i-0356b55e3d7eaf72a",
               + "arn:aws:ssm:ap-south-1::document/AWS-RunShellScript",
-              + (known after apply),
             ]
-          + sid       = "DeployToProductionInstance"
+          + sid       = "DeployBetaOnApprovedSharedInstance"
         }
       + statement {
           + actions   = [
@@ -259,6 +281,24 @@ Terraform will perform the following actions:
               + "*",
             ]
           + sid       = "ReadDeploymentStatus"
+        }
+    }
+
+  # module.beta.data.aws_iam_policy_document.host_assume_beta will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "host_assume_beta" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions   = [
+              + "sts:AssumeRole",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+            ]
         }
     }
 
@@ -308,7 +348,9 @@ Terraform will perform the following actions:
       + alarm_name                            = "sapienworx-beta-ec2-high-cpu"
       + arn                                   = (known after apply)
       + comparison_operator                   = "GreaterThanThreshold"
-      + dimensions                            = (known after apply)
+      + dimensions                            = {
+          + "InstanceId" = "i-0356b55e3d7eaf72a"
+        }
       + evaluate_low_sample_count_percentiles = (known after apply)
       + evaluation_periods                    = 3
       + id                                    = (known after apply)
@@ -336,7 +378,11 @@ Terraform will perform the following actions:
       + alarm_name                            = "sapienworx-beta-ec2-root-disk"
       + arn                                   = (known after apply)
       + comparison_operator                   = "GreaterThanThreshold"
-      + dimensions                            = (known after apply)
+      + dimensions                            = {
+          + "InstanceId" = "i-0356b55e3d7eaf72a"
+          + "fstype"     = "xfs"
+          + "path"       = "/"
+        }
       + evaluate_low_sample_count_percentiles = (known after apply)
       + evaluation_periods                    = 2
       + id                                    = (known after apply)
@@ -364,7 +410,9 @@ Terraform will perform the following actions:
       + alarm_name                            = "sapienworx-beta-ec2-high-memory"
       + arn                                   = (known after apply)
       + comparison_operator                   = "GreaterThanThreshold"
-      + dimensions                            = (known after apply)
+      + dimensions                            = {
+          + "InstanceId" = "i-0356b55e3d7eaf72a"
+        }
       + evaluate_low_sample_count_percentiles = (known after apply)
       + evaluation_periods                    = 3
       + id                                    = (known after apply)
@@ -392,7 +440,9 @@ Terraform will perform the following actions:
       + alarm_name                            = "sapienworx-beta-ec2-status-check"
       + arn                                   = (known after apply)
       + comparison_operator                   = "GreaterThanThreshold"
-      + dimensions                            = (known after apply)
+      + dimensions                            = {
+          + "InstanceId" = "i-0356b55e3d7eaf72a"
+        }
       + evaluate_low_sample_count_percentiles = (known after apply)
       + evaluation_periods                    = 2
       + id                                    = (known after apply)
@@ -614,7 +664,10 @@ Terraform will perform the following actions:
       + name                    = "sapienworx-beta-database"
       + name_prefix             = (known after apply)
       + region                  = "ap-south-1"
-      + subnet_ids              = (known after apply)
+      + subnet_ids              = [
+          + "subnet-00695605c628f7cd6",
+          + "subnet-03e71aa881ba365d0",
+        ]
       + supported_network_types = (known after apply)
       + tags                    = {
           + "Name" = "sapienworx-beta-database"
@@ -917,67 +970,6 @@ Terraform will perform the following actions:
         }
     }
 
-  # module.beta.aws_eip.application will be created
-  + resource "aws_eip" "application" {
-      + allocation_id        = (known after apply)
-      + arn                  = (known after apply)
-      + association_id       = (known after apply)
-      + carrier_ip           = (known after apply)
-      + customer_owned_ip    = (known after apply)
-      + domain               = "vpc"
-      + id                   = (known after apply)
-      + instance             = (known after apply)
-      + ipam_pool_id         = (known after apply)
-      + network_border_group = (known after apply)
-      + network_interface    = (known after apply)
-      + private_dns          = (known after apply)
-      + private_ip           = (known after apply)
-      + ptr_record           = (known after apply)
-      + public_dns           = (known after apply)
-      + public_ip            = (known after apply)
-      + public_ipv4_pool     = (known after apply)
-      + region               = "ap-south-1"
-      + tags                 = {
-          + "Name" = "sapienworx-beta-application"
-        }
-      + tags_all             = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-application"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-    }
-
-  # module.beta.aws_eip_association.application will be created
-  + resource "aws_eip_association" "application" {
-      + allocation_id        = (known after apply)
-      + id                   = (known after apply)
-      + instance_id          = (known after apply)
-      + network_interface_id = (known after apply)
-      + private_ip_address   = (known after apply)
-      + public_ip            = (known after apply)
-      + region               = "ap-south-1"
-    }
-
-  # module.beta.aws_iam_instance_profile.application will be created
-  + resource "aws_iam_instance_profile" "application" {
-      + arn         = (known after apply)
-      + create_date = (known after apply)
-      + id          = (known after apply)
-      + name        = "sapienworx-beta-application"
-      + name_prefix = (known after apply)
-      + path        = "/"
-      + role        = "sapienworx-beta-application"
-      + tags_all    = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + unique_id   = (known after apply)
-    }
-
   # module.beta.aws_iam_policy.application will be created
   + resource "aws_iam_policy" "application" {
       + arn              = (known after apply)
@@ -1014,6 +1006,24 @@ Terraform will perform the following actions:
         }
     }
 
+  # module.beta.aws_iam_policy.host_assume_beta will be created
+  + resource "aws_iam_policy" "host_assume_beta" {
+      + arn              = (known after apply)
+      + attachment_count = (known after apply)
+      + id               = (known after apply)
+      + name             = "sapienworx-beta-host-assume-runtime"
+      + name_prefix      = (known after apply)
+      + path             = "/"
+      + policy           = (known after apply)
+      + policy_id        = (known after apply)
+      + tags_all         = {
+          + "Environment" = "beta"
+          + "ManagedBy"   = "Terraform"
+          + "Project"     = "sapienworx"
+          + "Repository"  = "TechiAkki963/SapienWorx"
+        }
+    }
+
   # module.beta.aws_iam_role.application will be created
   + resource "aws_iam_role" "application" {
       + arn                   = (known after apply)
@@ -1024,7 +1034,7 @@ Terraform will perform the following actions:
                       + Action    = "sts:AssumeRole"
                       + Effect    = "Allow"
                       + Principal = {
-                          + Service = "ec2.amazonaws.com"
+                          + AWS = "arn:aws:iam::327301848391:role/sapienworx-production-application"
                         }
                     },
                 ]
@@ -1099,13 +1109,6 @@ Terraform will perform the following actions:
       + role       = "sapienworx-beta-application"
     }
 
-  # module.beta.aws_iam_role_policy_attachment.application_ssm will be created
-  + resource "aws_iam_role_policy_attachment" "application_ssm" {
-      + id         = (known after apply)
-      + policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-      + role       = "sapienworx-beta-application"
-    }
-
   # module.beta.aws_iam_role_policy_attachment.github_deployment will be created
   + resource "aws_iam_role_policy_attachment" "github_deployment" {
       + id         = (known after apply)
@@ -1113,218 +1116,11 @@ Terraform will perform the following actions:
       + role       = "sapienworx-beta-github-deployment"
     }
 
-  # module.beta.aws_instance.application will be created
-  + resource "aws_instance" "application" {
-      + ami                                  = (sensitive value)
-      + arn                                  = (known after apply)
-      + associate_public_ip_address          = false
-      + availability_zone                    = (known after apply)
-      + disable_api_stop                     = (known after apply)
-      + disable_api_termination              = (known after apply)
-      + ebs_optimized                        = (known after apply)
-      + enable_primary_ipv6                  = (known after apply)
-      + force_destroy                        = false
-      + get_password_data                    = false
-      + host_id                              = (known after apply)
-      + host_resource_group_arn              = (known after apply)
-      + iam_instance_profile                 = "sapienworx-beta-application"
-      + id                                   = (known after apply)
-      + instance_initiated_shutdown_behavior = (known after apply)
-      + instance_lifecycle                   = (known after apply)
-      + instance_state                       = (known after apply)
-      + instance_type                        = "m6g.medium"
-      + ipv6_address_count                   = (known after apply)
-      + ipv6_addresses                       = (known after apply)
-      + key_name                             = (known after apply)
-      + monitoring                           = false
-      + outpost_arn                          = (known after apply)
-      + password_data                        = (known after apply)
-      + placement_group                      = (known after apply)
-      + placement_group_id                   = (known after apply)
-      + placement_partition_number           = (known after apply)
-      + primary_network_interface_id         = (known after apply)
-      + private_dns                          = (known after apply)
-      + private_ip                           = (known after apply)
-      + public_dns                           = (known after apply)
-      + public_ip                            = (known after apply)
-      + region                               = "ap-south-1"
-      + secondary_private_ips                = (known after apply)
-      + security_groups                      = (known after apply)
-      + source_dest_check                    = true
-      + spot_instance_request_id             = (known after apply)
-      + subnet_id                            = (known after apply)
-      + tags                                 = {
-          + "Name" = "sapienworx-beta-application"
-        }
-      + tags_all                             = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-application"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + tenancy                              = (known after apply)
-      + user_data_base64                     = "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"
-      + user_data_replace_on_change          = true
-      + vpc_security_group_ids               = (known after apply)
-
-      + capacity_reservation_specification (known after apply)
-
-      + cpu_options (known after apply)
-
-      + ebs_block_device (known after apply)
-
-      + enclave_options (known after apply)
-
-      + ephemeral_block_device (known after apply)
-
-      + instance_market_options (known after apply)
-
-      + maintenance_options (known after apply)
-
-      + metadata_options {
-          + http_endpoint               = "enabled"
-          + http_protocol_ipv6          = "disabled"
-          + http_put_response_hop_limit = 2
-          + http_tokens                 = "required"
-          + instance_metadata_tags      = "disabled"
-        }
-
-      + network_interface (known after apply)
-
-      + primary_network_interface (known after apply)
-
-      + private_dns_name_options (known after apply)
-
-      + root_block_device {
-          + delete_on_termination = true
-          + device_name           = (known after apply)
-          + encrypted             = true
-          + iops                  = (known after apply)
-          + kms_key_id            = (known after apply)
-          + tags_all              = (known after apply)
-          + throughput            = (known after apply)
-          + volume_id             = (known after apply)
-          + volume_size           = 20
-          + volume_type           = "gp3"
-        }
-
-      + secondary_network_interface (known after apply)
-    }
-
-  # module.beta.aws_internet_gateway.environment will be created
-  + resource "aws_internet_gateway" "environment" {
-      + arn      = (known after apply)
-      + id       = (known after apply)
-      + owner_id = (known after apply)
-      + region   = "ap-south-1"
-      + tags     = {
-          + "Name" = "sapienworx-beta-igw"
-        }
-      + tags_all = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-igw"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + vpc_id   = (known after apply)
-    }
-
-  # module.beta.aws_route.public_internet will be created
-  + resource "aws_route" "public_internet" {
-      + destination_cidr_block = "0.0.0.0/0"
-      + gateway_id             = (known after apply)
-      + id                     = (known after apply)
-      + instance_id            = (known after apply)
-      + instance_owner_id      = (known after apply)
-      + network_interface_id   = (known after apply)
-      + origin                 = (known after apply)
-      + region                 = "ap-south-1"
-      + route_table_id         = (known after apply)
-      + state                  = (known after apply)
-    }
-
-  # module.beta.aws_route_table.private_db will be created
-  + resource "aws_route_table" "private_db" {
-      + arn              = (known after apply)
-      + id               = (known after apply)
-      + owner_id         = (known after apply)
-      + propagating_vgws = (known after apply)
-      + region           = "ap-south-1"
-      + route            = (known after apply)
-      + tags             = {
-          + "Name" = "sapienworx-beta-private-db"
-        }
-      + tags_all         = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-private-db"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + vpc_id           = (known after apply)
-    }
-
-  # module.beta.aws_route_table.public will be created
-  + resource "aws_route_table" "public" {
-      + arn              = (known after apply)
-      + id               = (known after apply)
-      + owner_id         = (known after apply)
-      + propagating_vgws = (known after apply)
-      + region           = "ap-south-1"
-      + route            = (known after apply)
-      + tags             = {
-          + "Name" = "sapienworx-beta-public"
-        }
-      + tags_all         = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-public"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + vpc_id           = (known after apply)
-    }
-
-  # module.beta.aws_route_table_association.private_db[0] will be created
-  + resource "aws_route_table_association" "private_db" {
-      + id             = (known after apply)
-      + region         = "ap-south-1"
-      + route_table_id = (known after apply)
-      + subnet_id      = (known after apply)
-    }
-
-  # module.beta.aws_route_table_association.private_db[1] will be created
-  + resource "aws_route_table_association" "private_db" {
-      + id             = (known after apply)
-      + region         = "ap-south-1"
-      + route_table_id = (known after apply)
-      + subnet_id      = (known after apply)
-    }
-
-  # module.beta.aws_route_table_association.public[0] will be created
-  + resource "aws_route_table_association" "public" {
-      + id             = (known after apply)
-      + region         = "ap-south-1"
-      + route_table_id = (known after apply)
-      + subnet_id      = (known after apply)
-    }
-
-  # module.beta.aws_route_table_association.public[1] will be created
-  + resource "aws_route_table_association" "public" {
-      + id             = (known after apply)
-      + region         = "ap-south-1"
-      + route_table_id = (known after apply)
-      + subnet_id      = (known after apply)
-    }
-
-  # module.beta.aws_route_table_association.public_ap_south_1c will be created
-  + resource "aws_route_table_association" "public_ap_south_1c" {
-      + id             = (known after apply)
-      + region         = "ap-south-1"
-      + route_table_id = (known after apply)
-      + subnet_id      = (known after apply)
+  # module.beta.aws_iam_role_policy_attachment.host_assume_beta will be created
+  + resource "aws_iam_role_policy_attachment" "host_assume_beta" {
+      + id         = (known after apply)
+      + policy_arn = (known after apply)
+      + role       = "sapienworx-production-application"
     }
 
   # module.beta.aws_s3_bucket.documents will be created
@@ -1485,35 +1281,10 @@ Terraform will perform the following actions:
         }
     }
 
-  # module.beta.aws_security_group.application will be created
-  + resource "aws_security_group" "application" {
-      + arn                    = (known after apply)
-      + description            = "Public HTTPS/HTTP ingress for Caddy; no administrative ingress"
-      + egress                 = (known after apply)
-      + id                     = (known after apply)
-      + ingress                = (known after apply)
-      + name                   = "sapienworx-beta-application"
-      + name_prefix            = (known after apply)
-      + owner_id               = (known after apply)
-      + region                 = "ap-south-1"
-      + revoke_rules_on_delete = true
-      + tags                   = {
-          + "Name" = "sapienworx-beta-application"
-        }
-      + tags_all               = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-application"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + vpc_id                 = (known after apply)
-    }
-
   # module.beta.aws_security_group.database will be created
   + resource "aws_security_group" "database" {
       + arn                    = (known after apply)
-      + description            = "Private PostgreSQL access from the application host only"
+      + description            = "Private beta PostgreSQL from the approved shared application host"
       + egress                 = (known after apply)
       + id                     = (known after apply)
       + ingress                = (known after apply)
@@ -1532,7 +1303,7 @@ Terraform will perform the following actions:
           + "Project"     = "sapienworx"
           + "Repository"  = "TechiAkki963/SapienWorx"
         }
-      + vpc_id                 = (known after apply)
+      + vpc_id                 = "vpc-0bd9180256c8ce970"
     }
 
   # module.beta.aws_sns_topic.operations will be created
@@ -1742,292 +1513,16 @@ Terraform will perform the following actions:
       + version        = (known after apply)
     }
 
-  # module.beta.aws_subnet.private_db[0] will be created
-  + resource "aws_subnet" "private_db" {
-      + arn                                            = (known after apply)
-      + assign_ipv6_address_on_creation                = false
-      + availability_zone                              = "ap-south-1a"
-      + availability_zone_id                           = (known after apply)
-      + cidr_block                                     = "10.43.10.0/24"
-      + enable_dns64                                   = false
-      + enable_resource_name_dns_a_record_on_launch    = false
-      + enable_resource_name_dns_aaaa_record_on_launch = false
-      + id                                             = (known after apply)
-      + ipv6_cidr_block                                = (known after apply)
-      + ipv6_cidr_block_association_id                 = (known after apply)
-      + ipv6_native                                    = false
-      + map_public_ip_on_launch                        = false
-      + owner_id                                       = (known after apply)
-      + private_dns_hostname_type_on_launch            = (known after apply)
-      + region                                         = "ap-south-1"
-      + tags                                           = {
-          + "Name" = "sapienworx-beta-private-db-ap-south-1a"
-          + "Tier" = "private-database"
-        }
-      + tags_all                                       = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-private-db-ap-south-1a"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-          + "Tier"        = "private-database"
-        }
-      + vpc_id                                         = (known after apply)
-    }
-
-  # module.beta.aws_subnet.private_db[1] will be created
-  + resource "aws_subnet" "private_db" {
-      + arn                                            = (known after apply)
-      + assign_ipv6_address_on_creation                = false
-      + availability_zone                              = "ap-south-1b"
-      + availability_zone_id                           = (known after apply)
-      + cidr_block                                     = "10.43.11.0/24"
-      + enable_dns64                                   = false
-      + enable_resource_name_dns_a_record_on_launch    = false
-      + enable_resource_name_dns_aaaa_record_on_launch = false
-      + id                                             = (known after apply)
-      + ipv6_cidr_block                                = (known after apply)
-      + ipv6_cidr_block_association_id                 = (known after apply)
-      + ipv6_native                                    = false
-      + map_public_ip_on_launch                        = false
-      + owner_id                                       = (known after apply)
-      + private_dns_hostname_type_on_launch            = (known after apply)
-      + region                                         = "ap-south-1"
-      + tags                                           = {
-          + "Name" = "sapienworx-beta-private-db-ap-south-1b"
-          + "Tier" = "private-database"
-        }
-      + tags_all                                       = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-private-db-ap-south-1b"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-          + "Tier"        = "private-database"
-        }
-      + vpc_id                                         = (known after apply)
-    }
-
-  # module.beta.aws_subnet.public[0] will be created
-  + resource "aws_subnet" "public" {
-      + arn                                            = (known after apply)
-      + assign_ipv6_address_on_creation                = false
-      + availability_zone                              = "ap-south-1a"
-      + availability_zone_id                           = (known after apply)
-      + cidr_block                                     = "10.43.0.0/24"
-      + enable_dns64                                   = false
-      + enable_resource_name_dns_a_record_on_launch    = false
-      + enable_resource_name_dns_aaaa_record_on_launch = false
-      + id                                             = (known after apply)
-      + ipv6_cidr_block                                = (known after apply)
-      + ipv6_cidr_block_association_id                 = (known after apply)
-      + ipv6_native                                    = false
-      + map_public_ip_on_launch                        = false
-      + owner_id                                       = (known after apply)
-      + private_dns_hostname_type_on_launch            = (known after apply)
-      + region                                         = "ap-south-1"
-      + tags                                           = {
-          + "Name" = "sapienworx-beta-public-ap-south-1a"
-          + "Tier" = "public-application"
-        }
-      + tags_all                                       = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-public-ap-south-1a"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-          + "Tier"        = "public-application"
-        }
-      + vpc_id                                         = (known after apply)
-    }
-
-  # module.beta.aws_subnet.public[1] will be created
-  + resource "aws_subnet" "public" {
-      + arn                                            = (known after apply)
-      + assign_ipv6_address_on_creation                = false
-      + availability_zone                              = "ap-south-1b"
-      + availability_zone_id                           = (known after apply)
-      + cidr_block                                     = "10.43.1.0/24"
-      + enable_dns64                                   = false
-      + enable_resource_name_dns_a_record_on_launch    = false
-      + enable_resource_name_dns_aaaa_record_on_launch = false
-      + id                                             = (known after apply)
-      + ipv6_cidr_block                                = (known after apply)
-      + ipv6_cidr_block_association_id                 = (known after apply)
-      + ipv6_native                                    = false
-      + map_public_ip_on_launch                        = false
-      + owner_id                                       = (known after apply)
-      + private_dns_hostname_type_on_launch            = (known after apply)
-      + region                                         = "ap-south-1"
-      + tags                                           = {
-          + "Name" = "sapienworx-beta-public-ap-south-1b"
-          + "Tier" = "public-application"
-        }
-      + tags_all                                       = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-public-ap-south-1b"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-          + "Tier"        = "public-application"
-        }
-      + vpc_id                                         = (known after apply)
-    }
-
-  # module.beta.aws_subnet.public_ap_south_1c will be created
-  + resource "aws_subnet" "public_ap_south_1c" {
-      + arn                                            = (known after apply)
-      + assign_ipv6_address_on_creation                = false
-      + availability_zone                              = "ap-south-1c"
-      + availability_zone_id                           = (known after apply)
-      + cidr_block                                     = "10.43.2.0/24"
-      + enable_dns64                                   = false
-      + enable_resource_name_dns_a_record_on_launch    = false
-      + enable_resource_name_dns_aaaa_record_on_launch = false
-      + id                                             = (known after apply)
-      + ipv6_cidr_block                                = (known after apply)
-      + ipv6_cidr_block_association_id                 = (known after apply)
-      + ipv6_native                                    = false
-      + map_public_ip_on_launch                        = false
-      + owner_id                                       = (known after apply)
-      + private_dns_hostname_type_on_launch            = (known after apply)
-      + region                                         = "ap-south-1"
-      + tags                                           = {
-          + "Name" = "sapienworx-beta-public-ap-south-1c"
-          + "Tier" = "public-application"
-        }
-      + tags_all                                       = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-public-ap-south-1c"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-          + "Tier"        = "public-application"
-        }
-      + vpc_id                                         = (known after apply)
-    }
-
-  # module.beta.aws_vpc.environment will be created
-  + resource "aws_vpc" "environment" {
-      + arn                                  = (known after apply)
-      + cidr_block                           = "10.43.0.0/16"
-      + default_network_acl_id               = (known after apply)
-      + default_route_table_id               = (known after apply)
-      + default_security_group_id            = (known after apply)
-      + dhcp_options_id                      = (known after apply)
-      + enable_dns_hostnames                 = true
-      + enable_dns_support                   = true
-      + enable_network_address_usage_metrics = (known after apply)
-      + id                                   = (known after apply)
-      + instance_tenancy                     = "default"
-      + ipv6_association_id                  = (known after apply)
-      + ipv6_cidr_block                      = (known after apply)
-      + ipv6_cidr_block_network_border_group = (known after apply)
-      + main_route_table_id                  = (known after apply)
-      + owner_id                             = (known after apply)
-      + region                               = "ap-south-1"
-      + tags                                 = {
-          + "Name" = "sapienworx-beta-vpc"
-        }
-      + tags_all                             = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Name"        = "sapienworx-beta-vpc"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-    }
-
-  # module.beta.aws_vpc_security_group_egress_rule.application_dns_tcp will be created
-  + resource "aws_vpc_security_group_egress_rule" "application_dns_tcp" {
-      + arn                    = (known after apply)
-      + cidr_ipv4              = "10.43.0.2/32"
-      + description            = "VPC DNS resolver fallback"
-      + from_port              = 53
-      + id                     = (known after apply)
-      + ip_protocol            = "tcp"
-      + region                 = "ap-south-1"
-      + security_group_id      = (known after apply)
-      + security_group_rule_id = (known after apply)
-      + tags_all               = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + to_port                = 53
-    }
-
-  # module.beta.aws_vpc_security_group_egress_rule.application_dns_udp will be created
-  + resource "aws_vpc_security_group_egress_rule" "application_dns_udp" {
-      + arn                    = (known after apply)
-      + cidr_ipv4              = "10.43.0.2/32"
-      + description            = "VPC DNS resolver"
-      + from_port              = 53
-      + id                     = (known after apply)
-      + ip_protocol            = "udp"
-      + region                 = "ap-south-1"
-      + security_group_id      = (known after apply)
-      + security_group_rule_id = (known after apply)
-      + tags_all               = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + to_port                = 53
-    }
-
-  # module.beta.aws_vpc_security_group_egress_rule.application_http will be created
-  + resource "aws_vpc_security_group_egress_rule" "application_http" {
-      + arn                    = (known after apply)
-      + cidr_ipv4              = "0.0.0.0/0"
-      + description            = "Package repositories and certificate redirects"
-      + from_port              = 80
-      + id                     = (known after apply)
-      + ip_protocol            = "tcp"
-      + region                 = "ap-south-1"
-      + security_group_id      = (known after apply)
-      + security_group_rule_id = (known after apply)
-      + tags_all               = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + to_port                = 80
-    }
-
-  # module.beta.aws_vpc_security_group_egress_rule.application_https will be created
-  + resource "aws_vpc_security_group_egress_rule" "application_https" {
-      + arn                    = (known after apply)
-      + cidr_ipv4              = "0.0.0.0/0"
-      + description            = "AWS APIs, ECR, S3 and certificate services"
-      + from_port              = 443
-      + id                     = (known after apply)
-      + ip_protocol            = "tcp"
-      + region                 = "ap-south-1"
-      + security_group_id      = (known after apply)
-      + security_group_rule_id = (known after apply)
-      + tags_all               = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + to_port                = 443
-    }
-
-  # module.beta.aws_vpc_security_group_egress_rule.application_postgresql will be created
-  + resource "aws_vpc_security_group_egress_rule" "application_postgresql" {
+  # module.beta.aws_vpc_security_group_egress_rule.shared_to_beta_database will be created
+  + resource "aws_vpc_security_group_egress_rule" "shared_to_beta_database" {
       + arn                          = (known after apply)
-      + description                  = "PostgreSQL to private RDS"
+      + description                  = "Shared host to private beta RDS only"
       + from_port                    = 5432
       + id                           = (known after apply)
       + ip_protocol                  = "tcp"
       + referenced_security_group_id = (known after apply)
       + region                       = "ap-south-1"
-      + security_group_id            = (known after apply)
+      + security_group_id            = "sg-0eb5c20b30a43ce8c"
       + security_group_rule_id       = (known after apply)
       + tags_all                     = {
           + "Environment" = "beta"
@@ -2036,56 +1531,16 @@ Terraform will perform the following actions:
           + "Repository"  = "TechiAkki963/SapienWorx"
         }
       + to_port                      = 5432
-    }
-
-  # module.beta.aws_vpc_security_group_ingress_rule.application_http will be created
-  + resource "aws_vpc_security_group_ingress_rule" "application_http" {
-      + arn                    = (known after apply)
-      + cidr_ipv4              = "0.0.0.0/0"
-      + description            = "Public HTTP for redirect and ACME"
-      + from_port              = 80
-      + id                     = (known after apply)
-      + ip_protocol            = "tcp"
-      + region                 = "ap-south-1"
-      + security_group_id      = (known after apply)
-      + security_group_rule_id = (known after apply)
-      + tags_all               = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + to_port                = 80
-    }
-
-  # module.beta.aws_vpc_security_group_ingress_rule.application_https will be created
-  + resource "aws_vpc_security_group_ingress_rule" "application_https" {
-      + arn                    = (known after apply)
-      + cidr_ipv4              = "0.0.0.0/0"
-      + description            = "Public HTTPS"
-      + from_port              = 443
-      + id                     = (known after apply)
-      + ip_protocol            = "tcp"
-      + region                 = "ap-south-1"
-      + security_group_id      = (known after apply)
-      + security_group_rule_id = (known after apply)
-      + tags_all               = {
-          + "Environment" = "beta"
-          + "ManagedBy"   = "Terraform"
-          + "Project"     = "sapienworx"
-          + "Repository"  = "TechiAkki963/SapienWorx"
-        }
-      + to_port                = 443
     }
 
   # module.beta.aws_vpc_security_group_ingress_rule.database_postgresql will be created
   + resource "aws_vpc_security_group_ingress_rule" "database_postgresql" {
       + arn                          = (known after apply)
-      + description                  = "PostgreSQL from application security group"
+      + description                  = "Beta PostgreSQL from the shared host security group"
       + from_port                    = 5432
       + id                           = (known after apply)
       + ip_protocol                  = "tcp"
-      + referenced_security_group_id = (known after apply)
+      + referenced_security_group_id = "sg-0eb5c20b30a43ce8c"
       + region                       = "ap-south-1"
       + security_group_id            = (known after apply)
       + security_group_rule_id       = (known after apply)
@@ -2098,12 +1553,13 @@ Terraform will perform the following actions:
       + to_port                      = 5432
     }
 
-Plan: 73 to add, 0 to change, 0 to destroy.
+Plan: 48 to add, 0 to change, 0 to destroy.
 
 Changes to Outputs:
+  + beta_runtime_role_arn      = (known after apply)
   + documents_bucket_name      = (known after apply)
-  + ec2_instance_id            = (known after apply)
-  + ec2_public_ip              = (known after apply)
+  + ec2_instance_id            = "i-0356b55e3d7eaf72a"
+  + ec2_public_ip              = "13.206.138.176"
   + ecr_repository_urls        = {
       + backend      = (known after apply)
       + frontend     = (known after apply)
@@ -2132,22 +1588,29 @@ Changes to Outputs:
       + oidc_subject             = "repo:TechiAkki963@57339768/SapienWorx@1340540005:environment:beta"
       + postgres_ingress_private = true
       + root_encrypted           = true
+      + shared_host              = true
+      + shared_instance_id       = "i-0356b55e3d7eaf72a"
       + storage_origins          = [
           + "https://beta.sapienworx.com",
         ]
       + storage_private          = true
       + storage_versioned        = true
-      + subnet_cidr              = "10.43.2.0/24"
     }
   + private_db_subnet_ids      = [
-      + (known after apply),
-      + (known after apply),
+      + "subnet-00695605c628f7cd6",
+      + "subnet-03e71aa881ba365d0",
     ]
   + public_subnet_ids          = [
-      + (known after apply),
-      + (known after apply),
+      + "subnet-0dd7e43718bafce5e",
     ]
   + rds_endpoint               = (known after apply)
   + sns_topic_arn              = (known after apply)
   + ssm_parameter_path         = "/sapienworx/beta"
-  + vpc_id                     = (known after apply)
+  + vpc_id                     = "vpc-0bd9180256c8ce970"
+
+─────────────────────────────────────────────────────────────────────────────
+
+Saved the plan to: beta.tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "beta.tfplan"

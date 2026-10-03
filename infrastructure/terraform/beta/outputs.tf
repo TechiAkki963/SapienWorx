@@ -1,3 +1,7 @@
+output "beta_runtime_role_arn" {
+  value = module.beta.beta_runtime_role_arn
+}
+
 output "vpc_id" {
   value = module.beta.vpc_id
 }

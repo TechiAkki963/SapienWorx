@@ -1,0 +1,5 @@
+[profile beta]
+role_arn = arn:aws:iam::327301848391:role/sapienworx-beta-application
+credential_source = Ec2InstanceMetadata
+region = ap-south-1
+role_session_name = sapienworx-beta-runtime

@@ -1,5 +1,10 @@
 # Public holding page and beta-first releases
 
+Architecture update: the owner subsequently chose the existing production EC2
+for beta. `../../deploy/beta/SHARED-HOST.md` supersedes the separate-host cost and
+DNS-move proposal below. The public mascot stays on its current host/IP. The old
+EC2 is not stopped; only the old application containers can be paused for capacity.
+
 Current state on 2026-10-04 (Asia/Calcutta): the owner approved publishing the
 unchanged local mascot page. It is live on both public hostnames using the existing
 production EC2 and certificates, with no DNS change. Database/uploads and original

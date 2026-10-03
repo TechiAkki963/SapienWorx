@@ -1,5 +1,9 @@
 # Persistent beta runtime and owner runbook
 
+**Current architecture: reuse the existing EC2.** See [SHARED-HOST.md](SHARED-HOST.md)
+for the authoritative host/role, cutover, cost and recovery instructions. This
+supersedes the former dedicated-host design. No beta infrastructure apply has run.
+
 P3-A prepares code and a plan. AWS infrastructure has not been applied, the beta
 site is not deployed, and final acceptance is pending. Never use production data
 or credentials. Runtime secrets live in AWS and in generated host files with
@@ -96,14 +100,12 @@ After apply, obtain `ec2_public_ip` from beta Terraform. In the DNS provider for
 `sapienworx.com` → DNS Management, add **Type A, Host beta, Value actual beta
 Elastic IP, TTL 600**. Leave production records untouched.
 
-Verify `nslookup beta.sapienworx.com` resolves to that actual IP. On the beta host,
-the initial `/opt/sapienworx/runtime/deployment.conf` has `CADDY_ENABLED=false`.
-Enable Caddy only after DNS and private bootstrap are complete and beta release
-security gates are satisfied. Keep `ACME_EMAIL=info@sapienworx.com`, set
-`CADDY_ENABLED=true`, and deploy the same SHA. Caddy requests certificates for beta
-only and redirects HTTP to HTTPS. The workflow fails its public smoke until DNS,
-TLS and edge activation are complete; it does not claim success from private
-container health alone.
+Verify `nslookup beta.sapienworx.com` resolves to `13.206.138.176`. Beta uses
+`/opt/sapienworx-beta/runtime/deployment.conf`; leave `CADDY_ENABLED=false` during
+the first private deployment. The sole shared edge is activated separately through
+`activate-shared-edge.sh`, as recorded in `SHARED-HOST.md`. The beta app deploy
+never replaces the public edge. Its first public workflow smoke cannot pass until
+DNS, TLS and edge activation are complete.
 
 Verify public HTTP redirect, certificate hostname/validity and HTTPS
 `/health/live` and `/health/ready`. The complete P3-C role/responsive acceptance
@@ -119,7 +121,7 @@ accounts: `candidate.beta@example.test`, `recruiter.beta@example.test`,
 or production PII are loaded. Stable IDs permit repeatable seeding.
 
 After private deployment creates a healthy SHA record, the owner can invoke the
-following on the **beta host**, from `/opt/sapienworx`, with authorized temporary
+following on the **shared host**, from `/opt/sapienworx-beta`, with authorized temporary
 administrative SSO credentials for the `accounts` operation only:
 
 ```sh

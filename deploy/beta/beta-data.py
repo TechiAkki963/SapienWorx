@@ -9,6 +9,8 @@ import tempfile
 from urllib.parse import urlsplit, unquote
 
 ROOT = Path(__file__).resolve().parent
+os.environ.setdefault("AWS_CONFIG_FILE", str(ROOT / "runtime/aws-config"))
+os.environ.setdefault("AWS_PROFILE", "beta")
 spec = importlib.util.spec_from_file_location("runtime", ROOT / "validate-runtime.py")
 runtime = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runtime)

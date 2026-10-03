@@ -10,6 +10,23 @@ ENV_FILE="${RUNTIME_DIR}/beta.env"
 MIGRATION_ENV_FILE="${RUNTIME_DIR}/migration.env"
 LOCK_FILE="${RUNTIME_DIR}/deploy.lock"
 REGION="${AWS_REGION:-ap-south-1}"
+[ "$ROOT_DIR" = /opt/sapienworx-beta ] || { echo "Beta must use its separate runtime directory." >&2; exit 1; }
+: "${AWS_CONFIG_FILE:=${RUNTIME_DIR}/aws-config}"
+: "${AWS_PROFILE:=beta}"
+export AWS_CONFIG_FILE AWS_PROFILE
+[ -f "$AWS_CONFIG_FILE" ] || { echo "Beta role profile is missing." >&2; exit 1; }
+caller_arn="$(aws sts get-caller-identity --query Arn --output text)"
+case "$caller_arn" in
+  arn:aws:sts::*:assumed-role/sapienworx-beta-application/*) ;;
+  *) echo "Deployment must assume the beta runtime role." >&2; exit 1 ;;
+esac
+for subnet in 172.29.0.0/24 172.30.0.0/24; do
+  iptables -C DOCKER-USER -s "$subnet" -d 169.254.169.254/32 -j DROP || {
+    echo "Beta metadata isolation must be installed before deployment." >&2; exit 1;
+  }
+done
+test -s "$RUNTIME_DIR/aws-credentials/current.json"
+test -f "$RUNTIME_DIR/aws-sdk-config"
 PARAMETER_ROOT="/sapienworx/beta"
 IMAGE_TAG="${1:-}"
 
@@ -142,17 +159,11 @@ fi
 
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --remove-orphans backend frontend intelligence
 
-if [ "${CADDY_ENABLED:-false}" = "true" ]; then
-  : "${ACME_EMAIL:?ACME_EMAIL is required when CADDY_ENABLED=true}"
-  export ACME_EMAIL
-  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" --profile edge up -d --remove-orphans caddy
-else
-  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" stop caddy >/dev/null 2>&1 || true
-fi
+# Shared Caddy is managed separately. Never replace the public mascot edge here.
 
 "${ROOT_DIR}/health-check.sh"
 printf '%s\n' "$IMAGE_TAG" >"${RUNTIME_DIR}/deployed-sha"
 chmod 0600 "${RUNTIME_DIR}/deployed-sha"
-docker image prune -f --filter "until=168h" >/dev/null
+# Do not prune shared-host images; preserved production rollback images remain available.
 
 echo "Deployment completed for ${IMAGE_TAG}."

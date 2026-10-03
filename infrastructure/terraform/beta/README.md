@@ -3,25 +3,22 @@
 Base: `6e8325730150d8a3835e2874a2cc0ff18466f512` (remote main).
 Region: `ap-south-1`. Domain: `https://beta.sapienworx.com`.
 
-This root calls `../modules/runtime-environment`, a non-production module derived
-from the existing reviewed production architecture. Production's root, resource
-addresses and state remain untouched. Migrating live production to this module is
-outside P3-A and would require its own reviewed state/address migration. The
-module deliberately rejects `environment=production`.
+This root calls `../modules/shared-host-beta`, reusing the existing EC2
+`i-0356b55e3d7eaf72a`, Elastic IP `13.206.138.176`, VPC and private subnets.
+It creates no second server, disk, IP or network. Production Terraform resource
+addresses/state are not imported or managed by this root.
 
-Beta owns a `10.43.0.0/16` VPC, five subnets, an ARM64 `m6g.medium` EC2 host,
-Elastic IP, private PostgreSQL 17.11 `db.t3.micro` RDS with 20 GiB gp3 storage
-(30 GiB autoscaling ceiling), encrypted 20 GiB EC2 gp3 root disk, seven-day
-automated database backups, and deletion/final-snapshot safeguards. No NAT gateway
-or load balancer is introduced. HTTP/HTTPS are the only public ingress ports;
-PostgreSQL ingress accepts the beta application security group only.
+The current plan creates **48 resources, changes 0, destroys 0**. Beta keeps its
+own private PostgreSQL/RDS, bucket, secrets, images, runtime role and protected
+GitHub release role. Two new attachments affect the existing host: permission
+to assume beta's role and PostgreSQL egress to the new beta database. All these
+changes remain subject to the explicit apply gate.
 
-The account-level GitHub OIDC provider is reused by ARN. Beta creates its own
-deployment role, restricted to the exact beta GitHub environment subject,
-four immutable `sapienworx-beta/*` image repositories, beta host SSM commands,
-and release archives under its own bucket. Application logs, alarms, alert topic,
-SSM `/sapienworx/beta/*`, database credentials and versioned private documents
-are independent of production. The bucket CORS origin is beta only.
+See [the shared-host runbook](../../../deploy/beta/SHARED-HOST.md) for exact
+configuration, additive attachment details, shared-host security limits, public
+mascot preservation, first-deploy sequencing and recovery. Shared compute/IAM
+is not equivalent to fully isolated infrastructure. Separate log collection
+and alert delivery still require verification.
 
 ## Offline validation
 
@@ -29,7 +26,7 @@ From this directory, using Terraform 1.10.5:
 
 ```sh
 terraform fmt -check -recursive
-terraform -chdir=../modules/runtime-environment fmt -check -recursive
+terraform -chdir=../modules/shared-host-beta fmt -check -recursive
 terraform init -backend=false -input=false
 terraform validate
 terraform test
@@ -72,11 +69,14 @@ For the existing Windows/Docker validation setup, run that command in
 `.aws` directory mounted read-only at `/root/.aws`, and working directory
 `/repo/infrastructure/terraform/beta`. Do not execute apply before approval.
 
-The reviewed plan creates **73 resources, changes 0, destroys 0**. All managed
+The reviewed plan creates **48 resources, changes 0, destroys 0**. All managed
 creates are under `module.beta`; the root neither imports nor manages production
-resources. See `docs/p3/evidence/beta-plan.txt` and `beta-plan-summary.txt`.
+resources directly. Its new host IAM attachment and database egress rule are
+additive effects on existing infrastructure. See `docs/p3/evidence/beta-plan.txt`
+and `beta-plan-summary.txt`.
 
-Current AWS Pricing API quotes for Mumbai (730 hours/month):
+Current AWS Pricing API quotes for Mumbai (730 hours/month). EC2, IPv4 and
+EC2 storage below are **avoided second-host costs**, not new resources:
 
 | Item | Estimate in USD/month |
 | --- | ---: |

@@ -1,4 +1,9 @@
-mock_provider "aws" {}
+mock_provider "aws" {
+  mock_data "aws_subnet" {
+    defaults = { vpc_id = "vpc-0bd9180256c8ce970", map_public_ip_on_launch = false }
+  }
+}
+
 
 run "beta_safety_plan" {
   command = plan
@@ -20,14 +25,6 @@ run "beta_safety_plan" {
     }
   }
 
-  override_data {
-    target = module.beta.data.aws_ssm_parameter.al2023_arm64_ami
-    values = {
-      name  = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64"
-      type  = "String"
-      value = "ami-0123456789abcdef0"
-    }
-  }
 
   override_data {
     target = module.beta.data.aws_iam_policy_document.documents_bucket
@@ -35,7 +32,7 @@ run "beta_safety_plan" {
   }
 
   override_data {
-    target = module.beta.data.aws_iam_policy_document.ec2_assume_role
+    target = module.beta.data.aws_iam_policy_document.runtime_assume_role
     values = { json = "{\"Version\":\"2012-10-17\",\"Statement\":[]}" }
   }
 
@@ -54,13 +51,30 @@ run "beta_safety_plan" {
     values = { json = "{\"Version\":\"2012-10-17\",\"Statement\":[]}" }
   }
 
+  override_data {
+    target = module.beta.data.aws_instance.shared
+    values = {
+      id                     = "i-0356b55e3d7eaf72a"
+      vpc_id                 = "vpc-0bd9180256c8ce970"
+      subnet_id              = "subnet-0dd7e43718bafce5e"
+      vpc_security_group_ids = ["sg-0eb5c20b30a43ce8c"]
+      metadata_options       = [{ http_tokens = "required" }]
+      root_block_device      = [{ encrypted = true }]
+      public_ip              = "13.206.138.176"
+    }
+  }
+  override_data {
+    target = module.beta.data.aws_iam_policy_document.host_assume_beta
+    values = { json = "{\"Version\":\"2012-10-17\",\"Statement\":[]}" }
+  }
+
   assert {
     condition     = module.beta.isolation.database_private && module.beta.isolation.database_encrypted && module.beta.isolation.database_backups >= 7 && module.beta.isolation.postgres_ingress_private
     error_message = "Beta RDS must be private, encrypted and backed up."
   }
   assert {
-    condition     = module.beta.isolation.database_name == "sapienworx_beta" && module.beta.ssm_parameter_path == "/sapienworx/beta" && module.beta.isolation.subnet_cidr == "10.43.2.0/24"
-    error_message = "Beta data, secrets and network must be distinct from production."
+    condition     = module.beta.isolation.database_name == "sapienworx_beta" && module.beta.ssm_parameter_path == "/sapienworx/beta" && module.beta.isolation.shared_host && module.beta.ec2_instance_id == "i-0356b55e3d7eaf72a"
+    error_message = "Beta data and secrets must be distinct while reusing the approved host."
   }
   assert {
     condition     = module.beta.isolation.imdsv2 && module.beta.isolation.root_encrypted && module.beta.isolation.storage_private && module.beta.isolation.storage_versioned

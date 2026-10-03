@@ -126,9 +126,13 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$INSTANCE_ID" =~ ^i-[0-9a-f]+$ ]]
+          test "$INSTANCE_ID" = i-0356b55e3d7eaf72a
           [[ "$BUCKET" =~ ^sapienworx-beta-documents-[0-9]{12}-ap-south-1$ ]]
           tar -czf /tmp/beta-runtime.tar.gz -C deploy/beta \
-            compose.beta.yml Caddyfile deploy.sh rollback.sh health-check.sh validate-runtime.py beta-data.py
+            compose.beta.yml Caddyfile Caddyfile.shared compose.edge.yml activate-shared-edge.sh \
+            aws-config.example aws-sdk-config.example block-metadata.sh refresh-credentials.sh \
+            sapienworx-beta-credentials.service sapienworx-beta-credentials.timer \
+            deploy.sh rollback.sh health-check.sh validate-runtime.py beta-data.py
           checksum="$(sha256sum /tmp/beta-runtime.tar.gz | cut -d' ' -f1)"
           aws s3 cp /tmp/beta-runtime.tar.gz "s3://$BUCKET/releases/$RELEASE_SHA/runtime.tar.gz" --only-show-errors
           script=deploy.sh
@@ -141,14 +145,16 @@ jobs:
           checksum, script = os.environ['RUNTIME_CHECKSUM'], os.environ['RELEASE_SCRIPT']
           commands = [
               'set -eu',
-              'install -d -m 0750 /opt/sapienworx',
+              'install -d -m 0750 /opt/sapienworx-beta',
+              'test -f /opt/sapienworx-beta/runtime/aws-config',
+              'export AWS_CONFIG_FILE=/opt/sapienworx-beta/runtime/aws-config AWS_PROFILE=beta',
               'release_tmp=$(mktemp -d)',
               "trap 'rm -rf -- \"$release_tmp\"' EXIT",
               f'aws s3 cp s3://{bucket}/releases/{sha}/runtime.tar.gz "$release_tmp/runtime.tar.gz" --region ap-south-1 --only-show-errors',
               f'printf "%s  %s\\n" "{checksum}" "$release_tmp/runtime.tar.gz" | sha256sum -c -',
-              'tar -xzf "$release_tmp/runtime.tar.gz" --no-same-owner -C /opt/sapienworx',
-              'chmod 0750 /opt/sapienworx/*.sh',
-              f'/opt/sapienworx/{script} {sha}',
+              'tar -xzf "$release_tmp/runtime.tar.gz" --no-same-owner -C /opt/sapienworx-beta',
+              'chmod 0750 /opt/sapienworx-beta/*.sh',
+              f'/opt/sapienworx-beta/{script} {sha}',
           ]
           print(json.dumps({'commands': commands}))
           PY

@@ -1,0 +1,3 @@
+[profile beta]
+credential_process = /bin/cat /run/aws/credentials/current.json
+region = ap-south-1

@@ -39,7 +39,7 @@ wait_until_healthy frontend
 wait_until_healthy intelligence
 
 if [ "${CADDY_ENABLED:-false}" = "true" ]; then
-  wait_until_healthy caddy
+  docker inspect --format '{{.State.Health.Status}}' sapienworx-caddy | grep -qx healthy
   wget -qO- --timeout=10 "https://beta.sapienworx.com/health/ready" >/dev/null
 fi
 
