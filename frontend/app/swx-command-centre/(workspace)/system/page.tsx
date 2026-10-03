@@ -6,6 +6,7 @@ import type { AdminBudgetSettings, AdminMetrics } from "@/lib/admin";
 type EmailHealth = {
   enabled: boolean;
   provider: { provider?: string; region?: string; from_address?: string; sending_enabled?: boolean; production_access_enabled?: boolean; enforcement_status?: string };
+  provider_error?: string;
   pending: number;
   failed: number;
   sent_24h: number;
@@ -56,6 +57,7 @@ export default async function AdminSystemPage() {
           </div>
           <span className={`rounded-full border px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] ${email.enabled ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>{email.enabled ? "Dispatcher enabled" : "Dispatcher disabled"}</span>
         </div>
+        {email.provider_error && <div role="status" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900"><span className="font-extrabold">SES status check degraded.</span> Queue and suppression data remain available; the live AWS account check will retry automatically.</div>}
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <HealthCard label="Queued" value={email.pending.toLocaleString("en-IN")} detail={email.oldest_pending_at ? `Oldest waiting since ${new Date(email.oldest_pending_at).toLocaleString("en-IN")}` : "No waiting email"} tone={email.pending > 0 ? "amber" : "emerald"} />
           <HealthCard label="Failed" value={email.failed.toLocaleString("en-IN")} detail="Messages waiting for a bounded retry" tone={email.failed > 0 ? "red" : "emerald"} />
