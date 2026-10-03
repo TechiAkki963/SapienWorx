@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html"
 	"net/url"
 	"strconv"
 	"strings"
@@ -163,10 +164,11 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 			continue
 		}
 
-		subject := fmt.Sprintf("%d new candidate matches · %s", result.Total, item.Name)
+		safeName := strings.NewReplacer("\r", " ", "\n", " ").Replace(item.Name)
+		subject := fmt.Sprintf("%d new candidate matches · %s", result.Total, safeName)
 		link := savedSearchURL(item.Filters)
-		body := fmt.Sprintf("Your saved SapienWorx search %q has %d candidate profiles updated since the previous alert. Open %s to review the latest consented recruiter-search matches.", item.Name, result.Total, link)
-		html := fmt.Sprintf("<p>Your saved SapienWorx search <strong>%s</strong> has <strong>%d</strong> candidate profiles updated since the previous alert.</p><p>Open <code>%s</code> in SapienWorx to review the latest consented recruiter-search matches.</p>", item.Name, result.Total, link)
+		body := fmt.Sprintf("Your saved SapienWorx search %q has %d candidate profiles updated since the previous alert. Open %s to review the latest consented recruiter-search matches.", safeName, result.Total, link)
+		htmlBody := fmt.Sprintf("<p>Your saved SapienWorx search <strong>%s</strong> has <strong>%d</strong> candidate profiles updated since the previous alert.</p><p>Open <code>%s</code> in SapienWorx to review the latest consented recruiter-search matches.</p>", html.EscapeString(safeName), result.Total, html.EscapeString(link))
 		window := now.Format("2006-01-02")
 		if item.Frequency == "weekly" {
 			year, week := now.ISOWeek()
@@ -180,7 +182,7 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 			INSERT INTO email_outbox(kind,recipient_email,subject,text_body,html_body,dedupe_key)
 			VALUES('saved_search_alert',lower($1),$2,$3,$4,$5)
 			ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING
-		`, item.RecruiterEmail, subject, body, html, "saved-search-alert:"+item.ID+":"+window)
+		`, item.RecruiterEmail, subject, body, htmlBody, "saved-search-alert:"+item.ID+":"+window)
 		if err == nil {
 			_, err = tx.Exec(ctx, `UPDATE recruiter_saved_searches SET last_alerted_at=$2 WHERE id=$1 AND recruiter_id=$3`, item.ID, now, item.RecruiterID)
 		}
