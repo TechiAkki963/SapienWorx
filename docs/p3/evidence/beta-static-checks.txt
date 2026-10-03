@@ -11,8 +11,9 @@ PASS: shell syntax: .github/workflows/beta-ci.yml database-rehearsal step 2
 PASS: YAML parses: .github/workflows/beta-deploy.yml
 PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 0
 PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 2
-PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 4
-PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 6
+PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 3
+PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 5
+PASS: shell syntax: .github/workflows/beta-deploy.yml validate step 7
 PASS: shell syntax: .github/workflows/beta-deploy.yml release step 4
 PASS: shell syntax: .github/workflows/beta-deploy.yml release step 5
 PASS: shell syntax: .github/workflows/beta-deploy.yml release step 6
