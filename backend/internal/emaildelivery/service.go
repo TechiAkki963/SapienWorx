@@ -219,7 +219,7 @@ func (s *Service) dispatchOne(ctx context.Context, item queuedMessage) error {
 		return err
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO email_delivery_events(provider,provider_message_id,event_type,recipient_email,payload)
-		VALUES('ses',$1,'send',lower($2),jsonb_build_object('kind',$3,'outbox_id',$4))`,
+		VALUES('ses',$1,'send',lower($2),jsonb_build_object('kind',$3::text,'outbox_id',$4::text))`,
 		messageID, item.Recipient, item.Kind, item.ID); err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func (s *Service) markSuppressed(ctx context.Context, item queuedMessage, reason
 		return err
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO email_delivery_events(provider,event_type,recipient_email,payload)
-		VALUES('ses',$1,lower($2),jsonb_build_object('reason',$3,'outbox_id',$4))`,
+		VALUES('ses',$1,lower($2),jsonb_build_object('reason',$3::text,'outbox_id',$4::text))`,
 		eventType, item.Recipient, reason, item.ID); err != nil {
 		return err
 	}
