@@ -197,8 +197,8 @@ func (s *Service) SetOfferStatus(ctx context.Context, recruiterID, offerID, stat
 		return err
 	}
 	defer tx.Rollback(ctx)
-	var applicationID, candidateID, jobTitle, current string
-	err = tx.QueryRow(ctx, `SELECT o.application_id,a.candidate_id,j.title,o.status FROM recruiter_offers o JOIN applications a ON a.id=o.application_id JOIN jobs j ON j.id=a.job_id WHERE o.id=$1 AND o.company_id=$2 FOR UPDATE OF o`, offerID, companyID).Scan(&applicationID, &candidateID, &jobTitle, &current)
+	var applicationID, candidateID, jobTitle, current, applicationStage string
+	err = tx.QueryRow(ctx, `SELECT o.application_id,a.candidate_id,j.title,o.status,a.stage::text FROM recruiter_offers o JOIN applications a ON a.id=o.application_id JOIN jobs j ON j.id=a.job_id WHERE o.id=$1 AND o.company_id=$2 FOR UPDATE OF o,a`, offerID, companyID).Scan(&applicationID, &candidateID, &jobTitle, &current, &applicationStage)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
@@ -217,8 +217,16 @@ func (s *Service) SetOfferStatus(ctx context.Context, recruiterID, offerID, stat
 		if _, err = tx.Exec(ctx, `UPDATE recruiter_offers SET status='sent',sent_at=COALESCE(sent_at,now()) WHERE id=$1`, offerID); err != nil {
 			return err
 		}
-		if _, err = tx.Exec(ctx, `UPDATE applications SET stage='offer' WHERE id=$1 AND stage NOT IN('hired','rejected','withdrawn')`, applicationID); err != nil {
-			return err
+		if applicationStage != "offer" {
+			if applicationStage == "hired" || applicationStage == "rejected" || applicationStage == "withdrawn" {
+				return ErrInvalid
+			}
+			if _, err = tx.Exec(ctx, `UPDATE applications SET stage='offer' WHERE id=$1`, applicationID); err != nil {
+				return err
+			}
+			if _, err = tx.Exec(ctx, `INSERT INTO application_stage_audit(application_id,actor_recruiter_id,previous_stage,new_stage) VALUES($1,$2,$3::application_stage,'offer')`, applicationID, recruiterID, applicationStage); err != nil {
+				return err
+			}
 		}
 		if _, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'offer','Offer shared',$2,'/candidate/applications')`, candidateID, "An offer has been shared for "+jobTitle+"."); err != nil {
 			return err
