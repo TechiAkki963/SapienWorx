@@ -148,3 +148,23 @@ for (const role of ["candidate", "recruiter"] as const) {
     await page.screenshot({ path: `visual-artifacts/p2.5-messaging-qa/${role}-messaging-theme-system-360x800.png`, fullPage: true });
   });
 }
+
+
+test("P2.5 Master Admin messaging health evidence", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await login(page, "master_admin");
+  await page.goto("/swx-command-centre/system");
+  await expect(page.getByRole("heading", { name: "Amazon SES delivery health" })).toBeVisible();
+  await expect(page.getByText("1 bounce · 1 complaint", { exact: true })).toBeVisible();
+  await noOverflow(page, "SES health light");
+  await page.screenshot({ path: "visual-artifacts/p2.5-messaging-qa/admin-ses-health-light-1440x900.png", fullPage: true });
+
+  await chooseMode(page, "Dark");
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await noOverflow(page, "SES health dark");
+  await page.screenshot({ path: "visual-artifacts/p2.5-messaging-qa/admin-ses-health-dark-1440x900.png", fullPage: true });
+
+  await page.setViewportSize({ width: 360, height: 800 });
+  await noOverflow(page, "SES health mobile dark");
+  await page.screenshot({ path: "visual-artifacts/p2.5-messaging-qa/admin-ses-health-dark-360x800.png", fullPage: true });
+});
