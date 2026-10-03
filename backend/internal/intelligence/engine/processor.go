@@ -113,7 +113,10 @@ func (p *Processor) claimEvent(ctx context.Context) (eventRecord, bool, error) {
 	err = tx.QueryRow(ctx, `
 		SELECT id,event_type,aggregate_type,aggregate_id,payload,attempts
 		FROM intelligence.events
-		WHERE status IN ('pending','failed') AND available_at<=now()
+		WHERE (
+		    (status IN ('pending','failed') AND available_at<=now())
+		    OR (status='processing' AND locked_at < now()-interval '5 minutes')
+		  )
 		  AND attempts < 8
 		ORDER BY created_at
 		FOR UPDATE SKIP LOCKED
@@ -139,7 +142,26 @@ func (p *Processor) claimEvent(ctx context.Context) (eventRecord, bool, error) {
 
 func (p *Processor) failEvent(ctx context.Context, id string, attempts int, cause error) error {
 	delaySeconds := int(math.Min(300, math.Pow(2, float64(attempts))*5))
-	_, err := p.db.Exec(ctx, `UPDATE intelligence.events SET status='failed',locked_at=NULL,last_error=$2,available_at=now()+make_interval(secs=>$3) WHERE id=$1`, id, truncate(cause.Error(), 2000), delaySeconds)
+	message := truncate(cause.Error(), 2000)
+	if attempts >= 8 {
+		tx, err := p.db.BeginTx(ctx, pgx.TxOptions{})
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback(ctx)
+		if _, err = tx.Exec(ctx, `
+			INSERT INTO intelligence.dead_letters(event_id,event_type,aggregate_type,aggregate_id,payload,attempts,last_error,failed_at)
+			SELECT id,event_type,aggregate_type,aggregate_id,payload,attempts,$2,now()
+			FROM intelligence.events WHERE id=$1
+			ON CONFLICT(event_id) DO UPDATE SET attempts=EXCLUDED.attempts,last_error=EXCLUDED.last_error,failed_at=now()`, id, message); err != nil {
+			return err
+		}
+		if _, err = tx.Exec(ctx, `UPDATE intelligence.events SET status='failed',locked_at=NULL,last_error=$2,available_at=now()+interval '100 years' WHERE id=$1`, id, message); err != nil {
+			return err
+		}
+		return tx.Commit(ctx)
+	}
+	_, err := p.db.Exec(ctx, `UPDATE intelligence.events SET status='failed',locked_at=NULL,last_error=$2,available_at=now()+make_interval(secs=>$3) WHERE id=$1`, id, message, delaySeconds)
 	return err
 }
 
@@ -188,6 +210,13 @@ func (p *Processor) processEvent(ctx context.Context, event eventRecord) error {
 		}
 		return p.refreshCandidateMatches(ctx, *event.AggregateID)
 	case "job.created", "job.updated":
+		ok, err := p.switchEnabled(ctx, "job_intelligence")
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return errCapabilityPaused
+		}
 		if event.AggregateID == nil {
 			return nil
 		}
