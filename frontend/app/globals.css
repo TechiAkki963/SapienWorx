@@ -585,3 +585,31 @@ a {
   background-image: none !important;
   border-color: #273449 !important;
 }
+
+
+/* P2.7 recruiter product display contract.
+   Source Serif 4 remains the approved display face; Georgia is the resilient
+   local fallback until a reviewed local font asset is committed. */
+:root {
+  --font-display-stack: "Source Serif 4", Georgia, "Times New Roman", serif;
+}
+.swx-recruiter-display {
+  font-family: var(--font-display-stack);
+  text-wrap: balance;
+}
+.swx-recruiter-product-header {
+  container-type: inline-size;
+}
+@media (max-width: 639px) {
+  .swx-recruiter-product-header > div:last-child:not(:first-child) {
+    width: 100%;
+  }
+  .swx-recruiter-product-header > div:last-child:not(:first-child) > a,
+  .swx-recruiter-product-header > div:last-child:not(:first-child) > button {
+    min-height: 2.75rem;
+  }
+}
+.swx-dark .theme-surface .swx-recruiter-product-header[class*="bg-[linear-gradient"] {
+  background: #111827 !important;
+  border-color: #273449 !important;
+}
