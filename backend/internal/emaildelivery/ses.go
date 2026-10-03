@@ -40,9 +40,16 @@ type Suppression struct {
 	Detail     string
 }
 
+type SuppressedDestination struct {
+	Email  string
+	Reason string
+	Detail string
+}
+
 type Provider interface {
 	Send(context.Context, Message) (string, error)
 	Suppression(context.Context, string) (Suppression, error)
+	Suppressions(context.Context) ([]SuppressedDestination, error)
 	Account(context.Context) (AccountStatus, error)
 }
 
@@ -162,6 +169,51 @@ func (p *SESProvider) Suppression(ctx context.Context, email string) (Suppressio
 		Reason:     strings.ToLower(result.Reason),
 		Detail:     "Amazon SES account-level suppression list",
 	}, nil
+}
+
+func (p *SESProvider) Suppressions(ctx context.Context) ([]SuppressedDestination, error) {
+	result := make([]SuppressedDestination, 0)
+	nextToken := ""
+	for {
+		path := "/v2/email/suppression/addresses?PageSize=1000"
+		if nextToken != "" {
+			path += "&NextToken=" + url.QueryEscape(nextToken)
+		}
+		resp, err := p.request(ctx, http.MethodGet, path, nil)
+		if err != nil {
+			return nil, err
+		}
+		data, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		resp.Body.Close()
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			return nil, fmt.Errorf("SES suppression list returned %d", resp.StatusCode)
+		}
+		var page struct {
+			Summaries []struct {
+				EmailAddress string `json:"EmailAddress"`
+				Reason       string `json:"Reason"`
+			} `json:"SuppressedDestinationSummaries"`
+			NextToken string `json:"NextToken"`
+		}
+		if err := json.Unmarshal(data, &page); err != nil {
+			return nil, err
+		}
+		for _, item := range page.Summaries {
+			email := strings.ToLower(strings.TrimSpace(item.EmailAddress))
+			if email == "" {
+				continue
+			}
+			result = append(result, SuppressedDestination{
+				Email:  email,
+				Reason: strings.ToLower(strings.TrimSpace(item.Reason)),
+				Detail: "Amazon SES account-level suppression list",
+			})
+		}
+		nextToken = strings.TrimSpace(page.NextToken)
+		if nextToken == "" {
+			return result, nil
+		}
+	}
 }
 
 func (p *SESProvider) Account(ctx context.Context) (AccountStatus, error) {
