@@ -19,7 +19,7 @@ type EmailHealth = {
 
 function HealthCard({ label, value, detail, tone = "indigo" }: { label: string; value: string; detail: string; tone?: "indigo" | "emerald" | "amber" | "red" }) {
   const styles = tone === "emerald" ? "from-emerald-50 to-white border-emerald-100" : tone === "amber" ? "from-amber-50 to-white border-amber-100" : tone === "red" ? "from-red-50 to-white border-red-100" : "from-indigo-50 to-white border-indigo-100";
-  return <div className={`rounded-[1.3rem] border bg-gradient-to-br p-5 shadow-[0_12px_32px_rgba(23,37,84,0.045)] ${styles}`}><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-500">{label}</p><p className="mt-3 text-3xl font-black tracking-[-0.04em] text-slate-950">{value}</p><p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p></div>;
+  return <div className={`swx-system-health-card rounded-[1.3rem] border bg-gradient-to-br p-5 shadow-[0_12px_32px_rgba(23,37,84,0.045)] ${styles}`}><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-500">{label}</p><p className="mt-3 text-3xl font-black tracking-[-0.04em] text-slate-950">{value}</p><p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p></div>;
 }
 
 export default async function AdminSystemPage() {
