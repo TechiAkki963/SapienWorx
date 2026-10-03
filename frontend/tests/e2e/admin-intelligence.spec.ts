@@ -18,17 +18,27 @@ test.describe("Master Admin Intelligence Centre", () => {
     await expect(page.getByRole("heading", { name: "Engine health" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Engine health" }).locator("..").getByText("sapienworx-intelligence", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "AI Gateway" })).toBeVisible();
+    await expect(page.getByText("Dead letters", { exact: true })).toBeVisible();
+    await expect(page.getByText("Human reviews", { exact: true })).toBeVisible();
+    await expect(page.getByText("Embedding docs", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Intelligence kill switches" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Model & engine registry" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Prompt Registry" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Evaluations" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Human review queue" })).toBeVisible();
+    await expect(page.getByText("intelligence.event.max_attempts", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Start review" })).toBeVisible();
 
     const switches = page.getByRole("heading", { name: "Intelligence kill switches" }).locator("..");
     await expect(switches.getByText("global_intelligence", { exact: true })).toBeVisible();
     await expect(switches.getByText("automated_recommendations", { exact: true })).toBeVisible();
     await expect(switches.getByText("ai_gateway", { exact: true })).toBeVisible();
     await expect(switches.getByText("model_deployment", { exact: true })).toBeVisible();
-    await expect(switches.getByRole("button", { name: "Enable with approval" })).toHaveCount(8);
+    await expect(switches.getByText("job_intelligence", { exact: true })).toBeVisible();
+    await expect(switches.getByText("embedding_generation", { exact: true })).toBeVisible();
+    await expect(switches.getByText("semantic_search", { exact: true })).toBeVisible();
+    await expect(switches.getByText("human_review_queue", { exact: true })).toBeVisible();
+    await expect(switches.getByRole("button", { name: "Enable with approval" })).toHaveCount(12);
 
     await expect(page.getByRole("button", { name: "Queue advisory analysis" })).toBeVisible();
     await expect(page.getByText("Register candidate model/version", { exact: true })).toBeVisible();
