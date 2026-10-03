@@ -78,7 +78,7 @@ func (s *Service) claim(ctx context.Context) ([]queuedMessage, error) {
 	if err != nil { return nil, err }
 	defer tx.Rollback(ctx)
 	// Recover rows left in sending by a process crash. A 5-minute lease is well above the provider HTTP timeout.
-	if _, err = tx.Exec(ctx, "UPDATE email_outbox SET status=\'failed\',last_error=COALESCE(last_error,\'delivery worker lease expired\'),next_attempt_at=now() WHERE status=\'sending\' AND updated_at<now()-interval \'5 minutes\'"); err != nil { return nil, err }
+	if _, err = tx.Exec(ctx, `UPDATE email_outbox SET status='failed',last_error=COALESCE(last_error,'delivery worker lease expired'),next_attempt_at=now() WHERE status='sending' AND updated_at<now()-interval '5 minutes'`); err != nil { return nil, err }
 	rows, err := tx.Query(ctx, "SELECT id,kind,recipient_email,subject,text_body,html_body,attempts FROM email_outbox WHERE status IN ('pending','failed') AND next_attempt_at<=now() AND attempts<$1 ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT $2", s.cfg.MaxAttempts, s.cfg.BatchSize)
 	if err != nil { return nil, err }
 	items := make([]queuedMessage,0)
