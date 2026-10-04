@@ -87,7 +87,7 @@ export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, 
         {preview && !imageFailed ? (
           <Image src={preview} alt={`${name} profile photo`} fill unoptimized sizes="(max-width: 639px) 100vw, 256px" className="object-cover" onError={() => setImageFailed(true)} />
         ) : (
-          <div aria-hidden="true" className={cn("absolute inset-0 grid bg-gradient-to-br from-[#555fc1] via-[#837be2] to-[#f0a982]", compact ? "place-items-start justify-center pt-5" : "place-items-center")}>
+          <div aria-hidden="true" className={cn("absolute inset-0 grid bg-gradient-to-br from-[#555fc1] via-[#837be2] to-[#f0a982]", compact ? "place-items-start pl-4 pt-5" : "place-items-center")}>
             <span className={cn("font-sans font-bold tracking-tight text-white drop-shadow-sm", compact ? "text-4xl" : "text-5xl")}>{initials(firstName, lastName)}</span>
           </div>
         )}
