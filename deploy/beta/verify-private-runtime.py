@@ -24,6 +24,9 @@ def verify(sha):
     for key in ['DATABASE_URL', 'INTELLIGENCE_DATABASE_URL', 'JWT_SECRET', 'AUTH_OTP_HMAC_SECRET', 'S3_BUCKET']:
         if configured.get(key) != values[key]:
             raise ValueError('runtime parameters differ from beta SSM')
+    migration_config = dict(line.split('=', 1) for line in (ROOT / 'runtime/migration.env').read_text().splitlines() if '=' in line)
+    if migration_config.get('DATABASE_URL') != values['MIGRATION_DATABASE_URL']:
+        raise ValueError('migrator configuration differs from beta SSM')
     account = json.loads(data.aws('sts', 'get-caller-identity'))['Account']
     registry = f'{account}.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta'
     for component in ['backend', 'frontend', 'intelligence']:
@@ -35,6 +38,10 @@ def verify(sha):
             raise ValueError('container environment differs')
         if component == 'backend' and (env.get('DATABASE_URL') != values['DATABASE_URL'] or env.get('CORS_ALLOWED_ORIGINS') != 'https://beta.sapienworx.com' or env.get('AUTH_COOKIE_SECURE') != 'true'):
             raise ValueError('backend isolation configuration differs')
+        if component == 'backend' and any(env.get(key) != values[key] for key in ['JWT_SECRET', 'AUTH_OTP_HMAC_SECRET', 'S3_BUCKET']):
+            raise ValueError('running backend parameters differ from beta SSM')
+        if component == 'frontend' and env.get('INTERNAL_API_URL') != 'http://backend:8080':
+            raise ValueError('frontend upstream differs from private beta backend')
         if component == 'intelligence' and env.get('INTELLIGENCE_DATABASE_URL') != values['INTELLIGENCE_DATABASE_URL']:
             raise ValueError('worker database configuration differs')
     image = f'{registry}/migration:{sha}'

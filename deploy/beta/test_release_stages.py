@@ -24,11 +24,12 @@ class RuntimeVerification(unittest.TestCase):
             (root / 'runtime').mkdir()
             (root / 'runtime/deployed-sha').write_text(sha)
             (root / 'runtime/beta.env').write_text('\n'.join(f'{k}={v}' for k, v in values.items()))
+            (root / 'runtime/migration.env').write_text('DATABASE_URL=' + values['MIGRATION_DATABASE_URL'])
             def docker(args, **kwargs):
                 if args[1] == 'run':
                     return b'001|checksum\n'
                 component = args[-1].removeprefix('sapienworx-beta-')
-                env = dict(values, APP_ENV='beta', CORS_ALLOWED_ORIGINS='https://beta.sapienworx.com', AUTH_COOKIE_SECURE='true')
+                env = dict(values, APP_ENV='beta', CORS_ALLOWED_ORIGINS='https://beta.sapienworx.com', AUTH_COOKIE_SECURE='true', INTERNAL_API_URL='http://backend:8080')
                 image_sha = 'b' * 40 if defect == 'image' else sha
                 return json.dumps([{'State': {'Health': {'Status': 'healthy'}}, 'Config': {'Image': f'123.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/{component}:{image_sha}', 'Env': [f'{k}={v}' for k, v in env.items()]}}]).encode()
             def postgres(image, env, command):
