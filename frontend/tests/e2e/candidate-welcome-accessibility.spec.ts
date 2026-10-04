@@ -3,6 +3,22 @@ import { login, MOCK_API, resetE2E } from "./helpers";
 
 test.beforeEach(async ({ request }) => resetE2E(request));
 
+test("profile uploads have one visible keyboard control per file picker", async ({ page }) => {
+  await login(page, "candidate");
+  await page.goto("/candidate/profile");
+  const photo = page.getByRole("button", { name: "Upload profile photo", exact: true });
+  await photo.focus();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Edit profile", exact: true })).toBeFocused();
+  for (const input of await page.locator('input[type="file"].sr-only').all()) {
+    await expect(input).toHaveAttribute("tabindex", "-1");
+    await expect(input).toHaveAttribute("aria-hidden", "true");
+  }
+  const picker = page.waitForEvent("filechooser");
+  await photo.press("Enter");
+  expect((await picker).isMultiple()).toBe(false);
+});
+
 for (const mode of ["Light", "Dark"] as const) {
   test(`first-login welcome preserves readable text and keyboard navigation in ${mode}`, async ({ page, request }) => {
     await login(page, "candidate");

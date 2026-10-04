@@ -83,7 +83,7 @@ export function ProfileSummaryCard({ summary, onEdit }: { summary: CandidateProf
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-navy text-xl font-bold text-white shadow-sm" aria-hidden="true">{initials(summary.full_name)}</div>
           )}
           <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="absolute -bottom-1 -right-1 grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-indigo text-base text-white shadow-card transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/50" aria-label={summary.photo_data_url ? "Change profile photo" : "Upload profile photo"}>✎</button>
-          <input ref={inputRef} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadPhoto} />
+          <input ref={inputRef} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadPhoto} tabIndex={-1} aria-hidden="true" />
         </div>
 
         <div className="min-w-0 flex-1">

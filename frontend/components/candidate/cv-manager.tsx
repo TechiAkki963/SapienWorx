@@ -94,7 +94,7 @@ export function CVManager({ currentFilename }: { currentFilename?: string | null
         <div className="flex shrink-0 flex-wrap gap-2">
           {currentFilename && <Button type="button" variant="secondary" onClick={downloadCV} disabled={busy}>Open CV</Button>}
           <Button type="button" onClick={() => inputRef.current?.click()} disabled={busy}>{busy ? "Working…" : currentFilename ? "Replace CV" : "Upload CV"}</Button>
-          <input ref={inputRef} className="sr-only" type="file" accept="application/pdf,.pdf" onChange={uploadCV} />
+          <input ref={inputRef} className="sr-only" type="file" accept="application/pdf,.pdf" onChange={uploadCV} tabIndex={-1} aria-hidden="true" />
         </div>
       </div>
       {message && <p role="status" className="mt-4 rounded-xl bg-indigo-soft/55 px-3 py-2 text-xs font-semibold text-navy">{message}</p>}
