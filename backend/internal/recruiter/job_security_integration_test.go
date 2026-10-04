@@ -9,6 +9,7 @@ import (
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/privacy"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -111,6 +112,26 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 	recruiterB := user("recruiter")
 	candidateA := user("candidate")
 	candidateB := user("candidate")
+	t.Run("privacy requests preserve typed audit metadata and idempotency", func(t *testing.T) {
+		svc := privacy.NewService(db)
+		request, err := svc.CreateRequest(ctx, candidateA, "rectification")
+		if err != nil {
+			t.Fatalf("create privacy request: %v", err)
+		}
+		repeated, err := svc.CreateRequest(ctx, candidateA, "rectification")
+		if err != nil || repeated.ID != request.ID {
+			t.Fatalf("repeat request must reuse open request: %+v, %v", repeated, err)
+		}
+		var auditCount int
+		if err := db.QueryRow(ctx, `SELECT count(*) FROM privacy_audit_events
+			WHERE resource_id=$1 AND event_type='privacy.request.received'
+			AND metadata->>'request_type'='rectification'`, request.ID).Scan(&auditCount); err != nil || auditCount != 2 {
+			t.Fatalf("request audit metadata missing: count=%d, error=%v", auditCount, err)
+		}
+		if err := svc.TransitionRequestStatus(ctx, request.ID, "cancelled", candidateA); err != nil {
+			t.Fatalf("cancel synthetic request: %v", err)
+		}
+	})
 	exec(`
 		INSERT INTO recruiter_profiles(user_id,company_id,full_name,verification_status)
 		VALUES
