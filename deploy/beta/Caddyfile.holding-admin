@@ -21,21 +21,3 @@ sapienworx.com, www.sapienworx.com {
 	respond @application 404
 	file_server
 }
-
-beta.sapienworx.com {
-	encode zstd gzip
-
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains"
-		X-Content-Type-Options "nosniff"
-		Referrer-Policy "strict-origin-when-cross-origin"
-		-Server
-	}
-
-	@backend path /api/* /health/*
-	reverse_proxy @backend backend:8080 {
-		header_up X-Real-IP {remote_host}
-	}
-
-	reverse_proxy frontend:3000
-}

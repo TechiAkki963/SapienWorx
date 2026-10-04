@@ -107,9 +107,10 @@ than on EC2; retain production rollback images instead of globally pruning them.
    AWS profile/config in the private owner session; ordinary beta operations use
    the beta profile. Never use production database URLs or seed production.
 4. Inspect existing Docker network CIDRs and runtime usage before deployment.
-   Keep the old frontend/backend containers and images for rollback, but stop
-   those application containers to free capacity after confirming that the static
-   public page is healthy:
+   Keep the old frontend/backend containers and images for recovery. The latest
+   idle-host inspection has sufficient memory/disk for initial beta smoke. Do not
+   stop these private production recovery containers as part of edge preparation.
+   If later load testing requires freeing their capacity, obtain separate approval:
 
    ```sh
    docker stop sapienworx-frontend sapienworx-backend
@@ -129,14 +130,21 @@ than on EC2; retain production rollback images instead of globally pruning them.
 7. Once all beta containers are healthy, execute through owner-authorized SSM:
 
    ```sh
-   chmod 0750 /opt/sapienworx-beta/activate-shared-edge.sh
+   chmod 0750 /opt/sapienworx-beta/*edge.sh
+   # Separately approved one-time restart, holding-only; beta remains unexposed.
+   CONFIRM_INITIAL_EDGE_TRANSITION=APPROVED_ONE_TIME_RESTART \
+     /opt/sapienworx-beta/activate-shared-edge.sh --bootstrap-admin
+   # Separately approved beta activation, through the container-local admin API.
    /opt/sapienworx-beta/activate-shared-edge.sh
    ```
 
    This validates DNS, Caddy, beta health and the exact unchanged public HTML.
-   It recreates only the shared edge container, retains certificates, validates
-   beta TLS/API health and both public hosts, and automatically restores the prior
-   static-only edge if verification fails. Later beta image deploys do not touch
+   The explicit bootstrap recreates the edge once to enable a loopback-only admin
+   endpoint on port 2020 inside the container and a directory config mount. It
+   retains certificates and initially serves only holding content. Normal activation
+   validates the candidate and gracefully reloads Caddy, verifies beta TLS/API and
+   both public hosts, and restores the previous config by reload if verification
+   fails. The admin endpoint is never published on the host. Later beta image deploys do not touch
    the shared edge or public assets. Rerun the same immutable workflow so its full
    external verification passes after initial activation.
 8. Verify beta role logins, upload isolation, worker health and exact public mascot
@@ -147,10 +155,14 @@ than on EC2; retain production rollback images instead of globally pruning them.
 To withdraw beta routing while retaining the public mascot page:
 
 ```sh
-docker compose -f /opt/sapienworx/holding/releases/775f239/compose.holding.yml \
-  up -d --force-recreate caddy
+/opt/sapienworx-beta/rollback-shared-edge.sh
 ```
 
 Beta containers/database/uploads can remain intact for investigation. Application
 image rollback uses beta `rollback.sh`, skips reverse migrations, and preserves
 the edge. Production application release remains a separately reviewed action.
+
+If the one-time bootstrap itself fails before the managed marker is established,
+its exit trap immediately restores the original holding compose with the cached
+Caddy image. That emergency recovery also requires a restart. See
+`docs/p3/BETA-ACTIVATION-BLOCKER-REVIEW.md` for timing, approval and capacity limits.

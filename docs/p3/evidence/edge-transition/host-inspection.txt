@@ -1,0 +1,62 @@
+Sat Oct  3 22:48:51 UTC 2026
+1
+ 22:48:51 up 13 days,  8:03,  0 users,  load average: 0.10, 0.17, 0.10
+               total        used        free      shared  buff/cache   available
+Mem:            3790         550         508           0        2731        3051
+Swap:              0           0           0
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p1   20G  4.0G   16G  21% /
+sapienworx-caddy|caddy:2.10.2-alpine|Up 2 hours (healthy)|0.0.0.0:80->80/tcp, :::80->80/tcp, 0.0.0.0:443->443/tcp, :::443->443/tcp, 443/udp, 2019/tcp
+sapienworx-frontend|327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx/frontend:4e41999fb1bf4ec352da037e7d39e140191ff70c|Up 9 days (healthy)|3000/tcp
+sapienworx-backend|327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx/backend:4e41999fb1bf4ec352da037e7d39e140191ff70c|Up 9 days (healthy)|8080/tcp
+sapienworx-caddy|0.00%|13.27MiB / 256MiB|5.18%
+sapienworx-frontend|0.00%|62.19MiB / 1GiB|6.07%
+sapienworx-backend|0.00%|4.445MiB / 768MiB|0.58%
+Netid State  Recv-Q Send-Q                   Local Address:Port  Peer Address:PortProcess
+udp   UNCONN 0      0                      10.42.2.18%ens5:68         0.0.0.0:*    users:(("systemd-network",pid=1828,fd=17))
+udp   UNCONN 0      0                            127.0.0.1:323        0.0.0.0:*    users:(("chronyd",pid=2069,fd=5))
+udp   UNCONN 0      0      [fe80::4ff:ceff:fe74:d58b]%ens5:546           [::]:*    users:(("systemd-network",pid=1828,fd=19))
+udp   UNCONN 0      0                                [::1]:323           [::]:*    users:(("chronyd",pid=2069,fd=6))
+tcp   LISTEN 0      4096                         127.0.0.1:37525      0.0.0.0:*    users:(("containerd",pid=5634,fd=15))
+tcp   LISTEN 0      4096                           0.0.0.0:443        0.0.0.0:*    users:(("docker-proxy",pid=2983222,fd=5))
+tcp   LISTEN 0      128                            0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=2040,fd=7))
+tcp   LISTEN 0      4096                           0.0.0.0:80         0.0.0.0:*    users:(("docker-proxy",pid=2983241,fd=5))
+tcp   LISTEN 0      4096                              [::]:443           [::]:*    users:(("docker-proxy",pid=2983226,fd=5))
+tcp   LISTEN 0      128                               [::]:22            [::]:*    users:(("sshd",pid=2040,fd=8))
+tcp   LISTEN 0      4096                              [::]:80            [::]:*    users:(("docker-proxy",pid=2983245,fd=5))
+v2.10.2 h1:g/gTYjGMD0dec+UgMw8SnfmJ3I9+M2TdvoRL/Ovu6U8=
+[{"Type":"bind","Source":"/opt/sapienworx/holding/releases/775f239/Caddyfile","Destination":"/etc/caddy/Caddyfile","Mode":"ro","RW":false,"Propagation":"rprivate"},{"Type":"bind","Source":"/opt/sapienworx/holding/releases/775f239/public","Destination":"/srv/holding","Mode":"ro","RW":false,"Propagation":"rprivate"},{"Type":"bind","Source":"/opt/sapienworx/runtime/caddy-data","Destination":"/data","Mode":"rw","RW":true,"Propagation":"rprivate"},{"Type":"bind","Source":"/opt/sapienworx/runtime/caddy-config","Destination":"/config","Mode":"rw","RW":true,"Propagation":"rprivate"}]
+["caddy","run","--config","/etc/caddy/Caddyfile","--adapter","caddyfile"]
+{
+	email {$ACME_EMAIL}
+	admin off
+}
+
+http://127.0.0.1:2019 {
+	respond /healthz 200
+}
+
+sapienworx.com, www.sapienworx.com {
+	root * /srv/holding
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
+		-Server
+	}
+	@application path /api /api/* /health /health/*
+	respond @application 404
+	file_server
+}
+NETWORK ID     NAME                         DRIVER    SCOPE
+3b50edf3623a   bridge                       bridge    local
+20603be60378   host                         host      local
+2ece3e9686d0   none                         null      local
+c32d0a88441b   sapienworx-holding_default   bridge    local
+7ef790642fb2   sapienworx_proxy             bridge    local
+{"sapienworx-holding_default":{"IPAMConfig":null,"Links":null,"Aliases":["sapienworx-caddy","caddy","4034c08730ad"],"MacAddress":"02:42:ac:12:00:02","NetworkID":"c32d0a88441bee741e3f0180cdbbe44bee1cfa8b679a4a4a1a0cff72796ac632","EndpointID":"1946a0f1bfe12be7cfcee33eae13d720d1a97562f0e9f71191f6df59a0d67a2f","Gateway":"172.18.0.1","IPAddress":"172.18.0.2","IPPrefixLen":16,"IPv6Gateway":"","GlobalIPv6Address":"","GlobalIPv6PrefixLen":0,"DriverOpts":null,"DNSNames":["sapienworx-caddy","caddy","4034c08730ad"]}}
+memory=268435456 cpu=250000000 ports={"443/tcp":[{"HostIp":"","HostPort":"443"}],"80/tcp":[{"HostIp":"","HostPort":"80"}]}
+d35c4a69f4858622a5e561b4a38414b22f74f2481a08a2990014a29fb80b8188  /opt/sapienworx/holding/releases/775f239/public/index.html
+3cd3d1027b374dbedc415bdd3405d6544b4f339290401ce1268f0347f4f04dc4  /opt/sapienworx/holding/releases/775f239/public/mascot.png

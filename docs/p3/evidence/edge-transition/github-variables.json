@@ -1,0 +1,19 @@
+{
+  "expected_values": {
+    "AWS_DEPLOY_ROLE_ARN": "arn:aws:iam::327301848391:role/sapienworx-beta-github-deployment",
+    "BETA_INSTANCE_ID": "i-0356b55e3d7eaf72a",
+    "BETA_DOCUMENTS_BUCKET": "sapienworx-beta-documents-327301848391-ap-south-1"
+  },
+  "current_value_matches": {
+    "AWS_DEPLOY_ROLE_ARN": false,
+    "BETA_INSTANCE_ID": false,
+    "BETA_DOCUMENTS_BUCKET": false
+  },
+  "observed_variable_names": [
+    "AWS_DEPLOY_ROLE_ARN",
+    "BETA_DOCUMENTS_BUCKET",
+    "BETA_INSTANCE_ID"
+  ],
+  "checked_at_utc": "2026-10-03T22:48:47Z",
+  "values_modified": false
+}
