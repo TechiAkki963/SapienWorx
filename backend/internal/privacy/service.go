@@ -64,7 +64,7 @@ func (s *Service) CreateRequest(ctx context.Context, userID, requestType string)
 	if err != nil {
 		return Request{}, err
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.request.received','privacy_request',$2,'success',jsonb_build_object('request_type',$3))`, userID, item.ID, requestType); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.request.received','privacy_request',$2,'success',jsonb_build_object('request_type',$3::text))`, userID, item.ID, requestType); err != nil {
 		return Request{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
