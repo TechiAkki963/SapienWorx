@@ -484,6 +484,12 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { id, role, first_name: role === "candidate" ? state.profile.full_name.split(" ")[0] : "", last_name: "", headline: "" });
   }
 
+  if (url.pathname === "/api/v1/candidate/dashboard" && req.method === "GET") return json(res, 200, {
+    profile: state.profile, application_count: 1, interview_count: 1, offer_count: 0, saved_count: 0,
+    recommended_jobs: [job({ title: "Clinical Operations Coordinator" })],
+    recent_applications: [{ id: "70000000-0000-4000-8000-000000000001", job_title: "P3 Synthetic Acceptance Engineer 1791099167", company_name: "Northstar Product Labs", stage: "withdrawn" }],
+    notifications: state.candidateNotifications,
+  });
   if (url.pathname === "/api/v1/candidate/profile" && req.method === "GET") return json(res, 200, state.profile);
   if (url.pathname === "/api/v1/candidate/profile" && req.method === "PATCH") {
     state.profile = { ...state.profile, ...payload, profile_completion: 82 };
