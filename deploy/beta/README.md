@@ -82,11 +82,13 @@ After apply, obtain `ec2_public_ip` from beta Terraform. In the DNS provider for
 Elastic IP, TTL 600**. Leave production records untouched.
 
 Verify `nslookup beta.sapienworx.com` resolves to `13.206.138.176`. Beta uses
-`/opt/sapienworx-beta/runtime/deployment.conf`; leave `CADDY_ENABLED=false` during
-the first private deployment. The sole shared edge is activated separately through
-`activate-shared-edge.sh`, as recorded in `SHARED-HOST.md`. The beta app deploy
-never replaces the public edge. Its first public workflow smoke cannot pass until
-DNS, TLS and edge activation are complete.
+`/opt/sapienworx-beta/runtime/deployment.conf`. Stage A (`beta-deploy.yml`) verifies
+private containers, immutable release, database/isolation/migrations and unchanged
+public holding sites without requiring public beta. The sole shared edge is
+activated separately through Stage B (`beta-edge-activate.yml`) and
+`activate-beta-edge.sh`, as recorded in `SHARED-HOST.md`. The beta app deploy never
+replaces the public edge; the obsolete `CADDY_ENABLED` switch no longer couples
+private health verification to public TLS.
 
 Verify public HTTP redirect, certificate hostname/validity and HTTPS
 `/health/live` and `/health/ready`. The complete P3-C role/responsive acceptance
