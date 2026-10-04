@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { login, MOCK_API, resetE2E } from "./helpers";
 
+test.use({ viewport: { width: 1440, height: 900 } });
 test.beforeEach(async ({ request }) => resetE2E(request));
 
 test("profile uploads have one visible keyboard control per file picker", async ({ page }) => {

@@ -72,6 +72,7 @@ test("Phase 3.8 focus states remain visually clear at desktop and mobile widths"
 
 
 test("Candidate 360 header actions support keyboard entry, Escape and focus return", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await login(page, "recruiter");
   await page.goto(`/recruiter/candidates/71000000-0000-4000-8000-000000000001?job_id=${jobID}`);
 
@@ -90,7 +91,34 @@ test("Candidate 360 header actions support keyboard entry, Escape and focus retu
   const dialog = page.getByRole("dialog", { name: "Schedule interview" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("combobox", { name: "Candidate and job" })).toBeFocused();
+  await dialog.getByRole("button", { name: "Close interview dialog" }).focus();
+  await page.keyboard.press("Shift+Tab");
+  await expect(dialog.getByRole("button", { name: "Schedule interview", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(dialog.getByRole("button", { name: "Close interview dialog" })).toBeFocused();
+  await page.screenshot({ path: "test-results/interview-focus-light.png" });
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(interview).toBeFocused();
+});
+
+test("interview modal traps both keyboard boundaries in Dark mode", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await login(page, "recruiter");
+  await page.getByTitle("Appearance").click();
+  await page.getByTitle("Dark mode").click();
+  await page.goto(`/recruiter/candidates/71000000-0000-4000-8000-000000000001?job_id=${jobID}`);
+  const trigger = page.getByRole("button", { name: "Schedule interview", exact: true });
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "Schedule interview" });
+  const close = dialog.getByRole("button", { name: "Close interview dialog" });
+  await close.focus();
+  await page.keyboard.press("Shift+Tab");
+  await expect(dialog.getByRole("button", { name: "Schedule interview", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(close).toBeFocused();
+  await page.screenshot({ path: "test-results/interview-focus-dark.png" });
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
 });
