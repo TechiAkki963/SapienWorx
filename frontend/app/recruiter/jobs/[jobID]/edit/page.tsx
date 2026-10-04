@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { DuplicateJobButton } from "@/components/recruiter/duplicate-job-button";
 import { JobBuilder } from "@/components/recruiter/job-builder";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { requireRole } from "@/lib/auth-server";
 import { EditableRecruiterJob, JobAuditEvent, label, RecruiterDashboard, RecruiterTeamMember } from "@/lib/recruiter";
-import { recruiterAPI } from "@/lib/recruiter-server";
+import { recruiterAPI, RecruiterBackendError } from "@/lib/recruiter-server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,10 @@ export default async function RecruiterEditJobPage({ params }: { params: Promise
   await requireRole("recruiter");
   const { jobID } = await params;
   const [job, dashboard, team, history] = await Promise.all([
-    recruiterAPI<EditableRecruiterJob>(`/api/v1/recruiter/jobs/${jobID}`),
+    recruiterAPI<EditableRecruiterJob>(`/api/v1/recruiter/jobs/${jobID}`).catch(error => {
+      if (error instanceof RecruiterBackendError && (error.status === 403 || error.status === 404)) notFound();
+      throw error;
+    }),
     recruiterAPI<RecruiterDashboard>("/api/v1/recruiter/dashboard"),
     recruiterAPI<{ items: RecruiterTeamMember[] }>("/api/v1/recruiter/team"),
     recruiterAPI<{ items: JobAuditEvent[] }>(`/api/v1/recruiter/jobs/${jobID}/history?limit=20`).catch(() => ({ items: [] })),
