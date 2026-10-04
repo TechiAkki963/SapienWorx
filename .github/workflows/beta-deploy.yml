@@ -1,4 +1,4 @@
-name: Beta immutable release
+name: Beta Stage A immutable runtime release
 
 on:
   workflow_dispatch:
@@ -132,7 +132,7 @@ jobs:
             compose.beta.yml Caddyfile Caddyfile.shared Caddyfile.holding-admin compose.edge.yml activate-shared-edge.sh rollback-shared-edge.sh verify-public-edge.sh \
             aws-config.example aws-sdk-config.example block-metadata.sh refresh-credentials.sh \
             sapienworx-beta-credentials.service sapienworx-beta-credentials.timer \
-            deploy.sh rollback.sh health-check.sh validate-runtime.py beta-data.py
+            deploy.sh rollback.sh health-check.sh validate-runtime.py beta-data.py verify-private-runtime.py verify-edge-access.py activate-beta-edge.sh
           checksum="$(sha256sum /tmp/beta-runtime.tar.gz | cut -d' ' -f1)"
           aws s3 cp /tmp/beta-runtime.tar.gz "s3://$BUCKET/releases/$RELEASE_SHA/runtime.tar.gz" --only-show-errors
           script=deploy.sh
@@ -155,6 +155,8 @@ jobs:
               'tar -xzf "$release_tmp/runtime.tar.gz" --no-same-owner -C /opt/sapienworx-beta',
               'chmod 0750 /opt/sapienworx-beta/*.sh',
               f'/opt/sapienworx-beta/{script} {sha}',
+              f'python3 /opt/sapienworx-beta/verify-private-runtime.py {sha}',
+              '/opt/sapienworx-beta/verify-public-edge.sh',
           ]
           print(json.dumps({'commands': commands}))
           PY
@@ -172,10 +174,6 @@ jobs:
           done
           test "$status" = Success
           printf 'SHA=%s\nACTION=%s\nSSM_COMMAND=%s\n' "$RELEASE_SHA" "$RELEASE_ACTION" "$command_id" > beta-release.txt
-      - name: Verify deployed public beta
-        run: |
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 15 https://beta.sapienworx.com/health/live
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 15 https://beta.sapienworx.com/health/ready
       - uses: actions/upload-artifact@v4
         if: always()
         with:

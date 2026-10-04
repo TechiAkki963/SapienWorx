@@ -1,0 +1,112 @@
+name: Beta Stage B separately approved edge activation
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full immutable main SHA already privately deployed by Stage A
+        required: true
+        type: string
+      confirm_edge_transition:
+        description: Type BETA_EDGE only after separate edge activation approval
+        required: true
+        type: string
+      confirm_initial_restart:
+        description: Type APPROVED_ONE_TIME_RESTART only if initial holding-only bootstrap is approved and needed
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sapienworx-beta-release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      CONFIRM: ${{ inputs.confirm_edge_transition }}
+      INITIAL: ${{ inputs.confirm_initial_restart }}
+      WORKFLOW_REF: ${{ github.ref }}
+    steps:
+      - name: Validate explicit edge approval inputs
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$CONFIRM" = BETA_EDGE
+          test "$WORKFLOW_REF" = refs/heads/main
+          test -z "$INITIAL" || test "$INITIAL" = APPROVED_ONE_TIME_RESTART
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.release_sha }}
+      - name: Verify reviewed main source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor "$RELEASE_SHA" origin/main
+          test -f deploy/beta/activate-beta-edge.sh
+  activate:
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: beta
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      CONFIRM: ${{ inputs.confirm_edge_transition }}
+      INITIAL: ${{ inputs.confirm_initial_restart }}
+      INSTANCE_ID: ${{ vars.BETA_INSTANCE_ID }}
+      BUCKET: ${{ vars.BETA_DOCUMENTS_BUCKET }}
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+      - name: Activate only the already verified private release
+        run: |
+          set -euo pipefail
+          test "$INSTANCE_ID" = i-0356b55e3d7eaf72a
+          test "$BUCKET" = sapienworx-beta-documents-327301848391-ap-south-1
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$CONFIRM" = BETA_EDGE
+          test -z "$INITIAL" || test "$INITIAL" = APPROVED_ONE_TIME_RESTART
+          python3 - <<'PY' > /tmp/beta-edge-command.json
+          import json, os
+          sha, initial = os.environ['RELEASE_SHA'], os.environ['INITIAL']
+          commands = [
+              'set -eu',
+              'cd /opt/sapienworx-beta',
+              'export AWS_CONFIG_FILE=/opt/sapienworx-beta/runtime/aws-config AWS_PROFILE=beta',
+              'export CONFIRM_EDGE_TRANSITION=BETA_EDGE',
+              f'export CONFIRM_INITIAL_EDGE_TRANSITION={initial}',
+              f'./activate-beta-edge.sh {sha}',
+          ]
+          print(json.dumps({'commands': commands}))
+          PY
+          command_id="$(aws ssm send-command --instance-ids "$INSTANCE_ID" --document-name AWS-RunShellScript \
+            --parameters file:///tmp/beta-edge-command.json --comment "Separately approved beta edge $RELEASE_SHA" \
+            --query Command.CommandId --output text)"
+          for attempt in $(seq 1 120); do
+            status="$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query Status --output text 2>/dev/null || true)"
+            case "$status" in
+              Success) break ;;
+              Failed|Cancelled|TimedOut) echo "Beta edge failed ($status), command $command_id. Inspect holding-only rollback."; exit 1 ;;
+            esac
+            sleep 10
+          done
+          test "$status" = Success
+          printf 'SHA=%s\nSTAGE=B\nSSM_COMMAND=%s\n' "$RELEASE_SHA" "$command_id" > beta-edge-release.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: beta-edge-${{ inputs.release_sha }}
+          path: beta-edge-release.txt
+          retention-days: 30

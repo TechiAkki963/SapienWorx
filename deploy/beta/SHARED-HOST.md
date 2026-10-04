@@ -125,17 +125,17 @@ than on EC2; retain production rollback images instead of globally pruning them.
 6. Approve/merge the P3 branch separately, protect GitHub `beta`, and configure
    `BETA_INSTANCE_ID=i-0356b55e3d7eaf72a`, actual beta bucket/role outputs. First
    deploy the reviewed main SHA. Runtime extraction targets only `/opt/sapienworx-beta`.
-   The first workflow's public smoke can fail until initial edge activation;
-   inspect SSM/container success and do not report that workflow as fully passed.
+   Stage A succeeds after private container, release/configuration, migration
+   ledger/database-isolation and unchanged public holding-page verification. It
+   does not require public beta routing or TLS and never invokes an edge script.
 7. Once all beta containers are healthy, execute through owner-authorized SSM:
 
    ```sh
-   chmod 0750 /opt/sapienworx-beta/*edge.sh
-   # Separately approved one-time restart, holding-only; beta remains unexposed.
+   # Prefer separately approved beta-edge-activate.yml (Stage B).
+   # Manual equivalent only under the same separate explicit owner approval:
+   CONFIRM_EDGE_TRANSITION=BETA_EDGE \
    CONFIRM_INITIAL_EDGE_TRANSITION=APPROVED_ONE_TIME_RESTART \
-     /opt/sapienworx-beta/activate-shared-edge.sh --bootstrap-admin
-   # Separately approved beta activation, through the container-local admin API.
-   /opt/sapienworx-beta/activate-shared-edge.sh
+     /opt/sapienworx-beta/activate-beta-edge.sh <already-deployed-full-main-SHA>
    ```
 
    This validates DNS, Caddy, beta health and the exact unchanged public HTML.
@@ -145,8 +145,10 @@ than on EC2; retain production rollback images instead of globally pruning them.
    validates the candidate and gracefully reloads Caddy, verifies beta TLS/API and
    both public hosts, and restores the previous config by reload if verification
    fails. The admin endpoint is never published on the host. Later beta image deploys do not touch
-   the shared edge or public assets. Rerun the same immutable workflow so its full
-   external verification passes after initial activation.
+   the shared edge or public assets. Stage B verifies public beta health, synthetic
+   Candidate/Recruiter/Command Centre access, logout and public isolation. Failure
+   restores holding-only routing; it does not delete beta releases or data. After
+   bootstrap, omit the initial restart confirmation; later changes reload only.
 8. Verify beta role logins, upload isolation, worker health and exact public mascot
    HTML/image hashes. Continue readiness audits and deployed acceptance.
 
