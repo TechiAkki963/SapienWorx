@@ -12,8 +12,9 @@ import type { ChatMessage, MessagingSenderType, MessagingThread, ThreadListRespo
 function formatThreadTime(value: string) {
   const date = new Date(value);
   const now = new Date();
-  const sameDay = date.toDateString() === now.toDateString();
-  return new Intl.DateTimeFormat("en-IN", sameDay ? { hour: "2-digit", minute: "2-digit" } : { day: "2-digit", month: "short" }).format(date);
+  const dayFormat = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" });
+  const sameDay = dayFormat.format(date) === dayFormat.format(now);
+  return new Intl.DateTimeFormat("en-IN", sameDay ? { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" } : { day: "2-digit", month: "short", timeZone: "Asia/Kolkata" }).format(date);
 }
 
 function initials(name: string) {

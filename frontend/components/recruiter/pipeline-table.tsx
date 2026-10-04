@@ -71,7 +71,7 @@ export function PipelineTable({ rows, compact = false }: { rows: PipelineRow[]; 
               </td>
               <td className="px-3 py-3.5 font-semibold text-ink">{row.job_title}</td>
               {!compact && <><td className="px-3 py-3.5 text-ink-muted">{experience(row.experience_months)}</td><td className="px-3 py-3.5 text-ink-muted">{row.notice_period_days == null ? "—" : `${row.notice_period_days}d`}</td><td className="px-3 py-3.5 text-ink-muted">{row.city ?? "—"}</td></>}
-              <td className="px-3 py-3.5 text-xs font-medium text-ink-muted">{new Date(row.applied_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</td>
+              <td className="px-3 py-3.5 text-xs font-medium text-ink-muted">{new Date(row.applied_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", timeZone: "Asia/Kolkata" })}</td>
               <td className="px-3 py-3.5">
                 <StatusMenu value={row.stage} options={stages} disabled={busy === row.application_id} ariaLabel={`Stage for ${row.candidate_name}`} onChange={(stage) => change(row.application_id, stage)} />
               </td>

@@ -41,7 +41,7 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 	var photo []byte
 	var photoMime *string
 	var visible, discoverable bool
-	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,cp.profile_details->>'profile_visible_in_sourcing'='true',cp.profile_details->>'discoverable_to_recruiters'='true' FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
+	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,COALESCE(cp.profile_details->>'profile_visible_in_sourcing'='true',false),COALESCE(cp.profile_details->>'discoverable_to_recruiters'='true',false) FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
 		&result.FullName, &headline, &result.Email, &emailVerified, &phone, &city, &state, &result.TotalExperienceMonths, &result.ProfileCompletion, &raw, &photo, &photoMime, &result.ShareToken, &visible, &discoverable,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {

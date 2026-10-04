@@ -129,6 +129,44 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 	recruiterSvc := NewService(db)
 	candidateSvc := candidate.NewService(db)
 
+	t.Run("profile privacy flags default to false when absent", func(t *testing.T) {
+		for _, details := range []string{`{}`, `{"profile_visible_in_sourcing":null,"discoverable_to_recruiters":null}`, `{"profile_visible_in_sourcing":false,"discoverable_to_recruiters":false}`, `{"profile_visible_in_sourcing":true,"discoverable_to_recruiters":true}`} {
+			exec(`UPDATE candidate_profiles SET profile_details=$2::jsonb WHERE user_id=$1`, candidateA, details)
+			summary, err := candidateSvc.Summary(ctx, candidateA)
+			if err != nil {
+				t.Fatalf("summary for %s: %v", details, err)
+			}
+			want := details == `{"profile_visible_in_sourcing":true,"discoverable_to_recruiters":true}`
+			if summary.ProfileVisible != want || summary.Discoverable != want {
+				t.Fatalf("incorrect consent defaults for %s: %+v", details, summary)
+			}
+		}
+		exec(`UPDATE candidate_profiles SET profile_details='{}'::jsonb WHERE user_id=$1`, candidateA)
+	})
+
+	t.Run("efficient creation handles title and status SQL parameter types", func(t *testing.T) {
+		for _, publish := range []bool{false, true} {
+			created, err := recruiterSvc.CreateJobEfficient(ctx, recruiterA, JobInput{
+				Title: "  Synthetic QA Engineer / PostgreSQL 17  ", Description: "Synthetic regression job description",
+				EmploymentType: "full_time", WorkMode: "remote", CountryCode: "IN", Openings: 1, Publish: publish,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			wantStatus := "draft"
+			if publish {
+				wantStatus = "active"
+			}
+			if created.Title != "Synthetic QA Engineer / PostgreSQL 17" || created.Status != wantStatus || (created.PublishedAt != nil) != publish {
+				t.Fatalf("incorrect created job: %+v", created)
+			}
+			var slug string
+			if err := db.QueryRow(ctx, `SELECT slug FROM jobs WHERE id=$1`, created.ID).Scan(&slug); err != nil || slug == "" {
+				t.Fatalf("missing slug: %q %v", slug, err)
+			}
+		}
+	})
+
 	t.Run("company A cannot read or mutate company B jobs", func(t *testing.T) {
 		if _, err := recruiterSvc.EditableJob(ctx, recruiterA, jobB); !errors.Is(err, ErrNotFound) {
 			t.Fatalf("foreign editable job: %v", err)
