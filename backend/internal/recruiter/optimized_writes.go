@@ -44,9 +44,9 @@ func (s *Service) CreateJobEfficient(ctx context.Context, userID string, in JobI
 			employment_type,work_mode,city,state,country_code,min_experience_months,
 			max_experience_months,openings,status,application_deadline,published_at
 		) VALUES(
-			$1,$2,$3,lower(regexp_replace($3,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),
+			$1,$2,$3::text,lower(regexp_replace($3::text,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),
 			NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),NULLIF($9,''),
-			$10,$11,$12,$13,$14::job_status,$15,CASE WHEN $14='active' THEN now() ELSE NULL END
+			$10,$11,$12,$13,$14::job_status,$15,CASE WHEN $14::job_status='active' THEN now() ELSE NULL END
 		)
 		RETURNING id,job_reference,title,department,status::text,employment_type::text,work_mode::text,
 			city,state,country_code,openings,published_at,application_deadline,updated_at`,
