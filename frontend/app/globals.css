@@ -638,3 +638,16 @@ a {
   background: #111827 !important;
   border-color: #273449 !important;
 }
+
+/* Command Centre brand accents sit on dark cards and navigation surfaces. */
+.swx-dark .admin-workspace [class~="text-[#5262c9]"],
+.swx-dark .admin-workspace [class~="text-[#3147c8]"],
+.swx-dark .admin-workspace [class~="text-[#4255d7]"],
+.swx-dark .admin-workspace .text-indigo-600,
+.swx-dark .admin-workspace .text-indigo-700 {
+  color: #93c5fd !important;
+}
+.swx-dark .admin-workspace [class*="bg-amber-50"][class*="text-amber-"],
+.swx-dark .admin-workspace [class*="bg-amber-50"] [class*="text-amber-"] {
+  color: #fde68a !important;
+}
