@@ -64,7 +64,7 @@ func ScanClamD(ctx context.Context, address string, data []byte) error {
 		return ErrScannerUnavailable
 	}
 	reply = strings.TrimSuffix(reply, "\x00")
-	if strings.HasSuffix(reply, ": OK") {
+	if reply == "stream: OK" {
 		return nil
 	}
 	if strings.HasSuffix(reply, " FOUND") {

@@ -70,7 +70,7 @@ https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonECS/current/ap-sou
 Linux x86 vCPU $0.04256/h, RAM $0.004655/GB-h. One task:
 `730 * (0.04256 + 4*0.004655) = $44.66/month`.
 Three single-AZ PrivateLink endpoints at $0.01/h each: approximately $21.90/month,
-plus data at $0.01/GB. Cloud Map one registered resource ~$1/month, Route53 private
+plus data at $0.01/GB. Cloud Map one registered resource ~$0.10/month, Route53 private
 zone ~$0.50/month; S3/ECR/log storage, DNS requests, maintenance runner usage and
 image pulls are usage-dependent. Budget **roughly $70–75/month additional** for
 continuous low-volume beta operation; this is an estimate, not a spending cap.

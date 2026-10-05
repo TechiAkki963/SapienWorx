@@ -54,6 +54,7 @@ func TestClamDScanFailClosed(t *testing.T) {
 		{"clean", "stream: OK", nil},
 		{"infected", "stream: Eicar-Test-Signature FOUND", ErrMalwareDetected},
 		{"scan error", "stream: INSTREAM size limit exceeded. ERROR", ErrScannerUnavailable},
+		{"wrong stream clean response", "unknown: OK", ErrScannerUnavailable},
 		{"indeterminate", "stream: UNKNOWN", ErrScannerUnavailable},
 		{"malformed", "not a scanner response", ErrScannerUnavailable},
 	} {
