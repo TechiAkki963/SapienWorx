@@ -459,6 +459,9 @@ a {
 .swx-dark .theme-surface [class*="bg-slate-50"] {
   background-color: #111827 !important;
 }
+.swx-dark .candidate-welcome {
+  background: linear-gradient(135deg, #172554, #0b1220, #0f2a24) !important;
+}
 .swx-dark .theme-surface [class*="bg-slate-100"],
 .swx-dark .theme-surface [class*="bg-gray-50"],
 .swx-dark .theme-surface [class*="bg-gray-100"] {

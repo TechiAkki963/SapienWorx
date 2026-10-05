@@ -17,6 +17,7 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
   const [busy, setBusy] = useState(false);
   const openerRef = useRef<HTMLElement | null>(null);
   const firstFieldRef = useRef<HTMLSelectElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(false);
 
   useEffect(() => {
@@ -34,6 +35,16 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Tab") {
+        const dialog = dialogRef.current;
+        const controls = Array.from(dialog?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])') ?? []).filter(control => control.getClientRects().length > 0);
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (first && last && (!dialog?.contains(document.activeElement) || (event.shiftKey ? document.activeElement === first : document.activeElement === last))) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
+        }
+      }
       if (event.key === "Escape" && !busy) {
         event.preventDefault();
         setOpen(false);
@@ -74,7 +85,7 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
       <Button onClick={() => { openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setOpen(true); }} disabled={!applications.length} aria-haspopup="dialog" aria-expanded={open} variant={compactTrigger ? "secondary" : "primary"} size={compactTrigger ? "sm" : "md"} className={compactTrigger ? "max-sm:min-w-[6.5rem] max-sm:flex-1" : undefined}><span className={compactTrigger ? "sm:hidden" : "hidden"}>Interview</span><span className={compactTrigger ? "max-sm:hidden" : ""}>Schedule interview</span></Button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/35 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) setOpen(false); }}>
-          <section role="dialog" aria-modal="true" aria-labelledby="schedule-interview-title" className="w-full max-w-2xl rounded-t-3xl bg-white shadow-[0_24px_80px_rgba(7,29,73,0.28)] sm:rounded-3xl">
+          <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="schedule-interview-title" className="w-full max-w-2xl rounded-t-3xl bg-white shadow-[0_24px_80px_rgba(7,29,73,0.28)] sm:rounded-3xl">
             <div className="flex items-start justify-between gap-4 border-b border-line/70 px-5 py-4 sm:px-6">
               <div><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Interview coordination</p><h2 id="schedule-interview-title" className="mt-1 text-xl font-bold text-navy">Schedule interview</h2><p className="mt-1 text-xs text-ink-muted">Use the meeting URL created in your external conferencing tool.</p></div>
               <button type="button" onClick={() => !busy && setOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-lg text-ink-muted hover:bg-slate-50" aria-label="Close interview dialog">×</button>

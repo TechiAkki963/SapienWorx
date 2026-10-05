@@ -27,7 +27,7 @@ export function CandidateWelcome({ firstName, returnTo }: { firstName: string; r
     }
   }
 
-  return <main id="main-content" className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-soft/35 via-[#f8f9fd] to-mint/30 px-4 py-8 text-ink sm:px-6">
+  return <main id="main-content" className="theme-surface candidate-welcome flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-soft/35 via-[#f8f9fd] to-mint/30 px-4 py-8 text-ink sm:px-6">
     <div className="w-full max-w-4xl rounded-[2rem] border border-indigo/10 bg-white p-6 shadow-[0_24px_80px_rgba(31,42,91,0.10)] sm:p-10 lg:p-12">
       <div className="flex justify-center"><Wordmark /></div>
       <div className="mx-auto mt-9 max-w-2xl text-center">
@@ -41,7 +41,7 @@ export function CandidateWelcome({ firstName, returnTo }: { firstName: string; r
           <p className="text-xs font-bold uppercase tracking-wider text-indigo">Faster setup</p>
           <h2 className="mt-2 text-2xl font-bold text-navy">Upload My CV</h2>
           <p className="mt-3 flex-1 text-sm leading-6 text-ink-muted">Let SapienWorx extract your professional information from your resume. You can review and edit everything before saving.</p>
-          {!cvAvailable && <p className="mt-3 text-xs font-semibold text-amber-800">CV-assisted setup is temporarily unavailable while safe processing is being prepared.</p>}
+          {!cvAvailable && <p role="note" className="mt-3 rounded-lg bg-amber-50 p-3 text-xs font-semibold text-amber-900">CV-assisted setup is temporarily unavailable while safe processing is being prepared.</p>}
           <button type="button" disabled={busy || !cvAvailable} onClick={() => void choose("cv_started")} className="mt-6 min-h-11 rounded-xl bg-indigo px-4 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{cvAvailable ? "Continue with CV" : "CV setup unavailable"}</button>
         </section>
         <section className="flex flex-col rounded-2xl border border-indigo/15 bg-mint/20 p-6">

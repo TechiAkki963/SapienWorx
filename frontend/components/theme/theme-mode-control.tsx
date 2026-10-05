@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-type ThemeMode = "system" | "light" | "dark";
+import { applyTheme, readThemeMode, type ThemeMode } from "./theme-runtime";
 
 const options: { value: ThemeMode; label: string; icon: string }[] = [
   { value: "system", label: "System", icon: "◐" },
@@ -10,28 +9,12 @@ const options: { value: ThemeMode; label: string; icon: string }[] = [
   { value: "dark", label: "Dark", icon: "☾" },
 ];
 
-function applyTheme(mode: ThemeMode) {
-  const dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.dataset.theme = mode;
-  document.documentElement.classList.toggle("swx-dark", dark);
-}
-
 export function ThemeModeControl({ compact = false }: { compact?: boolean }) {
   const [mode, setMode] = useState<ThemeMode>("system");
   const compactMenuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("swx-theme");
-    const initial: ThemeMode = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
-    setMode(initial);
-    applyTheme(initial);
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      if ((localStorage.getItem("swx-theme") || "system") === "system") applyTheme("system");
-    };
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
+    setMode(readThemeMode());
   }, []);
 
   function choose(next: ThemeMode) {
