@@ -6,7 +6,11 @@ ROOT=pathlib.Path('/var/lib/clamav')
 FILES={'main.cvd','daily.cvd','bytecode.cvd','main.cld','daily.cld','bytecode.cld'}
 def refresh(client,bucket):
     manifest=json.loads(client.get_object(Bucket=bucket,Key='verified/current.json')['Body'].read(16384))
-    if not fresh(manifest['verified_at']) or not 1<=len(manifest['files'])<=3:raise ValueError('invalid signature manifest')
+    names=set(manifest['files'])
+    bases=[name.split('.')[0] for name in names]
+    if (not fresh(manifest['verified_at']) or not 2<=len(names)<=3
+        or not names<=FILES or not {'main','daily'}<=set(bases)
+        or len(bases)!=len(set(bases))):raise ValueError('invalid signature manifest')
     generation=str(manifest['generation'])
     if not generation.isdigit():raise ValueError('invalid signature generation')
     ROOT.mkdir(exist_ok=True)

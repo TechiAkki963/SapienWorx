@@ -11,13 +11,13 @@ class MirrorTests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.root=pathlib.Path(self.tmp.name)
         self.data=b'synthetic signature database'
-        self.manifest={'verified_at':time.time(),'generation':'100','files':{'main.cvd':hashlib.sha256(self.data).hexdigest()}}
+        self.manifest={'verified_at':time.time(),'generation':'100','files':{name:hashlib.sha256(self.data).hexdigest() for name in ('main.cvd','daily.cvd')}}
     def refresh(self):
         with patch.object(runtime,'ROOT',self.root),patch.object(runtime.subprocess,'run') as validate:
             runtime.refresh(Mirror(self.manifest,self.data),'beta-test')
             return validate
     def test_verified_atomic_publication(self):
-        self.refresh().assert_called_once()
+        self.assertEqual(self.refresh().call_count,2)
         self.assertEqual((self.root/'main.cvd').read_bytes(),self.data)
         self.assertTrue((self.root/'verified.json').exists())
     def test_stale_manifest_does_not_start_scanner(self):
@@ -33,5 +33,11 @@ class MirrorTests(unittest.TestCase):
         self.assertEqual(list(self.root.iterdir()),[])
     def test_empty_manifest_rejected(self):
         self.manifest['files']={}
+        with self.assertRaises(ValueError):self.refresh()
+    def test_missing_daily_database_rejected(self):
+        del self.manifest['files']['daily.cvd']
+        with self.assertRaises(ValueError):self.refresh()
+    def test_duplicate_database_format_rejected(self):
+        self.manifest['files']['main.cld']=self.manifest['files']['main.cvd']
         with self.assertRaises(ValueError):self.refresh()
 if __name__=='__main__':unittest.main()

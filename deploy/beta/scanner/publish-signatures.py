@@ -11,6 +11,8 @@ def main():
     subprocess.run(['freshclam','--datadir='+str(directory)],check=True)
     files=[x for x in directory.iterdir() if x.name in {'main.cvd','daily.cvd','bytecode.cvd','main.cld','daily.cld','bytecode.cld'}]
     assert 2<=len(files)<=3,'expected validated signature databases'
+    bases=[f.stem for f in files]
+    assert {'main','daily'}<=set(bases) and len(bases)==len(set(bases)),'expected one main and one daily database'
     s3=boto3.client('s3',region_name='ap-south-1');bucket='sapienworx-beta-scanner-signatures-327301848391-ap-south-1';generation=str(int(time.time()))
     manifest={'verified_at':time.time(),'generation':generation,'files':{}}
     for f in files:
