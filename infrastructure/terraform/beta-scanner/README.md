@@ -16,6 +16,9 @@ scanner downtime means parser unavailable, never an unscanned acceptance.
 
 ClamAV 1.4.6 LTS upstream base is digest-pinned in deploy/beta/scanner/Dockerfile.
 The eventual custom ECR scanner image must be reviewed and digest-pinned too.
+Initial bootstrap needs a separately reviewed registry-only creation, approved
+image publication, then a full fresh plan using that actual immutable digest.
+Do not invent a digest or deploy a placeholder image to satisfy the variable.
 Existing ScanClamD is reused, with exact backend contract:
 `CV_CLAMD_ADDRESS=tcp://clamd.beta-scanner.sapienworx.internal:3310`.
 This PR does not enable backend/frontend parser flags or change the app release.
