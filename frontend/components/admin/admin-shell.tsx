@@ -15,7 +15,7 @@ function shortID(value: string) {
 export function AdminShell({ user, access, children }: { user: SessionUser; access: AdminAccess; children: React.ReactNode }) {
   const roleLabel=access.enabled?adminRoleLabel(access.admin_role):"Legacy Master Admin";
   return (
-    <div className="theme-surface min-h-screen bg-[#f6f7fb] pb-24 text-ink lg:pb-0">
+    <div className="theme-surface admin-workspace min-h-screen bg-[#f6f7fb] pb-24 text-ink lg:pb-0">
       <header className="sticky top-0 z-50 border-b border-[#dfe4f0] bg-white/96 backdrop-blur-xl">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[118rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/swx-command-centre/overview" aria-label="SapienWorx command centre" className="shrink-0">
@@ -34,7 +34,7 @@ export function AdminShell({ user, access, children }: { user: SessionUser; acce
               <p className="mt-0.5 text-xs font-semibold text-slate-700">Session {shortID(user.id)}</p>
             </div>
             <details className="relative">
-              <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl bg-[#172554] text-xs font-extrabold text-white shadow-[0_6px_20px_rgba(23,37,84,0.16)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(23,37,84,0.2)]">MA</summary>
+              <summary aria-label="Master Admin account menu" className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl bg-[#172554] text-xs font-extrabold text-white shadow-[0_6px_20px_rgba(23,37,84,0.16)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(23,37,84,0.2)]">MA</summary>
               <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-[#dfe4f0] bg-white p-2 shadow-[0_20px_55px_rgba(23,37,84,0.16)]">
                 <div className="rounded-xl bg-[#f7f8fd] px-3 py-3">
                   <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#5262c9]">Restricted session</p>
