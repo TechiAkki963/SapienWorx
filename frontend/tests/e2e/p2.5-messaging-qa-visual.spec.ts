@@ -85,11 +85,21 @@ test("P2.5 candidate notifications responsive matrix", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Notifications" })).toBeVisible();
     await expect(page.getByText("New message from a recruiter")).toBeVisible();
     if (viewport.width <= 428) {
-      const active = page.getByRole("link", { name: "Notifications" });
-      await expect(active).toHaveAttribute("aria-current", "page");
-      const box = await active.boundingBox();
+      const bell = page.getByRole("button", { name: /^Notifications,/ });
+      await expect(bell).toHaveAttribute("aria-haspopup", "dialog");
+      const box = await bell.boundingBox();
       expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
       expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport.width);
+      expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+      expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+      await bell.press("Enter");
+      const panel = page.getByRole("dialog", { name: "Notifications", exact: true });
+      await expect(panel).toBeVisible();
+      await expect(panel.getByRole("link", { name: "View all notifications →" }))
+        .toHaveAttribute("href", "/candidate/notifications");
+      await page.keyboard.press("Escape");
+      await expect(panel).not.toBeVisible();
+      await expect(bell).toBeFocused();
     }
     await noOverflow(page, "candidate notifications " + viewport.label);
     await page.screenshot({
