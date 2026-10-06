@@ -19,6 +19,7 @@ import type {
   ProfileSection,
 } from "./profile-domain-fields";
 import { experienceText } from "@/lib/profile-validation";
+import { profileKeySkills } from "@/lib/profile-key-skills";
 export const profileQuickLinks = [
   ["resume", "Resume"],
   ["headline", "Resume headline"],
@@ -46,6 +47,7 @@ export function ReferenceProfileSections({
   resume: ReactNode;
 }) {
   const d = extended.details;
+  const keySkills = profileKeySkills(d.key_skills);
   const pencil = (section: ProfileSection, label: string, index?: number) => (
     <Pencil
       label={label}
@@ -146,8 +148,8 @@ export function ReferenceProfileSections({
         actions={pencil("keyskills", "Edit key skills")}
       >
         <div className="profile-reference-tags">
-          {d.key_skills?.length ? (
-            d.key_skills.map((skill) => <span key={skill}>{skill}</span>)
+          {keySkills.length ? (
+            keySkills.map((skill) => <span key={skill}>{skill}</span>)
           ) : (
             <p className="profile-v2-meta">
               Add the skills that show your strengths.

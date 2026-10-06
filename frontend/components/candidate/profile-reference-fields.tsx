@@ -17,17 +17,18 @@ import { TaxonomyInput } from "../workforce/taxonomy-input";
 import { ProfileDateFields } from "./profile-date-fields";
 import { ProfilePermitCountries } from "./profile-permit-countries";
 import { ProfilePersonalLanguages } from "./profile-personal-languages";
+import { profileKeySkills } from "@/lib/profile-key-skills";
 
 export function ReferenceKeySkills({
   value,
   errors,
   onChange,
 }: {
-  value?: string[];
+  value?: string[] | string | null;
   errors: FieldErrors;
   onChange: () => void;
 }) {
-  const [skills, setSkills] = useState(value ?? []),
+  const [skills, setSkills] = useState(() => profileKeySkills(value)),
     [draft, setDraft] = useState("");
   function add(text: string) {
     const next = text.trim();
