@@ -21,8 +21,12 @@ async function parseError(response: Response): Promise<string> {
 }
 
 export async function publicAPI<T>(path: string): Promise<T> {
-  const response = await fetch(`${SERVER_API_URL}${path}`, { cache: "no-store" });
-  if (!response.ok) throw new BackendResponseError(await parseError(response), response.status);
+  const response = await fetch(`${SERVER_API_URL}${path}`, {
+    cache: "no-store",
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok)
+    throw new BackendResponseError(await parseError(response), response.status);
   return (await response.json()) as T;
 }
 
@@ -31,7 +35,9 @@ export async function candidateAPI<T>(path: string): Promise<T> {
   const response = await fetch(`${SERVER_API_URL}${path}`, {
     headers: { cookie: cookieStore.toString() },
     cache: "no-store",
+    signal: AbortSignal.timeout(10000),
   });
-  if (!response.ok) throw new BackendResponseError(await parseError(response), response.status);
+  if (!response.ok)
+    throw new BackendResponseError(await parseError(response), response.status);
   return (await response.json()) as T;
 }

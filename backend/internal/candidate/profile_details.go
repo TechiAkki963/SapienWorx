@@ -25,13 +25,14 @@ type ProfileDetails struct {
 }
 
 type ProfileDetailsUpdate struct {
-	Details                map[string]any `json:"details"`
-	CurrentSalaryAmount    *float64       `json:"current_salary_amount"`
-	CurrentSalaryCurrency  string         `json:"current_salary_currency"`
-	ExpectedSalaryAmount   *float64       `json:"expected_salary_amount"`
-	ExpectedSalaryCurrency string         `json:"expected_salary_currency"`
-	AlternatePhoneE164     *string        `json:"alternate_phone_e164"`
-	ContactRevealEnabled   *bool          `json:"contact_reveal_enabled"`
+	ExpectedProfileUpdatedAt *time.Time     `json:"expected_profile_updated_at,omitempty"`
+	Details                  map[string]any `json:"details"`
+	CurrentSalaryAmount      *float64       `json:"current_salary_amount"`
+	CurrentSalaryCurrency    string         `json:"current_salary_currency"`
+	ExpectedSalaryAmount     *float64       `json:"expected_salary_amount"`
+	ExpectedSalaryCurrency   string         `json:"expected_salary_currency"`
+	AlternatePhoneE164       *string        `json:"alternate_phone_e164"`
+	ContactRevealEnabled     *bool          `json:"contact_reveal_enabled"`
 }
 
 var alternatePhonePattern = regexp.MustCompile(`^\+[1-9][0-9]{7,14}$`)
@@ -66,27 +67,27 @@ func (s *Service) Details(ctx context.Context, userID string) (ProfileDetails, e
 }
 
 func (s *Service) UpdateDetails(ctx context.Context, userID string, input ProfileDetailsUpdate) (ProfileDetails, error) {
-	if input.Details == nil {
-		input.Details = map[string]any{}
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return ProfileDetails{}, err
 	}
-	if input.CurrentSalaryAmount != nil && *input.CurrentSalaryAmount < 0 {
-		return ProfileDetails{}, errors.New("current salary cannot be negative")
+	defer tx.Rollback(ctx)
+	var previousRaw []byte
+	var updatedAt time.Time
+	if err = tx.QueryRow(ctx, `SELECT profile_details,updated_at FROM candidate_profiles WHERE user_id=$1 FOR UPDATE`, userID).Scan(&previousRaw, &updatedAt); errors.Is(err, pgx.ErrNoRows) {
+		return ProfileDetails{}, ErrNotFound
+	} else if err != nil {
+		return ProfileDetails{}, err
 	}
-	if input.ExpectedSalaryAmount != nil && *input.ExpectedSalaryAmount < 0 {
-		return ProfileDetails{}, errors.New("expected salary cannot be negative")
+	var previous map[string]any
+	if input.ExpectedProfileUpdatedAt != nil && !input.ExpectedProfileUpdatedAt.Equal(updatedAt) {
+		return ProfileDetails{}, ErrProfileConflict
 	}
-	if input.CurrentSalaryCurrency == "" {
-		input.CurrentSalaryCurrency = "INR"
+	if err = json.Unmarshal(previousRaw, &previous); err != nil {
+		return ProfileDetails{}, err
 	}
-	if input.ExpectedSalaryCurrency == "" {
-		input.ExpectedSalaryCurrency = "INR"
-	}
-	if input.AlternatePhoneE164 != nil {
-		value := strings.TrimSpace(*input.AlternatePhoneE164)
-		if value != "" && !alternatePhonePattern.MatchString(value) {
-			return ProfileDetails{}, errors.New("alternate phone must use international E.164 format")
-		}
-		input.AlternatePhoneE164 = &value
+	if err = ValidateProfileDetails(&input, previous, time.Now().UTC()); err != nil {
+		return ProfileDetails{}, err
 	}
 	raw, err := json.Marshal(input.Details)
 	if err != nil {
@@ -94,8 +95,11 @@ func (s *Service) UpdateDetails(ctx context.Context, userID string, input Profil
 	}
 	// Discovery and onboarding transitions have dedicated endpoints. A stale or
 	// forged profile form must never toggle either of these server-owned fields.
-	_, err = s.db.Exec(ctx, `UPDATE candidate_profiles SET profile_details=($2::jsonb - 'discoverable_to_recruiters' - 'onboarding_status' - 'onboarding_method' - 'onboarding_return_to') || jsonb_build_object('discoverable_to_recruiters',COALESCE(profile_details->'discoverable_to_recruiters','false'::jsonb)) || jsonb_strip_nulls(jsonb_build_object('onboarding_status',profile_details->'onboarding_status','onboarding_method',profile_details->'onboarding_method','onboarding_return_to',profile_details->'onboarding_return_to')),current_salary_amount=$3,current_salary_currency=$4,expected_salary_amount=$5,expected_salary_currency=$6,alternate_phone_e164=CASE WHEN $7::text IS NULL THEN alternate_phone_e164 ELSE NULLIF($7,'') END,contact_reveal_enabled=COALESCE($8,contact_reveal_enabled) WHERE user_id=$1`, userID, raw, input.CurrentSalaryAmount, input.CurrentSalaryCurrency, input.ExpectedSalaryAmount, input.ExpectedSalaryCurrency, input.AlternatePhoneE164, input.ContactRevealEnabled)
+	_, err = tx.Exec(ctx, `UPDATE candidate_profiles SET profile_details=($2::jsonb - 'discoverable_to_recruiters' - 'onboarding_status' - 'onboarding_method' - 'onboarding_return_to') || jsonb_build_object('discoverable_to_recruiters',COALESCE(profile_details->'discoverable_to_recruiters','false'::jsonb)) || jsonb_strip_nulls(jsonb_build_object('onboarding_status',profile_details->'onboarding_status','onboarding_method',profile_details->'onboarding_method','onboarding_return_to',profile_details->'onboarding_return_to')),current_salary_amount=$3,current_salary_currency=$4,expected_salary_amount=$5,expected_salary_currency=$6,alternate_phone_e164=CASE WHEN $7::text IS NULL THEN alternate_phone_e164 ELSE NULLIF($7,'') END,contact_reveal_enabled=COALESCE($8,contact_reveal_enabled),total_experience_months=COALESCE($9,total_experience_months),updated_at=now() WHERE user_id=$1`, userID, raw, input.CurrentSalaryAmount, input.CurrentSalaryCurrency, input.ExpectedSalaryAmount, input.ExpectedSalaryCurrency, input.AlternatePhoneE164, input.ContactRevealEnabled, EmploymentExperience(input.Details, time.Now().UTC()))
 	if err != nil {
+		return ProfileDetails{}, err
+	}
+	if err = tx.Commit(ctx); err != nil {
 		return ProfileDetails{}, err
 	}
 	return s.Details(ctx, userID)
@@ -110,7 +114,7 @@ func (s *Service) MarkActive(ctx context.Context, userID string) error {
 func (s *Service) SetContactSharing(ctx context.Context, userID, alternate string, enabled bool) (ProfileDetails, error) {
 	alternate = strings.TrimSpace(alternate)
 	if alternate != "" && !alternatePhonePattern.MatchString(alternate) {
-		return ProfileDetails{}, errors.New("alternate phone must use international E.164 format")
+		return ProfileDetails{}, &ProfileValidationError{Fields: map[string]string{"alternate_phone_e164": "Use international E.164 format."}}
 	}
 	_, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET alternate_phone_e164=NULLIF($2,''),contact_reveal_enabled=$3 WHERE user_id=$1`, userID, alternate, enabled)
 	if err != nil {

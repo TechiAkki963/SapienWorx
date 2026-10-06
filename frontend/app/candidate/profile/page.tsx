@@ -1,43 +1,20 @@
 import { ProfileEditor } from "@/components/candidate/profile-editor";
 import { WorkspaceError } from "@/components/candidate/workspace-error";
-import { CandidateProfile, CandidateProfileDetails, CandidateProfileSummary } from "@/lib/candidate";
+import {
+  CandidateProfile,
+  CandidateProfileDetails,
+  CandidateProfileSummary,
+} from "@/lib/candidate";
 import { candidateAPI } from "@/lib/candidate-server";
+import "@/components/candidate/profile-v2.css";
+import "@/components/candidate/profile-reference.css";
 
-function fallbackDetails(): CandidateProfileDetails {
-  return {
-    details: {},
-    current_salary_currency: "INR",
-    expected_salary_currency: "INR",
-  };
-}
-
-function fallbackSummary(profile: CandidateProfile, extended: CandidateProfileDetails): CandidateProfileSummary {
-  const preferred = typeof extended.details?.preferred_locations === "string"
-    ? extended.details.preferred_locations.split(",").map((item) => item.trim()).filter(Boolean)
-    : [];
-
-  const secondaryPhone = typeof extended.details?.secondary_phone === "string"
-    ? extended.details.secondary_phone.trim()
-    : "";
-
-  return {
-    full_name: profile.full_name,
-    headline: profile.headline,
-    email: profile.email,
-    email_verified: false,
-    primary_phone: profile.phone,
-    secondary_phone: secondaryPhone || undefined,
-    current_location: [profile.current_city, profile.current_state].filter(Boolean).join(", "),
-    preferred_locations: preferred,
-    total_experience_months: profile.total_experience_months,
-    profile_completion: profile.profile_completion,
-    share_token: "",
-    profile_visible: false,
-    discoverable_to_recruiters: false,
-  };
-}
-
-export default async function CandidateProfilePage() {
+export default async function CandidateProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ panel?: string }>;
+}) {
+  const params = await searchParams;
   let profile: CandidateProfile;
 
   try {
@@ -46,22 +23,33 @@ export default async function CandidateProfilePage() {
     return <WorkspaceError title="We couldn’t load your profile." />;
   }
 
-  const extended = await candidateAPI<CandidateProfileDetails>("/api/v1/candidate/profile/details")
-    .catch(() => fallbackDetails());
-
-  const summary = await candidateAPI<CandidateProfileSummary>("/api/v1/candidate/profile/summary")
-    .catch(() => fallbackSummary(profile, extended));
+  let extended: CandidateProfileDetails;
+  let summary: CandidateProfileSummary;
+  try {
+    extended = await candidateAPI<CandidateProfileDetails>(
+      "/api/v1/candidate/profile/details",
+    );
+    summary = await candidateAPI<CandidateProfileSummary>(
+      "/api/v1/candidate/profile/summary",
+    );
+  } catch {
+    return (
+      <WorkspaceError
+        title="We couldn’t load your saved profile details."
+        message="Your saved profile is safe. Please try again when the connection returns."
+      />
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="mb-6 print:hidden">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Your candidate workspace</p>
-        <h1 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.035em] text-navy sm:text-4xl">My Professional Profile</h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-muted">
-          Shape the experience, skills and preferences you want people to understand. You stay in control of what appears on your shareable profile.
-        </p>
-      </div>
-      <ProfileEditor profile={profile} extended={extended} summary={{ ...summary, profile_completion: profile.profile_completion }} />
+      <h1 className="sr-only">My Professional Profile</h1>
+      <ProfileEditor
+        profile={profile}
+        extended={extended}
+        summary={{ ...summary, profile_completion: profile.profile_completion }}
+        openVisibility={params.panel === "visibility"}
+      />
     </div>
   );
 }

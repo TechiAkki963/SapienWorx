@@ -5,7 +5,9 @@ import { login, resetE2E, waitForRecordedRequest } from "./helpers";
 test.describe("candidate job discovery", () => {
   test.beforeEach(async ({ request }) => resetE2E(request));
 
-  test("keeps salary fields inside the filter card and rejects a reversed range", async ({ page }) => {
+  test("keeps salary fields inside the filter card and rejects a reversed range", async ({
+    page,
+  }) => {
     await login(page, "candidate");
     await page.setViewportSize({ width: 320, height: 900 });
     await page.goto("/candidate/jobs");
@@ -17,22 +19,31 @@ test.describe("candidate job discovery", () => {
     const maxBounds = await maximum.boundingBox();
     expect(cardBounds).not.toBeNull();
     expect(maxBounds).not.toBeNull();
-    expect(maxBounds!.x + maxBounds!.width).toBeLessThanOrEqual(cardBounds!.x + cardBounds!.width);
+    expect(maxBounds!.x + maxBounds!.width).toBeLessThanOrEqual(
+      cardBounds!.x + cardBounds!.width,
+    );
 
     await minimum.fill("1200000");
     await maximum.fill("800000");
-    await expect(page.getByText("Maximum salary must be at least the minimum salary.")).toBeVisible();
+    await expect(
+      page.getByText("Maximum salary must be at least the minimum salary."),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Apply filters" }).click();
     await expect(page).not.toHaveURL(/min_salary=/);
 
     await maximum.fill("1800000");
-    await expect(page.getByText("Maximum salary must be at least the minimum salary.")).not.toBeVisible();
+    await expect(
+      page.getByText("Maximum salary must be at least the minimum salary."),
+    ).not.toBeVisible();
     await page.getByRole("button", { name: "Apply filters" }).click();
     await expect(page).toHaveURL(/min_salary=1200000/);
     await expect(page).toHaveURL(/max_salary=1800000/);
   });
 
-  test("preserves structured facets in the URL/UI and forwards them to server-side job search", async ({ page, request }) => {
+  test("preserves structured facets in the URL/UI and forwards them to server-side job search", async ({
+    page,
+    request,
+  }) => {
     await login(page, "candidate");
     await page.goto("/candidate/jobs");
 
@@ -49,23 +60,38 @@ test.describe("candidate job discovery", () => {
     await page.locator('input[name="min_salary"]').fill("800000");
     await page.locator('input[name="max_salary"]').fill("1800000");
     await page.locator('select[name="salary_currency"]').selectOption("INR");
-    await page.locator("details summary").filter({ hasText: "Education" }).click();
+    await page
+      .locator("details summary")
+      .filter({ hasText: "Education" })
+      .click();
     await page.getByLabel("B.Tech / B.E.").check();
     await page.getByLabel("MCA").check();
     await page.getByRole("button", { name: "Apply filters" }).click();
 
-    await expect(page).toHaveURL(/q=Go/);
-    await expect(page).toHaveURL(/competency=PostgreSQL/);
-    await expect(page).toHaveURL(/location=Mumbai/);
+    await expect(page).toHaveURL(/keyword=Go/);
+    await expect(page).toHaveURL(/competency_text=PostgreSQL/);
+    await expect(page).toHaveURL(/location_id=/);
     await expect(page).toHaveURL(/experience=3/);
     await expect(page).toHaveURL(/work_mode=hybrid/);
     await expect(page).toHaveURL(/employment_type=full_time/);
     await expect(page).toHaveURL(/role_category=Technology/);
     await expect(page).toHaveURL(/posted_within=30/);
     await expect(page).toHaveURL(/sort=relevance/);
-    await expect(page.getByLabel("Role or keyword")).toHaveValue("Go");
-    await expect(page.getByLabel("Competency or requirement")).toHaveValue("PostgreSQL");
-    await expect(page.getByLabel("Company name")).toHaveValue("Sapien Labs India");
+    await expect(
+      page.getByRole("button", {
+        name: "Remove Go from Role or keyword",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "Remove PostgreSQL from Competency or requirement",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Company name")).toHaveValue(
+      "Sapien Labs India",
+    );
     await expect(page.getByLabel("Experience")).toHaveValue("3");
     await expect(page.getByLabel("B.Tech / B.E.")).toBeChecked();
     await expect(page.getByLabel("MCA")).toBeChecked();
@@ -73,13 +99,16 @@ test.describe("candidate job discovery", () => {
 
     const serverSearch = await waitForRecordedRequest(
       request,
-      (item) => item.method === "GET" && item.path === "/api/v1/candidate/jobs" && item.search.includes("q=Go"),
+      (item) =>
+        item.method === "GET" &&
+        item.path === "/api/v1/candidate/jobs" &&
+        item.search.includes("keyword=Go"),
     );
     const params = new URLSearchParams(serverSearch.search);
-    expect(params.get("q")).toBe("Go");
-    expect(params.get("competency")).toBe("PostgreSQL");
+    expect(params.getAll("keyword")).toEqual(["Go"]);
+    expect(params.getAll("competency_text")).toEqual(["PostgreSQL"]);
     expect(params.get("company")).toBe("Sapien Labs India");
-    expect(params.get("location")).toBe("Mumbai");
+    expect(params.getAll("location_id")).toHaveLength(1);
     expect(params.get("experience")).toBe("3");
     expect(params.get("work_mode")).toBe("hybrid");
     expect(params.get("employment_type")).toBe("full_time");
@@ -89,17 +118,36 @@ test.describe("candidate job discovery", () => {
     expect(params.get("min_salary")).toBe("800000");
     expect(params.get("max_salary")).toBe("1800000");
     expect(params.get("salary_currency")).toBe("INR");
-    expect(params.getAll("education").sort()).toEqual(["B.Tech / B.E.", "MCA"].sort());
+    expect(params.getAll("education").sort()).toEqual(
+      ["B.Tech / B.E.", "MCA"].sort(),
+    );
     expect(params.get("limit")).toBe("10");
 
     await page.reload();
-    await expect(page.getByLabel("Role or keyword")).toHaveValue("Go");
-    await expect(page.getByLabel("Competency or requirement")).toHaveValue("PostgreSQL");
-    await expect(page.getByLabel("Location")).toHaveValue("Mumbai");
+    await expect(
+      page.getByRole("button", {
+        name: "Remove Go from Role or keyword",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "Remove PostgreSQL from Competency or requirement",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "Remove Mumbai from Location",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(page.getByLabel("Work mode")).toHaveValue("hybrid");
   });
 
-  test("explains a cross-industry taxonomy alias and remains responsive across target widths", async ({ page }) => {
+  test("explains a cross-industry taxonomy alias and remains responsive across target widths", async ({
+    page,
+  }) => {
     await login(page, "candidate");
     await page.goto("/candidate/jobs");
 
@@ -109,17 +157,36 @@ test.describe("candidate job discovery", () => {
     await page.getByLabel("Posted date").selectOption("14");
     await page.getByRole("button", { name: "Apply filters" }).click();
 
-    await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe("ICU Nursing");
+    await expect
+      .poll(() => new URL(page.url()).searchParams.getAll("keyword_id").length)
+      .toBe(1);
     await expect(page).toHaveURL(/role_category=Healthcare/);
-    await expect.poll(() => new URL(page.url()).searchParams.get("sort")).toBe("relevance");
-    await expect(page.getByText(/Interpreted “ICU Nursing” as Critical Care Nursing/)).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Critical Care Nurse" })).toBeVisible();
-    await expect(page.getByText("SWX-JOB-2026-00001", { exact: true })).toBeVisible();
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get("sort"))
+      .toBe("relevance");
+    await expect(
+      page.getByRole("button", {
+        name: "Remove Critical Care Nursing from Role or keyword",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Critical Care Nurse" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("SWX-JOB-2026-00001", { exact: true }),
+    ).toBeVisible();
 
     for (const width of [1440, 1024, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 900 });
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-      await expect(page.getByRole("heading", { name: "All active roles" })).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      ).toBe(true);
+      await expect(
+        page.getByRole("heading", { name: "All active roles" }),
+      ).toBeVisible();
     }
   });
 });

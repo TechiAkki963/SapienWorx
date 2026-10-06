@@ -101,6 +101,13 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/candidate/profile/summary", Chain(http.HandlerFunc(s.candidateProfileSummary), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/profile/discovery", Chain(http.HandlerFunc(s.candidateDiscoveryVisibility), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/profile/photo", Chain(http.HandlerFunc(s.candidateProfilePhoto), protected, candidateOnly, candidateActivity))
+	mux.Handle("POST /api/v1/candidate/profile/photo", Chain(http.HandlerFunc(s.candidatePhotoUpload), protected, candidateOnly, candidateActivity))
+	mux.Handle("GET /api/v1/candidate/profile/photo", Chain(http.HandlerFunc(s.candidatePhotoGet), protected, candidateOnly, candidateActivity))
+	mux.Handle("DELETE /api/v1/candidate/profile/photo", Chain(http.HandlerFunc(s.candidatePhotoRemove), protected, candidateOnly, candidateActivity))
+	mux.Handle("POST /api/v1/candidate/profile/phone/request", Chain(http.HandlerFunc(s.candidatePhoneRequest), protected, candidateOnly, candidateActivity, otpGuard))
+	mux.Handle("POST /api/v1/candidate/profile/phone/verify", Chain(http.HandlerFunc(s.candidatePhoneVerify), protected, candidateOnly, candidateActivity, otpGuard))
+	mux.Handle("GET /api/v1/candidate/profile/metrics", Chain(http.HandlerFunc(s.candidateProfileMetrics), protected, candidateOnly, candidateActivity))
+	mux.Handle("GET /api/v1/candidate/job-locations", Chain(http.HandlerFunc(s.candidateJobLocations), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/profile/details", Chain(http.HandlerFunc(s.candidateProfileDetails), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/profile/details", Chain(http.HandlerFunc(s.candidateProfileDetails), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/onboarding", Chain(http.HandlerFunc(s.candidateOnboarding), protected, candidateOnly, candidateActivity))
@@ -123,6 +130,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PUT /api/v1/candidate/company-watchlist/{companyID}", Chain(http.HandlerFunc(s.candidateCompanyWatch), protected, candidateOnly, candidateActivity))
 	mux.Handle("DELETE /api/v1/candidate/company-watchlist/{companyID}", Chain(http.HandlerFunc(s.candidateCompanyWatch), protected, candidateOnly, candidateActivity))
 	mux.Handle("GET /api/v1/candidate/notifications", Chain(http.HandlerFunc(s.candidateNotifications), protected, candidateOnly, candidateActivity))
+	mux.Handle("GET /api/v1/candidate/notifications/inbox", Chain(http.HandlerFunc(s.candidateNotificationInbox), protected, candidateOnly, candidateActivity))
+	mux.Handle("PATCH /api/v1/candidate/notifications/read-all", Chain(http.HandlerFunc(s.candidateNotificationReadAll), protected, candidateOnly, candidateActivity))
 	mux.Handle("PATCH /api/v1/candidate/notifications/{notificationID}/read", Chain(http.HandlerFunc(s.candidateNotificationRead), protected, candidateOnly, candidateActivity))
 
 	mux.Handle("GET /api/v1/recruiter/dashboard", Chain(http.HandlerFunc(s.recruiterDashboard), protected, recruiterOnly))
@@ -251,7 +260,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/admin/control-plane/releases", Chain(http.HandlerFunc(s.adminCreateReleaseAcceptance), adminGuard(admin.ReleaseManage)))
 	mux.Handle("PATCH /api/v1/admin/control-plane/releases/{releaseID}", Chain(http.HandlerFunc(s.adminUpdateReleaseAcceptance), adminGuard(admin.ReleaseManage)))
 
-	handler := Chain(mux, TrustedProxyRemoteAddr(cfg.HTTP.TrustedProxyCIDRs), RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), MaxBodyBytes(cfg.HTTP.MaxBodyBytes))
+	handler := Chain(mux, TrustedProxyRemoteAddr(cfg.HTTP.TrustedProxyCIDRs), RequestID, Recover(logger), AccessLog(logger), SecurityHeaders, CORS(cfg.HTTP.AllowedOrigins), CandidateUploadBodyLimit(cfg.HTTP.MaxBodyBytes))
 	s.http = &http.Server{Addr: cfg.HTTP.Address, Handler: handler, ReadTimeout: cfg.HTTP.ReadTimeout, ReadHeaderTimeout: cfg.HTTP.ReadHeaderTimeout, WriteTimeout: cfg.HTTP.WriteTimeout, IdleTimeout: cfg.HTTP.IdleTimeout}
 	return s
 }

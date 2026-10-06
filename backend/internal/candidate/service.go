@@ -14,9 +14,10 @@ import (
 )
 
 var (
-	ErrNotFound       = errors.New("resource not found")
-	ErrAlreadyApplied = errors.New("candidate already applied to this job")
-	ErrInactiveJob    = errors.New("job is not accepting applications")
+	ErrNotFound        = errors.New("resource not found")
+	ErrAlreadyApplied  = errors.New("candidate already applied to this job")
+	ErrInactiveJob     = errors.New("job is not accepting applications")
+	ErrProfileConflict = errors.New("profile changed in another session")
 )
 
 type Service struct {
@@ -79,13 +80,14 @@ type Profile struct {
 }
 
 type ProfileUpdate struct {
-	FullName              string `json:"full_name"`
-	Headline              string `json:"headline"`
-	CurrentCity           string `json:"current_city"`
-	CurrentState          string `json:"current_state"`
-	CountryCode           string `json:"country_code"`
-	TotalExperienceMonths int    `json:"total_experience_months"`
-	NoticePeriodDays      *int   `json:"notice_period_days"`
+	ExpectedProfileUpdatedAt *time.Time `json:"expected_profile_updated_at,omitempty"`
+	FullName                 string     `json:"full_name"`
+	Headline                 string     `json:"headline"`
+	CurrentCity              string     `json:"current_city"`
+	CurrentState             string     `json:"current_state"`
+	CountryCode              string     `json:"country_code"`
+	TotalExperienceMonths    int        `json:"total_experience_months"`
+	NoticePeriodDays         *int       `json:"notice_period_days"`
 }
 
 type Application struct {
@@ -252,19 +254,36 @@ func (s *Service) Profile(ctx context.Context, userID string) (Profile, error) {
 }
 
 func (s *Service) UpdateProfile(ctx context.Context, userID string, input ProfileUpdate) (Profile, error) {
-	if strings.TrimSpace(input.FullName) == "" {
-		return Profile{}, errors.New("full name is required")
+	if err := ValidateProfile(&input); err != nil {
+		return Profile{}, err
 	}
-	if input.TotalExperienceMonths < 0 || (input.NoticePeriodDays != nil && *input.NoticePeriodDays < 0) {
-		return Profile{}, errors.New("experience and notice period cannot be negative")
-	}
-
-	countryCode := strings.ToUpper(strings.TrimSpace(input.CountryCode))
-	if len(countryCode) != 2 {
-		countryCode = "IN"
-	}
-	_, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET full_name=$2,headline=NULLIF($3,''),current_city=NULLIF($4,''),current_state=NULLIF($5,''),country_code=$6,total_experience_months=$7,notice_period_days=$8 WHERE user_id=$1`, userID, strings.TrimSpace(input.FullName), strings.TrimSpace(input.Headline), strings.TrimSpace(input.CurrentCity), strings.TrimSpace(input.CurrentState), countryCode, input.TotalExperienceMonths, input.NoticePeriodDays)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
+		return Profile{}, err
+	}
+	defer tx.Rollback(ctx)
+	var raw []byte
+	var updatedAt time.Time
+	if err = tx.QueryRow(ctx, `SELECT profile_details,updated_at FROM candidate_profiles WHERE user_id=$1 FOR UPDATE`, userID).Scan(&raw, &updatedAt); errors.Is(err, pgx.ErrNoRows) {
+		return Profile{}, ErrNotFound
+	} else if err != nil {
+		return Profile{}, err
+	}
+	var details map[string]any
+	if input.ExpectedProfileUpdatedAt != nil && !input.ExpectedProfileUpdatedAt.Equal(updatedAt) {
+		return Profile{}, ErrProfileConflict
+	}
+	if err = json.Unmarshal(raw, &details); err != nil {
+		return Profile{}, err
+	}
+	if derived := EmploymentExperience(details, time.Now().UTC()); derived != nil {
+		input.TotalExperienceMonths = *derived
+	}
+	_, err = tx.Exec(ctx, `UPDATE candidate_profiles SET full_name=$2,headline=NULLIF($3,''),current_city=NULLIF($4,''),current_state=NULLIF($5,''),country_code=$6,total_experience_months=$7,notice_period_days=$8,updated_at=now() WHERE user_id=$1`, userID, input.FullName, input.Headline, input.CurrentCity, input.CurrentState, input.CountryCode, input.TotalExperienceMonths, input.NoticePeriodDays)
+	if err != nil {
+		return Profile{}, err
+	}
+	if err = tx.Commit(ctx); err != nil {
 		return Profile{}, err
 	}
 	return s.Profile(ctx, userID)

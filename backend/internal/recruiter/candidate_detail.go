@@ -120,6 +120,9 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	if len(photo) > 0 && photoMime != nil {
 		detail.PhotoDataURL = "data:" + *photoMime + ";base64," + base64.StdEncoding.EncodeToString(photo)
 	}
+	if err := s.recordProfileEvents(ctx, recruiterUserID, []string{candidateUserID}, "profile_view"); err != nil {
+		return CandidateDetail{}, err
+	}
 	return detail, nil
 }
 

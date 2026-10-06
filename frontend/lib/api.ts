@@ -1,30 +1,48 @@
 const configuredPublicAPI = process.env.NEXT_PUBLIC_API_URL?.trim();
 
 export const API_URL =
-  configuredPublicAPI || (process.env.NODE_ENV === "production" ? "" : "http://localhost:8080");
+  configuredPublicAPI ||
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:8080");
 
-export type APIError = { error?: { code?: string; message?: string; request_id?: string } };
+export type APIError = {
+  error?: {
+    code?: string;
+    message?: string;
+    request_id?: string;
+    fields?: Record<string, string>;
+  };
+};
 
 export class APIRequestError extends Error {
-  constructor(message: string, readonly code: string, readonly status: number) {
+  constructor(
+    message: string,
+    readonly code: string,
+    readonly status: number,
+    readonly fields: Record<string, string> = {},
+  ) {
     super(message);
     this.name = "APIRequestError";
   }
 }
 
-const CSRF_COOKIE_NAME = process.env.NEXT_PUBLIC_AUTH_CSRF_COOKIE_NAME?.trim() || "sw_csrf";
+const CSRF_COOKIE_NAME =
+  process.env.NEXT_PUBLIC_AUTH_CSRF_COOKIE_NAME?.trim() || "sw_csrf";
 
 function csrfToken() {
   if (typeof document === "undefined") return "";
   const prefix = `${CSRF_COOKIE_NAME}=`;
-  const item = document.cookie.split("; ").find((part) => part.startsWith(prefix));
+  const item = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith(prefix));
   return item ? decodeURIComponent(item.slice(prefix.length)) : "";
 }
 
 function authHeaders(init: RequestInit) {
-  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
+  const isFormData =
+    typeof FormData !== "undefined" && init.body instanceof FormData;
   const headers = new Headers(init.headers ?? {});
-  if (!isFormData && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  if (!isFormData && !headers.has("Content-Type"))
+    headers.set("Content-Type", "application/json");
   const method = (init.method ?? "GET").toUpperCase();
   if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
     const token = csrfToken();
@@ -66,7 +84,10 @@ async function refreshSession() {
   return refreshPromise;
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function apiRequest<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
   let response = await rawRequest(path, init);
   if (response.status === 401 && !refreshExcluded.has(path)) {
     if (await refreshSession()) response = await rawRequest(path, init);
@@ -74,12 +95,14 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   if (!response.ok) {
     let message = "Request could not be completed.";
     let code = "unknown_error";
+    let fields: Record<string, string> = {};
     try {
       const body = (await response.json()) as APIError;
       message = body.error?.message ?? message;
       code = body.error?.code ?? code;
+      fields = body.error?.fields ?? {};
     } catch {}
-    throw new APIRequestError(message, code, response.status);
+    throw new APIRequestError(message, code, response.status, fields);
   }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;

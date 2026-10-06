@@ -23,6 +23,7 @@ type ProfileSummary struct {
 	TotalExperienceMonths int      `json:"total_experience_months"`
 	ProfileCompletion     int      `json:"profile_completion"`
 	PhotoDataURL          string   `json:"photo_data_url,omitempty"`
+	PhoneVerified         bool     `json:"phone_verified"`
 	ShareToken            string   `json:"share_token"`
 	ProfileVisible        bool     `json:"profile_visible"`
 	Discoverable          bool     `json:"discoverable_to_recruiters"`
@@ -41,8 +42,8 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 	var photo []byte
 	var photoMime *string
 	var visible, discoverable bool
-	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,COALESCE(cp.profile_details->>'profile_visible_in_sourcing'='true',false),COALESCE(cp.profile_details->>'discoverable_to_recruiters'='true',false) FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
-		&result.FullName, &headline, &result.Email, &emailVerified, &phone, &city, &state, &result.TotalExperienceMonths, &result.ProfileCompletion, &raw, &photo, &photoMime, &result.ShareToken, &visible, &discoverable,
+	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,COALESCE(cp.profile_details->>'profile_visible_in_sourcing'='true',false),COALESCE(cp.profile_details->>'discoverable_to_recruiters'='true',false),u.phone_verified_at IS NOT NULL FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
+		&result.FullName, &headline, &result.Email, &emailVerified, &phone, &city, &state, &result.TotalExperienceMonths, &result.ProfileCompletion, &raw, &photo, &photoMime, &result.ShareToken, &visible, &discoverable, &result.PhoneVerified,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ProfileSummary{}, ErrNotFound
@@ -73,6 +74,11 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 	}
 	if len(photo) > 0 && photoMime != nil {
 		result.PhotoDataURL = "data:" + *photoMime + ";base64," + base64.StdEncoding.EncodeToString(photo)
+	} else {
+		// Preserve a previously uploaded account/S3 image until the candidate replaces it.
+		if err := s.db.QueryRow(ctx, `SELECT COALESCE(profile_image_url,'') FROM users WHERE id=$1`, userID).Scan(&result.PhotoDataURL); err != nil {
+			return ProfileSummary{}, err
+		}
 	}
 	return result, nil
 }
@@ -120,12 +126,8 @@ func nonEmpty(values ...string) []string {
 }
 
 func (s *Service) UpdatePhoto(ctx context.Context, userID, mime string, data []byte) error {
-	if mime != "image/jpeg" && mime != "image/png" && mime != "image/webp" {
-		return errors.New("unsupported profile photo type")
+	if err := ValidateProfilePhoto(mime, data); err != nil {
+		return err
 	}
-	if len(data) == 0 || len(data) > 2*1024*1024 {
-		return errors.New("profile photo must be between 1 byte and 2 MB")
-	}
-	_, err := s.db.Exec(ctx, `UPDATE candidate_profiles SET profile_photo=$2,profile_photo_mime=$3,profile_photo_updated_at=now() WHERE user_id=$1`, userID, data, mime)
-	return err
+	return s.writePhoto(ctx, userID, mime, data)
 }

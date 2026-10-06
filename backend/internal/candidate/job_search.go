@@ -10,6 +10,12 @@ import (
 )
 
 type CandidateJobFilters struct {
+	KeywordIDs       []string
+	LocationIDs      []string
+	CompetencyIDs    []string
+	Keywords         []string
+	Locations        []string
+	Competencies     []string
 	Query            string
 	Location         string
 	Company          string
@@ -146,6 +152,9 @@ func interpretation(input string, resolved *resolvedWorkforceTerm) *CandidateSea
 }
 
 func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters) (CandidateJobList, error) {
+	if filters.Page > 10000 {
+		return CandidateJobList{}, ErrWorkspaceInput
+	}
 	if filters.Page < 1 {
 		filters.Page = 1
 	}
@@ -153,6 +162,18 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 		filters.Limit = 10
 	}
 
+	keywordIDs, keywords, err := s.structuredTerms(ctx, filters.KeywordIDs, filters.Keywords, discoveryQueryTypes)
+	if err != nil {
+		return CandidateJobList{}, err
+	}
+	competencyIDs, competencies, err := s.structuredTerms(ctx, filters.CompetencyIDs, filters.Competencies, discoveryCompetencyTypes)
+	if err != nil {
+		return CandidateJobList{}, err
+	}
+	locationIDs, locations, err := s.structuredLocations(ctx, filters.LocationIDs, filters.Locations)
+	if err != nil {
+		return CandidateJobList{}, err
+	}
 	query := strings.TrimSpace(filters.Query)
 	location := strings.TrimSpace(filters.Location)
 	company := strings.TrimSpace(filters.Company)
@@ -209,7 +230,7 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 	}
 	sortBy := strings.ToLower(strings.TrimSpace(filters.Sort))
 	if sortBy != "relevance" && sortBy != "newest" {
-		if query != "" || competency != "" {
+		if query != "" || competency != "" || len(keywords) > 0 || len(competencies) > 0 {
 			sortBy = "relevance"
 		} else {
 			sortBy = "newest"
@@ -261,7 +282,15 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 		AND ($14 < 0 OR (j.max_salary_amount IS NOT NULL AND j.max_salary_amount >= $14))
 		AND ($15 < 0 OR (j.min_salary_amount IS NOT NULL AND j.min_salary_amount <= $15))
 		AND ($16='' OR j.salary_currency=$16)
-		AND ($17 <= 0 OR j.published_at >= now() - make_interval(days => $17))`
+		AND ($17 <= 0 OR j.published_at >= now() - make_interval(days => $17))
+ AND (cardinality($18::uuid[])=0 AND cardinality($19::text[])=0 OR
+ EXISTS(SELECT 1 FROM workforce.term_mappings m WHERE m.source_type='job_required_skill' AND m.source_id=j.id AND m.entity_id=ANY($18::uuid[])) OR
+ EXISTS(SELECT 1 FROM unnest($19::text[]) term WHERE strpos(lower(concat_ws(' ',j.title,j.description,c.display_name,j.role_category,array_to_string(j.required_skills,' '))),lower(term))>0))
+ AND (cardinality($20::uuid[])=0 AND cardinality($21::text[])=0 OR
+ EXISTS(SELECT 1 FROM workforce.geography_entities g WHERE g.id=ANY($20::uuid[]) AND g.country_code=j.country_code AND (workforce.normalize_term(g.canonical_name)=workforce.normalize_term(j.city) OR EXISTS(SELECT 1 FROM unnest(g.aliases) a WHERE workforce.normalize_term(a)=workforce.normalize_term(j.city)))) OR
+ EXISTS(SELECT 1 FROM unnest($21::text[]) term WHERE strpos(lower(concat_ws(' ',j.city,j.state)),lower(term))>0))
+ AND NOT EXISTS(SELECT 1 FROM unnest($22::uuid[]) eid WHERE NOT EXISTS(SELECT 1 FROM workforce.term_mappings m WHERE m.source_type='job_required_skill' AND m.source_id=j.id AND m.entity_id=eid))
+ AND NOT EXISTS(SELECT 1 FROM unnest($23::text[]) term WHERE NOT EXISTS(SELECT 1 FROM unnest(j.required_skills) skill WHERE strpos(lower(skill),lower(term))>0) AND NOT EXISTS(SELECT 1 FROM workforce.term_mappings m JOIN workforce.taxonomy_entities e ON e.id=m.entity_id WHERE m.source_type='job_required_skill' AND m.source_id=j.id AND lower(e.canonical_name)=lower(term)))`
 
 	args := []any{
 		query,
@@ -281,6 +310,7 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 		maxSalary,
 		salaryCurrency,
 		postedWithinDays,
+		keywordIDs, keywords, locationIDs, locations, competencyIDs, competencies,
 	}
 
 	var total int
@@ -311,7 +341,7 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 	}
 
 	listArgs := append(append([]any{}, args...), filters.Limit, (filters.Page-1)*filters.Limit)
-	rows, err := s.db.Query(ctx, `SELECT j.id,j.job_reference,c.display_name,c.logo_url,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY `+orderBy+` LIMIT $18 OFFSET $19`, listArgs...)
+	rows, err := s.db.Query(ctx, `SELECT j.id,j.job_reference,c.display_name,c.logo_url,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+where+` ORDER BY `+orderBy+` LIMIT $24 OFFSET $25`, listArgs...)
 	if err != nil {
 		return CandidateJobList{}, err
 	}

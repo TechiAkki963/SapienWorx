@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/gen2brain/webp"
 )
 
@@ -28,6 +29,10 @@ const (
 var errInvalidProfileImage = errors.New("upload a valid JPEG, PNG, or WebP image no larger than 5 MB")
 
 func (s *Server) uploadUserProfileImage(w http.ResponseWriter, r *http.Request) {
+	if claims, ok := ClaimsFromContext(r.Context()); ok && claims.Role == auth.RoleCandidate {
+		s.candidatePhotoUpload(w, r)
+		return
+	}
 	if s.objectStorage == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "storage_unavailable", "profile image storage is unavailable")
 		return
@@ -92,6 +97,17 @@ func (s *Server) uploadUserProfileImage(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *Server) getUserProfileImage(w http.ResponseWriter, r *http.Request) {
+	if claims, ok := ClaimsFromContext(r.Context()); ok && claims.Role == auth.RoleCandidate {
+		data, mime, err := s.candidate.Photo(r.Context(), claims.Subject)
+		if err == nil {
+			w.Header().Set("Content-Type", mime)
+			w.Header().Set("Cache-Control", "private, no-store")
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.Write(data)
+			return
+		}
+		// A previously uploaded S3 account image remains accessible until replaced.
+	}
 	if s.objectStorage == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "storage_unavailable", "profile image storage is unavailable")
 		return

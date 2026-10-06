@@ -50,6 +50,13 @@ func run(logger *slog.Logger) error {
 	}
 
 	authService := auth.NewService(db, tokens, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment == "development" && os.Getenv("AUTH_ENABLE_DEV_OTP") == "true"})
+	if os.Getenv("CANDIDATE_PHONE_CHANGE_ENABLED") == "true" {
+		sender, err := auth.NewSNSSMSSender(ctx, cfg.AWS.Region)
+		if err != nil {
+			return err
+		}
+		authService.SetPhoneCodeSender(sender)
+	}
 	candidateService := candidate.NewService(db)
 	recruiterService := recruiter.NewService(db)
 	adminService := admin.NewService(db)
