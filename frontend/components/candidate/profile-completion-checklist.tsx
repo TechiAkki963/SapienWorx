@@ -2,6 +2,7 @@ import type {
   CandidateProfile,
   CandidateProfileDetails,
 } from "@/lib/candidate";
+import { profileKeySkills } from "@/lib/profile-key-skills";
 export function ProfileCompletionChecklist({
   profile,
   extended,
@@ -16,7 +17,7 @@ export function ProfileCompletionChecklist({
       : typeof value === "string" && value.trim().length > 0;
   const skills = new Set(
     [
-      ...(d.key_skills || []),
+      ...profileKeySkills(d.key_skills),
       ...(d.it_skills || []).map((row) => row.name || ""),
     ]
       .filter(Boolean)

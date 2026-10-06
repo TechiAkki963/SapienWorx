@@ -109,7 +109,7 @@ export type ProfessionalRecord = {
 };
 export type ProfessionalContent = string | ProfessionalRecord[];
 export type CandidateDetails = {
-  key_skills?: string[];
+  key_skills?: string[] | string | null;
   work_status?: string;
   locality?: string;
   salary_breakdown?: string;
