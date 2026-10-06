@@ -7,11 +7,15 @@ import (
 
 func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 	input := map[string]any{
-		"professional_summary":  "Builds reliable systems.",
-		"gender":                "Prefer not to say",
-		"date_of_birth":         "1990-01-01",
-		"current_salary_amount": 1200000,
-		"permanent_address":     "Private address",
+		"professional_summary":    "Builds reliable systems.",
+		"gender":                  "Prefer not to say",
+		"date_of_birth":           "1990-01-01",
+		"current_salary_amount":   1200000,
+		"permanent_address":       "Private address",
+		"fixed_salary":            "12345",
+		"military_service_number": "SYNTHETIC-PRIVATE-ONLY",
+		"disability_percentage":   "20",
+		"career_break_reason":     "Personal",
 		"employment": []any{map[string]any{
 			"company":        "Example Ltd",
 			"job_title":      "Engineer",
@@ -23,7 +27,7 @@ func TestRecruiterVisibleCandidateDetailsExcludesSensitiveFields(t *testing.T) {
 	if got["professional_summary"] != "Builds reliable systems." {
 		t.Fatalf("expected allowed summary to remain, got %#v", got)
 	}
-	for _, key := range []string{"gender", "date_of_birth", "current_salary_amount", "permanent_address"} {
+	for _, key := range []string{"gender", "date_of_birth", "current_salary_amount", "permanent_address", "fixed_salary", "military_service_number", "disability_percentage", "career_break_reason"} {
 		if _, exists := got[key]; exists {
 			t.Errorf("sensitive field %q was exposed", key)
 		}

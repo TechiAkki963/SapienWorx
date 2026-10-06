@@ -159,5 +159,16 @@ func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryF
 		}
 		result.Items = append(result.Items, item)
 	}
-	return result, rows.Err()
+	if err := rows.Err(); err != nil {
+		return DiscoveryList{}, err
+	}
+	rows.Close() // release the connection before recording; works with a one-connection pool.
+	ids := make([]string, 0, len(result.Items))
+	for _, v := range result.Items {
+		ids = append(ids, v.ID)
+	}
+	if err := s.recordProfileEvents(ctx, recruiterID, ids, "search_appearance"); err != nil {
+		return DiscoveryList{}, err
+	}
+	return result, nil
 }

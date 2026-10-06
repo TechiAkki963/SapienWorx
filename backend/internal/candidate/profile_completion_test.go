@@ -33,5 +33,24 @@ func TestCalculateProfileCompletionDoesNotCountEmptyRecords(t *testing.T) {
 	}
 }
 
+func TestReferenceCompletionDeduplicatesSkillsAndExcludesPrivateInformation(t *testing.T) {
+	details := map[string]any{
+		"key_skills":    []any{"Go", " go ", "PostgreSQL"},
+		"it_skills":     []any{map[string]any{"name": "GO"}},
+		"date_of_birth": "2000-02-29", "disability_percentage": "40",
+		"military_service_number": "SYNTHETIC-ONLY", "fixed_salary": "1000000",
+	}
+	profile := Profile{FullName: "Candidate"}
+	if got := calculateProfileCompletion(profile, details, false); got != 22 {
+		t.Fatalf("duplicate skills and private fields must not inflate completion: got %d", got)
+	}
+	details["key_skills"] = []any{"Go", "PostgreSQL", "TypeScript"}
+	details["work_samples"] = []any{map[string]any{"title": "Synthetic sample"}}
+	details["online_profiles"] = []any{map[string]any{"url": "https://example.test/portfolio"}}
+	if got := calculateProfileCompletion(profile, details, false); got != 40 {
+		t.Fatalf("reference professional evidence should retain existing section weights: got %d", got)
+	}
+}
+
 func stringPointer(value string) *string { return &value }
 func intPointer(value int) *int          { return &value }

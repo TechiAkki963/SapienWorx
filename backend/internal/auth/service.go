@@ -38,10 +38,11 @@ type ServiceConfig struct {
 }
 
 type Service struct {
-	db     *pgxpool.Pool
-	tokens *TokenManager
-	cfg    ServiceConfig
-	now    func() time.Time
+	db              *pgxpool.Pool
+	tokens          *TokenManager
+	cfg             ServiceConfig
+	now             func() time.Time
+	phoneCodeSender SMSCodeSender
 }
 
 type CandidateRegistration struct {

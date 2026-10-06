@@ -3,6 +3,7 @@ package candidate
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -28,6 +29,10 @@ func (s *Service) PublicProfile(ctx context.Context, token string) (PublicProfil
 	summary, err := s.Summary(ctx, userID)
 	if err != nil {
 		return PublicProfile{}, err
+	}
+	// A legacy account image URL is owner-authenticated; never render it as another candidate's public photo.
+	if !strings.HasPrefix(summary.PhotoDataURL, "data:image/") {
+		summary.PhotoDataURL = ""
 	}
 	return PublicProfile{
 		FullName:              summary.FullName,

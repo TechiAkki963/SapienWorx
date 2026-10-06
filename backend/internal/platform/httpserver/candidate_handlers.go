@@ -8,6 +8,7 @@ import (
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/messaging"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func (s *Server) listJobs(w http.ResponseWriter, r *http.Request) {
@@ -113,12 +114,22 @@ func (s *Server) candidateApplications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet {
-		items, err := s.candidate.Applications(r.Context(), id, 50)
+		page, err := strconv.Atoi(r.URL.Query().Get("page"))
+		if err != nil && r.URL.Query().Get("page") != "" {
+			writeError(w, r, http.StatusBadRequest, "validation_error", "page must be an integer")
+			return
+		}
+		limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+		if err != nil && r.URL.Query().Get("limit") != "" {
+			writeError(w, r, http.StatusBadRequest, "validation_error", "limit must be an integer")
+			return
+		}
+		items, err := s.candidate.WorkspaceApplications(r.Context(), id, page, limit, r.URL.Query().Get("job_id"))
 		if err != nil {
 			s.writeCandidateError(w, r, err)
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]any{"items": items})
+		writeJSON(w, http.StatusOK, items)
 		return
 	}
 	var input struct {
@@ -172,7 +183,7 @@ func (s *Server) candidateSavedJobs(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
 		return
 	}
-	items, err := s.candidate.SavedJobs(r.Context(), id)
+	items, err := s.candidate.WorkspaceSavedJobs(r.Context(), id)
 	if err != nil {
 		s.writeCandidateError(w, r, err)
 		return
@@ -189,9 +200,9 @@ func (s *Server) candidateSavedJob(w http.ResponseWriter, r *http.Request) {
 	jobID := r.PathValue("jobID")
 	var err error
 	if r.Method == http.MethodPut {
-		err = s.candidate.SaveJob(r.Context(), id, jobID)
+		err = s.candidate.SaveWorkspaceJob(r.Context(), id, jobID)
 	} else {
-		err = s.candidate.UnsaveJob(r.Context(), id, jobID)
+		err = s.candidate.UnsaveWorkspaceJob(r.Context(), id, jobID)
 	}
 	if err != nil {
 		s.writeCandidateError(w, r, err)
@@ -231,7 +242,21 @@ func (s *Server) candidateNotificationRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *Server) writeCandidateError(w http.ResponseWriter, r *http.Request, err error) {
+	var invalidID *pgconn.PgError
+	if errors.As(err, &invalidID) && invalidID.Code == "22P02" {
+		writeError(w, r, http.StatusBadRequest, "validation_error", "Use a valid resource identifier.")
+		return
+	}
+	var validation *candidate.ProfileValidationError
+	if errors.As(err, &validation) {
+		writeJSON(w, http.StatusBadRequest, errorEnvelope{Error: APIError{Code: "validation_failed", Message: "Check the highlighted profile fields.", RequestID: RequestIDFromContext(r.Context()), Fields: validation.Fields}})
+		return
+	}
 	switch {
+	case errors.Is(err, candidate.ErrWorkspaceInput):
+		writeError(w, r, http.StatusBadRequest, "validation_error", err.Error())
+	case errors.Is(err, candidate.ErrProfileConflict):
+		writeError(w, r, http.StatusConflict, "profile_conflict", "This profile changed in another session. Reload before saving; your draft has been retained.")
 	case errors.Is(err, candidate.ErrNotFound):
 		writeError(w, r, http.StatusNotFound, "not_found", "resource was not found")
 	case errors.Is(err, candidate.ErrAlreadyApplied):

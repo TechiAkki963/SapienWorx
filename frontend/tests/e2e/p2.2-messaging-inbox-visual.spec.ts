@@ -98,7 +98,8 @@ test("candidate notifications remain clear across laptop mobile and dark mode", 
   await page.goto("/candidate/notifications");
 
   await expect(page.getByRole("heading", { name: "Notifications" })).toBeVisible();
-  await expect(page.getByText(/Secure live updates/)).toBeVisible();
+  await expect(page.getByText("Application and account updates", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Mark all as read", exact: true })).toBeEnabled();
   await expect(page.getByText("New message from a recruiter")).toBeVisible();
   await noOverflow(page, "candidate notifications 1440");
   await page.screenshot({ path: "../output/p2.2-candidate-notifications-1440.png", fullPage: true });

@@ -26,15 +26,38 @@ func calculateProfileCompletion(profile Profile, details map[string]any, hasResu
 	if hasProfileRecord(details, "education", "university", "level") {
 		score += 10
 	}
-	if countProfileRecords(details, "it_skills", "name") >= 3 {
+	skills := map[string]bool{}
+	if rows, ok := details["it_skills"].([]any); ok {
+		for _, item := range rows {
+			if row, ok := item.(map[string]any); ok {
+				if name := strings.ToLower(detailText(row, "name")); name != "" {
+					skills[name] = true
+				}
+			}
+		}
+	}
+	if rows, ok := details["key_skills"].([]any); ok {
+		for _, item := range rows {
+			if name, ok := item.(string); ok && strings.TrimSpace(name) != "" {
+				skills[strings.ToLower(strings.TrimSpace(name))] = true
+			}
+		}
+	}
+	if len(skills) >= 3 {
 		score += 15
-	} else if countProfileRecords(details, "it_skills", "name") > 0 {
+	} else if len(skills) > 0 {
 		score += 7
 	}
-	if detailText(details, "projects") != "" || detailText(details, "accomplishments") != "" {
+	professionalWork := false
+	for _, key := range []string{"projects", "project_records", "accomplishments", "work_samples", "publications", "presentations", "patents", "certifications", "awards", "professional_memberships"} {
+		if detailText(details, key) != "" || countProfileRecords(details, key, "title") > 0 {
+			professionalWork = true
+		}
+	}
+	if professionalWork {
 		score += 6
 	}
-	if detailText(details, "professional_links") != "" {
+	if detailText(details, "professional_links") != "" || countProfileRecords(details, "professional_links", "url") > 0 || countProfileRecords(details, "online_profiles", "url") > 0 {
 		score += 4
 	}
 	if hasResume {

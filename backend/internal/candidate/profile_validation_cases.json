@@ -1,0 +1,557 @@
+[
+  {
+    "name": "valid international name",
+    "core": {
+      "full_name": "  Élodie 王  ",
+      "country_code": " fr ",
+      "total_experience_months": 24
+    },
+    "fields": []
+  },
+  {
+    "name": "missing name and unknown country",
+    "core": {
+      "full_name": " ",
+      "country_code": "ZZ",
+      "total_experience_months": 0
+    },
+    "fields": [
+      "full_name",
+      "country_code"
+    ]
+  },
+  {
+    "name": "experience and notice bounds",
+    "core": {
+      "full_name": "Aarav",
+      "country_code": "IN",
+      "total_experience_months": 961,
+      "notice_period_days": 731
+    },
+    "fields": [
+      "total_experience_months",
+      "notice_period_days"
+    ]
+  },
+  {
+    "name": "valid optional birth date postal and phone",
+    "details": {
+      "date_of_birth": "1997-02-28",
+      "pincode": "SW1A 1AA",
+      "secondary_phone": "+919876543210"
+    },
+    "fields": []
+  },
+  {
+    "name": "invalid optional values",
+    "details": {
+      "date_of_birth": "2025-02-30",
+      "pincode": "!",
+      "secondary_phone": "999"
+    },
+    "fields": [
+      "date_of_birth",
+      "pincode",
+      "secondary_phone"
+    ]
+  },
+  {
+    "name": "HTTPS portfolio",
+    "details": {
+      "professional_links": "https://example.test/portfolio"
+    },
+    "fields": []
+  },
+  {
+    "name": "unsafe links",
+    "details": {
+      "professional_links": "http://example.test\nhttps://user:password@example.test"
+    },
+    "fields": [
+      "professional_links"
+    ]
+  },
+  {
+    "name": "structured links valid",
+    "details": {
+      "professional_links": [
+        {
+          "label": "Portfolio",
+          "url": "https://example.test/portfolio"
+        }
+      ]
+    },
+    "fields": []
+  },
+  {
+    "name": "structured links invalid",
+    "details": {
+      "professional_links": [
+        {
+          "label": "Portfolio",
+          "url": "javascript:alert(1)"
+        }
+      ]
+    },
+    "fields": [
+      "professional_links[0].url"
+    ]
+  },
+  {
+    "name": "legacy preserved during unrelated edit",
+    "previous": {
+      "employment": [
+        {
+          "company": "Legacy",
+          "job_title": "Engineer"
+        }
+      ]
+    },
+    "details": {
+      "employment": [
+        {
+          "company": "Legacy",
+          "job_title": "Engineer"
+        }
+      ],
+      "professional_summary": "Updated summary"
+    },
+    "fields": []
+  },
+  {
+    "name": "legacy retained when another record added",
+    "previous": {
+      "employment": [
+        {
+          "company": "Legacy",
+          "job_title": "Engineer"
+        }
+      ]
+    },
+    "details": {
+      "employment": [
+        {
+          "company": "Legacy",
+          "job_title": "Engineer"
+        },
+        {
+          "company": "New",
+          "job_title": "Engineer",
+          "joining_month": "Jan",
+          "joining_year": "2022",
+          "current_company": "Yes"
+        }
+      ]
+    },
+    "fields": []
+  },
+  {
+    "name": "current role end rejected",
+    "details": {
+      "employment": [
+        {
+          "company": "Labs",
+          "job_title": "Engineer",
+          "joining_month": "Jan",
+          "joining_year": "2022",
+          "current_company": "Yes",
+          "end_month": "Jan",
+          "end_year": "2023"
+        }
+      ]
+    },
+    "fields": [
+      "employment[0].end_month"
+    ]
+  },
+  {
+    "name": "employment chronology",
+    "details": {
+      "employment": [
+        {
+          "company": "Labs",
+          "job_title": "Engineer",
+          "joining_month": "Jan",
+          "joining_year": "2023",
+          "current_company": "No",
+          "end_month": "Jan",
+          "end_year": "2022"
+        }
+      ]
+    },
+    "fields": [
+      "employment[0].joining_month"
+    ]
+  },
+  {
+    "name": "missing employment details",
+    "details": {
+      "employment": [
+        {}
+      ]
+    },
+    "fields": [
+      "employment[0].company",
+      "employment[0].job_title",
+      "employment[0].joining_month",
+      "employment[0].end_month"
+    ]
+  },
+  {
+    "name": "education chronology and grade",
+    "details": {
+      "education": [
+        {
+          "level": "BSc",
+          "university": "University",
+          "start_year": "2024",
+          "end_year": "2020",
+          "grading_system": "CGPA / 10",
+          "score": "11"
+        }
+      ]
+    },
+    "fields": [
+      "education[0].start_year",
+      "education[0].score"
+    ]
+  },
+  {
+    "name": "education letter grade",
+    "details": {
+      "education": [
+        {
+          "level": "BSc",
+          "university": "University",
+          "grading_system": "Letter grade",
+          "score": "A+"
+        }
+      ]
+    },
+    "fields": []
+  },
+  {
+    "name": "skill total bound",
+    "details": {
+      "it_skills": [
+        {
+          "name": "Go",
+          "experience_years": "80",
+          "experience_months": "1"
+        }
+      ]
+    },
+    "fields": [
+      "it_skills[0].experience_months"
+    ]
+  },
+  {
+    "name": "negative skill duration",
+    "details": {
+      "it_skills": [
+        {
+          "name": "Go",
+          "experience_years": "-1",
+          "experience_months": "0"
+        }
+      ]
+    },
+    "fields": [
+      "it_skills[0].experience_years"
+    ]
+  },
+  {
+    "name": "projects retain structured content",
+    "details": {
+      "projects": [
+        {
+          "title": "Hiring platform",
+          "description": "Delivered accessible workflows",
+          "url": "https://example.test"
+        }
+      ]
+    },
+    "fields": []
+  },
+  {
+    "name": "reference accomplishment persistence",
+    "details": {
+      "work_samples": [
+        {
+          "title": "Synthetic work",
+          "url": "https://example.test/work",
+          "start_year": "2022",
+          "start_month": "Jan",
+          "current": "Yes",
+          "end_year": null,
+          "end_month": null
+        }
+      ]
+    },
+    "fields": []
+  },
+  {
+    "name": "reference unsafe accomplishment URL",
+    "details": {
+      "publications": [
+        {
+          "title": "Synthetic publication",
+          "url": "javascript:alert(1)"
+        }
+      ]
+    },
+    "fields": [
+      "publications[0].url"
+    ]
+  },
+  {
+    "name": "reference online profile label",
+    "details": {
+      "online_profiles": [
+        {
+          "label": "Portfolio",
+          "url": "https://example.test"
+        }
+      ]
+    },
+    "fields": []
+  },
+  {
+    "name": "reference certification chronology",
+    "details": {
+      "certifications": [
+        {
+          "title": "Synthetic certificate",
+          "start_year": "2024",
+          "start_month": "Jan",
+          "end_year": "2023",
+          "end_month": "Jan"
+        }
+      ]
+    },
+    "fields": [
+      "certifications[0].start_month"
+    ]
+  },
+  {
+    "name": "reference key skills empty",
+    "details": {
+      "key_skills": []
+    },
+    "fields": [
+      "key_skills"
+    ]
+  },
+  {
+    "name": "reference choices must be arrays",
+    "details": {
+      "desired_job_type": "Permanent"
+    },
+    "fields": [
+      "desired_job_type"
+    ]
+  },
+  {
+    "name": "reference career role limit",
+    "details": {
+      "preferred_job_roles": "Engineer,Designer,Manager,Analyst"
+    },
+    "fields": [
+      "preferred_job_roles"
+    ]
+  },
+  {
+    "name": "reference private numerical bounds",
+    "details": {
+      "fixed_salary": "-1",
+      "disability_percentage": "101"
+    },
+    "fields": [
+      "fixed_salary",
+      "disability_percentage"
+    ]
+  },
+  {
+    "name": "reference military date roundtrip",
+    "details": {
+      "military_enrolment_date": "2023-02-29"
+    },
+    "fields": [
+      "military_enrolment_date"
+    ]
+  },
+  {
+    "name": "reference valid conditional private fields",
+    "details": {
+      "disability_status": "Have disability",
+      "disability_type": "Low Vision",
+      "disability_percentage": "40",
+      "disability_reason": "By birth",
+      "military_experience": "Previously served",
+      "military_service_type": "Army",
+      "military_enrolment_date": "2010-01-01",
+      "military_discharge_date": "2014-01-01",
+      "career_break": "Have taken",
+      "career_break_reason": "Child care",
+      "career_break_start_year": "2020",
+      "career_break_start_month": "Jan",
+      "career_break_end_year": "2021",
+      "career_break_end_month": "Jan",
+      "currently_on_break": "No"
+    },
+    "fields": []
+  },
+  {
+    "name": "reference incomplete disability fields",
+    "details": {
+      "disability_status": "Have disability",
+      "disability_percentage": "140"
+    },
+    "fields": [
+      "disability_type",
+      "disability_percentage",
+      "disability_reason"
+    ]
+  },
+  {
+    "name": "reference military service chronology",
+    "details": {
+      "military_experience": "Previously served",
+      "military_service_type": "Army",
+      "military_enrolment_date": "2015-01-01",
+      "military_discharge_date": "2014-01-01"
+    },
+    "fields": [
+      "military_enrolment_date"
+    ]
+  },
+  {
+    "name": "reference career break chronology and reason",
+    "details": {
+      "career_break": "Have taken",
+      "career_break_start_year": "2025",
+      "career_break_start_month": "Jan",
+      "career_break_end_year": "2024",
+      "career_break_end_month": "Jan",
+      "currently_on_break": "No"
+    },
+    "fields": [
+      "career_break_reason",
+      "career_break_start_month"
+    ]
+  },
+  {
+    "name": "reference role description accepts 250 characters",
+    "details": {
+      "project_records": [
+        {
+          "title": "Synthetic project",
+          "role_description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      ]
+    },
+    "fields": []
+  },
+  {
+    "name": "reference role description rejects 251 characters",
+    "details": {
+      "project_records": [
+        {
+          "title": "Synthetic project",
+          "role_description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      ]
+    },
+    "fields": [
+      "project_records[0].role_description"
+    ]
+  },
+  {
+    "fields": [
+      "awards[0].issuer"
+    ],
+    "details": {
+      "awards": [
+        {
+          "title": "Award",
+          "issuer": ""
+        }
+      ]
+    },
+    "name": "award issuer required"
+  },
+  {
+    "fields": [
+      "professional_memberships[0].current"
+    ],
+    "details": {
+      "professional_memberships": [
+        {
+          "current": true,
+          "title": "Member",
+          "issuer": "Example"
+        }
+      ]
+    },
+    "name": "membership current typed"
+  },
+  {
+    "fields": [
+      "professional_memberships[0].end_month"
+    ],
+    "details": {
+      "professional_memberships": [
+        {
+          "end_month": "Jan",
+          "start_year": "2023",
+          "title": "Member",
+          "current": "Yes",
+          "issuer": "Example",
+          "end_year": "2024",
+          "start_month": "Jan"
+        }
+      ]
+    },
+    "name": "current membership end rejected"
+  },
+  {
+    "fields": [
+      "preferred_work_mode"
+    ],
+    "details": {
+      "preferred_work_mode": "Anywhere"
+    },
+    "name": "work mode unknown"
+  },
+  {
+    "fields": [
+      "current_salary_unit"
+    ],
+    "details": {
+      "current_salary_unit": 42
+    },
+    "name": "salary unit typed"
+  },
+  {
+    "fields": [],
+    "details": {
+      "expected_salary_unit": "Annual",
+      "preferred_work_mode": "Hybrid",
+      "awards": [
+        {
+          "title": "Award",
+          "issuer": "Example"
+        }
+      ],
+      "current_salary_unit": "Monthly",
+      "professional_memberships": [
+        {
+          "current": "Yes",
+          "title": "Member",
+          "issuer": "Example"
+        }
+      ]
+    },
+    "name": "new professional fields valid"
+  }
+]

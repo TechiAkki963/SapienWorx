@@ -6,9 +6,10 @@ import (
 )
 
 type APIError struct {
-	Code      string `json:"code"`
-	Message   string `json:"message"`
-	RequestID string `json:"request_id,omitempty"`
+	Code      string            `json:"code"`
+	Message   string            `json:"message"`
+	RequestID string            `json:"request_id,omitempty"`
+	Fields    map[string]string `json:"fields,omitempty"`
 }
 
 type errorEnvelope struct {

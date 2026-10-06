@@ -1,41 +1,237 @@
 import Link from "next/link";
-
+import { CandidateOverviewIdentity } from "@/components/candidate/candidate-overview-identity";
 import { JobCard } from "@/components/candidate/job-card";
 import { WorkspaceError } from "@/components/candidate/workspace-error";
-import { Button } from "@/components/ui/button";
-import { DashboardProfileCard } from "@/components/ui/dashboard-profile-card";
-import { LocalTimeGreeting } from "@/components/ui/local-time-greeting";
+import { WorkspaceRetry } from "@/components/candidate/workspace-retry";
+import { candidateStageLabel } from "@/components/candidate/workspace-job-utils";
 import { Surface } from "@/components/ui/surface";
-import { requireRole } from "@/lib/auth-server";
-import { CandidateDashboard, CandidateProfileDetails, candidateOnboardingStatus, stageLabel } from "@/lib/candidate";
+import { LocalTimeGreeting } from "@/components/ui/local-time-greeting";
+import {
+  CandidateDashboard,
+  CandidateProfileDetails,
+  CandidateProfileMetrics,
+  candidateOnboardingStatus,
+} from "@/lib/candidate";
 import { candidateAPI } from "@/lib/candidate-server";
 
 export default async function CandidateDashboardPage() {
-  const session = await requireRole("candidate");
-  const onboardingDetails = await candidateAPI<CandidateProfileDetails>("/api/v1/candidate/profile/details").catch(() => null);
-  const onboardingStatus = onboardingDetails ? candidateOnboardingStatus(onboardingDetails) : null;
   let dashboard: CandidateDashboard;
-  try { dashboard = await candidateAPI<CandidateDashboard>("/api/v1/candidate/dashboard"); } catch { return <WorkspaceError />; }
+  try {
+    dashboard = await candidateAPI<CandidateDashboard>(
+      "/api/v1/candidate/dashboard",
+    );
+  } catch {
+    return <WorkspaceError title="We couldn’t load your overview." />;
+  }
+  const [details, metrics] = await Promise.all([
+    candidateAPI<CandidateProfileDetails>(
+      "/api/v1/candidate/profile/details",
+    ).catch(() => null),
+    candidateAPI<CandidateProfileMetrics>(
+      "/api/v1/candidate/profile/metrics",
+    ).catch(() => null),
+  ]);
+  const onboarding = details ? candidateOnboardingStatus(details) : null;
   const firstName = dashboard.profile.full_name.split(" ")[0] || "there";
-  const metrics = [["Applications", dashboard.application_count], ["Interviews", dashboard.interview_count], ["Offers", dashboard.offer_count], ["Saved jobs", dashboard.saved_count]] as const;
-
+  const cards = [
+    {
+      label: "Profile views",
+      value: metrics?.profile_views,
+      detail: "Verified recruiters",
+      explanation:
+        "Verified recruiters who opened your professional profile in the last 30 days. Each recruiter is counted once.",
+    },
+    {
+      label: "Search appearances",
+      value: metrics?.search_appearances,
+      detail: "Recruiter search results",
+      explanation:
+        "Times your profile appeared in verified recruiter search results in the last 30 days, counted once per recruiter per day.",
+    },
+    {
+      label: "Recruiter actions",
+      value: metrics?.recruiter_actions,
+      detail: "Recruiters who took action",
+      explanation:
+        "Verified recruiters who took a meaningful action in the last 30 days, such as saving, messaging, viewing your CV or progressing an application. Passive views are excluded; each recruiter is counted once.",
+    },
+    {
+      label: "Applications",
+      value: dashboard.application_count,
+      detail: "Your applications",
+      explanation: "Applications you submitted through SapienWorx.",
+    },
+  ];
   return (
-    <div className="grid grid-cols-1 gap-6">
-      {(onboardingStatus === "manual_started" || onboardingStatus === "cv_started" || onboardingStatus === "in_progress" || onboardingStatus === "review_required") && <Surface className="flex flex-wrap items-center justify-between gap-3 p-4" tone="lavender"><p className="text-sm font-semibold text-navy">Your profile is still in progress. You can continue building it at your own pace.</p><Link href="/candidate/onboarding" className="text-sm font-bold text-indigo hover:underline">Continue profile setup →</Link></Surface>}
-      <section className="grid items-start gap-5 md:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)_18rem]">
-        <DashboardProfileCard firstName={session.first_name || firstName} lastName={session.last_name} headline={dashboard.profile.headline || session.headline || "Candidate"} imageUrl={session.profile_image_url} statLabel="Profile" statValue={`${dashboard.profile.profile_completion}%`} />
-        <Surface className="min-h-64 p-6 sm:p-8" tone="lavender"><div><p className="text-sm font-bold text-indigo">Candidate workspace</p><h1 className="mt-2 text-4xl font-bold tracking-[-0.045em] text-ink">Your search, with room to grow.</h1><p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-500"><LocalTimeGreeting firstName={session.first_name || firstName} />. Your search, applications and profile progress are in one place. Recommended roles below use location and recency only — no opaque AI score.</p><div className="mt-6 flex flex-wrap items-center gap-4"><Button href="/jobs">Find jobs</Button><Button href="/candidate/profile" variant="secondary">Improve profile</Button></div></div></Surface>
-        <Surface className="p-5" tone="mint"><div className="flex items-end justify-between"><p className="text-sm font-semibold">Profile strength</p><strong className="text-2xl text-indigo">{dashboard.profile.profile_completion}%</strong></div><div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-indigo" style={{ width: `${dashboard.profile.profile_completion}%` }} /></div><p className="mt-4 text-sm leading-6 text-ink-muted">Add a headline, location, experience and notice period to help recruiters understand your context.</p><Link className="mt-4 inline-block text-sm font-bold text-indigo hover:underline" href="/candidate/profile">Edit profile →</Link></Surface>
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Candidate metrics">{metrics.map(([label,value]) => <Surface className="p-5" key={label}><p className="text-sm font-semibold text-ink-muted">{label}</p><p className="mt-2 text-3xl font-bold tracking-tight text-ink">{value}</p></Surface>)}</section>
-
-      <section><div className="flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-ink">Recommended</p><h2 className="mt-2 text-2xl font-bold tracking-[-0.03em]">Roles worth a look</h2></div><Button href="/jobs" variant="ghost" size="sm">View all</Button></div>{dashboard.recommended_jobs.length ? <div className="mt-4 grid gap-4 xl:grid-cols-2">{dashboard.recommended_jobs.map((job) => <JobCard job={job} key={job.id} compact />)}</div> : <Surface className="mt-4 p-6" tone="mint"><p className="font-bold">No active jobs to recommend yet.</p><p className="mt-1 text-sm text-ink-muted">Published recruiter jobs will appear here automatically.</p></Surface>}</section>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <section><div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-ink">Recent activity</p><h2 className="mt-2 text-2xl font-bold">Applications</h2></div><Button href="/candidate/applications" variant="ghost" size="sm">Open tracker</Button></div><Surface className="mt-4 overflow-hidden">{dashboard.recent_applications.length ? <div className="divide-y divide-line/60">{dashboard.recent_applications.map((app) => <div className="flex items-center justify-between gap-4 p-4" key={app.id}><div className="min-w-0"><p className="truncate font-bold">{app.job_title}</p><p className="mt-1 truncate text-sm text-ink-muted">{app.company_name}</p></div><span className="shrink-0 rounded-full bg-indigo-soft/60 px-3 py-1 text-xs font-bold text-violet-ink">{stageLabel(app.stage)}</span></div>)}</div> : <div className="p-6 text-sm text-ink-muted">You haven’t applied to a role yet.</div>}</Surface></section>
-        <section><div className="flex items-end justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-ink">Inbox</p><h2 className="mt-2 text-2xl font-bold">Notifications</h2></div><Button href="/candidate/notifications" variant="ghost" size="sm">View all</Button></div><Surface className="mt-4 overflow-hidden">{dashboard.notifications.length ? <div className="divide-y divide-line/60">{dashboard.notifications.map((note) => <div className="p-4" key={note.id}><div className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${note.read_at ? "bg-line" : "bg-indigo"}`} /><p className="font-bold">{note.title}</p></div><p className="mt-1 pl-4 text-sm leading-5 text-ink-muted">{note.body}</p></div>)}</div> : <div className="p-6 text-sm text-ink-muted">No notifications yet.</div>}</Surface></section>
+    <div className="grid gap-6">
+      <header>
+        <p className="text-sm text-ink-muted">
+          <LocalTimeGreeting firstName={firstName} />.
+        </p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">
+          Your overview
+        </h1>
+        <p className="mt-2 text-sm text-ink-muted">
+          Keep your profile current, follow applications and find your next
+          opportunity.
+        </p>
+      </header>
+      {onboarding &&
+        [
+          "manual_started",
+          "cv_started",
+          "in_progress",
+          "review_required",
+        ].includes(onboarding) && (
+          <Surface
+            tone="lavender"
+            className="flex flex-wrap items-center justify-between gap-3 p-4"
+          >
+            <p className="text-sm">
+              Your profile is in progress. Continue at your own pace.
+            </p>
+            <Link
+              href="/candidate/onboarding"
+              className="text-sm font-semibold text-indigo"
+            >
+              Continue profile setup →
+            </Link>
+          </Surface>
+        )}
+      <div className="candidate-overview-grid">
+        <CandidateOverviewIdentity
+          profile={dashboard.profile}
+          details={details}
+        />
+        <Surface className="p-6">
+          <h2 className="text-base font-bold">Your next step</h2>
+          <p className="mt-3 text-sm leading-6 text-ink-muted">
+            A current headline, skills and career preferences help recruiters
+            understand what you’re looking for.
+          </p>
+          <Link
+            href="/candidate/profile"
+            className="mt-4 inline-block font-semibold text-sm text-indigo"
+          >
+            Improve your profile →
+          </Link>
+          <div className="mt-5 border-t border-line pt-4 flex gap-4 text-sm">
+            <Link className="font-semibold text-indigo" href="/candidate/jobs">
+              Find Jobs
+            </Link>
+            <Link className="font-semibold text-indigo" href="/candidate/saved">
+              Saved Jobs ({dashboard.saved_count})
+            </Link>
+          </div>
+        </Surface>
       </div>
+      <section aria-label="Profile performance">
+        <div className="mb-3 flex flex-wrap justify-between gap-2">
+          <h2 className="font-bold">Profile performance</h2>
+          <span className="text-xs text-ink-muted">
+            Last 30 days · Aggregate information only
+          </span>
+        </div>
+        {!metrics && (
+          <p role="alert" className="candidate-error mb-3">
+            Your profile metrics could not be loaded.{" "}
+            <WorkspaceRetry href="/candidate" />
+          </p>
+        )}
+        <div className="candidate-metrics">
+          {cards.map((card) => (
+            <article key={card.label}>
+              <h3>
+                {card.label}
+                <details className="candidate-tooltip">
+                  <summary aria-label={`About ${card.label}`}>?</summary>
+                  <p>{card.explanation}</p>
+                </details>
+              </h3>
+              <strong>
+                {card.value == null
+                  ? "Unavailable"
+                  : card.value.toLocaleString("en-IN")}
+              </strong>
+              <p>{card.detail}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-xl font-bold">Roles worth a look</h2>
+          <Link
+            href="/candidate/jobs"
+            className="text-sm font-semibold text-indigo"
+          >
+            View all jobs →
+          </Link>
+        </div>
+        {dashboard.recommended_jobs?.length ? (
+          <div className="mt-4 grid gap-4 xl:grid-cols-2">
+            {dashboard.recommended_jobs.map((job) => (
+              <JobCard
+                job={job}
+                key={job.id}
+                compact
+                hrefBase="/candidate/jobs"
+                canSave
+              />
+            ))}
+          </div>
+        ) : (
+          <Surface className="mt-4 p-6">
+            <p className="font-semibold">No active recommendations yet.</p>
+            <p className="mt-2 text-sm text-ink-muted">
+              Published roles will appear here. You can explore Find Jobs
+              anytime.
+            </p>
+          </Surface>
+        )}
+      </section>
+      <section>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-xl font-bold">Recent applications</h2>
+          <Link
+            href="/candidate/applications"
+            className="text-sm font-semibold text-indigo"
+          >
+            Open tracker →
+          </Link>
+        </div>
+        <Surface className="mt-4 overflow-hidden">
+          {dashboard.recent_applications?.length ? (
+            <div className="divide-y divide-line">
+              {dashboard.recent_applications.map((app) => (
+                <div
+                  className="flex flex-wrap items-center justify-between gap-3 p-4"
+                  key={app.id}
+                >
+                  <div className="min-w-0">
+                    <Link
+                      href={`/candidate/jobs/${app.job_id}`}
+                      className="font-semibold hover:underline"
+                    >
+                      {app.job_title}
+                    </Link>
+                    <p className="mt-1 text-sm text-ink-muted">
+                      {app.company_name}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-indigo-soft px-3 py-1 text-xs font-semibold text-violet-ink">
+                    {candidateStageLabel(app.stage)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-6 text-sm text-ink-muted">
+              You haven’t applied to a role yet.
+            </div>
+          )}
+        </Surface>
+      </section>
     </div>
   );
 }

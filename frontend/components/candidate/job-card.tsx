@@ -2,7 +2,12 @@ import Link from "next/link";
 
 import { JobSaveButton } from "@/components/candidate/job-save-button";
 import { Surface } from "@/components/ui/surface";
-import { CandidateJob, experienceLabel, humanize, jobLocation } from "@/lib/candidate";
+import {
+  CandidateJob,
+  experienceLabel,
+  humanize,
+  jobLocation,
+} from "@/lib/candidate";
 
 const tagTones = [
   "bg-blue-50 text-blue-700 border-blue-100",
@@ -13,7 +18,15 @@ const tagTones = [
 ];
 
 function initials(name: string) {
-  return name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase() || "SW";
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "SW"
+  );
 }
 
 function postedAgo(value?: string) {
@@ -48,43 +61,103 @@ export function JobCard({
       <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <h3 className="pr-1 text-lg font-extrabold leading-6 tracking-[-0.025em] text-navy sm:text-xl">
-            <Link href={detailHref} target="_blank" rel="noopener noreferrer" className="outline-none after:absolute after:inset-0 focus-visible:underline">
+            <Link
+              href={detailHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="outline-none after:absolute after:inset-0 focus-visible:underline"
+            >
               {job.title}
             </Link>
           </h3>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-ink-muted">
             <span className="font-bold text-ink">{job.company_name}</span>
-            {typeof job.match_score === "number" && <><span aria-hidden="true">·</span><span className="text-emerald-700">{job.match_score}% competency match</span></>}
+            {typeof job.match_score === "number" && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="text-emerald-700">
+                  {job.match_score}% competency match
+                </span>
+              </>
+            )}
           </div>
-          {job.job_reference && <p className="mt-1 text-[11px] font-bold tracking-[0.08em] text-ink-muted">{job.job_reference}</p>}
+          {job.job_reference && (
+            <p className="mt-1 text-[11px] font-bold tracking-[0.08em] text-ink-muted">
+              {job.job_reference}
+            </p>
+          )}
         </div>
 
         <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white shadow-sm">
           {job.company_logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={job.company_logo_url} alt={`${job.company_name} logo`} className="h-full w-full object-contain p-2" />
+            <img
+              src={job.company_logo_url}
+              alt={`${job.company_name} logo`}
+              className="h-full w-full object-contain p-2"
+            />
           ) : (
-            <span className="text-sm font-black tracking-tight text-navy">{initials(job.company_name)}</span>
+            <span className="text-sm font-black tracking-tight text-navy">
+              {initials(job.company_name)}
+            </span>
           )}
         </div>
       </div>
 
+      {job.status && job.status !== "active" && (
+        <p className="mt-3 text-xs font-semibold text-ink-muted">
+          This role is {humanize(job.status).toLowerCase()}. You can keep it
+          saved or remove it.
+        </p>
+      )}
+      {job.status === "active" &&
+        job.application_deadline &&
+        job.application_deadline.slice(0, 10) <
+          new Date().toISOString().slice(0, 10) && (
+          <p className="mt-3 text-xs font-semibold text-ink-muted">
+            Applications have closed for this role.
+          </p>
+        )}
+
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-ink-muted">
-        <span className="inline-flex items-center gap-1.5"><span aria-hidden="true">▣</span>{experienceLabel(job)}</span>
-        <span className="inline-flex items-center gap-1.5"><span aria-hidden="true">⌖</span>{humanize(job.work_mode)} · {jobLocation(job)}</span>
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden="true">▣</span>
+          {experienceLabel(job)}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden="true">⌖</span>
+          {humanize(job.work_mode)} · {jobLocation(job)}
+        </span>
       </div>
 
-      {!compact && <p className="mt-3 line-clamp-1 text-sm leading-6 text-ink-muted">{job.description}</p>}
+      {!compact && (
+        <p className="mt-3 line-clamp-1 text-sm leading-6 text-ink-muted">
+          {job.description}
+        </p>
+      )}
 
       {skills.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {skills.map((skill, index) => <span key={skill} className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${tagTones[index % tagTones.length]}`}>{skill}</span>)}
+          {skills.map((skill, index) => (
+            <span
+              key={skill}
+              className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${tagTones[index % tagTones.length]}`}
+            >
+              {skill}
+            </span>
+          ))}
         </div>
       )}
 
       <div className="relative z-10 mt-5 flex items-center justify-between gap-3 border-t border-line/60 pt-3">
-        <span className="text-xs font-semibold text-ink-muted">{postedAgo(job.published_at)}</span>
-        {allowSave ? <JobSaveButton jobId={job.id} initialSaved={initialSaved} /> : <span className="text-xs font-bold text-indigo">View role ↗</span>}
+        <span className="text-xs font-semibold text-ink-muted">
+          {postedAgo(job.published_at)}
+        </span>
+        {allowSave ? (
+          <JobSaveButton jobId={job.id} initialSaved={initialSaved} />
+        ) : (
+          <span className="text-xs font-bold text-indigo">View role ↗</span>
+        )}
       </div>
     </Surface>
   );

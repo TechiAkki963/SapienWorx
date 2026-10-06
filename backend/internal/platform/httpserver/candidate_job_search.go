@@ -45,6 +45,8 @@ func candidateJobFiltersFromRequest(r *http.Request) candidate.CandidateJobFilte
 	}
 
 	return candidate.CandidateJobFilters{
+		KeywordIDs: r.URL.Query()["keyword_id"], LocationIDs: r.URL.Query()["location_id"], CompetencyIDs: r.URL.Query()["competency_id"],
+		Keywords: r.URL.Query()["keyword"], Locations: r.URL.Query()["location_text"], Competencies: r.URL.Query()["competency_text"],
 		Query:            r.URL.Query().Get("q"),
 		Location:         r.URL.Query().Get("location"),
 		Company:          r.URL.Query().Get("company"),

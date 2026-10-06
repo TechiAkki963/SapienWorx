@@ -82,8 +82,10 @@ test.describe.serial("deployed staging acceptance", () => {
     const candidateContext = await browser.newContext();
     const candidatePage = await candidateContext.newPage();
     await signIn(candidatePage, "candidate");
-    await expect(candidatePage.getByRole("heading", { name: "Your search, with room to grow." })).toBeVisible();
-    await expect(candidatePage.getByText("Ishita Rao", { exact: true })).toBeVisible();
+    await expect(candidatePage.getByRole("heading", { level: 1, name: "Your overview" })).toBeVisible();
+    await expect(candidatePage.getByRole("region", { name: "Your profile", exact: true })
+      .getByRole("heading", { level: 2, name: "Ishita Rao", exact: true })).toBeVisible();
+    await expect(candidatePage.getByRole("region", { name: "Profile performance", exact: true })).toBeVisible();
     await candidatePage.goto("/candidate/jobs");
     await expect(candidatePage.getByText("Senior Product Designer").first()).toBeVisible();
     const me = await candidatePage.evaluate(async () => {

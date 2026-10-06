@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"strings"
 
@@ -21,6 +22,8 @@ type SessionProfile struct {
 func (s *Service) SessionProfile(ctx context.Context, userID string) (SessionProfile, error) {
 	var result SessionProfile
 	var fullName string
+	var candidatePhoto []byte
+	var candidatePhotoMime *string
 	err := s.db.QueryRow(ctx, `
 		SELECT u.id::text,u.role::text,
 		       COALESCE(cp.full_name,rp.full_name,ap.full_name,''),
@@ -29,20 +32,24 @@ func (s *Service) SessionProfile(ctx context.Context, userID string) (SessionPro
 		         WHEN 'recruiter' THEN concat_ws(' @ ',NULLIF(rp.designation,''),NULLIF(c.display_name,''))
 		         ELSE 'Master Administrator'
 		       END,
-		       COALESCE(u.profile_image_url,''),COALESCE(u.profile_image_key,'')
+		       COALESCE(u.profile_image_url,''),COALESCE(u.profile_image_key,''),cp.profile_photo,cp.profile_photo_mime
 		FROM users u
 		LEFT JOIN candidate_profiles cp ON cp.user_id=u.id
 		LEFT JOIN recruiter_profiles rp ON rp.user_id=u.id
 		LEFT JOIN companies c ON c.id=rp.company_id
 		LEFT JOIN admin_profiles ap ON ap.user_id=u.id
 		WHERE u.id=$1 AND u.is_active=true`, userID).Scan(
-		&result.ID, &result.Role, &fullName, &result.Headline, &result.ProfileImageURL, &result.ProfileImageKey,
+		&result.ID, &result.Role, &fullName, &result.Headline, &result.ProfileImageURL, &result.ProfileImageKey, &candidatePhoto, &candidatePhotoMime,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return SessionProfile{}, ErrAccountUnavailable
 	}
 	if err != nil {
 		return SessionProfile{}, err
+	}
+	if result.Role == RoleCandidate && len(candidatePhoto) > 0 && candidatePhotoMime != nil {
+		result.ProfileImageURL = "data:" + *candidatePhotoMime + ";base64," + base64.StdEncoding.EncodeToString(candidatePhoto)
+		result.ProfileImageKey = ""
 	}
 	nameParts := strings.Fields(fullName)
 	if len(nameParts) > 0 {

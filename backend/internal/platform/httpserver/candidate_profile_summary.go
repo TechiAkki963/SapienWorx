@@ -2,6 +2,8 @@ package httpserver
 
 import (
 	"encoding/base64"
+	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"net/http"
 	"strings"
 )
@@ -43,8 +45,17 @@ func (s *Server) candidateProfilePhoto(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusBadRequest, "validation_error", "invalid profile photo encoding")
 		return
 	}
-	if err := s.candidate.UpdatePhoto(r.Context(), id, mime, data); err != nil {
-		writeError(w, r, http.StatusBadRequest, "validation_error", err.Error())
+	encoded, err := compressProfileImage(data)
+	if err != nil || (mime != "image/jpeg" && mime != "image/png" && mime != "image/webp") || candidate.ValidateProfilePhoto(mime, data) != nil {
+		writeError(w, r, http.StatusBadRequest, "invalid_image", errInvalidProfileImage.Error())
+		return
+	}
+	if err := s.candidate.UpdatePhoto(r.Context(), id, "image/webp", encoded); err != nil {
+		if errors.Is(err, candidate.ErrInvalidPhoto) {
+			writeError(w, r, http.StatusBadRequest, "invalid_image", errInvalidProfileImage.Error())
+		} else {
+			s.writeCandidateError(w, r, err)
+		}
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
