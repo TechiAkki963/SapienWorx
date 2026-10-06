@@ -1,0 +1,22 @@
+name: Beta private scanner review
+on:
+  pull_request:
+    paths: ["infrastructure/terraform/beta-scanner/**", "deploy/beta/scanner/**", "backend/internal/resume/**", ".github/workflows/beta-scanner-ci.yml"]
+permissions:
+  contents: read
+jobs:
+  scanner-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+      - run: terraform -chdir=infrastructure/terraform/beta-scanner fmt -check -recursive
+      - run: terraform -chdir=infrastructure/terraform/beta-scanner init -backend=false -input=false
+      - run: terraform -chdir=infrastructure/terraform/beta-scanner validate
+      - run: terraform -chdir=infrastructure/terraform/beta-scanner test
+      - run: python3 -m unittest discover -s deploy/beta/scanner -p 'test_*.py'
+      - run: sh -n deploy/beta/scanner/isolate-backend-egress.sh
+      - run: docker build -t scanner-review deploy/beta/scanner
