@@ -106,6 +106,9 @@ test.describe.serial("deployed staging acceptance", () => {
     await expect(recruiterPage.getByRole("navigation", { name: "SapienWorx Recruit", exact: true })
       .getByRole("link", { name: "Talent", exact: true })).toHaveAttribute("href", "/recruiter/talent");
     await expect(recruiterPage.getByText("Northstar Product Labs").first()).toBeVisible();
+    await recruiterPage.goto("/recruiter/outreach");
+    await expect(recruiterPage.getByRole("button", { name: "Create campaign", exact: true })).toBeVisible();
+    await expect(recruiterPage.getByRole("heading", { name: "Outreach is temporarily unavailable", exact: true })).toHaveCount(0);
     await recruiterContext.close();
   });
 
