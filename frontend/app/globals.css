@@ -705,6 +705,8 @@ html:has(.swx-search-actions) { scroll-padding-bottom: 11rem; }
 
 /* Recruiter skill/status text must remain legible on dark professional surfaces. */
 .swx-dark .swx-recruiter-workspace :is(.text-blue-700,.text-blue-800,.text-blue-900) { color: #aacdff !important; }
+.swx-dark .swx-recruiter-workspace :is(.text-amber-700,.text-amber-800,.text-amber-900) { color: #fde68a !important; }
+.swx-dark .swx-recruiter-workspace :is(.text-rose-700,.text-rose-800,.text-rose-900) { color: #fda4af !important; }
 [data-testid="recruiter-bottom-nav"] nav > :is(a,button) > span:last-child { font-size: 10px; line-height: 14px; overflow: visible; text-overflow: clip; }
 
 .swx-recruiter-workspace .swx-workspace-drawer-left { inset: 0 auto 0 0; margin: 0; border-left: 0; border-right: 1px solid var(--workspace-line); border-radius: 0 1rem 1rem 0; }
