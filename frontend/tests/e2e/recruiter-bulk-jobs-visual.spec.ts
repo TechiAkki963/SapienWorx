@@ -19,7 +19,7 @@ test("bulk job controls remain compact after selection across recruiter breakpoi
     await page.goto("/recruiter/jobs");
     await page.locator('input[data-bulk-job-id="60000000-0000-4000-8000-000000000001"]:visible').check();
     await page.getByLabel("Bulk action").selectOption("reassign");
-    await page.getByLabel("Assign recruiter").selectOption("20000000-0000-4000-8000-000000000002");
+    await page.getByRole("region", { name: "Bulk job actions" }).getByLabel("Assign recruiter").selectOption("20000000-0000-4000-8000-000000000002");
     await expect(page.getByText("1 selected on this page")).toBeVisible();
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);

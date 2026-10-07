@@ -9,15 +9,18 @@ import { RecruiterDashboard } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
 import type { ThreadListResponse } from "@/lib/messaging";
 import { messagingAPI } from "@/lib/messaging-server";
+import { getSessionUser } from "@/lib/auth-server";
+import { RecruiterAccountProfile } from "./account-profile";
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase() || "R";
 }
 
 export async function RecruiterShell({ children }: { children: React.ReactNode }) {
-  const [workspace, conversations] = await Promise.all([
+  const [workspace, conversations, session] = await Promise.all([
     recruiterAPI<RecruiterDashboard>("/api/v1/recruiter/dashboard").catch(() => null),
     messagingAPI<ThreadListResponse>("/api/v1/messaging/threads").catch(() => null),
+    getSessionUser(),
   ]);
   const recruiterName = workspace?.recruiter_name ?? "Recruiter";
   const companyName = workspace?.company_name ?? "SapienWorx workspace";
@@ -60,6 +63,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
                   <p className="mt-0.5 truncate text-xs text-ink-muted">{companyName}</p>
                 </div>
                 <Link href="/" className="mt-1 flex rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink">View public site</Link>
+                {session?.role === "recruiter" && <RecruiterAccountProfile session={{ ...session, first_name: session.first_name || recruiterName.split(" ")[0], last_name: session.last_name || recruiterName.split(" ").slice(1).join(" ") }} company={companyName} activeJobs={workspace?.active_jobs ?? 0} />}
                 <div className="mt-1 border-t border-line/70 pt-1"><LogoutButton /></div>
               </div>
             </details>

@@ -1,4 +1,4 @@
-# Recruiter workspace redesign — local review
+# Recruiter workspace redesign â€” local review
 
 Review date: 7 October 2026.
 
@@ -11,7 +11,7 @@ Recruit has Home, Jobs, Applications, Messages, Interviews and Talent, with Anal
 Work is isolated on `codex/recruiter-workspace-redesign` in `tmp/beta-stage-a-live`, based on `b0e70e6c91679f7aa1f54d97c808ab04bb46eada`. The unrelated dirty primary checkout was not edited. There has been no commit, push, PR, merge, beta release, AWS operation, DNS/TLS/Caddy operation, or production change in this redesign task.
 
 
-## Job Management date refinement — 8 October 2026
+## Job Management date refinement â€” 8 October 2026
 
 Posted has its own visible column beside Deadline. Both dates show a short calendar date and relative day count; full dates, including the year, are available on hover and to assistive technology. Dates from another year include that year visibly. Day counts use the workspace's IST calendar, and deadline health uses the same calendar rather than treating today's midnight as an already-passed deadline.
 
@@ -19,7 +19,7 @@ The desktop table is now **Job | Status | Applications | Posted | Deadline | Hea
 
 Fresh checks: TypeScript passed; four existing job filter, bulk/lifecycle, applicant navigation and responsive regressions passed (`tmp/job-dates-browser.log`). The old applicant-profile assertion was aligned to the existing Candidate name link. Fourteen page captures cover seven widths in System Light/Dark, with no measured page/table/cell overflow or page errors (`tmp/job-dates-review.log`, `tmp/job-dates-visual-measurements.json`). Four metadata-drawer captures were added. Desktop Light, compact-desktop Dark, mobile Light and metadata-drawer Dark were visually inspected. The gallery defaults to Current Jobs and retains earlier review areas. This refinement changes presentation only; no API contract, database or live environment was changed.
 
-## Latest approval — candidate referral flow implemented locally
+## Latest approval â€” candidate referral flow implemented locally
 
 The user approved implementing the candidate referral reference now. This section supersedes the older recruiter intake and mandatory-resume wording. All work remains uncommitted and undeployed in the owned checkout; no AWS, live beta/production data, Caddy, TLS, DNS or www/apex action occurred.
 
@@ -27,7 +27,7 @@ The user approved implementing the candidate referral reference now. This sectio
 
 - Job Details retains the main application action and adds separate Share and Refer someone actions. Sharing copies an ordinary public job URL and creates no referral record.
 - Refer someone opens a native right drawer on desktop and a full-width sheet on mobile. It requests full name/email, optional international phone/relationship/message and a required knows-person acknowledgement. Referrer identity and Candidate source are resolved server-side. There is no friend-CV, salary, skill or experience entry.
-- Submission creates only an invitation and a durable email-outbox item. Queued and sent are distinct; registration or pre-existing applications are not disclosed by recipient input. One sender’s retry returns the same invitation without another email; several senders retain distinct history.
+- Submission creates only an invitation and a durable email-outbox item. Queued and sent are distinct; registration or pre-existing applications are not disclosed by recipient input. One senderâ€™s retry returns the same invitation without another email; several senders retain distinct history.
 - My Referrals lives in the account menu, with a paginated list, literal search, safe status filter and useful empty state. Home shows an activity module only when real records exist. No permanent candidate navigation item or candidate money UI was added.
 - Invitation bearers can read the public job description and referrer message before signing in. Save opportunity persists via the existing candidate saved-job API. Reading the full job page preserves the pending referral and returns to consent review instead of silently submitting a direct application.
 - Sign-up, verified email and first-login onboarding preserve the bounded invitation return path. A complete manually authored professional profile is accepted without a CV. Accept and Apply remain distinct. Apply explicitly covers employer profile sharing and broad progress sharing with the referrer.
@@ -49,7 +49,7 @@ Migration **000058** extends the existing referral engine with a candidate actor
 - Guarded PostgreSQL integration tests passed: `tmp/candidate-referral-db.log`. They exercise registration non-enumeration, actor/job eligibility, owner isolation, optional-phone non-enumeration, no invitation-created accounts/apps, manual profile, explicit consent, idempotency, several referrers, direct-source preservation, actual source filtering, company history, coarse status/DTO privacy, invitation cap and rollback refusal.
 - Final referral plus recruiter browser run: **17/17 passed**, `tmp/candidate-referral-browser-verified.log`. Initial failures identified the reverse-Tab wrap and an ambiguous accessible label; both were corrected and rerun. Fixture description/status-selector mismatches were corrected without weakening the behavioral assertions. Visual inspection then caught the public recipient page missing its dark-theme surface; it was corrected, with a targeted normal-text contrast check of at least 4.5:1 and refreshed recipient states.
 - Existing candidate saved-job persistence, historic application recognition and keyboard/mobile account/logout regressions: **3/3 passed**, `tmp/candidate-referral-existing-regression.log`.
-- **84 current candidate captures** cover Job Details, drawer, queued confirmation, My Referrals, empty filtering and recipient review across 1920×1080, 1440×900, 1366×768, 1024×768, 768×1024, 428×926 and 360×800 in System Light/Dark. Native drawer screenshots use viewport capture; longer list/recipient pages use full-page capture. Current recruiter pages/drawers and recipient outcome states were refreshed separately. Historical intake images are labeled Legacy.
+- **84 current candidate captures** cover Job Details, drawer, queued confirmation, My Referrals, empty filtering and recipient review across 1920Ã—1080, 1440Ã—900, 1366Ã—768, 1024Ã—768, 768Ã—1024, 428Ã—926 and 360Ã—800 in System Light/Dark. Native drawer screenshots use viewport capture; longer list/recipient pages use full-page capture. Current recruiter pages/drawers and recipient outcome states were refreshed separately. Historical intake images are labeled Legacy.
 - Live System light/dark transitions, explicit theme overrides, focus containment/return, Escape, validation, retained error input, save persistence, onboarding return and hydration/page errors were checked. This is Chromium local-fixture verification, not a live-beta, complete WCAG, every-browser or peak-load certification.
 
 ### Current limitations
@@ -57,7 +57,7 @@ Migration **000058** extends the existing referral engine with a candidate actor
 Queued is a truthful outbox state, not proof of email delivery. This change enables no provider, production SES access, external integration, rewards payment or new company-admin privilege. Candidate records use bounded pagination; the older recruiter tracker remains capped at 100 records and needs pagination before larger-scale use. Company reward/credit policy and advanced referral settings remain later work. Existing email/outbox delivery and job-level eligibility controls are reused. Deployment and live acceptance require a separate release action.
 
 
-## Latest five-brief refinement — 7 October 2026
+## Latest five-brief refinement â€” 7 October 2026
 
 The five briefs supplied in this turn are implemented locally. This section supersedes earlier review rows where the page contract changed. The agreed decision to preserve existing recruiter access takes precedence over subscription suggestions: no paywall or new entitlement restriction was introduced.
 
@@ -111,7 +111,7 @@ Historical referral records remain readable. Old manual referral-create/status H
 - Full backend regressions **PASS**: `tmp/recruiter-refinements-backend-all.log`. Static checks **PASS**: `tmp/recruiter-refinements-vet.log`.
 - Guarded PostgreSQL tests **PASS**: `tmp/recruiter-refinements-db.log`. These exercise ACLs/owner-only writes, foreign shares, filter counts, consent withdrawal, Smart membership, invitation dedupe/no account/no application creation, token integrity/rotation, verified identity, outbox token protection, acceptance/consent/required CV/idempotency, canonical attribution, foreign Candidate 360 denial, reward preconditions and fake-provider retry/suppression.
 - Initial broader Chromium regression run: **35/38 passed**. All three failures were investigated: an old Candidate 360 button assertion, pre-hydration filter input and an ambiguous select label. Final targeted run: **11/11 passed**, including each previously failing check plus referral registration/error states. Candidate onboarding additionally passed **3/3**. Logs: `tmp/recruiter-refinements-regressions.log`, `tmp/recruiter-refinements-final-browser.log`, `tmp/recruiter-refinements-verified-browser.log`.
-- The current six pages plus three drawers have **126 captures** across 1920×1080, 1440×900, 1366×768, 1024×768, 768×1024, 428×926 and 360×800 in System Light/Dark. Automated checks cover overflow, runtime page errors, focus containment and Escape. Representative finished desktop/tablet/mobile/drawer images were personally inspected. Broader passes cover Candidate 360 privacy/actions, Recruit/Talent context, job builder, saved searches, messaging/live appearance/contrast, analytics export, outreach and keyboard focus.
+- The current six pages plus three drawers have **126 captures** across 1920Ã—1080, 1440Ã—900, 1366Ã—768, 1024Ã—768, 768Ã—1024, 428Ã—926 and 360Ã—800 in System Light/Dark. Automated checks cover overflow, runtime page errors, focus containment and Escape. Representative finished desktop/tablet/mobile/drawer images were personally inspected. Broader passes cover Candidate 360 privacy/actions, Recruit/Talent context, job builder, saved searches, messaging/live appearance/contrast, analytics export, outreach and keyboard focus.
 - Final invitation UI rerun: **4/4 PASS**, `tmp/recruiter-refinements-invitation-final.log`. The public, expired/unavailable, incomplete-profile, general, existing-application and submitted states add **24 captures** at 1440 and 360 px in Light/Dark. The profile-return link is also checked. Total current evidence: **150 captures**. Production frontend build and TypeScript validation **PASS** (`tmp/recruiter-refinements-build.log`, `tmp/recruiter-refinements-typecheck.log`).
 
 ### Release status and limits
@@ -130,7 +130,7 @@ The screenshots are local mock-data UI evidence, not live beta acceptance. Datab
 
 ## Page-by-page 20-point review
 
-Each page below records the requested twenty review points. Items 13–20 apply the shared contract above, with page-specific evidence and limits called out.
+Each page below records the requested twenty review points. Items 13â€“20 apply the shared contract above, with page-specific evidence and limits called out.
 
 ### Home
 
@@ -188,7 +188,7 @@ Each page below records the requested twenty review points. Items 13–20 apply 
 |---|---|---|
 | 1 | Current problem | Unrelated controls occupied one long recruitment-settings step. |
 | 2 | Goal | Preserve every input while making sequencing understandable. |
-| 3 | Hierarchy | Basics → Description → Application → Hiring workflow → Publish. |
+| 3 | Hierarchy | Basics â†’ Description â†’ Application â†’ Hiring workflow â†’ Publish. |
 | 4 | Desktop | Working form beside candidate-facing preview. |
 | 5 | Tablet | Wrapping step navigation and narrower preview. |
 | 6 | Mobile | Full-width form; preview follows it. |
@@ -388,7 +388,7 @@ Each page below records the requested twenty review points. Items 13–20 apply 
 |---|---|---|
 | 1 | Current problem | Campaigns, sequence forms and template cards competed on the same screen. |
 | 2 | Goal | Guide a reviewed audience into a controlled draft campaign. |
-| 3 | Hierarchy | Campaigns / Sequences / Templates; Audience → Message → Schedule → Review drawer. |
+| 3 | Hierarchy | Campaigns / Sequences / Templates; Audience â†’ Message â†’ Schedule â†’ Review drawer. |
 | 4 | Desktop | Compact campaign/template/sequence tables and two actual delivery metrics. |
 | 5 | Tablet | Wrapping actions and preview disclosures. |
 | 6 | Mobile | Stacked records and full-width editor. |
@@ -521,22 +521,32 @@ Immediate: review the local diff and CI, rehearse migration 55, and keep deploym
 | Check | Result / evidence |
 |---|---|
 | Recruiter/browser regressions | 49 unique active Chromium checks passed across the combined suite and targeted reruns. One old Kanban scenario is intentionally skipped because the approved design uses tables. |
-| Page coverage | 17 recruiter areas × seven widths × three device appearances = 357 page captures. Discover has 21 further captures. |
-| Drawer coverage | Six major drawer states × seven widths × Light/Dark = 84 captures. Footer visibility and keyboard behavior checked where applicable. |
+| Page coverage | 17 recruiter areas Ã— seven widths Ã— three device appearances = 357 page captures. Discover has 21 further captures. |
+| Drawer coverage | Six major drawer states Ã— seven widths Ã— Light/Dark = 84 captures. Footer visibility and keyboard behavior checked where applicable. |
 | Visual gallery | 462 captures across 24 page/drawer states in [recruiter-workspace-gallery.html](recruiter-workspace-gallery.html). |
 | Hydration / page errors | Full recruiter matrix passed; job builder/referral additions passed. No error found by the exercised checks. |
 | Message contrast | Settled message body colours meet 4.5:1 in the exercised Light/Dark/System fixtures at seven widths. This is a targeted contrast check, not a complete WCAG certification. |
-| Appearance | Live System Light↔Dark and explicit Light/Dark ignoring opposite device appearance passed in the messaging regression. |
+| Appearance | Live System Lightâ†”Dark and explicit Light/Dark ignoring opposite device appearance passed in the messaging regression. |
 | Campaign review | No draft-create POST before the explicit Review action; protected draft/create/launch regression passed. |
 | Outreach outage | Synthetic upstream 503 shows unavailable rather than empty; retry recovers. |
-| Full backend unit suite | PASS — `go test ./...`; the synthetic scanner socket required localhost permission. Optional database suites without their configured fixtures remain skipped. |
+| Full backend unit suite | PASS â€” `go test ./...`; the synthetic scanner socket required localhost permission. Optional database suites without their configured fixtures remain skipped. |
 | Go recruiter + HTTP suites | Passed, including guarded localhost PostgreSQL owner/company, saved-search count, tag preservation, profile-consent and skill-semantic checks. Other opt-in integration suites without configured fixtures remain skipped. |
 | Static checks | TypeScript, Go vet and diff whitespace checks passed. |
 | 100k scale fixture | Passed: basic query 492 ms; structured query 465 ms. The isolated database includes retained earlier fixtures; this is a single-run local benchmark, not p95 or live concurrency. |
-| 1M / bulk IT-skill ingestion | Not certified. Available workstation memory during browser QA was roughly 1–2 GiB. The earlier IT-skill-record import timed out in the existing taxonomy trigger. |
+| 1M / bulk IT-skill ingestion | Not certified. Available workstation memory during browser QA was roughly 1â€“2 GiB. The earlier IT-skill-record import timed out in the existing taxonomy trigger. |
 | Migration rehearsal | Migration 55 down/up succeeded in the isolated database; prior migration files were not edited. No beta/production migration occurred. |
-| Production build | PASS — Next production build completed, including TypeScript, static prerendering and the new dynamic recruiter routes. No release was performed. |
+| Production build | PASS â€” Next production build completed, including TypeScript, static prerendering and the new dynamic recruiter routes. No release was performed. |
 
-Local logs are retained in the owned worktree’s ignored `tmp/` folder: `recruiter-browser-final.log` (46 pass, one transient closed-drawer locator failure, one old Kanban skip); `recruiter-completion-final.log` (six pass, including the corrected campaign check and two extra cases); `recruiter-backend-owner-final.log`; `recruiter-backend-all-final.log`; `recruiter-100k-final.log`; `recruiter-messaging-contrast-final.log`; and `recruiter-production-build.log`. Reruns do not inflate the unique test count. Screenshots are local synthetic fixtures and are ignored by Git; the gallery requires those local artifact files. The Light/Dark page matrix uses System with emulated device appearance, while explicit theme override is checked separately.
+Local logs are retained in the owned worktreeâ€™s ignored `tmp/` folder: `recruiter-browser-final.log` (46 pass, one transient closed-drawer locator failure, one old Kanban skip); `recruiter-completion-final.log` (six pass, including the corrected campaign check and two extra cases); `recruiter-backend-owner-final.log`; `recruiter-backend-all-final.log`; `recruiter-100k-final.log`; `recruiter-messaging-contrast-final.log`; and `recruiter-production-build.log`. Reruns do not inflate the unique test count. Screenshots are local synthetic fixtures and are ignored by Git; the gallery requires those local artifact files. The Light/Dark page matrix uses System with emulated device appearance, while explicit theme override is checked separately.
 
 A sample of the final page and drawer captures was visually inspected by the engineer. The automated matrix validates all captured states for overflow and exercised errors; it does not mean every pixel of every capture was manually reviewed. No Safari/Firefox/mobile-device, full accessibility, production load, or beta acceptance certification is implied.
+
+## Beta release preparation — 8 October 2026
+
+The deployment review restores the existing recruiter photo editor under Account → My profile & photo. The API, upload validation and storage behavior are unchanged. Seven-width name, photo-control overlap and keyboard checks pass; a fresh production build and TypeScript check pass.
+
+The full browser run exposed older assertions for the former cards and controls. These tests now follow the new filter/detail drawers, section tabs and visible table/mobile controls while preserving contact privacy, note editing/deletion, bulk confirmation, scoped job filters, outreach geometry and theme checks. Corrected regression runs passed, including the final contact/menu-state rerun. No new tests were skipped.
+
+The guarded PostgreSQL security fixture now grants explicit discovery consent and verifies that saved membership cannot bypass its revocation. The Docker beta rehearsal waits for the final TCP database rather than the temporary initialization socket; all 58 migrations, repeated seeding, beta role grants and backup/restore pass locally. CI runner browser dependency setup uses Ubuntu’s primary package archive and bounded network waits after the original runner’s regional mirror stalled. No beta deployment, edge, DNS, TLS or production workflow was changed.
+
+The existing beta runtime, RDS isolation, holding-page hashes and capacity were verified. A private beta-only database backup was created and its archive manifest checked. PR #75 remains subject to fresh CI before merge and Beta Stage A rollout. This preparation section is not a claim that deployment or live acceptance has completed.

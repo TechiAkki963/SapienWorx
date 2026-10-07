@@ -114,8 +114,8 @@ test("P2.5 bulk InMail drawer responsive matrix", async ({ page }) => {
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/recruiter/talent-pool");
-    await page.getByLabel("Select Aarav Mehta").check();
-    await page.getByRole("button", { name: "Send Bulk InMail" }).click();
+    await page.getByRole("checkbox", { name: "Select Aarav Mehta", exact: true }).check();
+    await page.getByRole("button", { name: "Message selected" }).click();
     const dialog = page.getByRole("dialog", { name: "Send Bulk InMail" });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(/14-day cooldown/i)).toBeVisible();
@@ -148,7 +148,7 @@ test("P2.5 outreach campaign responsive matrix", async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/recruiter/outreach");
     await expect(page.getByRole("heading", { name: "Outreach" })).toBeVisible();
-    await expect(page.getByText("Mumbai platform hiring")).toBeVisible();
+    await expect(page.locator("p:visible").filter({ hasText: /^Mumbai platform hiring$/ }).first()).toBeVisible();
     await noOverflow(page, "outreach " + viewport.label);
     await page.screenshot({
       path: `visual-artifacts/p2.5-messaging-qa/outreach-campaigns-light-${viewport.label}.png`,

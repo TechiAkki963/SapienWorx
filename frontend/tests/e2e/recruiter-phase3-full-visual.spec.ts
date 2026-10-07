@@ -70,9 +70,9 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     // 0. Global application pipeline
     await page.goto("/recruiter/pipeline");
     await expect(page.getByRole("heading", { name: "Applications" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Candidate 001" }).first()).toBeVisible();
-    await expect(page.getByText("Details & actions", { exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /View profile/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Candidate 001", exact: true })).toBeVisible();
+    await expect(page.locator('summary[aria-label="More actions for Candidate 001"]:visible')).toBeVisible();
+    await expect(page.getByRole("link", { name: "View candidate", exact: true }).first()).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} application pipeline`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase5-application-pipeline/application-pipeline-${viewport.name}.png`, fullPage: true });
@@ -80,8 +80,10 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     // 1. Job management
     await page.goto("/recruiter/jobs");
     await expect(page.getByRole("heading", { name: "Job management" })).toBeVisible();
+    await page.getByRole("button", { name: "More actions for Senior Go Platform Engineer" }).click();
     await expectAnyVisibleText(page, "SWX-JOB-2026-00001");
-    await expect(page.getByRole("link", { name: "View applicants →" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("link", { name: viewport.width >= 1024 ? "View 1,000 applications for Senior Go Platform Engineer" : "View applicants", exact: true })).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} job management`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/01-jobs-${viewport.name}.png`, fullPage: true });
@@ -91,7 +93,11 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
-    await expect(page.locator("span:visible").filter({ hasText: "Private · not shareable" }).first()).toBeVisible();
+    await page.getByRole("button", { name: "More actions for Private Operations Lead" }).click();
+    await expect(page.getByRole("dialog", { name: "Private Operations Lead", exact: true }).getByText("Public sharing is available after publishing a public job.")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Preview public listing" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Share", exact: true })).toHaveCount(0);
+    await page.keyboard.press("Escape");
     await assertNoHorizontalOverflow(page, `${viewport.name} private job management`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/01b-private-job-${viewport.name}.png`, fullPage: true });
@@ -100,13 +106,13 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await page.goto(`/recruiter/jobs/${jobID}/applicants`);
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
     await expect(page.getByText("Job ID: SWX-JOB-2026-00001")).toBeVisible();
-    await expect(page.getByRole("link", { name: "View Profile" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "View candidate" }).first()).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} applicants`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/02-applicants-${viewport.name}.png`, fullPage: true });
 
     // 3. Candidate profile from the application workflow
-    await page.getByRole("link", { name: "View Profile" }).first().click();
+    await page.getByRole("link", { name: "View candidate" }).first().click();
     await expect(page).toHaveURL(/\/recruiter\/candidates\//);
     await expect(page.getByText("Candidate 001", { exact: true }).first()).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} candidate profile`);
@@ -118,13 +124,16 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
     await expect(page.getByText("Verified", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Hidden phone number. Click once to show. Double click to copy" })).toContainText("••••••••••");
+    await page.getByRole("tab", { name: "Experience", exact: true }).click();
     await expect(page.getByText("8.4 · CGPA / 10", { exact: true })).toBeVisible();
     await expect(page.getByText("Jan 2024 – Present", { exact: false })).toBeVisible();
-    await expect(page.getByText("Recent activity", { exact: true })).toBeVisible();
+    await page.getByRole("tab", { name: "Matches", exact: true }).click();
     await expect(page.getByRole("region", { name: "Candidate job match" })).toBeVisible();
     await expect(page.getByLabel("Job match score 86 percent")).toBeVisible();
     await expect(page.getByRole("region", { name: "Candidate job match" })).toContainText("Skills");
     await expect(page.getByRole("region", { name: "Candidate job match" })).toContainText("Experience");
+    await page.getByRole("tab", { name: "Activity", exact: true }).click();
+    await expect(page.getByText("Recent activity", { exact: true })).toBeVisible();
     await expect(page.getByText("Stage changed to technical interview", { exact: true })).toBeVisible();
     await expect(page.getByText("Recruiter note added", { exact: true })).toBeVisible();
     await page.screenshot({ path: `visual-artifacts/phase5-candidate-360/candidate-360-${viewport.name}.png`, fullPage: true });

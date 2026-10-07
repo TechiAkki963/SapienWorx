@@ -395,6 +395,8 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 			)
 			WHERE user_id=$1`, discoverableCandidate)
 		exec(`INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source) VALUES($1,'recruiter_search_discovery','privacy-v3-2026-09-17',true,'security_fixture')`, discoverableCandidate)
+		exec(`UPDATE candidate_profiles SET profile_details=jsonb_build_object('discoverable_to_recruiters','true') WHERE user_id=$1`, pooledCandidate)
+		exec(`INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source) VALUES($1,'recruiter_search_discovery','privacy-v3-2026-09-17',true,'security_fixture')`, pooledCandidate)
 		exec(`UPDATE candidate_profiles
 			SET profile_details=jsonb_build_object('discoverable_to_recruiters','malformed-legacy-value')
 			WHERE user_id=$1`, hiddenCandidate)
@@ -439,6 +441,10 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		}
 		if !pooled.Saved || pooled.HasCompanyApplication || pooled.CanViewCV || pooled.CanViewContact || pooled.CanCollaborate || pooled.Email != "" {
 			t.Fatalf("talent-pool candidate capabilities incorrect: %+v", pooled)
+		}
+		exec(`UPDATE privacy_consents SET granted=false WHERE user_id=$1 AND purpose='recruiter_search_discovery'`, pooledCandidate)
+		if _, err := recruiterSvc.CandidateDetail(ctx, recruiterA, pooledCandidate); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("saved membership bypassed withdrawn discovery consent: %v", err)
 		}
 
 		if _, err := recruiterSvc.CandidateDetail(ctx, recruiterA, hiddenCandidate); !errors.Is(err, ErrNotFound) {

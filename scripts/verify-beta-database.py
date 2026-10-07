@@ -35,8 +35,12 @@ try:
     run('run','-d','--name',container,'--network',network,'--env-file',pg,'postgres:17-alpine')
     container_created=True
     for _ in range(60):
-        if subprocess.run(['docker','exec',container,'pg_isready','-U','sapienworx_admin','-d','sapienworx_beta'],capture_output=True).returncode==0: break
+        # The image's temporary init server accepts Unix-socket connections before
+        # POSTGRES_DB exists. Only the final server listens on TCP.
+        if subprocess.run(['docker','exec',container,'psql','-h','127.0.0.1','-U','sapienworx_admin','-d','sapienworx_beta','-Atc','SELECT 1'],capture_output=True).returncode==0: break
         time.sleep(1)
+    else:
+        raise RuntimeError('local beta rehearsal database did not become ready')
     run('exec',container,'psql','-U','sapienworx_admin','-d','sapienworx_beta','-v','ON_ERROR_STOP=1','-c','CREATE ROLE sapienworx_app NOLOGIN; CREATE ROLE sapienworx_migrator NOLOGIN; CREATE ROLE sapienworx_intelligence NOLOGIN;')
     role_passwords={key:secrets.token_urlsafe(32) for key in ['SAPIENWORX_APP_PASSWORD','SAPIENWORX_MIGRATION_PASSWORD','SAPIENWORX_INTELLIGENCE_PASSWORD']}
     bootstrap=envfile({'PGHOST':container,'PGDATABASE':'sapienworx_beta','PGUSER':'sapienworx_admin','PGPASSWORD':password,**role_passwords})

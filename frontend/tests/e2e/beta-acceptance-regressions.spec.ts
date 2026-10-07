@@ -29,10 +29,12 @@ test("recruiter dashboard actions remain readable in dark mode", async ({ page }
   await page.getByTitle("Appearance").click();
   await page.getByTitle("Dark mode").click();
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
-  const manageJobs = page.getByRole("link", { name: "Manage jobs", exact: true });
-  await expect(manageJobs).toHaveCSS("color", "rgb(229, 237, 248)");
-  await expect(page.getByText("No open application, message, offer or deadline queues need attention right now.")).toHaveCSS("color", "rgb(167, 243, 208)");
-  const contrast = await manageJobs.evaluate(element => {
+  const manageJobs = page.getByRole("link", { name: "All active jobs", exact: true });
+  await expect(manageJobs).toBeVisible();
+  const notice = page.getByText("No open application, message, offer or deadline queues need attention right now.");
+  await expect(notice).toBeVisible();
+  for (const target of [manageJobs, notice]) {
+  const contrast = await target.evaluate(element => {
     const rgb = (value: string) => value.match(/[\d.]+/g)!.slice(0, 3).map(Number);
     const luminance = (value: number[]) => value.map(channel => {
       const c = channel / 255;
@@ -40,10 +42,13 @@ test("recruiter dashboard actions remain readable in dark mode", async ({ page }
     }).reduce((sum, c, index) => sum + c * [.2126, .7152, .0722][index], 0);
     const style = getComputedStyle(element);
     const foreground = luminance(rgb(style.color));
-    const background = luminance(rgb(style.backgroundColor));
+    let surface: Element | null = element;
+    while (surface && getComputedStyle(surface).backgroundColor === "rgba(0, 0, 0, 0)") surface = surface.parentElement;
+    const background = luminance(rgb(getComputedStyle(surface!).backgroundColor));
     return (Math.max(foreground, background) + .05) / (Math.min(foreground, background) + .05);
   });
   expect(contrast).toBeGreaterThanOrEqual(4.5);
+  }
 });
 
 test("admin security notice remains readable in dark mode", async ({ page }) => {
