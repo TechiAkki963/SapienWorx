@@ -1,49 +1,20 @@
 import Link from "next/link";
-
-import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
-import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
-import {
-  type BulkMessageTemplate,
-  type BulkRecruiterJob,
-} from "@/components/recruiter/bulk-inmail-drawer";
-import { TalentPoolCandidate, TalentPoolSelection } from "@/components/recruiter/talent-pool-selection";
-import { requireRole } from "@/lib/auth-server";
-import { messagingAPI } from "@/lib/messaging-server";
-import { recruiterAPI } from "@/lib/recruiter-server";
-
-export const dynamic = "force-dynamic";
-
-export default async function TalentPoolPage() {
-  await requireRole("recruiter");
-
-  const [{ items }, templateResponse, jobResponse] = await Promise.all([
-    recruiterAPI<{ items: TalentPoolCandidate[] }>("/api/v1/recruiter/talent-pool"),
-    messagingAPI<{ items: BulkMessageTemplate[] }>("/api/v1/recruiter/message-templates").catch(() => ({ items: [] })),
-    recruiterAPI<{ items: BulkRecruiterJob[] }>("/api/v1/recruiter/jobs?status=active&limit=100").catch(() => ({ items: [] })),
-  ]);
-  const messageTemplates = templateResponse.items ?? [];
-  const activeJobs = (jobResponse.items ?? []).filter((job) => job.status === "active");
-
-  return (
-    <RecruiterShell>
-      <div className="grid gap-4 pb-28 sm:pb-24">
-        <RecruiterProductHeader
-          eyebrow="Private talent workspace"
-          title="Talent Pool"
-          description="Revisit promising candidates and move from saved talent to targeted outreach without leaving the workspace."
-          actions={<div className="rounded-xl border border-[#dfeee9] bg-[#eefaf5] px-4 py-2 text-sm font-bold text-[#18775e]">{items.length} saved candidate{items.length === 1 ? "" : "s"}</div>}
-        />
-
-        {items.length === 0 ? (
-          <section className="rounded-2xl border border-dashed border-[#cfe8df] bg-[linear-gradient(145deg,#f4fbf8,#f7f5ff)] p-8 text-center">
-            <p className="text-sm font-bold text-navy">Your talent pool is empty.</p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink-muted">Save promising candidates from the pipeline and they will appear here for future roles.</p>
-            <Link href="/recruiter/pipeline" className="mt-5 inline-flex rounded-xl bg-[#24A47F] px-4 py-2.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(36,164,127,0.18)]">Browse pipeline</Link>
-          </section>
-        ) : (
-          <TalentPoolSelection items={items} messageTemplates={messageTemplates} activeJobs={activeJobs} />
-        )}
-      </div>
-    </RecruiterShell>
-  );
+import {AutoFilterForm} from "@/components/recruiter/auto-filter-form";
+import {CreatePool,type NamedPool} from "@/components/recruiter/create-pool";
+import {RecruiterProductHeader} from "@/components/recruiter/recruiter-product-header";
+import {RecruiterShell} from "@/components/recruiter/recruiter-shell";
+import {type BulkMessageTemplate,type BulkRecruiterJob} from "@/components/recruiter/bulk-inmail-drawer";
+import {TalentPoolSelection,type TalentPoolCandidate} from "@/components/recruiter/talent-pool-selection";
+import {requireRole} from "@/lib/auth-server";
+import {messagingAPI} from "@/lib/messaging-server";
+import {recruiterAPI} from "@/lib/recruiter-server";
+export const dynamic="force-dynamic";
+export default async function TalentPoolPage({searchParams}:{searchParams:Promise<{q?:string;tag?:string;page?:string;view?:string;pool_id?:string;location?:string;min_experience?:string;max_experience?:string;max_notice_days?:string}>}){
+ await requireRole("recruiter");const{q="",tag="",page="1",view="manual",pool_id="",location="",min_experience="",max_experience="",max_notice_days=""}=await searchParams;
+ const [{items:pools},{items:team},templates,jobs]=await Promise.all([recruiterAPI<{items:NamedPool[]}>("/api/v1/recruiter/talent-pools"),recruiterAPI<{items:{user_id:string;full_name:string}[]}>("/api/v1/recruiter/team"),messagingAPI<{items:BulkMessageTemplate[]}>("/api/v1/recruiter/message-templates").catch(()=>({items:[]})),recruiterAPI<{items:BulkRecruiterJob[]}>("/api/v1/recruiter/jobs?status=active&limit=50").catch(()=>({items:[]}))]);
+ const pool=pools.find(p=>p.id===pool_id),smartOverview=!pool_id&&view==="smart";const facets={q,tag,location,min_experience,max_experience,max_notice_days};const query=new URLSearchParams({...pool?.kind!=="smart"?facets:{},page,limit:"50"});
+ // Request the ID even when it is absent from the authorized list: the API returns a controlled not-found.
+ const result=smartOverview?{items:[],page:1,limit:50,total:0}:await recruiterAPI<{items:TalentPoolCandidate[];page:number;limit:number;total:number}>(pool_id?`/api/v1/recruiter/talent-pools/${encodeURIComponent(pool_id)}/candidates?${query}`:`/api/v1/recruiter/talent-pool?${query}`);
+ const href=(id:string,nextPage=1)=>`/recruiter/talent-pool?${new URLSearchParams({...(id?{pool_id:id}:{}),view:pools.find(p=>p.id===id)?.kind||view,...pools.find(p=>p.id===id)?.kind!=="smart"?facets:{},page:String(nextPage)})}`;
+ return <RecruiterShell><div className="grid min-w-0 gap-4 pb-28"><RecruiterProductHeader eyebrow="Talent workspace" title="Talent Pools" description="Organize promising candidates for future hiring and targeted outreach." actions={<CreatePool team={team}/>}/><nav aria-label="Talent pool types" className="flex gap-2 border-b border-line">{[["manual","Pools"],["smart","Smart Pools"]].map(([kind,title])=><Link key={kind} aria-current={(pool?.kind||view)===kind?"page":undefined} href={`/recruiter/talent-pool?view=${kind}`} className={`min-h-11 border-b-2 px-3 content-center text-sm font-semibold ${(pool?.kind||view)===kind?"border-indigo text-indigo":"border-transparent text-ink-muted"}`}>{title}</Link>)}</nav><div className="grid min-w-0 gap-4 xl:grid-cols-[13rem_minmax(0,1fr)]"><aside aria-label="Your talent pools" className="min-w-0"><details className="rounded-xl border border-line bg-white xl:hidden"><summary className="min-h-11 px-3 content-center text-sm font-semibold text-navy">{pool?.name||(smartOverview?"Smart Pools":"All saved candidates")} ▾</summary><div className="grid p-2"><Link className="min-h-11 content-center px-2 text-sm text-indigo" href="/recruiter/talent-pool">All saved candidates · Private</Link>{pools.filter(p=>p.kind===(pool?.kind||view)).map(p=><Link key={p.id} className="min-h-11 px-2 py-2 text-sm text-ink" href={href(p.id)}>{p.name} · {p.count}<span className="block text-xs capitalize text-ink-muted">{p.visibility}</span></Link>)}</div></details><div className="hidden xl:grid gap-1"><p className="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-muted">{pools.length} pools</p><Link href="/recruiter/talent-pool" className={`min-h-11 rounded-lg px-3 py-3 text-sm font-semibold ${!pool&&!smartOverview?"bg-indigo-soft text-indigo":"text-ink"}`}>All saved candidates<span className="block text-xs font-normal text-ink-muted">Your private bookmarks</span></Link>{pools.filter(p=>p.kind===(pool?.kind||view)).map(p=><Link key={p.id} href={href(p.id)} aria-current={pool?.id===p.id?"page":undefined} className={`rounded-lg px-3 py-3 text-sm font-semibold ${pool?.id===p.id?"bg-indigo-soft text-indigo":"text-ink hover:bg-slate-50"}`}><span className="flex justify-between gap-2"><span className="break-words">{p.name}</span><span>{p.count}</span></span><span className="mt-1 block text-xs font-normal capitalize text-ink-muted">{p.visibility} · {p.owner_name}</span></Link>)}{!pools.some(p=>p.kind===view)&&<p className="px-3 py-3 text-xs leading-6 text-ink-muted">Create a {view==="smart"?"Smart Pool with live professional criteria":"named pool to organize saved candidates"}.</p>}</div></aside><section className="grid min-w-0 content-start gap-3"><div><h2 className="text-lg font-semibold text-navy">{pool?.name||(smartOverview?"Smart Pools":"All saved candidates")}</h2><p className="mt-1 text-xs text-ink-muted">{smartOverview?`${pools.filter(p=>p.kind==="smart").length} live criteria pools`: `${result.total.toLocaleString()} candidates`} · {pool?`${pool.visibility} · Owned by ${pool.owner_name}`:smartOverview?"Your authorized pools":"Private · Only you"}{pool?.kind==="smart"?" · Live membership based on current criteria and consent":""}</p></div>{!smartOverview&&pool?.kind!=="smart"&&<AutoFilterForm label="Talent pool filters" action="/recruiter/talent-pool" className="flex flex-wrap items-end gap-2">{pool_id&&<input type="hidden" name="pool_id" value={pool_id}/>}<label className="grid min-w-0 flex-[2_1_12rem] gap-1 text-xs font-semibold text-ink-muted">Search candidates<input className="min-h-11 min-w-0 w-full rounded-lg border border-line bg-white px-3 text-sm" name="q" defaultValue={q} placeholder="Name, title, skill or location"/></label><label className="grid min-w-0 flex-[1_1_8rem] gap-1 text-xs font-semibold text-ink-muted">Tags<input className="min-h-11 min-w-0 w-full rounded-lg border border-line bg-white px-3 text-sm" name="tag" defaultValue={tag} placeholder="Any tag"/></label><label className="grid min-w-0 flex-[1_1_8rem] gap-1 text-xs font-semibold text-ink-muted">Location<input name="location" defaultValue={location} placeholder="Any location" className="min-h-11 min-w-0 w-full rounded-lg border border-line bg-white px-3 text-sm"/></label><label className="grid min-w-0 flex-[1_1_7rem] gap-1 text-xs font-semibold text-ink-muted">Experience from<input type="number" name="min_experience" aria-label="Experience from (years)" min="0" max="100" step="0.5" defaultValue={min_experience} placeholder="Years" className="min-h-11 min-w-0 w-full rounded-lg border border-line bg-white px-3 text-sm"/></label><label className="grid min-w-0 flex-[1_1_7rem] gap-1 text-xs font-semibold text-ink-muted">Experience to<input type="number" name="max_experience" aria-label="Experience to (years)" min="0" max="100" step="0.5" defaultValue={max_experience} placeholder="Years" className="min-h-11 min-w-0 w-full rounded-lg border border-line bg-white px-3 text-sm"/></label><label className="grid min-w-0 flex-[1_1_8rem] gap-1 text-xs font-semibold text-ink-muted">Availability<select aria-label="Availability" name="max_notice_days" defaultValue={max_notice_days} className="min-h-11 min-w-0 w-full rounded-lg border border-line bg-white px-2 text-sm"><option value="">Any notice</option><option value="0">Immediate</option><option value="15">Up to 15 days</option><option value="30">Up to 30 days</option><option value="60">Up to 60 days</option><option value="90">Up to 90 days</option></select></label></AutoFilterForm>}{smartOverview?<div className="rounded-xl border border-line bg-white p-6"><h3 className="font-semibold text-navy">Choose a Smart Pool</h3><p className="mt-2 text-sm leading-7 text-ink-muted">Select a pool to see matching candidates. Membership is evaluated from current professional profiles and discovery consent whenever opened. Saved Searches remain separate.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{pools.filter(p=>p.kind==="smart").map(p=><Link key={p.id} href={href(p.id)} className="rounded-xl border border-line p-4 text-sm font-semibold text-indigo">{p.name}<span className="mt-2 block text-xs font-normal capitalize text-ink-muted">{p.count} candidates · {p.visibility}</span></Link>)}</div></div>:result.items.length?<TalentPoolSelection items={result.items} messageTemplates={templates.items} activeJobs={jobs.items.filter(j=>j.status==="active")} poolID={pool_id||undefined} canEdit={!pool||pool.can_edit&&pool.kind==="manual"} smart={pool?.kind==="smart"} pools={pools}/>:<div className="rounded-xl border border-dashed border-line bg-white p-8 text-center"><h3 className="font-semibold text-navy">No candidates in this view</h3><p className="mt-2 text-sm text-ink-muted">{pool?.kind==="smart"?"No discoverable profiles currently match this pool’s criteria.":"Add authorized candidates from your saved list, or clear the filters."}</p><Link href="/recruiter/pipeline" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-indigo">Browse applications →</Link></div>}{!smartOverview&&<nav aria-label="Talent pool pagination" className="flex items-center justify-between gap-3 text-xs text-ink-muted"><span>{result.items.length} shown · {result.total.toLocaleString()} matching</span>{result.total>result.limit&&<div className="flex gap-3"><Link aria-disabled={result.page<=1} tabIndex={result.page<=1?-1:undefined} href={href(pool_id,Math.max(1,result.page-1))} className={`min-h-11 content-center text-indigo ${result.page<=1?"pointer-events-none opacity-50":""}`}>Previous</Link><Link aria-disabled={result.page*result.limit>=result.total} tabIndex={result.page*result.limit>=result.total?-1:undefined} href={href(pool_id,result.page+1)} className={`min-h-11 content-center text-indigo ${result.page*result.limit>=result.total?"pointer-events-none opacity-50":""}`}>Next</Link></div>}</nav>}</section></div></div></RecruiterShell>;
 }

@@ -86,3 +86,23 @@ func TestMaskCandidatePhoneHidesEntireNumber(t *testing.T) {
 		}
 	}
 }
+
+func TestRecruiterProfessionalSkillsAndCertificatesDoNotExposeNestedSecrets(t *testing.T) {
+	got := recruiterVisibleCandidateDetails(map[string]any{
+		"key_skills":     []any{"Go", map[string]any{"private_salary": "secret"}, "SQL"},
+		"certifications": []any{map[string]any{"title": "Professional certificate", "issuer": "Example", "credential_id": "private-credential", "private_note": "secret"}},
+	})
+	skills, ok := got["key_skills"].([]string)
+	if !ok || len(skills) != 2 || skills[0] != "Go" || skills[1] != "SQL" {
+		t.Fatalf("invalid professional skills %#v", got)
+	}
+	certificate := got["certifications"].([]map[string]any)[0]
+	if certificate["title"] != "Professional certificate" || certificate["issuer"] != "Example" {
+		t.Fatalf("lost professional fields %#v", certificate)
+	}
+	for _, key := range []string{"credential_id", "private_note"} {
+		if _, ok := certificate[key]; ok {
+			t.Fatalf("private certificate field leaked %s", key)
+		}
+	}
+}

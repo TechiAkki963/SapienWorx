@@ -1,6 +1,9 @@
 package httpserver
 
-import "net/http"
+import (
+	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
+	"net/http"
+)
 
 func (s *Server) recruiterSavedSearches(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
@@ -49,17 +52,46 @@ func (s *Server) recruiterSavedSearchAlert(w http.ResponseWriter, r *http.Reques
 	if !ok {
 		return
 	}
-	var input struct {
-		Enabled   bool   `json:"enabled"`
-		Frequency string `json:"frequency"`
+	w.Header().Set("Cache-Control", "no-store")
+	if r.Method == http.MethodGet {
+		item, err := s.recruiter.SavedSearchByID(r.Context(), id, r.PathValue("searchID"))
+		if err != nil {
+			s.writeRecruiterError(w, r, err)
+			return
+		}
+		writeJSON(w, http.StatusOK, item)
+		return
 	}
+	if r.Method == http.MethodDelete {
+		if err := s.recruiter.DeleteSavedSearch(r.Context(), id, r.PathValue("searchID")); err != nil {
+			s.writeRecruiterError(w, r, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	var input recruiter.SavedSearchUpdate
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	item, err := s.recruiter.UpdateSavedSearchAlert(r.Context(), id, r.PathValue("searchID"), input.Enabled, input.Frequency)
+	item, err := s.recruiter.UpdateSavedSearch(r.Context(), id, r.PathValue("searchID"), input)
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
 	}
 	writeJSON(w, http.StatusOK, item)
+}
+
+func (s *Server) recruiterSavedSearchMatches(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	counts, err := s.recruiter.SavedSearchMatchCounts(r.Context(), id, r.PathValue("searchID"))
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, counts)
 }

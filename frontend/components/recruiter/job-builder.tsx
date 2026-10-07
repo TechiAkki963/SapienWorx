@@ -62,10 +62,11 @@ const initialState: BuilderState = {
 };
 
 const steps = [
-  { number: 1, title: "Role basics", subtitle: "Title, function and working model" },
-  { number: 2, title: "Requirements", subtitle: "Experience, compensation and competencies" },
-  { number: 3, title: "Candidate story", subtitle: "Role, company and hiring journey" },
-  { number: 4, title: "Settings & publish", subtitle: "Screening, ownership and visibility" },
+  { number: 1, title: "Basics", subtitle: "Role, location and experience" },
+  { number: 2, title: "Description", subtitle: "Story, competencies and qualifications" },
+  { number: 3, title: "Application", subtitle: "Questions and closing date" },
+  { number: 4, title: "Hiring workflow", subtitle: "Ownership, stages and internal context" },
+  { number: 5, title: "Publish", subtitle: "Review, visibility and sharing" },
 ];
 
 const roleCategoryOptions = [
@@ -262,6 +263,8 @@ export function JobBuilder({
   const [skills, setSkills] = useState<string[]>(() => job?.skills ?? []);
   const [busy, setBusy] = useState<"draft" | "publish" | "">("");
   const [error, setError] = useState("");
+  const stepRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { stepRef.current?.focus(); }, [step]);
   const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -300,7 +303,7 @@ export function JobBuilder({
       return;
     }
     if (publish && (!publishReady || !builderCanPublish)) {
-      setStep(4);
+      setStep(5);
       setError(builderCanPublish
         ? "Complete the role summary, responsibilities, at least one competency, and at least three hiring stages before publishing."
         : "Save your edits here, then use the governed status control in Job Management to reopen this role.");
@@ -349,12 +352,12 @@ export function JobBuilder({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (step < 4) setStep(step + 1);
+    if (step < 5) setStep(step + 1);
   }
 
   return (
     <form onSubmit={submit} className="grid min-w-0 w-full max-w-full gap-5">
-      <nav className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="Job posting steps">
+      <nav className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5" aria-label="Job posting steps">
         {steps.map((item) => {
           const active = item.number === step;
           const completed = item.number < step;
@@ -373,7 +376,7 @@ export function JobBuilder({
 
       <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
         <section className="min-w-0 rounded-2xl border border-line/70 bg-white shadow-[0_1px_2px_rgba(16,33,63,0.03)]">
-          <div className="border-b border-line/60 px-5 py-4 sm:px-6"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Step {step} of 4</p><h2 className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">{steps[step - 1].title}</h2></div>
+          <div className="border-b border-line/60 px-5 py-4 sm:px-6"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Step {step} of 5</p><h2 ref={stepRef} tabIndex={-1} className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">{steps[step - 1].title}</h2></div>
           <div className="p-5 sm:p-6">
             {step === 1 && <div className="grid gap-5">
               <Input label="Job title" value={state.title} onChange={(event) => update("title", event.target.value)} placeholder="e.g. Critical Care Nurse" required error={error.startsWith("Add a job title") ? error : undefined} />
@@ -387,47 +390,43 @@ export function JobBuilder({
                 <Input label="Location" value={state.location} onChange={(event) => update("location", event.target.value)} placeholder="e.g. Mumbai, India" />
                 <Input label="Openings" type="number" min="1" max="10000" value={state.openings} onChange={(event) => update("openings", event.target.value)} error={error.startsWith("Enter an openings count") ? error : undefined} />
               </div>
-            </div>}
-
-            {step === 2 && <div className="grid gap-6">
               <div><h3 className="text-sm font-bold text-navy">Experience</h3><div className="mt-3 grid gap-4 sm:grid-cols-2"><Input label="Minimum years" type="number" min="0" value={state.min_experience_years} onChange={(event) => update("min_experience_years", event.target.value)} placeholder="e.g. 3" /><Input label="Maximum years" type="number" min="0" value={state.max_experience_years} onChange={(event) => update("max_experience_years", event.target.value)} placeholder="e.g. 6" /></div></div>
-              <div className="rounded-xl border border-amber-100 bg-amber-50/45 p-4">
-                <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-bold text-navy">Internal compensation range</h3><span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-amber-700">Private</span></div>
-                <div className="mt-3 grid gap-4 sm:grid-cols-2"><Input label="Minimum salary in lakhs" type="number" min="0" step="0.1" value={state.min_salary_lakhs} onChange={(event) => update("min_salary_lakhs", event.target.value)} placeholder="e.g. 12" /><Input label="Maximum salary in lakhs" type="number" min="0" step="0.1" value={state.max_salary_lakhs} onChange={(event) => update("max_salary_lakhs", event.target.value)} placeholder="e.g. 18" /></div>
-                <p className="mt-3 text-xs leading-5 text-ink-muted">Used for matching and internal reporting. It is never shown in the candidate-facing preview.</p>
-              </div>
-              <ChipInput skills={skills} setSkills={setSkills} />
             </div>}
 
-            {step === 3 && <div className="grid gap-5">
+            {step === 2 && <div className="grid gap-5">
               <TextareaField labelText="Role summary" value={state.description} onChange={(value) => update("description", value)} placeholder="Describe the role, its purpose and what success looks like…" />
               <TextareaField labelText="Responsibilities" value={state.responsibilities} onChange={(value) => update("responsibilities", value)} placeholder="Add the outcomes and responsibilities candidates should understand before applying…" />
               <TextareaField labelText="Company overview" value={state.company_overview} onChange={(value) => update("company_overview", value)} placeholder="Introduce the company, its mission and the team this person will join." rows={4} />
               <TextareaField labelText="Why join" value={state.why_join} onChange={(value) => update("why_join", value)} placeholder="Give candidates honest reasons to consider this opportunity." rows={4} />
-              <TextareaField labelText="Hiring process" value={state.hiring_process} onChange={(value) => update("hiring_process", value)} placeholder={"Application review\nRecruiter conversation\nRole-focused conversation\nFinal decision"} rows={6} hint="Enter one stage per line. Use three to six stages so candidates know what to expect." />
+              <TextareaField labelText="Education requirements" value={state.education_requirements} onChange={(value) => update("education_requirements", value)} placeholder={"B.Sc Nursing\nGNM\nValid state nursing registration"} rows={4} hint="One requirement per line. Keep requirements genuinely necessary for the role." />
+              <ChipInput skills={skills} setSkills={setSkills} />
             </div>}
 
-            {step === 4 && <div className="grid min-w-0 max-w-full gap-6">
-              <div className="rounded-xl border border-indigo/15 bg-indigo-soft/30 p-4">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Recruitment controls</p>
-                <h3 className="mt-1 text-lg font-bold text-navy">Configure before publishing</h3>
-                <p className="mt-1 text-sm leading-6 text-ink-muted">These settings control ownership, candidate visibility and application quality without changing the public role story.</p>
-              </div>
+            {step === 3 && <div className="grid gap-5">
+              <label className="grid gap-2 text-sm font-semibold text-ink">Application deadline<input type="date" value={state.application_deadline} onChange={(event) => update("application_deadline", event.target.value)} className={fieldClass} /></label>
+              <TextareaField labelText="Screening questions" value={state.screening_questions} onChange={(value) => update("screening_questions", value)} placeholder={"Do you hold a valid nursing registration?\nAre you available for rotational shifts?"} rows={5} hint="One question per line. Maximum 20 questions; each should be job-related and necessary." />
+              <p className="text-xs leading-6 text-ink-muted">Existing candidate application and resume consent requirements remain in place.</p>
+            </div>}
 
-              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-ink">
-                  Application deadline
-                  <input type="date" value={state.application_deadline} onChange={(event) => update("application_deadline", event.target.value)} className={fieldClass} />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-ink">
+            {step === 4 && <div className="grid gap-5">
+              <label className="grid gap-2 text-sm font-semibold text-ink">
                   Assigned recruiter
                   <select value={state.assigned_recruiter_id} onChange={(event) => update("assigned_recruiter_id", event.target.value)} className={fieldClass}>
                     <option value="">Me / default owner</option>
                     {team.map((member) => <option key={member.user_id} value={member.user_id}>{member.full_name}{member.designation ? ` — ${member.designation}` : ""}</option>)}
                   </select>
                 </label>
+              <TextareaField labelText="Hiring process" value={state.hiring_process} onChange={(value) => update("hiring_process", value)} placeholder={"Application review\nRecruiter conversation\nRole-focused conversation\nFinal decision"} rows={6} hint="Enter one stage per line. Use three to six stages so candidates know what to expect." />
+              <div className="rounded-xl border border-amber-100 bg-amber-50/45 p-4">
+                <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-bold text-navy">Internal compensation range</h3><span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-amber-700">Private</span></div>
+                <div className="mt-3 grid gap-4 sm:grid-cols-2"><Input label="Minimum salary in lakhs" type="number" min="0" step="0.1" value={state.min_salary_lakhs} onChange={(event) => update("min_salary_lakhs", event.target.value)} placeholder="e.g. 12" /><Input label="Maximum salary in lakhs" type="number" min="0" step="0.1" value={state.max_salary_lakhs} onChange={(event) => update("max_salary_lakhs", event.target.value)} placeholder="e.g. 18" /></div>
+                <p className="mt-3 text-xs leading-5 text-ink-muted">Used for matching and internal reporting. It is never shown in the candidate-facing preview.</p>
               </div>
+              <TextareaField labelText="Internal recruiter notes" value={state.internal_notes} onChange={(value) => update("internal_notes", value)} placeholder="Hiring-manager context, sourcing notes, internal constraints…" rows={4} hint="Internal only. Never shown to candidates." />
+            </div>}
 
+            {step === 5 && <div className="grid gap-5">
+              <p className="text-sm leading-6 text-ink-muted">Review the candidate-facing preview, then publish. Sharing becomes available from the job overview once the public role is active.</p>
               <div className="grid min-w-0 gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-ink">
                   Job visibility
@@ -442,11 +441,6 @@ export function JobBuilder({
                   <span><span className="block">Enable referrals</span><span className="mt-1 block text-xs font-normal leading-5 text-ink-muted">Allow this vacancy to participate in SapienWorx referral workflows.</span></span>
                 </label>
               </div>
-
-              <TextareaField labelText="Education requirements" value={state.education_requirements} onChange={(value) => update("education_requirements", value)} placeholder={"B.Sc Nursing\nGNM\nValid state nursing registration"} rows={4} hint="One requirement per line. Keep requirements genuinely necessary for the role." />
-              <TextareaField labelText="Screening questions" value={state.screening_questions} onChange={(value) => update("screening_questions", value)} placeholder={"Do you hold a valid nursing registration?\nAre you available for rotational shifts?"} rows={5} hint="One question per line. Maximum 20 questions; each should be job-related and necessary." />
-              <TextareaField labelText="Internal recruiter notes" value={state.internal_notes} onChange={(value) => update("internal_notes", value)} placeholder="Hiring-manager context, sourcing notes, internal constraints…" rows={4} hint="Internal only. Never shown to candidates." />
-
               <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Role</p><p className="mt-1 font-bold text-ink">{state.title || "Untitled role"}</p><p className="mt-1 text-xs text-ink-muted">{state.department || "No team set"} · {label(state.work_mode)}</p></div>
                 <div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Requirements</p><p className="mt-1 font-bold text-ink">{skills.length} competenc{skills.length === 1 ? "y" : "ies"}</p><p className="mt-1 text-xs text-ink-muted">{lines(state.screening_questions).length} screening question{lines(state.screening_questions).length === 1 ? "" : "s"} · {state.visibility}</p></div>
@@ -462,7 +456,7 @@ export function JobBuilder({
               {step > 1 && <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>← Back</Button>}
               <Button type="button" variant="ghost" disabled={Boolean(busy)} onClick={() => save(false)}>{busy === "draft" ? "Saving…" : job ? "Save changes" : "Save as draft"}</Button>
             </div>
-            {step < 4
+            {step < 5
               ? <Button type="submit">Continue →</Button>
               : builderCanPublish && <Button type="button" disabled={Boolean(busy) || !publishReady} onClick={() => save(true)}>{busy === "publish" ? "Publishing…" : job?.status === "active" ? "Save and keep published" : "Publish job"}</Button>}
           </div>

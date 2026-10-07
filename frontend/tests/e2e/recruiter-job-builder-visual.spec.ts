@@ -21,14 +21,16 @@ test("job builder recruitment settings remain clear and responsive", async ({ pa
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/recruiter/jobs/new");
-    await page.getByRole("button", { name: /Settings & publish/ }).click();
+    await page.getByRole("button", { name: /Application Questions/ }).click();
 
-    await expect(page.getByRole("heading", { name: "Settings & publish" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Application", exact: true })).toBeVisible();
     await expect(page.getByLabel("Application deadline")).toBeVisible();
+    await page.getByRole("button", {name: /Hiring workflow Ownership/}).click();
     await expect(page.getByLabel("Assigned recruiter")).toBeVisible();
+    await page.getByRole("button", {name: /Publish Review/}).click();
     await expect(page.getByLabel("Job visibility")).toBeVisible();
     await expect(page.getByText("Enable referrals")).toBeVisible();
-    await expect(page.getByText("Candidate-facing preview")).toBeVisible();
+    await expect(page.getByText("Candidate-facing preview", {exact:true})).toBeVisible();
 
     await page.getByLabel("Job visibility").selectOption("private");
     await expect(page.getByText("Private roles are hidden from candidate search, recommendations and public job pages.")).toBeVisible();
@@ -51,7 +53,7 @@ test("job builder recruitment settings remain clear and responsive", async ({ pa
 
     await page.screenshot({
       path: `visual-artifacts/phase3-job-builder/new-${viewport.name}.png`,
-      fullPage: true,
+      fullPage: true, caret: "initial",
     });
   }
 });
@@ -70,8 +72,10 @@ test("edit job shows governance controls and audit history without clutter", asy
     await expect(page.getByRole("heading", { name: "Job change history" })).toBeVisible();
     await expect(page.getByText("Created And Published")).toBeVisible();
 
-    await page.getByRole("button", { name: /Settings & publish/ }).click();
+    await page.getByRole("button", { name: /Application Questions/ }).click();
+    await page.getByRole("button", {name: /Hiring workflow Ownership/}).click();
     await expect(page.getByLabel("Assigned recruiter")).toHaveValue("20000000-0000-4000-8000-000000000001");
+    await page.getByRole("button", {name: /Publish Review/}).click();
     await expect(page.getByLabel("Job visibility")).toHaveValue("public");
     await expect(page.getByText("Enable referrals")).toBeVisible();
 
@@ -87,7 +91,7 @@ test("edit job shows governance controls and audit history without clutter", asy
 
     await page.screenshot({
       path: `visual-artifacts/phase3-job-builder/edit-${viewport.name}.png`,
-      fullPage: true,
+      fullPage: true, caret: "initial",
     });
   }
 });

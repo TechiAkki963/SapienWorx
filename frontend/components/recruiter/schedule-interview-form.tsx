@@ -1,9 +1,11 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { RecruiterDrawer } from "./workspace-ui";
+import { interviewTimeISO } from "@/lib/interview-time";
 import { apiRequest } from "@/lib/api";
 import { PipelineRow } from "@/lib/recruiter";
 
@@ -15,47 +17,11 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const openerRef = useRef<HTMLElement | null>(null);
-  const firstFieldRef = useRef<HTMLSelectElement>(null);
-  const dialogRef = useRef<HTMLElement>(null);
-  const wasOpen = useRef(false);
-
-  useEffect(() => {
-    if (open) {
-      wasOpen.current = true;
-      const frame = window.requestAnimationFrame(() => firstFieldRef.current?.focus());
-      return () => window.cancelAnimationFrame(frame);
-    }
-    if (wasOpen.current) {
-      wasOpen.current = false;
-      openerRef.current?.focus();
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Tab") {
-        const dialog = dialogRef.current;
-        const controls = Array.from(dialog?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])') ?? []).filter(control => control.getClientRects().length > 0);
-        const first = controls[0];
-        const last = controls[controls.length - 1];
-        if (first && last && (!dialog?.contains(document.activeElement) || (event.shiftKey ? document.activeElement === first : document.activeElement === last))) {
-          event.preventDefault();
-          (event.shiftKey ? last : first).focus();
-        }
-      }
-      if (event.key === "Escape" && !busy) {
-        event.preventDefault();
-        setOpen(false);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, busy]);
+  const formID = useId();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     setBusy(true);
     setError("");
     const data = new FormData(event.currentTarget);
@@ -64,7 +30,7 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
         method: "POST",
         body: JSON.stringify({
           application_id: data.get("application_id"),
-          scheduled_at: new Date(String(data.get("scheduled_at"))).toISOString(),
+          scheduled_at: interviewTimeISO(String(data.get("scheduled_at")),String(data.get("timezone"))),
           duration_minutes: Number(data.get("duration_minutes")),
           meeting_url: data.get("meeting_url"),
           round_label: data.get("round_label"),
@@ -82,29 +48,18 @@ export function ScheduleInterviewForm({ applications, compactTrigger = false }: 
 
   return (
     <>
-      <Button onClick={() => { openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setOpen(true); }} disabled={!applications.length} aria-haspopup="dialog" aria-expanded={open} variant={compactTrigger ? "secondary" : "primary"} size={compactTrigger ? "sm" : "md"} className={compactTrigger ? "max-sm:min-w-[6.5rem] max-sm:flex-1" : undefined}><span className={compactTrigger ? "sm:hidden" : "hidden"}>Interview</span><span className={compactTrigger ? "max-sm:hidden" : ""}>Schedule interview</span></Button>
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/35 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) setOpen(false); }}>
-          <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="schedule-interview-title" className="w-full max-w-2xl rounded-t-3xl bg-white shadow-[0_24px_80px_rgba(7,29,73,0.28)] sm:rounded-3xl">
-            <div className="flex items-start justify-between gap-4 border-b border-line/70 px-5 py-4 sm:px-6">
-              <div><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Interview coordination</p><h2 id="schedule-interview-title" className="mt-1 text-xl font-bold text-navy">Schedule interview</h2><p className="mt-1 text-xs text-ink-muted">Use the meeting URL created in your external conferencing tool.</p></div>
-              <button type="button" onClick={() => !busy && setOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-lg text-ink-muted hover:bg-slate-50" aria-label="Close interview dialog">×</button>
-            </div>
-            <form onSubmit={submit} className="p-5 sm:p-6">
+      <Button onClick={() => setOpen(true)} disabled={!applications.length} aria-haspopup="dialog" aria-expanded={open} variant={compactTrigger ? "secondary" : "primary"} size={compactTrigger ? "sm" : "md"} className={compactTrigger ? "max-sm:min-w-[6.5rem] max-sm:flex-1" : undefined}><span className={compactTrigger ? "sm:hidden" : "hidden"}>Interview</span><span className={compactTrigger ? "max-sm:hidden" : ""}>Schedule interview</span></Button>
+      <RecruiterDrawer initialFocus='select[name="application_id"]' open={open} onClose={()=>{if(!busy)setOpen(false);}} title="Schedule interview" footer={<><Button type="button" variant="secondary" onClick={() => setOpen(false)} disabled={busy}>Cancel</Button><Button type="submit" form={formID} disabled={busy}>{busy ? "Scheduling…" : "Schedule interview"}</Button></>}><form id={formID} onSubmit={submit} className="p-5 sm:p-6">
               {error && <p role="alert" className="mb-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-700">{error}</p>}
               <div className="grid gap-4 md:grid-cols-2">
-                <label className={`${labelClass} md:col-span-2`}>Candidate and job<select ref={firstFieldRef} name="application_id" required className={controlClass}>{applications.map((application) => <option key={application.application_id} value={application.application_id}>{application.candidate_name} — {application.job_title}</option>)}</select></label>
+                <label className={`${labelClass} md:col-span-2`}>Candidate and job<select name="application_id" required className={controlClass}>{applications.map((application) => <option key={application.application_id} value={application.application_id}>{application.candidate_name} — {application.job_title}</option>)}</select></label>
                 <label className={`${labelClass} md:col-span-2`}>Interview round<input name="round_label" maxLength={120} defaultValue="First interview" required className={controlClass} /></label>
-                <label className={labelClass}>Date and time<input name="scheduled_at" type="datetime-local" required className={controlClass} /></label>
+                <label className={labelClass}>Timezone<select name="timezone" defaultValue="Asia/Kolkata" className={controlClass}>{["Asia/Kolkata","UTC","Europe/London","Europe/Paris","America/New_York","America/Los_Angeles","Asia/Dubai","Asia/Singapore","Australia/Sydney"].map(zone=><option key={zone} value={zone}>{zone}</option>)}</select></label><label className={labelClass}>Date and time<input name="scheduled_at" type="datetime-local" required className={controlClass} /></label>
                 <label className={labelClass}>Duration (minutes)<input name="duration_minutes" type="number" min="10" max="480" defaultValue="45" className={controlClass} /></label>
                 <label className={`${labelClass} md:col-span-2`}>External meeting URL<input name="meeting_url" type="url" required placeholder="https://..." className={controlClass} /><span className="font-normal text-ink-muted">SapienWorx stores and opens this URL; it does not create or host the meeting.</span></label>
                 <label className={`${labelClass} md:col-span-2`}>Internal notes<textarea name="notes" rows={4} className={`${controlClass} min-h-28 py-3`} placeholder="Agenda, panel notes or preparation context" /></label>
               </div>
-              <div className="mt-5 flex justify-end gap-2 border-t border-line/70 pt-4"><Button type="button" variant="secondary" onClick={() => setOpen(false)} disabled={busy}>Cancel</Button><Button type="submit" disabled={busy}>{busy ? "Scheduling…" : "Schedule interview"}</Button></div>
-            </form>
-          </section>
-        </div>
-      )}
+            </form></RecruiterDrawer>
     </>
   );
 }

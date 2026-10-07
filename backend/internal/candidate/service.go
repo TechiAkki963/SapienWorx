@@ -29,6 +29,7 @@ func NewService(db *pgxpool.Pool) *Service {
 }
 
 type Job struct {
+	ReferralEnabled     bool       `json:"referral_enabled"`
 	ID                  string     `json:"id"`
 	CompanyName         string     `json:"company_name"`
 	Title               string     `json:"title"`
@@ -123,7 +124,7 @@ type Dashboard struct {
 	Notifications      []Notification `json:"notifications"`
 }
 
-const jobColumns = `j.id,c.display_name,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at`
+const jobColumns = `j.id,c.display_name,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.referral_enabled`
 
 type scanner interface {
 	Scan(dest ...any) error
@@ -149,6 +150,7 @@ func scanJob(row scanner, job *Job) error {
 		&job.Openings,
 		&job.ApplicationDeadline,
 		&job.PublishedAt,
+		&job.ReferralEnabled,
 	)
 }
 

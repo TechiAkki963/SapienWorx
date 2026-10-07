@@ -11,18 +11,23 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// ErrContentUnavailable permanently suppresses revoked, superseded or expired content.
+var ErrContentUnavailable = errors.New("message content no longer available")
+
 type Config struct {
 	Enabled      bool
 	PollInterval time.Duration
 	BatchSize    int
 	MaxAttempts  int
+	DedupeKey    string
 }
 
 type Service struct {
-	db       *pgxpool.Pool
-	provider Provider
-	cfg      Config
-	now      func() time.Time
+	db              *pgxpool.Pool
+	provider        Provider
+	cfg             Config
+	now             func() time.Time
+	referralContent func(context.Context, string, string) (string, error)
 }
 
 type Health struct {
@@ -47,6 +52,7 @@ type queuedMessage struct {
 	TextBody  string
 	HTMLBody  *string
 	Attempts  int
+	DedupeKey string
 }
 
 func NewService(db *pgxpool.Pool, provider Provider, cfg Config) *Service {
@@ -130,7 +136,7 @@ func (s *Service) claim(ctx context.Context) ([]queuedMessage, error) {
 		return nil, err
 	}
 
-	rows, err := tx.Query(ctx, `SELECT id,kind,recipient_email,subject,text_body,html_body,attempts
+	rows, err := tx.Query(ctx, `SELECT id,kind,recipient_email,subject,text_body,html_body,attempts,coalesce(dedupe_key,'')
 		FROM email_outbox
 		WHERE status IN ('pending','failed') AND next_attempt_at<=now() AND expires_at>now() AND attempts<$1
 		ORDER BY created_at
@@ -142,7 +148,7 @@ func (s *Service) claim(ctx context.Context) ([]queuedMessage, error) {
 	items := make([]queuedMessage, 0)
 	for rows.Next() {
 		var item queuedMessage
-		if err := rows.Scan(&item.ID, &item.Kind, &item.Recipient, &item.Subject, &item.TextBody, &item.HTMLBody, &item.Attempts); err != nil {
+		if err := rows.Scan(&item.ID, &item.Kind, &item.Recipient, &item.Subject, &item.TextBody, &item.HTMLBody, &item.Attempts, &item.DedupeKey); err != nil {
 			rows.Close()
 			return nil, err
 		}
@@ -199,6 +205,20 @@ func (s *Service) dispatchOne(ctx context.Context, item queuedMessage) error {
 	html := ""
 	if item.HTMLBody != nil {
 		html = *item.HTMLBody
+	}
+	if item.Kind == "referral_invitation" {
+		if s.referralContent == nil {
+			return s.markFailed(ctx, item, errors.New("secure referral delivery resolver unavailable"))
+		}
+		content, resolveErr := s.referralContent(ctx, item.DedupeKey, item.Recipient)
+		if resolveErr != nil {
+			if !errors.Is(resolveErr, ErrContentUnavailable) {
+				return s.markFailed(ctx, item, errors.New("secure referral delivery lookup failed"))
+			}
+			return s.markSuppressed(ctx, item, "manual", "invitation expired, superseded or unavailable")
+		}
+		item.TextBody = content
+		html = ""
 	}
 	messageID, err := s.provider.Send(ctx, Message{
 		To:       item.Recipient,
@@ -357,4 +377,8 @@ func (s *Service) Run(ctx context.Context, onError func(error)) {
 		case <-ticker.C:
 		}
 	}
+}
+
+func (s *Service) SetReferralContentResolver(resolve func(context.Context, string, string) (string, error)) {
+	s.referralContent = resolve
 }

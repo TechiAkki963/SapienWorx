@@ -2,6 +2,8 @@ package httpserver
 
 import (
 	"context"
+	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 	"net/http"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery"
@@ -13,6 +15,15 @@ type emailDeliveryRuntime interface {
 
 func (s *Server) SetEmailDelivery(service emailDeliveryRuntime) {
 	s.emailDelivery = service
+	if worker, ok := service.(*emaildelivery.Service); ok && s.recruiter != nil {
+		worker.SetReferralContentResolver(func(ctx context.Context, dedupe, recipient string) (string, error) {
+			content, err := s.recruiter.ReferralDelivery(ctx, dedupe, recipient)
+			if errors.Is(err, recruiter.ErrReferralUnavailable) {
+				return "", emaildelivery.ErrContentUnavailable
+			}
+			return content, err
+		})
+	}
 }
 
 func (s *Server) adminEmailHealth(w http.ResponseWriter, r *http.Request) {

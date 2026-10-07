@@ -37,9 +37,12 @@ for (const [width, height] of [
   }) => {
     await page.setViewportSize({ width, height });
     await login(page, "recruiter");
+    await page.getByLabel(/Account menu for/).click();
+    await page.getByRole("button", { name: "My profile & photo" }).click();
     const profile = page.getByRole("region", {
       name: "Your dashboard profile",
     });
+    await expect(profile.getByRole("heading", { name: "Riya Recruiter", exact: true })).toBeVisible();
     const initials = await profile
       .locator('div[aria-hidden="true"] > span')
       .boundingBox();
@@ -54,5 +57,6 @@ for (const [width, height] of [
       initials!.y < edit!.y + edit!.height &&
       initials!.y + initials!.height > edit!.y;
     expect(overlap).toBe(false);
+    await page.screenshot({ path: `visual-artifacts/recruiter-account/profile-${width}x${height}.png` });
   });
 }

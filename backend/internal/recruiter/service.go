@@ -18,7 +18,11 @@ var (
 	ErrInvalid  = errors.New("invalid recruiter input")
 )
 
-type Service struct{ db *pgxpool.Pool }
+type Service struct {
+	db             *pgxpool.Pool
+	referralKey    []byte
+	referralOrigin string
+}
 
 func NewService(db *pgxpool.Pool) *Service { return &Service{db: db} }
 
@@ -90,13 +94,16 @@ type JobInput struct {
 }
 
 type PipelineList struct {
-	Items []PipelineRow `json:"items"`
-	Page  int           `json:"page"`
-	Limit int           `json:"limit"`
-	Total int           `json:"total"`
+	StageCounts map[string]int `json:"stage_counts"`
+	Items       []PipelineRow  `json:"items"`
+	Page        int            `json:"page"`
+	Limit       int            `json:"limit"`
+	Total       int            `json:"total"`
 }
 
 type PipelineRow struct {
+	Source            string     `json:"source"`
+	ReferrerName      string     `json:"referrer_name,omitempty"`
 	ApplicationID     string     `json:"application_id"`
 	CandidateID       string     `json:"candidate_id"`
 	CandidateName     string     `json:"candidate_name"`
@@ -136,13 +143,15 @@ const pipelineCandidateFields = `a.id,cp.user_id,cp.full_name,cp.headline,cp.cur
   cp.profile_photo,cp.profile_photo_mime,coalesce(cp.cv_original_filename,''),
   EXISTS(SELECT 1 FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$8 AND tpm.candidate_id=cp.user_id),
   (SELECT count(*) FROM recruiter_candidate_comments c WHERE c.company_id=$1 AND c.candidate_id=cp.user_id AND c.deleted_at IS NULL),
-  u.last_active_at,cp.updated_at`
+  u.last_active_at,cp.updated_at,
+ CASE WHEN a.source='referral' THEN coalesce((SELECT ri.source||'_referral' FROM referral_invitations ri WHERE ri.id=a.referral_id AND ri.company_id=j.company_id),'referral') ELSE a.source END,
+ coalesce((SELECT ri.referrer_name FROM referral_invitations ri WHERE ri.id=a.referral_id AND ri.company_id=j.company_id),'')`
 
 func scanPipelineRow(row pgx.Row) (PipelineRow, error) {
 	var item PipelineRow
 	var photo []byte
 	var mime *string
-	err := row.Scan(&item.ApplicationID, &item.CandidateID, &item.CandidateName, &item.Headline, &item.City, &item.ExperienceMonths, &item.NoticePeriodDays, &item.JobID, &item.JobTitle, &item.JobReference, &item.Stage, &item.AppliedAt, &item.UpdatedAt, &item.Designation, &item.CurrentCompany, &item.Education, &item.University, &item.PreferredLocation, &item.PreviousCompany, &item.KeySkills, &photo, &mime, &item.CVFilename, &item.Saved, &item.CommentCount, &item.LastActiveAt, &item.ProfileUpdatedAt)
+	err := row.Scan(&item.ApplicationID, &item.CandidateID, &item.CandidateName, &item.Headline, &item.City, &item.ExperienceMonths, &item.NoticePeriodDays, &item.JobID, &item.JobTitle, &item.JobReference, &item.Stage, &item.AppliedAt, &item.UpdatedAt, &item.Designation, &item.CurrentCompany, &item.Education, &item.University, &item.PreferredLocation, &item.PreviousCompany, &item.KeySkills, &photo, &mime, &item.CVFilename, &item.Saved, &item.CommentCount, &item.LastActiveAt, &item.ProfileUpdatedAt, &item.Source, &item.ReferrerName)
 	if err == nil && len(photo) > 0 && mime != nil && (*mime == "image/webp" || *mime == "image/jpeg" || *mime == "image/png") {
 		item.PhotoDataURL = "data:" + *mime + ";base64," + base64.StdEncoding.EncodeToString(photo)
 	}
@@ -366,6 +375,31 @@ func (s *Service) Pipeline(ctx context.Context, userID string, filters PipelineF
 	if err != nil {
 		return PipelineList{}, err
 	}
+	counts := map[string]int{}
+	countFilters := filters
+	countFilters.Stages = nil
+	countWhere, countArgs, err := pipelineWhere(companyID, countFilters)
+	if err != nil {
+		return PipelineList{}, err
+	}
+	countRows, err := s.db.Query(ctx, `SELECT a.stage::text,count(*) FROM applications a JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id JOIN users u ON u.id=a.candidate_id WHERE `+countWhere+` GROUP BY a.stage`, countArgs...)
+	if err != nil {
+		return PipelineList{}, err
+	}
+	for countRows.Next() {
+		var stage string
+		var n int
+		if err := countRows.Scan(&stage, &n); err != nil {
+			countRows.Close()
+			return PipelineList{}, err
+		}
+		counts[stage] = n
+	}
+	err = countRows.Err()
+	countRows.Close()
+	if err != nil {
+		return PipelineList{}, err
+	}
 	savedPosition := len(args) + 1
 	fields := strings.Replace(pipelineCandidateFields, "tpm.recruiter_id=$8", fmt.Sprintf("tpm.recruiter_id=$%d", savedPosition), 1)
 	rowsSQL := fmt.Sprintf(`SELECT %s%s ORDER BY %s LIMIT $%d OFFSET $%d`, fields, from, sort, savedPosition+1, savedPosition+2)
@@ -386,7 +420,7 @@ func (s *Service) Pipeline(ctx context.Context, userID string, filters PipelineF
 	if err := rows.Err(); err != nil {
 		return PipelineList{}, err
 	}
-	return PipelineList{Items: items, Page: page, Limit: limit, Total: total}, nil
+	return PipelineList{Items: items, Page: page, Limit: limit, Total: total, StageCounts: counts}, nil
 }
 func (s *Service) pipeline(ctx context.Context, companyID, recruiterID, q, stage, jobID string, limit int) ([]PipelineRow, error) {
 	if limit < 1 || limit > 100 {
@@ -445,11 +479,18 @@ func (s *Service) UpdateStage(ctx context.Context, userID, applicationID, stage 
 }
 
 func (s *Service) Interviews(ctx context.Context, userID string) ([]Interview, error) {
+	return s.InterviewsForJob(ctx, userID, "")
+}
+
+func (s *Service) InterviewsForJob(ctx context.Context, userID, jobID string) ([]Interview, error) {
+	if jobID != "" && !validSavedSearchID(jobID) {
+		return nil, ErrInvalid
+	}
 	companyID, _, _, err := s.recruiterCompany(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Query(ctx, `SELECT i.id,i.application_id,a.candidate_id,j.id,j.job_reference,cp.full_name,coalesce(cp.headline,''),j.title,i.scheduled_at,i.duration_minutes,i.meeting_url,i.status,i.round_label,i.notes FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id WHERE j.company_id=$1 ORDER BY CASE WHEN i.status='scheduled' AND i.scheduled_at>=now() THEN 0 ELSE 1 END,i.scheduled_at ASC`, companyID)
+	rows, err := s.db.Query(ctx, `SELECT i.id,i.application_id,a.candidate_id,j.id,j.job_reference,cp.full_name,coalesce(cp.headline,''),j.title,i.scheduled_at,i.duration_minutes,i.meeting_url,i.status,i.round_label,i.notes FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id WHERE j.company_id=$1 AND ($2::uuid IS NULL OR j.id=$2) ORDER BY CASE WHEN i.status='scheduled' AND i.scheduled_at>=now() THEN 0 ELSE 1 END,i.scheduled_at ASC`, companyID, nullableID(jobID))
 	if err != nil {
 		return nil, err
 	}

@@ -64,16 +64,18 @@ export function StatusMenu({
   }
 
   return (
-    <details ref={detailsRef} className="relative inline-block">
+    <details ref={detailsRef} className="relative inline-block" onKeyDown={event=>{if(event.key==="Escape" && event.currentTarget.open){event.preventDefault();event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}}}>
       <summary
+        role="button"
         aria-label={ariaLabel}
+        aria-disabled={busy || disabled}
         className={cn(
-          "flex cursor-pointer list-none items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[11px] font-extrabold outline-none transition hover:brightness-[0.98] focus-visible:ring-2 focus-visible:ring-indigo/30",
+          "flex min-h-11 min-w-[7.5rem] cursor-pointer list-none items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-extrabold outline-none transition hover:brightness-[0.98] focus-visible:ring-2 focus-visible:ring-indigo/30",
           tones[statusTone(value)],
           (busy || disabled) && "pointer-events-none opacity-60",
         )}
       >
-        <span>{label(value)}</span>
+        <span>{({new_application:"New",technical_interview:"Technical",hr_round:"HR round",final_interview:"Final round"} as Record<string,string>)[value]||label(value)}</span>
         <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3 fill-none stroke-current stroke-[1.7]"><path d="m4 6 4 4 4-4" /></svg>
       </summary>
       <div className="absolute right-0 z-30 mt-2 min-w-52 overflow-hidden rounded-xl border border-line bg-white p-1.5 shadow-[0_14px_40px_rgba(16,33,63,0.16)]">
@@ -81,7 +83,7 @@ export function StatusMenu({
           <button
             key={option}
             type="button"
-            disabled={busy}
+            disabled={busy || disabled}
             onClick={() => choose(option)}
             className={cn(
               "flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-ink transition hover:bg-slate-50",

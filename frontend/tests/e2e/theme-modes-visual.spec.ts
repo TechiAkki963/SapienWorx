@@ -30,7 +30,7 @@ async function assertRoleData(
       page.getByRole("heading", { name: "Job management" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("table").getByText("SWX-JOB-2026-00001").first(),
+      page.getByRole("table").getByRole("link", { name: "Senior Go Platform Engineer", exact: true }),
     ).toBeVisible();
   } else {
     await expect(
@@ -129,6 +129,7 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
   await page.goto(`/recruiter/candidates/${candidateID}?job_id=${jobID}`);
 
   const assertCandidate360 = async () => {
+    await page.getByRole("tab", { name: "Overview", exact: true }).click();
     await expect(
       page.getByText("Candidate 360°", { exact: true }),
     ).toBeVisible();
@@ -142,6 +143,7 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
     await expect(
       page.getByRole("heading", { name: "Professional Summary" }),
     ).toBeVisible();
+    await page.getByRole("tab", { name: "Experience", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Employment" }),
     ).toBeVisible();
@@ -151,6 +153,8 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
     await expect(
       page.getByRole("heading", { name: "Languages" }),
     ).toBeVisible();
+    await page.getByRole("tab", { name: "Matches", exact: true }).click();
+    await expect(page.getByRole("region", { name: "Candidate job match" })).toBeVisible();
     await assertNoHorizontalOverflow(page, "Candidate 360 theme mode");
   };
 
@@ -200,17 +204,17 @@ test("Application pipeline supports system, light and dark modes with scan-first
       page.getByRole("heading", { name: "Applications" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Candidate 001" }).first(),
+      page.getByRole("link", { name: "Candidate 001", exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByText("Details & actions", { exact: true }).first(),
+      page.locator('summary[aria-label="More actions for Candidate 001"]:visible'),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /View profile/i }).first(),
+      page.getByRole("link", { name: "View candidate", exact: true }).first(),
     ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /InMail/i }).first(),
-    ).toBeVisible();
+    await page.locator('summary[aria-label="More actions for Candidate 001"]:visible').click();
+    await expect(page.getByRole("link", { name: "Message", exact: true }).first()).toBeVisible();
+    await page.locator('summary[aria-label="More actions for Candidate 001"]:visible').click();
     await assertNoHorizontalOverflow(page, "Application pipeline theme mode");
   };
 

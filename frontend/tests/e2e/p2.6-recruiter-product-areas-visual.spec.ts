@@ -54,7 +54,7 @@ test("P2.6 recruiter product areas are responsive across target devices", async 
       });
       await page.screenshot({
         path: `visual-artifacts/p2.6-recruiter-product-areas/${area.slug}-${viewport.name}.png`,
-        fullPage: true,
+        fullPage: true, caret: "initial",
       });
     }
   }
@@ -73,7 +73,7 @@ test("P2.6 recruiter product areas preserve System Light Dark theming", async ({
       await assertNoOverflow(page, area.slug + " " + scheme);
       await page.screenshot({
         path: `visual-artifacts/p2.6-recruiter-product-areas/themes/${area.slug}-${scheme}-1440.png`,
-        fullPage: true,
+        fullPage: true, caret: "initial",
       });
     }
   }
@@ -83,7 +83,7 @@ test("P2.6 recruiter product areas preserve System Light Dark theming", async ({
   await assertNoOverflow(page, "analytics system");
   await page.screenshot({
     path: "visual-artifacts/p2.6-recruiter-product-areas/themes/analytics-system-1440.png",
-    fullPage: true,
+    fullPage: true, caret: "initial",
   });
 });
 
@@ -92,7 +92,7 @@ test("P2.6 mobile More menu exposes every advanced recruiter product area", asyn
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("/recruiter/offers");
   await page.getByRole("button", { name: "More" }).click();
-  for (const label of ["Interviews", "Offers", "Discover Talent", "Talent Pools", "Saved Searches", "Referrals", "Outreach", "Analytics"]) {
-    await expect(page.getByTestId("recruiter-more-menu").getByRole("link", { name: label })).toBeVisible();
+  for (const label of ["Interviews", "Offers", "Talent", "Talent Pools", "Saved Searches", "Referrals", "Outreach", "Analytics"]) {
+    await expect(page.getByTestId("recruiter-more-menu").getByRole("link", { name: label, exact:true })).toBeVisible();
   }
 });

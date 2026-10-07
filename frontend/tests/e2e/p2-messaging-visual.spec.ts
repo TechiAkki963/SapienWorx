@@ -38,9 +38,9 @@ test("Bulk InMail remains clean and usable across approved responsive widths", a
   await login(page, "recruiter");
   await page.goto("/recruiter/talent-pool");
 
-  await page.getByLabel("Select Aarav Mehta").check();
-  await page.getByLabel("Select Meera Nair").check();
-  await page.getByRole("button", { name: "Send Bulk InMail" }).click();
+  await page.getByRole("checkbox", { name: "Select Aarav Mehta", exact: true }).check();
+  await page.getByRole("checkbox", { name: "Select Meera Nair", exact: true }).check();
+  await page.getByRole("button", { name: "Message selected" }).click();
 
   const dialog = page.getByRole("dialog", { name: "Send Bulk InMail" });
   await expect(dialog).toBeVisible();
@@ -71,8 +71,8 @@ test("Bulk InMail follows recruiter dark mode", async ({ page }) => {
   await page.getByTitle("Dark mode").click();
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
 
-  await page.getByLabel("Select Aarav Mehta").check();
-  await page.getByRole("button", { name: "Send Bulk InMail" }).click();
+  await page.getByRole("checkbox", { name: "Select Aarav Mehta", exact: true }).check();
+  await page.getByRole("button", { name: "Message selected" }).click();
   const dialog = page.getByRole("dialog", { name: "Send Bulk InMail" });
   await expect(dialog).toBeVisible();
   await noOverflow(page, "Bulk InMail dark mode");

@@ -9,7 +9,7 @@ import (
 )
 
 var ErrInvalidOnboardingTransition = errors.New("invalid onboarding transition")
-var onboardingJobPath = regexp.MustCompile(`^/(?:candidate/jobs|jobs)/[a-zA-Z0-9-]+$`)
+var onboardingJobPath = regexp.MustCompile(`^/(?:referrals|(?:candidate/jobs|jobs)/[a-zA-Z0-9-]+)$`)
 
 // SetOnboardingState is the only writer for the server-owned onboarding keys.
 // Profiles without a state predate onboarding and remain accessible unchanged.

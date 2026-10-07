@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 )
@@ -53,12 +54,34 @@ func (s *Server) recruiterTalentPool(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items, err := s.recruiter.TalentPool(r.Context(), id)
+	page, limit := 1, 50
+	if raw := r.URL.Query().Get("page"); raw != "" {
+		parsed, e := strconv.Atoi(raw)
+		if e != nil {
+			s.writeRecruiterError(w, r, recruiter.ErrInvalid)
+			return
+		}
+		page = parsed
+	}
+	if raw := r.URL.Query().Get("limit"); raw != "" {
+		parsed, e := strconv.Atoi(raw)
+		if e != nil {
+			s.writeRecruiterError(w, r, recruiter.ErrInvalid)
+			return
+		}
+		limit = parsed
+	}
+	filters, filterErr := recruiter.ParseTalentPoolFilters(map[string]string{"location": r.URL.Query().Get("location"), "min_experience": r.URL.Query().Get("min_experience"), "max_experience": r.URL.Query().Get("max_experience"), "max_notice_days": r.URL.Query().Get("max_notice_days")})
+	if filterErr != nil {
+		s.writeRecruiterError(w, r, filterErr)
+		return
+	}
+	result, err := s.recruiter.PaginatedTalentPool(r.Context(), id, r.URL.Query().Get("q"), r.URL.Query().Get("tag"), page, limit, filters)
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+	writeJSON(w, http.StatusOK, result)
 }
 
 func (s *Server) recruiterTalentPoolCandidate(w http.ResponseWriter, r *http.Request) {

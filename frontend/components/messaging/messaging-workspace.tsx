@@ -4,6 +4,8 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { AnimatePresence } from "motion/react";
 
 import { API_URL, apiRequest } from "@/lib/api";
+import { RecruiterConversationContext } from "./recruiter-conversation-context";
+import { RecruiterDrawer, recruiterSecondary } from "@/components/recruiter/workspace-ui";
 import { MessageBubble } from "@/components/messaging/message-bubble";
 import { TypingIndicator } from "@/components/messaging/typing-indicator";
 import { useSapienChat } from "@/hooks/use-sapien-chat";
@@ -27,6 +29,8 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
   const [query, setQuery] = useState("");
   const [unreadOnly, setUnreadOnly] = useState(initialUnreadOnly);
   const [showConversation, setShowConversation] = useState(false);
+  const [contextOpen,setContextOpen] = useState(false);
+  useEffect(() => setContextOpen(false),[activeThreadID]);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState("");
@@ -50,7 +54,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
   }, [initialUnreadOnly]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => { void refreshThreads(); }, 10000);
+    const timer = window.setInterval(() => { if(document.visibilityState === "visible")void refreshThreads(); }, 10000);
     const onVisible = () => { if (document.visibilityState === "visible") void refreshThreads(); };
     document.addEventListener("visibilitychange", onVisible);
     return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
@@ -171,7 +175,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
 
   return (
     <section aria-label={role === "candidate" ? "Candidate inbox" : "Recruiter messages"} className="swx-messaging-workspace overflow-hidden rounded-[2rem] border border-white/80 bg-white/80 shadow-[0_24px_70px_rgba(49,46,129,0.10)] backdrop-blur-xl">
-      <div className={`grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[20rem_minmax(0,1fr)] ${threads.length ? "min-h-[68vh]" : "min-h-[18rem]"}`}>
+      <div className={`grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[16rem_minmax(0,1fr)] ${role === "recruiter" && activeThread ? "2xl:grid-cols-[16rem_minmax(0,1fr)_17rem]" : ""} ${threads.length ? "min-h-[68vh]" : "min-h-[18rem]"}`}>
         <aside className={`swx-messaging-list ${showConversation ? "hidden lg:block" : "block"} border-b border-line/70 bg-[linear-gradient(180deg,#fbfaff_0%,#f6f7ff_100%)] lg:border-b-0 lg:border-r`}>
           <div className="border-b border-line/70 px-4 py-4">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Conversations</p>
@@ -229,6 +233,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
                   <p className="truncate text-sm font-extrabold text-navy">{activeThread.subject}</p>
                   <p className="mt-0.5 truncate text-xs text-ink-muted">{activeThread.counterparty_name}{activeThread.job_title ? ` · ${activeThread.job_title}` : ""}</p>
                 </div>
+                {role === "recruiter" && <button type="button" onClick={()=>setContextOpen(true)} className={`${recruiterSecondary} 2xl:hidden`}>Candidate context</button>}
                 <div className="flex items-center gap-2 text-[11px] font-bold">
                   <span className={`h-2 w-2 rounded-full ${connectionState === "live" ? "bg-emerald-400" : connectionState === "connecting" ? "bg-amber-400" : "bg-slate-300"}`} />
                   <span className="text-ink-muted">{connectionState === "live" ? "Live" : connectionState === "connecting" ? "Connecting" : "Reconnecting"}</span>
@@ -280,10 +285,11 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
                     }}
                     rows={2}
                     maxLength={5000}
+                    aria-label="Write a reply"
                     placeholder="Write a reply…"
                     className="max-h-36 min-h-12 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-6 text-ink outline-none placeholder:text-slate-400"
                   />
-                  <button type="submit" disabled={!draft.trim() || sending} className="h-10 shrink-0 rounded-xl bg-indigo px-4 text-xs font-extrabold text-white shadow-sm transition hover:bg-indigo/90 disabled:cursor-not-allowed disabled:opacity-40">
+                  <button type="submit" disabled={!draft.trim() || sending} className="min-h-11 shrink-0 rounded-xl bg-indigo px-4 text-xs font-extrabold text-white shadow-sm transition hover:bg-indigo/90 disabled:cursor-not-allowed disabled:opacity-40">
                     {sending ? "Sending…" : "Send"}
                   </button>
                 </div>
@@ -300,6 +306,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
             </div>
           )}
         </div>
+        {role === "recruiter" && activeThread && <><aside className="hidden border-l border-line bg-white 2xl:block"><RecruiterConversationContext thread={activeThread}/></aside><RecruiterDrawer open={contextOpen} onClose={()=>setContextOpen(false)} title="Candidate context">{contextOpen && <RecruiterConversationContext thread={activeThread}/>}</RecruiterDrawer></>}
       </div>
     </section>
   );

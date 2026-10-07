@@ -1,4 +1,5 @@
 export type CandidateJob = {
+  referral_enabled?: boolean;
   id: string;
   job_reference?: string;
   status?: string;
@@ -213,6 +214,7 @@ export function candidateOnboardingStatus(
 export function safeCandidateJobPath(
   value: string | null | undefined,
 ): string | undefined {
+  if(value==="/referrals")return value;
   return value && /^\/(?:candidate\/jobs|jobs)\/[a-zA-Z0-9-]+$/.test(value)
     ? value
     : undefined;

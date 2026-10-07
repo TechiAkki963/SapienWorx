@@ -17,34 +17,42 @@ test("candidate card keeps contact private and supports save, bulk selection, an
   await login(page, "recruiter");
   await page.goto(`/recruiter/pipeline?job_id=${jobID}`);
 
-  const card = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Candidate 001" }) });
+  const card = page.locator("tr:visible, article:visible").filter({ has: page.getByRole("link", { name: "Candidate 001", exact: true }) });
   await expect(card).toBeVisible();
   await expect(card).toContainText("Senior Go Platform Engineer");
-  await expect(card).toContainText("Not provided");
   await expect(card).not.toContainText("+919900000011");
 
+  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
   await card.getByRole("button", { name: "Save Profile" }).click();
   await expect(card.getByRole("button", { name: "Saved · Unsave" })).toBeVisible();
   await card.getByRole("button", { name: "Saved · Unsave" }).click();
   await expect(card.getByRole("button", { name: "Save Profile" })).toBeVisible();
+  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
   await card.getByRole("checkbox", { name: /Select Candidate 001/ }).check();
-  await expect(page.getByRole("button", { name: "Save selected profiles" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Save for future roles" })).toBeEnabled();
 
-  await card.getByText("Details & actions", { exact: true }).click();
-  await expect(card.getByRole("button", { name: "View Contact" })).toBeVisible();
-  await card.getByRole("button", { name: "View Contact" }).click();
-  await expect(card).toContainText("+919900000011");
-  await expect(card).not.toContainText("+919900000099");
-  await card.getByRole("button", { name: "Show alternate contact" }).click();
-  await expect(card).toContainText("+919900000099");
-  await expect(card).not.toContainText("+919900000011");
-  await card.getByRole("button", { name: "Hide" }).click();
-  await expect(card).not.toContainText("+919900000099");
+  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
+  await card.getByRole("button", { name: "Notes, CV & application details" }).click();
+  const details = page.getByRole("dialog", { name: "Application details", exact: true });
+  await expect(details).toContainText("Not provided");
+  await expect(details.getByRole("button", { name: "View Contact" })).toBeVisible();
+  await details.getByRole("button", { name: "View Contact" }).click();
+  await expect(details).toContainText("+919900000011");
+  await expect(details).not.toContainText("+919900000099");
+  await details.getByRole("button", { name: "Show alternate contact" }).click();
+  await expect(details).toContainText("+919900000099");
+  await expect(details).not.toContainText("+919900000011");
+  await details.getByRole("button", { name: "Hide" }).click();
+  await expect(details).not.toContainText("+919900000099");
 
+  await page.keyboard.press("Escape");
+  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: width > 768 ? 900 : 844 });
-    await expect(card.getByRole("link", { name: /View profile/i })).toBeVisible();
-    await expect(card.getByRole("link", { name: /InMail/i })).toBeVisible();
+    await expect(card.getByRole("link", { name: "View candidate", exact: true })).toBeVisible();
+    await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
+    await expect(card.getByRole("link", { name: "Message", exact: true })).toBeVisible();
+    await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   }
 });
@@ -65,9 +73,10 @@ test("internal recruiter notes lazy-load and support author edits and deletion",
   await login(page, "recruiter");
   await page.goto(`/recruiter/pipeline?job_id=${jobID}`);
 
-  const card = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Candidate 001" }) });
-  await card.getByText("Details & actions", { exact: true }).click();
-  await card.getByRole("button", { name: /Recruiter Notes/ }).click();
+  const card = page.locator("tr:visible, article:visible").filter({ has: page.getByRole("link", { name: "Candidate 001", exact: true }) });
+  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
+  await card.getByRole("button", { name: "Notes, CV & application details" }).click();
+  await page.getByRole("dialog", { name: "Application details", exact: true }).getByRole("button", { name: /Recruiter Notes/ }).click();
   const dialog = page.getByRole("dialog", { name: "Recruiter notes" });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("No notes yet");

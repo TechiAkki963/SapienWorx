@@ -40,6 +40,9 @@ type Server struct {
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, workforceService *workforce.Service, logger *slog.Logger) *Server {
 	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, workforce: workforceService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db, cfg.Messaging, logger), cfg: cfg}
+	if recruiterService != nil && len(cfg.Auth.JWTSecret) >= 32 && len(cfg.HTTP.AllowedOrigins) > 0 {
+		recruiterService.ConfigureReferralInvitations(cfg.Auth.JWTSecret, cfg.HTTP.AllowedOrigins[0])
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health/live", s.live)
 	mux.HandleFunc("GET /health/ready", s.ready)
@@ -136,6 +139,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 
 	mux.Handle("GET /api/v1/recruiter/dashboard", Chain(http.HandlerFunc(s.recruiterDashboard), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/discover", Chain(http.HandlerFunc(s.recruiterDiscover), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/discover", Chain(http.HandlerFunc(s.recruiterDiscover), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/saved-searches", Chain(http.HandlerFunc(s.recruiterSavedSearches), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/saved-searches", Chain(http.HandlerFunc(s.recruiterSavedSearches), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/recent-searches", Chain(http.HandlerFunc(s.recruiterRecentSearches), protected, recruiterOnly))
@@ -166,6 +170,11 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/recruiter/candidates/{candidateID}/comments/{commentID}", Chain(http.HandlerFunc(s.recruiterCandidateComment), protected, recruiterOnly))
 	mux.Handle("DELETE /api/v1/recruiter/candidates/{candidateID}/comments/{commentID}", Chain(http.HandlerFunc(s.recruiterCandidateComment), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/applications/{applicationID}/stage", Chain(http.HandlerFunc(s.recruiterApplicationStage), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/talent-pools", Chain(http.HandlerFunc(s.namedTalentPools), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/talent-pools", Chain(http.HandlerFunc(s.namedTalentPools), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/talent-pools/{poolID}/candidates", Chain(http.HandlerFunc(s.namedTalentPoolCandidates), protected, recruiterOnly))
+	mux.Handle("PUT /api/v1/recruiter/talent-pools/{poolID}/candidates/{candidateID}", Chain(http.HandlerFunc(s.namedTalentPoolEntry), protected, recruiterOnly))
+	mux.Handle("DELETE /api/v1/recruiter/talent-pools/{poolID}/candidates/{candidateID}", Chain(http.HandlerFunc(s.namedTalentPoolEntry), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/talent-pool", Chain(http.HandlerFunc(s.recruiterTalentPool), protected, recruiterOnly))
 	mux.Handle("PUT /api/v1/recruiter/talent-pool/{candidateID}", Chain(http.HandlerFunc(s.recruiterTalentPoolCandidate), protected, recruiterOnly))
 	mux.Handle("DELETE /api/v1/recruiter/talent-pool/{candidateID}", Chain(http.HandlerFunc(s.recruiterTalentPoolCandidate), protected, recruiterOnly))
@@ -176,11 +185,22 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/recruiter/offers", Chain(http.HandlerFunc(s.recruiterOffers), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/offers", Chain(http.HandlerFunc(s.recruiterOffers), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/offers/{offerID}", Chain(http.HandlerFunc(s.recruiterOfferStatus), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/referrals/lookup", Chain(http.HandlerFunc(s.publicReferralInvitation), otpGuard))
+	mux.Handle("POST /api/v1/candidate/referrals", Chain(http.HandlerFunc(s.candidateReferralInvitation), protected, candidateOnly, otpGuard))
+	mux.Handle("GET /api/v1/candidate/referral-invitations", Chain(http.HandlerFunc(s.candidateOwnedReferrals), protected, candidateOnly))
+	mux.Handle("POST /api/v1/candidate/referral-invitations", Chain(http.HandlerFunc(s.candidateOwnedReferrals), protected, candidateOnly, otpGuard))
+	mux.Handle("GET /api/v1/recruiter/referral-invitations", Chain(http.HandlerFunc(s.recruiterReferralInvitations), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/referral-invitations", Chain(http.HandlerFunc(s.recruiterReferralInvitations), protected, recruiterOnly, otpGuard))
+	mux.Handle("POST /api/v1/recruiter/referral-invitations/{referralID}/actions", Chain(http.HandlerFunc(s.recruiterReferralInvitationAction), protected, recruiterOnly, otpGuard))
+	mux.Handle("GET /api/v1/recruiter/referral-invitations/{referralID}/events", Chain(http.HandlerFunc(s.recruiterReferralInvitationEvents), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/referrals", Chain(http.HandlerFunc(s.recruiterReferrals), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/referrals", Chain(http.HandlerFunc(s.recruiterReferrals), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/referrals/{referralID}", Chain(http.HandlerFunc(s.recruiterReferralStatus), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/analytics", Chain(http.HandlerFunc(s.recruiterAnalytics), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/saved-searches/{searchID}/matches", Chain(http.HandlerFunc(s.recruiterSavedSearchMatches), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/saved-searches/{searchID}", Chain(http.HandlerFunc(s.recruiterSavedSearchAlert), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/saved-searches/{searchID}", Chain(http.HandlerFunc(s.recruiterSavedSearchAlert), protected, recruiterOnly))
+	mux.Handle("DELETE /api/v1/recruiter/saved-searches/{searchID}", Chain(http.HandlerFunc(s.recruiterSavedSearchAlert), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/message-templates", Chain(http.HandlerFunc(s.recruiterMessageTemplates), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/message-templates/{templateID}", Chain(http.HandlerFunc(s.recruiterMessageTemplate), protected, recruiterOnly))

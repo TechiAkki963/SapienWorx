@@ -5,10 +5,10 @@ import { label, RecruiterJob, stages } from "@/lib/recruiter";
 export type ApplicationFilterValues = Record<string, string | string[] | undefined>;
 
 export const applicationFilterNames = [
-  "q", "exclude_q", "stage", "job_id", "attention", "current_company", "previous_company",
+  "candidate_id", "q", "exclude_q", "stage", "job_id", "attention", "current_company", "previous_company",
   "location", "designation", "education", "university", "min_experience_years",
   "max_experience_years", "max_notice_days", "applied_within_days", "active_within_days",
-  "updated_within_days", "has_cv", "sort",
+  "updated_within_days", "has_cv", "source", "sort",
 ] as const;
 
 export function single(values: ApplicationFilterValues, name: string): string {
@@ -24,10 +24,11 @@ export function selectedStages(values: ApplicationFilterValues): string[] {
 const inputClass = "box-border min-h-10 w-full min-w-0 rounded-lg border border-line bg-white px-3 text-sm font-normal text-ink outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15";
 const labelClass = "grid min-w-0 gap-1.5 text-xs font-bold text-ink-muted";
 
-export function ApplicationFilters({ values, jobs, clearHref, action = "/recruiter/pipeline", fixedJob }: { values: ApplicationFilterValues; jobs: RecruiterJob[]; clearHref: string; action?: string; fixedJob?: RecruiterJob }) {
+export function ApplicationFilters({ values, jobs, clearHref, action = "/recruiter/pipeline", fixedJob }: { values: ApplicationFilterValues; jobs: RecruiterJob[]; clearHref: string; action?: string; fixedJob?: Pick<RecruiterJob, "id" | "title" | "job_reference"> }) {
   const chosenStages = selectedStages(values);
   const advancedActive = ["exclude_q", "designation", "previous_company", "university", "applied_within_days", "active_within_days", "updated_within_days", "has_cv"].some(name => Boolean(single(values, name)));
   return <form action={action} aria-label="Application filters" className="grid min-w-0 gap-4 rounded-2xl border border-line/70 bg-white p-4 shadow-sm">
+    {single(values,"candidate_id")&&<input type="hidden" name="candidate_id" value={single(values,"candidate_id")}/>}
     {single(values, "attention") === "stalled" && <input type="hidden" name="attention" value="stalled" />}
     <div><p className="text-xs font-extrabold uppercase tracking-[0.08em] text-navy">Refine applications</p><p className="mt-1 text-xs leading-5 text-ink-muted">Search only applicants to your organization’s jobs.</p></div>
     <label className={labelClass}>Keywords<input className={inputClass} name="q" defaultValue={single(values, "q")} placeholder="Name, role, skill or Job ID" /></label>
@@ -48,7 +49,8 @@ export function ApplicationFilters({ values, jobs, clearHref, action = "/recruit
       <label className={labelClass}>Profile updated within<select className={inputClass} name="updated_within_days" defaultValue={single(values, "updated_within_days")}><option value="">Any time</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select></label>
       <label className="flex items-center gap-2 text-xs font-semibold text-ink-muted"><input type="checkbox" name="has_cv" value="true" defaultChecked={single(values, "has_cv") === "true"} className="h-4 w-4 accent-indigo" />Has CV</label>
     </div></details>
-    <label className={labelClass}>Sort results<select className={inputClass} name="sort" defaultValue={single(values, "sort") || "recently_applied"}><option value="recently_applied">Recently applied</option><option value="oldest_applied">Oldest applied</option><option value="recently_updated">Profile updated</option><option value="last_active">Last active</option><option value="most_experienced">Most experienced</option></select></label>
+    <label className={labelClass}>Application source<select name="source" defaultValue={single(values,"source")} className={inputClass}><option value="">All sources</option>{[["direct","Direct application"],["candidate_referral","Candidate referral"],["employee_referral","Employee referral"],["partner_referral","Partner referral"],["recruiter_referral","Recruiter referral"],["other_referral","Other referral"],["referral","All referrals"]].map(([v,title])=><option key={v} value={v}>{title}</option>)}</select></label>
+    <label className={labelClass}>Sort results<select className={inputClass} name="sort" defaultValue={single(values, "sort") || "recently_applied"}><option value="recently_applied">Newest applied</option><option value="recently_moved">Stage updated</option><option value="oldest_pending">Oldest pending</option><option value="oldest_applied">Oldest applied</option><option value="recently_updated">Profile updated</option><option value="last_active">Last active</option><option value="most_experienced">Most experienced</option></select></label>
     <div className="grid grid-cols-2 gap-2"><button type="submit" className="min-h-10 rounded-lg bg-indigo px-3 text-sm font-bold text-white hover:bg-navy">Apply filters</button><Link href={clearHref} className="inline-flex min-h-10 items-center justify-center rounded-lg border border-line bg-white px-3 text-sm font-bold text-indigo">Clear filters</Link></div>
   </form>;
 }
