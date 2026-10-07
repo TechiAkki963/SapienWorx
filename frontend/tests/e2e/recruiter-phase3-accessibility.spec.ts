@@ -28,6 +28,7 @@ test("Phase 3.8 keyboard and assistive-technology acceptance", async ({ page }) 
   await expect(confirmation).toBeHidden();
   await expect(reviewButton).toBeFocused();
 
+  await page.getByRole("button",{name:"More actions for Senior Go Platform Engineer"}).first().click();
   const shareButton = page.getByRole("button", { name: "Share" }).first();
   await shareButton.focus();
   await shareButton.press("Enter");
@@ -91,11 +92,11 @@ test("Candidate 360 header actions support keyboard entry, Escape and focus retu
   const dialog = page.getByRole("dialog", { name: "Schedule interview" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("combobox", { name: "Candidate and job" })).toBeFocused();
-  await dialog.getByRole("button", { name: "Close interview dialog" }).focus();
+  await dialog.getByRole("button", { name: "Close Schedule interview" }).focus();
   await page.keyboard.press("Shift+Tab");
   await expect(dialog.getByRole("button", { name: "Schedule interview", exact: true })).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(dialog.getByRole("button", { name: "Close interview dialog" })).toBeFocused();
+  await expect(dialog.getByRole("button", { name: "Close Schedule interview" })).toBeFocused();
   await page.screenshot({ path: "test-results/interview-focus-light.png" });
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
@@ -111,7 +112,7 @@ test("interview modal traps both keyboard boundaries in Dark mode", async ({ pag
   const trigger = page.getByRole("button", { name: "Schedule interview", exact: true });
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "Schedule interview" });
-  const close = dialog.getByRole("button", { name: "Close interview dialog" });
+  const close = dialog.getByRole("button", { name: "Close Schedule interview" });
   await close.focus();
   await page.keyboard.press("Shift+Tab");
   await expect(dialog.getByRole("button", { name: "Schedule interview", exact: true })).toBeFocused();

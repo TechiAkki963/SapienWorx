@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ProfileEditor } from "@/components/candidate/profile-editor";
 import { WorkspaceError } from "@/components/candidate/workspace-error";
 import {
@@ -12,7 +13,7 @@ import "@/components/candidate/profile-reference.css";
 export default async function CandidateProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ panel?: string }>;
+  searchParams: Promise<{ panel?: string; return_to?: string }>;
 }) {
   const params = await searchParams;
   let profile: CandidateProfile;
@@ -44,6 +45,7 @@ export default async function CandidateProfilePage({
   return (
     <div className="mx-auto max-w-6xl">
       <h1 className="sr-only">My Professional Profile</h1>
+      {params.return_to === "referrals" && <Link href="/referrals" className="mb-3 inline-flex min-h-11 items-center rounded-lg border border-line bg-white px-4 text-sm font-semibold text-indigo">← Return to my referral invitation</Link>}
       <ProfileEditor
         profile={profile}
         extended={extended}

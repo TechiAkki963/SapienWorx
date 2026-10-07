@@ -13,7 +13,7 @@ func (s *Server) recruiterOffers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet {
-		items, err := s.recruiter.Offers(r.Context(), id)
+		items, err := s.recruiter.OffersForJob(r.Context(), id, r.URL.Query().Get("job_id"))
 		if err != nil {
 			s.writeRecruiterError(w, r, err)
 			return
@@ -65,35 +65,10 @@ func (s *Server) recruiterReferrals(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]any{"items": items})
 		return
 	}
-	var input recruiter.RecruiterReferralInput
-	if !decodeJSON(w, r, &input) {
-		return
-	}
-	item, err := s.recruiter.CreateReferral(r.Context(), id, input)
-	if err != nil {
-		s.writeRecruiterError(w, r, err)
-		return
-	}
-	writeJSON(w, http.StatusCreated, item)
+	writeError(w, r, http.StatusGone, "referral_invitation_required", "New referrals require the verified candidate invitation workflow.")
 }
-
 func (s *Server) recruiterReferralStatus(w http.ResponseWriter, r *http.Request) {
-	id, ok := recruiterID(r)
-	if !ok {
-		return
-	}
-	var input struct {
-		Status       string `json:"status"`
-		RewardStatus string `json:"reward_status"`
-	}
-	if !decodeJSON(w, r, &input) {
-		return
-	}
-	if err := s.recruiter.UpdateReferral(r.Context(), id, r.PathValue("referralID"), strings.TrimSpace(input.Status), strings.TrimSpace(input.RewardStatus)); err != nil {
-		s.writeRecruiterError(w, r, err)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	writeError(w, r, http.StatusGone, "legacy_referral_read_only", "Historical referral records are read-only. Invitation hiring progress comes from the canonical application.")
 }
 
 func (s *Server) recruiterAnalytics(w http.ResponseWriter, r *http.Request) {

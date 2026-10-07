@@ -101,6 +101,13 @@ func parseOptionalDate(value string) (*time.Time, error) {
 }
 
 func (s *Service) Offers(ctx context.Context, recruiterID string) ([]RecruiterOffer, error) {
+	return s.OffersForJob(ctx, recruiterID, "")
+}
+
+func (s *Service) OffersForJob(ctx context.Context, recruiterID, jobID string) ([]RecruiterOffer, error) {
+	if jobID != "" && !validSavedSearchID(jobID) {
+		return nil, ErrInvalid
+	}
 	companyID, _, _, err := s.recruiterCompany(ctx, recruiterID)
 	if err != nil {
 		return nil, err
@@ -112,9 +119,9 @@ func (s *Service) Offers(ctx context.Context, recruiterID string) ([]RecruiterOf
 		JOIN applications a ON a.id=o.application_id
 		JOIN candidate_profiles cp ON cp.user_id=a.candidate_id
 		JOIN jobs j ON j.id=a.job_id
-		WHERE o.company_id=$1
+		WHERE o.company_id=$1 AND j.company_id=$1 AND ($2::uuid IS NULL OR j.id=$2)
 		ORDER BY CASE o.status WHEN 'sent' THEN 0 WHEN 'draft' THEN 1 WHEN 'accepted' THEN 2 ELSE 3 END,o.updated_at DESC
-	`, companyID)
+	`, companyID, nullableID(jobID))
 	if err != nil {
 		return nil, err
 	}

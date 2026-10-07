@@ -133,6 +133,10 @@ export default async function CandidateJobDetailPage({ params }: Props) {
             <div className="mt-5">
               <JobActions
                 jobId={job.id}
+                referralEnabled={job.referral_enabled===true}
+                jobTitle={job.title}
+                companyName={job.company_name}
+                location={jobLocation(job)}
                 isCandidate
                 initialSaved={initialSaved}
                 initialApplied={initialApplied}

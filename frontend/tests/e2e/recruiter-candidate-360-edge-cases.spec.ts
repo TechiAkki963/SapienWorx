@@ -17,7 +17,9 @@ test("sourced Candidate 360 keeps private data gated and hides application-only 
   await expect(page.getByRole("button", { name: /InMail/i })).toBeVisible();
   await expect(page.getByRole("button", { name: /Schedule interview/i })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Candidate job match" })).toHaveCount(0);
+  await page.getByRole("tab", { name: "Privacy", exact: true }).click();
   await expect(page.getByText("CV remains private until the candidate applies to your company.")).toBeVisible();
+  await page.getByRole("tab", { name: "Overview", exact: true }).click();
   await expect(page.getByText("Internal recruiter notes become available after the candidate applies to your company.")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBeTruthy();
 });
@@ -26,6 +28,7 @@ test("Candidate 360 shows an honest no-result state when the production matcher 
   await login(page, "recruiter");
   await page.goto(`/recruiter/candidates/${sourcedCandidate}?from=discover&job_id=${jobID}`);
 
+  await page.getByRole("tab", { name: "Matches", exact: true }).click();
   const matchRegion = page.getByRole("region", { name: "Candidate job match" });
   await expect(matchRegion).toBeVisible();
   await expect(matchRegion).toContainText("No current production-model match result is available");
@@ -105,6 +108,7 @@ test("opening a Candidate 360 CV requests the metered view mode", async ({ page 
     const url = new URL(request.url());
     return url.pathname.endsWith(`/recruiter/candidates/${candidateWithApplication}/cv`) && url.searchParams.get("mode") === "view";
   });
+  await page.getByRole("tab", { name: "Privacy", exact: true }).click();
   await page.getByRole("button", { name: "Open private CV" }).click();
   await view;
 });

@@ -152,12 +152,15 @@ func discoveryPattern(value string) string {
 	return "%" + strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(strings.TrimSpace(value)) + "%"
 }
 func (e *discoveryExpr) sql(args *[]any) string {
+	return e.sqlScope(args, "candidate_discovery_search_text(cp.headline,cp.profile_details)")
+}
+func (e *discoveryExpr) sqlScope(args *[]any, scope string) string {
 	if e.op == "term" {
 		*args = append(*args, discoveryPattern(e.value))
-		return fmt.Sprintf("candidate_discovery_search_text(cp.headline,cp.profile_details) ILIKE $%d ESCAPE '\\'", len(*args))
+		return fmt.Sprintf(scope+" ILIKE $%d ESCAPE '\\'", len(*args))
 	}
 	if e.op == "NOT" {
-		return "(NOT " + e.left.sql(args) + ")"
+		return "(NOT " + e.left.sqlScope(args, scope) + ")"
 	}
-	return "(" + e.left.sql(args) + " " + e.op + " " + e.right.sql(args) + ")"
+	return "(" + e.left.sqlScope(args, scope) + " " + e.op + " " + e.right.sqlScope(args, scope) + ")"
 }

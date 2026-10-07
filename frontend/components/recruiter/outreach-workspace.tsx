@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 
+import { RecruiterDataTable, WorkspaceState, RecruiterDrawer, recruiterPrimary, recruiterSecondary } from "./workspace-ui";
 import { apiRequest } from "@/lib/api";
 import type { TalentPoolCandidate } from "@/components/recruiter/talent-pool-selection";
 import type { BulkMessageTemplate, BulkRecruiterJob } from "@/components/recruiter/bulk-inmail-drawer";
@@ -80,7 +81,11 @@ export function OutreachWorkspace({
   candidates: TalentPoolCandidate[];
   activeJobs: BulkRecruiterJob[];
 }) {
+  const formID = useId();
+  const launchKeys = useRef(new Map<string, string>());
   const [tab, setTab] = useState<Tab>("campaigns");
+  const [editor,setEditor]=useState<Tab|null>(null);
+  const [campaignStep,setCampaignStep]=useState(0);
   const [templates, setTemplates] = useState(initialTemplates);
   const [sequences, setSequences] = useState(initialSequences);
   const [campaigns, setCampaigns] = useState(initialCampaigns);
@@ -122,6 +127,7 @@ export function OutreachWorkspace({
       setTemplateTitle("");
       setTemplateSubject("");
       setTemplateBody("");
+      setEditor(null);
       setNotice("Template created.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Template could not be created.");
@@ -158,7 +164,7 @@ export function OutreachWorkspace({
       setSequenceName("");
       setSequenceSteps([{ template_id: templates[0]?.id ?? "", delay_hours: 0 }]);
       setCampaignSequenceID((current) => current || item.id);
-      setNotice("Sequence created and ready for campaigns.");
+      setEditor(null);setNotice("Sequence created and ready for campaigns.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Sequence could not be created.");
     } finally {
@@ -168,6 +174,7 @@ export function OutreachWorkspace({
 
   async function createCampaign(event: React.FormEvent) {
     event.preventDefault();
+    if (campaignStep !== 3 || busy === "campaign") return;
     setBusy("campaign");
     setNotice(null);
     try {
@@ -183,7 +190,7 @@ export function OutreachWorkspace({
       setCampaigns((current) => [item, ...current]);
       setCampaignName("");
       setSelectedCandidates(new Set());
-      setNotice("Campaign saved as draft. Review it before launch.");
+      setEditor(null);setCampaignStep(0);setNotice("Campaign saved as draft. Review it before launch.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Campaign could not be created.");
     } finally {
@@ -192,12 +199,13 @@ export function OutreachWorkspace({
   }
 
   async function launchCampaign(id: string) {
+    if (!launchKeys.current.has(id)) launchKeys.current.set(id, window.crypto.randomUUID());
     setBusy(id);
     setNotice(null);
     try {
       const response = await apiRequest<{ campaign: OutreachCampaign }>("/api/v1/recruiter/outreach/campaigns/" + id + "/launch", {
         method: "POST",
-        headers: { "X-Idempotency-Key": window.crypto.randomUUID() },
+        headers: { "X-Idempotency-Key": launchKeys.current.get(id)! },
       });
       setCampaigns((current) => current.map((item) => item.id === id ? response.campaign : item));
       setNotice("Campaign launched through the protected InMail delivery path.");
@@ -234,25 +242,19 @@ export function OutreachWorkspace({
     });
   }
 
+  function campaignActions(campaign:OutreachCampaign) {
+    return <div className="flex flex-wrap gap-2">
+      {campaign.status==="draft" && <button type="button" disabled={busy===campaign.id} onClick={()=>launchCampaign(campaign.id)} className={recruiterPrimary}>Launch campaign</button>}
+      {campaign.status==="running" && <button type="button" disabled={busy===campaign.id} onClick={()=>changeCampaignStatus(campaign.id,"paused")} className={recruiterSecondary}>Pause</button>}
+      {campaign.status==="paused" && <button type="button" disabled={busy===campaign.id} onClick={()=>changeCampaignStatus(campaign.id,"running")} className={recruiterSecondary}>Resume</button>}
+      {["draft","running","paused"].includes(campaign.status) && <button type="button" disabled={busy===campaign.id} onClick={()=>changeCampaignStatus(campaign.id,"cancelled")} className={recruiterSecondary}>Cancel</button>}
+    </div>;
+  }
+
   return (
     <div className="min-w-0 max-w-full grid gap-5 pb-24">
-      <section className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_6px_18px_rgba(16,33,63,0.04)]">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-muted">Running</p>
-          <p className="mt-1 text-2xl font-black text-navy">{runningCount}</p>
-          <p className="mt-1 text-xs text-ink-muted">Sequences currently delivering follow-ups.</p>
-        </div>
-        <div className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_6px_18px_rgba(16,33,63,0.04)]">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-muted">Messages sent</p>
-          <p className="mt-1 text-2xl font-black text-navy">{totalSent}</p>
-          <p className="mt-1 text-xs text-ink-muted">Campaign sends recorded through protected messaging.</p>
-        </div>
-        <div className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_6px_18px_rgba(16,33,63,0.04)]">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-muted">Safeguards</p>
-          <p className="mt-1 text-sm font-extrabold text-navy">Anti-spam inherited</p>
-          <p className="mt-1 text-xs leading-5 text-ink-muted">Consent, cooldown, idempotency and recruiter/company budgets stay enforced.</p>
-        </div>
-      </section>
+      <dl className="grid grid-cols-2 rounded-xl border border-line bg-white"><div className="p-4"><dt className="text-xs text-ink-muted">Running campaigns</dt><dd className="mt-1 text-2xl font-semibold text-navy">{runningCount}</dd></div><div className="p-4"><dt className="text-xs text-ink-muted">Messages sent</dt><dd className="mt-1 text-2xl font-semibold text-navy">{totalSent}</dd></div></dl>
+      <p className="text-xs leading-6 text-ink-muted">Outreach respects candidate consent, recipient preferences and delivery limits.</p>
 
       <div className="flex min-w-0 max-w-full gap-1 overflow-x-auto rounded-2xl border border-line/70 bg-white p-1.5" role="tablist" aria-label="Outreach workspace">
         {(["campaigns", "sequences", "templates"] as const).map((item) => (
@@ -260,9 +262,18 @@ export function OutreachWorkspace({
             key={item}
             type="button"
             role="tab"
+            id={`outreach-tab-${item}`}
+            aria-controls={`outreach-panel-${item}`}
+            tabIndex={tab === item ? 0 : -1}
+            onKeyDown={event => {
+              const tabs: Tab[] = ["campaigns", "sequences", "templates"];
+              const index = tabs.indexOf(item);
+              const next = event.key === "ArrowRight" ? (index + 1) % 3 : event.key === "ArrowLeft" ? (index + 2) % 3 : event.key === "Home" ? 0 : event.key === "End" ? 2 : -1;
+              if (next >= 0) { event.preventDefault(); setTab(tabs[next]); document.getElementById(`outreach-tab-${tabs[next]}`)?.focus(); }
+            }}
             aria-selected={tab === item}
             onClick={() => setTab(item)}
-            className={`min-h-10 min-w-0 flex-1 rounded-xl px-2 text-sm font-bold capitalize transition sm:px-4 ${tab === item ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-50 hover:text-navy"}`}
+            className={`min-h-11 min-w-0 flex-1 rounded-xl px-2 text-sm font-bold capitalize transition sm:px-4 ${tab === item ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-50 hover:text-navy"}`}
           >
             {item}
           </button>
@@ -276,8 +287,8 @@ export function OutreachWorkspace({
       )}
 
       {tab === "templates" && (
-        <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <form onSubmit={createTemplate} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5 shadow-[0_8px_24px_rgba(16,33,63,0.05)]">
+        <div role="tabpanel" id="outreach-panel-templates" aria-labelledby="outreach-tab-templates" className="min-w-0 grid gap-5 ">
+          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("templates");setCampaignStep(0);}}>Create message template</button><RecruiterDrawer open={editor==="templates"} onClose={()=>{if(!busy)setEditor(null);}} title="Create message template" footer={<><button type="button" disabled={Boolean(busy)} className={recruiterSecondary} onClick={()=>setEditor(null)}>Cancel</button><button type="submit" form={`${formID}-template`} disabled={busy === "template"} className={recruiterPrimary}>{busy === "template" ? "Creating…" : "Create template"}</button></>}><form id={`${formID}-template`} onSubmit={createTemplate} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5 shadow-[0_8px_24px_rgba(16,33,63,0.05)]">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Reusable copy</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create message template</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">Use CandidateName and JobTitle variables. Every sequence step references one saved template.</p>
@@ -291,28 +302,20 @@ export function OutreachWorkspace({
               <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Message
                 <textarea value={templateBody} onChange={(e) => setTemplateBody(e.target.value)} required rows={7} placeholder="Hi {{CandidateName}}, ..." className="w-full min-w-0 rounded-xl border border-line bg-white px-3 py-3 text-sm leading-6 text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
               </label>
-              <button disabled={busy === "template"} className="min-h-11 rounded-xl bg-indigo px-4 text-sm font-extrabold text-white disabled:opacity-50">{busy === "template" ? "Creating…" : "Create template"}</button>
             </div>
-          </form>
+          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterDrawer></div>
 
-          <section className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
-            <h2 className="text-lg font-bold text-navy">Saved templates</h2>
-            <div className="mt-4 grid gap-3">
-              {templates.length === 0 ? <p className="rounded-xl border border-dashed border-line p-5 text-sm text-ink-muted">Create your first template to build a sequence.</p> : templates.map((template) => (
-                <article key={template.id} className="rounded-xl border border-line/70 bg-slate-50/60 p-4">
-                  <p className="font-extrabold text-navy">{template.title}</p>
-                  <p className="mt-1 text-xs font-semibold text-indigo">{template.subject_template}</p>
-                  <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-ink-muted">{template.body_template}</p>
-                </article>
-              ))}
-            </div>
-          </section>
+          <section><h2 className="mb-3 text-lg font-semibold text-navy">Saved templates</h2>{templates.length ? <RecruiterDataTable label="Message templates" rows={templates} rowKey={item=>item.id} columns={[
+            {key:"name",title:"Template",width:"30%",render:item=><p className="font-semibold text-navy">{item.title}</p>},
+            {key:"subject",title:"Subject",width:"40%",render:item=><p className="text-sm text-ink-muted">{item.subject_template}</p>},
+            {key:"preview",title:"Message",width:"30%",render:item=><details><summary className="min-h-11 cursor-pointer content-center text-sm font-semibold text-indigo">Preview message</summary><p className="mt-2 whitespace-pre-wrap text-xs leading-6 text-ink-muted">{item.body_template}</p></details>},
+          ]} mobileRow={item=><div className="grid gap-2"><p className="font-semibold text-navy">{item.title}</p><p className="text-sm text-ink-muted">{item.subject_template}</p><details><summary className="min-h-11 cursor-pointer content-center text-sm font-semibold text-indigo">Preview message</summary><p className="mt-2 whitespace-pre-wrap text-xs leading-6 text-ink-muted">{item.body_template}</p></details></div>}/> : <WorkspaceState title="No saved templates" description="Create reusable messages before building a follow-up sequence."/>}</section>
         </div>
       )}
 
       {tab === "sequences" && (
-        <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <form onSubmit={createSequence} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
+        <div role="tabpanel" id="outreach-panel-sequences" aria-labelledby="outreach-tab-sequences" className="min-w-0 grid gap-5 ">
+          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("sequences");setCampaignStep(0);}}>Create sequence</button><RecruiterDrawer open={editor==="sequences"} onClose={()=>{if(!busy)setEditor(null);}} title="Create sequence" footer={<><button type="button" disabled={Boolean(busy)} className={recruiterSecondary} onClick={()=>setEditor(null)}>Cancel</button><button type="submit" form={`${formID}-sequence`} disabled={busy === "sequence" || templates.length === 0} className={recruiterPrimary}>{busy === "sequence" ? "Creating…" : "Save sequence"}</button></>}><form id={`${formID}-sequence`} onSubmit={createSequence} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Follow-up logic</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Build a sequence</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">The first step sends immediately. Later steps run server-side and stop automatically after a candidate replies.</p>
@@ -342,52 +345,26 @@ export function OutreachWorkspace({
             </div>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <button type="button" disabled={sequenceSteps.length >= 12 || templates.length === 0} onClick={() => setSequenceSteps((current) => [...current, { template_id: templates[0]?.id ?? "", delay_hours: 24 }])} className="min-h-11 flex-1 rounded-xl border border-line bg-white px-4 text-sm font-bold text-indigo disabled:opacity-40">+ Add follow-up</button>
-              <button disabled={busy === "sequence" || templates.length === 0} className="min-h-11 flex-1 rounded-xl bg-indigo px-4 text-sm font-extrabold text-white disabled:opacity-50">{busy === "sequence" ? "Creating…" : "Save sequence"}</button>
             </div>
-          </form>
+          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterDrawer></div>
 
-          <section className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
-            <h2 className="text-lg font-bold text-navy">Active sequences</h2>
-            <div className="mt-4 grid gap-3">
-              {sequences.length === 0 ? <p className="rounded-xl border border-dashed border-line p-5 text-sm text-ink-muted">No sequences yet.</p> : sequences.map((sequence) => (
-                <article key={sequence.id} className="rounded-xl border border-line/70 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div><p className="font-extrabold text-navy">{sequence.name}</p><p className="mt-1 text-xs text-ink-muted">{sequence.steps.length} step{sequence.steps.length === 1 ? "" : "s"}</p></div>
-                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] ${statusTone(sequence.status)}`}>{sequence.status}</span>
-                  </div>
-                  <ol className="mt-4 grid gap-2">
-                    {sequence.steps.map((step) => <li key={step.id} className="flex gap-3 rounded-lg bg-slate-50 px-3 py-2.5"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-indigo-soft text-xs font-black text-indigo">{step.step_order}</span><div className="min-w-0"><p className="truncate text-sm font-bold text-ink">{step.title || templates.find((template) => template.id === step.template_id)?.title || "Template"}</p><p className="text-[11px] text-ink-muted">{humanDelay(step.delay_hours)}</p></div></li>)}
-                  </ol>
-                </article>
-              ))}
-            </div>
-          </section>
+          <section><h2 className="mb-3 text-lg font-semibold text-navy">Active sequences</h2>{sequences.length ? <RecruiterDataTable label="Outreach sequences" rows={sequences} rowKey={item=>item.id} columns={[
+            {key:"name",title:"Sequence",width:"40%",render:item=><p className="font-semibold text-navy">{item.name}</p>},
+            {key:"status",title:"Status",width:"20%",render:item=><span className={`rounded-full border px-2 py-1 text-xs ${statusTone(item.status)}`}>{item.status}</span>},
+            {key:"steps",title:"Follow-up steps",width:"40%",render:item=><details><summary className="min-h-11 cursor-pointer content-center text-sm font-semibold text-indigo">{item.steps.length} steps · View timing</summary><ol className="mt-2 grid gap-2">{item.steps.map(step=><li key={step.id} className="text-xs leading-6 text-ink-muted">{step.step_order}. {step.title || templates.find(template=>template.id===step.template_id)?.title || "Template"} · {humanDelay(step.delay_hours)}</li>)}</ol></details>},
+          ]} mobileRow={item=><div className="grid gap-2"><p className="font-semibold text-navy">{item.name}</p><p className="text-xs text-ink-muted">{item.status} · {item.steps.length} steps</p><details><summary className="min-h-11 cursor-pointer content-center text-sm font-semibold text-indigo">View timing</summary><ol>{item.steps.map(step=><li key={step.id} className="text-xs leading-6 text-ink-muted">{step.step_order}. {step.title} · {humanDelay(step.delay_hours)}</li>)}</ol></details></div>}/> : <WorkspaceState title="No sequences" description="Save a message template, then build a sequence with explicit follow-up delays."/>}</section>
         </div>
       )}
 
       {tab === "campaigns" && (
-        <div className="min-w-0 grid gap-5 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-          <form onSubmit={createCampaign} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
+        <div role="tabpanel" id="outreach-panel-campaigns" aria-labelledby="outreach-tab-campaigns" className="min-w-0 grid gap-5 ">
+          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("campaigns");setCampaignStep(0);}}>Create campaign</button><RecruiterDrawer open={editor==="campaigns"} onClose={()=>{if(!busy)setEditor(null);}} title="Create campaign" footer={<><button type="button" disabled={Boolean(busy)} className={recruiterSecondary} onClick={()=>setEditor(null)}>Cancel</button>{campaignStep>0&&<button type="button" className={recruiterSecondary} onClick={()=>setCampaignStep(step=>step-1)}>Back</button>}{campaignStep<3?<button key="continue-step" type="button" className={recruiterPrimary} disabled={campaignStep===0?(!campaignName.trim()||selectedCount===0):campaignStep===1?!campaignSequenceID:false} onClick={event=>{event.preventDefault();setCampaignStep(step=>step+1);}}>Continue</button>:<button key="create-reviewed-draft" type="submit" form={`${formID}-campaign`} className={recruiterPrimary} disabled={busy==="campaign"||!campaignName.trim()||!selectedCount||!campaignSequenceID}>{busy==="campaign"?"Creating…":"Create draft campaign"}</button>}</>}><form id={`${formID}-campaign`} onSubmit={createCampaign} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Targeted outreach</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create campaign</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">Campaigns start as drafts so you can verify the sequence, job context and recipients before launch.</p>
-            <div className="mt-5 grid gap-4">
-              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Campaign name
+<nav aria-label="Campaign setup steps" className="mt-4 flex flex-wrap gap-2">{["Audience","Message","Schedule","Review"].map((step,index)=><span key={step} aria-current={campaignStep===index?"step":undefined} className={`rounded-full px-3 py-2 text-xs ${campaignStep===index?"bg-indigo text-white":"text-ink-muted"}`}>{index+1}. {step}</span>)}</nav><div className="mt-5 grid gap-4"><div hidden={campaignStep!==0}>              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Campaign name
                 <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} required maxLength={160} className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm font-semibold text-ink" />
-              </label>
-              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Sequence
-                <select value={campaignSequenceID} onChange={(e) => setCampaignSequenceID(e.target.value)} required className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink">
-                  <option value="">Select sequence</option>
-                  {sequences.filter((sequence) => sequence.status === "active").map((sequence) => <option key={sequence.id} value={sequence.id}>{sequence.name}</option>)}
-                </select>
-              </label>
-              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Job context <span className="font-medium">(optional)</span>
-                <select value={campaignJobID} onChange={(e) => setCampaignJobID(e.target.value)} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink">
-                  <option value="">No job context</option>
-                  {activeJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
-                </select>
-              </label>
-              <fieldset className="min-w-0 max-w-full rounded-xl border border-line/70">
+              </label>               <fieldset className="min-w-0 max-w-full rounded-xl border border-line/70">
                 <legend className="ml-3 px-2 text-xs font-bold text-ink-muted">Recipients · {selectedCount} selected</legend>
                 <div className="max-h-72 overflow-y-auto p-2">
                   {candidates.length === 0 ? <p className="p-3 text-sm text-ink-muted">Save candidates to Talent Pools before creating a campaign.</p> : candidates.map((candidate) => (
@@ -397,36 +374,25 @@ export function OutreachWorkspace({
                     </label>
                   ))}
                 </div>
-              </fieldset>
-              <button disabled={busy === "campaign" || selectedCount === 0 || !campaignSequenceID} className="min-h-11 rounded-xl bg-indigo px-4 text-sm font-extrabold text-white disabled:opacity-50">{busy === "campaign" ? "Creating…" : "Create draft campaign"}</button>
-            </div>
-          </form>
+              </fieldset></div><div hidden={campaignStep!==1}>              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Sequence
+                <select value={campaignSequenceID} onChange={(e) => setCampaignSequenceID(e.target.value)} required className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink">
+                  <option value="">Select sequence</option>
+                  {sequences.filter((sequence) => sequence.status === "active").map((sequence) => <option key={sequence.id} value={sequence.id}>{sequence.name}</option>)}
+                </select>
+              </label>               <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Job context <span className="font-medium">(optional)</span>
+                <select value={campaignJobID} onChange={(e) => setCampaignJobID(e.target.value)} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm text-ink">
+                  <option value="">No job context</option>
+                  {activeJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
+                </select>
+              </label></div><div hidden={campaignStep!==2}><h3 className="text-sm font-semibold text-navy">Follow-up schedule</h3><p className="mt-2 text-sm leading-6 text-ink-muted">The existing sequence begins when you explicitly launch the draft. It stops future follow-ups after a reply. Calendar-based campaign scheduling is unavailable.</p><ol className="mt-4 grid gap-2">{sequences.find(sequence=>sequence.id===campaignSequenceID)?.steps.map(step=><li key={step.id} className="border-b border-line py-3 text-sm text-ink">{step.step_order}. {step.title} · {humanDelay(step.delay_hours)}</li>)}</ol></div><div hidden={campaignStep!==3}><h3 className="text-sm font-semibold text-navy">Review draft campaign</h3><p className="mt-3 text-sm text-ink">{campaignName} · {selectedCount} recipients selected</p><p className="mt-2 text-sm text-ink-muted">Sequence: {sequences.find(sequence=>sequence.id===campaignSequenceID)?.name}</p><p className="mt-3 text-xs leading-6 text-ink-muted">Consent, suppression, cooldown and delivery budgets are checked by the protected server path at launch. Creating this draft sends no messages.</p></div>            </div>
+          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterDrawer></div>
 
-          <section className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
-            <h2 className="text-lg font-bold text-navy">Campaigns</h2>
-            <div className="mt-4 grid gap-3">
-              {campaigns.length === 0 ? <p className="rounded-xl border border-dashed border-line p-5 text-sm text-ink-muted">No campaigns yet. Create a sequence first, then target candidates from your talent pool.</p> : campaigns.map((campaign) => (
-                <article key={campaign.id} className="rounded-xl border border-line/70 p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0"><p className="truncate font-extrabold text-navy">{campaign.name}</p><p className="mt-1 text-xs text-ink-muted">{campaign.sequence_name}{campaign.job_title ? ` · ${campaign.job_title}` : ""}</p></div>
-                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] ${statusTone(campaign.status)}`}>{campaign.status}</span>
-                  </div>
-                  <dl className="mt-4 grid grid-cols-4 gap-2 rounded-xl bg-slate-50 p-3 text-center">
-                    <div><dt className="text-[10px] text-ink-muted">Recipients</dt><dd className="mt-1 text-sm font-black text-navy">{campaign.total_recipients}</dd></div>
-                    <div><dt className="text-[10px] text-ink-muted">Sent</dt><dd className="mt-1 text-sm font-black text-navy">{campaign.sent_count}</dd></div>
-                    <div><dt className="text-[10px] text-ink-muted">Skipped</dt><dd className="mt-1 text-sm font-black text-navy">{campaign.skipped_count}</dd></div>
-                    <div><dt className="text-[10px] text-ink-muted">Failed</dt><dd className="mt-1 text-sm font-black text-navy">{campaign.failed_count}</dd></div>
-                  </dl>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {campaign.status === "draft" && <button type="button" disabled={busy === campaign.id} onClick={() => launchCampaign(campaign.id)} className="min-h-9 rounded-lg bg-indigo px-3.5 text-xs font-extrabold text-white disabled:opacity-50">Launch campaign</button>}
-                    {campaign.status === "running" && <button type="button" disabled={busy === campaign.id} onClick={() => changeCampaignStatus(campaign.id, "paused")} className="min-h-9 rounded-lg border border-amber-200 bg-amber-50 px-3.5 text-xs font-extrabold text-amber-700">Pause</button>}
-                    {campaign.status === "paused" && <button type="button" disabled={busy === campaign.id} onClick={() => changeCampaignStatus(campaign.id, "running")} className="min-h-9 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 text-xs font-extrabold text-emerald-700">Resume</button>}
-                    {(campaign.status === "draft" || campaign.status === "running" || campaign.status === "paused") && <button type="button" disabled={busy === campaign.id} onClick={() => changeCampaignStatus(campaign.id, "cancelled")} className="min-h-9 rounded-lg border border-line bg-white px-3.5 text-xs font-bold text-ink-muted hover:text-rose-600">Cancel</button>}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+          <section><h2 className="mb-3 text-lg font-semibold text-navy">Campaigns</h2>{campaigns.length ? <RecruiterDataTable label="Outreach campaigns" rows={campaigns} rowKey={item=>item.id} columns={[
+            {key:"name",title:"Campaign",width:"33%",render:item=><div><p className="font-semibold text-navy">{item.name}</p><p className="mt-1 text-xs leading-5 text-ink-muted">{item.sequence_name}{item.job_title?` · ${item.job_title}`:""}</p></div>},
+            {key:"status",title:"Status",width:"16%",render:item=><span className={`rounded-full border px-2 py-1 text-xs ${statusTone(item.status)}`}>{item.status}</span>},
+            {key:"delivery",title:"Delivery",width:"26%",render:item=><p className="text-xs leading-6 text-ink-muted">{item.total_recipients} recipients<br/>{item.sent_count} sent · {item.skipped_count} skipped · {item.failed_count} failed</p>},
+            {key:"actions",title:"Actions",width:"25%",render:campaignActions},
+          ]} mobileRow={item=><div className="grid gap-3"><p className="font-semibold text-navy">{item.name}</p><p className="text-xs leading-6 text-ink-muted">{item.sequence_name} · {item.status}</p><p className="text-xs leading-6 text-ink-muted">{item.total_recipients} recipients · {item.sent_count} sent · {item.skipped_count} skipped · {item.failed_count} failed</p>{campaignActions(item)}</div>}/> : <WorkspaceState title="No campaigns" description="Create a sequence, then review a draft audience before launching outreach."/>}</section>
         </div>
       )}
     </div>

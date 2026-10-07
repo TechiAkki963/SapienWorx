@@ -638,3 +638,73 @@ a {
   background: #111827 !important;
   border-color: #273449 !important;
 }
+
+/* Recruiter operations use restrained surfaces and semantic, shared controls. */
+.swx-recruiter-workspace {
+  --workspace-surface: #fff;
+  --workspace-line: #dce3ec;
+  --workspace-muted: #51627a;
+}
+.swx-dark .swx-recruiter-workspace {
+  --workspace-surface: #111b2d;
+  --workspace-line: #324158;
+  --workspace-muted: #adbad0;
+}
+.swx-recruiter-workspace .swx-workspace-surface {
+  background: var(--workspace-surface) !important;
+}
+.swx-recruiter-workspace .swx-recruiter-nav a {
+  min-height: 42px;
+  border-radius: 8px;
+}
+.swx-dark .swx-recruiter-workspace .swx-recruiter-nav a:not([aria-current="page"]) {
+  background: transparent !important;
+  color: #b9c7da !important;
+}
+.swx-recruiter-workspace .swx-workspace-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(32rem, 100vw);
+  height: 100dvh;
+  max-width: 100vw;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--workspace-line);
+  background: var(--workspace-surface);
+  color: inherit;
+  box-shadow: -16px 0 48px rgb(15 23 42 / 0.12);
+}
+.swx-recruiter-workspace .swx-workspace-drawer-wide { width: min(42rem, 100vw); }
+.swx-workspace-drawer::backdrop { background: rgb(8 21 44 / 0.42); }
+.swx-recruiter-workspace :is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #0866ff;
+  outline-offset: 3px;
+}
+.swx-dark .swx-recruiter-workspace :is(button, a, input, select, textarea, summary):focus-visible { outline-color: #a5c8ff; }
+.swx-dark .swx-recruiter-workspace .swx-skill-chip { background: #173e37 !important; color: #b6ead6 !important; }
+@media (max-width: 767px) {
+  .swx-recruiter-workspace .swx-workspace-drawer { border: 0; width: 100vw; }
+}
+.swx-search-actions {
+  position: fixed;
+  bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  left: 1rem;
+  right: 1rem;
+}
+@media (min-width: 1024px) {
+  .swx-search-actions { bottom: 1rem; left: max(calc((100vw - 1728px) / 2 + 116px), 116px); right: max(calc((100vw - 1728px) / 2 + 24px), 24px); }
+}
+
+@media (min-width: 1280px) { .swx-search-actions { left: max(calc((100vw - 1728px) / 2 + 228px), 228px); } }
+
+/* Keep focused search fields above fixed actions and the mobile navigation. */
+html:has(.swx-search-actions) { scroll-padding-bottom: 11rem; }
+.swx-recruiter-workspace :is(input, select, textarea, summary) { scroll-margin-block: 1.5rem 11rem; }
+
+/* Recruiter skill/status text must remain legible on dark professional surfaces. */
+.swx-dark .swx-recruiter-workspace :is(.text-blue-700,.text-blue-800,.text-blue-900) { color: #aacdff !important; }
+[data-testid="recruiter-bottom-nav"] nav > :is(a,button) > span:last-child { font-size: 10px; line-height: 14px; overflow: visible; text-overflow: clip; }
+
+.swx-recruiter-workspace .swx-workspace-drawer-left { inset: 0 auto 0 0; margin: 0; border-left: 0; border-right: 1px solid var(--workspace-line); border-radius: 0 1rem 1rem 0; }

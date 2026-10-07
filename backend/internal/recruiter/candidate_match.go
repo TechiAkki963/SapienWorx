@@ -62,17 +62,12 @@ func (s *Service) CandidateMatch(ctx context.Context, recruiterUserID, candidate
 		          JOIN jobs aj ON aj.id=a.job_id
 		          WHERE a.candidate_id=cp.user_id AND aj.company_id=$3
 		        )
-		        OR EXISTS (
-		          SELECT 1
-		          FROM talent_pool_memberships tpm
-		          WHERE tpm.recruiter_id=$4 AND tpm.candidate_id=cp.user_id
-		        )
 		        OR `+candidateDiscoverablePredicate+`
 		      )
 		  )
 		ORDER BY mv.activated_at DESC NULLS LAST,mr.generated_at DESC
 		LIMIT 1
-	`, candidateUserID, jobID, companyID, recruiterUserID).Scan(
+	`, candidateUserID, jobID, companyID).Scan(
 		&item.JobID,
 		&item.JobTitle,
 		&item.Score,

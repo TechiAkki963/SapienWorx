@@ -3,6 +3,7 @@ package recruiter
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"net/url"
@@ -39,64 +40,35 @@ func stringFilter(filters map[string]any, key string) string {
 	}
 }
 
-func intFilter(filters map[string]any, key string) int {
-	raw := stringFilter(filters, key)
-	if raw == "" {
-		return 0
-	}
-	value, err := stdstrconv.Atoi(raw)
+func savedSearchDiscoveryFilters(filters map[string]any, since time.Time) (DiscoveryFilters, error) {
+	clean, err := canonicalSearchFilters(filters)
 	if err != nil {
-		return 0
+		return DiscoveryFilters{}, err
 	}
-	return value
-}
-
-func savedSearchDiscoveryFilters(filters map[string]any, since time.Time) DiscoveryFilters {
-	return DiscoveryFilters{
-		Query:             stringFilter(filters, "q"),
-		Designation:       stringFilter(filters, "designation"),
-		CurrentCompany:    stringFilter(filters, "current_company"),
-		PreviousCompany:   stringFilter(filters, "previous_company"),
-		Education:         stringFilter(filters, "education"),
-		Skills:            stringFilter(filters, "skills"),
-		Location:          stringFilter(filters, "location"),
-		PreferredLocation: stringFilter(filters, "preferred_location"),
-		EmploymentType:    stringFilter(filters, "employment_type"),
-		WorkMode:          stringFilter(filters, "work_mode"),
-		Industry:          stringFilter(filters, "industry"),
-		FunctionalArea:    stringFilter(filters, "functional_area"),
-		Languages:         stringFilter(filters, "languages"),
-		Certifications:    stringFilter(filters, "certifications"),
-		Availability:      stringFilter(filters, "availability"),
-		Gender:            stringFilter(filters, "gender"),
-		Disability:        stringFilter(filters, "disability"),
-		DefenceBackground: stringFilter(filters, "defence_background"),
-		Sort:              stringFilter(filters, "sort"),
-		MinExperience:     intFilter(filters, "min_experience"),
-		MaxExperience:     intFilter(filters, "max_experience"),
-		MaxNoticeDays:     intFilter(filters, "max_notice_days"),
-		HasMaxNotice:      stringFilter(filters, "max_notice_days") != "",
-		UpdatedSince:      since.UTC().Format(time.RFC3339Nano),
-		Page:              1,
+	values := map[string]string{}
+	for key := range clean {
+		values[key] = stringFilter(clean, key)
 	}
-}
-
-func savedSearchURL(filters map[string]any) string {
-	query := url.Values{}
-	for _, key := range []string{
-		"q", "designation", "current_company", "previous_company", "min_experience", "max_experience",
-		"location", "preferred_location", "max_notice_days", "skills", "education", "employment_type",
-		"work_mode", "industry", "functional_area", "languages", "certifications", "availability",
-		"gender", "disability", "defence_background", "sort",
-	} {
-		if value := stringFilter(filters, key); value != "" {
-			query.Set(key, value)
+	// Never widen an explicitly later date when applying the alert window.
+	if raw := values["updated_since"]; raw != "" {
+		existing, err := time.Parse(time.RFC3339Nano, raw)
+		if err != nil {
+			existing, err = time.Parse("2006-01-02", raw)
+		}
+		if err != nil {
+			return DiscoveryFilters{}, ErrInvalid
+		}
+		if existing.After(since) {
+			since = existing
 		}
 	}
-	if encoded := query.Encode(); encoded != "" {
-		return "/recruiter/discover?" + encoded
-	}
-	return "/recruiter/discover"
+	values["updated_since"] = since.UTC().Format(time.RFC3339Nano)
+	values["page"] = "1"
+	return ParseDiscoveryFilters(values)
+}
+
+func savedSearchURL(searchID string) string {
+	return "/recruiter/discover?search_id=" + url.QueryEscape(searchID)
 }
 
 func (s *Service) dueSavedSearchAlerts(ctx context.Context, limit int) ([]savedSearchAlertCandidate, error) {
@@ -147,12 +119,19 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 		return 0, err
 	}
 	queued := 0
+	var invalidSearches error
 	for _, item := range items {
 		since := item.UpdatedAt
 		if item.LastAlertedAt != nil {
 			since = *item.LastAlertedAt
 		}
-		result, discoverErr := s.Discover(ctx, item.RecruiterID, savedSearchDiscoveryFilters(item.Filters, since))
+		filters, filterErr := savedSearchDiscoveryFilters(item.Filters, since)
+		if filterErr != nil {
+			// Invalid legacy criteria must never widen a search or stop valid alerts.
+			invalidSearches = errors.Join(invalidSearches, fmt.Errorf("saved search %s rejected: %w", item.ID, filterErr))
+			continue
+		}
+		result, discoverErr := s.Discover(ctx, item.RecruiterID, filters)
 		if discoverErr != nil {
 			return queued, discoverErr
 		}
@@ -166,7 +145,7 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 
 		safeName := strings.NewReplacer("\r", " ", "\n", " ").Replace(item.Name)
 		subject := fmt.Sprintf("%d new candidate matches · %s", result.Total, safeName)
-		link := savedSearchURL(item.Filters)
+		link := savedSearchURL(item.ID)
 		body := fmt.Sprintf("Your saved SapienWorx search %q has %d candidate profiles updated since the previous alert. Open %s to review the latest consented recruiter-search matches.", safeName, result.Total, link)
 		htmlBody := fmt.Sprintf("<p>Your saved SapienWorx search <strong>%s</strong> has <strong>%d</strong> candidate profiles updated since the previous alert.</p><p>Open <code>%s</code> in SapienWorx to review the latest consented recruiter-search matches.</p>", html.EscapeString(safeName), result.Total, html.EscapeString(link))
 		window := now.Format("2006-01-02")
@@ -195,5 +174,5 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 		}
 		queued++
 	}
-	return queued, nil
+	return queued, invalidSearches
 }

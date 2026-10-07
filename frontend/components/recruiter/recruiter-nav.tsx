@@ -7,32 +7,39 @@ import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { ThreadListResponse } from "@/lib/messaging";
+import { RecruiterDrawer } from "@/components/recruiter/workspace-ui";
 
 type IconName = "overview" | "discover" | "pipeline" | "talent" | "messages" | "jobs" | "interviews" | "outreach";
 
 type NavItem = { label: string; shortLabel?: string; href: string; icon: IconName };
 
 const sections: { title: string; items: NavItem[] }[] = [
-  { title: "Recruiter workspace", items: [
-    { label: "Dashboard", shortLabel: "Home", href: "/recruiter", icon: "overview" },
-    { label: "Job Management", shortLabel: "Jobs", href: "/recruiter/jobs", icon: "jobs" },
-    { label: "Applications", shortLabel: "Apps", href: "/recruiter/pipeline", icon: "pipeline" },
-    { label: "Messages / InMail", shortLabel: "Inbox", href: "/recruiter/messages", icon: "messages" },
+  { title: "SapienWorx Recruit", items: [
+    { label: "Home", href: "/recruiter", icon: "overview" },
+    { label: "Jobs", href: "/recruiter/jobs", icon: "jobs" },
+    { label: "Applications", href: "/recruiter/pipeline", icon: "pipeline" },
+    { label: "Messages", href: "/recruiter/messages", icon: "messages" },
     { label: "Interviews", href: "/recruiter/interviews", icon: "interviews" },
-    { label: "Offers", href: "/recruiter/offers", icon: "jobs" },
+    { label: "Talent", href: "/recruiter/talent", icon: "discover" },
   ] },
-  { title: "Advanced recruitment tools", items: [
-    { label: "Discover Talent", href: "/recruiter/discover", icon: "discover" },
-    { label: "Talent Pools", href: "/recruiter/talent-pool", icon: "talent" },
-    { label: "Saved Searches", href: "/recruiter/saved-searches", icon: "discover" },
-    { label: "Referrals", href: "/recruiter/referrals", icon: "talent" },
-    { label: "Outreach", href: "/recruiter/outreach", icon: "outreach" },
+  { title: "Workspace", items: [
     { label: "Analytics", href: "/recruiter/analytics", icon: "overview" },
+    { label: "Settings", href: "/recruiter/settings", icon: "talent" },
   ] },
 ];
-
-const mobilePrimary = sections[0].items.slice(0, 4);
-const mobileMore = [...sections[0].items.slice(4), ...sections[1].items];
+const secondary: NavItem[] = [
+  { label: "Offers", href: "/recruiter/offers", icon: "jobs" },
+  { label: "Referrals", href: "/recruiter/referrals", icon: "talent" },
+];
+const talentTools: NavItem[] = [
+  { label: "Discover Talent", href: "/recruiter/discover", icon: "discover" },
+  { label: "Talent Pools", href: "/recruiter/talent-pool", icon: "talent" },
+  { label: "Saved Searches", href: "/recruiter/saved-searches", icon: "discover" },
+  { label: "Outreach", href: "/recruiter/outreach", icon: "outreach" },
+];
+const allItems = sections.flatMap(section => section.items);
+const mobilePrimary = ["/recruiter", "/recruiter/pipeline", "/recruiter/jobs", "/recruiter/messages"].map(href => allItems.find(item => item.href === href)!);
+const mobileMore = [...allItems.filter(item => !mobilePrimary.some(primary => primary.href === item.href)), ...secondary, ...talentTools];
 
 function NavIcon({ name, className }: { name: IconName; className?: string }) {
   const common = cn("h-[18px] w-[18px] shrink-0 fill-none stroke-current stroke-[1.8]", className);
@@ -51,6 +58,8 @@ function MoreIcon() {
 }
 
 function isActive(path: string, href: string) {
+  if (href === "/recruiter/talent") return ["/recruiter/talent", "/recruiter/discover", "/recruiter/saved-searches", "/recruiter/outreach"].some(prefix => path.startsWith(prefix));
+  if (href === "/recruiter/pipeline") return path.startsWith(href) || path.startsWith("/recruiter/candidates/");
   return href === "/recruiter" ? path === href : path.startsWith(href);
 }
 
@@ -84,7 +93,7 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
 
   return (
     <>
-      <div className="hidden rounded-2xl border border-line/70 bg-white p-2.5 shadow-[0_1px_3px_rgba(16,33,63,0.04)] lg:grid lg:gap-2 xl:gap-3">
+      <div className="swx-recruiter-nav hidden py-1 lg:grid lg:gap-2 xl:gap-3">
         {sections.map((section) => <div key={section.title} className="min-w-0">
           <p className="hidden px-3 pb-2 pt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink-muted/70 xl:block">{section.title}</p>
           <nav aria-label={section.title} className="grid gap-1">
@@ -108,14 +117,11 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
             })}
           </nav>
         </div>)}
+        <details className="mt-2 border-t border-line pt-2"><summary className="min-h-11 cursor-pointer rounded-lg px-3 py-3 text-xs font-semibold text-ink-muted">Hiring tools</summary><nav aria-label="Contextual hiring tools" className="grid gap-1">{secondary.map(item => <Link key={item.href} href={item.href} className="min-h-11 rounded-lg px-3 py-3 text-sm text-ink-muted">{item.label}</Link>)}</nav></details>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line/80 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_28px_rgba(16,33,63,0.10)] backdrop-blur-xl lg:hidden" data-testid="recruiter-bottom-nav">
-        {moreOpen && (
-          <>
-            <button type="button" aria-label="Close recruiter navigation" className="fixed inset-0 -z-10 bg-navy/10" onClick={() => setMoreOpen(false)} />
-            <div className="absolute bottom-[calc(100%+0.5rem)] right-3 w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-line bg-white p-2 shadow-[0_18px_50px_rgba(16,33,63,0.18)]" id="recruiter-more-menu" data-testid="recruiter-more-menu">
-              <p className="px-3 pb-1.5 pt-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-ink-muted">More recruiter tools</p>
+      <RecruiterDrawer open={moreOpen} onClose={() => setMoreOpen(false)} title="More recruiter tools">
+            <div id="recruiter-more-menu" data-testid="recruiter-more-menu">
               <nav aria-label="More recruiter tools" className="grid gap-1">
                 {mobileMore.map(({ label, href, icon }) => {
                   const active = isActive(path, href);
@@ -128,9 +134,8 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
                 })}
               </nav>
             </div>
-          </>
-        )}
-
+      </RecruiterDrawer>
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line/80 bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden" data-testid="recruiter-bottom-nav">
         <nav aria-label="Recruiter mobile navigation" className="mx-auto grid max-w-2xl grid-cols-5">
           {mobilePrimary.map(({ label, shortLabel, href, icon }) => {
             const active = isActive(path, href);

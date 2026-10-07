@@ -11,28 +11,29 @@ import (
 )
 
 type CandidateDetail struct {
-	UserID                string         `json:"user_id"`
-	FullName              string         `json:"full_name"`
-	Headline              *string        `json:"headline,omitempty"`
-	Email                 string         `json:"email,omitempty"`
-	EmailVerified         bool           `json:"email_verified"`
-	MaskedPhone           string         `json:"masked_phone,omitempty"`
-	HasCompanyApplication bool           `json:"has_company_application"`
-	CanViewCV             bool           `json:"can_view_cv"`
-	CanViewContact        bool           `json:"can_view_contact"`
-	CanCollaborate        bool           `json:"can_collaborate"`
-	Saved                 bool           `json:"saved"`
-	TalentPoolTags        []string       `json:"talent_pool_tags"`
-	CurrentCity           *string        `json:"current_city,omitempty"`
-	CurrentState          *string        `json:"current_state,omitempty"`
-	CountryCode           string         `json:"country_code"`
-	TotalExperienceMonths int            `json:"total_experience_months"`
-	NoticePeriodDays      *int           `json:"notice_period_days,omitempty"`
-	ProfileCompletion     int            `json:"profile_completion"`
-	LastActiveAt          *time.Time     `json:"last_active_at,omitempty"`
-	ProfileUpdatedAt      time.Time      `json:"profile_updated_at"`
-	PhotoDataURL          string         `json:"photo_data_url,omitempty"`
-	Details               map[string]any `json:"details"`
+	ReferralAttributions  []ReferralAttribution `json:"referral_attributions"`
+	UserID                string                `json:"user_id"`
+	FullName              string                `json:"full_name"`
+	Headline              *string               `json:"headline,omitempty"`
+	Email                 string                `json:"email,omitempty"`
+	EmailVerified         bool                  `json:"email_verified"`
+	MaskedPhone           string                `json:"masked_phone,omitempty"`
+	HasCompanyApplication bool                  `json:"has_company_application"`
+	CanViewCV             bool                  `json:"can_view_cv"`
+	CanViewContact        bool                  `json:"can_view_contact"`
+	CanCollaborate        bool                  `json:"can_collaborate"`
+	Saved                 bool                  `json:"saved"`
+	TalentPoolTags        []string              `json:"talent_pool_tags"`
+	CurrentCity           *string               `json:"current_city,omitempty"`
+	CurrentState          *string               `json:"current_state,omitempty"`
+	CountryCode           string                `json:"country_code"`
+	TotalExperienceMonths int                   `json:"total_experience_months"`
+	NoticePeriodDays      *int                  `json:"notice_period_days,omitempty"`
+	ProfileCompletion     int                   `json:"profile_completion"`
+	LastActiveAt          *time.Time            `json:"last_active_at,omitempty"`
+	ProfileUpdatedAt      time.Time             `json:"profile_updated_at"`
+	PhotoDataURL          string                `json:"photo_data_url,omitempty"`
+	Details               map[string]any        `json:"details"`
 }
 
 func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidateUserID string) (CandidateDetail, error) {
@@ -60,8 +61,7 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		WHERE cp.user_id=$1
 		  AND (
 		    EXISTS (SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2)
-		    OR EXISTS (SELECT 1 FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$3 AND tpm.candidate_id=cp.user_id)
-		    OR `+candidateDiscoverablePredicate+`
+				    OR `+candidateDiscoverablePredicate+`
 		  )
 	`, candidateUserID, companyID, recruiterUserID).Scan(
 		&detail.UserID,
@@ -123,9 +123,38 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	if err := s.recordProfileEvents(ctx, recruiterUserID, []string{candidateUserID}, "profile_view"); err != nil {
 		return CandidateDetail{}, err
 	}
+	if detail.HasCompanyApplication {
+		rows, e := s.db.Query(ctx, `SELECT ri.id,ri.referrer_name,ri.relationship,ri.source,ri.created_at,j.title FROM referral_invitations ri JOIN application_referral_history h ON h.referral_id=ri.id JOIN applications a ON a.id=h.application_id AND a.candidate_id=h.consented_by JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=$1 AND j.company_id=$2 AND ri.company_id=j.company_id ORDER BY h.consented_at,ri.id LIMIT 50`, candidateUserID, companyID)
+		if e != nil {
+			return CandidateDetail{}, e
+		}
+		detail.ReferralAttributions = []ReferralAttribution{}
+		for rows.Next() {
+			var x ReferralAttribution
+			if e = rows.Scan(&x.ID, &x.ReferrerName, &x.Relationship, &x.Source, &x.SubmittedAt, &x.JobTitle); e != nil {
+				rows.Close()
+				return CandidateDetail{}, e
+			}
+			detail.ReferralAttributions = append(detail.ReferralAttributions, x)
+		}
+		e = rows.Err()
+		rows.Close()
+		if e != nil {
+			return CandidateDetail{}, e
+		}
+	}
 	return detail, nil
 }
 
 func maskCandidatePhone(_ string) string {
 	return "••••••••••"
+}
+
+type ReferralAttribution struct {
+	ID           string    `json:"id"`
+	ReferrerName string    `json:"referrer_name"`
+	Relationship string    `json:"relationship"`
+	Source       string    `json:"source"`
+	SubmittedAt  time.Time `json:"submitted_at"`
+	JobTitle     string    `json:"job_title"`
 }

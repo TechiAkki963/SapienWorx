@@ -1,15 +1,18 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ownedRecruiterJob } from "@/lib/recruiter-job-server";
 
 import { CandidateCVButton } from "@/components/recruiter/candidate-cv-button";
 import { CandidateComments } from "@/components/recruiter/candidate-comments";
 import { CandidateContact } from "@/components/recruiter/candidate-contact";
 import { CandidateHeaderActions } from "@/components/recruiter/candidate-header-actions";
+import { Candidate360Sections } from "@/components/recruiter/candidate-360-sections";
 import { CandidateProfileView } from "@/components/recruiter/candidate-profile-view";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { RecruiterTagList } from "@/components/recruiter/recruiter-tag";
 import { requireRole } from "@/lib/auth-server";
-import { experience, PipelineList, RecruiterCandidateActivity, RecruiterCandidateDetail, RecruiterCandidateMatch, RecruiterJob } from "@/lib/recruiter";
-import { recruiterAPI } from "@/lib/recruiter-server";
+import { label, experience, PipelineList, RecruiterCandidateActivity, RecruiterCandidateDetail, RecruiterCandidateMatch, RecruiterJob } from "@/lib/recruiter";
+import { recruiterAPI, RecruiterBackendError } from "@/lib/recruiter-server";
 
 export const dynamic = "force-dynamic";
 
@@ -102,12 +105,12 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
   const query = await searchParams;
 
   const [candidate, jobsResponse] = await Promise.all([
-    recruiterAPI<RecruiterCandidateDetail>(`/api/v1/recruiter/candidates/${candidateID}`),
+    recruiterAPI<RecruiterCandidateDetail>(`/api/v1/recruiter/candidates/${encodeURIComponent(candidateID)}`).catch(error=>{if(error instanceof RecruiterBackendError && [403,404].includes(error.status))notFound();throw error;}),
     recruiterAPI<{ items: RecruiterJob[] }>("/api/v1/recruiter/jobs"),
   ]);
 
   const jobs = jobsResponse.items ?? [];
-  const selectedJob = jobs.find((job) => job.id === query.job_id);
+  const selectedJob = jobs.find((job) => job.id === query.job_id) ?? (query.job_id ? await ownedRecruiterJob(query.job_id) : undefined);
   const match = selectedJob
     ? await recruiterAPI<RecruiterCandidateMatch | null>(`/api/v1/recruiter/candidates/${candidateID}/match?job_id=${encodeURIComponent(selectedJob.id)}`).catch(() => null)
     : null;
@@ -116,7 +119,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
       ? recruiterAPI<RecruiterCandidateActivity>(`/api/v1/recruiter/candidates/${candidateID}/activity`).catch(() => ({ items: [] }))
       : Promise.resolve({ items: [] }),
     candidate.can_collaborate
-      ? recruiterAPI<PipelineList>("/api/v1/recruiter/pipeline?page=1&limit=50").catch(() => ({ items: [], page: 1, limit: 50, total: 0 }))
+      ? recruiterAPI<PipelineList>(`/api/v1/recruiter/pipeline?page=1&limit=50&candidate_id=${encodeURIComponent(candidateID)}`).catch(() => ({ items: [], page: 1, limit: 50, total: 0 }))
       : Promise.resolve({ items: [], page: 1, limit: 50, total: 0 }),
   ]);
 
@@ -125,11 +128,14 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
     .sort((a, b) => Number(b.job_id === query.job_id) - Number(a.job_id === query.job_id));
 
   const employment = records(candidate.details, "employment");
-  const skills = records(candidate.details, "it_skills");
+  const itSkills = records(candidate.details, "it_skills");
+  const keySkills = Array.isArray(candidate.details.key_skills) ? candidate.details.key_skills.filter((value): value is string => typeof value === "string") : [];
+  const seenSkills = new Set(itSkills.map(item => optionalRecordText(item, "name").toLocaleLowerCase()));
+  const skills = [...itSkills, ...keySkills.filter(name => name.trim() && !seenSkills.has(name.trim().toLocaleLowerCase())).map(name => ({ name: name.trim() }))];
   const education = records(candidate.details, "education");
   const languages = records(candidate.details, "languages");
   const projects = records(candidate.details, "projects");
-  const accomplishments = records(candidate.details, "accomplishments");
+  const accomplishments = [...records(candidate.details, "accomplishments"), ...records(candidate.details, "certifications")];
   const professionalLinks = records(candidate.details, "professional_links");
   const initials = candidate.full_name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
   const preferredLocations = text(candidate.details, "preferred_locations");
@@ -253,9 +259,154 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
               </div>
             </section>
 
-            <div className="candidate-profile-two-column grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:grid-rows-[auto_1fr]">
-              {selectedJob && (
-                <section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)] xl:col-start-2 xl:row-start-1">
+            <Candidate360Sections
+              resume={<section className="rounded-xl border border-line bg-white p-5"><h2 className="text-lg font-semibold text-navy">Resume</h2><p className="mt-2 text-sm leading-6 text-ink-muted">{candidate.can_view_cv ? "Resume access is authorized through an application to your company. Links expire automatically." : "The resume remains private until this candidate applies to your company."}</p>{candidate.can_view_cv && <div className="mt-4"><CandidateCVButton candidateID={candidateID}/></div>}</section>}
+              interviews={<section className="rounded-xl border border-line bg-white p-5"><h2 className="text-lg font-semibold text-navy">Interviews</h2>{activity.items.filter(item=>item.type==="interview").length ? <ol className="mt-4 divide-y divide-line">{activity.items.filter(item=>item.type==="interview").map((item,index)=><li key={`${item.occurred_at}-${index}`} className="py-3"><p className="text-sm font-semibold text-ink">{item.title}</p><p className="mt-1 text-xs leading-6 text-ink-muted">{item.description} · {formatDate(item.occurred_at)} IST</p></li>)}</ol> : <p className="mt-2 text-sm leading-6 text-ink-muted">No recorded interview events in your company context.</p>}{candidate.can_collaborate && <div className="mt-3 flex flex-wrap gap-3">{candidateApplications.map(application=><Link key={application.application_id} href={`/recruiter/interviews?job_id=${encodeURIComponent(application.job_id)}`} className="min-h-11 content-center text-xs font-semibold text-indigo">Interviews · {application.job_title}</Link>)}</div>}</section>}
+              overview={<>{candidate.can_collaborate ? (
+                  <CandidateComments candidateID={candidateID} jobID={query.job_id} applicationID={candidateApplications[0]?.application_id} />
+                ) : (
+                  <section className="rounded-2xl border border-line/70 bg-white p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="text-base font-bold text-navy">Recruiter Notes</h2>
+                      <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold text-ink-muted">Internal</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-ink-muted">Internal recruiter notes become available after the candidate applies to your company.</p>
+                  </section>
+                 )}{<section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <h2 className="text-base font-bold text-navy">Professional Summary</h2>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-ink-muted">{text(candidate.details, "professional_summary")}</p>
+                </section>}{<section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-base font-bold text-navy">Skills</h2>
+                    <span className="text-xs font-semibold text-ink-muted">{skills.length} listed</span>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {skills.length ? skills.map((item, index) => {
+                      const proficiency = optionalRecordText(item, "proficiency");
+                      return (
+                        <span key={index} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">
+                          {recordText(item, "name")}{proficiency ? ` · ${proficiency}` : ""}
+                        </span>
+                      );
+                    }) : <p className="text-sm text-ink-muted">No skills added.</p>}
+                  </div>
+                </section>}</>}
+              experience={<>{<section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-base font-bold text-navy">Employment</h2>
+                    <span className="text-xs font-semibold text-ink-muted">{employment.length} records</span>
+                  </div>
+                  <div className="mt-4 grid gap-3">
+                    {employment.length ? employment.map((item, index) => {
+                      const timeline = employmentPeriod(item);
+                      const profile = optionalRecordText(item, "job_profile");
+                      const skillsUsed = optionalRecordText(item, "skills_used");
+                      return (
+                        <article key={index} className="rounded-xl border border-line/70 bg-slate-50/55 p-4">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <p className="font-bold text-ink">{recordText(item, "job_title")}</p>
+                              <p className="mt-0.5 text-sm text-ink-muted">{recordText(item, "company")}</p>
+                            </div>
+                            {optionalRecordText(item, "employment_type") && <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink-muted">{optionalRecordText(item, "employment_type")}</span>}
+                          </div>
+                          {(timeline.period || timeline.duration) && (
+                            <p className="mt-2 text-xs font-semibold text-ink-muted">
+                              {timeline.period}{timeline.duration ? ` · ${timeline.duration}` : ""}
+                            </p>
+                          )}
+                          {profile && <p className="mt-3 text-xs leading-5 text-ink-muted">{profile}</p>}
+                          {skillsUsed && <p className="mt-2 text-xs font-semibold text-ink">Skills: {skillsUsed}</p>}
+                        </article>
+                      );
+                    }) : <p className="text-sm text-ink-muted">No employment history added.</p>}
+                  </div>
+                </section>}{<section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-base font-bold text-navy">Education</h2>
+                    <span className="text-xs font-semibold text-ink-muted">{education.length} records</span>
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {education.length ? education.map((item, index) => {
+                      const startYear = optionalRecordText(item, "start_year");
+                      const endYear = optionalRecordText(item, "end_year");
+                      const score = optionalRecordText(item, "score");
+                      const gradingSystem = optionalRecordText(item, "grading_system");
+                      const specialization = optionalRecordText(item, "specialization");
+                      return (
+                        <article key={index} className="rounded-xl border border-line/70 bg-slate-50/40 p-4">
+                          <p className="font-bold text-ink">{educationTitle(item)}</p>
+                          <p className="mt-1 text-sm text-ink-muted">{recordText(item, "university")}</p>
+                          {specialization && <p className="mt-2 text-xs font-semibold text-ink">{specialization}</p>}
+                          {(startYear || endYear) && <p className="mt-2 text-xs text-ink-muted">{startYear || "—"} – {endYear || "—"}</p>}
+                          {(score || gradingSystem) && (
+                            <p className="mt-2 text-xs font-bold text-indigo">
+                              {score ? `${score}${gradingSystem ? ` · ${gradingSystem}` : ""}` : gradingSystem}
+                            </p>
+                          )}
+                        </article>
+                      );
+                    }) : <p className="text-sm text-ink-muted">No education added.</p>}
+                  </div>
+                </section>}{<section className="rounded-2xl border border-line/70 bg-white p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-base font-bold text-navy">Languages</h2>
+                    <span className="text-xs font-semibold text-ink-muted">{languages.length} listed</span>
+                  </div>
+                  <div className="mt-4 grid gap-2">
+                    {languages.length ? languages.map((item, index) => {
+                      const capabilities = languageCapabilities(item);
+                      const proficiency = optionalRecordText(item, "proficiency");
+                      return (
+                        <div key={index} className="flex flex-wrap items-center gap-2 rounded-xl border border-line/70 bg-slate-50/45 px-3 py-2.5">
+                          <span className="min-w-[7rem] text-sm font-bold text-ink">{recordText(item, "language")}</span>
+                          {proficiency && <span className="rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-ink-muted">{proficiency}</span>}
+                          {capabilities.map((capability) => <span key={capability} className="rounded-full bg-indigo-soft/70 px-2 py-1 text-[11px] font-bold text-indigo">{capability}</span>)}
+                        </div>
+                      );
+                    }) : <p className="text-sm text-ink-muted">No languages added.</p>}
+                  </div>
+                </section>}{<section className="rounded-2xl border border-line/70 bg-white p-5">
+                    <h2 className="text-base font-bold text-navy">Professional Highlights</h2>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {projects.map((item, index) => {
+                        const title = recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name");
+                        const url = safeExternalURL(item);
+                        return (
+                          <article key={`project-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
+                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Project</p>
+                            <p className="mt-1 break-words text-sm font-bold text-ink">{title}</p>
+                            <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>
+                            {url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open project ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View project ↗</a>}
+                          </article>
+                        );
+                      })}
+                      {accomplishments.map((item, index) => {
+                        const title = recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name");
+                        const url = safeExternalURL(item);
+                        return (
+                          <article key={`accomplishment-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
+                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p>
+                            <p className="mt-1 break-words text-sm font-bold text-ink">{title}</p>
+                            <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>
+                            {url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open accomplishment ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View credential ↗</a>}
+                          </article>
+                        );
+                      })}
+                      {professionalLinks.map((item, index) => {
+                        const label = recordText(item, "label") !== "—" ? recordText(item, "label") : recordText(item, "name");
+                        const url = safeExternalURL(item);
+                        return (
+                          <article key={`link-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
+                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p>
+                            <p className="mt-1 break-words text-sm font-bold text-ink">{label}</p>
+                            {url ? <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${label}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">Open link ↗</a> : <p className="mt-2 text-xs text-ink-muted">Link unavailable</p>}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </section>}</>}
+              matches={<>{selectedJob ? (<section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)]">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Job match</p>
@@ -301,182 +452,8 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       No current production-model match result is available for this candidate and job yet. Profile completeness is kept separate from job match.
                     </p>
                   )}
-                </section>
-              )}
-
-              <div className="grid gap-5 xl:col-start-1 xl:row-span-2 xl:row-start-1">
-                {candidate.can_collaborate ? (
-                  <CandidateComments candidateID={candidateID} jobID={query.job_id} applicationID={candidateApplications[0]?.application_id} />
-                ) : (
-                  <section className="rounded-2xl border border-line/70 bg-white p-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-base font-bold text-navy">Recruiter Notes</h2>
-                      <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold text-ink-muted">Internal</span>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-ink-muted">Internal recruiter notes become available after the candidate applies to your company.</p>
-                  </section>
-                )}
-
-                <section className="rounded-2xl border border-line/70 bg-white p-5">
-                  <h2 className="text-base font-bold text-navy">Professional Summary</h2>
-                  <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-ink-muted">{text(candidate.details, "professional_summary")}</p>
-                </section>
-
-                <section className="rounded-2xl border border-line/70 bg-white p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-base font-bold text-navy">Employment</h2>
-                    <span className="text-xs font-semibold text-ink-muted">{employment.length} records</span>
-                  </div>
-                  <div className="mt-4 grid gap-3">
-                    {employment.length ? employment.map((item, index) => {
-                      const timeline = employmentPeriod(item);
-                      const profile = optionalRecordText(item, "job_profile");
-                      const skillsUsed = optionalRecordText(item, "skills_used");
-                      return (
-                        <article key={index} className="rounded-xl border border-line/70 bg-slate-50/55 p-4">
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div>
-                              <p className="font-bold text-ink">{recordText(item, "job_title")}</p>
-                              <p className="mt-0.5 text-sm text-ink-muted">{recordText(item, "company")}</p>
-                            </div>
-                            {optionalRecordText(item, "employment_type") && <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink-muted">{optionalRecordText(item, "employment_type")}</span>}
-                          </div>
-                          {(timeline.period || timeline.duration) && (
-                            <p className="mt-2 text-xs font-semibold text-ink-muted">
-                              {timeline.period}{timeline.duration ? ` · ${timeline.duration}` : ""}
-                            </p>
-                          )}
-                          {profile && <p className="mt-3 text-xs leading-5 text-ink-muted">{profile}</p>}
-                          {skillsUsed && <p className="mt-2 text-xs font-semibold text-ink">Skills: {skillsUsed}</p>}
-                        </article>
-                      );
-                    }) : <p className="text-sm text-ink-muted">No employment history added.</p>}
-                  </div>
-                </section>
-
-                <section className="rounded-2xl border border-line/70 bg-white p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-base font-bold text-navy">Skills</h2>
-                    <span className="text-xs font-semibold text-ink-muted">{skills.length} listed</span>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {skills.length ? skills.map((item, index) => {
-                      const proficiency = optionalRecordText(item, "proficiency");
-                      return (
-                        <span key={index} className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">
-                          {recordText(item, "name")}{proficiency ? ` · ${proficiency}` : ""}
-                        </span>
-                      );
-                    }) : <p className="text-sm text-ink-muted">No skills added.</p>}
-                  </div>
-                </section>
-
-                <section className="rounded-2xl border border-line/70 bg-white p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-base font-bold text-navy">Education</h2>
-                    <span className="text-xs font-semibold text-ink-muted">{education.length} records</span>
-                  </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {education.length ? education.map((item, index) => {
-                      const startYear = optionalRecordText(item, "start_year");
-                      const endYear = optionalRecordText(item, "end_year");
-                      const score = optionalRecordText(item, "score");
-                      const gradingSystem = optionalRecordText(item, "grading_system");
-                      const specialization = optionalRecordText(item, "specialization");
-                      return (
-                        <article key={index} className="rounded-xl border border-line/70 bg-slate-50/40 p-4">
-                          <p className="font-bold text-ink">{educationTitle(item)}</p>
-                          <p className="mt-1 text-sm text-ink-muted">{recordText(item, "university")}</p>
-                          {specialization && <p className="mt-2 text-xs font-semibold text-ink">{specialization}</p>}
-                          {(startYear || endYear) && <p className="mt-2 text-xs text-ink-muted">{startYear || "—"} – {endYear || "—"}</p>}
-                          {(score || gradingSystem) && (
-                            <p className="mt-2 text-xs font-bold text-indigo">
-                              {score ? `${score}${gradingSystem ? ` · ${gradingSystem}` : ""}` : gradingSystem}
-                            </p>
-                          )}
-                        </article>
-                      );
-                    }) : <p className="text-sm text-ink-muted">No education added.</p>}
-                  </div>
-                </section>
-
-                <section className="rounded-2xl border border-line/70 bg-white p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-base font-bold text-navy">Languages</h2>
-                    <span className="text-xs font-semibold text-ink-muted">{languages.length} listed</span>
-                  </div>
-                  <div className="mt-4 grid gap-2">
-                    {languages.length ? languages.map((item, index) => {
-                      const capabilities = languageCapabilities(item);
-                      const proficiency = optionalRecordText(item, "proficiency");
-                      return (
-                        <div key={index} className="flex flex-wrap items-center gap-2 rounded-xl border border-line/70 bg-slate-50/45 px-3 py-2.5">
-                          <span className="min-w-[7rem] text-sm font-bold text-ink">{recordText(item, "language")}</span>
-                          {proficiency && <span className="rounded-full bg-white px-2 py-1 text-[11px] font-semibold text-ink-muted">{proficiency}</span>}
-                          {capabilities.map((capability) => <span key={capability} className="rounded-full bg-indigo-soft/70 px-2 py-1 text-[11px] font-bold text-indigo">{capability}</span>)}
-                        </div>
-                      );
-                    }) : <p className="text-sm text-ink-muted">No languages added.</p>}
-                  </div>
-                </section>
-
-                {(projects.length > 0 || accomplishments.length > 0 || professionalLinks.length > 0) && (
-                  <section className="rounded-2xl border border-line/70 bg-white p-5">
-                    <h2 className="text-base font-bold text-navy">Professional Highlights</h2>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      {projects.map((item, index) => {
-                        const title = recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name");
-                        const url = safeExternalURL(item);
-                        return (
-                          <article key={`project-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
-                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Project</p>
-                            <p className="mt-1 break-words text-sm font-bold text-ink">{title}</p>
-                            <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>
-                            {url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open project ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View project ↗</a>}
-                          </article>
-                        );
-                      })}
-                      {accomplishments.map((item, index) => {
-                        const title = recordText(item, "title") !== "—" ? recordText(item, "title") : recordText(item, "name");
-                        const url = safeExternalURL(item);
-                        return (
-                          <article key={`accomplishment-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
-                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p>
-                            <p className="mt-1 break-words text-sm font-bold text-ink">{title}</p>
-                            <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>
-                            {url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open accomplishment ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View credential ↗</a>}
-                          </article>
-                        );
-                      })}
-                      {professionalLinks.map((item, index) => {
-                        const label = recordText(item, "label") !== "—" ? recordText(item, "label") : recordText(item, "name");
-                        const url = safeExternalURL(item);
-                        return (
-                          <article key={`link-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
-                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p>
-                            <p className="mt-1 break-words text-sm font-bold text-ink">{label}</p>
-                            {url ? <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${label}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">Open link ↗</a> : <p className="mt-2 text-xs text-ink-muted">Link unavailable</p>}
-                          </article>
-                        );
-                      })}
-                    </div>
-                  </section>
-                )}
-              </div>
-
-              <aside className="grid content-start gap-4 xl:col-start-2 xl:row-start-2">
-                <section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
-                  <p className="mt-2 text-xs leading-5 text-ink-muted">
-                    {candidate.can_view_cv
-                      ? "CV access is authorized because this candidate has an application with your company. The download link expires automatically."
-                      : "CV remains private until the candidate applies to your company."}
-                  </p>
-                  {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
-                </section>
-
-                {candidate.can_collaborate && (
-                  <section className="rounded-2xl border border-line/70 bg-white p-4">
+                </section>) : <section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold text-navy">Choose a job for match context</h2><p className="mt-2 text-sm text-ink-muted">Open this profile from an authorized job’s pipeline to see its approved match score and explanation.</p></section>}</>}
+              activity={<>{!!candidate.referral_attributions?.length&&<section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold text-navy">Referral attribution</h2>{candidate.referral_attributions.map(referral=><div key={referral.id} className="mt-3 border-b border-line pb-3"><p className="text-sm font-semibold text-ink">{referral.referrer_name} · {referral.job_title}</p><p className="mt-1 text-xs text-ink-muted">{referral.relationship} · {referral.source==="candidate"?"Candidate referral":label(referral.source)} · Submitted {formatDate(referral.submitted_at)}</p><p className="mt-1 break-all text-xs text-ink-muted">Referral ID: {referral.id}</p></div>)}</section>}{candidate.can_collaborate ? (<section className="rounded-2xl border border-line/70 bg-white p-4">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Recent activity</p>
                       <span className="text-[10px] font-bold text-ink-muted">{activity.items.length} events</span>
@@ -494,19 +471,24 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                         </div>
                       )) : <p className="text-xs leading-5 text-ink-muted">No company activity recorded yet.</p>}
                     </div>
-                  </section>
-                )}
-
-                <section className="rounded-2xl border border-line/70 bg-white p-4">
+                  </section>) : <section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold text-navy">Company activity is private</h2><p className="mt-2 text-sm text-ink-muted">Hiring activity becomes available after the candidate applies to your company.</p></section>}</>}
+              privacy={<>{<section className="rounded-2xl border border-line/70 bg-white p-4">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
+                  <p className="mt-2 text-xs leading-5 text-ink-muted">
+                    {candidate.can_view_cv
+                      ? "CV access is authorized because this candidate has an application with your company. The download link expires automatically."
+                      : "CV remains private until the candidate applies to your company."}
+                  </p>
+                  {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
+                </section>}{<section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Profile context</p>
                   <dl className="mt-3 grid gap-3 text-sm">
                     <div><dt className="text-xs text-ink-muted">Current designation</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "current_designation")}</dd></div>
                     <div><dt className="text-xs text-ink-muted">Industry</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "industry")}</dd></div>
                     <div><dt className="text-xs text-ink-muted">Department / role</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "department_role")}</dd></div>
                   </dl>
-                </section>
-              </aside>
-            </div>
+                </section>}<section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold text-navy">Candidate sharing policy</h2><p className="mt-2 text-sm leading-6 text-ink-muted">Personal details and compensation remain private. Contact is revealed only through the audited consent check. A CV link requires an application to your company.</p></section></>}
+            />
           </div>
         </CandidateProfileView>
       </div>

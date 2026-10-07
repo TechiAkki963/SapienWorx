@@ -106,6 +106,7 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
     ? `Reassign ${selected.length} selected job${selected.length === 1 ? "" : "s"} to ${assigneeName ?? "the selected recruiter"}?`
     : `${actionLabel(action)} ${selected.length} selected job${selected.length === 1 ? "" : "s"}?`;
 
+  if (!selected.length && !result && !error) return null;
   return (
     <section aria-label="Bulk job actions" className="rounded-2xl border border-line/70 bg-white p-3.5 shadow-[0_4px_20px_rgba(16,33,63,0.03)] sm:p-4">
       <div className="flex flex-wrap items-center gap-2.5">

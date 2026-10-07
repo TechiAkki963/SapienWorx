@@ -1,5 +1,7 @@
 package recruiter
 
+import "strings"
+
 // recruiterProfileFields is an explicit allow-list. Candidate profile_details
 // also contains private contact, compensation, address and sensitive personal
 // attributes, which must not cross the recruiter API boundary.
@@ -13,6 +15,8 @@ var recruiterProfileFields = map[string]struct{}{
 	"industry":              {},
 	"employment":            {},
 	"it_skills":             {},
+	"key_skills":            {},
+	"certifications":        {},
 	"education":             {},
 	"projects":              {},
 	"accomplishments":       {},
@@ -63,6 +67,25 @@ func recruiterVisibleCandidateDetails(details map[string]any) map[string]any {
 			visible[key] = allowListedRecords(value, recruiterEmploymentFields)
 		case "it_skills":
 			visible[key] = allowListedRecords(value, recruiterSkillFields)
+		case "key_skills":
+			skills := []string{}
+			switch typed := value.(type) {
+			case string:
+				for _, skill := range strings.Split(typed, ",") {
+					if skill = strings.TrimSpace(skill); skill != "" {
+						skills = append(skills, skill)
+					}
+				}
+			case []any:
+				for _, item := range typed {
+					if skill, ok := item.(string); ok && strings.TrimSpace(skill) != "" {
+						skills = append(skills, strings.TrimSpace(skill))
+					}
+				}
+			}
+			visible[key] = skills
+		case "certifications":
+			visible[key] = allowListedRecords(value, recruiterAccomplishmentFields)
 		case "education":
 			visible[key] = allowListedRecords(value, recruiterEducationFields)
 		case "languages":

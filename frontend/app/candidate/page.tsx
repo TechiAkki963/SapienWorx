@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {CandidateReferralList} from "@/lib/candidate-referrals";
 import { CandidateOverviewIdentity } from "@/components/candidate/candidate-overview-identity";
 import { JobCard } from "@/components/candidate/job-card";
 import { WorkspaceError } from "@/components/candidate/workspace-error";
@@ -23,13 +24,14 @@ export default async function CandidateDashboardPage() {
   } catch {
     return <WorkspaceError title="We couldn’t load your overview." />;
   }
-  const [details, metrics] = await Promise.all([
+  const [details, metrics, referrals] = await Promise.all([
     candidateAPI<CandidateProfileDetails>(
       "/api/v1/candidate/profile/details",
     ).catch(() => null),
     candidateAPI<CandidateProfileMetrics>(
       "/api/v1/candidate/profile/metrics",
     ).catch(() => null),
+    candidateAPI<CandidateReferralList>("/api/v1/candidate/referral-invitations?limit=1&page=1").catch(()=>null),
   ]);
   const onboarding = details ? candidateOnboardingStatus(details) : null;
   const firstName = dashboard.profile.full_name.split(" ")[0] || "there";
@@ -125,6 +127,7 @@ export default async function CandidateDashboardPage() {
           </div>
         </Surface>
       </div>
+      {referrals&&referrals.total>0&&<Surface className="flex flex-wrap items-center justify-between gap-3 p-5"><div><h2 className="font-semibold">Your referrals</h2><p className="mt-1 text-sm text-ink-muted">{referrals.total} personal recommendation{referrals.total===1?"":"s"}. Track broad progress privately.</p></div><Link className="inline-flex min-h-11 items-center text-sm font-semibold text-indigo" href="/candidate/referrals">View referrals →</Link></Surface>}
       <section aria-label="Profile performance">
         <div className="mb-3 flex flex-wrap justify-between gap-2">
           <h2 className="font-bold">Profile performance</h2>

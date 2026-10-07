@@ -4,11 +4,41 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+// Stored searches share the interactive validator. Legacy JSON numbers remain
+// readable, but nested objects and private/unknown keys are never persisted.
+func canonicalSearchFilters(filters map[string]any) (map[string]any, error) {
+	if len(filters) > 64 {
+		return nil, ErrInvalid
+	}
+	values := map[string]string{}
+	for key, value := range filters {
+		switch value.(type) {
+		case string, float64, json.Number, int, bool:
+			values[key] = strings.TrimSpace(fmt.Sprint(value))
+		default:
+			return nil, ErrInvalid
+		}
+	}
+	f, err := ParseDiscoveryFilters(values)
+	if err != nil {
+		return nil, err
+	}
+	clean := map[string]any{}
+	for key, value := range f.Criteria {
+		if key != "page" && key != "page_size" {
+			clean[key] = value
+		}
+	}
+	return clean, nil
+}
 
 type SavedSearch struct {
 	ID             string         `json:"id"`
@@ -27,15 +57,23 @@ type RecentSearch struct {
 }
 
 func (s *Service) SaveSearch(ctx context.Context, recruiterID, name string, filters map[string]any) (SavedSearch, error) {
-	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
+	companyID, _, _, err := s.recruiterCompany(ctx, recruiterID)
+	if err != nil {
 		return SavedSearch{}, err
 	}
 	name = strings.TrimSpace(name)
-	if name == "" || len(name) > 120 || len(filters) > 30 {
+	if name == "" || len(name) > 120 {
 		return SavedSearch{}, ErrInvalid
 	}
+	filters, err = canonicalSearchFilters(filters)
+	if err != nil {
+		return SavedSearch{}, err
+	}
+	if client, _ := filters["client_company_id"].(string); client != "" && client != companyID {
+		return SavedSearch{}, ErrNotFound
+	}
 	raw, err := json.Marshal(filters)
-	if err != nil || len(raw) > 8192 {
+	if err != nil || len(raw) > 32768 {
 		return SavedSearch{}, ErrInvalid
 	}
 	var item SavedSearch
@@ -75,11 +113,12 @@ func (s *Service) RecordSearch(ctx context.Context, recruiterID string, filters 
 	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
 		return err
 	}
-	if len(filters) > 30 {
-		return ErrInvalid
+	filters, err := canonicalSearchFilters(filters)
+	if err != nil {
+		return err
 	}
 	raw, err := json.Marshal(filters)
-	if err != nil || len(raw) > 8192 {
+	if err != nil || len(raw) > 32768 {
 		return ErrInvalid
 	}
 	_, err = s.db.Exec(ctx, `INSERT INTO recruiter_search_activity(recruiter_id,filters) VALUES($1,$2::jsonb)
@@ -112,16 +151,56 @@ func (s *Service) RecentSearches(ctx context.Context, recruiterID string) ([]Rec
 }
 
 func (s *Service) UpdateSavedSearchAlert(ctx context.Context, recruiterID, searchID string, enabled bool, frequency string) (SavedSearch, error) {
-	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
+	return s.UpdateSavedSearch(ctx, recruiterID, searchID, SavedSearchUpdate{Enabled: &enabled, Frequency: &frequency})
+}
+
+type SavedSearchUpdate struct {
+	Name      *string        `json:"name"`
+	Filters   map[string]any `json:"filters"`
+	Enabled   *bool          `json:"enabled"`
+	Frequency *string        `json:"frequency"`
+}
+
+func (s *Service) UpdateSavedSearch(ctx context.Context, recruiterID, searchID string, input SavedSearchUpdate) (SavedSearch, error) {
+	companyID, _, _, err := s.recruiterCompany(ctx, recruiterID)
+	if err != nil {
 		return SavedSearch{}, err
 	}
-	frequency = strings.TrimSpace(frequency)
-	if !validEnum(frequency, "daily", "weekly") {
+	if !validSavedSearchID(searchID) {
+		return SavedSearch{}, ErrNotFound
+	}
+	if input.Name == nil && input.Filters == nil && input.Enabled == nil && input.Frequency == nil {
 		return SavedSearch{}, ErrInvalid
+	}
+	if input.Name != nil {
+		name := strings.TrimSpace(*input.Name)
+		if name == "" || len(name) > 120 {
+			return SavedSearch{}, ErrInvalid
+		}
+		input.Name = &name
+	}
+	if input.Frequency != nil && !validEnum(*input.Frequency, "daily", "weekly") {
+		return SavedSearch{}, ErrInvalid
+	}
+	var filtersJSON *string
+	if input.Filters != nil {
+		filters, err := canonicalSearchFilters(input.Filters)
+		if err != nil {
+			return SavedSearch{}, err
+		}
+		if client, _ := filters["client_company_id"].(string); client != "" && client != companyID {
+			return SavedSearch{}, ErrNotFound
+		}
+		raw, err := json.Marshal(filters)
+		if err != nil || len(raw) > 32768 {
+			return SavedSearch{}, ErrInvalid
+		}
+		value := string(raw)
+		filtersJSON = &value
 	}
 	var item SavedSearch
 	var raw []byte
-	err := s.db.QueryRow(ctx, `UPDATE recruiter_saved_searches SET alert_enabled=$3,alert_frequency=$4,updated_at=now() WHERE id=$1 AND recruiter_id=$2 RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`, searchID, recruiterID, enabled, frequency).Scan(&item.ID, &item.Name, &raw, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
+	err = s.db.QueryRow(ctx, `UPDATE recruiter_saved_searches SET name=COALESCE($3,name),filters=COALESCE($4::jsonb,filters),alert_enabled=COALESCE($5,alert_enabled),alert_frequency=COALESCE($6,alert_frequency),updated_at=now() WHERE id=$1 AND recruiter_id=$2 RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`, searchID, recruiterID, input.Name, filtersJSON, input.Enabled, input.Frequency).Scan(&item.ID, &item.Name, &raw, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return SavedSearch{}, ErrNotFound
 	}
@@ -132,4 +211,109 @@ func (s *Service) UpdateSavedSearchAlert(ctx context.Context, recruiterID, searc
 		return SavedSearch{}, err
 	}
 	return item, nil
+}
+
+func (s *Service) DeleteSavedSearch(ctx context.Context, recruiterID, searchID string) error {
+	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
+		return err
+	}
+	if !validSavedSearchID(searchID) {
+		return ErrNotFound
+	}
+	result, err := s.db.Exec(ctx, `DELETE FROM recruiter_saved_searches WHERE id=$1 AND recruiter_id=$2`, searchID, recruiterID)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() != 1 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+func validSavedSearchID(id string) bool {
+	var uuid pgtype.UUID
+	return uuid.Scan(id) == nil && uuid.Valid
+}
+
+// SavedSearchByID resolves an owned search independently of the bounded recent list.
+func (s *Service) SavedSearchByID(ctx context.Context, recruiterID, searchID string) (SavedSearch, error) {
+	if _, _, _, err := s.recruiterCompany(ctx, recruiterID); err != nil {
+		return SavedSearch{}, err
+	}
+	if !validSavedSearchID(searchID) {
+		return SavedSearch{}, ErrNotFound
+	}
+	var item SavedSearch
+	var raw []byte
+	err := s.db.QueryRow(ctx, `SELECT id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at FROM recruiter_saved_searches WHERE id=$1 AND recruiter_id=$2`, searchID, recruiterID).Scan(&item.ID, &item.Name, &raw, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return SavedSearch{}, ErrNotFound
+	}
+	if err != nil {
+		return SavedSearch{}, err
+	}
+	if err = json.Unmarshal(raw, &item.Filters); err != nil {
+		return SavedSearch{}, err
+	}
+	return item, nil
+}
+
+// nullableID keeps empty optional UUID filters out of PostgreSQL casts.
+func nullableID(value string) any {
+	if value == "" {
+		return nil
+	}
+	return value
+}
+
+type SavedSearchMatchCounts struct {
+	Current      int       `json:"current"`
+	UpdatedSince int       `json:"updated_since"`
+	Since        time.Time `json:"since"`
+	CheckedAt    time.Time `json:"checked_at"`
+}
+
+// Match counts do not emit profile appearances: counting does not display a profile.
+func (s *Service) SavedSearchMatchCounts(ctx context.Context, recruiterID, searchID string) (SavedSearchMatchCounts, error) {
+	saved, err := s.SavedSearchByID(ctx, recruiterID, searchID)
+	if err != nil {
+		return SavedSearchMatchCounts{}, err
+	}
+	filters, err := canonicalSearchFilters(saved.Filters)
+	if err != nil {
+		return SavedSearchMatchCounts{}, err
+	}
+	values := map[string]string{}
+	for key, value := range filters {
+		values[key] = fmt.Sprint(value)
+	}
+	parsed, err := ParseDiscoveryFilters(values)
+	if err != nil {
+		return SavedSearchMatchCounts{}, err
+	}
+	parsed.Page = 1
+	parsed.PageSize = 1
+	current, err := s.discover(ctx, recruiterID, parsed, false)
+	if err != nil {
+		return SavedSearchMatchCounts{}, err
+	}
+	since := saved.UpdatedAt
+	if saved.LastAlertedAt != nil {
+		since = *saved.LastAlertedAt
+	}
+	updatedFilters, err := savedSearchDiscoveryFilters(saved.Filters, since)
+	if err != nil {
+		return SavedSearchMatchCounts{}, err
+	}
+	updatedFilters.Page = 1
+	updatedFilters.PageSize = 1
+	since, err = time.Parse(time.RFC3339Nano, updatedFilters.UpdatedSince)
+	if err != nil {
+		return SavedSearchMatchCounts{}, err
+	}
+	updated, err := s.discover(ctx, recruiterID, updatedFilters, false)
+	if err != nil {
+		return SavedSearchMatchCounts{}, err
+	}
+	return SavedSearchMatchCounts{Current: current.Total, UpdatedSince: updated.Total, Since: since, CheckedAt: time.Now().UTC()}, nil
 }

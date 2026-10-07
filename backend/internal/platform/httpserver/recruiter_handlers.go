@@ -20,39 +20,39 @@ func (s *Server) recruiterDiscover(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
 		return
 	}
-	q := r.URL.Query()
-	parseNumber := func(key string) (int, bool) {
-		if q.Get(key) == "" {
-			return 0, true
+	values := map[string]string{}
+	if r.Method == http.MethodPost {
+		var input struct {
+			Filters map[string]string `json:"filters"`
 		}
-		n, err := strconv.Atoi(q.Get(key))
-		return n, err == nil
+		if !decodeJSON(w, r, &input) {
+			return
+		}
+		values = input.Filters
+	} else {
+		for key, items := range r.URL.Query() {
+			if len(items) != 1 {
+				s.writeRecruiterError(w, r, recruiter.ErrInvalid)
+				return
+			}
+			values[key] = items[0]
+		}
 	}
-	min, minOK := parseNumber("min_experience")
-	max, maxOK := parseNumber("max_experience")
-	notice, noticeOK := parseNumber("max_notice_days")
-	page, pageOK := parseNumber("page")
-	if !minOK || !maxOK || !noticeOK || !pageOK {
-		s.writeRecruiterError(w, r, recruiter.ErrInvalid)
-		return
-	}
-	if page == 0 && q.Get("page") == "" {
-		page = 1
-	}
-	result, err := s.recruiter.Discover(r.Context(), id, recruiter.DiscoveryFilters{
-		Query: q.Get("q"), Designation: q.Get("designation"), CurrentCompany: q.Get("current_company"), PreviousCompany: q.Get("previous_company"),
-		Education: q.Get("education"), Skills: q.Get("skills"), Location: q.Get("location"), PreferredLocation: q.Get("preferred_location"),
-		EmploymentType: q.Get("employment_type"), WorkMode: q.Get("work_mode"), Industry: q.Get("industry"), FunctionalArea: q.Get("functional_area"), Languages: q.Get("languages"), Certifications: q.Get("certifications"), Availability: q.Get("availability"), Gender: q.Get("gender"), Disability: q.Get("disability"), DefenceBackground: q.Get("defence_background"), UpdatedSince: q.Get("updated_since"), Sort: q.Get("sort"), MinExperience: min, MaxExperience: max, MaxNoticeDays: notice, HasMaxNotice: q.Get("max_notice_days") != "", Page: page,
-	})
+	filters, err := recruiter.ParseDiscoveryFilters(values)
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
 	}
-	if len(q) > 1 || (len(q) == 1 && q.Get("page") == "") {
+	result, err := s.recruiter.Discover(r.Context(), id, filters)
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	if len(values) > 0 {
 		record := map[string]any{}
-		for key, values := range q {
-			if key != "page" && len(values) > 0 && strings.TrimSpace(values[0]) != "" {
-				record[key] = values[0]
+		for key, value := range values {
+			if key != "page" && key != "page_size" && strings.TrimSpace(value) != "" {
+				record[key] = value
 			}
 		}
 		if len(record) > 0 {
@@ -207,7 +207,7 @@ func (s *Server) recruiterPipeline(w http.ResponseWriter, r *http.Request) {
 	intFilter := func(name string) int { value, _ := strconv.Atoi(q.Get(name)); return value }
 	filters := recruiter.PipelineFilters{
 		Query: q.Get("q"), ExcludeQuery: q.Get("exclude_q"), Stages: q["stage"],
-		JobID: q.Get("job_id"), Attention: q.Get("attention"),
+		JobID: q.Get("job_id"), Attention: q.Get("attention"), CandidateID: q.Get("candidate_id"), Source: q.Get("source"),
 		CurrentCompany: q.Get("current_company"), PreviousCompany: q.Get("previous_company"),
 		Location: q.Get("location"), Designation: q.Get("designation"),
 		Education: q.Get("education"), University: q.Get("university"),
@@ -280,7 +280,7 @@ func (s *Server) recruiterInterviews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet {
-		items, err := s.recruiter.Interviews(r.Context(), id)
+		items, err := s.recruiter.InterviewsForJob(r.Context(), id, r.URL.Query().Get("job_id"))
 		if err != nil {
 			s.writeRecruiterError(w, r, err)
 			return
@@ -331,8 +331,19 @@ func (s *Server) recruiterInterviewHistory(w http.ResponseWriter, r *http.Reques
 
 func (s *Server) writeRecruiterError(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
+	case errors.Is(err, recruiter.ErrReferralRateLimited):
+		w.Header().Set("Retry-After", "86400")
+		writeError(w, r, http.StatusTooManyRequests, "referral_limit", "You can invite up to 10 people in 24 hours. Please try later.")
+	case errors.Is(err, recruiter.ErrReferralUnavailable):
+		writeError(w, r, http.StatusNotFound, "referral_unavailable", "This invitation is unavailable, expired or belongs to a different verified email.")
+	case errors.Is(err, recruiter.ErrReferralDuplicate):
+		writeError(w, r, http.StatusConflict, "referral_duplicate", "A referral or application already exists for this person and job. Existing attribution is retained.")
+	case errors.Is(err, recruiter.ErrReferralNotReady):
+		writeError(w, r, http.StatusConflict, "referral_profile_incomplete", "Complete required profile information, accept the invitation and confirm application consent first.")
 	case errors.Is(err, recruiter.ErrNotFound):
 		writeError(w, r, http.StatusNotFound, "not_found", "recruiter resource was not found or is unavailable")
+	case errors.Is(err, recruiter.ErrSearchRestricted):
+		writeError(w, r, http.StatusForbidden, "search_policy_required", "This criterion is unavailable under the current tenant policy. Private compensation and protected attributes cannot be used in general talent search.")
 	case errors.Is(err, recruiter.ErrInvalid):
 		writeError(w, r, http.StatusBadRequest, "validation_error", "invalid recruiter workspace input")
 	default:

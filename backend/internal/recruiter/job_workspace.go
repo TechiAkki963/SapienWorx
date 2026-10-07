@@ -19,6 +19,7 @@ type JobWorkspaceFilters struct {
 }
 
 type WorkspaceJob struct {
+	ReferralEnabled     bool       `json:"referral_enabled"`
 	ID                  string     `json:"id"`
 	JobReference        string     `json:"job_reference"`
 	Title               string     `json:"title"`
@@ -39,9 +40,13 @@ type WorkspaceJob struct {
 	PublishedAt         *time.Time `json:"published_at,omitempty"`
 	ApplicationDeadline *time.Time `json:"application_deadline,omitempty"`
 	UpdatedAt           time.Time  `json:"updated_at"`
+	OwnerName           *string    `json:"owner_name,omitempty"`
 }
 
 type JobWorkspaceSummary struct {
+	ClosedJobs      int `json:"closed_jobs"`
+	ExpiredJobs     int `json:"expired_jobs"`
+	ArchivedJobs    int `json:"archived_jobs"`
 	TotalJobs       int `json:"total_jobs"`
 	ActiveJobs      int `json:"active_jobs"`
 	DraftJobs       int `json:"draft_jobs"`
@@ -163,7 +168,8 @@ func (s *Service) JobWorkspace(ctx context.Context, userID string, filters JobWo
 				JOIN applications ai ON ai.id=i.application_id
 				WHERE ai.job_id=j.id AND i.status='scheduled' AND i.scheduled_at>=now()
 			),
-			j.published_at,j.application_deadline,j.updated_at
+			j.published_at,j.application_deadline,j.updated_at,j.referral_enabled,
+            (SELECT rp.full_name FROM recruiter_profiles rp WHERE rp.user_id=COALESCE(j.assigned_recruiter_id,j.created_by_recruiter_id) AND rp.company_id=j.company_id)
 		FROM jobs j
 		LEFT JOIN applications a ON a.job_id=j.id
 		WHERE `+where+`
@@ -200,6 +206,8 @@ func (s *Service) JobWorkspace(ctx context.Context, userID string, filters JobWo
 			&item.PublishedAt,
 			&item.ApplicationDeadline,
 			&item.UpdatedAt,
+			&item.ReferralEnabled,
+			&item.OwnerName,
 		); err != nil {
 			return JobWorkspaceResult{}, err
 		}
@@ -215,10 +223,10 @@ func (s *Service) JobWorkspace(ctx context.Context, userID string, filters JobWo
 			count(*)::int,
 			count(*) FILTER (WHERE status='active')::int,
 			count(*) FILTER (WHERE status='draft')::int,
-			count(*) FILTER (WHERE status='paused')::int
+			count(*) FILTER (WHERE status='paused')::int, count(*) FILTER (WHERE status='closed')::int, count(*) FILTER (WHERE status='expired')::int, count(*) FILTER (WHERE status='archived')::int
 		FROM jobs
 		WHERE company_id=$1
-	`, companyID).Scan(&summary.TotalJobs, &summary.ActiveJobs, &summary.DraftJobs, &summary.PausedJobs); err != nil {
+	`, companyID).Scan(&summary.TotalJobs, &summary.ActiveJobs, &summary.DraftJobs, &summary.PausedJobs, &summary.ClosedJobs, &summary.ExpiredJobs, &summary.ArchivedJobs); err != nil {
 		return JobWorkspaceResult{}, err
 	}
 	if err := s.db.QueryRow(ctx, `

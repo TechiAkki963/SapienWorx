@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
+import { RecruiterWorkspaceContext } from "@/components/recruiter/workspace-context";
 import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
 import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 import { RecruiterDashboard } from "@/lib/recruiter";
@@ -23,7 +24,8 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
   const unreadCount = conversations?.items?.reduce((total, thread) => total + thread.unread_count, 0) ?? 0;
 
   return (
-    <div className="theme-surface min-h-screen bg-[#f5f7fb] text-ink">
+    <div className="theme-surface swx-recruiter-workspace min-h-screen bg-[#f5f7fb] text-ink">
+      <a href="#main-content" className="skip-link">Skip to recruiter workspace</a>
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/95">
         <div className="mx-auto flex min-h-[4.25rem] max-w-[108rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/recruiter" aria-label="Recruiter dashboard" className="shrink-0 max-[340px]:[&_.swx-wordmark-label]:hidden"><Wordmark /></Link>
@@ -65,11 +67,11 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 pb-24 pt-4 sm:px-6 lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:px-8 lg:py-6 xl:grid-cols-[11.5rem_minmax(0,1fr)]">
+      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 pb-24 pt-4 sm:px-6 lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:px-6 lg:py-6 xl:grid-cols-[11.5rem_minmax(0,1fr)]">
         <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
           <RecruiterNav unreadCount={unreadCount} />
         </aside>
-        <main id="main-content" className="min-w-0">{children}</main>
+        <main id="main-content" tabIndex={-1} className="min-w-0 outline-none"><RecruiterWorkspaceContext />{children}</main>
       </div>
     </div>
   );

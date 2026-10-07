@@ -125,6 +125,7 @@ export function CandidateTopbar({ name }: { name: string }) {
             <Link href="/candidate/profile" onClick={() => setPanel(null)}>
               View profile
             </Link>
+            <Link href="/candidate/referrals" onClick={() => setPanel(null)}>My Referrals</Link>
             <Link href="/candidate/settings" onClick={() => setPanel(null)}>
               Settings
             </Link>

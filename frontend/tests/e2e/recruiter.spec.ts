@@ -5,14 +5,14 @@ import { login, MOCK_API, resetE2E } from "./helpers";
 test.describe("recruiter pipeline", () => {
   test.beforeEach(async ({ request }) => resetE2E(request));
 
-  test("renders approved applicant cards and preserves organization-scoped filters", async ({ page, request }) => {
+  test("renders a table and mobile rows and preserves organization-scoped filters", async ({ page, request }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/pipeline");
 
     await expect(page.getByRole("heading", { name: "Applications", exact: true })).toBeVisible();
     await expect(page.getByText("Showing 1–10 of 1000 matching applications")).toBeVisible();
-    await expect(page.locator('[aria-label="Applicant cards"] article')).toHaveCount(10);
-    await expect(page.getByRole("table")).toHaveCount(0);
+    await expect(page.getByRole("table",{name:"Hiring pipeline",exact:true}).locator("tbody tr")).toHaveCount(10);
+    await expect(page.getByRole("table")).toHaveCount(1);
 
     const filters = page.getByRole("form", { name: "Application filters" });
     const candidateFilter = filters.getByRole("textbox", { name: "Keywords" });
@@ -25,8 +25,8 @@ test.describe("recruiter pipeline", () => {
     await expect(page).toHaveURL(/stage=new_application/);
     await expect(page).toHaveURL(/location=Mumbai/);
     await expect(page).toHaveURL(/sort=most_experienced/);
-    await expect(page.locator('[aria-label="Applicant cards"] article')).toHaveCount(1);
-    await expect(page.getByRole("heading", { name: "Candidate 005" })).toBeVisible();
+    await expect(page.getByRole("table",{name:"Hiring pipeline",exact:true}).locator("tbody tr")).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "Candidate 005",exact:true })).toBeVisible();
     const requests = await (await request.get(`${MOCK_API}/__e2e/requests`)).json();
     const search = requests.items.findLast((item: { path: string; method: string; search: string }) => item.path === "/api/v1/recruiter/pipeline" && item.method === "GET");
     expect(search.search).toContain("location=Mumbai");
@@ -34,28 +34,28 @@ test.describe("recruiter pipeline", () => {
 
     await page.reload();
     await expect(page.getByRole("form", { name: "Application filters" }).getByRole("textbox", { name: "Keywords" })).toHaveValue("Candidate 005");
-    await expect(page.getByRole("heading", { name: "Candidate 005" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Candidate 005",exact:true })).toBeVisible();
   });
 
-  test("changes only the selected application stage through its card", async ({ page }) => {
+  test("changes only the selected application stage through its row", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/pipeline");
 
-    const stageControl = page.getByLabel("Stage for Candidate 001 on Senior Go Platform Engineer");
+    const stageControl = page.getByRole("button", {name:"Stage for Candidate 001 on Senior Go Platform Engineer",exact:true});
     await expect(stageControl).toContainText("Screening");
     await stageControl.click();
 
     const stageMutation = page.waitForRequest((request) => /\/api\/v1\/recruiter\/applications\/[^/]+\/stage$/.test(new URL(request.url()).pathname) && request.method() === "PATCH");
     await page.getByRole("button", { name: /Shortlisted/ }).click();
     expect((await stageMutation).postDataJSON()).toEqual({ stage: "shortlisted" });
-    await expect(page.getByLabel("Stage for Candidate 001 on Senior Go Platform Engineer")).toContainText("Shortlisted");
+    await expect(page.getByRole("button", {name:"Stage for Candidate 001 on Senior Go Platform Engineer",exact:true})).toContainText("Shortlisted");
   });
 
   test("uses a collapsible mobile filter panel without hiding applicant actions", async ({ page }) => {
     await login(page, "recruiter");
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/recruiter/pipeline");
-    await expect(page.getByRole("heading", { name: "Candidate 001" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Candidate 001",exact:true })).toBeVisible();
     await page.getByText("Filters", { exact: true }).click();
     await expect(page.getByRole("form", { name: "Application filters" })).toBeVisible();
     await expect(page.getByRole("link", { name: "View Profile" }).first()).toBeVisible();
@@ -75,16 +75,20 @@ test.describe("job applicant workspace", () => {
     await page.goto("/recruiter/jobs");
 
     await expect(page.getByRole("table")).toHaveCount(1);
-    await expect(page.getByRole("table").getByText("SWX-JOB-2026-00001")).toBeVisible();
+    await expect(page.getByRole("table").getByRole("columnheader", { name: "Posted", exact: true })).toBeVisible();
 
     const filters = page.getByRole("form", { name: "Job filters" });
     await filters.getByLabel("Search").fill("Senior Go");
+    await expect(page).toHaveURL(/q=Senior(?:\+|%20)Go/);
     await filters.getByLabel("Status").selectOption("active");
+    await expect(page).toHaveURL(/status=active/);
     await filters.getByLabel("Role / function").selectOption("Technology");
+    await expect(page).toHaveURL(/role_category=Technology/);
     await filters.getByLabel("Work mode").selectOption("hybrid");
+    await expect(page).toHaveURL(/work_mode=hybrid/);
     await filters.getByLabel("Employment").selectOption("full_time");
+    await expect(page).toHaveURL(/employment_type=full_time/);
     await filters.getByLabel("Sort").selectOption("applications");
-    await filters.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/q=Senior(?:\+|%20)Go/);
     await expect(page).toHaveURL(/status=active/);
@@ -105,7 +109,7 @@ test.describe("job applicant workspace", () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.reload();
     await expect(page.getByRole("table")).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "View applicants →" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "View applicants",exact:true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   });
 
@@ -116,7 +120,8 @@ test.describe("job applicant workspace", () => {
     await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
-    await expect(page.locator("span:visible").filter({ hasText: "Private · not shareable" }).first()).toBeVisible();
+    await page.getByRole("button",{name:"More actions for Private Operations Lead"}).click();
+    await expect(page.getByText("Private job · sharing unavailable").first()).toBeVisible();
   });
 
   test("requires confirmation before governed bulk job actions", async ({ page }) => {
@@ -152,15 +157,17 @@ test.describe("job applicant workspace", () => {
     await expect(page.getByRole("alertdialog", { name: "Confirm bulk job action" })).toContainText("Kabir Recruiter");
   });
 
-  test("shows the stable job reference and opens applicants from job management", async ({ page }) => {
+  test("keeps the job reference in details and opens applicants from job management", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs");
-    await expect(page.getByRole("table").getByText("SWX-JOB-2026-00001")).toBeVisible();
-    await page.getByRole("link", { name: "View applicants →" }).click();
+    await page.getByRole("button", { name: "More actions for Senior Go Platform Engineer" }).click();
+    await expect(page.getByRole("dialog", { name: "Senior Go Platform Engineer", exact: true }).getByText("SWX-JOB-2026-00001")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.getByRole("link", { name: "View 1,000 applications for Senior Go Platform Engineer", exact: true }).click();
     await expect(page).toHaveURL(/\/recruiter\/jobs\/60000000-0000-4000-8000-000000000001\/applicants$/);
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
     await expect(page.getByText("Job ID: SWX-JOB-2026-00001")).toBeVisible();
-    await expect(page.locator('[aria-label="Applicant cards"] article')).toHaveCount(10);
+    await expect(page.getByRole("table",{name:"Hiring pipeline",exact:true}).locator("tbody tr")).toHaveCount(10);
     await expect(page.getByRole("form", { name: "Application filters" }).getByRole("combobox", { name: "Job" })).toHaveCount(0);
   });
 
@@ -195,11 +202,11 @@ test.describe("job applicant workspace", () => {
     for (const width of [1440, 768, 375]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/recruiter/jobs");
-      await expect(page.getByRole("link", { name: "View applicants →" })).toBeVisible();
+      await expect(page.getByRole("link", { name: width >= 1024 ? "View 1,000 applications for Senior Go Platform Engineer" : "View applicants", exact: true })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
       await page.goto("/recruiter/jobs/60000000-0000-4000-8000-000000000001/applicants");
       await expect(page.getByText("Job ID: SWX-JOB-2026-00001")).toBeVisible();
-      await expect(page.getByRole("link", { name: "View Profile" }).first()).toBeVisible();
+      await expect(page.getByRole("link", { name: "Candidate 001", exact: true })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
     }
   });

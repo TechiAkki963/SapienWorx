@@ -1,19 +1,18 @@
 "use client";
-
+import {AddToPool} from "./add-to-pool";
+import {BulkInMailDrawer} from "./bulk-inmail-drawer";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
-
+import { useEffect, useState, type ReactNode } from "react";
 import { CandidateComments } from "@/components/recruiter/candidate-comments";
 import { CandidateContact } from "@/components/recruiter/candidate-contact";
 import { StatusMenu } from "@/components/recruiter/status-menu";
 import { apiRequest } from "@/lib/api";
-import { experience, Interview, PipelineRow, stages } from "@/lib/recruiter";
-
+import { RecruiterDataTable, RecruiterDrawer, WorkspaceState, recruiterPrimary, recruiterSecondary } from "./workspace-ui";
+import { experience, label, Interview, PipelineRow, stages } from "@/lib/recruiter";
 const provided = (value?: string | null) => value?.trim() || "Not provided";
 const date = (value?: string) => value ? new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeZone: "Asia/Kolkata" }).format(new Date(value)) : "Not provided";
-
 function CardIcon({ name, className = "h-4 w-4" }: { name: "bookmark" | "eye" | "mail" | "building" | "briefcase" | "pin" | "calendar" | "clock" | "file" | "download" | "chevron"; className?: string }) {
   const paths = {
     bookmark: "M6 3h12v18l-6-4-6 4V3Z",
@@ -30,11 +29,9 @@ function CardIcon({ name, className = "h-4 w-4" }: { name: "bookmark" | "eye" | 
   };
   return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className}><path d={paths[name]} /></svg>;
 }
-
 function Signal({ icon, children }: { icon: "briefcase" | "building" | "pin" | "clock"; children: ReactNode }) {
   return <span className="inline-flex min-w-0 items-center gap-1.5 text-xs text-ink-muted"><CardIcon name={icon} className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{children}</span></span>;
 }
-
 function CVControls({ row }: { row: PipelineRow }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -55,16 +52,21 @@ function CVControls({ row }: { row: PipelineRow }) {
     {error && <p role="alert" className="text-xs text-rose-700">{error}</p>}
   </div>;
 }
-
-export function ApplicantCardWorkspace({ rows, now }: { rows: PipelineRow[]; now: string }) {
+export function ApplicantCardWorkspace({ rows, now, jobScoped = false }: { rows: PipelineRow[]; now: string; jobScoped?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  const [bulkStage,setBulkStage]=useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [savedState, setSavedState] = useState<Record<string, boolean>>({});
-  const nowTime = new Date(now).getTime();
 
+  const [detailID, setDetailID] = useState<string | null>(null);
+  const detail = rows.find(row => row.application_id === detailID) ?? null;
+  useEffect(() => {
+    setSelected(current => current.filter(id => rows.some(row => row.application_id === id)));
+  }, [rows]);
   async function changeStage(row: PipelineRow, stage: string) {
+    if(stage==="rejected"&&!window.confirm(`Reject ${row.candidate_name} for ${row.job_title}?`))return;
     setBusy(row.application_id); setError("");
     try {
       await apiRequest(`/api/v1/recruiter/applications/${row.application_id}/stage`, { method: "PATCH", body: JSON.stringify({ stage }) });
@@ -75,7 +77,6 @@ export function ApplicantCardWorkspace({ rows, now }: { rows: PipelineRow[]; now
       setBusy("");
     }
   }
-
   async function toggleSave(row: PipelineRow) {
     setBusy(row.application_id); setError("");
     const saved = savedState[row.candidate_id] ?? row.saved;
@@ -88,7 +89,6 @@ export function ApplicantCardWorkspace({ rows, now }: { rows: PipelineRow[]; now
       setBusy("");
     }
   }
-
   async function saveSelected() {
     const candidates = [...new Set(rows.filter(row => selected.includes(row.application_id) && !(savedState[row.candidate_id] ?? row.saved)).map(row => row.candidate_id))];
     if (!candidates.length) { setError("Selected profiles are already saved."); return; }
@@ -99,79 +99,28 @@ export function ApplicantCardWorkspace({ rows, now }: { rows: PipelineRow[]; now
     if (successful.length !== candidates.length) setError(`${candidates.length - successful.length} profile(s) could not be saved.`);
     setBusy("");
   }
-
-  if (!rows.length) return <div className="rounded-2xl border border-dashed border-line bg-white p-8 text-center"><h2 className="font-bold text-navy">No applications match these filters</h2><p className="mt-1 text-sm text-ink-muted">Adjust or clear filters to see other applicants for your jobs.</p></div>;
-
-  return <div className="grid min-w-0 gap-3" aria-label="Applicant cards">
-    {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
-    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line/70 bg-white px-3 py-2.5 shadow-[0_1px_2px_rgba(16,33,63,0.03)]">
-      <label className="flex items-center gap-2 text-xs font-semibold text-ink-muted"><input type="checkbox" aria-label="Select all visible applicants" checked={selected.length === rows.length} onChange={event => setSelected(event.target.checked ? rows.map(row => row.application_id) : [])} className="h-4 w-4 accent-indigo" />Select visible <span className="rounded-full bg-slate-100 px-2 py-0.5 font-bold text-navy">{selected.length}</span></label>
-      <button type="button" onClick={() => void saveSelected()} disabled={!selected.length || !!busy} className="min-h-9 rounded-lg border border-line bg-white px-3 text-xs font-bold text-indigo transition hover:border-indigo/30 hover:bg-indigo-soft/30 disabled:opacity-40">Save selected profiles</button>
-    </div>
-
-    {rows.map(row => {
-      const profileHref = `/recruiter/candidates/${row.candidate_id}?job_id=${encodeURIComponent(row.job_id)}`;
-      const initials = row.candidate_name.split(/\s+/).filter(Boolean).map(part => part[0]).slice(0, 2).join("").toUpperCase();
-      const skills = row.key_skills.split(",").map(skill => skill.trim()).filter(Boolean);
-      const saved = savedState[row.candidate_id] ?? row.saved;
-      const days = row.last_active_at ? Math.max(0, Math.floor((nowTime - new Date(row.last_active_at).getTime()) / 86400000)) : null;
-      const lastActive = days === null ? "Not provided" : days === 0 ? "Today" : days === 1 ? "1 day ago" : `${days} days ago`;
-
-      return <article key={row.application_id} className="min-w-0 rounded-2xl border border-line/70 bg-white shadow-[0_3px_14px_rgba(24,51,96,0.045)]">
-        <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-2.5 p-3 sm:gap-3 sm:p-4 lg:grid-cols-[auto_minmax(0,1.08fr)_minmax(14rem,0.72fr)_auto] lg:items-center">
-          <div className="flex items-center gap-3">
-            <input type="checkbox" checked={selected.includes(row.application_id)} onChange={event => setSelected(current => event.target.checked ? [...current, row.application_id] : current.filter(id => id !== row.application_id))} aria-label={`Select ${row.candidate_name} for bulk actions`} className="h-4 w-4 shrink-0 accent-indigo" />
-            <span aria-hidden="true" className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-indigo-soft text-sm font-extrabold text-indigo">{row.photo_data_url ? <Image src={row.photo_data_url} alt="" fill sizes="44px" unoptimized className="object-cover" /> : initials}</span>
-          </div>
-
-          <div className="min-w-0">
-            <div className="flex min-w-0 flex-wrap items-center gap-2"><h2 className="truncate text-base font-extrabold text-navy sm:text-lg">{row.candidate_name}</h2><StatusMenu value={row.stage} options={stages} disabled={busy === row.application_id} ariaLabel={`Stage for ${row.candidate_name} on ${row.job_title}`} onChange={stage => void changeStage(row, stage)} /></div>
-            <p className="mt-0.5 truncate text-xs font-medium text-ink-muted sm:text-sm">{provided(row.designation || row.headline)}</p>
-            <div className="mt-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1.5"><Signal icon="briefcase">{row.experience_months > 0 ? experience(row.experience_months) : "Experience not provided"}</Signal><Signal icon="building">{provided(row.current_company)}</Signal><Signal icon="pin">{provided(row.city)}</Signal>{row.notice_period_days != null && <Signal icon="clock">{row.notice_period_days === 0 ? "Immediate" : `${row.notice_period_days}d notice`}</Signal>}</div>
-          </div>
-
-          <div className="col-span-2 min-w-0 rounded-xl bg-slate-50/70 px-3 py-2 lg:col-span-1 lg:bg-transparent lg:px-0 lg:py-0">
-            <p className="line-clamp-2 text-xs font-bold leading-4 text-navy">{row.job_title}</p>
-            <p className="mt-0.5 text-[11px] font-semibold text-indigo">{row.job_reference}</p>
-            <p className="mt-1 text-[11px] text-ink-muted">Applied {date(row.applied_at)}</p>
-          </div>
-
-          <div className="col-span-2 flex min-w-0 flex-nowrap items-center gap-1.5 sm:gap-2 lg:col-span-1 lg:justify-end">
-            <Link href={profileHref} aria-label="View Profile" className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg bg-indigo px-2.5 text-xs font-bold text-white hover:bg-navy max-sm:flex-1 sm:px-3"><CardIcon name="eye" /><span className="sm:hidden">Profile</span><span className="max-sm:hidden">View profile</span></Link>
-            <Link href={`${profileHref}&compose=1`} className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg border border-line px-2.5 text-xs font-bold text-indigo hover:border-indigo/30 hover:bg-indigo-soft/30 max-sm:flex-1 sm:px-3"><CardIcon name="mail" />InMail</Link>
-            <button type="button" onClick={() => void toggleSave(row)} disabled={busy === row.application_id} aria-pressed={saved} aria-label={saved ? "Saved · Unsave" : "Save Profile"} title={saved ? "Saved profile" : "Save profile"} className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition ${saved ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-line text-ink-muted hover:border-indigo/30 hover:text-indigo"}`}><CardIcon name="bookmark" /></button>
-          </div>
-        </div>
-
-        <details className="group border-t border-line/60">
-          <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-3 px-3 text-[11px] font-bold text-ink-muted transition hover:bg-slate-50/60 sm:min-h-10 sm:px-4 sm:text-xs">
-            <span>Details & actions</span>
-            <span className="flex items-center gap-3 font-medium"><span className="hidden sm:inline">Last active {lastActive} · Updated {date(row.profile_updated_at)}</span><CardIcon name="chevron" className="h-4 w-4 transition group-open:rotate-180" /></span>
-          </summary>
-          <div className="grid min-w-0 gap-4 border-t border-line/50 bg-slate-50/25 p-3 sm:p-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-            <div className="grid min-w-0 gap-3">
-              <dl className="grid min-w-0 gap-3 text-xs sm:grid-cols-2 xl:grid-cols-3">
-                <div><dt className="text-ink-muted">Preferred locations</dt><dd className="mt-0.5 font-semibold text-navy">{provided(row.preferred_location)}</dd></div>
-                <div><dt className="text-ink-muted">Previous company</dt><dd className="mt-0.5 font-semibold text-navy">{provided(row.previous_company)}</dd></div>
-                <div><dt className="text-ink-muted">Education</dt><dd className="mt-0.5 font-semibold text-navy">{provided(row.education)}</dd></div>
-                <div><dt className="text-ink-muted">University</dt><dd className="mt-0.5 font-semibold text-navy">{provided(row.university)}</dd></div>
-                <div className="sm:col-span-2"><dt className="text-ink-muted">Key skills</dt><dd className="mt-1 flex flex-wrap gap-1">{skills.length ? skills.slice(0, 8).map((skill, index) => <span key={`${skill}-${index}`} className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 font-semibold text-blue-700">{skill}</span>) : <span className="font-semibold text-navy">Not provided</span>}</dd></div>
-              </dl>
-              <div className="grid gap-2 text-[11px] text-ink-muted sm:grid-cols-2"><span className="inline-flex items-center gap-2"><CardIcon name="calendar" />Profile updated <strong className="text-navy">{date(row.profile_updated_at)}</strong></span><span className="inline-flex items-center gap-2"><CardIcon name="clock" />Last active <strong className="text-navy">{lastActive}</strong></span></div>
-            </div>
-
-            <div className="grid content-start gap-2">
-              <CVControls row={row} />
-              <CandidateContact candidateID={row.candidate_id} />
-              <CandidateComments candidateID={row.candidate_id} jobID={row.job_id} applicationID={row.application_id} initialCount={row.comment_count} />
-            </div>
-          </div>
-        </details>
-      </article>;
-    })}
+  async function moveSelected(){if(!bulkStage||!selected.length||busy)return;if(!window.confirm(`Move ${selected.length} selected applications to ${label(bulkStage)}? Each application is checked against its hiring rules.`))return;setBusy("bulk");setError("");const ids=[...selected];const results=await Promise.allSettled(ids.map(id=>apiRequest(`/api/v1/recruiter/applications/${id}/stage`,{method:"PATCH",body:JSON.stringify({stage:bulkStage})})));const failed=ids.filter((_,i)=>results[i].status==="rejected");setSelected(failed);setBulkStage("");setBusy("");if(failed.length)setError(`${ids.length-failed.length} of ${ids.length} moved. Failed selections retained.`);router.refresh()}
+  if (!rows.length) return <WorkspaceState title="No applications match these filters" description="Adjust or clear filters to see other applicants for your jobs." />;
+  const profileHref = (row: PipelineRow) => `/recruiter/candidates/${row.candidate_id}?job_id=${encodeURIComponent(row.job_id)}`;
+  const summary = (row: PipelineRow) => <div className="flex min-w-0 items-start gap-3"><input type="checkbox" aria-label={`Select ${row.candidate_name} for bulk actions`} checked={selected.includes(row.application_id)} onChange={event=>setSelected(current=>event.target.checked?[...current,row.application_id]:current.filter(id=>id!==row.application_id))} className="mt-3 h-4 w-4 shrink-0 accent-indigo" /><span aria-hidden="true" className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-indigo-soft text-xs font-semibold text-indigo">{row.candidate_name.split(/\s+/).filter(Boolean).map(part=>/^\d+$/.test(part)?String(Number(part)):part[0]).slice(0,2).join("").toUpperCase()}</span><div className="min-w-0"><Link className="inline-flex min-h-11 items-center text-left font-semibold text-navy hover:text-indigo" href={profileHref(row)}>{row.candidate_name}</Link><p className="text-xs leading-5 text-ink-muted">{provided(row.designation || row.headline)}</p><p className="text-xs leading-5 text-ink-muted">{provided(row.current_company)}</p>{row.source&&<p className="mt-1 text-xs text-ink-muted">{["platform","direct"].includes(row.source)?"Direct application":label(row.source)}{row.referrer_name&&<span className="block">Referred by {row.referrer_name}</span>}</p>}</div></div>;
+  const stageControl=(row: PipelineRow)=><StatusMenu value={row.stage} options={stages} disabled={!!busy} ariaLabel={`Stage for ${row.candidate_name} on ${row.job_title}`} onChange={stage=>void changeStage(row,stage)} />;
+  const actions=(row: PipelineRow)=><div className="flex flex-wrap gap-2"><Link className={`${recruiterSecondary} whitespace-nowrap !px-2 !text-xs`} href={profileHref(row)}>View candidate</Link><details><summary aria-label={`More actions for ${row.candidate_name}`} className="min-h-11 min-w-11 cursor-pointer list-none content-center text-center text-lg font-semibold text-ink">⋯</summary><div className="grid gap-2 border border-line bg-white p-2"><button className={recruiterSecondary} onClick={()=>setDetailID(row.application_id)}>Notes, CV & application details</button><Link className={recruiterSecondary} href={`${profileHref(row)}&compose=1`}>Message</Link><button disabled={!!busy} aria-pressed={savedState[row.candidate_id] ?? row.saved} aria-label={(savedState[row.candidate_id] ?? row.saved)?"Saved · Unsave":"Save Profile"} className={recruiterSecondary} onClick={()=>void toggleSave(row)}>{(savedState[row.candidate_id] ?? row.saved)?"Unsave":"Save profile"}</button></div></details></div>;
+  return <div className="grid min-w-0 gap-3" aria-label="Applicant workspace">
+    {error && <p role="alert" className="rounded-lg border border-rose-200 p-3 text-sm text-rose-700">{error}</p>}
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3"><label className="flex min-h-11 items-center gap-2 text-sm text-ink"><input type="checkbox" aria-label="Select all visible applicants" checked={rows.every(row=>selected.includes(row.application_id))} onChange={event=>setSelected(event.target.checked?rows.map(row=>row.application_id):[])} className="h-4 w-4 accent-indigo" />Select visible ({selected.length})</label>{selected.length>0&&<div className="flex flex-wrap items-center gap-2"><span className="text-xs font-semibold text-ink">{selected.length} selected</span><label className="sr-only" htmlFor="bulk-application-stage">Move to stage</label><select id="bulk-application-stage" value={bulkStage} onChange={e=>setBulkStage(e.target.value)} className="min-h-11 rounded-lg border border-line bg-white px-2 text-xs"><option value="">Move to stage…</option>{stages.map(stage=><option key={stage} value={stage}>{label(stage)}</option>)}</select><button className={recruiterSecondary} disabled={!!busy||!bulkStage} onClick={()=>void moveSelected()}>Move selected</button><AddToPool candidateIDs={rows.filter(row=>selected.includes(row.application_id)).map(row=>row.candidate_id)} onSaved={ids=>setSelected(current=>current.filter(id=>!rows.some(row=>row.application_id===id&&ids.includes(row.candidate_id))))}/><button className={recruiterSecondary} disabled={!!busy} onClick={()=>void saveSelected()}>Save for future roles</button><button className={recruiterSecondary} disabled={!!busy} onClick={()=>window.dispatchEvent(new CustomEvent("sapienworx:open-bulk-inmail",{detail:{candidateIDs:[...new Set(rows.filter(row=>selected.includes(row.application_id)).map(row=>row.candidate_id))]}}))}>Message selected</button></div>}</div>
+    <RecruiterDataTable label="Hiring pipeline" rows={rows} rowKey={row=>row.application_id} columns={[
+      {key:"candidate",title:"Candidate",width:"25%",render:summary},
+      ...(!jobScoped ? [{key:"role",title:"Job / role",width:"23%",render:(row: PipelineRow)=><div><p className="font-medium text-navy">{row.job_title}</p><p className="mt-1 text-xs text-ink-muted">{row.job_reference}</p><p className="mt-2 text-xs text-ink-muted">Applied {date(row.applied_at)}</p><p className="mt-1 text-xs text-ink-muted">Updated {date(row.updated_at)}</p></div>}] : []),
+      {key:"signals",title:"Experience / location",width:"17%",secondary:true,render:row=><div className="grid gap-1 text-xs text-ink-muted"><p>{experience(row.experience_months)}</p><p>{provided(row.city)}</p><p>{row.notice_period_days==null?"Notice not provided":row.notice_period_days===0?"Immediate":`${row.notice_period_days} days notice`}</p></div>},
+      {key:"stage",title:"Stage",width:"16%",render:stageControl},
+      {key:"actions",title:"Actions",width:"19%",render:actions},
+    ]} mobileRow={row=><>{summary(row)}<p className="my-3 text-sm text-ink-muted">{row.job_title}</p><p className="mb-3 text-xs text-ink-muted">{experience(row.experience_months)} · {provided(row.city)} · Applied {date(row.applied_at)}</p>{stageControl(row)}<div className="mt-3 border-t border-line pt-2">{actions(row)}</div></>} />
+    <BulkInMailDrawer onSent={()=>setSelected([])} initialTemplates={[]} initialJobs={[]} />
+    <RecruiterDrawer open={!!detail} onClose={()=>setDetailID(null)} title="Application details" wide footer={detail&&<><Link className={recruiterSecondary} href={`${profileHref(detail)}&compose=1`}>Message</Link><Link className={recruiterPrimary} href={profileHref(detail)}>View Candidate 360</Link></>}>
+      {detail&&<div className="grid gap-5"><div><h3 className="text-xl font-semibold text-navy">{detail.candidate_name}</h3><p className="mt-1 text-sm text-ink-muted">{detail.job_title} · {detail.job_reference}</p><div className="mt-3">{stageControl(detail)}</div></div><section><h3 className="mb-2 text-sm font-semibold text-navy">Recruiter notes</h3><CandidateComments candidateID={detail.candidate_id} jobID={detail.job_id} applicationID={detail.application_id} initialCount={detail.comment_count} /></section><section><h3 className="text-sm font-semibold text-navy">Profile summary</h3><dl className="mt-3 grid grid-cols-2 gap-4 text-sm">{[["Designation",detail.designation||detail.headline],["Experience",experience(detail.experience_months)],["Company",detail.current_company],["Previous company",detail.previous_company],["Location",detail.city],["Preferred locations",detail.preferred_location],["Education",detail.education],["University",detail.university],["Updated",date(detail.profile_updated_at)],["Last active",date(detail.last_active_at)]].map(([name,value])=><div key={name}><dt className="text-xs text-ink-muted">{name}</dt><dd className="mt-1 break-words text-ink">{provided(value)}</dd></div>)}</dl><div className="mt-4 flex flex-wrap gap-2">{detail.key_skills.split(",").filter(Boolean).map((skill,index)=><span key={index} className="swx-skill-chip rounded-full bg-mint/40 px-2 py-1 text-xs text-emerald-900">{skill}</span>)}</div></section><section><h3 className="mb-2 text-sm font-semibold text-navy">Attachments & consented contact</h3><CVControls row={detail} /><div className="mt-3"><CandidateContact candidateID={detail.candidate_id} /></div></section><section><h3 className="text-sm font-semibold text-navy">Screening & activity</h3><p className="mt-2 text-sm leading-6 text-ink-muted">Open Candidate 360 for the candidate’s authorized professional history, job-specific match and audited hiring activity.</p></section>{error&&<p role="alert" className="text-sm text-rose-700">{error}</p>}</div>}
+    </RecruiterDrawer>
   </div>;
 }
-
 export function CompactApplicantCards({ rows }: { rows: PipelineRow[] }) {
   if (!rows.length) return <p className="rounded-2xl border border-dashed border-line bg-white p-6 text-sm text-ink-muted">No recent applications yet.</p>;
   return <div aria-label="Recent applicant cards" className="grid min-w-0 gap-3 xl:grid-cols-2">
@@ -186,9 +135,8 @@ export function CompactApplicantCards({ rows }: { rows: PipelineRow[] }) {
     })}
   </div>;
 }
-
 export function InterviewCandidateCard({ interview }: { interview: Interview }) {
-  const initials = interview.candidate_name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join("").toUpperCase();
+  const initials = interview.candidate_name.split(/\s+/).filter(Boolean).map((part) => /^\d+$/.test(part) ? String(Number(part)) : part[0]).slice(0, 2).join("").toUpperCase();
   const profileHref = `/recruiter/candidates/${interview.candidate_id}?job_id=${encodeURIComponent(interview.job_id)}`;
-  return <div className="flex min-w-0 flex-wrap items-center gap-3"><span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-indigo-soft text-sm font-bold text-indigo">{initials}</span><div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-navy">{interview.candidate_name}</p><p className="truncate text-xs text-ink-muted">{interview.candidate_headline || interview.job_title}</p></div><div className="flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold"><Link href={profileHref} className="text-indigo hover:underline">Candidate 360</Link><Link href={`${profileHref}&compose=1`} className="text-indigo hover:underline">InMail</Link></div></div>;
+  return <div className="flex min-w-0 flex-wrap items-center gap-3"><span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-indigo-soft text-sm font-bold text-indigo">{initials}</span><div className="min-w-0 flex-1"><Link href={profileHref} className="inline-flex min-h-11 items-center text-sm font-bold text-navy hover:text-indigo">{interview.candidate_name}</Link><p className="truncate text-xs text-ink-muted">{interview.candidate_headline || interview.job_title}</p></div><div className="flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold"><Link href={`${profileHref}&compose=1`} aria-label={`Message ${interview.candidate_name}`} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line text-indigo hover:bg-indigo-soft">✉</Link></div></div>;
 }

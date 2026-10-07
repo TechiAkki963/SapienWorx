@@ -2,12 +2,15 @@ package recruiter
 
 import (
 	"fmt"
+	"github.com/jackc/pgx/v5/pgtype"
 	"strings"
 )
 
 // PipelineFilters applies only to applications on jobs owned by the recruiter's company.
 // It must not be reused for consent-gated candidate discovery.
 type PipelineFilters struct {
+	CandidateID        string
+	Source             string
 	Query              string
 	ExcludeQuery       string
 	Stages             []string
@@ -35,6 +38,10 @@ func pipelineSort(sort string) (string, error) {
 	switch sort {
 	case "", "recently_applied":
 		return "a.applied_at DESC, a.id DESC", nil
+	case "recently_moved":
+		return "a.updated_at DESC,a.id DESC", nil
+	case "oldest_pending":
+		return "a.updated_at ASC,a.id ASC", nil
 	case "oldest_applied":
 		return "a.applied_at ASC, a.id ASC", nil
 	case "recently_updated":
@@ -62,6 +69,9 @@ func pipelineWhere(companyID string, f PipelineFilters) (string, []any, error) {
 	}
 	args := []any{companyID}
 	conditions := []string{"j.company_id=$1"}
+	if f.Sort == "oldest_pending" {
+		conditions = append(conditions, "a.stage NOT IN ('hired','rejected','withdrawn')")
+	}
 	add := func(format string, value any) {
 		args = append(args, value)
 		conditions = append(conditions, fmt.Sprintf(format, len(args)))
@@ -80,6 +90,26 @@ func pipelineWhere(companyID string, f PipelineFilters) (string, []any, error) {
 	}
 	if len(f.Stages) > 0 {
 		add("a.stage::text = ANY($%d::text[])", f.Stages)
+	}
+	if f.CandidateID != "" {
+		var candidate pgtype.UUID
+		if err := candidate.Scan(f.CandidateID); err != nil || !candidate.Valid {
+			return "", nil, ErrInvalid
+		}
+		add("a.candidate_id=$%d::uuid", f.CandidateID)
+	}
+	if f.Source != "" {
+		if len(f.Source) > 120 {
+			return "", nil, ErrInvalid
+		}
+		source := strings.TrimSpace(f.Source)
+		if validEnum(source, "candidate_referral", "employee_referral", "partner_referral", "recruiter_referral", "other_referral") {
+			add("(a.source='referral' AND EXISTS(SELECT 1 FROM referral_invitations ri WHERE ri.id=a.referral_id AND ri.company_id=j.company_id AND ri.source=$%d))", strings.TrimSuffix(source, "_referral"))
+		} else if source == "direct" {
+			conditions = append(conditions, "a.source IN ('direct','platform')")
+		} else {
+			add("a.source=$%d", source)
+		}
 	}
 	if f.JobID != "" {
 		add("j.id::text=$%d", f.JobID)

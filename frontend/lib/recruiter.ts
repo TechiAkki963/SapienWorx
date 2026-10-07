@@ -37,6 +37,7 @@ export type RecruiterJob = {
   published_at?: string;
   application_deadline?: string;
   updated_at: string;
+  owner_name?: string;
 };
 export type RecruiterJobWorkspace = {
   items: RecruiterJob[];
@@ -45,7 +46,7 @@ export type RecruiterJobWorkspace = {
   total: number;
   sort: "updated" | "applications" | "newest" | "deadline";
   summary: {
-    total_jobs: number;
+    total_jobs: number; closed_jobs?: number; expired_jobs?: number; archived_jobs?: number;
     active_jobs: number;
     draft_jobs: number;
     paused_jobs: number;
@@ -79,6 +80,8 @@ export type JobAnalytics = {
   trend: { date: string; applications: number }[];
 };
 export type PipelineRow = {
+ source?: string;
+ referrer_name?: string;
   application_id: string;
   candidate_id: string;
   candidate_name: string;
@@ -160,7 +163,7 @@ export type JobAuditEvent = {
   new_state: Record<string, unknown>;
   changed_at: string;
 };
-export type PipelineList = { items: PipelineRow[]; page: number; limit: number; total: number };
+export type PipelineList = { stage_counts?: Record<string, number>; items: PipelineRow[]; page: number; limit: number; total: number };
 export type Interview = {
   id: string;
   application_id: string;
@@ -187,6 +190,7 @@ export type InterviewChangeEvent = {
   actor_name: string;
 };
 export type RecruiterCandidateDetail = {
+ referral_attributions?:{id:string;referrer_name:string;relationship:string;source:string;submitted_at:string;job_title:string}[];
   user_id: string;
   full_name: string;
   headline?: string;

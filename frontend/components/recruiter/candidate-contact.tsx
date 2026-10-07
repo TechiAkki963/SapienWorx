@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { apiRequest } from "@/lib/api";
 
@@ -20,6 +20,8 @@ export function CandidateContact({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (clickTimer.current) clearTimeout(clickTimer.current); }, []);
 
   const numbers = [contact?.primary, contact?.alternate].filter((number): number is string => !!number);
   const current = numbers[selected] ?? "";

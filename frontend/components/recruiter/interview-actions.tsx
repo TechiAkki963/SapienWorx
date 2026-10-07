@@ -1,8 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import Link from "next/link";
+import { FormEvent, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { RecruiterDrawer, recruiterPrimary, recruiterSecondary } from "./workspace-ui";
+import { interviewTimeISO } from "@/lib/interview-time";
 import { apiRequest } from "@/lib/api";
 import { Interview } from "@/lib/recruiter";
 
@@ -13,6 +16,9 @@ function localDateTime(value: string) {
 
 export function InterviewActions({ interview }: { interview: Interview }) {
   const router = useRouter();
+  const formID=useId();
+  const [menu,setMenu]=useState(false);
+  const upcoming=interview.status==="scheduled"&&new Date(interview.scheduled_at).getTime()>=Date.now();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -34,10 +40,11 @@ export function InterviewActions({ interview }: { interview: Interview }) {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const date = new Date(String(data.get("scheduled_at")));
-    if (Number.isNaN(date.getTime())) { setError("Choose a valid interview date and time."); return; }
+    let scheduledAt: string;
+    try { scheduledAt = interviewTimeISO(String(data.get("scheduled_at")), Intl.DateTimeFormat().resolvedOptions().timeZone); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : "Choose a valid interview date and time."); return; }
     void change("reschedule", {
-      scheduled_at: date.toISOString(),
+      scheduled_at: scheduledAt,
       duration_minutes: Number(data.get("duration_minutes")),
       meeting_url: String(data.get("meeting_url")),
       round_label: String(data.get("round_label")),
@@ -45,28 +52,23 @@ export function InterviewActions({ interview }: { interview: Interview }) {
     });
   }
 
-  if (interview.status !== "scheduled") return <span className="text-xs text-ink-muted">—</span>;
   return <>
-    <div className="flex flex-wrap gap-1.5">
-      <button type="button" onClick={() => setOpen(true)} disabled={busy} className="rounded-lg border border-line px-2.5 py-1.5 text-xs font-bold text-indigo hover:bg-indigo-soft">Reschedule</button>
-      <button type="button" onClick={() => { if (window.confirm(`Mark the interview with ${interview.candidate_name} as completed?`)) void change("complete"); }} disabled={busy} className="rounded-lg border border-line px-2.5 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-50">Complete</button>
-      <button type="button" onClick={() => { if (window.confirm(`Cancel the interview with ${interview.candidate_name}? The candidate will be notified.`)) void change("cancel"); }} disabled={busy} className="rounded-lg border border-line px-2.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-50">Cancel</button>
+    <div className="flex flex-wrap items-center gap-2">
+      {upcoming?<><a href={interview.meeting_url} target="_blank" rel="noopener noreferrer" className={recruiterPrimary}>Join meeting ↗</a><button type="button" onClick={()=>setOpen(true)} disabled={busy} className={recruiterSecondary}>Reschedule</button></>:interview.status==="scheduled"?<button className={recruiterSecondary} disabled={busy} onClick={()=>{if(window.confirm(`Mark the interview with ${interview.candidate_name} as completed?`))void change("complete")}}>Complete</button>:<Link className={recruiterSecondary} href={`/recruiter/interviews?interview_id=${interview.id}`}>Details</Link>}
+      <button aria-label={`More interview actions for ${interview.candidate_name}`} className={recruiterSecondary} onClick={()=>setMenu(true)}>⋯</button>
     </div>
+    <RecruiterDrawer open={menu} onClose={()=>setMenu(false)} title={`Interview with ${interview.candidate_name}`}><div className="grid gap-3"><p className="font-semibold text-navy">{interview.job_title} · {interview.round_label}</p><p className="text-sm text-ink-muted">{interview.duration_minutes} minutes · {interview.status}</p><Link className={recruiterSecondary} href={`/recruiter/interviews?interview_id=${interview.id}`}>View details & history</Link><button className={recruiterSecondary} onClick={async()=>{try{await navigator.clipboard.writeText(interview.meeting_url);setError("Meeting link copied.")}catch{setError("Could not copy the meeting link.")}}}>Copy meeting link</button>{interview.status==="scheduled"&&<><button className={recruiterSecondary} disabled={busy} onClick={()=>{setMenu(false);setOpen(true)}}>Reschedule</button><button className={recruiterSecondary} disabled={busy} onClick={()=>{if(window.confirm(`Mark the interview with ${interview.candidate_name} as completed?`)){setMenu(false);void change("complete")}}}>Complete interview</button><button className={`${recruiterSecondary} text-rose-700`} disabled={busy} onClick={()=>{if(window.confirm(`Cancel the interview with ${interview.candidate_name}? The candidate will be notified.`)){setMenu(false);void change("cancel")}}}>Cancel interview</button></>}</div></RecruiterDrawer>
     {error && !open && <p role="alert" className="mt-2 text-xs text-rose-700">{error}</p>}
-    {open && <div role="presentation" className="fixed inset-0 z-50 flex items-end justify-center bg-navy/40 p-0 sm:items-center sm:p-5" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) setOpen(false); }}>
-      <section role="dialog" aria-modal="true" aria-label={`Reschedule ${interview.candidate_name}`} className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl sm:rounded-2xl sm:p-6">
-        <h2 className="text-xl font-bold text-navy">Reschedule interview</h2>
+    <RecruiterDrawer open={open} onClose={()=>{if(!busy)setOpen(false);}} title={`Reschedule ${interview.candidate_name}`} footer={<><button type="button" disabled={busy} onClick={()=>setOpen(false)} className={recruiterSecondary}>Cancel</button><button type="submit" form={formID} disabled={busy} className={recruiterPrimary}>{busy?"Saving…":"Save new schedule"}</button></>}><h2 className="text-xl font-bold text-navy">Reschedule interview</h2>
         <p className="mt-1 text-sm text-ink-muted">{interview.candidate_name} · {interview.job_title}</p>
         {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
-        <form onSubmit={submit} className="mt-4 grid gap-4">
+        <form id={formID} onSubmit={submit} className="mt-4 grid gap-4">
           <label className="grid gap-1 text-xs font-bold text-ink">Round<input name="round_label" defaultValue={interview.round_label} maxLength={120} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
-          <label className="grid gap-1 text-xs font-bold text-ink">Date and time<input name="scheduled_at" type="datetime-local" defaultValue={localDateTime(interview.scheduled_at)} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
+          <label className="grid gap-1 text-xs font-bold text-ink">Date and time ({Intl.DateTimeFormat().resolvedOptions().timeZone})<input name="scheduled_at" type="datetime-local" defaultValue={localDateTime(interview.scheduled_at)} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
           <label className="grid gap-1 text-xs font-bold text-ink">Duration (minutes)<input name="duration_minutes" type="number" min="10" max="480" defaultValue={interview.duration_minutes} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
           <label className="grid gap-1 text-xs font-bold text-ink">External meeting URL<input name="meeting_url" type="url" defaultValue={interview.meeting_url} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
           <label className="grid gap-1 text-xs font-bold text-ink">Internal notes<textarea name="notes" defaultValue={interview.notes ?? ""} rows={3} className="rounded-xl border border-line px-3 py-2 text-sm" /></label>
-          <div className="flex justify-end gap-2"><button type="button" onClick={() => setOpen(false)} disabled={busy} className="rounded-xl border border-line px-4 py-2 text-sm font-bold text-ink">Close</button><button type="submit" disabled={busy} className="rounded-xl bg-indigo px-4 py-2 text-sm font-bold text-white">{busy ? "Saving…" : "Save new schedule"}</button></div>
-        </form>
-      </section>
-    </div>}
+
+        </form></RecruiterDrawer>
   </>;
 }

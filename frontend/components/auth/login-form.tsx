@@ -71,7 +71,7 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
     }
   }
 
-  const verificationHref = `/verify-email?${new URLSearchParams({ email: attemptedEmail, role }).toString()}`;
+  const verificationHref = `/verify-email?${new URLSearchParams({ email: attemptedEmail, role, ...(role === "candidate" && nextPath ? {next:nextPath} : {}) }).toString()}`;
 
   return (
     <form className="grid gap-5" onSubmit={submit}>

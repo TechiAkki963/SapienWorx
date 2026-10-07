@@ -1,6 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useId, useState } from "react";
+import { RecruiterDataTable, RecruiterDrawer, WorkspaceState, recruiterPrimary, recruiterSecondary } from "./workspace-ui";
+import { label } from "@/lib/recruiter";
 import { apiRequest } from "@/lib/api";
 
 export type OfferItem = {
@@ -11,14 +13,18 @@ export type OfferItem = {
 export type OfferApplicationOption = { application_id:string; candidate_name:string; job_title:string; job_reference:string; stage:string };
 
 export function OffersWorkspace({initialItems,applications}:{initialItems:OfferItem[];applications:OfferApplicationOption[]}) {
+  const formID = useId();
   const [items,setItems]=useState(initialItems);
   const [busy,setBusy]=useState(false);
   const [notice,setNotice]=useState("");
   const [error,setError]=useState("");
+  const [open,setOpen]=useState(false);
+  const [status,setFilterStatus]=useState("");
 
   async function create(event:FormEvent<HTMLFormElement>) {
     event.preventDefault(); if(busy)return;
-    const form=new FormData(event.currentTarget);
+    const node=event.currentTarget;
+    const form=new FormData(node);
     setBusy(true);setError("");setNotice("");
     try{
       const item=await apiRequest<OfferItem>("/api/v1/recruiter/offers",{method:"POST",body:JSON.stringify({
@@ -30,7 +36,7 @@ export function OffersWorkspace({initialItems,applications}:{initialItems:OfferI
         expires_at:String(form.get("expires_at")||""),
         notes:String(form.get("notes")||""),
       })});
-      setItems(current=>[item,...current]);event.currentTarget.reset();setNotice("Offer draft created.");
+      setItems(current=>[item,...current]);node.reset();setOpen(false);setNotice("Offer draft created.");
     }catch(cause){setError(cause instanceof Error?cause.message:"Could not create offer.");}
     finally{setBusy(false)}
   }
@@ -45,8 +51,15 @@ export function OffersWorkspace({initialItems,applications}:{initialItems:OfferI
     finally{setBusy(false)}
   }
 
-  return <div className="grid min-w-0 max-w-full gap-5 xl:grid-cols-[minmax(20rem,.78fr)_minmax(0,1.22fr)]">
-    <form onSubmit={create} className="min-w-0 rounded-2xl border border-line/70 bg-white p-5 shadow-sm">
+  const visible=items.filter(item=>!status||item.status===status);
+  const date=(value?:string)=>value?new Date(value).toLocaleDateString("en-IN",{timeZone:"UTC"}):"Not set";
+  const actions=(item:OfferItem)=><details><summary aria-label={`Actions for ${item.candidate_name}`} className={recruiterSecondary}>Actions</summary><div className="mt-2 grid gap-2 border border-line p-2">{item.status==="draft"&&<button disabled={busy} onClick={()=>void setStatus(item.id,"sent")} className={recruiterPrimary}>Send offer</button>}{item.status==="sent"&&<><button disabled={busy} onClick={()=>void setStatus(item.id,"accepted")} className={recruiterSecondary}>Mark accepted</button><button disabled={busy} onClick={()=>void setStatus(item.id,"declined")} className={recruiterSecondary}>Mark declined</button></>}{["draft","sent"].includes(item.status)&&<button disabled={busy} onClick={()=>void setStatus(item.id,"withdrawn")} className={recruiterSecondary}>Withdraw</button>}{!["draft","sent"].includes(item.status)&&<p className="text-xs text-ink-muted">No open actions for this offer.</p>}</div></details>;
+  const summary=(item:OfferItem)=><div><p className="font-semibold text-navy">{item.candidate_name}</p><p className="mt-1 text-xs leading-5 text-ink-muted">{item.job_title} · {item.job_reference}</p></div>;
+  return <div className="grid min-w-0 gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-3"><nav aria-label="Offer status views" className="flex flex-wrap gap-1">{["","draft","sent","accepted","declined","withdrawn","expired"].map(value=><button key={value} aria-pressed={status===value} onClick={()=>setFilterStatus(value)} className={`min-h-11 border-b-2 px-3 text-sm font-semibold ${status===value?"border-indigo text-indigo":"border-transparent text-ink-muted"}`}>{value?label(value):"All offers"}</button>)}</nav><button className={recruiterPrimary} onClick={()=>setOpen(true)}>Create offer</button></div>
+    {notice&&<p role="status" className="text-sm text-ink">{notice}</p>}{error&&!open&&<p role="alert" className="text-sm text-rose-700">{error}</p>}
+    {visible.length?<RecruiterDataTable label="Recruiter offers" rows={visible} rowKey={item=>item.id} columns={[{key:"candidate",title:"Candidate / job",width:"33%",render:summary},{key:"status",title:"Status",width:"16%",render:item=>label(item.status)},{key:"compensation",title:"Compensation",width:"19%",secondary:true,render:item=>item.annual_compensation!=null?`${item.currency} ${item.annual_compensation.toLocaleString("en-IN")}`:"Not set"},{key:"dates",title:"Key dates",width:"20%",render:item=><div className="text-xs leading-6 text-ink-muted"><p>Expires {date(item.expires_at)}</p><p>Joining {date(item.joining_date)}</p></div>},{key:"actions",title:"Actions",width:"12%",render:actions}]} mobileRow={item=><div className="grid gap-3">{summary(item)}<p className="text-sm text-ink">{label(item.status)}</p><p className="text-xs text-ink-muted">{item.annual_compensation!=null?`${item.currency} ${item.annual_compensation.toLocaleString("en-IN")}`:"Compensation not set"} · Joining {date(item.joining_date)}</p>{actions(item)}</div>}/>:<WorkspaceState title="No offers in this view" description="Choose another status or create a draft linked to an authorized application." />}
+    <RecruiterDrawer open={open} onClose={()=>{if(!busy)setOpen(false);}} title="Create offer" footer={<><button type="button" disabled={busy} onClick={()=>setOpen(false)} className={recruiterSecondary}>Cancel</button><button type="submit" form={formID} disabled={busy} className={recruiterPrimary}>{busy?"Saving…":"Create draft"}</button></>}><form id={formID} onSubmit={create} className="min-w-0">
       <p className="text-[10px] font-extrabold uppercase tracking-[.14em] text-indigo">Create offer</p>
       <h2 className="mt-1 text-xl font-bold text-navy">Draft from an application</h2>
       <p className="mt-1 text-sm leading-6 text-ink-muted">Offer records stay linked to the company application and pipeline.</p>
@@ -56,19 +69,9 @@ export function OffersWorkspace({initialItems,applications}:{initialItems:OfferI
         <div className="grid gap-3 sm:grid-cols-[7rem_1fr]"><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Currency<input name="currency" defaultValue="INR" maxLength={3} className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm uppercase"/></label><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Annual compensation<input name="annual_compensation" type="number" min="0" step="1000" className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm"/></label></div>
         <div className="grid gap-3 sm:grid-cols-2"><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Expires on<input name="expires_at" type="date" className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm"/></label><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Joining date<input name="joining_date" type="date" className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm"/></label></div>
         <label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Internal note<textarea name="notes" rows={4} maxLength={5000} className="w-full min-w-0 rounded-xl border border-line px-3 py-2 text-sm"/></label>
-        <button disabled={busy} className="min-h-11 rounded-xl bg-indigo px-4 text-sm font-extrabold text-white disabled:opacity-50">{busy?"Saving…":"Create draft"}</button>
       </div>
       {notice&&<p role="status" className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">{notice}</p>}
       {error&&<p role="alert" className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800">{error}</p>}
-    </form>
-
-    <section className="min-w-0 rounded-2xl border border-line/70 bg-white p-5 shadow-sm">
-      <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-[10px] font-extrabold uppercase tracking-[.14em] text-indigo">Offer pipeline</p><h2 className="mt-1 text-xl font-bold text-navy">Offers in progress</h2></div><span className="rounded-full bg-indigo-soft px-3 py-1 text-xs font-bold text-indigo">{items.length} records</span></div>
-      <div className="mt-4 grid gap-3">{items.length?items.map(item=><article key={item.id} className="rounded-xl border border-line/70 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-extrabold text-navy">{item.candidate_name}</p><p className="mt-1 text-xs font-semibold text-indigo">{item.job_reference} · {item.job_title}</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.06em] text-ink-muted">{item.status}</span></div>
-        <div className="mt-3 grid gap-2 text-xs text-ink-muted sm:grid-cols-3"><p><strong className="block text-ink">Compensation</strong>{item.annual_compensation?item.currency+" "+item.annual_compensation.toLocaleString("en-IN"):"Not set"}</p><p><strong className="block text-ink">Expires</strong>{item.expires_at?new Date(item.expires_at).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }):"Not set"}</p><p><strong className="block text-ink">Joining</strong>{item.joining_date?new Date(item.joining_date).toLocaleDateString("en-IN", { timeZone: "UTC" }):"Not set"}</p></div>
-        <div className="mt-4 flex flex-wrap gap-2">{item.status==="draft"&&<button disabled={busy} onClick={()=>setStatus(item.id,"sent")} className="rounded-lg bg-indigo px-3 py-2 text-xs font-bold text-white">Send offer</button>}{item.status==="sent"&&<><button disabled={busy} onClick={()=>setStatus(item.id,"accepted")} className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800">Mark accepted</button><button disabled={busy} onClick={()=>setStatus(item.id,"declined")} className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-800">Mark declined</button></>}{["draft","sent"].includes(item.status)&&<button disabled={busy} onClick={()=>setStatus(item.id,"withdrawn")} className="rounded-lg border border-line px-3 py-2 text-xs font-bold text-ink-muted">Withdraw</button>}</div>
-      </article>):<div className="rounded-xl border border-dashed border-line p-6 text-center text-sm text-ink-muted">No offers yet. Create a draft from an active application.</div>}</div>
-    </section>
+    </form></RecruiterDrawer>
   </div>;
 }
