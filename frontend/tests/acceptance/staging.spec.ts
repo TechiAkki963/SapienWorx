@@ -100,7 +100,11 @@ test.describe.serial("deployed staging acceptance", () => {
     const recruiterPage = await recruiterContext.newPage();
     await signIn(recruiterPage, "recruiter");
     await expect(recruiterPage.getByRole("heading", { name: /Good (morning|afternoon|evening), Ananya\./ })).toBeVisible();
-    await expect(recruiterPage.getByText("Hiring workspace.", { exact: false })).toBeVisible();
+    const hiringOverview = recruiterPage.getByRole("region", { name: "Hiring overview", exact: true });
+    await expect(hiringOverview.getByRole("link")).toHaveCount(4);
+    await expect(hiringOverview.getByRole("link", { name: /^View active jobs:/ })).toHaveAttribute("href", "/recruiter/jobs?status=active");
+    await expect(recruiterPage.getByRole("navigation", { name: "SapienWorx Recruit", exact: true })
+      .getByRole("link", { name: "Talent", exact: true })).toHaveAttribute("href", "/recruiter/talent");
     await expect(recruiterPage.getByText("Northstar Product Labs").first()).toBeVisible();
     await recruiterContext.close();
   });
