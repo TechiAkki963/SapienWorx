@@ -62,13 +62,13 @@ export function InterviewActions({ interview }: { interview: Interview }) {
     <RecruiterDrawer open={open} onClose={()=>{if(!busy)setOpen(false);}} title={`Reschedule ${interview.candidate_name}`} footer={<><button type="button" disabled={busy} onClick={()=>setOpen(false)} className={recruiterSecondary}>Cancel</button><button type="submit" form={formID} disabled={busy} className={recruiterPrimary}>{busy?"Saving…":"Save new schedule"}</button></>}><h2 className="text-xl font-bold text-navy">Reschedule interview</h2>
         <p className="mt-1 text-sm text-ink-muted">{interview.candidate_name} · {interview.job_title}</p>
         {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
-        <form id={formID} onSubmit={submit} className="mt-4 grid gap-4">
+        {open && <form id={formID} onSubmit={submit} className="mt-4 grid gap-4">
           <label className="grid gap-1 text-xs font-bold text-ink">Round<input name="round_label" defaultValue={interview.round_label} maxLength={120} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
           <label className="grid gap-1 text-xs font-bold text-ink">Date and time ({Intl.DateTimeFormat().resolvedOptions().timeZone})<input name="scheduled_at" type="datetime-local" defaultValue={localDateTime(interview.scheduled_at)} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
           <label className="grid gap-1 text-xs font-bold text-ink">Duration (minutes)<input name="duration_minutes" type="number" min="10" max="480" defaultValue={interview.duration_minutes} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
           <label className="grid gap-1 text-xs font-bold text-ink">External meeting URL<input name="meeting_url" type="url" defaultValue={interview.meeting_url} required className="min-h-11 rounded-xl border border-line px-3 text-sm" /></label>
           <label className="grid gap-1 text-xs font-bold text-ink">Internal notes<textarea name="notes" defaultValue={interview.notes ?? ""} rows={3} className="rounded-xl border border-line px-3 py-2 text-sm" /></label>
 
-        </form></RecruiterDrawer>
+        </form>}</RecruiterDrawer>
   </>;
 }

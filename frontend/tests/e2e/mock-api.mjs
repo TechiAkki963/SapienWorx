@@ -743,6 +743,10 @@ const server = http.createServer(async (req, res) => {
     needs_attention: [],
   });
   if (url.pathname === "/api/v1/recruiter/jobs" && req.method === "GET") {
+    const requestedLimit = Number(url.searchParams.get("limit") ?? 20);
+    if (!Number.isInteger(requestedLimit) || requestedLimit < 1 || requestedLimit > 50) {
+      return json(res, 400, { error: { code: "invalid_request", message: "Job limit must be between 1 and 50." } });
+    }
     const source = [{
       ...job(),
       role_category: "Technology",

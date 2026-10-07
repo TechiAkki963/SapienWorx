@@ -19,7 +19,7 @@ export default async function RecruiterOutreachPage() {
     messagingAPI<{ items: OutreachSequence[] }>("/api/v1/recruiter/outreach/sequences"),
     messagingAPI<{ items: OutreachCampaign[] }>("/api/v1/recruiter/outreach/campaigns"),
     recruiterAPI<{ items: TalentPoolCandidate[] }>("/api/v1/recruiter/talent-pool"),
-    recruiterAPI<{ items: BulkRecruiterJob[] }>("/api/v1/recruiter/jobs?status=active&limit=100"),
+    recruiterAPI<{ items: BulkRecruiterJob[] }>("/api/v1/recruiter/jobs?status=active&limit=50"),
   ]).catch(() => null);
 
   if (!responses) return <RecruiterShell><div className="grid gap-4">
