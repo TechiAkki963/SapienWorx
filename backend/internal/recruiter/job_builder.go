@@ -207,8 +207,8 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 			required_skills,role_category,responsibilities,company_overview,why_join,hiring_process,application_deadline,
 			education_requirements,screening_questions,referral_enabled,visibility,internal_notes,assigned_recruiter_id
 		) VALUES(
-			$1,$2,$3,lower(regexp_replace($3,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),'IN',
-			$9,$10,$11,$12,'INR',$20,$13::job_status,CASE WHEN $13='active' THEN now() ELSE NULL END,
+			$1,$2,$3::text,lower(regexp_replace($3::text,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),'IN',
+			$9,$10,$11,$12,'INR',$20,$13::job_status,CASE WHEN $13::job_status='active' THEN now() ELSE NULL END,
 			$14,NULLIF($15,''),NULLIF($16,''),NULLIF($17,''),NULLIF($18,''),$19,$21,
 			$22,$23,$24,$25,NULLIF($26,''),$27
 		)

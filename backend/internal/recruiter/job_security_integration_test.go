@@ -505,4 +505,41 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 			t.Fatalf("cross-tenant candidate match leaked: %+v", crossTenantMatch)
 		}
 	})
+
+	t.Run("detailed builder creates drafts and published jobs with typed parameters", func(t *testing.T) {
+		for _, publish := range []bool{false, true} {
+			created, err := recruiterSvc.CreateDetailedJob(ctx, recruiterA, DetailedJobInput{
+				Title: "  Synthetic QA / PostgreSQL builder  ", Description: "Synthetic regression opportunity",
+				EmploymentType: "full_time", WorkMode: "remote", Location: "Mumbai", Openings: 1,
+				Skills: []string{"Quality Assurance"}, Responsibilities: "Verify job creation and referral readiness.",
+				HiringProcess: []string{"Application review", "Interview", "Decision"},
+				Visibility:    "public", ReferralEnabled: true, Publish: publish,
+			})
+			if err != nil {
+				t.Fatalf("builder publish=%t: %v", publish, err)
+			}
+			wantStatus, wantAudit := "draft", "created"
+			if publish {
+				wantStatus, wantAudit = "active", "created_and_published"
+			}
+			if created.Title != "Synthetic QA / PostgreSQL builder" || created.Status != wantStatus || (created.PublishedAt != nil) != publish {
+				t.Fatalf("incorrect builder result: %+v", created)
+			}
+			editable, err := recruiterSvc.EditableJob(ctx, recruiterA, created.ID)
+			if err != nil || !editable.ReferralEnabled || len(editable.HiringProcess) != 3 {
+				t.Fatalf("builder fields were not persisted: %+v %v", editable, err)
+			}
+			var slug string
+			if err := db.QueryRow(ctx, `SELECT slug FROM jobs WHERE id=$1`, created.ID).Scan(&slug); err != nil || slug == "" {
+				t.Fatalf("missing builder slug: %q %v", slug, err)
+			}
+			history, err := recruiterSvc.JobAuditHistory(ctx, recruiterA, created.ID, 20)
+			if err != nil || len(history) != 1 || history[0].Action != wantAudit {
+				t.Fatalf("builder creation must be audited once: %+v %v", history, err)
+			}
+			if _, err := recruiterSvc.EditableJob(ctx, recruiterB, created.ID); !errors.Is(err, ErrNotFound) {
+				t.Fatalf("created job crossed tenant boundary: %v", err)
+			}
+		}
+	})
 }
