@@ -2,7 +2,7 @@
 
 Public `/jobs/{uuid}` pages emit server-rendered, job-specific title, description,
 canonical, Open Graph and Twitter large-image metadata. `/jobs/{uuid}/social-card`
-returns a 1200×630 PNG with the compact SapienWorx Jobs tile, job title/company,
+returns a 1200×630 PNG with the compact SapienWorx logo tile, job title/company,
 location/work mode/experience/skills and the current public domain.
 
 The public Go job-detail response adds company logo and required skills from the

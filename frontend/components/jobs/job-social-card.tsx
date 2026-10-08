@@ -15,7 +15,6 @@ export function JobSocialCard({ data, logo, domain }: { data: ReturnType<typeof 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 220, height: 250, flexShrink: 0, borderRadius: 20, background: "linear-gradient(145deg, #0a66ff, #0645e8)", color: "#ffffff" }}>
           <div style={{ display: "flex", fontSize: 100, fontWeight: 700, lineHeight: 1 }}>S</div>
           <div style={{ display: "flex", fontSize: 31, fontWeight: 700, marginTop: 14 }}>SapienWorx</div>
-          <div style={{ display: "flex", fontSize: 30, marginTop: 4, color: "#dbeafe" }}>Jobs</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginLeft: 32, width: 808, minWidth: 0 }}>
           <div style={{ display: "flex", fontSize: heading.length > 105 ? 31 : 36, fontWeight: 700, lineHeight: 1.2, color: "#0f172a", overflowWrap: "anywhere" }}>{heading}</div>
