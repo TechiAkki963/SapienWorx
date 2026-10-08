@@ -150,6 +150,26 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 	recruiterSvc := NewService(db)
 	candidateSvc := candidate.NewService(db)
 
+	t.Run("anonymous job detail supplies only public share fields", func(t *testing.T) {
+		logo := "https://assets.example.test/company-logo.png"
+		exec(`UPDATE companies SET logo_url=$2 WHERE id=$1`, companyA, logo)
+		defer exec(`UPDATE companies SET logo_url=NULL WHERE id=$1`, companyA)
+		public, err := candidateSvc.Job(ctx, jobPublicA)
+		if err != nil || public.CompanyLogoURL == nil || *public.CompanyLogoURL != logo || len(public.RequiredSkills) != 1 || public.RequiredSkills[0] != "Communication" {
+			t.Fatalf("public share fields missing: %+v %v", public, err)
+		}
+		for _, hidden := range []string{jobPrivateA, jobClosedA, jobArchivedA, job(companyA, recruiterA, "draft", "public", "Synthetic draft")} {
+			if _, err := candidateSvc.Job(ctx, hidden); !errors.Is(err, candidate.ErrNotFound) {
+				t.Fatalf("hidden share data exposed for %s: %v", hidden, err)
+			}
+		}
+		expired := job(companyA, recruiterA, "active", "public", "Synthetic expired deadline")
+		exec(`UPDATE jobs SET application_deadline=current_date-1 WHERE id=$1`, expired)
+		if _, err := candidateSvc.Job(ctx, expired); !errors.Is(err, candidate.ErrNotFound) {
+			t.Fatalf("expired share data exposed: %v", err)
+		}
+	})
+
 	t.Run("profile privacy flags default to false when absent", func(t *testing.T) {
 		for _, details := range []string{`{}`, `{"profile_visible_in_sourcing":null,"discoverable_to_recruiters":null}`, `{"profile_visible_in_sourcing":false,"discoverable_to_recruiters":false}`, `{"profile_visible_in_sourcing":true,"discoverable_to_recruiters":true}`} {
 			exec(`UPDATE candidate_profiles SET profile_details=$2::jsonb WHERE user_id=$1`, candidateA, details)

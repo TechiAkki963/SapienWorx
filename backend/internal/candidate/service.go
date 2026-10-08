@@ -32,6 +32,8 @@ type Job struct {
 	ReferralEnabled     bool       `json:"referral_enabled"`
 	ID                  string     `json:"id"`
 	CompanyName         string     `json:"company_name"`
+	CompanyLogoURL      *string    `json:"company_logo_url,omitempty"`
+	RequiredSkills      []string   `json:"required_skills,omitempty"`
 	Title               string     `json:"title"`
 	Department          *string    `json:"department,omitempty"`
 	Description         string     `json:"description"`
@@ -130,8 +132,8 @@ type scanner interface {
 	Scan(dest ...any) error
 }
 
-func scanJob(row scanner, job *Job) error {
-	return row.Scan(
+func scanJob(row scanner, job *Job, extra ...any) error {
+	destinations := []any{
 		&job.ID,
 		&job.CompanyName,
 		&job.Title,
@@ -151,7 +153,8 @@ func scanJob(row scanner, job *Job) error {
 		&job.ApplicationDeadline,
 		&job.PublishedAt,
 		&job.ReferralEnabled,
-	)
+	}
+	return row.Scan(append(destinations, extra...)...)
 }
 
 func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, error) {
@@ -210,7 +213,7 @@ func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, er
 
 func (s *Service) Job(ctx context.Context, id string) (Job, error) {
 	var job Job
-	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.id=$1 AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job)
+	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+`,c.logo_url,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.id=$1 AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job, &job.CompanyLogoURL, &job.RequiredSkills)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Job{}, ErrNotFound
 	}

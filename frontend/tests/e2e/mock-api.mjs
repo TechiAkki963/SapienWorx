@@ -37,6 +37,8 @@ function adminPage(items,url) {
 
 function initialState() {
   return {
+    publicJobFixture: {},
+    publicJobStatus: 200,
     namedPools:[{id:"81000000-0000-4000-8000-000000000001",name:"Engineering future hires",kind:"manual",visibility:"private",owner_name:"Riya Recruiter",count:3,can_edit:true,criteria:{}},{id:"81000000-0000-4000-8000-000000000002",name:"Pune Go engineers",kind:"smart",visibility:"team",owner_name:"Riya Recruiter",count:3,can_edit:true,criteria:{skills:"Go",location:"Pune"}}],
     candidateReferrals:[],
     inviteStatus:"account_linked",
@@ -409,6 +411,11 @@ const server = http.createServer(async (req, res) => {
 
   const payload = ["POST", "PATCH", "PUT"].includes(req.method ?? "") ? await body(req) : {};
   logRequest(req, url, payload);
+  if (url.pathname === "/__e2e/public-job" && req.method === "POST") {
+    state.publicJobFixture = payload.job || {};
+    state.publicJobStatus = payload.status || 200;
+    return json(res, 200, { configured: true });
+  }
   if(req.method==="GET"&&url.pathname==="/api/v1/recruiter/outreach/campaigns"&&state.workspaceFail.outreach_get) return json(res,503,{error:{message:"Synthetic outreach outage"}});
   // Local controller and fixtures only; these endpoints do not exist in production.
   if(url.pathname==="/__e2e/workspace"&&req.method==="POST"){
@@ -689,6 +696,7 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  if (url.pathname === `/api/v1/jobs/${jobID}` && req.method === "GET" && state.publicJobStatus !== 200) return json(res, state.publicJobStatus, { error: { message: "Synthetic public job unavailable" } });
   if (url.pathname === `/api/v1/jobs/${jobID}` && req.method === "GET") return json(res, 200, job({
     id: jobID,
     job_reference: "SWX-JOB-2026-00001",
@@ -708,6 +716,7 @@ const server = http.createServer(async (req, res) => {
     openings: 3,
     description: "Build recruitment infrastructure.",
     required_skills: ["Go", "PostgreSQL"],
+    ...state.publicJobFixture,
   }));
 
   if (url.pathname === "/api/v1/recruiter/team" && req.method === "GET") return json(res, 200, { items: [
