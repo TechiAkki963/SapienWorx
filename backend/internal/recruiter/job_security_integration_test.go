@@ -506,6 +506,38 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		}
 	})
 
+	t.Run("saved workspace jobs preserve referral fields and candidate isolation", func(t *testing.T) {
+		owner, other := user("candidate"), user("candidate")
+		for _, enabled := range []bool{false, true} {
+			jobID := job(companyA, recruiterA, "active", "public", "Synthetic saved job")
+			exec(`UPDATE jobs SET referral_enabled=$2 WHERE id=$1`, jobID, enabled)
+			if err := candidateSvc.SaveWorkspaceJob(ctx, owner, jobID); err != nil {
+				t.Fatal(err)
+			}
+			rows, err := candidateSvc.WorkspaceSavedJobs(ctx, owner)
+			if err != nil || len(rows) != 1 || rows[0].ID != jobID || rows[0].ReferralEnabled != enabled || rows[0].Status != "active" || !rows[0].AcceptingApplications || rows[0].SavedAt.IsZero() {
+				t.Fatalf("saved job fields enabled=%t: %+v %v", enabled, rows, err)
+			}
+			foreign, err := candidateSvc.WorkspaceSavedJobs(ctx, other)
+			if err != nil || len(foreign) != 0 {
+				t.Fatalf("saved jobs crossed candidate boundary: %+v %v", foreign, err)
+			}
+			exec(`UPDATE jobs SET status='closed' WHERE id=$1`, jobID)
+			rows, err = candidateSvc.WorkspaceSavedJobs(ctx, owner)
+			if err != nil || len(rows) != 1 || rows[0].Status != "closed" || rows[0].AcceptingApplications || rows[0].ReferralEnabled != enabled {
+				t.Fatalf("closed saved job was not retained correctly: %+v %v", rows, err)
+			}
+			exec(`UPDATE jobs SET visibility='private' WHERE id=$1`, jobID)
+			rows, err = candidateSvc.WorkspaceSavedJobs(ctx, owner)
+			if err != nil || len(rows) != 0 {
+				t.Fatalf("private saved job leaked: %+v %v", rows, err)
+			}
+			if err := candidateSvc.UnsaveWorkspaceJob(ctx, owner, jobID); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+
 	t.Run("detailed builder creates drafts and published jobs with typed parameters", func(t *testing.T) {
 		for _, publish := range []bool{false, true} {
 			created, err := recruiterSvc.CreateDetailedJob(ctx, recruiterA, DetailedJobInput{

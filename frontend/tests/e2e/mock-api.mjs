@@ -957,6 +957,7 @@ const server = http.createServer(async (req, res) => {
   if(/^\/api\/v1\/recruiter\/talent-pools\/[^/]+\/candidates$/.test(url.pathname)&&req.method==="GET")return json(res,200,{items:poolCandidates(),total:3,page:1,limit:50});
   if(/^\/api\/v1\/recruiter\/talent-pools\/[^/]+\/candidates\/[^/]+$/.test(url.pathname))return noContent(res);
   if(url.pathname==="/__e2e/candidate-referrals"&&req.method==="POST"){state.candidateReferrals=payload.items||[];return json(res,200,{ok:true})}
+  if(url.pathname==="/__e2e/recruiter-referral-invitations"&&req.method==="POST"){state.referralInvites=payload.items||[];return json(res,200,{ok:true})}
   if(url.pathname==="/api/v1/recruiter/referral-invitations"&&req.method==="GET")return json(res,200,{items:state.referralInvites});
   if(url.pathname==="/api/v1/recruiter/referral-invitations"&&req.method==="POST")return json(res,410,{error:{code:"candidate_referral_required",message:"Referrals start from candidate Job Details."}});
   if(url.pathname==="/api/v1/candidate/referral-invitations"&&req.method==="POST"){
