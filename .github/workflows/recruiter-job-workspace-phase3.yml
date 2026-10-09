@@ -145,7 +145,8 @@ jobs:
 
   e2e:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # The complete serial suite plus isolated admin journeys exceeded 30 minutes.
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: frontend
