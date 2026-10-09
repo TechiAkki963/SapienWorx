@@ -77,7 +77,7 @@ func validProductionConfig() Config {
 			AccessCookieName:  "sw_access",
 			RefreshCookieName: "sw_refresh",
 		},
-		AWS: AWSConfig{S3PresignTTL: 5 * time.Minute},
+		AWS: AWSConfig{S3PresignTTL: 5 * time.Minute, SESFromEmail: "info@sapienworx.com"},
 	}
 }
 
@@ -98,6 +98,7 @@ func TestValidateRejectsInsecureProductionSettings(t *testing.T) {
 		{name: "http cors origin", mutate: func(cfg *Config) { cfg.HTTP.AllowedOrigins = []string{"http://sapienworx.com"} }},
 		{name: "database tls disabled", mutate: func(cfg *Config) { cfg.Database.URL = "postgres://db.example/sapienworx?sslmode=disable" }},
 		{name: "invalid trusted proxy", mutate: func(cfg *Config) { cfg.HTTP.TrustedProxyCIDRs = []string{"not-a-cidr"} }},
+		{name: "missing SES sender", mutate: func(cfg *Config) { cfg.AWS.SESFromEmail = "" }},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

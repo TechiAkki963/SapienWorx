@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -35,12 +36,21 @@ func (s *Service) RequestPasswordReset(ctx context.Context, emailValue string) (
 	if err != nil {
 		return "", err
 	}
-	_, err = s.db.Exec(ctx, `INSERT INTO email_verification_challenges(user_id,email,purpose,code_hash,expires_at) VALUES($1,$2,$3,$4,$5)`, userID, email, PurposePasswordReset, otpHash([]byte(s.cfg.OTPSecret), userID, PurposePasswordReset, code), s.now().UTC().Add(s.cfg.OTPTTL))
+	var challengeID string
+	err = s.db.QueryRow(ctx, `INSERT INTO email_verification_challenges(user_id,email,purpose,code_hash,expires_at) VALUES($1,$2,$3,$4,$5) RETURNING id`, userID, email, PurposePasswordReset, otpHash([]byte(s.cfg.OTPSecret), userID, PurposePasswordReset, code), s.now().UTC().Add(s.cfg.OTPTTL)).Scan(&challengeID)
 	if err != nil {
 		return "", err
 	}
 	if s.cfg.Development {
 		return code, nil
+	}
+	if s.emailDelivery == nil {
+		_, _ = s.db.Exec(ctx, `DELETE FROM email_verification_challenges WHERE id=$1`, challengeID)
+		return "", ErrEmailDelivery
+	}
+	if err = s.emailDelivery.SendPasswordResetCode(ctx, email, code, s.cfg.OTPTTL); err != nil {
+		_, _ = s.db.Exec(ctx, `DELETE FROM email_verification_challenges WHERE id=$1`, challengeID)
+		return "", fmt.Errorf("%w: password reset message", ErrEmailDelivery)
 	}
 	return "", nil
 }

@@ -22,6 +22,7 @@ var (
 	ErrOTPRateLimited     = errors.New("verification code was requested too recently")
 	ErrInvalidRefresh     = errors.New("invalid refresh session")
 	ErrForbidden          = errors.New("forbidden")
+	ErrEmailDelivery      = errors.New("transactional email delivery failed")
 )
 
 const PurposePasswordReset = "password_reset"
@@ -34,11 +35,17 @@ type ServiceConfig struct {
 	Development bool
 }
 
+type EmailDelivery interface {
+	SendVerificationCode(context.Context, string, string, time.Duration) error
+	SendPasswordResetCode(context.Context, string, string, time.Duration) error
+}
+
 type Service struct {
-	db     *pgxpool.Pool
-	tokens *TokenManager
-	cfg    ServiceConfig
-	now    func() time.Time
+	db            *pgxpool.Pool
+	tokens        *TokenManager
+	emailDelivery EmailDelivery
+	cfg           ServiceConfig
+	now           func() time.Time
 }
 
 type CandidateRegistration struct {
@@ -101,8 +108,8 @@ type loginRecord struct {
 	RecruiterVerification string
 }
 
-func NewService(db *pgxpool.Pool, tokens *TokenManager, cfg ServiceConfig) *Service {
-	return &Service{db: db, tokens: tokens, cfg: cfg, now: time.Now}
+func NewService(db *pgxpool.Pool, tokens *TokenManager, emailDelivery EmailDelivery, cfg ServiceConfig) *Service {
+	return &Service{db: db, tokens: tokens, emailDelivery: emailDelivery, cfg: cfg, now: time.Now}
 }
 
 func (s *Service) Login(ctx context.Context, input LoginInput, userAgent, remoteAddr string) (SessionResult, error) {
@@ -138,7 +145,7 @@ func (s *Service) Refresh(ctx context.Context, refreshToken, userAgent, remoteAd
 	defer tx.Rollback(ctx)
 	var record loginRecord
 	var oldSessionID string
-	err = tx.QueryRow(ctx, `SELECT rs.id,u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,'') FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE rs.token_hash=$1 AND rs.revoked_at IS NULL AND rs.expires_at>now() AND u.is_active=true FOR UPDATE`, tokenHash(refreshToken)).Scan(&oldSessionID, &record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification)
+	err = tx.QueryRow(ctx, `SELECT rs.id,u.id,u.email,u.password_hash,u.role::text,u.status::text,COALESCE(r.verification_status::text,'') FROM refresh_sessions rs JOIN users u ON u.id=rs.user_id LEFT JOIN recruiter_profiles r ON r.user_id=u.id WHERE rs.token_hash=$1 AND rs.revoked_at IS NULL AND rs.expires_at>now() AND u.is_active=true FOR UPDATE OF rs,u`, tokenHash(refreshToken)).Scan(&oldSessionID, &record.ID, &record.Email, &record.PasswordHash, &record.Role, &record.Status, &record.RecruiterVerification)
 	if err != nil || record.Status != "active" || (record.Role == RoleRecruiter && record.RecruiterVerification != "verified") {
 		return SessionResult{}, ErrInvalidRefresh
 	}
@@ -246,6 +253,7 @@ func nullable(value string) any {
 }
 
 func (s *Service) DebugOTPAllowed() bool          { return s.cfg.Development }
+func (s *Service) EmailDeliveryConfigured() bool  { return s.emailDelivery != nil }
 func (s *Service) AccessTokenTTL() time.Duration  { return s.tokens.ttl }
 func (s *Service) RefreshTokenTTL() time.Duration { return s.cfg.RefreshTTL }
 func (s *Service) String() string {

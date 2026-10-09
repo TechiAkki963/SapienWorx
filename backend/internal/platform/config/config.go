@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"net/mail"
 	"net/netip"
 	"net/url"
 	"os"
@@ -64,6 +65,7 @@ type AWSConfig struct {
 	Region       string
 	S3Bucket     string
 	S3PresignTTL time.Duration
+	SESFromEmail string
 }
 
 func Load() (Config, error) {
@@ -117,6 +119,7 @@ func Load() (Config, error) {
 			Region:       env("AWS_REGION", "ap-south-1"),
 			S3Bucket:     strings.TrimSpace(os.Getenv("S3_BUCKET")),
 			S3PresignTTL: durationEnv("S3_PRESIGN_TTL", 5*time.Minute),
+			SESFromEmail: strings.TrimSpace(os.Getenv("SES_FROM_EMAIL")),
 		},
 	}
 
@@ -186,6 +189,9 @@ func (c Config) Validate() error {
 		}
 		if parsed, err := url.Parse(c.Database.URL); err == nil && strings.EqualFold(parsed.Query().Get("sslmode"), "disable") {
 			problems = append(problems, "DATABASE_URL must not disable TLS in production")
+		}
+		if parsed, err := mail.ParseAddress(c.AWS.SESFromEmail); err != nil || parsed.Address != c.AWS.SESFromEmail {
+			problems = append(problems, "SES_FROM_EMAIL must be a valid bare email address in production")
 		}
 	}
 	if len(problems) > 0 {
@@ -280,5 +286,5 @@ func boolEnv(key string, fallback bool) bool {
 }
 
 func (c Config) String() string {
-	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d s3=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.S3Bucket != "")
+	return fmt.Sprintf("env=%s http=%s db_pool=%d/%d s3=%t ses=%t", c.Environment, c.HTTP.Address, c.Database.MinConns, c.Database.MaxConns, c.AWS.S3Bucket != "", c.AWS.SESFromEmail != "")
 }

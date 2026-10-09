@@ -230,7 +230,7 @@ func (s *Service) ReviewCompany(ctx context.Context, verificationID, adminID, de
 		if _, err = tx.Exec(ctx, `UPDATE recruiter_profiles SET verification_status='verified',verified_at=COALESCE(verified_at,now()) WHERE user_id=$1`, recruiterID); err != nil {
 			return err
 		}
-		if _, err = tx.Exec(ctx, `UPDATE users SET status=CASE WHEN email_verified_at IS NOT NULL AND phone_verified_at IS NOT NULL THEN 'active'::account_status ELSE 'pending_verification'::account_status END WHERE id=$1`, recruiterID); err != nil {
+		if _, err = tx.Exec(ctx, `UPDATE users SET status=CASE WHEN email_verified_at IS NOT NULL THEN 'active'::account_status ELSE 'pending_verification'::account_status END WHERE id=$1`, recruiterID); err != nil {
 			return err
 		}
 	} else {

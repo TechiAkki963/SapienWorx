@@ -3,6 +3,7 @@ package recruiter
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -221,13 +222,14 @@ func (s *Service) CreateJob(ctx context.Context, userID string, in JobInput) (Jo
 		deadline = *in.ApplicationDeadline
 	}
 	var id string
-	err = s.db.QueryRow(ctx, `INSERT INTO jobs(company_id,created_by_recruiter_id,title,slug,department,description,employment_type,work_mode,city,state,country_code,min_experience_months,max_experience_months,openings,status,application_deadline,published_at) VALUES($1,$2,$3,lower(regexp_replace($3,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),NULLIF($9,''),$10,$11,$12,$13,$14::job_status,$15,CASE WHEN $14='active' THEN now() ELSE NULL END) RETURNING id`, companyID, userID, in.Title, strings.TrimSpace(in.Department), in.Description, in.EmploymentType, in.WorkMode, strings.TrimSpace(in.City), strings.TrimSpace(in.State), country, in.MinExperienceMonths, in.MaxExperienceMonths, in.Openings, status, deadline).Scan(&id)
+	slugSource := strings.ToLower(strings.Join(strings.Fields(in.Title), "-"))
+	err = s.db.QueryRow(ctx, `INSERT INTO jobs(company_id,created_by_recruiter_id,title,slug,department,description,employment_type,work_mode,city,state,country_code,min_experience_months,max_experience_months,openings,status,application_deadline,published_at) VALUES($1,$2,$3,$4::text||'-'||substr(gen_random_uuid()::text,1,8),NULLIF($5,''),$6,$7::employment_type,$8::work_mode,NULLIF($9,''),NULLIF($10,''),$11,$12,$13,$14,$15::job_status,$16,CASE WHEN $15::job_status='active'::job_status THEN now() ELSE NULL END) RETURNING id`, companyID, userID, in.Title, slugSource, strings.TrimSpace(in.Department), in.Description, in.EmploymentType, in.WorkMode, strings.TrimSpace(in.City), strings.TrimSpace(in.State), country, in.MinExperienceMonths, in.MaxExperienceMonths, in.Openings, status, deadline).Scan(&id)
 	if err != nil {
-		return Job{}, err
+		return Job{}, fmt.Errorf("insert job: %w", err)
 	}
 	jobs, err := s.Jobs(ctx, userID)
 	if err != nil {
-		return Job{}, err
+		return Job{}, fmt.Errorf("reload jobs: %w", err)
 	}
 	for _, j := range jobs {
 		if j.ID == id {

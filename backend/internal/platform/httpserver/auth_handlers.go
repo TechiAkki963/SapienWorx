@@ -87,6 +87,11 @@ func (s *Server) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	code, err := s.auth.RequestPasswordReset(r.Context(), input.Email)
 	if err != nil {
+		if errors.Is(err, auth.ErrEmailDelivery) {
+			s.logger.Error("password reset email delivery failed", "request_id", RequestIDFromContext(r.Context()))
+			writeJSON(w, http.StatusAccepted, map[string]any{"accepted": true})
+			return
+		}
 		s.writeAuthError(w, r, err)
 		return
 	}
@@ -191,6 +196,8 @@ func (s *Server) writeAuthError(w http.ResponseWriter, r *http.Request, err erro
 		writeError(w, r, http.StatusUnauthorized, "invalid_refresh", "valid session required")
 	case errors.Is(err, auth.ErrForbidden):
 		writeError(w, r, http.StatusForbidden, "forbidden", "operation is not permitted")
+	case errors.Is(err, auth.ErrEmailDelivery):
+		writeError(w, r, http.StatusServiceUnavailable, "email_delivery_unavailable", "verification email could not be sent; please try again")
 	default:
 		if strings.Contains(err.Error(), "required") || strings.Contains(err.Error(), "password") || strings.Contains(err.Error(), "email") || strings.Contains(err.Error(), "phone") || strings.Contains(err.Error(), "consent") || strings.Contains(err.Error(), "18+") {
 			writeError(w, r, http.StatusBadRequest, "validation_error", err.Error())

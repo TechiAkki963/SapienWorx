@@ -13,6 +13,7 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/admin"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/notification"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/database"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver"
@@ -46,7 +47,14 @@ func run(logger *slog.Logger) error {
 		return err
 	}
 
-	authService := auth.NewService(db, tokens, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment != "production"})
+	var emailDelivery auth.EmailDelivery
+	if cfg.AWS.SESFromEmail != "" {
+		emailDelivery, err = notification.NewSESSender(ctx, cfg.AWS.Region, cfg.AWS.SESFromEmail)
+		if err != nil {
+			return err
+		}
+	}
+	authService := auth.NewService(db, tokens, emailDelivery, auth.ServiceConfig{RefreshTTL: cfg.Auth.RefreshTokenTTL, OTPTTL: cfg.Auth.OTPTTL, OTPResend: cfg.Auth.OTPResendInterval, OTPSecret: cfg.Auth.OTPSecret, Development: cfg.Environment != "production"})
 	candidateService := candidate.NewService(db)
 	recruiterService := recruiter.NewService(db)
 	adminService := admin.NewService(db)
