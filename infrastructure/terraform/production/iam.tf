@@ -110,6 +110,13 @@ data "aws_iam_policy_document" "application" {
   }
 
   statement {
+    sid       = "SendTransactionalEmail"
+    effect    = "Allow"
+    actions   = ["ses:SendEmail"]
+    resources = ["arn:${data.aws_partition.current.partition}:ses:${var.aws_region}:${data.aws_caller_identity.current.account_id}:identity/${var.domain_name}"]
+  }
+
+  statement {
     sid       = "PublishHostMetrics"
     effect    = "Allow"
     actions   = ["cloudwatch:PutMetricData"]

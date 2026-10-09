@@ -21,6 +21,19 @@ sapienworx.com {
 		-Server
 	}
 
+	# SES remains sandboxed during the controlled public-testing phase. Keep
+	# existing-account access available, but prevent arbitrary visitors from
+	# starting email-dependent account and recovery flows that cannot complete.
+	@restricted_email_flow {
+		method POST
+		path /api/v1/auth/candidate/register /api/v1/auth/recruiter/register /api/v1/auth/email/request /api/v1/auth/password/forgot
+	}
+	header @restricted_email_flow {
+		Content-Type "application/json; charset=utf-8"
+		Retry-After "86400"
+	}
+	respond @restricted_email_flow `{"error":{"code":"controlled_testing_only","message":"New account and recovery email requests are limited to approved testers during controlled testing."}}` 503
+
 	@backend path /api/* /health/*
 	reverse_proxy @backend backend:8080 {
 		header_up X-Real-IP {remote_host}
