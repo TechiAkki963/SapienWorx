@@ -12,6 +12,8 @@ The older design concepts, synthetic PDF, preparation scripts and deployment gui
 
 ## Validation and deployment boundaries
 
+Go build images, CI setup and the module minimum are pinned to the security-patched Go 1.26.9 release. The vulnerability scan remains a required check; cached older toolchains cannot satisfy this release. This patch includes the standard-library fixes published on 8 October 2026: https://go.dev/doc/devel/release.
+
 Before rollout, rehearse all 64 migrations in disposable localhost PostgreSQL 17, run backend vet/tests with the company and recruiter isolation suites, and run affected browser regressions and frontend production checks. Publish a reviewed PR and require applicable CI to pass before merging and dispatching Beta Stage A at the final immutable main SHA.
 
 Immediately before migrations, verify `current_database() = sapienworx_beta` and take a protected beta-only backup with a readable restore manifest. The release reuses EC2 `i-0356b55e3d7eaf72a`, existing RDS, isolated beta roles and the beta documents bucket.

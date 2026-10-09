@@ -1,6 +1,6 @@
 module github.com/TechiAkki963/SapienWorx/backend
 
-go 1.26.0
+go 1.26.9
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.47.0
