@@ -29,25 +29,31 @@ func NewService(db *pgxpool.Pool) *Service {
 }
 
 type Job struct {
-	ReferralEnabled     bool       `json:"referral_enabled"`
-	ID                  string     `json:"id"`
-	CompanyName         string     `json:"company_name"`
-	Title               string     `json:"title"`
-	Department          *string    `json:"department,omitempty"`
-	Description         string     `json:"description"`
-	EmploymentType      string     `json:"employment_type"`
-	WorkMode            string     `json:"work_mode"`
-	City                *string    `json:"city,omitempty"`
-	State               *string    `json:"state,omitempty"`
-	CountryCode         string     `json:"country_code"`
-	MinExperienceMonths int        `json:"min_experience_months"`
-	MaxExperienceMonths *int       `json:"max_experience_months,omitempty"`
-	MinSalaryAmount     *float64   `json:"min_salary_amount,omitempty"`
-	MaxSalaryAmount     *float64   `json:"max_salary_amount,omitempty"`
-	SalaryCurrency      string     `json:"salary_currency"`
-	Openings            int        `json:"openings"`
-	ApplicationDeadline *time.Time `json:"application_deadline,omitempty"`
-	PublishedAt         *time.Time `json:"published_at,omitempty"`
+	ReferralEnabled       bool       `json:"referral_enabled"`
+	ReferralDeadline      *string    `json:"referral_deadline,omitempty"`
+	ReferralRewardEnabled bool       `json:"referral_reward_enabled"`
+	ReferralTerms         string     `json:"referral_terms"`
+	ReferralEligibility   string     `json:"referral_eligibility"`
+	ID                    string     `json:"id"`
+	CompanyName           string     `json:"company_name"`
+	CompanyLogoURL        *string    `json:"company_logo_url,omitempty"`
+	RequiredSkills        []string   `json:"required_skills,omitempty"`
+	Title                 string     `json:"title"`
+	Department            *string    `json:"department,omitempty"`
+	Description           string     `json:"description"`
+	EmploymentType        string     `json:"employment_type"`
+	WorkMode              string     `json:"work_mode"`
+	City                  *string    `json:"city,omitempty"`
+	State                 *string    `json:"state,omitempty"`
+	CountryCode           string     `json:"country_code"`
+	MinExperienceMonths   int        `json:"min_experience_months"`
+	MaxExperienceMonths   *int       `json:"max_experience_months,omitempty"`
+	MinSalaryAmount       *float64   `json:"min_salary_amount,omitempty"`
+	MaxSalaryAmount       *float64   `json:"max_salary_amount,omitempty"`
+	SalaryCurrency        string     `json:"salary_currency"`
+	Openings              int        `json:"openings"`
+	ApplicationDeadline   *time.Time `json:"application_deadline,omitempty"`
+	PublishedAt           *time.Time `json:"published_at,omitempty"`
 }
 
 type JobList struct {
@@ -124,14 +130,14 @@ type Dashboard struct {
 	Notifications      []Notification `json:"notifications"`
 }
 
-const jobColumns = `j.id,c.display_name,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.referral_enabled`
+const jobColumns = `j.id,c.display_name,j.title,j.department,j.description,j.employment_type::text,j.work_mode::text,j.city,j.state,j.country_code,j.min_experience_months,j.max_experience_months,j.min_salary_amount,j.max_salary_amount,j.salary_currency,j.openings,j.application_deadline,j.published_at,j.referral_enabled,j.referral_deadline::text,j.referral_reward_enabled,j.referral_terms,j.referral_eligibility`
 
 type scanner interface {
 	Scan(dest ...any) error
 }
 
-func scanJob(row scanner, job *Job) error {
-	return row.Scan(
+func scanJob(row scanner, job *Job, extra ...any) error {
+	destinations := []any{
 		&job.ID,
 		&job.CompanyName,
 		&job.Title,
@@ -150,8 +156,9 @@ func scanJob(row scanner, job *Job) error {
 		&job.Openings,
 		&job.ApplicationDeadline,
 		&job.PublishedAt,
-		&job.ReferralEnabled,
-	)
+		&job.ReferralEnabled, &job.ReferralDeadline, &job.ReferralRewardEnabled, &job.ReferralTerms, &job.ReferralEligibility,
+	}
+	return row.Scan(append(destinations, extra...)...)
 }
 
 func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, error) {
@@ -210,7 +217,7 @@ func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, er
 
 func (s *Service) Job(ctx context.Context, id string) (Job, error) {
 	var job Job
-	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+` FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.id=$1 AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job)
+	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+`,c.logo_url,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.id=$1 AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job, &job.CompanyLogoURL, &job.RequiredSkills)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Job{}, ErrNotFound
 	}

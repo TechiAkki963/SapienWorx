@@ -92,7 +92,7 @@ export function CandidateContact({
           </svg>
           <span className="truncate">{busy ? "Checking…" : label}</span>
         </button>
-        {message && <p role="status" className="mt-1 text-[10px] leading-4 text-ink-muted">{message}</p>}
+        {message && <p role="status" className="mt-1 text-[13px] leading-4 text-ink-muted">{message}</p>}
       </div>
     );
   }
@@ -103,7 +103,7 @@ export function CandidateContact({
         <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><path d="M6.5 3h3l1.2 4-1.8 1.5a15 15 0 0 0 6.6 6.6l1.5-1.8 4 1.2v3c0 1-.8 1.8-1.8 1.8C10 20.3 3.7 14 3.7 5.2 3.7 4 4.7 3h1.8Z" /></svg>
         </span>
-        <span className="min-w-0 flex-1">{busy ? "Checking access…" : "View Contact"}<span className="block text-[10px] font-normal text-[#526990]">Available only with candidate consent</span></span>
+        <span className="min-w-0 flex-1">{busy ? "Checking access…" : "View Contact"}<span className="block text-[13px] font-normal text-[#526990]">Available only with candidate consent</span></span>
         <span aria-hidden="true" className="text-lg font-normal text-[#526990]">⌄</span>
       </button>
       {message && <p role="status" className="mt-1 text-xs text-ink-muted">{message}</p>}
@@ -112,7 +112,7 @@ export function CandidateContact({
 
   return (
     <div className="rounded-xl border border-line bg-slate-50 p-2 text-sm">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">{selected === 0 ? "Primary contact" : "Alternate contact"}</p>
+      <p className="text-[13px] font-bold uppercase tracking-wider text-ink-muted">{selected === 0 ? "Primary contact" : "Alternate contact"}</p>
       <div className="mt-1 flex flex-wrap items-center gap-1">
         <button type="button" title="Double-click to copy" onDoubleClick={() => void copy()} className="mr-auto min-h-9 break-all rounded px-1 font-bold text-navy focus-visible:ring-2 focus-visible:ring-indigo">{current}</button>
         {numbers.length > 1 && (

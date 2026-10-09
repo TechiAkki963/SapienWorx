@@ -19,16 +19,20 @@ type CandidateReferralInput struct {
 }
 
 // Intentionally independent of the recruiter DTO: no identity IDs, detailed stages,
-// feedback, private profile, compensation, reward data or application IDs.
+// feedback, private profile, compensation, private reward review notes or application IDs.
 type CandidateReferralSummary struct {
-	ID            string    `json:"id"`
-	CandidateName string    `json:"candidate_name"`
-	JobID         *string   `json:"job_id,omitempty"`
-	JobTitle      *string   `json:"job_title,omitempty"`
-	CompanyName   string    `json:"company_name"`
-	Status        string    `json:"status"`
-	CreatedAt     time.Time `json:"created_at"`
-	ExpiresAt     time.Time `json:"expires_at"`
+	ID              string    `json:"id"`
+	CandidateName   string    `json:"candidate_name"`
+	JobID           *string   `json:"job_id,omitempty"`
+	JobTitle        *string   `json:"job_title,omitempty"`
+	CompanyName     string    `json:"company_name"`
+	Status          string    `json:"status"`
+	ReferralStatus  string    `json:"referral_status"`
+	HiringProgress  string    `json:"hiring_progress,omitempty"`
+	RewardProgress  string    `json:"reward_progress,omitempty"`
+	RewardProgramme bool      `json:"reward_programme"`
+	CreatedAt       time.Time `json:"created_at"`
+	ExpiresAt       time.Time `json:"expires_at"`
 }
 type CandidateReferralList struct {
 	Items []CandidateReferralSummary `json:"items"`
@@ -45,7 +49,7 @@ func (s *Service) CreateCandidateReferral(ctx context.Context, userID string, in
 	first := name[0]
 	last := strings.Join(name[1:], " ")
 	var referrer, email, company string
-	err := s.db.QueryRow(ctx, `SELECT cp.full_name,lower(u.email),j.company_id FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id JOIN jobs j ON j.id=$2 JOIN companies c ON c.id=j.company_id WHERE cp.user_id=$1 AND u.role='candidate' AND u.email_verified_at IS NOT NULL AND u.is_active AND u.status='active' AND j.status='active' AND j.visibility='public' AND j.referral_enabled AND c.verification_status='verified' AND (j.application_deadline IS NULL OR j.application_deadline>=current_date)`, userID, in.JobID).Scan(&referrer, &email, &company)
+	err := s.db.QueryRow(ctx, `SELECT cp.full_name,lower(u.email),j.company_id FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id JOIN jobs j ON j.id=$2 JOIN companies c ON c.id=j.company_id WHERE cp.user_id=$1 AND u.role='candidate' AND u.email_verified_at IS NOT NULL AND u.is_active AND u.status='active' AND j.status='active' AND j.visibility='public' AND j.referral_enabled AND c.verification_status='verified' AND (j.application_deadline IS NULL OR j.application_deadline>=current_date) AND (j.referral_deadline IS NULL OR j.referral_deadline>=current_date)`, userID, in.JobID).Scan(&referrer, &email, &company)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return CandidateReferralSummary{}, ErrNotFound
 	}
@@ -57,7 +61,10 @@ func (s *Service) CreateCandidateReferral(ctx context.Context, userID string, in
 		return CandidateReferralSummary{}, ErrInvalid
 	}
 	x, err := s.createReferralInvitation(ctx, userID, company, true, ReferralInvitationInput{FirstName: first, LastName: last, Email: recipient, Phone: in.Phone, JobID: in.JobID, ReferrerName: referrer, ReferrerEmail: email, Source: "candidate", Relationship: in.Relationship, Note: in.Note})
-	return CandidateReferralSummary{ID: x.ID, CandidateName: x.CandidateName, JobID: x.JobID, JobTitle: x.JobTitle, CompanyName: x.CompanyName, Status: x.Status, CreatedAt: x.CreatedAt, ExpiresAt: x.ExpiresAt}, err
+	if err != nil {
+		return CandidateReferralSummary{}, err
+	}
+	return scanCandidateReferral(s.db.QueryRow(ctx, candidateReferralProjection+` AND ri.id=$2`, userID, x.ID))
 }
 
 // Account linking is private. Progress is shared only after explicit acceptance or
@@ -72,12 +79,21 @@ const candidateReferralProjection = `SELECT ri.id,trim(ri.first_name||' '||ri.la
  WHEN ri.accepted_at IS NOT NULL THEN 'joined'
  WHEN ri.opened_at IS NOT NULL THEN 'viewed'
  WHEN EXISTS(SELECT 1 FROM email_outbox eo WHERE eo.dedupe_key='referral:'||ri.id::text||':'||ri.token_nonce::text AND eo.status='sent') THEN 'invitation_sent'
- ELSE 'invitation_queued' END AS status,ri.created_at,ri.expires_at
+ ELSE 'invitation_queued' END AS status,ri.created_at,ri.expires_at,
+ CASE WHEN ri.cancelled_at IS NOT NULL THEN 'invalid' WHEN ri.declined_at IS NOT NULL THEN 'declined'
+ WHEN ri.accepted_at IS NOT NULL OR ri.application_id IS NOT NULL THEN 'accepted'
+ WHEN ri.expires_at<=now() THEN 'expired' ELSE 'invited' END AS referral_status,
+ CASE WHEN ri.application_id IS NULL THEN '' WHEN a.stage='hired' THEN 'successful'
+ WHEN a.stage IN ('rejected','withdrawn') THEN 'not_proceeding'
+ WHEN a.stage::text IN ('new_application','applied') THEN 'applied' ELSE 'in_process' END AS hiring_progress,
+ CASE WHEN (NOT coalesce(j.referral_reward_enabled,false) AND ri.reward_status NOT IN ('pending','approved','paid')) OR ri.application_id IS NULL THEN ''
+ WHEN a.referral_id IS DISTINCT FROM ri.id THEN 'not_eligible' ELSE ri.reward_status END AS reward_progress,
+ (coalesce(j.referral_reward_enabled,false) OR ri.reward_status IN ('pending','approved','paid')) AS reward_programme
  FROM referral_invitations ri JOIN companies c ON c.id=ri.company_id LEFT JOIN jobs j ON j.id=ri.job_id LEFT JOIN applications a ON a.id=ri.application_id JOIN users owner ON owner.id=ri.candidate_referrer_id WHERE ri.candidate_referrer_id=$1 AND owner.role='candidate' AND owner.is_active AND owner.status='active'`
 
 func scanCandidateReferral(row pgx.Row) (CandidateReferralSummary, error) {
 	var x CandidateReferralSummary
-	err := row.Scan(&x.ID, &x.CandidateName, &x.JobID, &x.JobTitle, &x.CompanyName, &x.Status, &x.CreatedAt, &x.ExpiresAt)
+	err := row.Scan(&x.ID, &x.CandidateName, &x.JobID, &x.JobTitle, &x.CompanyName, &x.Status, &x.CreatedAt, &x.ExpiresAt, &x.ReferralStatus, &x.HiringProgress, &x.RewardProgress, &x.RewardProgramme)
 	return x, err
 }
 func (s *Service) candidateOwnedInvitation(ctx context.Context, userID, id string) (ReferralInvitation, error) {

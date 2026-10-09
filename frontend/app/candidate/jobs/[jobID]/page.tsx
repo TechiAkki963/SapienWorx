@@ -133,7 +133,10 @@ export default async function CandidateJobDetailPage({ params }: Props) {
             <div className="mt-5">
               <JobActions
                 jobId={job.id}
-                referralEnabled={job.referral_enabled===true}
+                referralEnabled={job.referral_enabled===true&&(!job.referral_deadline||job.referral_deadline>=new Date().toISOString().slice(0,10))}
+                referralRewardEnabled={job.referral_reward_enabled}
+                referralTerms={job.referral_terms}
+                referralEligibility={job.referral_eligibility}
                 jobTitle={job.title}
                 companyName={job.company_name}
                 location={jobLocation(job)}

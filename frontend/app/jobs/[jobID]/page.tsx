@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { JobActions } from "@/components/candidate/job-actions";
 import { Container } from "@/components/layout/container";
@@ -16,25 +16,33 @@ import {
   salaryLabel,
 } from "@/lib/candidate";
 import {
-  BackendResponseError,
   candidateAPI,
-  publicAPI,
 } from "@/lib/candidate-server";
+import { publicJob, publicJobOrigin } from "@/lib/public-job";
+import { jobSocialData } from "@/lib/job-social-data";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ jobID: string }> };
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { jobID } = await params;
+  const [job, origin] = await Promise.all([publicJob(jobID), publicJobOrigin()]);
+  const data = jobSocialData(job);
+  const url = `${origin}/jobs/${encodeURIComponent(job.id)}`;
+  const image = { url: `${url}/social-card`, width: 1200, height: 630, type: "image/png", alt: `${data.heading} · SapienWorx Jobs` };
+  return {
+    title: { absolute: `${data.heading} | SapienWorx` },
+    description: data.pageDescription,
+    alternates: { canonical: url },
+    openGraph: { type: "website", siteName: "SapienWorx Jobs", title: data.heading, description: data.description, url, images: [image] },
+    twitter: { card: "summary_large_image", title: data.heading, description: data.description, images: [image] },
+  };
+}
+
 export default async function JobDetailPage({ params }: Props) {
   const { jobID } = await params;
-  let job: CandidateJob;
-  try {
-    job = await publicAPI<CandidateJob>(`/api/v1/jobs/${jobID}`);
-  } catch (error) {
-    if (error instanceof BackendResponseError && error.status === 404)
-      notFound();
-    throw error;
-  }
+  const job = await publicJob(jobID);
 
   const session = await getSessionUser().catch(() => null);
   let initialSaved = false;
@@ -164,7 +172,10 @@ export default async function JobDetailPage({ params }: Props) {
                 <div className="mt-5">
                   <JobActions
                     jobId={job.id}
-                referralEnabled={job.referral_enabled===true}
+                referralEnabled={job.referral_enabled===true&&(!job.referral_deadline||job.referral_deadline>=new Date().toISOString().slice(0,10))}
+                referralRewardEnabled={job.referral_reward_enabled}
+                referralTerms={job.referral_terms}
+                referralEligibility={job.referral_eligibility}
                 jobTitle={job.title}
                 companyName={job.company_name}
                 location={jobLocation(job)}

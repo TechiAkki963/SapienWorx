@@ -28,6 +28,7 @@ var SafeExportSections = map[string]struct{}{
 	"messages":         {},
 	"consents":         {},
 	"privacy_requests": {},
+	"company_reviews":  {},
 }
 
 type Service struct{ db *pgxpool.Pool }
@@ -122,10 +123,10 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 		if _, err = tx.Exec(ctx, `UPDATE privacy_requests SET status='awaiting_review',result_manifest=jsonb_build_object('reason','role_retention_review'),completed_at=NULL WHERE id=$1`, requestID); err != nil {
 			return "", err
 		}
-		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'erasure_review',$2,'awaiting_review',jsonb_build_object('role',$3)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "erasure-review:"+requestID, role); err != nil {
+		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'erasure_review',$2,'awaiting_review',jsonb_build_object('role',$3::text)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "erasure-review:"+requestID, role); err != nil {
 			return "", err
 		}
-		if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.erasure.review_required','privacy_request',$2,'review_required',jsonb_build_object('role',$3))`, userID, requestID, role); err != nil {
+		if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.erasure.review_required','privacy_request',$2,'review_required',jsonb_build_object('role',$3::text))`, userID, requestID, role); err != nil {
 			return "", err
 		}
 		if err = tx.Commit(ctx); err != nil {
@@ -137,6 +138,9 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 	var cvKey *string
 	_ = tx.QueryRow(ctx, `SELECT cv_s3_key FROM candidate_profiles WHERE user_id=$1`, userID).Scan(&cvKey)
 
+	if _, err = tx.Exec(ctx, `UPDATE company_reviews SET moderation_status='deleted',title='[deleted]',pros='',cons='',advice='',ratings='{}',interview_details='{}',public_name=NULL,anonymous=true,job_function='',location='',period_start=NULL,period_end=NULL,recommend=NULL,outlook=NULL,verification_basis=NULL,moderation_flags='{}',edited_at=now(),revision=revision+1 WHERE author_id=$1`, userID); err != nil {
+		return "", err
+	}
 	if _, err = tx.Exec(ctx, `DELETE FROM chat_messages WHERE sender_id=$1`, userID); err != nil {
 		return "", err
 	}
@@ -151,6 +155,11 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 	}
 
 	anonymisedEmail := fmt.Sprintf("deleted+%s@erased.invalid", userID)
+	// Erasure removes verification before anonymizing the address in the same
+	// locked transaction. The verified-email mutation guard remains enforced.
+	if _, err = tx.Exec(ctx, `UPDATE users SET email_verified_at=NULL,phone_verified_at=NULL,is_active=false,status='disabled' WHERE id=$1`, userID); err != nil {
+		return "", err
+	}
 	if _, err = tx.Exec(ctx, `UPDATE users SET email=$2,password_hash='ERASED',phone_e164=NULL,email_verified_at=NULL,phone_verified_at=NULL,is_active=false,status='disabled' WHERE id=$1`, userID, anonymisedEmail); err != nil {
 		return "", err
 	}
@@ -158,7 +167,7 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 	manifest := `{"account":"anonymised","candidate_profile":"deleted","messaging":"deleted","sessions":"revoked"}`
 	status := "fulfilled"
 	if cvKey != nil && strings.TrimSpace(*cvKey) != "" {
-		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'delete_private_cv_object',$2,'pending',jsonb_build_object('object_key',$3)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "cv-delete:"+requestID, *cvKey); err != nil {
+		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'delete_private_cv_object',$2,'pending',jsonb_build_object('object_key',$3::text)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "cv-delete:"+requestID, *cvKey); err != nil {
 			return "", err
 		}
 		status = "in_progress"
@@ -175,7 +184,7 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 	if status != "fulfilled" {
 		outcome = "review_required"
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.erasure.database_completed','privacy_request',$2,$3,jsonb_build_object('status',$4,'private_object_pending',$5))`, userID, requestID, outcome, status, status != "fulfilled"); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.erasure.database_completed','privacy_request',$2,$3,jsonb_build_object('status',$4::text,'private_object_pending',$5::boolean))`, userID, requestID, outcome, status, status != "fulfilled"); err != nil {
 		return "", err
 	}
 	if err = tx.Commit(ctx); err != nil {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"html"
 	"net/url"
 	stdstrconv "strconv"
@@ -121,6 +122,13 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 	queued := 0
 	var invalidSearches error
 	for _, item := range items {
+		access, err := company.NewService(company.NewSQLStore(s.db)).RecruiterAccess(ctx, item.RecruiterID)
+		if err != nil {
+			return queued, err
+		}
+		if !access.Allows("talent.alerts") {
+			continue
+		}
 		since := item.UpdatedAt
 		if item.LastAlertedAt != nil {
 			since = *item.LastAlertedAt
@@ -155,6 +163,13 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 		}
 		tx, err := s.db.Begin(ctx)
 		if err != nil {
+			return queued, err
+		}
+		if err = company.RequireFeatureTx(ctx, tx, item.RecruiterID, "talent.alerts"); err != nil {
+			_ = tx.Rollback(ctx)
+			if errors.Is(err, company.ErrInactive) {
+				continue
+			}
 			return queued, err
 		}
 		_, err = tx.Exec(ctx, `

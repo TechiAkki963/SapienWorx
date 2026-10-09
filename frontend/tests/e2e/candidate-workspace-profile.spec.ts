@@ -383,7 +383,9 @@ for (const viewport of viewports)
       });
       if (viewport.width >= 768) {
         await expect(sidebar).toBeVisible();
-        await expect(sidebar.getByRole("link")).toHaveCount(7);
+        await expect(sidebar.getByRole("link")).toHaveCount(9);
+        await expect(sidebar.getByRole("link", { name: "Companies", exact: true })).toHaveAttribute("href", "/companies");
+        await expect(sidebar.getByRole("link", { name: "My company reviews", exact: true })).toHaveAttribute("href", "/candidate/company-reviews");
       } else
         await expect(
           page.getByRole("navigation", { name: "Candidate mobile navigation" }),

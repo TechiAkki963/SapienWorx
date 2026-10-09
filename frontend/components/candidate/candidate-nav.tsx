@@ -3,6 +3,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
+  {label:"Companies",mobile:"Companies",href:"/companies",icon:"M3 21V7l9-4 9 4v14M8 21v-6h8v6M7 8h2M15 8h2M7 11h2M15 11h2",primary:false},
+  {label:"My company reviews",mobile:"Reviews",href:"/candidate/company-reviews",icon:"M4 4h16v13H9l-5 4ZM8 8h8M8 12h5",primary:false},
   {
     label: "Overview",
     mobile: "Home",

@@ -1,0 +1,14 @@
+BEGIN;
+ALTER TABLE recruiter_saved_searches DROP COLUMN created_by_user_id;
+ALTER TABLE recruiter_talent_pools DROP COLUMN created_by_user_id;
+ALTER TABLE message_templates DROP COLUMN created_by_user_id;
+ALTER TABLE outreach_sequences DROP COLUMN created_by_user_id;
+ALTER TABLE outreach_campaigns DROP COLUMN created_by_user_id;
+DROP TABLE company_audit_events;
+DROP FUNCTION prevent_company_audit_mutation();
+DROP TABLE company_setup;
+DROP TABLE company_platform_approval_uses;
+DROP TABLE company_invitations;
+DROP TABLE company_memberships;
+ALTER TABLE chat_threads DROP COLUMN created_by_user_id;
+COMMIT;

@@ -177,7 +177,7 @@ func (s *Service) createReferralInvitation(ctx context.Context, userID, company 
 	}
 	if in.JobID != "" {
 		var owned bool
-		if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND company_id=$2 AND status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date))`, in.JobID, company).Scan(&owned); err != nil {
+		if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND company_id=$2 AND status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date) AND (referral_deadline IS NULL OR referral_deadline>=current_date))`, in.JobID, company).Scan(&owned); err != nil {
 			return ReferralInvitation{}, err
 		}
 		if !owned {
@@ -364,7 +364,7 @@ func (s *Service) InvitationLookup(ctx context.Context, token string) (ReferralI
 	hash := sha256.Sum256([]byte(token))
 	var stored []byte
 	var x ReferralInvitation
-	err = s.db.QueryRow(ctx, `SELECT ri.token_hash,ri.id,c.display_name,j.title,ri.expires_at,ri.referrer_name,ri.note,CASE WHEN j.visibility='public' AND j.status='active' AND (j.application_deadline IS NULL OR j.application_deadline>=current_date) THEN j.id ELSE NULL END FROM referral_invitations ri JOIN companies c ON c.id=ri.company_id LEFT JOIN jobs j ON j.id=ri.job_id WHERE ri.id=$1 AND ri.expires_at>now() AND ri.cancelled_at IS NULL AND ri.declined_at IS NULL`, id).Scan(&stored, &x.ID, &x.CompanyName, &x.JobTitle, &x.ExpiresAt, &x.ReferrerName, &x.Note, &x.JobID)
+	err = s.db.QueryRow(ctx, `SELECT ri.token_hash,ri.id,c.display_name,j.title,ri.expires_at,ri.referrer_name,ri.note,CASE WHEN j.visibility='public' AND j.status='active' AND (j.application_deadline IS NULL OR j.application_deadline>=current_date) AND (j.referral_deadline IS NULL OR j.referral_deadline>=current_date) THEN j.id ELSE NULL END FROM referral_invitations ri JOIN companies c ON c.id=ri.company_id LEFT JOIN jobs j ON j.id=ri.job_id WHERE ri.id=$1 AND ri.expires_at>now() AND ri.cancelled_at IS NULL AND ri.declined_at IS NULL`, id).Scan(&stored, &x.ID, &x.CompanyName, &x.JobTitle, &x.ExpiresAt, &x.ReferrerName, &x.Note, &x.JobID)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return x, err
 	}
@@ -485,7 +485,7 @@ func (s *Service) CandidateReferral(ctx context.Context, userID, token, action s
 		}
 		if x.ApplicationID == nil {
 			var active bool
-			if err = tx.QueryRow(ctx, `SELECT status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date) FROM jobs WHERE id=$1 FOR SHARE`, *x.JobID).Scan(&active); err != nil {
+			if err = tx.QueryRow(ctx, `SELECT status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date) AND (referral_deadline IS NULL OR referral_deadline>=current_date) FROM jobs WHERE id=$1 FOR SHARE`, *x.JobID).Scan(&active); err != nil {
 				return x, err
 			}
 			if !active {
@@ -590,14 +590,18 @@ func (s *Service) ReviewReferralReward(ctx context.Context, userID, id, status, 
 	defer tx.Rollback(ctx)
 	var stage string
 	var old string
-	err = tx.QueryRow(ctx, `SELECT coalesce(a.stage::text,''),ri.reward_status FROM referral_invitations ri LEFT JOIN applications a ON a.id=ri.application_id WHERE ri.id=$1 AND ri.company_id=$2 FOR UPDATE OF ri`, id, company).Scan(&stage, &old)
+	var eligible bool
+	err = tx.QueryRow(ctx, `SELECT coalesce(a.stage::text,''),ri.reward_status,
+ (ri.source<>'candidate' OR ((coalesce(j.referral_reward_enabled,false) OR ri.reward_status IN ('pending','approved','paid')) AND coalesce(a.referral_id=ri.id,false)))
+ FROM referral_invitations ri LEFT JOIN applications a ON a.id=ri.application_id LEFT JOIN jobs j ON j.id=ri.job_id
+ WHERE ri.id=$1 AND ri.company_id=$2 FOR UPDATE OF ri`, id, company).Scan(&stage, &old, &eligible)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if validEnum(status, "pending", "approved", "paid") && stage != "hired" {
+	if validEnum(status, "pending", "approved", "paid") && (stage != "hired" || !eligible) {
 		return ErrInvalid
 	}
 	if validEnum(status, "approved", "paid") && (!confirmed || strings.TrimSpace(note) == "" || status == "paid" && old != "approved") {

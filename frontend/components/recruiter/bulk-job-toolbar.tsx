@@ -108,7 +108,7 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
 
   if (!selected.length && !result && !error) return null;
   return (
-    <section aria-label="Bulk job actions" className="rounded-2xl border border-line/70 bg-white p-3.5 shadow-[0_4px_20px_rgba(16,33,63,0.03)] sm:p-4">
+    <section aria-label="Bulk job actions" className="min-w-0 rounded-2xl border border-line/70 bg-white p-3.5 shadow-[0_4px_20px_rgba(16,33,63,0.03)] sm:p-4">
       <div className="flex flex-wrap items-center gap-2.5">
         <button
           type="button"
@@ -124,14 +124,14 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
 
         {selected.length > 0 && (
           <div className="flex w-full flex-wrap items-end gap-2 sm:w-auto">
-            <label className="grid min-w-[9rem] flex-1 gap-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:flex-none">
+            <label className="grid min-w-0 flex-1 basis-full gap-1 text-[13px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:min-w-[9rem] sm:flex-none sm:basis-auto">
               Action
               <select
                 aria-label="Bulk action"
                 value={action}
                 disabled={busy}
                 onChange={(event) => { setAction(event.target.value as BulkAction); setConfirming(false); setResult(null); setError(""); }}
-                className="min-h-10 rounded-xl border border-line bg-white px-3 text-sm font-semibold normal-case tracking-normal text-ink outline-none focus:border-indigo/40"
+                className="min-h-10 w-full min-w-0 max-w-full rounded-xl border border-line bg-white px-3 text-sm font-semibold normal-case tracking-normal text-ink outline-none focus:border-indigo/40"
               >
                 <option value="">Choose action</option>
                 <option value="pause">Pause</option>
@@ -142,14 +142,14 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
             </label>
 
             {action === "reassign" && (
-              <label className="grid min-w-[12rem] flex-1 gap-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:flex-none">
+              <label className="grid min-w-0 flex-1 basis-full gap-1 text-[13px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:min-w-[12rem] sm:flex-none sm:basis-auto">
                 Recruiter
                 <select
                   aria-label="Assign recruiter"
                   value={assignee}
                   disabled={busy}
                   onChange={(event) => { setAssignee(event.target.value); setConfirming(false); }}
-                  className="min-h-10 rounded-xl border border-line bg-white px-3 text-sm font-semibold normal-case tracking-normal text-ink outline-none focus:border-indigo/40"
+                  className="min-h-10 w-full min-w-0 max-w-full rounded-xl border border-line bg-white px-3 text-sm font-semibold normal-case tracking-normal text-ink outline-none focus:border-indigo/40"
                 >
                   <option value="">Choose recruiter</option>
                   {team.map((member) => <option key={member.user_id} value={member.user_id}>{member.full_name}{member.designation ? ` · ${member.designation}` : ""}</option>)}

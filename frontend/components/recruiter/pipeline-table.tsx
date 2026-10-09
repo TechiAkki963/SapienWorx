@@ -47,7 +47,7 @@ export function PipelineTable({ rows, compact = false }: { rows: PipelineRow[]; 
   return (
     <div className="overflow-x-auto rounded-2xl border border-line/70 bg-white shadow-[0_1px_2px_rgba(16,33,63,0.03)]">
       <table className={`${compact ? "min-w-[760px]" : "min-w-[1080px]"} w-full border-collapse text-left text-sm`}>
-        <thead className="border-b border-line/70 bg-slate-50/80 text-[10px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">
+        <thead className="border-b border-line/70 bg-slate-50/80 text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">
           <tr>
             <th className="px-4 py-3">Candidate</th>
             <th className="px-3 py-3">Job</th>

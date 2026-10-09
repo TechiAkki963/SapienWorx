@@ -61,6 +61,7 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 		WHERE cp.user_id=$1
 		  AND (
 		    EXISTS (SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=cp.user_id AND j.company_id=$2)
+				    OR EXISTS(SELECT 1 FROM chat_threads t JOIN recruiter_profiles participant ON participant.user_id=t.recruiter_id WHERE t.candidate_id=cp.user_id AND participant.company_id=$2 AND EXISTS(SELECT 1 FROM chat_messages message WHERE message.thread_id=t.id))
 				    OR `+candidateDiscoverablePredicate+`
 		  )
 	`, candidateUserID, companyID, recruiterUserID).Scan(

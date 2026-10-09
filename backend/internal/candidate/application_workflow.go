@@ -23,6 +23,7 @@ type Interview struct {
 	Status          string    `json:"status"`
 	RoundLabel      string    `json:"round_label"`
 	TimeZone        string    `json:"time_zone"`
+	Location        string    `json:"location"`
 	Mode            string    `json:"mode"`
 	Rescheduled     bool      `json:"rescheduled"`
 }
@@ -60,7 +61,7 @@ func (s *Service) WithdrawApplication(ctx context.Context, userID, applicationID
 }
 
 func (s *Service) InterviewsForCandidate(ctx context.Context, userID string) ([]Interview, error) {
-	rows, err := s.db.Query(ctx, `SELECT i.id,i.application_id,j.id,j.title,c.display_name,i.scheduled_at,i.duration_minutes,i.meeting_url,i.status::text,i.round_label,EXISTS(SELECT 1 FROM interview_change_audit a2 WHERE a2.interview_id=i.id AND a2.action='reschedule') FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id JOIN companies c ON c.id=j.company_id WHERE a.candidate_id=$1 ORDER BY CASE WHEN i.status='scheduled' AND i.scheduled_at>=now() THEN 0 ELSE 1 END,i.scheduled_at ASC`, userID)
+	rows, err := s.db.Query(ctx, `SELECT i.id,i.application_id,j.id,j.title,c.display_name,i.scheduled_at,i.duration_minutes,i.meeting_url,i.status::text,i.round_label,i.timezone,i.format,i.location,EXISTS(SELECT 1 FROM interview_change_audit a2 WHERE a2.interview_id=i.id AND a2.action='reschedule') FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id JOIN companies c ON c.id=j.company_id WHERE a.candidate_id=$1 ORDER BY CASE WHEN i.status='scheduled' AND i.scheduled_at>=now() THEN 0 ELSE 1 END,i.scheduled_at ASC`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +69,9 @@ func (s *Service) InterviewsForCandidate(ctx context.Context, userID string) ([]
 	items := make([]Interview, 0)
 	for rows.Next() {
 		var item Interview
-		if err := rows.Scan(&item.ID, &item.ApplicationID, &item.JobID, &item.JobTitle, &item.CompanyName, &item.ScheduledAt, &item.DurationMinutes, &item.MeetingURL, &item.Status, &item.RoundLabel, &item.Rescheduled); err != nil {
+		if err := rows.Scan(&item.ID, &item.ApplicationID, &item.JobID, &item.JobTitle, &item.CompanyName, &item.ScheduledAt, &item.DurationMinutes, &item.MeetingURL, &item.Status, &item.RoundLabel, &item.TimeZone, &item.Mode, &item.Location, &item.Rescheduled); err != nil {
 			return nil, err
 		}
-		item.TimeZone = "UTC"
-		item.Mode = "online" // Existing schema supports manually supplied online meeting URLs only.
 		items = append(items, item)
 	}
 	return items, rows.Err()

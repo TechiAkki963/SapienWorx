@@ -15,3 +15,7 @@ SapienWorx has verified `sapienworx.com` and successful DKIM in Mumbai. The acco
 9. Submit and monitor the Support Center case. Respond there if AWS asks for further detail.
 
 AWS decides whether to approve and may request more evidence. Verification of the domain and DKIM does not guarantee production access. Until approval, SES can send only within sandbox restrictions; do not open public registration while expecting delivery to arbitrary addresses.
+
+## Sandbox acceptance testing
+
+While the account remains sandboxed, send controlled transactional tests only to recipient addresses that are separately verified as SES identities in `ap-south-1`. Do not attempt candidate verification, OTP, password-reset, or acknowledgement tests against arbitrary unverified addresses. A successful verified-recipient sandbox test proves application integration only; it does not replace production-access approval or prove public delivery readiness.

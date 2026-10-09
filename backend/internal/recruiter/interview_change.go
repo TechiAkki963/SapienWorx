@@ -71,11 +71,14 @@ func (s *Service) ChangeInterview(ctx context.Context, userID, interviewID strin
 		return err
 	}
 	defer tx.Rollback(ctx)
+	if err := lockInterviewCompany(ctx, tx, companyID); err != nil {
+		return err
+	}
 
-	var status, candidateID, jobTitle, previousRound string
+	var status, candidateID, jobTitle, previousRound, format string
 	var previousScheduledAt time.Time
 	var previousDuration int
-	err = tx.QueryRow(ctx, `SELECT i.status,a.candidate_id,j.title,i.scheduled_at,i.duration_minutes,i.round_label FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id WHERE i.id=$1 AND j.company_id=$2 FOR UPDATE OF i`, interviewID, companyID).Scan(&status, &candidateID, &jobTitle, &previousScheduledAt, &previousDuration, &previousRound)
+	err = tx.QueryRow(ctx, `SELECT i.status,a.candidate_id,j.title,i.scheduled_at,i.duration_minutes,i.round_label,i.format FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id WHERE i.id=$1 AND j.company_id=$2 FOR UPDATE OF i`, interviewID, companyID).Scan(&status, &candidateID, &jobTitle, &previousScheduledAt, &previousDuration, &previousRound, &format)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
@@ -94,13 +97,34 @@ func (s *Service) ChangeInterview(ctx context.Context, userID, interviewID strin
 		}
 		meetingURL := strings.TrimSpace(in.MeetingURL)
 		u, parseErr := url.ParseRequestURI(meetingURL)
-		if parseErr != nil || !validEnum(u.Scheme, "http", "https") || u.Host == "" {
+		if (format == "video" || meetingURL != "") && (parseErr != nil || !validEnum(u.Scheme, "http", "https") || u.Host == "" || u.User != nil) {
 			return ErrInvalid
 		}
 		in.RoundLabel = strings.TrimSpace(in.RoundLabel)
 		if in.RoundLabel == "" || len(in.RoundLabel) > 120 {
 			return ErrInvalid
 		}
+		panel := []string{}
+		panelRows, e := tx.Query(ctx, `SELECT recruiter_id FROM interview_panel WHERE interview_id=$1 AND response<>'declined' ORDER BY recruiter_id`, interviewID)
+		if e != nil {
+			return e
+		}
+		for panelRows.Next() {
+			var id string
+			if e := panelRows.Scan(&id); e != nil {
+				panelRows.Close()
+				return e
+			}
+			panel = append(panel, id)
+		}
+		panelRows.Close()
+		if err := panelRows.Err(); err != nil {
+			return err
+		}
+		if err := checkInterviewConflicts(ctx, tx, candidateID, interviewID, panel, in.ScheduledAt, in.DurationMinutes); err != nil {
+			return err
+		}
+
 		_, err = tx.Exec(ctx, `UPDATE interviews SET scheduled_at=$2,duration_minutes=$3,meeting_url=$4,round_label=$5,notes=NULLIF($6,'') WHERE id=$1`, interviewID, in.ScheduledAt, in.DurationMinutes, meetingURL, in.RoundLabel, strings.TrimSpace(in.Notes))
 		if err != nil {
 			return err

@@ -31,7 +31,7 @@ func (s *Service) WorkspaceSavedJobs(ctx context.Context, userID string) ([]Save
 	items := []SavedWorkspaceJob{}
 	for rows.Next() {
 		var v SavedWorkspaceJob
-		err = rows.Scan(&v.ID, &v.CompanyName, &v.Title, &v.Department, &v.Description, &v.EmploymentType, &v.WorkMode, &v.City, &v.State, &v.CountryCode, &v.MinExperienceMonths, &v.MaxExperienceMonths, &v.MinSalaryAmount, &v.MaxSalaryAmount, &v.SalaryCurrency, &v.Openings, &v.ApplicationDeadline, &v.PublishedAt, &v.ReferralEnabled, &v.Status, &v.SavedAt, &v.AcceptingApplications)
+		err = rows.Scan(&v.ID, &v.CompanyName, &v.Title, &v.Department, &v.Description, &v.EmploymentType, &v.WorkMode, &v.City, &v.State, &v.CountryCode, &v.MinExperienceMonths, &v.MaxExperienceMonths, &v.MinSalaryAmount, &v.MaxSalaryAmount, &v.SalaryCurrency, &v.Openings, &v.ApplicationDeadline, &v.PublishedAt, &v.ReferralEnabled, &v.ReferralDeadline, &v.ReferralRewardEnabled, &v.ReferralTerms, &v.ReferralEligibility, &v.Status, &v.SavedAt, &v.AcceptingApplications)
 		if err != nil {
 			return nil, err
 		}

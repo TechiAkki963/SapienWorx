@@ -1,4 +1,4 @@
-FROM golang:1.26-alpine AS accounts
+FROM golang:1.26.9-alpine AS accounts
 WORKDIR /src
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download

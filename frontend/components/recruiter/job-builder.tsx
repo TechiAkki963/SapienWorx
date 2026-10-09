@@ -30,6 +30,10 @@ type BuilderState = {
   education_requirements: string;
   screening_questions: string;
   referral_enabled: boolean;
+  referral_deadline?: string | null;
+  referral_reward_enabled?: boolean;
+  referral_terms?: string;
+  referral_eligibility?: string;
   visibility: "public" | "private";
   internal_notes: string;
   assigned_recruiter_id: string;
@@ -56,6 +60,7 @@ const initialState: BuilderState = {
   education_requirements: "",
   screening_questions: "",
   referral_enabled: false,
+  referral_deadline: "",referral_reward_enabled:false,referral_terms:"",referral_eligibility:"",
   visibility: "public",
   internal_notes: "",
   assigned_recruiter_id: "",
@@ -182,10 +187,10 @@ function CandidatePreview({
         <div className="border-b border-line/60 px-5 py-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Candidate-facing preview</p>
+              <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Candidate-facing preview</p>
               <h2 className="mt-1 text-lg font-bold text-navy">Published story</h2>
             </div>
-            <span className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] ${state.visibility === "public" ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-700"}`}>
+            <span className={`rounded-full px-2.5 py-1 text-[13px] font-extrabold uppercase tracking-[0.08em] ${state.visibility === "public" ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-700"}`}>
               {state.visibility}
             </span>
           </div>
@@ -199,18 +204,18 @@ function CandidatePreview({
           <div className="rounded-2xl border border-blue-100 bg-[#f8fbff] p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy text-sm font-extrabold text-white">{companyName.trim().charAt(0).toUpperCase() || "S"}</div>
-              <div><p className="text-xs font-bold text-ink">{companyName}</p><p className="text-[10px] font-semibold text-ink-muted">Verified employer</p></div>
+              <div><p className="text-xs font-bold text-ink">{companyName}</p><p className="text-[13px] font-semibold text-ink-muted">Verified employer</p></div>
             </div>
             <h3 className="mt-5 text-xl font-bold tracking-[-0.035em] text-navy">{state.title || "Your job title"}</h3>
             <p className="mt-1 text-xs text-ink-muted">{state.department || "Department or team"}</p>
-            <div className="mt-4 flex flex-wrap gap-1.5 text-[10px] font-bold text-ink-muted">
+            <div className="mt-4 flex flex-wrap gap-1.5 text-[13px] font-bold text-ink-muted">
               {state.min_experience_years && <span>{state.min_experience_years}{state.max_experience_years ? `–${state.max_experience_years}` : "+"} years</span>}
               <span>· {label(state.work_mode)}</span><span>· {label(state.employment_type)}</span>{state.location && <span>· {state.location}</span>}
             </div>
-            {skills.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{skills.slice(0, 5).map((skill) => <span key={skill} className="rounded-md bg-blue-100/70 px-2 py-1 text-[10px] font-bold text-blue-800">{skill}</span>)}</div>}
+            {skills.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{skills.slice(0, 5).map((skill) => <span key={skill} className="rounded-md bg-blue-100/70 px-2 py-1 text-[13px] font-bold text-blue-800">{skill}</span>)}</div>}
             <p className="mt-4 line-clamp-5 text-xs leading-5 text-ink-muted">{state.description || "Your role summary will appear here as you write it."}</p>
-            {process.length > 0 && <div className="mt-5 border-t border-line/60 pt-4"><p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Hiring process</p><ol className="mt-3 grid gap-2">{process.map((item, index) => <li key={`${item}-${index}`} className="flex items-start gap-2 text-[11px] font-semibold text-ink"><span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9px] font-extrabold text-blue-700">{index + 1}</span><span>{item}</span></li>)}</ol></div>}
-            <div className="mt-5 flex items-center justify-between border-t border-line/60 pt-3 text-[9px] font-semibold text-ink-muted"><span>SapienWorx verified role</span><span className="text-indigo">View job →</span></div>
+            {process.length > 0 && <div className="mt-5 border-t border-line/60 pt-4"><p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Hiring process</p><ol className="mt-3 grid gap-2">{process.map((item, index) => <li key={`${item}-${index}`} className="flex items-start gap-2 text-[11px] font-semibold text-ink"><span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[12px] font-extrabold text-blue-700">{index + 1}</span><span>{item}</span></li>)}</ol></div>}
+            <div className="mt-5 flex items-center justify-between border-t border-line/60 pt-3 text-[12px] font-semibold text-ink-muted"><span>SapienWorx verified role</span><span className="text-indigo">View job →</span></div>
           </div>
           <p className="mt-3 text-xs leading-5 text-ink-muted">Internal compensation, recruiter assignment and internal notes are never shown to candidates.</p>
         </div>
@@ -242,6 +247,7 @@ function stateFromJob(job?: EditableRecruiterJob): BuilderState {
     education_requirements: job.education_requirements.join("\n"),
     screening_questions: job.screening_questions.join("\n"),
     referral_enabled: job.referral_enabled,
+    referral_deadline:job.referral_deadline??"",referral_reward_enabled:job.referral_reward_enabled??false,referral_terms:job.referral_terms??"",referral_eligibility:job.referral_eligibility??"",
     visibility: job.visibility,
     internal_notes: job.internal_notes,
     assigned_recruiter_id: job.assigned_recruiter_id ?? "",
@@ -309,6 +315,7 @@ export function JobBuilder({
         : "Save your edits here, then use the governed status control in Job Management to reopen this role.");
       return;
     }
+    if(state.referral_reward_enabled&&(!state.referral_terms?.trim()||!state.referral_eligibility?.trim())){setStep(5);setError("Add the employer’s eligibility rules and referral terms before enabling rewards.");return;}
     setBusy(publish ? "publish" : "draft");
     try {
       await apiRequest<RecruiterJob | void>(job ? `/api/v1/recruiter/jobs/${job.id}` : "/api/v1/recruiter/jobs/builder", {
@@ -335,6 +342,7 @@ export function JobBuilder({
           education_requirements: lines(state.education_requirements),
           screening_questions: lines(state.screening_questions),
           referral_enabled: state.referral_enabled,
+          referral_deadline:state.referral_deadline||null,referral_reward_enabled:state.referral_reward_enabled??false,referral_terms:state.referral_terms??"",referral_eligibility:state.referral_eligibility??"",
           visibility: state.visibility,
           internal_notes: state.internal_notes,
           assigned_recruiter_id: state.assigned_recruiter_id || null,
@@ -376,7 +384,7 @@ export function JobBuilder({
 
       <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
         <section className="min-w-0 rounded-2xl border border-line/70 bg-white shadow-[0_1px_2px_rgba(16,33,63,0.03)]">
-          <div className="border-b border-line/60 px-5 py-4 sm:px-6"><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Step {step} of 5</p><h2 ref={stepRef} tabIndex={-1} className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">{steps[step - 1].title}</h2></div>
+          <div className="border-b border-line/60 px-5 py-4 sm:px-6"><p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Step {step} of 5</p><h2 ref={stepRef} tabIndex={-1} className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">{steps[step - 1].title}</h2></div>
           <div className="p-5 sm:p-6">
             {step === 1 && <div className="grid gap-5">
               <Input label="Job title" value={state.title} onChange={(event) => update("title", event.target.value)} placeholder="e.g. Critical Care Nurse" required error={error.startsWith("Add a job title") ? error : undefined} />
@@ -418,7 +426,7 @@ export function JobBuilder({
                 </label>
               <TextareaField labelText="Hiring process" value={state.hiring_process} onChange={(value) => update("hiring_process", value)} placeholder={"Application review\nRecruiter conversation\nRole-focused conversation\nFinal decision"} rows={6} hint="Enter one stage per line. Use three to six stages so candidates know what to expect." />
               <div className="rounded-xl border border-amber-100 bg-amber-50/45 p-4">
-                <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-bold text-navy">Internal compensation range</h3><span className="rounded-full bg-white px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-amber-700">Private</span></div>
+                <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-bold text-navy">Internal compensation range</h3><span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-extrabold uppercase tracking-[0.08em] text-amber-700">Private</span></div>
                 <div className="mt-3 grid gap-4 sm:grid-cols-2"><Input label="Minimum salary in lakhs" type="number" min="0" step="0.1" value={state.min_salary_lakhs} onChange={(event) => update("min_salary_lakhs", event.target.value)} placeholder="e.g. 12" /><Input label="Maximum salary in lakhs" type="number" min="0" step="0.1" value={state.max_salary_lakhs} onChange={(event) => update("max_salary_lakhs", event.target.value)} placeholder="e.g. 18" /></div>
                 <p className="mt-3 text-xs leading-5 text-ink-muted">Used for matching and internal reporting. It is never shown in the candidate-facing preview.</p>
               </div>
@@ -441,6 +449,7 @@ export function JobBuilder({
                   <span><span className="block">Enable referrals</span><span className="mt-1 block text-xs font-normal leading-5 text-ink-muted">Allow this vacancy to participate in SapienWorx referral workflows.</span></span>
                 </label>
               </div>
+              {state.referral_enabled&&<fieldset className="grid gap-4 rounded-xl border border-line p-4"><legend className="px-1 text-base font-semibold text-navy">Candidate referrals</legend><label className="grid gap-2 text-sm font-semibold">Referral closing date (optional)<input type="date" value={state.referral_deadline??""} onChange={e=>update("referral_deadline",e.target.value)} className={fieldClass}/></label><p className="text-sm leading-6 text-ink-muted">Attribution policy: first valid referral wins. Existing applications are preserved; later recommendations require the candidate’s consent and never replace attribution.</p><label className="flex min-h-11 items-center gap-3 text-sm font-semibold"><input type="checkbox" checked={state.referral_reward_enabled??false} onChange={e=>update("referral_reward_enabled",e.target.checked)}/>This job has an employer referral reward programme</label><label className="grid gap-2 text-sm font-semibold">Eligibility rules{state.referral_reward_enabled?" (required for rewards)":" (optional)"}<textarea required={state.referral_reward_enabled??false} rows={3} maxLength={2000} value={state.referral_eligibility??""} onChange={e=>update("referral_eligibility",e.target.value)} className={fieldClass}/></label><label className="grid gap-2 text-sm font-semibold">Referral terms{state.referral_reward_enabled?" (required for rewards)":" (optional)"}<textarea required={state.referral_reward_enabled??false} rows={3} maxLength={4000} value={state.referral_terms??""} onChange={e=>update("referral_terms",e.target.value)} className={fieldClass}/></label><p className="text-sm leading-6 text-ink-muted">Programme terms are shown to candidates. Submission does not promise a reward or initiate payment. Invitations use the existing verified email flow.</p></fieldset>}
               <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Role</p><p className="mt-1 font-bold text-ink">{state.title || "Untitled role"}</p><p className="mt-1 text-xs text-ink-muted">{state.department || "No team set"} · {label(state.work_mode)}</p></div>
                 <div className="rounded-xl border border-line p-4"><p className="text-xs font-bold text-ink-muted">Requirements</p><p className="mt-1 font-bold text-ink">{skills.length} competenc{skills.length === 1 ? "y" : "ies"}</p><p className="mt-1 text-xs text-ink-muted">{lines(state.screening_questions).length} screening question{lines(state.screening_questions).length === 1 ? "" : "s"} · {state.visibility}</p></div>

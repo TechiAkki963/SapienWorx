@@ -47,7 +47,7 @@ function CVControls({ row }: { row: PipelineRow }) {
     }
   }
   return <div className="grid gap-2 rounded-xl border border-line/70 bg-slate-50/45 p-3">
-    <div className="flex min-w-0 items-center gap-2"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600"><CardIcon name="file" /></span><div className="min-w-0"><p className="text-[10px] font-bold uppercase tracking-[0.08em] text-ink-muted">CV / Resume</p><p className="truncate text-xs font-semibold text-navy" title={row.cv_filename}>{row.cv_filename || "No resume uploaded"}</p></div></div>
+    <div className="flex min-w-0 items-center gap-2"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600"><CardIcon name="file" /></span><div className="min-w-0"><p className="text-[13px] font-bold uppercase tracking-[0.08em] text-ink-muted">CV / Resume</p><p className="truncate text-xs font-semibold text-navy" title={row.cv_filename}>{row.cv_filename || "No resume uploaded"}</p></div></div>
     {row.cv_filename && <div className="grid grid-cols-2 gap-2"><button type="button" onClick={() => void open("view")} disabled={busy} className="inline-flex min-h-9 items-center justify-center gap-1 rounded-lg border border-blue-200 bg-white px-2 text-xs font-bold text-blue-700"><CardIcon name="eye" />View</button><button type="button" onClick={() => void open("download")} disabled={busy} className="inline-flex min-h-9 items-center justify-center gap-1 rounded-lg border border-blue-200 bg-white px-2 text-xs font-bold text-blue-700"><CardIcon name="download" />Download</button></div>}
     {error && <p role="alert" className="text-xs text-rose-700">{error}</p>}
   </div>;

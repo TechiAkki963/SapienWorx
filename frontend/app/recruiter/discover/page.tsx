@@ -1,3 +1,4 @@
+import {talentAccess,TalentAccessNotice} from "@/components/company/talent-access";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
 import { DiscoverTalentWorkspace } from "@/components/recruiter/discover-talent-workspace";
 import { requireRole } from "@/lib/auth-server";
@@ -8,6 +9,7 @@ import type { DiscoveryResults, DiscoveryValues, SearchRecord } from "@/lib/disc
 export const dynamic = "force-dynamic";
 export default async function DiscoverTalentPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await requireRole("recruiter");
+  const access=await talentAccess();if(!access.allowed)return <RecruiterShell><TalentAccessNotice owner={access.owner}/></RecruiterShell>;
   const params = await searchParams;
   const [savedResult, recentResult, workspaceResult] = await Promise.allSettled([
     recruiterAPI<{ items: SearchRecord[] }>("/api/v1/recruiter/saved-searches"),

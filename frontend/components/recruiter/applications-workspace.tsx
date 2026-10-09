@@ -2,6 +2,7 @@ import { AutoFilterForm } from "./auto-filter-form";
 import { FilterDrawer } from "./filter-drawer";
 import Link from "next/link";
 import { JobContext } from "./job-context";
+import { RecruiterProductHeader } from "./recruiter-product-header";
 import { ownedRecruiterJob } from "@/lib/recruiter-job-server";
 
 import { ApplicationFilters, applicationFilterNames, ApplicationFilterValues, selectedStages, single } from "@/components/recruiter/application-filters";
@@ -74,10 +75,8 @@ export async function ApplicationsWorkspace({ searchParams, fixedJobID }: { sear
     {ownedJob && <JobContext job={ownedJob} active="Applications"/>}
     {!ownedJob && <div>
       {fixedJobID && <Link href="/recruiter/jobs" className="text-xs font-bold text-indigo hover:underline">← Job management</Link>}
-      <p className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-indigo">{fixedJobID ? "Job applications" : "Applicant management"}</p>
-      <h1 className="mt-1 text-2xl font-bold tracking-[-0.035em] sm:text-3xl">{selectedJob ? fixedJobID ? selectedJob.title : `${selectedJob.title} applications` : "Applications"}</h1>
+      <RecruiterProductHeader eyebrow={fixedJobID ? "Job applications" : "Applicant management"} title={selectedJob ? fixedJobID ? selectedJob.title : `${selectedJob.title} applications` : "Applications"} description="Review applicants, manage stages and coordinate hiring from one place." />
       {selectedJob && <p className="mt-1 text-sm font-bold text-indigo">Job ID: {selectedJob.job_reference}</p>}
-      <p className="mt-1 text-sm text-ink-muted">Review applicants, manage stages and coordinate hiring from one place.</p>
     </div>}
     <div className="flex min-w-0 flex-wrap items-end gap-2"><AutoFilterForm action={baseHref} label="Quick application filters" className="flex min-w-0 flex-1 flex-wrap items-end gap-2">
       {applicationFilterNames.filter(name=>!["q","job_id","location","max_notice_days","sort"].includes(name)).flatMap(name=>{const value=params[name];return (Array.isArray(value)?value:value?[value]:[]).map((v,i)=><input type="hidden" key={`${name}-${i}`} name={name} value={v}/>);})}

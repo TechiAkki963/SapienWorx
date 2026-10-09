@@ -59,9 +59,10 @@ test("organization filters and recruiter drill-down retain organization scope", 
   await login(page); await page.getByRole("link", { name: "Organizations", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Organization governance" })).toBeVisible();
   await expect(page.getByRole("note").filter({ hasText: "Verification is not" })).toBeVisible();
-  await page.getByLabel("Search organizations", { exact: true }).fill("Acme");
-  await page.getByLabel("Country code", { exact: true }).fill("IN");
-  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
+  const filters = page.getByRole("form", { name: "Filter organizations", exact: true });
+  await filters.getByLabel("Search organizations", { exact: true }).fill("Acme");
+  await filters.getByLabel("Country code", { exact: true }).fill("IN");
+  await filters.getByRole("button", { name: "Apply filters", exact: true }).click();
   await page.getByRole("link", { name: "View associated recruiters →" }).click();
   await expect(page).toHaveURL(/users\?.*company_id=/);
   expect(new URL(page.url()).searchParams.get("company_id")).toBe(company);

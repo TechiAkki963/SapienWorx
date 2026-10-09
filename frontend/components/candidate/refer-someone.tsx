@@ -7,7 +7,7 @@ import {CandidateReferralSummary} from "@/lib/candidate-referrals";
 import {WorkspaceDialog} from "./workspace-dialog";
 import "./candidate-workspace.css";
 const input="min-h-11 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm font-normal text-ink focus:border-indigo focus:outline-none focus:ring-2 focus:ring-indigo/20";
-export function ReferSomeone({jobId,title,company,location}:{jobId:string;title:string;company:string;location?:string}){
+export function ReferSomeone({jobId,title,company,location,terms="",eligibility="",rewardEnabled=false}:{jobId:string;title:string;company:string;location?:string;terms?:string;eligibility?:string;rewardEnabled?:boolean}){
  const[open,setOpen]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(""),[created,setCreated]=useState<CandidateReferralSummary|null>(null);
  const formID=useId(),pending=useRef(false);
  async function submit(e:FormEvent<HTMLFormElement>){
@@ -26,7 +26,8 @@ export function ReferSomeone({jobId,title,company,location}:{jobId:string;title:
  <label className="grid gap-2 text-sm font-semibold text-ink">Phone (optional)<input autoComplete="off" type="tel" name="phone" pattern="\+[1-9][0-9]{6,14}" maxLength={16} placeholder="+91…" className={input}/></label>
  <label className="grid gap-2 text-sm font-semibold text-ink">Relationship (optional)<select name="relationship" className={input}><option value="">Select relationship</option>{["Former colleague","Colleague","Friend","Classmate","Family","Other"].map(v=><option key={v}>{v}</option>)}</select></label>
  <label className="grid gap-2 text-sm font-semibold text-ink">Personal message (optional)<textarea name="note" rows={3} maxLength={2000} className={input} placeholder="I thought this opportunity might suit you…"/></label>
- <label className="flex items-start gap-3 text-sm leading-6 text-ink"><input required type="checkbox" name="knows_person" className="mt-1 h-5 w-5 shrink-0 accent-indigo"/>I confirm that I know this person and am comfortable sending them this invitation.</label>
+ {(terms||eligibility)&&<details className="rounded-xl border border-line px-3"><summary className="min-h-11 cursor-pointer content-center text-sm font-semibold text-navy">Referral {rewardEnabled?"programme ":""}terms</summary>{eligibility&&<div className="py-3"><h4 className="text-sm font-semibold text-ink">Eligibility</h4><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink-muted">{eligibility}</p></div>}{terms&&<p className="whitespace-pre-wrap pb-3 text-sm leading-6 text-ink-muted">{terms}</p>}{rewardEnabled&&<p className="pb-3 text-sm leading-6 text-ink-muted">Rewards require a successful placement and employer review. This invitation does not promise money.</p>}</details>}
+ <label className="flex items-start gap-3 text-sm leading-6 text-ink"><input required type="checkbox" name="knows_person" className="mt-1 h-5 w-5 shrink-0 accent-indigo"/>I confirm I have permission to share these contact details for this referral.</label>
  {error&&<p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-ink">{error}</p>}
  </form>}
  </WorkspaceDialog>}</>

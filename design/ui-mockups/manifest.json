@@ -1,0 +1,1392 @@
+[
+  {
+    "source": "master-admin/admin-access-preview-1024.png",
+    "output": "master-admin/admin-access-preview-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "access",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-access-preview-1440.png",
+    "output": "master-admin/admin-access-preview-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "access",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-access-preview-320.png",
+    "output": "master-admin/admin-access-preview-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "access",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-access-preview-390.png",
+    "output": "master-admin/admin-access-preview-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "access",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-access-preview-768.png",
+    "output": "master-admin/admin-access-preview-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "access",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-account-summary-1440.png",
+    "output": "master-admin/admin-account-summary-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "account",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-account-summary-375.png",
+    "output": "master-admin/admin-account-summary-375.png",
+    "width": 375,
+    "height": 844,
+    "role": "admin",
+    "screen": "account",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-account-summary-768.png",
+    "output": "master-admin/admin-account-summary-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "account",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-applications-1440.png",
+    "output": "master-admin/admin-applications-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "applications",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-applications-375.png",
+    "output": "master-admin/admin-applications-375.png",
+    "width": 375,
+    "height": 844,
+    "role": "admin",
+    "screen": "applications",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-applications-768.png",
+    "output": "master-admin/admin-applications-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "applications",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-dashboard-1024.png",
+    "output": "master-admin/admin-dashboard-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "dashboard",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-dashboard-1440.png",
+    "output": "master-admin/admin-dashboard-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "dashboard",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-dashboard-320.png",
+    "output": "master-admin/admin-dashboard-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "dashboard",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-dashboard-390.png",
+    "output": "master-admin/admin-dashboard-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "dashboard",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-dashboard-768.png",
+    "output": "master-admin/admin-dashboard-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "dashboard",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-gateway-dog-1024.png",
+    "output": "master-admin/admin-gateway-dog-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "login",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-gateway-dog-1440.png",
+    "output": "master-admin/admin-gateway-dog-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "login",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-gateway-dog-320.png",
+    "output": "master-admin/admin-gateway-dog-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "login",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-gateway-dog-390.png",
+    "output": "master-admin/admin-gateway-dog-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "login",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-gateway-dog-768.png",
+    "output": "master-admin/admin-gateway-dog-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "login",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-organizations-1024.png",
+    "output": "master-admin/admin-governance-organizations-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "organizations",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-organizations-1440.png",
+    "output": "master-admin/admin-governance-organizations-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "organizations",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-organizations-320.png",
+    "output": "master-admin/admin-governance-organizations-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "organizations",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-organizations-390.png",
+    "output": "master-admin/admin-governance-organizations-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "organizations",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-organizations-768.png",
+    "output": "master-admin/admin-governance-organizations-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "organizations",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-users-1024.png",
+    "output": "master-admin/admin-governance-users-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "users",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-users-1440.png",
+    "output": "master-admin/admin-governance-users-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "users",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-users-320.png",
+    "output": "master-admin/admin-governance-users-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "users",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-users-390.png",
+    "output": "master-admin/admin-governance-users-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "users",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-governance-users-768.png",
+    "output": "master-admin/admin-governance-users-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "users",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-intelligence-1024.png",
+    "output": "master-admin/admin-intelligence-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "intelligence",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-intelligence-1440.png",
+    "output": "master-admin/admin-intelligence-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "intelligence",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-intelligence-320.png",
+    "output": "master-admin/admin-intelligence-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "intelligence",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-intelligence-390.png",
+    "output": "master-admin/admin-intelligence-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "intelligence",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-intelligence-768.png",
+    "output": "master-admin/admin-intelligence-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "intelligence",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-interviews-1440.png",
+    "output": "master-admin/admin-interviews-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "interviews",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-interviews-375.png",
+    "output": "master-admin/admin-interviews-375.png",
+    "width": 375,
+    "height": 844,
+    "role": "admin",
+    "screen": "interviews",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-interviews-768.png",
+    "output": "master-admin/admin-interviews-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "interviews",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-jobs-1440.png",
+    "output": "master-admin/admin-jobs-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-jobs-375.png",
+    "output": "master-admin/admin-jobs-375.png",
+    "width": 375,
+    "height": 844,
+    "role": "admin",
+    "screen": "jobs",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-jobs-768.png",
+    "output": "master-admin/admin-jobs-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-confirmation-1024.png",
+    "output": "master-admin/admin-security-confirmation-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-confirmation-1440.png",
+    "output": "master-admin/admin-security-confirmation-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-confirmation-320.png",
+    "output": "master-admin/admin-security-confirmation-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-confirmation-390.png",
+    "output": "master-admin/admin-security-confirmation-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-confirmation-768.png",
+    "output": "master-admin/admin-security-confirmation-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-setup-1024.png",
+    "output": "master-admin/admin-security-setup-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-setup-1440.png",
+    "output": "master-admin/admin-security-setup-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-setup-320.png",
+    "output": "master-admin/admin-security-setup-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-setup-390.png",
+    "output": "master-admin/admin-security-setup-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "master-admin/admin-security-setup-768.png",
+    "output": "master-admin/admin-security-setup-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "admin",
+    "screen": "security",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-bulk-job/bulk-jobs-desktop-1440.png",
+    "output": "phase3-bulk-job/bulk-jobs-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "bulk",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-bulk-job/bulk-jobs-laptop-1366.png",
+    "output": "phase3-bulk-job/bulk-jobs-laptop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "bulk",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-bulk-job/bulk-jobs-mobile-320.png",
+    "output": "phase3-bulk-job/bulk-jobs-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "bulk",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-bulk-job/bulk-jobs-mobile-390.png",
+    "output": "phase3-bulk-job/bulk-jobs-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "bulk",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-bulk-job/bulk-jobs-tablet.png",
+    "output": "phase3-bulk-job/bulk-jobs-tablet.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "bulk",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01-jobs-desktop-1366.png",
+    "output": "phase3-full-workflow/01-jobs-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01-jobs-desktop-1440.png",
+    "output": "phase3-full-workflow/01-jobs-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01-jobs-mobile-320.png",
+    "output": "phase3-full-workflow/01-jobs-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01-jobs-mobile-390.png",
+    "output": "phase3-full-workflow/01-jobs-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01-jobs-tablet-landscape.png",
+    "output": "phase3-full-workflow/01-jobs-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01-jobs-tablet-portrait.png",
+    "output": "phase3-full-workflow/01-jobs-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01b-private-job-desktop-1366.png",
+    "output": "phase3-full-workflow/01b-private-job-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01b-private-job-desktop-1440.png",
+    "output": "phase3-full-workflow/01b-private-job-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01b-private-job-mobile-320.png",
+    "output": "phase3-full-workflow/01b-private-job-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01b-private-job-mobile-390.png",
+    "output": "phase3-full-workflow/01b-private-job-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01b-private-job-tablet-landscape.png",
+    "output": "phase3-full-workflow/01b-private-job-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/01b-private-job-tablet-portrait.png",
+    "output": "phase3-full-workflow/01b-private-job-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "jobs",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/02-applicants-desktop-1366.png",
+    "output": "phase3-full-workflow/02-applicants-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "applicants",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/02-applicants-desktop-1440.png",
+    "output": "phase3-full-workflow/02-applicants-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "applicants",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/02-applicants-mobile-320.png",
+    "output": "phase3-full-workflow/02-applicants-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "applicants",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/02-applicants-mobile-390.png",
+    "output": "phase3-full-workflow/02-applicants-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "applicants",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/02-applicants-tablet-landscape.png",
+    "output": "phase3-full-workflow/02-applicants-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "applicants",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/02-applicants-tablet-portrait.png",
+    "output": "phase3-full-workflow/02-applicants-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "applicants",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/03-candidate-desktop-1366.png",
+    "output": "phase3-full-workflow/03-candidate-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "candidate",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/03-candidate-desktop-1440.png",
+    "output": "phase3-full-workflow/03-candidate-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "candidate",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/03-candidate-mobile-320.png",
+    "output": "phase3-full-workflow/03-candidate-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "candidate",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/03-candidate-mobile-390.png",
+    "output": "phase3-full-workflow/03-candidate-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "candidate",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/03-candidate-tablet-landscape.png",
+    "output": "phase3-full-workflow/03-candidate-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "candidate",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/03-candidate-tablet-portrait.png",
+    "output": "phase3-full-workflow/03-candidate-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "candidate",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/04-analytics-desktop-1366.png",
+    "output": "phase3-full-workflow/04-analytics-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/04-analytics-desktop-1440.png",
+    "output": "phase3-full-workflow/04-analytics-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/04-analytics-mobile-320.png",
+    "output": "phase3-full-workflow/04-analytics-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/04-analytics-mobile-390.png",
+    "output": "phase3-full-workflow/04-analytics-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/04-analytics-tablet-landscape.png",
+    "output": "phase3-full-workflow/04-analytics-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/04-analytics-tablet-portrait.png",
+    "output": "phase3-full-workflow/04-analytics-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/05-edit-desktop-1366.png",
+    "output": "phase3-full-workflow/05-edit-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/05-edit-desktop-1440.png",
+    "output": "phase3-full-workflow/05-edit-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/05-edit-mobile-320.png",
+    "output": "phase3-full-workflow/05-edit-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/05-edit-mobile-390.png",
+    "output": "phase3-full-workflow/05-edit-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/05-edit-tablet-landscape.png",
+    "output": "phase3-full-workflow/05-edit-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/05-edit-tablet-portrait.png",
+    "output": "phase3-full-workflow/05-edit-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/06-preview-desktop-1366.png",
+    "output": "phase3-full-workflow/06-preview-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "preview",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/06-preview-desktop-1440.png",
+    "output": "phase3-full-workflow/06-preview-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "preview",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/06-preview-mobile-320.png",
+    "output": "phase3-full-workflow/06-preview-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "preview",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/06-preview-mobile-390.png",
+    "output": "phase3-full-workflow/06-preview-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "preview",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/06-preview-tablet-landscape.png",
+    "output": "phase3-full-workflow/06-preview-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "preview",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-full-workflow/06-preview-tablet-portrait.png",
+    "output": "phase3-full-workflow/06-preview-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "preview",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-analytics/analytics-desktop-1440.png",
+    "output": "phase3-job-analytics/analytics-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-analytics/analytics-laptop-1366.png",
+    "output": "phase3-job-analytics/analytics-laptop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-analytics/analytics-mobile-320.png",
+    "output": "phase3-job-analytics/analytics-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-analytics/analytics-mobile-390.png",
+    "output": "phase3-job-analytics/analytics-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-analytics/analytics-tablet.png",
+    "output": "phase3-job-analytics/analytics-tablet.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "analytics",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/edit-laptop-1366.png",
+    "output": "phase3-job-builder/edit-laptop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/edit-laptop-1440.png",
+    "output": "phase3-job-builder/edit-laptop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/edit-mobile-320.png",
+    "output": "phase3-job-builder/edit-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/edit-mobile-390.png",
+    "output": "phase3-job-builder/edit-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/edit-tablet.png",
+    "output": "phase3-job-builder/edit-tablet.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/new-laptop-1366.png",
+    "output": "phase3-job-builder/new-laptop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/new-laptop-1440.png",
+    "output": "phase3-job-builder/new-laptop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/new-mobile-320.png",
+    "output": "phase3-job-builder/new-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/new-mobile-390.png",
+    "output": "phase3-job-builder/new-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase3-job-builder/new-tablet.png",
+    "output": "phase3-job-builder/new-tablet.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "editor",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase4-discovery/discover-desktop-1366.png",
+    "output": "phase4-discovery/discover-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase4-discovery/discover-laptop-1440.png",
+    "output": "phase4-discovery/discover-laptop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase4-discovery/discover-mobile-320.png",
+    "output": "phase4-discovery/discover-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase4-discovery/discover-mobile-390.png",
+    "output": "phase4-discovery/discover-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase4-discovery/discover-mobile-430.png",
+    "output": "phase4-discovery/discover-mobile-430.png",
+    "width": 430,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase4-discovery/discover-tablet-1024.png",
+    "output": "phase4-discovery/discover-tablet-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "phase4-discovery/discover-tablet-768.png",
+    "output": "phase4-discovery/discover-tablet-768.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/01-candidate-discovery-desktop-1366.png",
+    "output": "stack-integration/01-candidate-discovery-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/01-candidate-discovery-desktop-1440.png",
+    "output": "stack-integration/01-candidate-discovery-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/01-candidate-discovery-mobile-320.png",
+    "output": "stack-integration/01-candidate-discovery-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/01-candidate-discovery-mobile-390.png",
+    "output": "stack-integration/01-candidate-discovery-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/01-candidate-discovery-tablet-landscape.png",
+    "output": "stack-integration/01-candidate-discovery-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/01-candidate-discovery-tablet-portrait.png",
+    "output": "stack-integration/01-candidate-discovery-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "discover",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/02-workforce-taxonomy-desktop-1366.png",
+    "output": "stack-integration/02-workforce-taxonomy-desktop-1366.png",
+    "width": 1366,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "taxonomy",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/02-workforce-taxonomy-desktop-1440.png",
+    "output": "stack-integration/02-workforce-taxonomy-desktop-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "taxonomy",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/02-workforce-taxonomy-mobile-320.png",
+    "output": "stack-integration/02-workforce-taxonomy-mobile-320.png",
+    "width": 320,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "taxonomy",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/02-workforce-taxonomy-mobile-390.png",
+    "output": "stack-integration/02-workforce-taxonomy-mobile-390.png",
+    "width": 390,
+    "height": 844,
+    "role": "recruiter",
+    "screen": "taxonomy",
+    "mobileBottomNav": true,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/02-workforce-taxonomy-tablet-landscape.png",
+    "output": "stack-integration/02-workforce-taxonomy-tablet-landscape.png",
+    "width": 1024,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "taxonomy",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "stack-integration/02-workforce-taxonomy-tablet-portrait.png",
+    "output": "stack-integration/02-workforce-taxonomy-tablet-portrait.png",
+    "width": 768,
+    "height": 900,
+    "role": "recruiter",
+    "screen": "taxonomy",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "staging-main/frontend/visual-review/knowledge-hub-guide.jpg",
+    "output": "staging-main/frontend/visual-review/knowledge-hub-guide.png",
+    "width": 1440,
+    "height": 900,
+    "role": "public",
+    "screen": "knowledge",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "staging-main/frontend/visual-review/landing-1024.jpg",
+    "output": "staging-main/frontend/visual-review/landing-1024.png",
+    "width": 1024,
+    "height": 900,
+    "role": "public",
+    "screen": "landing",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "staging-main/frontend/visual-review/landing-1280.jpg",
+    "output": "staging-main/frontend/visual-review/landing-1280.png",
+    "width": 1280,
+    "height": 900,
+    "role": "public",
+    "screen": "landing",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "staging-main/frontend/visual-review/landing-1440.jpg",
+    "output": "staging-main/frontend/visual-review/landing-1440.png",
+    "width": 1440,
+    "height": 900,
+    "role": "public",
+    "screen": "landing",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "staging-main/frontend/visual-review/landing-1920.jpg",
+    "output": "staging-main/frontend/visual-review/landing-1920.png",
+    "width": 1920,
+    "height": 900,
+    "role": "public",
+    "screen": "landing",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  },
+  {
+    "source": "staging-main/frontend/visual-review/landing-430.jpg",
+    "output": "staging-main/frontend/visual-review/landing-430.png",
+    "width": 430,
+    "height": 844,
+    "role": "public",
+    "screen": "landing",
+    "mobileBottomNav": false,
+    "horizontalOverflow": false
+  }
+]

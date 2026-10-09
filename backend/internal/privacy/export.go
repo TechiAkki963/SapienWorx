@@ -117,6 +117,7 @@ func (s *Service) BuildSafeExport(ctx context.Context, userID string) (ExportBun
 			'id',id,'request_type',request_type,'status',status,'jurisdiction',jurisdiction,
 			'due_at',due_at,'completed_at',completed_at,'created_at',created_at,'updated_at',updated_at
 		) ORDER BY created_at DESC),'[]'::jsonb) FROM privacy_requests WHERE user_id=$1`},
+		{"company_reviews", `SELECT COALESCE(jsonb_agg(jsonb_build_object('id',id,'company_id',company_id,'kind',kind,'relationship',relationship,'job_function',job_function,'location',location,'period_start',period_start,'period_end',period_end,'anonymous',anonymous,'overall',overall,'ratings',ratings,'title',title,'pros',pros,'cons',cons,'advice',advice,'recommend',recommend,'outlook',outlook,'interview',interview_details,'status',moderation_status,'created_at',created_at,'published_at',published_at,'edited_at',edited_at) ORDER BY created_at DESC),'[]'::jsonb) FROM company_reviews WHERE author_id=$1 AND moderation_status<>'deleted'`},
 	}
 
 	for _, query := range queries {
@@ -135,7 +136,7 @@ func (s *Service) BuildSafeExport(ctx context.Context, userID string) (ExportBun
 		sections[query.name] = json.RawMessage(raw)
 	}
 
-	manifest, err := json.Marshal(map[string]any{"sections": []string{"account", "profile", "applications", "saved_jobs", "notifications", "messages", "consents", "privacy_requests"}, "complete": true})
+	manifest, err := json.Marshal(map[string]any{"sections": []string{"account", "profile", "applications", "saved_jobs", "notifications", "messages", "consents", "privacy_requests", "company_reviews"}, "complete": true})
 	if err != nil {
 		return ExportBundle{}, err
 	}

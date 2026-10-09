@@ -134,6 +134,11 @@ export type EditableRecruiterJob = {
   education_requirements: string[];
   screening_questions: string[];
   referral_enabled: boolean;
+  referral_deadline?: string | null;
+  referral_reward_enabled?: boolean;
+  referral_terms?: string;
+  referral_eligibility?: string;
+
   visibility: "public" | "private";
   internal_notes: string;
   assigned_recruiter_id: string | null;
@@ -165,6 +170,12 @@ export type JobAuditEvent = {
 };
 export type PipelineList = { stage_counts?: Record<string, number>; items: PipelineRow[]; page: number; limit: number; total: number };
 export type Interview = {
+  format?: "video" | "phone" | "in_person";
+  timezone?: string;
+  location?: string;
+  interviewers?: { user_id: string; name: string; response: string; feedback_submitted: boolean }[];
+  feedback_expected?: number;
+  feedback_submitted?: number;
   id: string;
   application_id: string;
   candidate_id: string;

@@ -3,6 +3,7 @@ package recruiter
 import (
 	"context"
 	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"strings"
 	"time"
 
@@ -30,6 +31,10 @@ type DetailedJobInput struct {
 	EducationRequirements []string `json:"education_requirements"`
 	ScreeningQuestions    []string `json:"screening_questions"`
 	ReferralEnabled       bool     `json:"referral_enabled"`
+	ReferralDeadline      *string  `json:"referral_deadline"`
+	ReferralRewardEnabled bool     `json:"referral_reward_enabled"`
+	ReferralTerms         string   `json:"referral_terms"`
+	ReferralEligibility   string   `json:"referral_eligibility"`
 	Visibility            string   `json:"visibility"`
 	InternalNotes         string   `json:"internal_notes"`
 	AssignedRecruiterID   *string  `json:"assigned_recruiter_id"`
@@ -72,6 +77,22 @@ func normalizeDetailedJob(in *DetailedJobInput) error {
 				return ErrInvalid
 			}
 			in.ApplicationDeadline = &value
+		}
+	}
+	in.ReferralTerms = strings.TrimSpace(in.ReferralTerms)
+	in.ReferralEligibility = strings.TrimSpace(in.ReferralEligibility)
+	if len(in.ReferralTerms) > 4000 || len(in.ReferralEligibility) > 2000 || in.ReferralRewardEnabled && (in.ReferralTerms == "" || in.ReferralEligibility == "") {
+		return ErrInvalid
+	}
+	if in.ReferralDeadline != nil {
+		value := strings.TrimSpace(*in.ReferralDeadline)
+		if value == "" {
+			in.ReferralDeadline = nil
+		} else {
+			if _, err := time.Parse("2006-01-02", value); err != nil {
+				return ErrInvalid
+			}
+			in.ReferralDeadline = &value
 		}
 	}
 	if in.AssignedRecruiterID != nil {
@@ -190,12 +211,16 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 		return Job{}, err
 	}
 	defer tx.Rollback(ctx)
-
+	if in.Publish {
+		if err = company.CheckCapacityTx(ctx, tx, companyID, "active_jobs", 1); err != nil {
+			return Job{}, err
+		}
+	}
 	assignedRecruiterID := userID
 	if in.AssignedRecruiterID != nil {
 		assignedRecruiterID = strings.TrimSpace(*in.AssignedRecruiterID)
 	}
-	if err := validateAssignedRecruiterTx(ctx, tx, companyID, assignedRecruiterID); err != nil {
+	if err := validateAssignedRecruiterTx(ctx, tx, companyID, assignedRecruiterID, in.Department, in.Location, ""); err != nil {
 		return Job{}, err
 	}
 
@@ -205,19 +230,19 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 			company_id,created_by_recruiter_id,title,slug,department,description,employment_type,work_mode,city,country_code,
 			min_experience_months,max_experience_months,min_salary_amount,max_salary_amount,salary_currency,openings,status,published_at,
 			required_skills,role_category,responsibilities,company_overview,why_join,hiring_process,application_deadline,
-			education_requirements,screening_questions,referral_enabled,visibility,internal_notes,assigned_recruiter_id
+			education_requirements,screening_questions,referral_enabled,visibility,internal_notes,assigned_recruiter_id,referral_deadline,referral_reward_enabled,referral_terms,referral_eligibility
 		) VALUES(
 			$1,$2,$3::text,lower(regexp_replace($3::text,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),'IN',
 			$9,$10,$11,$12,'INR',$20,$13::job_status,CASE WHEN $13::job_status='active' THEN now() ELSE NULL END,
 			$14,NULLIF($15,''),NULLIF($16,''),NULLIF($17,''),NULLIF($18,''),$19,$21,
-			$22,$23,$24,$25,NULLIF($26,''),$27
+			$22,$23,$24,$25,NULLIF($26,''),$27,$28,$29,$30,$31
 		)
 		RETURNING id
 	`, companyID, userID, in.Title, in.Department, description, in.EmploymentType, in.WorkMode, in.Location,
 		minMonths, maxMonths, minSalary, maxSalary, status, in.Skills, in.RoleCategory, in.Responsibilities,
 		in.CompanyOverview, in.WhyJoin, in.HiringProcess, in.Openings, in.ApplicationDeadline,
 		in.EducationRequirements, in.ScreeningQuestions, in.ReferralEnabled, in.Visibility, in.InternalNotes,
-		assignedRecruiterID).Scan(&id)
+		assignedRecruiterID, in.ReferralDeadline, in.ReferralRewardEnabled, in.ReferralTerms, in.ReferralEligibility).Scan(&id)
 	if err != nil {
 		return Job{}, err
 	}
@@ -266,7 +291,7 @@ func (s *Service) EditableJob(ctx context.Context, userID, jobID string) (Editab
 			min_salary_amount,max_salary_amount,required_skills,description,coalesce(responsibilities,''),
 			coalesce(company_overview,''),coalesce(why_join,''),hiring_process,openings,status::text,
 			application_deadline,education_requirements,screening_questions,referral_enabled,visibility,
-			coalesce(internal_notes,''),assigned_recruiter_id::text
+			coalesce(internal_notes,''),assigned_recruiter_id::text,referral_deadline::text,referral_reward_enabled,referral_terms,referral_eligibility
 		FROM jobs
 		WHERE id=$1 AND company_id=$2
 	`, jobID, companyID).Scan(
@@ -274,7 +299,7 @@ func (s *Service) EditableJob(ctx context.Context, userID, jobID string) (Editab
 		&item.RoleCategory, &item.Location, &minMonths, &maxMonths, &minSalary, &maxSalary, &item.Skills,
 		&item.Description, &item.Responsibilities, &item.CompanyOverview, &item.WhyJoin, &item.HiringProcess,
 		&item.Openings, &item.Status, &deadline, &item.EducationRequirements, &item.ScreeningQuestions,
-		&item.ReferralEnabled, &item.Visibility, &item.InternalNotes, &item.AssignedRecruiterID,
+		&item.ReferralEnabled, &item.Visibility, &item.InternalNotes, &item.AssignedRecruiterID, &item.ReferralDeadline, &item.ReferralRewardEnabled, &item.ReferralTerms, &item.ReferralEligibility,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return EditableJob{}, ErrNotFound
@@ -315,7 +340,9 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 		return err
 	}
 	defer tx.Rollback(ctx)
-
+	if err = company.LockCompanyTx(ctx, tx, companyID); err != nil {
+		return err
+	}
 	var currentStatus string
 	var currentDescription string
 	var currentResponsibilities *string
@@ -343,6 +370,11 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 	if in.Publish && !validEnum(currentStatus, "draft", "active") {
 		return ErrInvalid
 	}
+	if in.Publish && currentStatus != "active" {
+		if err = company.CheckCapacityTx(ctx, tx, companyID, "active_jobs", 1); err != nil {
+			return err
+		}
+	}
 	if currentStatus == "active" && !publishableDetailedJob(in) {
 		legacy := DetailedJobInput{
 			Description:      currentDescription,
@@ -366,7 +398,7 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 	if in.AssignedRecruiterID != nil {
 		assignedRecruiterID = strings.TrimSpace(*in.AssignedRecruiterID)
 	}
-	if err := validateAssignedRecruiterTx(ctx, tx, companyID, assignedRecruiterID); err != nil {
+	if err := validateAssignedRecruiterTx(ctx, tx, companyID, assignedRecruiterID, in.Department, in.Location, jobID); err != nil {
 		return err
 	}
 
@@ -412,13 +444,13 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 			referral_enabled=$24,
 			visibility=$25,
 			internal_notes=NULLIF($26,''),
-			assigned_recruiter_id=$27
+			assigned_recruiter_id=$27,referral_deadline=$28,referral_reward_enabled=$29,referral_terms=$30,referral_eligibility=$31
 		WHERE id=$1 AND company_id=$2
 	`, jobID, companyID, in.Title, in.Department, in.EmploymentType, in.WorkMode, in.RoleCategory, in.Location,
 		in.MinExperienceYears*12, maxMonths, minSalary, maxSalary, in.Skills, description, in.Responsibilities,
 		in.CompanyOverview, in.WhyJoin, in.HiringProcess, in.Openings, in.Publish, in.ApplicationDeadline,
 		in.EducationRequirements, in.ScreeningQuestions, in.ReferralEnabled, in.Visibility, in.InternalNotes,
-		assignedRecruiterID)
+		assignedRecruiterID, in.ReferralDeadline, in.ReferralRewardEnabled, in.ReferralTerms, in.ReferralEligibility)
 	if err != nil {
 		return err
 	}

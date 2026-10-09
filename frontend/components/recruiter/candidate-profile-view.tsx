@@ -215,7 +215,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
                   <div className="relative">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Direct conversation</p>
+                        <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Direct conversation</p>
                         <h2 className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">Send InMail</h2>
                         <p className="mt-1 text-sm leading-5 text-ink-muted">Message {candidateName}{candidateHeadline ? ` · ${candidateHeadline}` : ""}</p>
                       </div>

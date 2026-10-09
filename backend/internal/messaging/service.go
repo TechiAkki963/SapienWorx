@@ -3,6 +3,7 @@ package messaging
 import (
 	"context"
 	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"regexp"
 	"strings"
 
@@ -178,6 +179,16 @@ func (s *Service) Initiate(ctx context.Context, recruiterID string, input Initia
 	if !candidateExists {
 		return ThreadWithMessage{}, ErrNotFound
 	}
+	var relationship bool
+	if err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=$1 AND j.company_id=$2) OR EXISTS(SELECT 1 FROM chat_threads t JOIN recruiter_profiles rp ON rp.user_id=t.recruiter_id WHERE t.candidate_id=$1 AND rp.company_id=$2 AND EXISTS(SELECT 1 FROM chat_messages m WHERE m.thread_id=t.id))`, input.CandidateID, companyID).Scan(&relationship); err != nil {
+		return ThreadWithMessage{}, err
+	}
+	// Existing applicants and conversations remain free; cold sourcing is metered.
+	if !relationship {
+		if err := company.RequireFeatureTx(ctx, tx, recruiterID, "talent.outreach"); err != nil {
+			return ThreadWithMessage{}, err
+		}
+	}
 	var jobID any
 	if strings.TrimSpace(input.JobID) != "" {
 		var owned bool
@@ -203,6 +214,11 @@ func (s *Service) Initiate(ctx context.Context, recruiterID string, input Initia
 		VALUES($1,'inmail','New InMail from a recruiter',$2,$3)
 	`, thread.CandidateID, thread.Subject, "/candidate/inbox?thread="+thread.ID); err != nil {
 		return ThreadWithMessage{}, err
+	}
+	if !relationship {
+		if err := company.ConsumeOutreachTx(ctx, tx, recruiterID, 1, "initiate:"+thread.ID); err != nil {
+			return ThreadWithMessage{}, err
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return ThreadWithMessage{}, err

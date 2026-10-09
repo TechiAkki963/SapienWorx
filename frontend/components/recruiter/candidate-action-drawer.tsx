@@ -113,7 +113,7 @@ export function CandidateActionDrawer({
 
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#24A47F]">Candidate actions</p>
+                        <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-[#24A47F]">Candidate actions</p>
                         <h2 id="candidate-action-title" className="mt-1 truncate text-xl font-extrabold tracking-[-0.03em] text-navy">
                           {candidate.candidate_name}
                         </h2>
@@ -135,7 +135,7 @@ export function CandidateActionDrawer({
 
                   <div className="grid gap-5 px-5 py-5 md:px-6 md:py-6">
                     <div className="rounded-[1.4rem] border border-[#e1eaf0] bg-[linear-gradient(135deg,rgba(238,250,245,0.92),rgba(248,247,255,0.96))] p-4 shadow-[0_10px_28px_rgba(36,164,127,0.06)]">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-ink-muted">Current context</p>
+                      <p className="text-[13px] font-extrabold uppercase tracking-[0.12em] text-ink-muted">Current context</p>
                       <dl className="mt-3 grid grid-cols-2 gap-3 text-xs">
                         <div>
                           <dt className="text-ink-muted">Stage</dt>
@@ -149,7 +149,7 @@ export function CandidateActionDrawer({
                     </div>
 
                     <div>
-                      <p className="mb-2.5 text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Quick actions</p>
+                      <p className="mb-2.5 text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Quick actions</p>
                       <div className="grid gap-2.5">
                         <ActionButton
                           label="Progress to Technical Screen"

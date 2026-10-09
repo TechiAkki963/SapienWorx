@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/messaging"
 	"github.com/gorilla/websocket"
 )
@@ -488,6 +489,10 @@ func (s *Server) messagingSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) writeMessagingError(w http.ResponseWriter, r *http.Request, err error) {
+	if errors.Is(err, company.ErrInactive) || errors.Is(err, company.ErrLimit) || errors.Is(err, company.ErrForbidden) {
+		s.writeCompanyError(w, r, err)
+		return
+	}
 	switch {
 	case errors.Is(err, messaging.ErrInvalidInput):
 		writeError(w, r, http.StatusBadRequest, "invalid_request", "messaging input is invalid")

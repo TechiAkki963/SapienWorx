@@ -107,7 +107,7 @@ export function CreateJobForm() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/35 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target && !busy) setOpen(false); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="create-job-title" className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-t-3xl bg-white shadow-[0_24px_80px_rgba(7,29,73,0.28)] sm:rounded-3xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-line/70 bg-white/95 px-5 py-4 backdrop-blur sm:px-6">
-              <div><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">New vacancy</p><h2 id="create-job-title" className="mt-1 text-xl font-bold text-navy">Post a job</h2><p className="mt-1 text-xs text-ink-muted">Create the vacancy first; skills, experience and compensation improve candidate discovery.</p></div>
+              <div><p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">New vacancy</p><h2 id="create-job-title" className="mt-1 text-xl font-bold text-navy">Post a job</h2><p className="mt-1 text-xs text-ink-muted">Create the vacancy first; skills, experience and compensation improve candidate discovery.</p></div>
               <button type="button" onClick={() => !busy && setOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-lg text-ink-muted transition hover:bg-slate-50 hover:text-ink" aria-label="Close create job dialog">×</button>
             </div>
 

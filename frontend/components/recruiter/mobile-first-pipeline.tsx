@@ -114,7 +114,7 @@ export function MobileFirstPipeline({
                     <span className="relative z-10 flex items-center gap-2">
                       <span>{segment.label}</span>
                       <span
-                        className={`min-w-5 rounded-full px-1.5 py-0.5 text-center text-[10px] font-extrabold tabular-nums ${
+                        className={`min-w-5 rounded-full px-1.5 py-0.5 text-center text-[13px] font-extrabold tabular-nums ${
                           active ? "bg-white/20 text-white" : "bg-slate-100 text-ink-muted"
                         }`}
                         aria-label={`${count} candidates`}
@@ -130,7 +130,7 @@ export function MobileFirstPipeline({
 
           <div className="mt-4 flex items-center justify-between gap-3 px-0.5">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Current segment</p>
+              <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Current segment</p>
               <h2 className="mt-0.5 text-lg font-bold tracking-[-0.025em] text-navy">{activeLabel}</h2>
             </div>
             <span className="rounded-full border border-[#24A47F]/15 bg-[#24A47F]/8 px-3 py-1.5 text-xs font-bold tabular-nums text-[#18775e]">

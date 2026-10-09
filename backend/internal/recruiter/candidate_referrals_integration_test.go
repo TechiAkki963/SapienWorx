@@ -97,7 +97,9 @@ func TestCandidateReferralPrivacyAttributionAndAbuse(t *testing.T) {
 	svc.ConfigureReferralInvitations(strings.Repeat("k", 32), "https://beta.example.test")
 	email := id(`SELECT email FROM users WHERE id=$1`, recipient)
 	input := CandidateReferralInput{FullName: "Invited Person", Email: email, Phone: id(`SELECT '+91'||(1000000000+floor(random()*8000000000))::bigint::text`), JobID: job, Relationship: "Friend", Note: "A personal recommendation", KnowsPerson: true}
-	initialUsers := count(`SELECT count(*) FROM users`)
+	// Other integration packages share this isolated database. Track this
+	// invitation's identities so unrelated fixture creation cannot change the assertion.
+	initialRecipientUsers := count(`SELECT count(*) FROM users WHERE lower(email)=lower($1)`, email)
 	noConsent := input
 	noConsent.KnowsPerson = false
 	if _, e := svc.CreateCandidateReferral(ctx, first, noConsent); !errors.Is(e, ErrInvalid) {
@@ -111,20 +113,23 @@ func TestCandidateReferralPrivacyAttributionAndAbuse(t *testing.T) {
 		t.Fatal("unverified sender accepted")
 	}
 	exec(`UPDATE users SET email_verified_at=now(),status='active' WHERE id=$1`, first)
-	for _, change := range []string{"visibility='private'", "referral_enabled=false", "application_deadline=current_date-1", "status='closed'"} {
+	for _, change := range []string{"visibility='private'", "referral_enabled=false", "application_deadline=current_date-1", "referral_deadline=current_date-1", "status='closed'"} {
 		exec(`UPDATE jobs SET `+change+` WHERE id=$1`, job)
 		if _, e := svc.CreateCandidateReferral(ctx, first, input); !errors.Is(e, ErrNotFound) {
 			t.Fatalf("ineligible job accepted: %s %v", change, e)
 		}
-		exec(`UPDATE jobs SET visibility='public',referral_enabled=true,application_deadline=NULL,status='active' WHERE id=$1`, job)
+		exec(`UPDATE jobs SET visibility='public',referral_enabled=true,application_deadline=NULL,referral_deadline=NULL,status='active' WHERE id=$1`, job)
 	}
 	// Optional phone is not an account lookup signal, even when it belongs to another verified identity.
 	exec(`UPDATE users SET phone_e164=$2,phone_verified_at=now() WHERE id=$1`, wrong, input.Phone)
+	initialPhoneUsers := count(`SELECT count(*) FROM users WHERE phone_e164=$1`, input.Phone)
 	invite, e := svc.CreateCandidateReferral(ctx, first, input)
 	if e != nil || invite.Status != "invitation_queued" {
 		t.Fatalf("candidate invitation: %+v %v", invite, e)
 	}
-	if count(`SELECT count(*) FROM users`) != initialUsers || count(`SELECT count(*) FROM applications WHERE job_id=$1`, job) != 0 {
+	if count(`SELECT count(*) FROM users WHERE lower(email)=lower($1)`, email) != initialRecipientUsers ||
+		count(`SELECT count(*) FROM users WHERE phone_e164=$1`, input.Phone) != initialPhoneUsers ||
+		count(`SELECT count(*) FROM applications WHERE job_id=$1`, job) != 0 {
 		t.Fatal("invitation created account or application")
 	}
 	repeat, e := svc.CreateCandidateReferral(ctx, first, input)
@@ -167,6 +172,9 @@ func TestCandidateReferralPrivacyAttributionAndAbuse(t *testing.T) {
 	unregistered, e := svc.CreateCandidateReferral(ctx, first, unknown)
 	if e != nil || unregistered.Status != invite.Status {
 		t.Fatal("recipient registration enumeration")
+	}
+	if count(`SELECT count(*) FROM users WHERE lower(email)=lower($1)`, unknown.Email) != 0 {
+		t.Fatal("unregistered invitation created an account")
 	}
 	token := func(inviteID string) string {
 		var nonce string
@@ -260,12 +268,26 @@ func TestCandidateReferralPrivacyAttributionAndAbuse(t *testing.T) {
 		if e != nil || result.Total != 1 || result.Items[0].Status != stage.status {
 			t.Fatalf("safe status %s: %+v %v", stage.stage, result, e)
 		}
+		if result.Items[0].ReferralStatus != "accepted" || result.Items[0].HiringProgress != stage.status || result.Items[0].RewardProgress != "" {
+			t.Fatalf("independent safe progress: %+v", result.Items[0])
+		}
 		raw, _ := json.Marshal(result)
 		for _, private := range []string{"hiring_stage", "application_id", "candidate_id", "reward_status", "phone", "email", "feedback", "score", "note", "salary"} {
 			if strings.Contains(string(raw), `"`+private+`"`) {
 				t.Fatalf("private field leaked: %s", private)
 			}
 		}
+	}
+	exec(`UPDATE jobs SET referral_reward_enabled=true,referral_terms='Placement review required',referral_eligibility='Canonical first referral only' WHERE id=$1`, job)
+	if err := svc.ReviewReferralReward(ctx, owner, another.ID, "pending", "Reviewed", true); !errors.Is(err, ErrInvalid) {
+		t.Fatalf("secondary referral reward bypass: %v", err)
+	}
+	if err := svc.ReviewReferralReward(ctx, owner, invite.ID, "pending", "Reviewed", true); err != nil {
+		t.Fatal(err)
+	}
+	canonical, e := svc.MyReferrals(ctx, first, "", "successful", 1, 25)
+	if e != nil || canonical.Total != 1 || canonical.Items[0].RewardProgress != "pending" {
+		t.Fatalf("safe canonical reward processing: %+v %v", canonical, e)
 	}
 	// Existing direct applications retain source and canonical referral_id after consented history.
 	direct := id(`INSERT INTO applications(candidate_id,job_id,source) VALUES($1,$2,'platform') RETURNING id`, wrong, job)
