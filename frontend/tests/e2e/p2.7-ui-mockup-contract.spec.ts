@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import { login, resetE2E } from "./helpers";
 
 const recruiterAreas = [
-  { slug: "dashboard", path: "/recruiter", heading: /Good|Welcome|Dashboard/i, sharedHeader: false },
+  { slug: "dashboard", path: "/recruiter", heading: /Good|Welcome|Dashboard/i, sharedHeader: true },
   { slug: "discover", path: "/recruiter/discover", heading: "Discover Talent", sharedHeader: true },
   { slug: "talent-pool", path: "/recruiter/talent-pool", heading: "Talent Pool", sharedHeader: true },
   { slug: "jobs", path: "/recruiter/jobs", heading: "Job management", sharedHeader: true },
@@ -50,13 +50,13 @@ test("P2.7 recruiter mockups stay aligned with active product contracts", async 
       if (area.sharedHeader) {
         const header = page.getByTestId("recruiter-product-header");
         await expect(header).toBeVisible();
-        const h1 = header.getByRole("heading", { level: 1, name: area.heading as string, exact: false });
+        const h1 = header.getByRole("heading", { level: 1, name: area.heading, exact: false });
         await expect(h1).toBeVisible();
         const family = await h1.evaluate((node) => getComputedStyle(node).fontFamily);
-        expect(family).toContain("Source Serif 4");
+        expect(family).toContain("Inter");
       } else {
         await expect(page.locator("main")).toContainText(area.heading as RegExp);
-        await expect(page.locator(".swx-recruiter-display").first()).toBeVisible();
+        await expect(page.locator("main h1").first()).toBeVisible();
       }
       expect(await page.locator('main img[src*="/images/people/"]').count(), area.slug + " decorative people imagery").toBe(0);
       await noOverflow(page, area.slug + " " + viewport.label);
