@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/privacy"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -289,6 +291,13 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		if err != nil || scheduled.Format != "phone" {
 			t.Fatalf("phone: %+v %v", scheduled, err)
 		}
+		t.Cleanup(func() {
+			// The rollback rehearsal must not inherit this test's phone-only data.
+			// Delete only the exact synthetic interview; production rollback stays guarded.
+			if _, err := db.Exec(context.Background(), `DELETE FROM interviews WHERE id=$1`, scheduled.ID); err != nil {
+				t.Errorf("cleanup synthetic phone interview: %v", err)
+			}
+		})
 		candidateItems, err := candidateSvc.InterviewsForCandidate(ctx, candidateA)
 		if err != nil {
 			t.Fatal(err)
@@ -301,6 +310,26 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		}
 		if !found {
 			t.Fatal("candidate format/timezone/location not retained")
+		}
+		rollbackSQL, err := os.ReadFile("../../../database/migrations/000059_interview_operations.down.sql")
+		if err != nil {
+			t.Fatal(err)
+		}
+		rollbackTx, err := db.Begin(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, rollbackErr := rollbackTx.Exec(ctx, strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(string(rollbackSQL)), "BEGIN;"), "COMMIT;"))
+		if err := rollbackTx.Rollback(ctx); err != nil {
+			t.Fatal(err)
+		}
+		var constraintError *pgconn.PgError
+		if !errors.As(rollbackErr, &constraintError) || constraintError.Code != "23514" {
+			t.Fatalf("lossy phone interview rollback was not refused: %v", rollbackErr)
+		}
+		var retainedFormat, retainedLocation string
+		if err := db.QueryRow(ctx, `SELECT format,location FROM interviews WHERE id=$1`, scheduled.ID).Scan(&retainedFormat, &retainedLocation); err != nil || retainedFormat != "phone" || retainedLocation != phone.Location {
+			t.Fatalf("refused rollback lost phone interview details: %v", err)
 		}
 		// Two distinct employers racing for the same candidate cannot double book.
 		otherRole := job(companyB, recruiterB, "active", "public", "Concurrent interview fixture")
