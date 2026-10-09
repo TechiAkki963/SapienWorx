@@ -12,6 +12,9 @@ import { apiRequest } from "@/lib/api";
 export function JobActions({
   jobId,
   referralEnabled = false,
+  referralRewardEnabled = false,
+  referralTerms = "",
+  referralEligibility = "",
   jobTitle = "this role",
   companyName = "the employer",
   location,
@@ -23,6 +26,9 @@ export function JobActions({
 }: {
   jobId: string;
   referralEnabled?: boolean;
+  referralRewardEnabled?: boolean;
+  referralTerms?: string;
+  referralEligibility?: string;
   jobTitle?: string;
   companyName?: string;
   location?: string;
@@ -126,16 +132,9 @@ export function JobActions({
                 ? "Applying…"
                 : !referralContextReady?"Checking application…":"Apply now"}
       </Button>}
-      <Button
-        size="lg"
-        variant="secondary"
-        onClick={save}
-        disabled={saving}
-        aria-pressed={saved}
-      >
-        {saving ? "Updating…" : saved ? "Remove from saved jobs" : "Save job"}
-      </Button>
-      <div className="grid grid-cols-2 gap-2"><button type="button" className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm font-semibold text-ink" onClick={()=>void share()}>Share</button>{referralEnabled&&acceptingApplications&&<ReferSomeone jobId={jobId} title={jobTitle} company={companyName} location={location}/>}</div>
+      {referralEnabled&&acceptingApplications&&<ReferSomeone jobId={jobId} title={jobTitle} company={companyName} location={location} terms={referralTerms} eligibility={referralEligibility} rewardEnabled={referralRewardEnabled}/>}
+      {referralEnabled&&referralRewardEnabled&&acceptingApplications&&<p className="text-[13px] leading-6 text-ink-muted">Referral reward programme available. Employer eligibility and terms apply; submitting an invitation does not guarantee a reward.</p>}
+      <div className="grid grid-cols-2 gap-2"><button type="button" className="min-h-11 rounded-xl px-3 text-sm font-semibold text-indigo focus-visible:ring-2 focus-visible:ring-indigo" onClick={save} disabled={saving} aria-pressed={saved} aria-label={saved?"Remove from saved jobs":"Save job"}>{saving?"Updating…":saved?"Saved ✓":"Save"}</button><button type="button" className="min-h-11 rounded-xl px-3 text-sm font-semibold text-ink focus-visible:ring-2 focus-visible:ring-indigo" onClick={()=>void share()}>Share</button></div>
       {saveError && (
         <p role="alert" className="text-sm text-red-700 dark:text-red-300">
           {saveError}

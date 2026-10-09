@@ -11,11 +11,13 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/admin"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/privacy"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/storage"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/workforce"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type DatabaseHealth interface{ Ping(context.Context) error }
@@ -36,10 +38,14 @@ type Server struct {
 	emailDelivery emailDeliveryRuntime
 	objectStorage storage.ObjectStore
 	cfg           config.Config
+	company       *company.SQLStore
 }
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, workforceService *workforce.Service, logger *slog.Logger) *Server {
 	s := &Server{db: db, dbTimeout: cfg.Database.HealthTimeout, logger: logger, tokens: tokens, auth: authService, candidate: candidateService, recruiter: recruiterService, admin: adminService, workforce: workforceService, privacy: newPrivacyService(db), messages: newMessagingRuntime(db, cfg.Messaging, logger), cfg: cfg}
+	if pool, ok := db.(*pgxpool.Pool); ok {
+		s.company = company.NewSQLStore(pool)
+	}
 	if recruiterService != nil && len(cfg.Auth.JWTSecret) >= 32 && len(cfg.HTTP.AllowedOrigins) > 0 {
 		recruiterService.ConfigureReferralInvitations(cfg.Auth.JWTSecret, cfg.HTTP.AllowedOrigins[0])
 	}
@@ -62,16 +68,21 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.HandleFunc("POST /api/v1/auth/refresh", s.refresh)
 	mux.Handle("POST /api/v1/auth/logout", Chain(http.HandlerFunc(s.logout), RequireCSRF(cfg.Auth.CSRFCookieName)))
 	mux.HandleFunc("GET /api/v1/jobs", s.listJobs)
+	mux.HandleFunc("GET /api/v1/companies", s.publicCompanies)
+	mux.HandleFunc("GET /api/v1/companies/{companyID}", s.publicCompany)
+	mux.HandleFunc("GET /api/v1/companies/{companyID}/reviews", s.publicCompanyReviews)
 	mux.HandleFunc("GET /api/v1/jobs/{jobID}", s.getJob)
 	mux.HandleFunc("GET /api/v1/profiles/{token}", s.publicCandidateProfile)
 	mux.HandleFunc("GET /api/v1/privacy/subprocessors", s.publicSubprocessors)
 	mux.HandleFunc("POST /api/v1/admin/collector/events", s.adminCollectorIngest)
 
 	protected := func(next http.Handler) http.Handler {
-		return Chain(next, Authenticate(tokens, cfg.Auth.AccessCookieName), RequireCurrentSession(authService), RequireCSRF(cfg.Auth.CSRFCookieName))
+		return Chain(next, Authenticate(tokens, cfg.Auth.AccessCookieName), RequireCurrentSession(authService), RequireCSRF(cfg.Auth.CSRFCookieName), s.companyMessagingGuard)
 	}
 	candidateOnly := RequireRoles(auth.RoleCandidate)
-	recruiterOnly := RequireRoles(auth.RoleRecruiter)
+	recruiterOnly := func(next http.Handler) http.Handler {
+		return Chain(next, RequireRoles(auth.RoleRecruiter), s.companyRecruiterGuard)
+	}
 	candidateActivity := CandidateActivity(candidateService, logger)
 	adminOnly := MasterAdminOnly(tokens, cfg.Auth.AccessCookieName, adminService, logger)
 	adminGuard := func(permissions ...admin.Permission) Middleware {
@@ -87,6 +98,35 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("POST /api/v1/admin/security/mfa/enroll", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 	mux.Handle("POST /api/v1/admin/security/mfa/verify", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 
+	mux.Handle("GET /api/v1/auth/recovery-context", Chain(http.HandlerFunc(s.recoveryContext), protected))
+	mux.HandleFunc("GET /api/v1/company/invitation", s.companyInvitation)
+	mux.Handle("POST /api/v1/company/invitation/accept", Chain(http.HandlerFunc(s.companyInvitationAccept), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("GET /api/v1/company/access", Chain(http.HandlerFunc(s.companyAccess), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("GET /api/v1/candidate/company-reviews", Chain(http.HandlerFunc(s.candidateCompanyReviews), protected, candidateOnly))
+	mux.Handle("POST /api/v1/candidate/company-reviews", Chain(http.HandlerFunc(s.candidateCompanyReviews), protected, candidateOnly))
+	mux.Handle("PATCH /api/v1/candidate/company-reviews/{reviewID}", Chain(http.HandlerFunc(s.candidateCompanyReviews), protected, candidateOnly))
+	mux.Handle("DELETE /api/v1/candidate/company-reviews/{reviewID}", Chain(http.HandlerFunc(s.candidateCompanyReviews), protected, candidateOnly))
+	mux.Handle("POST /api/v1/company/reviews/{reviewID}/response", Chain(http.HandlerFunc(s.companyReviewResponse), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/reviews/{reviewID}/{action}", Chain(http.HandlerFunc(s.companyReviewAction), protected))
+	mux.Handle("GET /api/v1/admin/company-reviews", Chain(http.HandlerFunc(s.adminCompanyReviews), adminGuard(admin.TrustRiskRead)))
+	mux.Handle("PATCH /api/v1/admin/company-reviews/{reviewID}", Chain(http.HandlerFunc(s.adminCompanyReviews), adminGuard(admin.TrustRiskReview)))
+	mux.Handle("GET /api/v1/company/workspace", Chain(http.HandlerFunc(s.companyWorkspace), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("GET /api/v1/company/jobs/{jobID}/hiring", Chain(http.HandlerFunc(s.companyHiringWork), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/company/jobs/{jobID}/interviews", Chain(http.HandlerFunc(s.companyHiringWork), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("PUT /api/v1/company/setup", Chain(http.HandlerFunc(s.companySetup), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("GET /api/v1/company/plan", Chain(http.HandlerFunc(s.companyPlan), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("PUT /api/v1/company/owner-talent-seat", Chain(http.HandlerFunc(s.companyOwnerTalentSeat), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/admin/companies/{companyID}/overrides", Chain(http.HandlerFunc(s.adminCompanyOverride), adminGuard(admin.OrganizationsReview)))
+	mux.Handle("GET /api/v1/company/team", Chain(http.HandlerFunc(s.companyTeam), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/company/team", Chain(http.HandlerFunc(s.companyTeam), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("PATCH /api/v1/company/team/{userID}", Chain(http.HandlerFunc(s.companyMemberChange), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("GET /api/v1/company/team/{userID}/resources", Chain(http.HandlerFunc(s.companyMemberResources), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("DELETE /api/v1/company/invitations/{inviteID}", Chain(http.HandlerFunc(s.companyInviteRevoke), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("GET /api/v1/company/audit", Chain(http.HandlerFunc(s.companyAudit), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/admin/companies", Chain(http.HandlerFunc(s.adminCompanyCreate), adminGuard(admin.OrganizationsReview)))
+	mux.Handle("POST /api/v1/admin/companies/{companyID}/owner-invitation", Chain(http.HandlerFunc(s.adminCompanyOwnerInvite), adminGuard(admin.OrganizationsReview)))
+	mux.Handle("GET /api/v1/admin/companies/{companyID}/subscription", Chain(http.HandlerFunc(s.adminCompanySubscription), adminGuard(admin.OrganizationsRead)))
+	mux.Handle("PUT /api/v1/admin/companies/{companyID}/subscription", Chain(http.HandlerFunc(s.adminCompanySubscription), adminGuard(admin.OrganizationsReview)))
 	mux.Handle("GET /api/v1/auth/me", Chain(http.HandlerFunc(s.me), protected))
 	mux.Handle("GET /api/v1/workforce/taxonomy/suggest", Chain(http.HandlerFunc(s.workforceTaxonomySuggest), protected))
 	mux.Handle("POST /api/v1/users/profile-image", Chain(http.HandlerFunc(s.uploadUserProfileImage), protected))
@@ -181,7 +221,15 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/interviews", Chain(http.HandlerFunc(s.recruiterInterviews), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/interviews/{interviewID}", Chain(http.HandlerFunc(s.recruiterInterviewChange), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/interviews/{interviewID}/feedback", Chain(http.HandlerFunc(s.recruiterInterviewFeedback), protected, recruiterOnly))
+	mux.Handle("PUT /api/v1/recruiter/interviews/{interviewID}/feedback", Chain(http.HandlerFunc(s.recruiterInterviewFeedback), protected, recruiterOnly))
+	mux.Handle("PUT /api/v1/recruiter/interviews/{interviewID}/response", Chain(http.HandlerFunc(s.recruiterInterviewResponse), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/interviews/{interviewID}/history", Chain(http.HandlerFunc(s.recruiterInterviewHistory), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/notifications", Chain(http.HandlerFunc(s.recruiterNotifications), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/notifications/{notificationID}", Chain(http.HandlerFunc(s.recruiterNotificationChange), protected, recruiterOnly))
+	mux.Handle("POST /api/v1/recruiter/notifications/{notificationID}/open", Chain(http.HandlerFunc(s.recruiterNotificationOpen), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/notification-preferences", Chain(http.HandlerFunc(s.recruiterNotificationPreferences), protected, recruiterOnly))
+	mux.Handle("PUT /api/v1/recruiter/notification-preferences", Chain(http.HandlerFunc(s.recruiterNotificationPreferences), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/offers", Chain(http.HandlerFunc(s.recruiterOffers), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/offers", Chain(http.HandlerFunc(s.recruiterOffers), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/offers/{offerID}", Chain(http.HandlerFunc(s.recruiterOfferStatus), protected, recruiterOnly))

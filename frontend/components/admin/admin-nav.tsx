@@ -23,9 +23,10 @@ const items = [
   ["/swx-command-centre/trust", "Trust & risk review"],
   ["/swx-command-centre/releases", "Release control"],
   ["/swx-command-centre/content-settings", "Content, settings & costs"],
+  ["/swx-command-centre/company-reviews", "Company review moderation"],
 ] as const;
 
-const modulePermissions: (AdminPermission | null)[] = ["overview.read", "organizations.read", "users.read", "jobs.read", "privacy.read", "audit.read", "system.read", null, "organizations.read", "recruitment.read", "recruitment.read", "control_plane.read", "control_plane.read", "taxonomy.read", "intelligence.read", "trust_risk.read", "release.manage", "control_plane.read"];
+const modulePermissions: (AdminPermission | null)[] = ["overview.read", "organizations.read", "users.read", "jobs.read", "privacy.read", "audit.read", "system.read", null, "organizations.read", "recruitment.read", "recruitment.read", "control_plane.read", "control_plane.read", "taxonomy.read", "intelligence.read", "trust_risk.read", "release.manage", "control_plane.read", "trust_risk.read"];
 
 const mobileLabels = [
   "Overview",
@@ -46,6 +47,7 @@ const mobileLabels = [
   "Trust",
   "Releases",
   "Settings",
+  "Reviews",
 ] as const;
 
 function Icon({ index }: { index: number }) {

@@ -1,3 +1,4 @@
+import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import Link from "next/link";
 
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
@@ -20,7 +21,7 @@ function percent(value: number) {
 
 function metric(labelText: string, value: string, detail: string) {
   return <div className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_4px_20px_rgba(16,33,63,0.03)]">
-    <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">{labelText}</p>
+    <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">{labelText}</p>
     <p className="mt-2 text-2xl font-black tracking-[-0.04em] text-navy">{value}</p>
     <p className="mt-1 text-xs leading-5 text-ink-muted">{detail}</p>
   </div>;
@@ -34,19 +35,10 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
 
   return <RecruiterShell>
     <div className="grid min-w-0 gap-5">
-      <section className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <Link href="/recruiter/jobs" className="text-xs font-bold text-indigo hover:underline">← Job management</Link>
-          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Vacancy performance</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-[-0.045em] text-navy sm:text-4xl">Job analytics</h1>
-          <p className="mt-1 text-sm font-bold text-indigo">{analytics.job_reference}</p>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-ink-muted">{analytics.title} · {label(analytics.status)} · published {compactDate(analytics.published_at)}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
+      <RecruiterProductHeader eyebrow={`Vacancy performance · ${analytics.job_reference}`} title="Job analytics" description={`${analytics.title} · ${label(analytics.status)} · published ${compactDate(analytics.published_at)}`} actions={<>
           <Link href={`/recruiter/jobs/${jobID}/applicants`} className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-navy">View applicants</Link>
           <Link href={`/recruiter/jobs/${jobID}/edit`} className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm hover:text-indigo">Edit job</Link>
-        </div>
-      </section>
+        </>} />
 
       {(analytics.closing_soon || analytics.overdue) && <section className={`rounded-xl border px-4 py-3 text-sm font-semibold ${analytics.overdue ? "border-rose-200 bg-rose-50 text-rose-900" : "border-amber-200 bg-amber-50 text-amber-950"}`}>
         {analytics.overdue ? "This active job is past its application deadline." : `This job closes in ${analytics.days_to_deadline} day${analytics.days_to_deadline === 1 ? "" : "s"}.`}
@@ -64,7 +56,7 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
       <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(20rem,.75fr)]">
         <section aria-label="Hiring funnel" className="min-w-0 rounded-2xl border border-line/70 bg-white p-5 shadow-[0_4px_20px_rgba(16,33,63,0.035)] sm:p-6">
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Conversion</p>
+            <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Conversion</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Hiring funnel</h2>
             <p className="mt-1 text-xs leading-5 text-ink-muted">Cumulative counts use the highest stage each application has reached.</p>
           </div>
@@ -82,7 +74,7 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
         </section>
 
         <section aria-label="Hiring speed" className="rounded-2xl border border-line/70 bg-white p-5 shadow-[0_4px_20px_rgba(16,33,63,0.035)] sm:p-6">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Velocity</p>
+          <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Velocity</p>
           <h2 className="mt-1 text-xl font-bold text-navy">First milestone timing</h2>
           <div className="mt-5 grid gap-4">
             {[
@@ -101,7 +93,7 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
 
       <section aria-label="Application trend" className="min-w-0 rounded-2xl border border-line/70 bg-white p-5 shadow-[0_4px_20px_rgba(16,33,63,0.035)] sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <div><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Demand</p><h2 className="mt-1 text-xl font-bold text-navy">Applications · last 30 days</h2></div>
+          <div><p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Demand</p><h2 className="mt-1 text-xl font-bold text-navy">Applications · last 30 days</h2></div>
           <p className="text-xs font-semibold text-ink-muted">Daily submitted applications</p>
         </div>
         <div className="mt-5 flex h-36 min-w-0 items-end gap-1" role="img" aria-label={`30 day application volume. ${analytics.trend.reduce((total, point) => total + point.applications, 0)} applications in total.`}>
@@ -109,7 +101,7 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
             <div data-testid="trend-bar" className="w-full min-w-[2px] rounded-t-sm bg-indigo/70 transition group-hover:bg-indigo" style={{ height: `${Math.max(2, point.applications / maxTrend * 100)}%` }} />
           </div>)}
         </div>
-        <div className="mt-2 flex justify-between text-[10px] font-semibold text-ink-muted"><span>{compactDate(analytics.trend[0]?.date)}</span><span>{compactDate(analytics.trend.at(-1)?.date)}</span></div>
+        <div className="mt-2 flex justify-between text-[13px] font-semibold text-ink-muted"><span>{compactDate(analytics.trend[0]?.date)}</span><span>{compactDate(analytics.trend.at(-1)?.date)}</span></div>
         <div className="absolute h-px w-px overflow-hidden whitespace-nowrap [clip-path:inset(50%)] [contain:strict]">
           <table>
             <caption>Daily application volume for the last 30 days</caption>
@@ -120,11 +112,11 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
       </section>
 
       <section aria-label="Source performance" className="min-w-0 rounded-2xl border border-line/70 bg-white p-5 shadow-[0_4px_20px_rgba(16,33,63,0.035)] sm:p-6">
-        <div><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Acquisition</p><h2 className="mt-1 text-xl font-bold text-navy">Source performance</h2><p className="mt-1 text-xs leading-5 text-ink-muted">Conversion uses the source stored on each application and recorded stage progress.</p></div>
+        <div><p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Acquisition</p><h2 className="mt-1 text-xl font-bold text-navy">Source performance</h2><p className="mt-1 text-xs leading-5 text-ink-muted">Conversion uses the source stored on each application and recorded stage progress.</p></div>
         {analytics.sources.length ? <>
           <div className="mt-5 hidden overflow-x-auto md:block">
             <table className="w-full min-w-[680px] border-collapse text-sm">
-              <thead className="border-b border-line/70 bg-slate-50/70 text-left text-[10px] font-extrabold uppercase tracking-[0.08em] text-ink-muted"><tr><th className="px-3 py-2.5">Source</th><th className="px-3 py-2.5 text-right">Applications</th><th className="px-3 py-2.5 text-right">Shortlisted</th><th className="px-3 py-2.5 text-right">Interviews</th><th className="px-3 py-2.5 text-right">Offers</th><th className="px-3 py-2.5 text-right">Hires</th><th className="px-3 py-2.5 text-right">Hire conversion</th></tr></thead>
+              <thead className="border-b border-line/70 bg-slate-50/70 text-left text-[13px] font-extrabold uppercase tracking-[0.08em] text-ink-muted"><tr><th className="px-3 py-2.5">Source</th><th className="px-3 py-2.5 text-right">Applications</th><th className="px-3 py-2.5 text-right">Shortlisted</th><th className="px-3 py-2.5 text-right">Interviews</th><th className="px-3 py-2.5 text-right">Offers</th><th className="px-3 py-2.5 text-right">Hires</th><th className="px-3 py-2.5 text-right">Hire conversion</th></tr></thead>
               <tbody className="divide-y divide-line/60">{analytics.sources.map((source) => <tr key={source.source}><td className="px-3 py-3 font-bold text-ink">{label(source.source)}</td><td className="px-3 py-3 text-right">{source.applications}</td><td className="px-3 py-3 text-right">{source.shortlisted}</td><td className="px-3 py-3 text-right">{source.interviews}</td><td className="px-3 py-3 text-right">{source.offers}</td><td className="px-3 py-3 text-right font-bold">{source.hires}</td><td className="px-3 py-3 text-right font-bold text-indigo">{percent(source.hire_conversion_percent)}</td></tr>)}</tbody>
             </table>
           </div>

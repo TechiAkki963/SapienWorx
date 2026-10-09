@@ -275,8 +275,8 @@ export function BulkInMailDrawer({
             <div className="flex items-start justify-between gap-4 border-b border-line/70 bg-white/80 px-5 py-5 backdrop-blur-xl sm:px-6">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-indigo">Bulk outreach</p>
-                  <span className="rounded-full border border-[#cfe8df] bg-[#ecf9f4] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#18775e]">
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-indigo">Bulk outreach</p>
+                  <span className="rounded-full border border-[#cfe8df] bg-[#ecf9f4] px-2.5 py-1 text-[13px] font-extrabold uppercase tracking-[0.11em] text-[#18775e]">
                     {recipientCount} recipient{recipientCount === 1 ? "" : "s"}
                   </span>
                 </div>
@@ -340,7 +340,7 @@ export function BulkInMailDrawer({
                   <div>
                     <div className="flex items-center justify-between gap-3">
                       <label htmlFor="bulk-subject" className="text-xs font-extrabold uppercase tracking-[0.12em] text-navy">Subject</label>
-                      <span className="text-[10px] font-semibold text-ink-muted">{subject.length}/255</span>
+                      <span className="text-[13px] font-semibold text-ink-muted">{subject.length}/255</span>
                     </div>
                     <textarea
                       id="bulk-subject"
@@ -356,7 +356,7 @@ export function BulkInMailDrawer({
                       className="mt-2 w-full resize-none rounded-xl border border-line bg-white px-3.5 py-3 text-sm font-semibold text-navy outline-none transition placeholder:text-ink-muted/60 focus:border-indigo/40 focus:ring-4 focus:ring-indigo-soft/60 disabled:opacity-60"
                     />
                     <div className="mt-2">
-                      <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Personalisation preview</p>
+                      <p className="mb-1.5 text-[13px] font-extrabold uppercase tracking-[0.12em] text-indigo">Personalisation preview</p>
                       <VariablePreview value={subject} empty="Your subject preview appears here." />
                     </div>
                   </div>
@@ -364,7 +364,7 @@ export function BulkInMailDrawer({
                   <div>
                     <div className="flex items-center justify-between gap-3">
                       <label htmlFor="bulk-body" className="text-xs font-extrabold uppercase tracking-[0.12em] text-navy">Message</label>
-                      <span className="text-[10px] font-semibold text-ink-muted">{body.length}/5000</span>
+                      <span className="text-[13px] font-semibold text-ink-muted">{body.length}/5000</span>
                     </div>
                     <textarea
                       id="bulk-body"
@@ -380,7 +380,7 @@ export function BulkInMailDrawer({
                       className="mt-2 w-full resize-y rounded-xl border border-line bg-white px-3.5 py-3 text-sm leading-6 text-navy outline-none transition placeholder:text-ink-muted/60 focus:border-indigo/40 focus:ring-4 focus:ring-indigo-soft/60 disabled:opacity-60"
                     />
                     <div className="mt-2">
-                      <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Personalisation preview</p>
+                      <p className="mb-1.5 text-[13px] font-extrabold uppercase tracking-[0.12em] text-indigo">Personalisation preview</p>
                       <VariablePreview value={body} empty="Your message preview appears here." />
                     </div>
                   </div>

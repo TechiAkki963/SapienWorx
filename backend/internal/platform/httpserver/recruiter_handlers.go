@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 )
 
 func recruiterID(r *http.Request) (string, bool) {
@@ -234,6 +235,19 @@ func (s *Server) recruiterCandidateDetail(w http.ResponseWriter, r *http.Request
 		s.writeRecruiterError(w, r, err)
 		return
 	}
+	if s.company != nil {
+		relationship, err := s.company.HiringRelationship(r.Context(), id, result.UserID)
+		if err != nil {
+			s.writeCompanyError(w, r, err)
+			return
+		}
+		if !relationship {
+			if err = s.company.ConsumeUnlock(r.Context(), id, result.UserID); err != nil {
+				s.writeCompanyError(w, r, err)
+				return
+			}
+		}
+	}
 	writeJSON(w, http.StatusOK, result)
 }
 
@@ -330,7 +344,10 @@ func (s *Server) recruiterInterviewHistory(w http.ResponseWriter, r *http.Reques
 }
 
 func (s *Server) writeRecruiterError(w http.ResponseWriter, r *http.Request, err error) {
+	if errors.Is(err,company.ErrInactive)||errors.Is(err,company.ErrLimit)||errors.Is(err,company.ErrForbidden){s.writeCompanyError(w,r,err);return}
 	switch {
+	case errors.Is(err, recruiter.ErrInterviewConflict):
+		writeError(w, r, http.StatusConflict, "interview_conflict", "The candidate or an interviewer already has an interview during this time. Choose a different time or panel.")
 	case errors.Is(err, recruiter.ErrReferralRateLimited):
 		w.Header().Set("Retry-After", "86400")
 		writeError(w, r, http.StatusTooManyRequests, "referral_limit", "You can invite up to 10 people in 24 hours. Please try later.")

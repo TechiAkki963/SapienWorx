@@ -10,7 +10,7 @@ import { apiRequest } from "@/lib/api";
 
 const privacyPolicyVersion = "privacy-v3-2026-09-17";
 
-export function SignupForm({ recruiter = false, nextPath }: { recruiter?: boolean; nextPath?: string }) {
+export function SignupForm({ recruiter = false, nextPath, invitation }: { recruiter?: boolean; nextPath?: string; invitation?:{token:string;company_name:string;email:string;name:string} }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -28,7 +28,7 @@ export function SignupForm({ recruiter = false, nextPath }: { recruiter?: boolea
       privacy_consent: data.get("privacy_consent") === "on",
       privacy_policy_version: privacyPolicyVersion,
       ...(!recruiter ? { age_confirmed: data.get("age_confirmed") === "on" } : {}),
-      ...(recruiter ? { company_name: data.get("company_name"), designation: data.get("designation") } : {}),
+      ...(recruiter ? { company_name: data.get("company_name"), designation: data.get("designation"),...(invitation?{invitation_token:invitation.token}: {}) } : {}),
     };
     try {
       const result = await apiRequest<{ email: string; development_otp?: string }>(
@@ -49,10 +49,10 @@ export function SignupForm({ recruiter = false, nextPath }: { recruiter?: boolea
     <form className="grid gap-4" onSubmit={submit}>
       <div><p className="text-sm font-semibold text-indigo">{recruiter ? "Recruiter workspace" : "Candidate account"}</p><h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-ink">Create your account</h2></div>
       {error && <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
-      <Input label="Full name" name="full_name" autoComplete="name" required />
-      {recruiter && <><Input label="Company name" name="company_name" required /><Input label="Designation" name="designation" /></>}
-      <Input label={recruiter ? "Official work email" : "Email"} name="email" type="email" autoComplete="email" hint={recruiter ? "Public email providers such as Gmail or Yahoo are not accepted." : undefined} required />
-      <Input label="Mobile number" name="phone" type="tel" autoComplete="tel" placeholder="+919876543210" hint="Contact detail only; it is not used for account verification." required />
+      <Input label="Full name" name="full_name" autoComplete="name" defaultValue={invitation?.name} required />
+      {recruiter && <><Input label="Company name" name="company_name" defaultValue={invitation?.company_name} readOnly={!!invitation} required /><Input label="Designation" name="designation" /></>}
+      <Input label={recruiter ? "Official work email" : "Email"} name="email" type="email" autoComplete="email" defaultValue={invitation?.email} readOnly={!!invitation} hint={recruiter ? "Public email providers such as Gmail or Yahoo are not accepted." : undefined} required />
+      <Input label="Mobile number" name="phone" type="tel" autoComplete="tel" placeholder="+919876543210" hint="Contact detail only; it is not used for account verification." required={!invitation} />
       <Input label="Password" name="password" type="password" autoComplete="new-password" hint="Minimum 12 characters." minLength={12} required />
 
       <fieldset className="grid gap-3 rounded-2xl border border-line bg-slate-50/70 p-4">

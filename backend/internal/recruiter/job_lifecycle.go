@@ -3,6 +3,7 @@ package recruiter
 import (
 	"context"
 	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -41,7 +42,9 @@ func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, com
 		return err
 	}
 	defer tx.Rollback(ctx)
-
+	if err = company.LockCompanyTx(ctx, tx, companyID); err != nil {
+		return err
+	}
 	var currentStatus, description string
 	var responsibilities *string
 	var skills, process []string
@@ -66,6 +69,9 @@ func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, com
 		return nil
 	}
 	if nextStatus == "active" {
+		if err = company.CheckCapacityTx(ctx, tx, companyID, "active_jobs", 1); err != nil {
+			return err
+		}
 		if !publishableDetailedJob(DetailedJobInput{
 			Description:      description,
 			Responsibilities: valueOrEmpty(responsibilities),

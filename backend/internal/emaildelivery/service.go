@@ -28,6 +28,7 @@ type Service struct {
 	cfg             Config
 	now             func() time.Time
 	referralContent func(context.Context, string, string) (string, error)
+	companyContent  func(context.Context, string, string) (string, error)
 }
 
 type Health struct {
@@ -206,11 +207,15 @@ func (s *Service) dispatchOne(ctx context.Context, item queuedMessage) error {
 	if item.HTMLBody != nil {
 		html = *item.HTMLBody
 	}
-	if item.Kind == "referral_invitation" {
-		if s.referralContent == nil {
+	if item.Kind == "referral_invitation" || item.Kind == "company_invitation" {
+		resolver := s.referralContent
+		if item.Kind == "company_invitation" {
+			resolver = s.companyContent
+		}
+		if resolver == nil {
 			return s.markFailed(ctx, item, errors.New("secure referral delivery resolver unavailable"))
 		}
-		content, resolveErr := s.referralContent(ctx, item.DedupeKey, item.Recipient)
+		content, resolveErr := resolver(ctx, item.DedupeKey, item.Recipient)
 		if resolveErr != nil {
 			if !errors.Is(resolveErr, ErrContentUnavailable) {
 				return s.markFailed(ctx, item, errors.New("secure referral delivery lookup failed"))
@@ -381,4 +386,8 @@ func (s *Service) Run(ctx context.Context, onError func(error)) {
 
 func (s *Service) SetReferralContentResolver(resolve func(context.Context, string, string) (string, error)) {
 	s.referralContent = resolve
+}
+
+func (s *Service) SetCompanyContentResolver(resolve func(context.Context, string, string) (string, error)) {
+	s.companyContent = resolve
 }

@@ -5,7 +5,9 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
@@ -149,6 +151,195 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 
 	recruiterSvc := NewService(db)
 	candidateSvc := candidate.NewService(db)
+
+	t.Run("recovery context only supplies active verified account email", func(t *testing.T) {
+		svc := auth.NewService(db, nil, auth.ServiceConfig{})
+		want := id(`SELECT email FROM users WHERE id=$1`, candidateA)
+		if email, err := svc.VerifiedRecoveryEmail(ctx, candidateA); err != nil || email != want {
+			t.Fatalf("own verified identity: %s %v", email, err)
+		}
+		exec(`UPDATE users SET email_verified_at=NULL WHERE id=$1`, candidateA)
+		if _, err := svc.VerifiedRecoveryEmail(ctx, candidateA); !errors.Is(err, auth.ErrAccountUnavailable) {
+			t.Fatalf("unverified identity: %v", err)
+		}
+		exec(`UPDATE users SET email_verified_at=now(),is_active=false WHERE id=$1`, candidateA)
+		if _, err := svc.VerifiedRecoveryEmail(ctx, candidateA); !errors.Is(err, auth.ErrAccountUnavailable) {
+			t.Fatalf("disabled identity: %v", err)
+		}
+		exec(`UPDATE users SET is_active=true WHERE id=$1`, candidateA)
+		if _, err := svc.VerifiedRecoveryEmail(ctx, user("master_admin")); !errors.Is(err, auth.ErrAccountUnavailable) {
+			t.Fatalf("administrative identity: %v", err)
+		}
+	})
+
+	t.Run("notification recipients permissions and read state stay isolated", func(t *testing.T) {
+		role := job(companyA, recruiterA, "active", "public", "Notification security fixture")
+		app := id(`INSERT INTO applications(candidate_id,job_id) VALUES($1,$2) RETURNING id`, candidateA, role)
+		notice := id(`SELECT id FROM recruiter_notifications WHERE recipient_id=$1 AND entity_id=$2`, recruiterA, app)
+		inbox, err := recruiterSvc.Notifications(ctx, recruiterA, "applications", true, 1, 50)
+		if err != nil || inbox.Total < 1 || inbox.Unread < 1 {
+			t.Fatalf("event not delivered: %+v %v", inbox, err)
+		}
+		if _, err := recruiterSvc.OpenNotification(ctx, recruiterB, notice); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("foreign tenant open: %v", err)
+		}
+		if err := recruiterSvc.NotificationState(ctx, recruiterA2, notice, "read"); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("foreign recipient state: %v", err)
+		}
+		href, err := recruiterSvc.OpenNotification(ctx, recruiterA, notice)
+		if err != nil || href != "/recruiter/jobs/"+role+"/applicants?application_id="+app {
+			t.Fatalf("invalid authorized action: %s %v", href, err)
+		}
+		var read bool
+		db.QueryRow(ctx, `SELECT read_at IS NOT NULL FROM recruiter_notification_state WHERE recipient_id=$1 AND notification_id=$2`, recruiterA, notice).Scan(&read)
+		if !read {
+			t.Fatal("opening must mark only this event read")
+		}
+		if err := recruiterSvc.NotificationState(ctx, recruiterA, notice, "unread"); err != nil {
+			t.Fatal(err)
+		}
+		exec(`DELETE FROM applications WHERE id=$1`, app)
+		if _, err := recruiterSvc.OpenNotification(ctx, recruiterA, notice); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("deleted entity open: %v", err)
+		}
+		exec(`UPDATE recruiter_profiles SET verification_status='pending' WHERE user_id=$1`, recruiterA)
+		if _, err := recruiterSvc.Notifications(ctx, recruiterA, "", false, 1, 25); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("revoked membership: %v", err)
+		}
+		exec(`UPDATE recruiter_profiles SET verification_status='verified' WHERE user_id=$1`, recruiterA)
+		if err := recruiterSvc.NotificationState(ctx, recruiterA, notice, "dismiss"); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := recruiterSvc.OpenNotification(ctx, recruiterA, notice); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("dismissed entity open: %v", err)
+		}
+	})
+
+	t.Run("interview panel conflicts feedback and cross tenant isolation", func(t *testing.T) {
+		role := job(companyA, recruiterA, "active", "public", "Interview security fixture")
+		app := id(`INSERT INTO applications(candidate_id,job_id) VALUES($1,$2) RETURNING id`, candidateA, role)
+		at := time.Now().Add(72 * time.Hour).Truncate(time.Second)
+		in := InterviewInput{ApplicationID: app, ScheduledAt: at, DurationMinutes: 45, MeetingURL: "https://meeting.example.test/room", RoundLabel: "Technical", InterviewerIDs: []string{recruiterA, recruiterA2}}
+		first, err := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterA, in)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(first.Interviewers) != 2 || first.FeedbackExpected != 2 || first.Format != "video" {
+			t.Fatalf("missing panel metadata: %+v", first)
+		}
+		if _, err := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterA, in); !errors.Is(err, ErrInterviewConflict) {
+			t.Fatalf("overlap: %v", err)
+		}
+		foreign := in
+		foreign.InterviewerIDs = []string{recruiterB}
+		foreign.ScheduledAt = at.Add(2 * time.Hour)
+		if _, err := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterA, foreign); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("foreign panel: %v", err)
+		}
+		inactive := foreign
+		inactive.InterviewerIDs = []string{recruiterA2}
+		exec(`UPDATE users SET is_active=false WHERE id=$1`, recruiterA2)
+		_, inactiveErr := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterA, inactive)
+		exec(`UPDATE users SET is_active=true WHERE id=$1`, recruiterA2)
+		if !errors.Is(inactiveErr, ErrNotFound) {
+			t.Fatalf("inactive panel: %v", inactiveErr)
+		}
+		localZone := foreign
+		localZone.Timezone = "Local"
+		if _, err := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterA, localZone); !errors.Is(err, ErrInvalid) {
+			t.Fatalf("host-dependent timezone accepted: %v", err)
+		}
+		if _, err := recruiterSvc.InterviewFeedback(ctx, recruiterB, first.ID); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("foreign feedback leakage: %v", err)
+		}
+		score := InterviewFeedback{Rating: 4, Recommendation: "advance", Notes: "Synthetic evidence"}
+		if err := recruiterSvc.SaveInterviewFeedback(ctx, recruiterA, first.ID, score); !errors.Is(err, ErrInvalid) {
+			t.Fatalf("premature feedback: %v", err)
+		}
+		if err := recruiterSvc.RespondInterview(ctx, recruiterB, first.ID, "accepted"); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("foreign response: %v", err)
+		}
+		if err := recruiterSvc.RespondInterview(ctx, recruiterA2, first.ID, "accepted"); err != nil {
+			t.Fatal(err)
+		}
+		exec(`UPDATE interviews SET status='completed',scheduled_at=now()-interval '2 days' WHERE id=$1`, first.ID)
+		if err := recruiterSvc.SaveInterviewFeedback(ctx, recruiterA2, first.ID, score); err != nil {
+			t.Fatal(err)
+		}
+		score.Rating = 5
+		if err := recruiterSvc.SaveInterviewFeedback(ctx, recruiterA2, first.ID, score); err != nil {
+			t.Fatal(err)
+		}
+		scores, err := recruiterSvc.InterviewFeedback(ctx, recruiterA, first.ID)
+		if err != nil || len(scores) != 1 || scores[0].Rating != 5 {
+			t.Fatalf("feedback: %+v %v", scores, err)
+		}
+		var auditCount int
+		if err := db.QueryRow(ctx, `SELECT count(*) FROM interview_feedback_audit WHERE interview_id=$1`, first.ID).Scan(&auditCount); err != nil || auditCount != 2 {
+			t.Fatalf("audit history: %d %v", auditCount, err)
+		}
+		phone := in
+		phone.InterviewerIDs = nil
+		phone.Format = "phone"
+		phone.MeetingURL = ""
+		phone.ScheduledAt = at.Add(4 * time.Hour)
+		phone.Timezone = "America/New_York"
+		phone.Location = "Call instructions"
+		scheduled, err := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterA, phone)
+		if err != nil || scheduled.Format != "phone" {
+			t.Fatalf("phone: %+v %v", scheduled, err)
+		}
+		candidateItems, err := candidateSvc.InterviewsForCandidate(ctx, candidateA)
+		if err != nil {
+			t.Fatal(err)
+		}
+		found := false
+		for _, item := range candidateItems {
+			if item.ID == scheduled.ID {
+				found = item.Mode == "phone" && item.TimeZone == "America/New_York" && item.Location == "Call instructions"
+			}
+		}
+		if !found {
+			t.Fatal("candidate format/timezone/location not retained")
+		}
+		// Two distinct employers racing for the same candidate cannot double book.
+		otherRole := job(companyB, recruiterB, "active", "public", "Concurrent interview fixture")
+		otherApp := id(`INSERT INTO applications(candidate_id,job_id) VALUES($1,$2) RETURNING id`, candidateA, otherRole)
+		left := in
+		left.InterviewerIDs = []string{recruiterA}
+		left.ScheduledAt = at.Add(24 * time.Hour)
+		right := left
+		right.ApplicationID = otherApp
+		right.InterviewerIDs = []string{recruiterB}
+		results := make(chan error, 2)
+		var group sync.WaitGroup
+		group.Add(2)
+		go func() {
+			defer group.Done()
+			_, e := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterA, left)
+			results <- e
+		}()
+		go func() {
+			defer group.Done()
+			_, e := recruiterSvc.ScheduleInterviewEfficient(ctx, recruiterB, right)
+			results <- e
+		}()
+		group.Wait()
+		close(results)
+		success, conflicts := 0, 0
+		for e := range results {
+			if e == nil {
+				success++
+			} else if errors.Is(e, ErrInterviewConflict) {
+				conflicts++
+			} else {
+				t.Fatal(e)
+			}
+		}
+		if success != 1 || conflicts != 1 {
+			t.Fatalf("race: success=%d conflicts=%d", success, conflicts)
+		}
+	})
 
 	t.Run("anonymous job detail supplies only public share fields", func(t *testing.T) {
 		logo := "https://assets.example.test/company-logo.png"
@@ -559,6 +750,7 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 	})
 
 	t.Run("detailed builder creates drafts and published jobs with typed parameters", func(t *testing.T) {
+		deadline := time.Now().AddDate(0, 0, 7).Format("2006-01-02")
 		for _, publish := range []bool{false, true} {
 			created, err := recruiterSvc.CreateDetailedJob(ctx, recruiterA, DetailedJobInput{
 				Title: "  Synthetic QA / PostgreSQL builder  ", Description: "Synthetic regression opportunity",
@@ -566,6 +758,7 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 				Skills: []string{"Quality Assurance"}, Responsibilities: "Verify job creation and referral readiness.",
 				HiringProcess: []string{"Application review", "Interview", "Decision"},
 				Visibility:    "public", ReferralEnabled: true, Publish: publish,
+				ReferralDeadline: &deadline, ReferralRewardEnabled: true, ReferralTerms: "Placement and employer review", ReferralEligibility: "Canonical referral only",
 			})
 			if err != nil {
 				t.Fatalf("builder publish=%t: %v", publish, err)
@@ -578,7 +771,7 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 				t.Fatalf("incorrect builder result: %+v", created)
 			}
 			editable, err := recruiterSvc.EditableJob(ctx, recruiterA, created.ID)
-			if err != nil || !editable.ReferralEnabled || len(editable.HiringProcess) != 3 {
+			if err != nil || !editable.ReferralEnabled || len(editable.HiringProcess) != 3 || editable.ReferralDeadline == nil || *editable.ReferralDeadline != deadline || !editable.ReferralRewardEnabled || editable.ReferralTerms != "Placement and employer review" {
 				t.Fatalf("builder fields were not persisted: %+v %v", editable, err)
 			}
 			var slug string

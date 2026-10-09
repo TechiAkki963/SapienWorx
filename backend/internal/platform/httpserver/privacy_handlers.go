@@ -66,6 +66,17 @@ func (s *Server) userAccountErasure(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnauthorized, "unauthorized", "authentication required")
 		return
 	}
+	if s.company != nil && claims.Role == "recruiter" {
+		owner, err := s.company.HasOwnership(r.Context(), claims.Subject)
+		if err != nil {
+			s.writeCompanyError(w, r, err)
+			return
+		}
+		if owner {
+			writeError(w, r, 409, "ownership_transfer_required", "Transfer company ownership before closing your account.")
+			return
+		}
+	}
 	if s.privacy == nil {
 		writeError(w, r, http.StatusServiceUnavailable, "privacy_unavailable", "privacy service is unavailable")
 		return

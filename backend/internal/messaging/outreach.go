@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
+	"strconv"
 	"strings"
 	"time"
 
@@ -151,7 +153,16 @@ func (s *Service) CreateOutreachSequence(ctx context.Context, recruiterID string
 		return OutreachSequence{}, err
 	}
 	defer tx.Rollback(ctx)
-
+	if err = company.RequireFeatureTx(ctx, tx, recruiterID, "talent.outreach"); err != nil {
+		return OutreachSequence{}, err
+	}
+	var companyID string
+	if err = tx.QueryRow(ctx, `SELECT company_id FROM recruiter_profiles WHERE user_id=$1`, recruiterID).Scan(&companyID); err != nil {
+		return OutreachSequence{}, err
+	}
+	if err = company.CheckCapacityTx(ctx, tx, companyID, "outreach_sequences", 1); err != nil {
+		return OutreachSequence{}, err
+	}
 	templateIDs := make([]string, 0, len(input.Steps))
 	for _, step := range input.Steps {
 		templateIDs = append(templateIDs, strings.TrimSpace(step.TemplateID))
@@ -449,6 +460,13 @@ func (s *Service) LaunchOutreachCampaign(ctx context.Context, recruiterID, campa
 	}
 	defer tx.Rollback(ctx)
 
+	var currentOwner string
+	if err = tx.QueryRow(ctx, `SELECT recruiter_id FROM outreach_campaigns WHERE id=$1 FOR UPDATE`, campaignID).Scan(&currentOwner); err != nil {
+		return OutreachCampaign{}, BulkInMailResult{}, err
+	}
+	if currentOwner != recruiterID {
+		return OutreachCampaign{}, BulkInMailResult{}, ErrNotFound
+	}
 	deliveryByCandidate := make(map[string]string, len(result.Deliveries))
 	for _, delivery := range result.Deliveries {
 		deliveryByCandidate[delivery.CandidateID] = delivery.ThreadID
@@ -630,6 +648,13 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 		}
 
 		var currentStatus, campaignStatus string
+		if err = company.RequireFeatureTx(ctx, tx, item.recruiterID, "talent.outreach"); err != nil {
+			tx.Rollback(ctx)
+			if errors.Is(err, company.ErrInactive) {
+				continue
+			}
+			return events, err
+		}
 		var currentStep int
 		var currentNextRun, currentLastSent *time.Time
 		if err := tx.QueryRow(ctx, `
@@ -781,6 +806,13 @@ func (s *Service) ProcessDueOutreach(ctx context.Context, limit int) ([]Outreach
 		}
 		if _, err := tx.Exec(ctx, `UPDATE outreach_campaigns SET sent_count=sent_count+1 WHERE id=$1`, item.campaignID); err != nil {
 			tx.Rollback(ctx)
+			return events, err
+		}
+		if err := company.ConsumeOutreachTx(ctx, tx, item.recruiterID, 1, "followup:"+item.enrollmentID+":"+strconv.Itoa(item.stepOrder)); err != nil {
+			tx.Rollback(ctx)
+			if errors.Is(err, company.ErrInactive) || errors.Is(err, company.ErrLimit) {
+				continue
+			}
 			return events, err
 		}
 		if err := tx.Commit(ctx); err != nil {

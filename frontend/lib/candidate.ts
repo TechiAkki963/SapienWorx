@@ -1,5 +1,9 @@
 export type CandidateJob = {
   referral_enabled?: boolean;
+  referral_deadline?: string|null;
+  referral_reward_enabled?: boolean;
+  referral_terms?: string;
+  referral_eligibility?: string;
   id: string;
   job_reference?: string;
   status?: string;

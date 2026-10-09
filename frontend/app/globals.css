@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+.swx-talent-tabs-container { container-type:inline-size; }
+.swx-recruiter-workspace :is([class*="text-[10px]"],[class*="text-[11px]"]) { font-size:13px; }
+.swx-talent-tabs { display:flex; align-items:stretch; gap:0; }
+.swx-talent-tab { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-width:44px; min-height:44px; flex:1; padding:8px; border-radius:8px; font-size:14px; font-weight:600; color:var(--workspace-muted,#51627a); }
+.swx-talent-tab:hover { background:var(--color-indigo-soft); }
+.swx-talent-tab:focus-visible { outline:2px solid var(--color-indigo); outline-offset:2px; }
+.swx-talent-tab-active,.swx-talent-tab-active:hover { background:#0a66ff; color:white; box-shadow:0 2px 6px #0a66ff26; }
+.swx-talent-label-full,.swx-talent-label-short { display:none; white-space:nowrap; }
+.swx-talent-tab-active .swx-talent-label-short { display:inline; font-size:13px; }
+.swx-talent-selected-name { display:none; }
+@container (max-width:389px) { .swx-talent-tab { padding:8px 2px; } .swx-talent-tab-active .swx-talent-label-short { display:none; } .swx-talent-selected-name { display:block; margin-top:8px; font-size:13px; font-weight:600; color:var(--workspace-muted,#51627a); } }
+@container (min-width:600px) { .swx-talent-tabs { gap:4px; } .swx-talent-tab { flex:0 1 auto; padding:10px 12px; } .swx-talent-label-short,.swx-talent-tab-active .swx-talent-label-short { display:inline; font-size:14px; } }
+@container (min-width:780px) { .swx-talent-label-short,.swx-talent-tab-active .swx-talent-label-short { display:none; } .swx-talent-label-full { display:inline; } }
+
 @theme {
   --color-canvas: #f8fbff;
   --color-surface: #ffffff;
@@ -23,7 +37,7 @@
 }
 
 :root {
-  --font-sans-stack: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans-stack: var(--font-inter), Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --page-gutter: clamp(1rem, 3vw, 2rem);
   --content-max: 76rem;
   color-scheme: light;
@@ -612,14 +626,12 @@ a {
 }
 
 
-/* P2.7 recruiter product display contract.
-   Source Serif 4 remains the approved display face; Georgia is the resilient
-   local fallback until a reviewed local font asset is committed. */
+/* Editorial display typography remains available outside operational workspaces. */
 :root {
   --font-display-stack: "Source Serif 4", Georgia, "Times New Roman", serif;
 }
 .swx-recruiter-display {
-  font-family: var(--font-display-stack);
+  font-family: var(--font-sans-stack);
   text-wrap: balance;
 }
 .swx-recruiter-product-header {
@@ -707,6 +719,29 @@ html:has(.swx-search-actions) { scroll-padding-bottom: 11rem; }
 .swx-dark .swx-recruiter-workspace :is(.text-blue-700,.text-blue-800,.text-blue-900) { color: #aacdff !important; }
 .swx-dark .swx-recruiter-workspace :is(.text-amber-700,.text-amber-800,.text-amber-900) { color: #fde68a !important; }
 .swx-dark .swx-recruiter-workspace :is(.text-rose-700,.text-rose-800,.text-rose-900) { color: #fda4af !important; }
-[data-testid="recruiter-bottom-nav"] nav > :is(a,button) > span:last-child { font-size: 10px; line-height: 14px; overflow: visible; text-overflow: clip; }
+[data-testid="recruiter-bottom-nav"] nav > :is(a,button) > span:last-child { font-size: 12px; line-height: 16px; overflow: visible; text-overflow: clip; }
 
 .swx-recruiter-workspace .swx-workspace-drawer-left { inset: 0 auto 0 0; margin: 0; border-left: 0; border-right: 1px solid var(--workspace-line); border-radius: 0 1rem 1rem 0; }
+
+/* Shared recruiter typography: operational information stays at least 13px. */
+.swx-type-page-title { font-family: var(--font-sans-stack); font-size: 1.75rem; font-weight: 700; line-height: 1.25; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.swx-type-section-title { font-size: 1.125rem; font-weight: 600; line-height: 1.5; }
+.swx-type-body, .swx-type-table { font-size: .875rem; line-height: 1.5; }
+.swx-type-label { font-size: .8125rem; font-weight: 600; line-height: 1.5; }
+.swx-type-caption { font-size: .8125rem; line-height: 1.5; }
+.swx-type-eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .1em; line-height: 1.5; text-transform: uppercase; }
+.swx-recruiter-workspace { font-family: var(--font-sans-stack); font-size: .875rem; }
+.swx-recruiter-workspace .text-ink-muted { color: var(--workspace-muted); }
+.swx-recruiter-workspace :is(label, table .text-xs, .swx-workspace-drawer .text-xs) { font-size: .8125rem; line-height: 1.5; }
+.swx-recruiter-workspace th { font-size: .8125rem; font-weight: 600; line-height: 1.5; letter-spacing: normal; text-transform: none; }
+.swx-recruiter-workspace td { line-height: 1.5; }
+@media (max-width: 639px) { .swx-type-page-title { font-size: 1.5rem; } }
+
+/* Company governance notices use readable colours in explicit and System modes. */
+.swx-company-success { color: #047857; }
+.swx-company-error { color: #be123c; }
+.swx-dark .swx-company-success { color: #a7f3d0 !important; }
+.swx-dark .swx-company-error { color: #fda4af !important; }
+
+html:has(.swx-company-review-form) { scroll-padding-block: 6rem 15rem; }
+.swx-company-review-form :is(input,select,textarea) { scroll-margin-block: 6rem 15rem; }

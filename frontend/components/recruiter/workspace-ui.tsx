@@ -33,7 +33,7 @@ export function RecruiterDataTable<T>({ rows, columns, rowKey, mobileRow, label 
   return <>
     <div className="swx-workspace-surface hidden rounded-xl border border-line md:block">
       <table aria-label={label} className="w-full table-fixed border-collapse text-left text-sm">
-        <thead><tr className="border-b border-line bg-slate-50/60 text-xs text-ink-muted">{columns.map(column => <th scope="col" key={column.key} className={`px-3 py-3 font-semibold ${column.secondary ? "hidden xl:table-cell" : ""}`} style={{ width: column.width }}>{column.title}</th>)}</tr></thead>
+        <thead><tr className="swx-type-label border-b border-line bg-slate-50/60 text-ink">{columns.map(column => <th scope="col" key={column.key} className={`px-3 py-3 font-semibold ${column.secondary ? "hidden xl:table-cell" : ""}`} style={{ width: column.width }}>{column.title}</th>)}</tr></thead>
         <tbody>{rows.map(row => <tr key={rowKey(row)} className="border-b border-line/60 align-top last:border-b-0 hover:bg-slate-50/40">{columns.map(column => <td key={column.key} className={`break-words px-3 py-4 ${column.secondary ? "hidden xl:table-cell" : ""}`}>{column.render(row)}</td>)}</tr>)}</tbody>
       </table>
     </div>
@@ -60,8 +60,8 @@ export function RecruiterDrawer({ open, onClose, title, children, footer, wide =
     return () => { node.close(); document.body.style.overflow = previousOverflow; opener?.focus(); };
   }, [open, initialFocus]);
   return <dialog ref={dialog} aria-label={title} onKeyDown={event => {
-    if (event.key !== "Tab") return;
-    const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex="0"]')).filter(node => node.getClientRects().length > 0 && !node.closest("[inert]"));
+    if (event.key !== "Tab" || (event.target as HTMLElement).closest("dialog") !== event.currentTarget) return;
+    const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex="0"]')).filter(node => node.tabIndex >= 0 && node.getClientRects().length > 0 && getComputedStyle(node).visibility !== "hidden" && !node.closest("[inert]") && node.closest("dialog") === event.currentTarget);
     const first = controls[0], last = controls[controls.length - 1];
     if (!first) { event.preventDefault(); return; }
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }

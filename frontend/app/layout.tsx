@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import { ThemeRuntime } from "@/components/theme/theme-runtime";
 
 import "./globals.css";
+
+const inter = localFont({ src: "../public/fonts/inter/InterVariable.woff2", variable: "--font-inter", weight: "100 900", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sapienworx.com"),
@@ -20,7 +23,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var m=localStorage.getItem("swx-theme")||"system";var d=m==="dark"||(m==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=m;document.documentElement.classList.toggle("swx-dark",d);}catch(e){}})();` }} />
         <ThemeRuntime />

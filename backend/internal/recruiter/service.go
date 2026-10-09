@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -159,22 +158,32 @@ func scanPipelineRow(row pgx.Row) (PipelineRow, error) {
 }
 
 type Interview struct {
-	ID                string    `json:"id"`
-	ApplicationID     string    `json:"application_id"`
-	CandidateID       string    `json:"candidate_id"`
-	JobID             string    `json:"job_id"`
-	JobReference      string    `json:"job_reference"`
-	CandidateName     string    `json:"candidate_name"`
-	CandidateHeadline string    `json:"candidate_headline"`
-	JobTitle          string    `json:"job_title"`
-	ScheduledAt       time.Time `json:"scheduled_at"`
-	DurationMinutes   int       `json:"duration_minutes"`
-	MeetingURL        string    `json:"meeting_url"`
-	Status            string    `json:"status"`
-	RoundLabel        string    `json:"round_label"`
-	Notes             *string   `json:"notes,omitempty"`
+	Format            string        `json:"format"`
+	Timezone          string        `json:"timezone"`
+	Location          string        `json:"location"`
+	Interviewers      []Interviewer `json:"interviewers"`
+	FeedbackExpected  int           `json:"feedback_expected"`
+	FeedbackSubmitted int           `json:"feedback_submitted"`
+	ID                string        `json:"id"`
+	ApplicationID     string        `json:"application_id"`
+	CandidateID       string        `json:"candidate_id"`
+	JobID             string        `json:"job_id"`
+	JobReference      string        `json:"job_reference"`
+	CandidateName     string        `json:"candidate_name"`
+	CandidateHeadline string        `json:"candidate_headline"`
+	JobTitle          string        `json:"job_title"`
+	ScheduledAt       time.Time     `json:"scheduled_at"`
+	DurationMinutes   int           `json:"duration_minutes"`
+	MeetingURL        string        `json:"meeting_url"`
+	Status            string        `json:"status"`
+	RoundLabel        string        `json:"round_label"`
+	Notes             *string       `json:"notes,omitempty"`
 }
 type InterviewInput struct {
+	Format          string    `json:"format"`
+	Timezone        string    `json:"timezone"`
+	Location        string    `json:"location"`
+	InterviewerIDs  []string  `json:"interviewer_ids"`
 	ApplicationID   string    `json:"application_id"`
 	ScheduledAt     time.Time `json:"scheduled_at"`
 	DurationMinutes int       `json:"duration_minutes"`
@@ -307,45 +316,7 @@ func validEnum(v string, allowed ...string) bool {
 	return false
 }
 func (s *Service) CreateJob(ctx context.Context, userID string, in JobInput) (Job, error) {
-	companyID, _, _, err := s.recruiterCompany(ctx, userID)
-	if err != nil {
-		return Job{}, err
-	}
-	in.Title = strings.TrimSpace(in.Title)
-	in.Description = strings.TrimSpace(in.Description)
-	if in.Title == "" || in.Description == "" || !validEnum(in.EmploymentType, "full_time", "part_time", "contract", "internship", "temporary") || !validEnum(in.WorkMode, "onsite", "hybrid", "remote") || in.MinExperienceMonths < 0 || in.Openings < 1 {
-		return Job{}, ErrInvalid
-	}
-	if in.MaxExperienceMonths != nil && *in.MaxExperienceMonths < in.MinExperienceMonths {
-		return Job{}, ErrInvalid
-	}
-	country := strings.ToUpper(strings.TrimSpace(in.CountryCode))
-	if len(country) != 2 {
-		country = "IN"
-	}
-	status := "draft"
-	if in.Publish {
-		status = "active"
-	}
-	var deadline any
-	if in.ApplicationDeadline != nil && strings.TrimSpace(*in.ApplicationDeadline) != "" {
-		deadline = *in.ApplicationDeadline
-	}
-	var id string
-	err = s.db.QueryRow(ctx, `INSERT INTO jobs(company_id,created_by_recruiter_id,title,slug,department,description,employment_type,work_mode,city,state,country_code,min_experience_months,max_experience_months,openings,status,application_deadline,published_at) VALUES($1,$2,$3,lower(regexp_replace($3,'[^a-zA-Z0-9]+','-','g'))||'-'||substr(gen_random_uuid()::text,1,8),NULLIF($4,''),$5,$6::employment_type,$7::work_mode,NULLIF($8,''),NULLIF($9,''),$10,$11,$12,$13,$14::job_status,$15,CASE WHEN $14='active' THEN now() ELSE NULL END) RETURNING id`, companyID, userID, in.Title, strings.TrimSpace(in.Department), in.Description, in.EmploymentType, in.WorkMode, strings.TrimSpace(in.City), strings.TrimSpace(in.State), country, in.MinExperienceMonths, in.MaxExperienceMonths, in.Openings, status, deadline).Scan(&id)
-	if err != nil {
-		return Job{}, err
-	}
-	jobs, err := s.Jobs(ctx, userID)
-	if err != nil {
-		return Job{}, err
-	}
-	for _, j := range jobs {
-		if j.ID == id {
-			return j, nil
-		}
-	}
-	return Job{}, ErrNotFound
+	return s.CreateJobEfficient(ctx, userID, in)
 }
 func (s *Service) SetJobStatus(ctx context.Context, userID, jobID, status string) error {
 	return s.transitionJobStatus(ctx, userID, jobID, status)
@@ -503,56 +474,15 @@ func (s *Service) InterviewsForJob(ctx context.Context, userID, jobID string) ([
 		}
 		items = append(items, i)
 	}
-	return items, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	rows.Close()
+	if err := s.decorateInterviews(ctx, items); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 func (s *Service) ScheduleInterview(ctx context.Context, userID string, in InterviewInput) (Interview, error) {
-	if strings.TrimSpace(in.ApplicationID) == "" || in.ScheduledAt.IsZero() {
-		return Interview{}, ErrInvalid
-	}
-	if in.DurationMinutes == 0 {
-		in.DurationMinutes = 45
-	}
-	u, err := url.ParseRequestURI(strings.TrimSpace(in.MeetingURL))
-	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
-		return Interview{}, ErrInvalid
-	}
-	companyID, _, _, err := s.recruiterCompany(ctx, userID)
-	if err != nil {
-		return Interview{}, err
-	}
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return Interview{}, err
-	}
-	defer tx.Rollback(ctx)
-	var candidateID string
-	err = tx.QueryRow(ctx, `SELECT a.candidate_id FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND j.company_id=$2`, in.ApplicationID, companyID).Scan(&candidateID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return Interview{}, ErrNotFound
-	}
-	if err != nil {
-		return Interview{}, err
-	}
-	var id string
-	err = tx.QueryRow(ctx, `INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,notes) VALUES($1,$2,$3,$4,$5,NULLIF($6,'')) RETURNING id`, in.ApplicationID, userID, in.ScheduledAt, in.DurationMinutes, strings.TrimSpace(in.MeetingURL), strings.TrimSpace(in.Notes)).Scan(&id)
-	if err != nil {
-		return Interview{}, err
-	}
-	_, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'interview','Interview scheduled',$2,$3)`, candidateID, "An interview has been scheduled. Open the meeting link at the scheduled time.", strings.TrimSpace(in.MeetingURL))
-	if err != nil {
-		return Interview{}, err
-	}
-	if err := tx.Commit(ctx); err != nil {
-		return Interview{}, err
-	}
-	items, err := s.Interviews(ctx, userID)
-	if err != nil {
-		return Interview{}, err
-	}
-	for _, i := range items {
-		if i.ID == id {
-			return i, nil
-		}
-	}
-	return Interview{}, ErrNotFound
+	return s.ScheduleInterviewEfficient(ctx, userID, in)
 }

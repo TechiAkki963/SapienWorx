@@ -1,4 +1,5 @@
 import http from "node:http";
+import {handleCompanyMock} from "./company-mock.mjs";
 import { URL } from "node:url";
 import adminCatalog from "../../lib/admin-permission-catalog.json" with { type: "json" };
 
@@ -40,6 +41,8 @@ function initialState() {
     publicJobFixture: {},
     publicJobStatus: 200,
     namedPools:[{id:"81000000-0000-4000-8000-000000000001",name:"Engineering future hires",kind:"manual",visibility:"private",owner_name:"Riya Recruiter",count:3,can_edit:true,criteria:{}},{id:"81000000-0000-4000-8000-000000000002",name:"Pune Go engineers",kind:"smart",visibility:"team",owner_name:"Riya Recruiter",count:3,can_edit:true,criteria:{skills:"Go",location:"Pune"}}],
+    recruiterNotifications:[{id:"91000000-0000-4000-8000-000000000001",category:"interviews",title:"Interview panel invitation",message:"Review the schedule and confirm your availability.",created_at:now(),read:false,href:"/recruiter/interviews?status=all&interview_id=80000000-0000-4000-8000-000000000001"},{id:"91000000-0000-4000-8000-000000000002",category:"messages",title:"New candidate message",message:"A candidate replied to your conversation.",created_at:now(),read:false,href:"/recruiter/messages?thread=73000000-0000-4000-8000-000000000001"}],
+    mutedRecruiterCategories:[],
     candidateReferrals:[],
     inviteStatus:"account_linked",
     referralInvites:[{id:"82000000-0000-4000-8000-000000000001",candidate_name:"Ananya Sharma",job_id:jobID,job_title:"Senior Go Platform Engineer",company_name:"Acme Hiring India",referrer_name:"Nisha Rao",relationship:"Former colleague",source:"employee",status:"invitation_queued",reward_status:"not_eligible",expires_at:new Date(Date.now()+7*86400000).toISOString(),created_at:now(),updated_at:now(),can_view_candidate:false},{id:"82000000-0000-4000-8000-000000000002",candidate_name:"Meera Nair",candidate_id:"71000000-0000-4000-8000-000000000002",job_id:jobID,job_title:"Senior Go Platform Engineer",company_name:"Acme Hiring India",referrer_name:"Nisha Rao",relationship:"Former colleague",source:"employee",status:"application_submitted",hiring_stage:"hired",application_id:"70000000-0000-4000-8000-000000000002",reward_status:"pending",expires_at:new Date(Date.now()+7*86400000).toISOString(),created_at:now(),updated_at:now(),can_view_candidate:true}],
@@ -410,6 +413,29 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/__e2e/state" && req.method === "GET") return json(res, 200, { ...state, stages: Object.fromEntries(state.stages) });
 
   const payload = ["POST", "PATCH", "PUT"].includes(req.method ?? "") ? await body(req) : {};
+  if(handleCompanyMock(req,res,url,payload,{state,json,noContent,logRequest})!==false)return;
+  if (["/api/v1/auth/password/forgot","/api/v1/auth/password/reset"].includes(url.pathname) && req.method==="POST") { state.requests.push({method:req.method,path:url.pathname,search:url.search,query:Object.fromEntries(url.searchParams),body:payload}); return json(res,200,{status:"accepted"}); }
+  if(url.pathname==="/__e2e/recruiter-notifications"&&req.method==="POST"){state.recruiterNotifications=payload.items;return json(res,200,{seeded:true});}
+  if(url.pathname.startsWith("/api/v1/recruiter/notification"))logRequest(req,url,payload);
+  if(url.pathname==="/api/v1/recruiter/notifications"&&req.method==="GET"){
+    const visible=state.recruiterNotifications.filter(n=>!n.dismissed&&!state.mutedRecruiterCategories.includes(n.category));
+    const filtered=visible.filter(n=>(!url.searchParams.get("category")||n.category===url.searchParams.get("category"))&&(url.searchParams.get("unread")!=="1"||!n.read));
+    const page=Number(url.searchParams.get("page")||1),limit=Number(url.searchParams.get("limit")||25);
+    return json(res,200,{items:filtered.slice((page-1)*limit,page*limit),unread:visible.filter(n=>!n.read).length,total:filtered.length,page,limit});
+  }
+  if(url.pathname==="/api/v1/recruiter/notification-preferences"){
+    if(req.method==="PUT")state.mutedRecruiterCategories=payload.muted_categories;
+    return json(res,200,{muted_categories:state.mutedRecruiterCategories});
+  }
+  const recruiterNotificationMatch=url.pathname.match(/^\/api\/v1\/recruiter\/notifications\/([^/]+)(\/open)?$/);
+  if(recruiterNotificationMatch&&["PATCH","POST"].includes(req.method)){
+    const item=state.recruiterNotifications.find(n=>n.id===recruiterNotificationMatch[1]);
+    if(payload.action==="read_all"){for(const n of state.recruiterNotifications)n.read=true;return json(res,204,{});}
+    if(!item||item.deleted)return json(res,404,{error:{message:"This update is no longer available."}});
+    if(recruiterNotificationMatch[2]){item.read=true;return json(res,200,{href:item.href});}
+    if(payload.action==="dismiss")item.dismissed=true;else item.read=payload.action==="read";return json(res,204,{});
+  }
+  if(url.pathname==="/__e2e/interviews" && req.method==="POST"){ state.recruiterInterviews=payload.items; return json(res,200,{seeded:true}); }
   logRequest(req, url, payload);
   if (url.pathname === "/__e2e/public-job" && req.method === "POST") {
     state.publicJobFixture = payload.job || {};
@@ -531,6 +557,7 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { expires_in: 900, role }, { "set-cookie": [`swx_e2e_role=${encodeURIComponent(role)}; Path=/; HttpOnly; SameSite=Lax`, "sw_csrf=e2e-csrf-token; Path=/; SameSite=Lax"] });
   }
   if (url.pathname === "/api/v1/auth/logout" && req.method === "POST") return json(res, 200, {}, { "set-cookie": ["swx_e2e_role=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0", "sw_csrf=; Path=/; SameSite=Lax; Max-Age=0"] });
+  if(url.pathname==="/api/v1/auth/recovery-context" && req.method==="GET") {const role=roleFromCookie(req);if(!role || role==="master_admin")return json(res,403,{});return json(res,200,{user_id:role==="recruiter"?recruiterID:candidateID,email:`${role}@example.com`});}
   if (url.pathname === "/api/v1/auth/me" && req.method === "GET") {
     const role = roleFromCookie(req);
     if(state.workspaceFail.session_get)return json(res,503,{error:{message:"Account service unavailable"}});
@@ -1152,13 +1179,19 @@ const server = http.createServer(async (req, res) => {
     if (item) item.read_at = now();
     return noContent(res);
   }
-  if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: [{
+  if (url.pathname === "/api/v1/recruiter/interviews" && req.method === "GET") return json(res, 200, { items: state.recruiterInterviews || [{
     id: "80000000-0000-4000-8000-000000000001", application_id: "70000000-0000-4000-8000-000000000001",
     candidate_id: "71000000-0000-4000-8000-000000000001", job_id: jobID, job_reference: "SWX-JOB-2026-00001",
     candidate_name: "Candidate 001", candidate_headline: "Backend engineer", job_title: "Senior Go Platform Engineer",
     scheduled_at: new Date(Date.now() + 2 * 86400000).toISOString(), duration_minutes: 45,
     meeting_url: "https://example.test/meeting", status: "scheduled", round_label: "Technical interview", notes: "",
+ format:"video",timezone:"Asia/Kolkata",interviewers:[{user_id:recruiterID,name:"Riya Recruiter",response:"accepted",feedback_submitted:false}],feedback_expected:1,feedback_submitted:0,
   }] });
+  if (/^\/api\/v1\/recruiter\/interviews\/[^/]+\/feedback$/.test(url.pathname)) {
+    if(req.method==="GET")return json(res,200,{items:state.interviewFeedback || []});
+    if(req.method==="PUT"){state.interviewFeedback=[{...payload,user_id:recruiterID,name:"Riya Recruiter",submitted_at:now()}];return json(res,204,{});}
+  }
+  if (/^\/api\/v1\/recruiter\/interviews\/[^/]+\/response$/.test(url.pathname) && req.method==="PUT")return json(res,204,{});
   if (/^\/api\/v1\/recruiter\/interviews\/[^/]+\/history$/.test(url.pathname) && req.method === "GET") return json(res, 200, { items: [] });
   if (url.pathname === "/api/v1/recruiter/pipeline" && req.method === "GET") {
     const page = Number(url.searchParams.get("page") ?? 1);

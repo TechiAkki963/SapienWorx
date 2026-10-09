@@ -3,7 +3,7 @@ package recruiter
 import (
 	"context"
 	"errors"
-	"net/url"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -37,8 +37,18 @@ func (s *Service) CreateJobEfficient(ctx context.Context, userID string, in JobI
 		deadline = *in.ApplicationDeadline
 	}
 
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return Job{}, err
+	}
+	defer tx.Rollback(ctx)
+	if in.Publish {
+		if err = company.CheckCapacityTx(ctx, tx, companyID, "active_jobs", 1); err != nil {
+			return Job{}, err
+		}
+	}
 	var job Job
-	err = s.db.QueryRow(ctx, `
+	err = tx.QueryRow(ctx, `
 		INSERT INTO jobs(
 			company_id,created_by_recruiter_id,title,slug,department,description,
 			employment_type,work_mode,city,state,country_code,min_experience_months,
@@ -61,6 +71,9 @@ func (s *Service) CreateJobEfficient(ctx context.Context, userID string, in JobI
 	if err != nil {
 		return Job{}, err
 	}
+	if err = tx.Commit(ctx); err != nil {
+		return Job{}, err
+	}
 	job.Applications = 0
 	return job, nil
 }
@@ -68,25 +81,8 @@ func (s *Service) CreateJobEfficient(ctx context.Context, userID string, in JobI
 // ScheduleInterviewEfficient resolves ownership/candidate metadata once and
 // returns the inserted interview directly instead of reloading the full list.
 func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string, in InterviewInput) (Interview, error) {
-	if strings.TrimSpace(in.ApplicationID) == "" || in.ScheduledAt.IsZero() {
-		return Interview{}, ErrInvalid
-	}
-	if in.DurationMinutes == 0 {
-		in.DurationMinutes = 45
-	}
-	if in.DurationMinutes < 10 || in.DurationMinutes > 480 {
-		return Interview{}, ErrInvalid
-	}
-	in.RoundLabel = strings.TrimSpace(in.RoundLabel)
-	if in.RoundLabel == "" {
-		in.RoundLabel = "Interview"
-	}
-	if len(in.RoundLabel) > 120 {
-		return Interview{}, ErrInvalid
-	}
-	u, err := url.ParseRequestURI(strings.TrimSpace(in.MeetingURL))
-	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
-		return Interview{}, ErrInvalid
+	if err := validateInterviewInput(&in); err != nil {
+		return Interview{}, err
 	}
 	companyID, _, _, err := s.recruiterCompany(ctx, userID)
 	if err != nil {
@@ -98,6 +94,12 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 		return Interview{}, err
 	}
 	defer tx.Rollback(ctx)
+	if err := lockInterviewCompany(ctx, tx, companyID); err != nil {
+		return Interview{}, err
+	}
+	if len(in.InterviewerIDs) == 0 {
+		in.InterviewerIDs = []string{userID}
+	}
 
 	var candidateID, candidateName, candidateHeadline, jobID, jobReference, jobTitle string
 	err = tx.QueryRow(ctx, `
@@ -111,6 +113,19 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 		return Interview{}, ErrNotFound
 	}
 	if err != nil {
+		return Interview{}, err
+	}
+
+	var validPanel int
+	if err := tx.QueryRow(ctx, `SELECT count(*) FROM recruiter_profiles rp JOIN users u ON u.id=rp.user_id LEFT JOIN company_memberships cm ON cm.user_id=rp.user_id AND cm.company_id=rp.company_id JOIN jobs j ON j.id=$3 AND j.company_id=$2
+ WHERE rp.user_id=ANY($1::uuid[]) AND rp.company_id=$2 AND rp.verification_status='verified' AND u.role='recruiter' AND u.is_active AND u.status='active' AND coalesce(cm.status,'active')='active'
+ AND (cm.user_id IS NULL OR coalesce((cm.scope->>'all')::boolean,false) OR coalesce(cm.scope->'departments','[]'::jsonb)?j.department OR coalesce(cm.scope->'locations','[]'::jsonb)?j.city OR coalesce(cm.scope->'job_ids','[]'::jsonb)?j.id::text)`, in.InterviewerIDs, companyID, jobID).Scan(&validPanel); err != nil {
+		return Interview{}, err
+	}
+	if validPanel != len(in.InterviewerIDs) {
+		return Interview{}, ErrNotFound
+	}
+	if err := checkInterviewConflicts(ctx, tx, candidateID, "", in.InterviewerIDs, in.ScheduledAt, in.DurationMinutes); err != nil {
 		return Interview{}, err
 	}
 
@@ -133,14 +148,27 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 	}
 
 	err = tx.QueryRow(ctx, `
-		INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,notes,round_label)
-		VALUES($1,$2,$3,$4,$5,NULLIF($6,''),$7)
+		INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,notes,round_label,format,timezone,location)
+		VALUES($1,$2,$3,$4,$5,NULLIF($6,''),$7,$8,$9,$10)
 		RETURNING id,status`,
-		in.ApplicationID, userID, in.ScheduledAt, in.DurationMinutes, item.MeetingURL, strings.TrimSpace(in.Notes), in.RoundLabel,
+		in.ApplicationID, userID, in.ScheduledAt, in.DurationMinutes, item.MeetingURL, strings.TrimSpace(in.Notes), in.RoundLabel, in.Format, in.Timezone, strings.TrimSpace(in.Location),
 	).Scan(&item.ID, &item.Status)
 	if err != nil {
 		return Interview{}, err
 	}
+
+	for _, reviewerID := range in.InterviewerIDs {
+		response := "pending"
+		if reviewerID == userID {
+			response = "accepted"
+		}
+		if _, err := tx.Exec(ctx, `INSERT INTO interview_panel(interview_id,recruiter_id,response) VALUES($1,$2,$3)`, item.ID, reviewerID, response); err != nil {
+			return Interview{}, err
+		}
+	}
+	item.Format = in.Format
+	item.Timezone = in.Timezone
+	item.Location = strings.TrimSpace(in.Location)
 
 	notificationBody := "Your interview for " + jobTitle + " is scheduled for " + in.ScheduledAt.Format("02 Jan 2006 at 03:04 PM MST") + ". Open the meeting link at the scheduled time."
 	_, err = tx.Exec(ctx, `
@@ -156,5 +184,9 @@ func (s *Service) ScheduleInterviewEfficient(ctx context.Context, userID string,
 	if err := tx.Commit(ctx); err != nil {
 		return Interview{}, err
 	}
-	return item, nil
+	decorated := []Interview{item}
+	if err := s.decorateInterviews(ctx, decorated); err != nil {
+		return Interview{}, err
+	}
+	return decorated[0], nil
 }

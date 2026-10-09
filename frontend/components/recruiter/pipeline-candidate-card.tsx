@@ -77,17 +77,17 @@ export function PipelineCandidateCard({
             <span className="min-w-0">
               <span className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-[0.95rem] font-extrabold tracking-[-0.018em] text-navy sm:text-base">{candidate.candidate_name}</span>
-                <span className="hidden rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-ink-muted sm:inline-flex">{candidate.stage.replaceAll("_", " ")}</span>
+                <span className="hidden rounded-full bg-slate-100 px-2 py-0.5 text-[12px] font-bold uppercase tracking-[0.08em] text-ink-muted sm:inline-flex">{candidate.stage.replaceAll("_", " ")}</span>
               </span>
 
-              {stack.length > 0 ? <span className="mt-1.5 flex min-w-0 flex-wrap gap-1.5">{stack.map((skill) => <span key={skill} className="rounded-full border border-[#dcebe6] bg-[#f3faf7] px-2 py-0.5 text-[10px] font-bold text-[#276f5d]">{skill}</span>)}</span> : fallbackHeadline ? <span className="mt-1 block truncate text-xs font-medium text-ink-muted sm:text-[13px]">{fallbackHeadline}</span> : null}
+              {stack.length > 0 ? <span className="mt-1.5 flex min-w-0 flex-wrap gap-1.5">{stack.map((skill) => <span key={skill} className="rounded-full border border-[#dcebe6] bg-[#f3faf7] px-2 py-0.5 text-[13px] font-bold text-[#276f5d]">{skill}</span>)}</span> : fallbackHeadline ? <span className="mt-1 block truncate text-xs font-medium text-ink-muted sm:text-[13px]">{fallbackHeadline}</span> : null}
 
-              <span className="mt-1.5 block truncate text-[10px] font-medium text-ink-muted/90 sm:text-xs">{candidateMeta(candidate)}</span>
+              <span className="mt-1.5 block truncate text-[13px] font-medium text-ink-muted/90 sm:text-xs">{candidateMeta(candidate)}</span>
               {candidate.talent_pool_tags.length > 0 && <RecruiterTagList tags={candidate.talent_pool_tags.slice(0, 3)} className="mt-2" />}
             </span>
 
             <span className="flex shrink-0 flex-col items-end gap-2 pl-1">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#24A47F]/18 bg-[#eefaf5] px-2.5 py-1.5 text-[10px] font-extrabold text-[#18775e] shadow-[0_3px_10px_rgba(36,164,127,0.08)] sm:text-[11px]">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#24A47F]/18 bg-[#eefaf5] px-2.5 py-1.5 text-[13px] font-extrabold text-[#18775e] shadow-[0_3px_10px_rgba(36,164,127,0.08)] sm:text-[11px]">
                 <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.8]"><path d="M12 3.5c-3.4 0-6.2 2.7-6.2 6.1 0 4.6 3.6 8.4 6.2 10.9 2.6-2.5 6.2-6.3 6.2-10.9 0-3.4-2.8-6.1-6.2-6.1Z" /><path d="M9.3 10.1 11 11.8l3.8-4" /></svg>
                 <span className="hidden sm:inline">{signalLabel}</span><span className="sm:hidden">Signal</span>
               </span>

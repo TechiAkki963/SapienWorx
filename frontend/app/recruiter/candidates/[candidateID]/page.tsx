@@ -1,3 +1,4 @@
+import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ownedRecruiterJob } from "@/lib/recruiter-job-server";
@@ -178,9 +179,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                   )}
 
                   <div className="min-w-0">
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-indigo">Candidate 360°</p>
-                    <h1 className="mt-1 break-words text-2xl font-bold tracking-[-0.035em] text-navy">{candidate.full_name}</h1>
-                    <p className="mt-1 text-sm text-ink-muted">{candidate.headline ?? "No professional headline"}</p>
+                    <RecruiterProductHeader eyebrow="Candidate 360°" title={candidate.full_name} description={candidate.headline ?? "No professional headline"} />
 
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-ink-muted">
                       <span className="rounded-full bg-slate-100 px-2.5 py-1">{experience(candidate.total_experience_months)} experience</span>
@@ -213,7 +212,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                           >
                             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 fill-none stroke-current stroke-[1.8]"><path d="M4 6h16v12H4z" /><path d="m4.5 7 7.5 6 7.5-6" /></svg>
                             <span className="max-w-[15rem] truncate">{candidate.email}</span>
-                            {candidate.email_verified && <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-emerald-700">Verified</span>}
+                            {candidate.email_verified && <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[12px] font-extrabold uppercase tracking-[0.08em] text-emerald-700">Verified</span>}
                           </span>
                         )}
                         {candidate.can_view_contact && candidate.masked_phone && (
@@ -231,7 +230,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       className="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-soft/55 px-3 py-2 text-indigo shadow-[0_1px_2px_rgba(16,33,63,0.03)]"
                     >
                       <span className="text-xl font-extrabold leading-none">{Math.round(match.score)}%</span>
-                      <span className="text-[10px] font-extrabold uppercase tracking-[0.1em]">Match</span>
+                      <span className="text-[13px] font-extrabold uppercase tracking-[0.1em]">Match</span>
                     </div>
                   )}
                   <CandidateHeaderActions
@@ -268,7 +267,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                   <section className="rounded-2xl border border-line/70 bg-white p-5">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-bold text-navy">Recruiter Notes</h2>
-                      <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold text-ink-muted">Internal</span>
+                      <span className="rounded-full bg-slate-100 px-2 py-1 text-[13px] font-bold text-ink-muted">Internal</span>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-ink-muted">Internal recruiter notes become available after the candidate applies to your company.</p>
                   </section>
@@ -374,7 +373,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                         const url = safeExternalURL(item);
                         return (
                           <article key={`project-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
-                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Project</p>
+                            <p className="text-[13px] font-extrabold uppercase tracking-[0.12em] text-indigo">Project</p>
                             <p className="mt-1 break-words text-sm font-bold text-ink">{title}</p>
                             <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>
                             {url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open project ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View project ↗</a>}
@@ -386,7 +385,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                         const url = safeExternalURL(item);
                         return (
                           <article key={`accomplishment-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
-                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p>
+                            <p className="text-[13px] font-extrabold uppercase tracking-[0.12em] text-emerald-700">Accomplishment</p>
                             <p className="mt-1 break-words text-sm font-bold text-ink">{title}</p>
                             <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-ink-muted">{recordText(item, "description")}</p>
                             {url && <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open accomplishment ${title}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">View credential ↗</a>}
@@ -398,7 +397,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                         const url = safeExternalURL(item);
                         return (
                           <article key={`link-${index}`} className="min-w-0 rounded-xl border border-line/70 bg-slate-50/55 p-4">
-                            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p>
+                            <p className="text-[13px] font-extrabold uppercase tracking-[0.12em] text-indigo">Professional link</p>
                             <p className="mt-1 break-words text-sm font-bold text-ink">{label}</p>
                             {url ? <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${label}`} className="mt-3 inline-flex text-xs font-bold text-indigo hover:underline">Open link ↗</a> : <p className="mt-2 text-xs text-ink-muted">Link unavailable</p>}
                           </article>
@@ -409,7 +408,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
               matches={<>{selectedJob ? (<section aria-label="Candidate job match" className="rounded-2xl border border-indigo-100/80 bg-white p-4 shadow-[0_1px_3px_rgba(16,33,63,0.04)]">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-indigo">Job match</p>
+                      <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Job match</p>
                       <p className="mt-1 break-words text-sm font-bold text-navy">{selectedJob.title}</p>
                     </div>
 
@@ -435,15 +434,15 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       </div>
                       {Array.isArray(match.components.matched_skills) && match.components.matched_skills.length > 0 && (
                         <div className="mt-3">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-muted">Matched skills</p>
+                          <p className="text-[13px] font-bold uppercase tracking-[0.1em] text-ink-muted">Matched skills</p>
                           <div className="mt-2 flex flex-wrap gap-1.5">
                             {match.components.matched_skills.slice(0, 6).map((skill) => (
-                              <span key={String(skill)} className="rounded-full bg-indigo-soft/70 px-2 py-1 text-[10px] font-bold text-indigo">{String(skill)}</span>
+                              <span key={String(skill)} className="rounded-full bg-indigo-soft/70 px-2 py-1 text-[13px] font-bold text-indigo">{String(skill)}</span>
                             ))}
                           </div>
                         </div>
                       )}
-                      <p className="mt-3 text-[10px] leading-4 text-ink-muted">
+                      <p className="mt-3 text-[13px] leading-4 text-ink-muted">
                         {match.eligible ? "Meets the matcher’s current eligibility gate." : "Below the matcher’s current eligibility gate."} · Model {match.model_version}
                       </p>
                     </>
@@ -455,8 +454,8 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                 </section>) : <section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold text-navy">Choose a job for match context</h2><p className="mt-2 text-sm text-ink-muted">Open this profile from an authorized job’s pipeline to see its approved match score and explanation.</p></section>}</>}
               activity={<>{!!candidate.referral_attributions?.length&&<section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold text-navy">Referral attribution</h2>{candidate.referral_attributions.map(referral=><div key={referral.id} className="mt-3 border-b border-line pb-3"><p className="text-sm font-semibold text-ink">{referral.referrer_name} · {referral.job_title}</p><p className="mt-1 text-xs text-ink-muted">{referral.relationship} · {referral.source==="candidate"?"Candidate referral":label(referral.source)} · Submitted {formatDate(referral.submitted_at)}</p><p className="mt-1 break-all text-xs text-ink-muted">Referral ID: {referral.id}</p></div>)}</section>}{candidate.can_collaborate ? (<section className="rounded-2xl border border-line/70 bg-white p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Recent activity</p>
-                      <span className="text-[10px] font-bold text-ink-muted">{activity.items.length} events</span>
+                      <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Recent activity</p>
+                      <span className="text-[13px] font-bold text-ink-muted">{activity.items.length} events</span>
                     </div>
                     <div className="mt-3 grid gap-3">
                       {activity.items.length ? activity.items.slice(0, 6).map((item, index) => (
@@ -465,15 +464,15 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                           <div className="min-w-0">
                             <p className="text-xs font-bold text-ink">{item.title}</p>
                             <p className="mt-0.5 break-words text-[11px] leading-4 text-ink-muted">{item.description}</p>
-                            {item.job_title && <p className="mt-0.5 text-[10px] font-semibold text-indigo">{item.job_title}</p>}
-                            <time className="mt-1 block text-[10px] text-ink-muted" dateTime={item.occurred_at}>{formatDate(item.occurred_at)}</time>
+                            {item.job_title && <p className="mt-0.5 text-[13px] font-semibold text-indigo">{item.job_title}</p>}
+                            <time className="mt-1 block text-[13px] text-ink-muted" dateTime={item.occurred_at}>{formatDate(item.occurred_at)}</time>
                           </div>
                         </div>
                       )) : <p className="text-xs leading-5 text-ink-muted">No company activity recorded yet.</p>}
                     </div>
                   </section>) : <section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold text-navy">Company activity is private</h2><p className="mt-2 text-sm text-ink-muted">Hiring activity becomes available after the candidate applies to your company.</p></section>}</>}
               privacy={<>{<section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Candidate CV</p>
+                  <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Candidate CV</p>
                   <p className="mt-2 text-xs leading-5 text-ink-muted">
                     {candidate.can_view_cv
                       ? "CV access is authorized because this candidate has an application with your company. The download link expires automatically."
@@ -481,7 +480,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                   </p>
                   {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
                 </section>}{<section className="rounded-2xl border border-line/70 bg-white p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-ink-muted">Profile context</p>
+                  <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Profile context</p>
                   <dl className="mt-3 grid gap-3 text-sm">
                     <div><dt className="text-xs text-ink-muted">Current designation</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "current_designation")}</dd></div>
                     <div><dt className="text-xs text-ink-muted">Industry</dt><dd className="mt-0.5 font-semibold text-ink">{text(candidate.details, "industry")}</dd></div>

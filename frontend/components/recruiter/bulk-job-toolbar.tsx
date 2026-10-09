@@ -124,7 +124,7 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
 
         {selected.length > 0 && (
           <div className="flex w-full flex-wrap items-end gap-2 sm:w-auto">
-            <label className="grid min-w-[9rem] flex-1 gap-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:flex-none">
+            <label className="grid min-w-[9rem] flex-1 gap-1 text-[13px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:flex-none">
               Action
               <select
                 aria-label="Bulk action"
@@ -142,7 +142,7 @@ export function BulkJobToolbar({ team, pageJobCount }: { team: RecruiterTeamMemb
             </label>
 
             {action === "reassign" && (
-              <label className="grid min-w-[12rem] flex-1 gap-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:flex-none">
+              <label className="grid min-w-[12rem] flex-1 gap-1 text-[13px] font-extrabold uppercase tracking-[0.08em] text-ink-muted sm:flex-none">
                 Recruiter
                 <select
                   aria-label="Assign recruiter"

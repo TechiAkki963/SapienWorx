@@ -10,6 +10,8 @@ import { recruiterAPI } from "@/lib/recruiter-server";
 import type { ThreadListResponse } from "@/lib/messaging";
 import { messagingAPI } from "@/lib/messaging-server";
 import { getSessionUser } from "@/lib/auth-server";
+import { RecruiterNotificationBell } from "./notification-bell";
+import type { RecruiterNotificationInbox } from "@/lib/recruiter-notifications";
 import { RecruiterAccountProfile } from "./account-profile";
 
 function initials(name: string) {
@@ -17,10 +19,12 @@ function initials(name: string) {
 }
 
 export async function RecruiterShell({ children }: { children: React.ReactNode }) {
-  const [workspace, conversations, session] = await Promise.all([
+  const [workspace, conversations, session, notificationInbox, companyAccess] = await Promise.all([
     recruiterAPI<RecruiterDashboard>("/api/v1/recruiter/dashboard").catch(() => null),
     messagingAPI<ThreadListResponse>("/api/v1/messaging/threads").catch(() => null),
     getSessionUser(),
+    recruiterAPI<RecruiterNotificationInbox>("/api/v1/recruiter/notifications?limit=1").catch(() => null),
+    recruiterAPI<{member:{role:string}}>("/api/v1/company/access").catch(()=>null),
   ]);
   const recruiterName = workspace?.recruiter_name ?? "Recruiter";
   const companyName = workspace?.company_name ?? "SapienWorx workspace";
@@ -43,17 +47,14 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
 
           <div className="ml-auto flex items-center gap-2">
             <ThemeModeControl compact />
-            <Link href="/recruiter/interviews" aria-label={`Interview reminders${workspace?.upcoming_interviews ? `, ${workspace.upcoming_interviews} upcoming` : ""}`} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-white text-ink-muted transition hover:bg-slate-50 hover:text-ink">
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.8]"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8M10 20h4" /></svg>
-              {!!workspace?.upcoming_interviews && <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-indigo px-1.5 py-0.5 text-center text-[9px] font-extrabold text-white">{Math.min(workspace.upcoming_interviews, 99)}</span>}
-            </Link>
+            <RecruiterNotificationBell initialUnread={notificationInbox?.unread ?? 0} />
 
             <details className="relative">
               <summary aria-label={`Account menu for ${recruiterName}`} className="flex cursor-pointer list-none items-center gap-0 rounded-xl border border-line bg-white p-1.5 transition hover:bg-slate-50 sm:gap-2 sm:pr-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-[10px] font-extrabold text-white">{initials(recruiterName)}</span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-[13px] font-extrabold text-white">{initials(recruiterName)}</span>
                 <span className="hidden max-w-36 text-left lg:block">
                   <span className="block truncate text-xs font-bold text-ink">{recruiterName}</span>
-                  <span className="block truncate text-[10px] text-ink-muted">{companyName}</span>
+                  <span className="block truncate text-[13px] text-ink-muted">{companyName}</span>
                 </span>
                 <svg aria-hidden="true" viewBox="0 0 16 16" className="hidden h-3 w-3 fill-none stroke-current stroke-[1.7] text-ink-muted sm:block"><path d="m4 6 4 4 4-4" /></svg>
               </summary>
@@ -62,6 +63,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
                   <p className="truncate text-sm font-bold text-ink">{recruiterName}</p>
                   <p className="mt-0.5 truncate text-xs text-ink-muted">{companyName}</p>
                 </div>
+                {companyAccess?.member.role==="primary_admin"&&<Link href="/company" className="flex min-h-11 items-center rounded-lg px-2.5 text-sm font-semibold text-indigo">Company administration</Link>}
                 <Link href="/" className="mt-1 flex rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink">View public site</Link>
                 {session?.role === "recruiter" && <RecruiterAccountProfile session={{ ...session, first_name: session.first_name || recruiterName.split(" ")[0], last_name: session.last_name || recruiterName.split(" ").slice(1).join(" ") }} company={companyName} activeJobs={workspace?.active_jobs ?? 0} />}
                 <div className="mt-1 border-t border-line/70 pt-1"><LogoutButton /></div>

@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	companyaccess "github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/jackc/pgx/v5"
 	"strings"
 	"time"
 )
 
 type NamedPool struct {
+	Paused     bool              `json:"paused"`
 	ID         string            `json:"id"`
 	Name       string            `json:"name"`
 	Kind       string            `json:"kind"`
@@ -86,6 +88,11 @@ func (s *Service) NamedPools(ctx context.Context, userID string) ([]NamedPool, e
 			return nil, err
 		}
 		list, err := s.NamedPoolCandidates(ctx, userID, id, "", "", 1, 1)
+		if errors.Is(err, companyaccess.ErrInactive) {
+			p.Paused = true
+			out = append(out, p)
+			continue
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -129,6 +136,14 @@ func (s *Service) CreateNamedPool(ctx context.Context, userID string, in NamedPo
 		return NamedPool{}, err
 	}
 	defer tx.Rollback(ctx)
+	if in.Kind == "smart" {
+		if err = companyaccess.RequireFeatureTx(ctx, tx, userID, "talent.smart_pools"); err != nil {
+			return NamedPool{}, err
+		}
+		if err = companyaccess.CheckCapacityTx(ctx, tx, company, "smart_pools", 1); err != nil {
+			return NamedPool{}, err
+		}
+	}
 	raw, err := json.Marshal(in.Criteria)
 	if err != nil {
 		return NamedPool{}, err
@@ -169,6 +184,13 @@ func (s *Service) NamedPoolCandidates(ctx context.Context, userID, poolID, q, ta
 		return TalentPoolList{}, ErrInvalid
 	}
 	if p.Kind == "smart" {
+		access, err := companyaccess.NewService(companyaccess.NewSQLStore(s.db)).RecruiterAccess(ctx, userID)
+		if err != nil {
+			return TalentPoolList{}, err
+		}
+		if !access.Allows("talent.smart_pools") {
+			return TalentPoolList{}, companyaccess.ErrInactive
+		}
 		criteria := map[string]string{}
 		for k, v := range p.Criteria {
 			criteria[k] = v

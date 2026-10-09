@@ -5,6 +5,8 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -21,6 +23,7 @@ type EmailOnlyCandidateRegistration struct {
 }
 
 type EmailOnlyRecruiterRegistration struct {
+	InvitationToken      string `json:"invitation_token,omitempty"`
 	FullName             string `json:"full_name"`
 	Email                string `json:"email"`
 	Phone                string `json:"phone"`
@@ -143,6 +146,9 @@ func (s *Service) RegisterRecruiterEmailOnly(ctx context.Context, input EmailOnl
 		return RegistrationResult{}, err
 	}
 	defer tx.Rollback(ctx)
+	if _, err = tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1,0))`, domain); err != nil {
+		return RegistrationResult{}, err
+	}
 	var companyID string
 	err = tx.QueryRow(ctx, `SELECT id FROM companies WHERE work_email_domain=$1`, domain).Scan(&companyID)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -158,6 +164,11 @@ func (s *Service) RegisterRecruiterEmailOnly(ctx context.Context, input EmailOnl
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO recruiter_profiles(user_id,company_id,full_name,designation) VALUES($1,$2,$3,NULLIF($4,''))`, userID, companyID, strings.TrimSpace(input.FullName), strings.TrimSpace(input.Designation)); err != nil {
 		return RegistrationResult{}, err
+	}
+	if input.InvitationToken != "" {
+		if err = company.ClaimRegistrationTx(ctx, tx, input.InvitationToken, email, userID, companyID); err != nil {
+			return RegistrationResult{}, ErrForbidden
+		}
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO privacy_consents(user_id,purpose,policy_version,granted,source,user_agent,metadata) VALUES($1,'privacy_notice_acknowledgement',$2,true,'web_signup',$3,jsonb_build_object('evidence_type','notice_acknowledgement','processing_basis','contract_legal_obligation_legitimate_interests_as_applicable','verification_channel','email_otp','official_email',true))`, userID, normalizePrivacyVersion(input.PrivacyPolicyVersion), limitText(userAgent, 512)); err != nil {
 		return RegistrationResult{}, err

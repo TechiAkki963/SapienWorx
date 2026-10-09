@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"strings"
 	"time"
 
@@ -76,11 +77,25 @@ func (s *Service) SaveSearch(ctx context.Context, recruiterID, name string, filt
 	if err != nil || len(raw) > 32768 {
 		return SavedSearch{}, ErrInvalid
 	}
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return SavedSearch{}, err
+	}
+	defer tx.Rollback(ctx)
+	if err = company.RequireFeatureTx(ctx, tx, recruiterID, "talent.alerts"); err != nil {
+		return SavedSearch{}, err
+	}
+	if err = company.CheckCapacityTx(ctx, tx, companyID, "saved_searches", 1); err != nil {
+		return SavedSearch{}, err
+	}
 	var item SavedSearch
 	var stored []byte
-	err = s.db.QueryRow(ctx, `INSERT INTO recruiter_saved_searches(recruiter_id,name,filters) VALUES($1,$2,$3::jsonb) RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`, recruiterID, name, string(raw)).Scan(&item.ID, &item.Name, &stored, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
+	err = tx.QueryRow(ctx, `INSERT INTO recruiter_saved_searches(recruiter_id,name,filters) VALUES($1,$2,$3::jsonb) RETURNING id,name,filters,alert_enabled,alert_frequency,last_alerted_at,updated_at`, recruiterID, name, string(raw)).Scan(&item.ID, &item.Name, &stored, &item.AlertEnabled, &item.AlertFrequency, &item.LastAlertedAt, &item.UpdatedAt)
 	if err == nil {
 		err = json.Unmarshal(stored, &item.Filters)
+	}
+	if err == nil {
+		err = tx.Commit(ctx)
 	}
 	return item, err
 }

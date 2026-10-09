@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 import type { ThreadListResponse } from "@/lib/messaging";
 import { RecruiterDrawer } from "@/components/recruiter/workspace-ui";
 
-type IconName = "overview" | "discover" | "pipeline" | "talent" | "messages" | "jobs" | "interviews" | "outreach";
+import {NavigationIcon as NavIcon,type NavigationIconName as IconName} from "./navigation-icon";
 
 type NavItem = { label: string; shortLabel?: string; href: string; icon: IconName };
 
@@ -17,41 +17,29 @@ const sections: { title: string; items: NavItem[] }[] = [
   { title: "SapienWorx Recruit", items: [
     { label: "Home", href: "/recruiter", icon: "overview" },
     { label: "Jobs", href: "/recruiter/jobs", icon: "jobs" },
-    { label: "Applications", href: "/recruiter/pipeline", icon: "pipeline" },
+    { label: "Applications", shortLabel: "Apps", href: "/recruiter/pipeline", icon: "applications" },
     { label: "Messages", href: "/recruiter/messages", icon: "messages" },
     { label: "Interviews", href: "/recruiter/interviews", icon: "interviews" },
-    { label: "Talent", href: "/recruiter/talent", icon: "discover" },
+    { label: "Talent", href: "/recruiter/talent", icon: "talent" },
   ] },
   { title: "Workspace", items: [
-    { label: "Analytics", href: "/recruiter/analytics", icon: "overview" },
-    { label: "Settings", href: "/recruiter/settings", icon: "talent" },
+    { label: "Analytics", href: "/recruiter/analytics", icon: "insights" },
+    { label: "Settings", href: "/recruiter/settings", icon: "settings" },
   ] },
 ];
 const secondary: NavItem[] = [
-  { label: "Offers", href: "/recruiter/offers", icon: "jobs" },
-  { label: "Referrals", href: "/recruiter/referrals", icon: "talent" },
+  { label: "Offers", href: "/recruiter/offers", icon: "offers" },
+  { label: "Referrals", href: "/recruiter/referrals", icon: "referrals" },
 ];
 const talentTools: NavItem[] = [
   { label: "Discover Talent", href: "/recruiter/discover", icon: "discover" },
-  { label: "Talent Pools", href: "/recruiter/talent-pool", icon: "talent" },
-  { label: "Saved Searches", href: "/recruiter/saved-searches", icon: "discover" },
+  { label: "Talent Pools", href: "/recruiter/talent-pool", icon: "pools" },
+  { label: "Saved Searches", href: "/recruiter/saved-searches", icon: "saved" },
   { label: "Outreach", href: "/recruiter/outreach", icon: "outreach" },
 ];
 const allItems = sections.flatMap(section => section.items);
 const mobilePrimary = ["/recruiter", "/recruiter/pipeline", "/recruiter/jobs", "/recruiter/messages"].map(href => allItems.find(item => item.href === href)!);
 const mobileMore = [...allItems.filter(item => !mobilePrimary.some(primary => primary.href === item.href)), ...secondary, ...talentTools];
-
-function NavIcon({ name, className }: { name: IconName; className?: string }) {
-  const common = cn("h-[18px] w-[18px] shrink-0 fill-none stroke-current stroke-[1.8]", className);
-  if (name === "overview") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M4 13h6V4H4v9Zm10 7h6v-9h-6v9ZM4 20h6v-3H4v3Zm10-13h6V4h-6v3Z" /></svg>;
-  if (name === "discover") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5M8 10.5h5M10.5 8v5" /></svg>;
-  if (name === "pipeline") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M4 5h16M7 12h10M10 19h4" /><circle cx="5" cy="5" r="1" /><circle cx="8" cy="12" r="1" /><circle cx="11" cy="19" r="1" /></svg>;
-  if (name === "talent") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M7 4.5h10a1 1 0 0 1 1 1v15l-6-3.6-6 3.6v-15a1 1 0 0 1 1-1Z" /></svg>;
-  if (name === "messages") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="M4 5.5h16v11H9l-5 3v-14Z" /><path d="M7.5 9h9M7.5 12.5h6" /></svg>;
-  if (name === "jobs") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><rect x="3.5" y="7" width="17" height="12" rx="2" /><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 11.5h17" /></svg>;
-  if (name === "outreach") return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><path d="m4 5 16 7-16 7 3-7-3-7Z" /><path d="M7 12h8" /></svg>;
-  return <svg aria-hidden="true" viewBox="0 0 24 24" className={common}><rect x="4" y="5.5" width="16" height="14" rx="2" /><path d="M8 3.5v4M16 3.5v4M4 10h16M8 14h3M13 14h3" /></svg>;
-}
 
 function MoreIcon() {
   return <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-current"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>;
@@ -95,7 +83,7 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
     <>
       <div className="swx-recruiter-nav hidden py-1 lg:grid lg:gap-2 xl:gap-3">
         {sections.map((section) => <div key={section.title} className="min-w-0">
-          <p className="hidden px-3 pb-2 pt-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink-muted/70 xl:block">{section.title}</p>
+          <p className="hidden px-3 pb-2 pt-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-muted xl:block">{section.title}</p>
           <nav aria-label={section.title} className="grid gap-1">
             {section.items.map(({ label, href, icon }) => {
               const active = isActive(path, href);
@@ -105,19 +93,19 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "group relative flex items-center gap-2.5 rounded-xl py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2 lg:justify-center lg:px-0 xl:justify-start xl:px-3",
-                    active ? "bg-navy text-white shadow-sm" : "text-ink-muted hover:bg-slate-100 hover:text-ink",
+                    "group relative flex min-h-11 items-center gap-2.5 rounded-xl py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2 lg:justify-center lg:px-0 xl:justify-start xl:px-3",
+                    active ? "bg-[#0a66ff] text-white shadow-sm" : "text-ink-muted hover:bg-slate-100 hover:text-ink",
                   )}
                 >
                   <NavIcon name={icon} />
                   <span className="lg:sr-only xl:not-sr-only">{label}</span>
-                  {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="rounded-full bg-indigo px-1.5 py-0.5 text-[10px] font-extrabold text-white lg:absolute lg:-right-1 lg:-top-1 xl:static xl:ml-auto">{Math.min(unread, 99)}</span>}
+                  {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="rounded-full bg-indigo px-1.5 py-0.5 text-[13px] font-extrabold text-white lg:absolute lg:-right-1 lg:-top-1 xl:static xl:ml-auto">{Math.min(unread, 99)}</span>}
                 </Link>
               );
             })}
           </nav>
         </div>)}
-        <details className="mt-2 border-t border-line pt-2"><summary className="min-h-11 cursor-pointer rounded-lg px-3 py-3 text-xs font-semibold text-ink-muted">Hiring tools</summary><nav aria-label="Contextual hiring tools" className="grid gap-1">{secondary.map(item => <Link key={item.href} href={item.href} className="min-h-11 rounded-lg px-3 py-3 text-sm text-ink-muted">{item.label}</Link>)}</nav></details>
+        <details className="mt-2 border-t border-line pt-2"><summary className="min-h-11 cursor-pointer rounded-lg px-3 py-3 text-xs font-semibold text-ink-muted">Hiring tools</summary><nav aria-label="Contextual hiring tools" className="grid gap-1">{secondary.map(item => <Link key={item.href} href={item.href} className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-3 text-sm text-ink-muted"><NavIcon name={item.icon}/>{item.label}</Link>)}</nav></details>
       </div>
 
       <RecruiterDrawer open={moreOpen} onClose={() => setMoreOpen(false)} title="More recruiter tools">
@@ -126,8 +114,8 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
                 {mobileMore.map(({ label, href, icon }) => {
                   const active = isActive(path, href);
                   return (
-                    <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition", active ? "bg-indigo-soft text-indigo" : "text-ink hover:bg-slate-50")}>
-                      <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", active ? "bg-white text-indigo" : "bg-slate-100 text-ink-muted")}><NavIcon name={icon} /></span>
+                    <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition", active ? "bg-[#0a66ff] text-white" : "text-ink hover:bg-slate-50")}>
+                      <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", active ? "text-white" : "bg-slate-100 text-ink-muted")}><NavIcon name={icon} /></span>
                       <span>{label}</span>
                     </Link>
                   );
@@ -140,16 +128,16 @@ export function RecruiterNav({ unreadCount = 0 }: { unreadCount?: number }) {
           {mobilePrimary.map(({ label, shortLabel, href, icon }) => {
             const active = isActive(path, href);
             return (
-              <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("relative flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-bold transition", active ? "text-indigo" : "text-ink-muted hover:bg-slate-50 hover:text-ink")}>
+              <Link key={href} href={href} aria-label={label} aria-current={active ? "page" : undefined} className={cn("relative flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[13px] font-bold transition", active ? "text-indigo" : "text-ink-muted hover:bg-slate-50 hover:text-ink")}>
                 <span className={cn("relative flex h-6 items-center justify-center", active && "after:absolute after:-bottom-1.5 after:h-1 after:w-1 after:rounded-full after:bg-indigo")}>
                   <NavIcon name={icon} className="h-5 w-5" />
-                  {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="absolute -right-3 -top-1 min-w-4 rounded-full bg-indigo px-1 py-0.5 text-center text-[8px] font-extrabold leading-none text-white">{Math.min(unread, 99)}</span>}
+                  {icon === "messages" && unread > 0 && <span aria-label={`${unread} unread messages`} className="absolute -right-3 -top-1 min-w-4 rounded-full bg-indigo px-1 py-0.5 text-center text-[12px] font-extrabold leading-none text-white">{Math.min(unread, 99)}</span>}
                 </span>
                 <span className="max-w-full truncate">{shortLabel ?? label}</span>
               </Link>
             );
           })}
-          <button type="button" aria-expanded={moreOpen} aria-controls="recruiter-more-menu" onClick={() => setMoreOpen((open) => !open)} className={cn("relative flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-bold transition", moreActive || moreOpen ? "text-indigo" : "text-ink-muted hover:bg-slate-50 hover:text-ink")}>
+          <button type="button" aria-expanded={moreOpen} aria-controls="recruiter-more-menu" onClick={() => setMoreOpen((open) => !open)} className={cn("relative flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[13px] font-bold transition", moreActive || moreOpen ? "text-indigo" : "text-ink-muted hover:bg-slate-50 hover:text-ink")}>
             <span className={cn("relative flex h-6 items-center justify-center", (moreActive || moreOpen) && "after:absolute after:-bottom-1.5 after:h-1 after:w-1 after:rounded-full after:bg-indigo")}><MoreIcon /></span>
             <span>More</span>
           </button>

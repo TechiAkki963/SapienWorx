@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 	"net/http"
 
@@ -15,6 +16,15 @@ type emailDeliveryRuntime interface {
 
 func (s *Server) SetEmailDelivery(service emailDeliveryRuntime) {
 	s.emailDelivery = service
+	if worker, ok := service.(*emaildelivery.Service); ok && s.company != nil && len(s.cfg.HTTP.AllowedOrigins) > 0 {
+		worker.SetCompanyContentResolver(func(ctx context.Context, dedupe, recipient string) (string, error) {
+			content, err := s.company.InvitationDelivery(ctx, dedupe, recipient, s.cfg.HTTP.AllowedOrigins[0], []byte(s.cfg.Auth.JWTSecret))
+			if errors.Is(err, company.ErrNotFound) {
+				return "", emaildelivery.ErrContentUnavailable
+			}
+			return content, err
+		})
+	}
 	if worker, ok := service.(*emaildelivery.Service); ok && s.recruiter != nil {
 		worker.SetReferralContentResolver(func(ctx context.Context, dedupe, recipient string) (string, error) {
 			content, err := s.recruiter.ReferralDelivery(ctx, dedupe, recipient)

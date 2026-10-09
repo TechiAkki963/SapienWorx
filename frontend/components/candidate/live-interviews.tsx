@@ -53,6 +53,7 @@ function downloadCalendar(item: CandidateInterview) {
     `SUMMARY:${escapeICS(`${item.round_label || "Interview"}: ${item.job_title}`)}`,
     `DESCRIPTION:${escapeICS(`Interview with ${item.company_name}. ${meetingURL || "Check SapienWorx for meeting details."}`)}`,
     ...(meetingURL ? [`URL:${meetingURL}`] : []),
+    ...(item.location ? [`LOCATION:${escapeICS(item.location)}`] : []),
     "END:VEVENT",
     "END:VCALENDAR",
     "",
@@ -173,7 +174,7 @@ export function LiveInterviews({
                       {item.round_label || "Interview"} ·{" "}
                       {item.mode === "online" || !item.mode
                         ? "Online"
-                        : item.mode}
+                        : ({ video: "Video", phone: "Phone", in_person: "In-person" } as Record<string,string>)[item.mode] || item.mode}
                     </p>
                     <h2 className="mt-2 break-words text-xl font-bold text-navy">
                       {item.job_title || "Role unavailable"}
@@ -217,7 +218,9 @@ export function LiveInterviews({
                         ? "Use the meeting link provided by your recruiter. For a schedule change, discuss it in your existing conversation."
                         : "This interview is retained in your schedule history."}
                     </p>
-                    {scheduled && !meetingURL && (
+                    {item.location && <p className="mt-2">{item.mode === "phone" ? "Call instructions" : "Location"}: {item.location}</p>}
+                    {item.time_zone && item.time_zone !== "Asia/Kolkata" && <p className="mt-2">Organizer time: {candidateDate(item.scheduled_at, true, item.time_zone)} · {item.time_zone}</p>}
+                    {scheduled && !meetingURL && (!item.mode || item.mode === "video" || item.mode === "online") && (
                       <p className="mt-2">
                         A valid meeting link isn’t available. Contact the
                         recruiter in your inbox.

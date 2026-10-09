@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"regexp"
 	"strings"
 	"time"
@@ -484,6 +485,9 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 
 	result.RecipientCount = inserted
 	result.SentCount = inserted
+	if err := company.ConsumeOutreachTx(ctx, tx, recruiterID, inserted, "bulk:"+idempotencyKey); err != nil {
+		return BulkInMailResult{}, err
+	}
 	if len(deliveryJSON) > 0 {
 		if err := json.Unmarshal(deliveryJSON, &result.Deliveries); err != nil {
 			return BulkInMailResult{}, err

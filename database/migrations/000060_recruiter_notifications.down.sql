@@ -1,0 +1,11 @@
+BEGIN;
+DROP TRIGGER trg_recruiter_notify_referral ON referral_invitations;
+DROP TRIGGER trg_recruiter_notify_message ON chat_messages;
+DROP TRIGGER trg_recruiter_notify_offer ON recruiter_offers;
+DROP TRIGGER trg_recruiter_notify_panel ON interview_panel;
+DROP TRIGGER trg_recruiter_notify_interview ON interviews;
+DROP TRIGGER trg_recruiter_notify_job ON jobs;
+DROP TRIGGER trg_recruiter_notify_application ON applications;
+DROP FUNCTION recruiter_notification_event();
+DROP TABLE recruiter_notification_preferences,recruiter_notification_state,recruiter_notifications;
+COMMIT;

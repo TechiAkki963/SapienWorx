@@ -17,6 +17,7 @@ export default function CandidateSettingsPage() {
           details only under your existing sharing controls.
         </p>
       </section>
+      <section id="security" className="candidate-settings-section"><h2>Account security</h2><p>Reset your password using the verified email attached to your account.</p><Link className="inline-flex min-h-11 items-center text-sm font-semibold text-indigo" href="/forgot-password?returnTo=%2Fcandidate%2Fsettings%23security">Reset your password</Link></section>
       <section className="candidate-settings-section">
         <h2>Appearance</h2>
         <p>Follow your device appearance, or choose Light or Dark.</p>

@@ -33,6 +33,10 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
         body: JSON.stringify({ email, password: data.get("password"), role }),
       });
       let finalDestination = destination;
+      if(role==="recruiter"){
+        const access=await apiRequest<{member:{role:string;scope:{all:boolean}}}>("/api/v1/company/access").catch(()=>null);
+        if(access&&(access.member.role==="primary_admin"||access.member.role==="collaborator"||!access.member.scope.all))finalDestination="/company";
+      }
       if (role === "candidate" && nextPath) {
         const details = await apiRequest<CandidateProfileDetails>("/api/v1/candidate/profile/details").catch(() => null);
         if (!details) {
@@ -89,7 +93,7 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
       <Input label={role === "recruiter" ? "Work email" : "Email"} name="email" type="email" autoComplete="email" required />
       <Input label="Password" name="password" type="password" autoComplete="current-password" required />
       <div className="flex items-center justify-between text-sm">
-        {role === "master_admin" ? <span className="text-xs text-ink-muted">No self-registration is available.</span> : <Link className="font-semibold text-indigo hover:underline" href="/forgot-password">Forgot password?</Link>}
+        {role === "master_admin" ? <span className="text-xs text-ink-muted">No self-registration is available.</span> : <Link className="font-semibold text-indigo hover:underline" href={`/forgot-password?returnTo=${encodeURIComponent(role === "recruiter" ? "/recruiter/login" : "/login")}`}>Forgot password?</Link>}
         {role !== "master_admin" && <Link className="text-ink-muted hover:text-ink" href={role === "recruiter" ? "/recruiter/signup" : nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"}>Create account</Link>}
       </div>
       <Button type="submit" size="lg" disabled={pending}>{pending ? "Signing in…" : role === "master_admin" ? "Enter command centre" : "Sign in"}</Button>
