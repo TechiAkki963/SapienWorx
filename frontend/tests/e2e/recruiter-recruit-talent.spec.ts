@@ -8,10 +8,11 @@ test.beforeEach(async ({request}) => resetE2E(request));
 
 test("Recruit keeps applicants separate from native Talent and preserves job context", async ({page,request}) => {
   await login(page,"recruiter");
-  await expect(page.getByRole("navigation",{name:"SapienWorx Recruit"}).getByRole("link",{name:"Applications",exact:true})).toHaveAttribute("href","/recruiter/pipeline");
+  await expect(page.getByRole("navigation",{name:"Workspace",exact:true}).getByRole("link",{name:"Applications",exact:true})).toHaveAttribute("href","/recruiter/pipeline");
   await page.goto("/recruiter/talent");
   await expect(page.getByRole("navigation",{name:"Talent workspace"})).toBeVisible();
-  await page.getByLabel("Professional keywords").fill("Java AWS"); await page.getByRole("button",{name:"Search Talent"}).click();
+  await expect(page.getByRole("heading",{name:"Talent overview",exact:true})).toBeVisible();
+  await page.goto("/recruiter/discover?q=Java+AWS");
   await expect(page).toHaveURL(/\/recruiter\/discover\?q=Java\+AWS/);
   await expect(page.getByLabel("Keywords",{exact:true})).toHaveValue("Java AWS");
   await page.goto(`/recruiter/jobs/${job}`);
@@ -21,7 +22,7 @@ test("Recruit keeps applicants separate from native Talent and preserves job con
   await page.getByRole("link",{name:"Calendar view"}).click(); await expect(page).toHaveURL(new RegExp(`job_id=${job}`));
   await page.getByRole("navigation",{name:"Job workspace"}).getByRole("link",{name:"Offers"}).click();
   await waitForRecordedRequest(request,item=>item.path==="/api/v1/recruiter/offers"&&item.query.job_id===job);
-  await expect(page.getByRole("button",{name:"Create offer"})).toBeVisible();
+  await expect(page.getByRole("link",{name:"Create offer"})).toBeVisible();
   await page.goto("/recruiter/talent/insights"); await expect(page.getByRole("heading",{name:"Talent insights"})).toBeVisible();
   await page.goto("/recruiter/settings"); await expect(page.getByRole("heading",{name:"Settings",exact:true})).toBeVisible();
   await page.setViewportSize({width:360,height:800});
@@ -51,8 +52,9 @@ test("five job steps retain every existing field and publish payload", async ({p
 
 test("pool groups, saved counts and native campaign drafting preserve boundaries",async ({page,request})=>{
   await login(page,"recruiter");await page.goto("/recruiter/talent-pool");
-  const row=page.getByRole("table",{name:"Saved candidates"}).getByRole("row").filter({hasText:"Aarav Mehta"});
-  await row.getByRole("button",{name:"Edit tags for Aarav Mehta",exact:true}).click();
+  const row=page.locator(".swx-candidate-card").filter({has:page.getByRole("link",{name:"Aarav Mehta",exact:true})});
+  await row.getByLabel("More actions for Aarav Mehta",{exact:true}).click();
+  await row.getByRole("button",{name:"Edit tags",exact:true}).click();
   const drawer=page.getByRole("dialog",{name:"Edit pool tags"});
   await drawer.getByLabel("Pool tags",{exact:true}).fill("Engineering, Future roles");await drawer.getByRole("button",{name:"Save pool tags"}).click();
   await waitForRecordedRequest(request,item=>item.method==="PUT"&&item.path.endsWith(candidate)&&Array.isArray(item.body.tags)&&item.body.tags.includes("Engineering"));
@@ -64,7 +66,7 @@ test("pool groups, saved counts and native campaign drafting preserve boundaries
   await expect(page.getByRole("table",{name:"Saved talent searches"})).toContainText("3 current matches · 1 profiles updated since");
   await page.goto("/recruiter/outreach");await page.getByRole("button",{name:"Create campaign",exact:true}).click();
   const campaign=page.getByRole("dialog",{name:"Create campaign"});
-  await campaign.getByLabel("Campaign name",{exact:true}).fill("Reviewed synthetic audience");await campaign.getByText("Meera Nair",{exact:true}).click();
+  await campaign.getByLabel("Campaign name",{exact:true}).fill("Reviewed synthetic audience");await campaign.getByRole("checkbox",{name:"Select Meera Nair",exact:true}).check();
   await campaign.getByRole("button",{name:"Continue",exact:true}).click();await campaign.getByRole("combobox",{name:"Sequence",exact:true}).selectOption("76000000-0000-4000-8000-000000000001");
   await campaign.getByRole("button",{name:"Continue",exact:true}).click();await expect(campaign).toContainText("Calendar-based campaign scheduling is unavailable");
   await campaign.getByRole("button",{name:"Continue",exact:true}).click();

@@ -19,8 +19,8 @@ var (
 	ErrInactive       = errors.New("talent subscription inactive")
 )
 
-var PremiumFeatures = []string{"talent.discovery", "talent.smart_pools", "talent.alerts", "talent.outreach", "talent.analytics", "talent.intelligence"}
-var CapacityKeys = []string{"sub_admins", "recruiters", "talent_seats", "active_jobs", "saved_searches", "smart_pools", "outreach_sequences"}
+var PremiumFeatures = []string{"talent.discovery", "talent.smart_pools", "talent.alerts", "talent.outreach", "talent.analytics", "talent.intelligence", "offers.studio", "offers.templates", "offers.formulas", "offers.custom_fields", "offers.approvals", "offers.conditional_approvals", "offers.sequential_approvals", "offers.parallel_approvals", "offers.branding", "offers.analytics", "offers.annexures"}
+var CapacityKeys = []string{"sub_admins", "recruiters", "talent_seats", "active_jobs", "saved_searches", "smart_pools", "outreach_sequences", "offer_templates", "offer_monthly_sends", "offer_approval_steps", "offer_custom_fields", "offer_document_bytes", "offer_audit_retention_days"}
 var UsageKeys = []string{"talent_profile_unlock", "outreach_message"}
 
 type Subscription struct {

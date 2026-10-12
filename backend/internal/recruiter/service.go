@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -49,10 +50,12 @@ type AttentionItem struct {
 }
 
 type UpcomingItem struct {
-	ID            string    `json:"id"`
-	CandidateName string    `json:"candidate_name"`
-	JobTitle      string    `json:"job_title"`
-	ScheduledAt   time.Time `json:"scheduled_at"`
+	Candidate     *PipelineRow `json:"candidate,omitempty"`
+	ApplicationID string       `json:"application_id"`
+	ID            string       `json:"id"`
+	CandidateName string       `json:"candidate_name"`
+	JobTitle      string       `json:"job_title"`
+	ScheduledAt   time.Time    `json:"scheduled_at"`
 }
 
 type Job struct {
@@ -101,34 +104,36 @@ type PipelineList struct {
 }
 
 type PipelineRow struct {
-	Source            string     `json:"source"`
-	ReferrerName      string     `json:"referrer_name,omitempty"`
-	ApplicationID     string     `json:"application_id"`
-	CandidateID       string     `json:"candidate_id"`
-	CandidateName     string     `json:"candidate_name"`
-	Headline          *string    `json:"headline,omitempty"`
-	City              *string    `json:"city,omitempty"`
-	ExperienceMonths  int        `json:"experience_months"`
-	NoticePeriodDays  *int       `json:"notice_period_days,omitempty"`
-	JobID             string     `json:"job_id"`
-	JobTitle          string     `json:"job_title"`
-	JobReference      string     `json:"job_reference"`
-	Stage             string     `json:"stage"`
-	AppliedAt         time.Time  `json:"applied_at"`
-	UpdatedAt         time.Time  `json:"updated_at"`
-	Designation       string     `json:"designation"`
-	CurrentCompany    string     `json:"current_company"`
-	Education         string     `json:"education"`
-	University        string     `json:"university"`
-	PreferredLocation string     `json:"preferred_location"`
-	PreviousCompany   string     `json:"previous_company"`
-	KeySkills         string     `json:"key_skills"`
-	PhotoDataURL      string     `json:"photo_data_url,omitempty"`
-	CVFilename        string     `json:"cv_filename,omitempty"`
-	Saved             bool       `json:"saved"`
-	CommentCount      int        `json:"comment_count"`
-	LastActiveAt      *time.Time `json:"last_active_at,omitempty"`
-	ProfileUpdatedAt  time.Time  `json:"profile_updated_at"`
+	Source              string     `json:"source"`
+	ReferrerName        string     `json:"referrer_name,omitempty"`
+	ApplicationID       string     `json:"application_id"`
+	CandidateID         string     `json:"candidate_id"`
+	CandidateName       string     `json:"candidate_name"`
+	Headline            *string    `json:"headline,omitempty"`
+	City                *string    `json:"city,omitempty"`
+	ExperienceMonths    int        `json:"experience_months"`
+	NoticePeriodDays    *int       `json:"notice_period_days,omitempty"`
+	JobID               string     `json:"job_id"`
+	JobTitle            string     `json:"job_title"`
+	JobReference        string     `json:"job_reference"`
+	Stage               string     `json:"stage"`
+	AppliedAt           time.Time  `json:"applied_at"`
+	UpdatedAt           time.Time  `json:"updated_at"`
+	Designation         string     `json:"designation"`
+	CurrentCompany      string     `json:"current_company"`
+	Education           string     `json:"education"`
+	University          string     `json:"university"`
+	PreferredLocation   string     `json:"preferred_location"`
+	PreviousCompany     string     `json:"previous_company"`
+	KeySkills           string     `json:"key_skills"`
+	PhotoDataURL        string     `json:"photo_data_url,omitempty"`
+	CVFilename          string     `json:"cv_filename,omitempty"`
+	HasPrimaryContact   bool       `json:"has_primary_contact"`
+	HasSecondaryContact bool       `json:"has_secondary_contact"`
+	Saved               bool       `json:"saved"`
+	CommentCount        int        `json:"comment_count"`
+	LastActiveAt        *time.Time `json:"last_active_at,omitempty"`
+	ProfileUpdatedAt    time.Time  `json:"profile_updated_at"`
 }
 
 const pipelineCandidateFields = `a.id,cp.user_id,cp.full_name,cp.headline,cp.current_city,cp.total_experience_months,cp.notice_period_days,j.id,j.title,j.job_reference,a.stage::text,a.applied_at,a.updated_at,
@@ -139,18 +144,20 @@ const pipelineCandidateFields = `a.id,cp.user_id,cp.full_name,cp.headline,cp.cur
   coalesce(cp.profile_details->>'preferred_locations',''),
   coalesce((SELECT e->>'company' FROM jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'employment')='array' THEN cp.profile_details->'employment' ELSE '[]'::jsonb END) e WHERE lower(coalesce(e->>'current_company',''))<>'yes' LIMIT 1),''),
   coalesce((SELECT string_agg(coalesce(skill->>'name',skill#>>'{}'),', ') FROM jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'it_skills')='array' THEN cp.profile_details->'it_skills' ELSE '[]'::jsonb END) skill),''),
-  cp.profile_photo,cp.profile_photo_mime,coalesce(cp.cv_original_filename,''),
+  cp.profile_photo,cp.profile_photo_mime,coalesce(a.submitted_cv_filename,''),
   EXISTS(SELECT 1 FROM talent_pool_memberships tpm WHERE tpm.recruiter_id=$8 AND tpm.candidate_id=cp.user_id),
   (SELECT count(*) FROM recruiter_candidate_comments c WHERE c.company_id=$1 AND c.candidate_id=cp.user_id AND c.deleted_at IS NULL),
   u.last_active_at,cp.updated_at,
  CASE WHEN a.source='referral' THEN coalesce((SELECT ri.source||'_referral' FROM referral_invitations ri WHERE ri.id=a.referral_id AND ri.company_id=j.company_id),'referral') ELSE a.source END,
- coalesce((SELECT ri.referrer_name FROM referral_invitations ri WHERE ri.id=a.referral_id AND ri.company_id=j.company_id),'')`
+ coalesce((SELECT ri.referrer_name FROM referral_invitations ri WHERE ri.id=a.referral_id AND ri.company_id=j.company_id),''),
+ (cp.contact_reveal_enabled AND lower(trim(coalesce(cp.profile_details->>'private_contact','false')))='false' AND u.phone_e164 IS NOT NULL),
+ (cp.contact_reveal_enabled AND lower(trim(coalesce(cp.profile_details->>'private_contact','false')))='false' AND cp.alternate_phone_e164 IS NOT NULL)`
 
 func scanPipelineRow(row pgx.Row) (PipelineRow, error) {
 	var item PipelineRow
 	var photo []byte
 	var mime *string
-	err := row.Scan(&item.ApplicationID, &item.CandidateID, &item.CandidateName, &item.Headline, &item.City, &item.ExperienceMonths, &item.NoticePeriodDays, &item.JobID, &item.JobTitle, &item.JobReference, &item.Stage, &item.AppliedAt, &item.UpdatedAt, &item.Designation, &item.CurrentCompany, &item.Education, &item.University, &item.PreferredLocation, &item.PreviousCompany, &item.KeySkills, &photo, &mime, &item.CVFilename, &item.Saved, &item.CommentCount, &item.LastActiveAt, &item.ProfileUpdatedAt, &item.Source, &item.ReferrerName)
+	err := row.Scan(&item.ApplicationID, &item.CandidateID, &item.CandidateName, &item.Headline, &item.City, &item.ExperienceMonths, &item.NoticePeriodDays, &item.JobID, &item.JobTitle, &item.JobReference, &item.Stage, &item.AppliedAt, &item.UpdatedAt, &item.Designation, &item.CurrentCompany, &item.Education, &item.University, &item.PreferredLocation, &item.PreviousCompany, &item.KeySkills, &photo, &mime, &item.CVFilename, &item.Saved, &item.CommentCount, &item.LastActiveAt, &item.ProfileUpdatedAt, &item.Source, &item.ReferrerName, &item.HasPrimaryContact, &item.HasSecondaryContact)
 	if err == nil && len(photo) > 0 && mime != nil && (*mime == "image/webp" || *mime == "image/jpeg" || *mime == "image/png") {
 		item.PhotoDataURL = "data:" + *mime + ";base64," + base64.StdEncoding.EncodeToString(photo)
 	}
@@ -202,67 +209,105 @@ func (s *Service) recruiterCompany(ctx context.Context, userID string) (string, 
 }
 
 func (s *Service) Dashboard(ctx context.Context, userID string) (Dashboard, error) {
-	companyID, name, company, err := s.recruiterCompany(ctx, userID)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return Dashboard{}, err
 	}
-	d := Dashboard{RecruiterName: name, CompanyName: company, NeedsAttention: make([]AttentionItem, 0)}
-	err = s.db.QueryRow(ctx, `SELECT count(*) FILTER(WHERE status='active'),(SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=$1),(SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=$1 AND a.stage='shortlisted'),(SELECT count(*) FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id WHERE j.company_id=$1 AND i.status='scheduled' AND i.scheduled_at>=now()),(SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=$1 AND a.stage='offer'),(SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=$1 AND a.stage='hired') FROM jobs WHERE company_id=$1`, companyID).Scan(&d.ActiveJobs, &d.Applications, &d.Shortlisted, &d.UpcomingInterviews, &d.Offers, &d.Hires)
+	defer tx.Rollback(ctx)
+	m, err := company.MemberTx(ctx, tx, userID)
+	if err != nil {
+		return Dashboard{}, err
+	}
+	if !m.Can("applications.view") {
+		return Dashboard{}, company.ErrForbidden
+	}
+	d := Dashboard{RecruiterName: m.Name, RecentApplications: []PipelineRow{}, UpcomingItems: []UpcomingItem{}, NeedsAttention: []AttentionItem{}}
+	if err = tx.QueryRow(ctx, `SELECT display_name FROM companies WHERE id=$1`, m.CompanyID).Scan(&d.CompanyName); err != nil {
+		return Dashboard{}, err
+	}
+	const scope = `j.company_id=$1 AND ($2::boolean OR j.department=ANY($3::text[]) OR j.city=ANY($4::text[]) OR j.id::text=ANY($5::text[]))`
+	args := []any{m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs}
+	var stalled, expiring int
+	err = tx.QueryRow(ctx, `WITH scoped_jobs AS (SELECT j.* FROM jobs j WHERE `+scope+`), scoped_applications AS (SELECT a.* FROM applications a JOIN scoped_jobs j ON j.id=a.job_id)
+ SELECT (SELECT count(*) FROM scoped_jobs WHERE status='active'),count(*),count(*) FILTER(WHERE stage='new_application'),count(*) FILTER(WHERE stage='shortlisted'),
+ (SELECT count(*) FROM interviews i JOIN scoped_applications a ON a.id=i.application_id WHERE i.status='scheduled' AND i.scheduled_at>=now()),count(*) FILTER(WHERE stage='offer'),count(*) FILTER(WHERE stage='hired'),
+ count(*) FILTER(WHERE stage NOT IN('hired','rejected','withdrawn') AND updated_at<now()-interval '7 days'),
+ (SELECT count(*) FROM scoped_jobs WHERE status='active' AND application_deadline BETWEEN current_date AND current_date+3) FROM scoped_applications`, args...).Scan(&d.ActiveJobs, &d.Applications, &d.NewApplications, &d.Shortlisted, &d.UpcomingInterviews, &d.Offers, &d.Hires, &stalled, &expiring)
 	if err != nil {
 		return Dashboard{}, err
 	}
 	if d.Applications > 0 {
 		d.PlacementRate = float64(d.Hires) * 100 / float64(d.Applications)
 	}
-	d.RecentApplications, err = s.pipeline(ctx, companyID, userID, "", "", "", 6)
-	if err != nil {
-		return Dashboard{}, err
-	}
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=$1 AND a.stage='new_application'`, companyID).Scan(&d.NewApplications); err != nil {
-		return Dashboard{}, err
-	}
 	if d.NewApplications > 0 {
 		d.NeedsAttention = append(d.NeedsAttention, AttentionItem{Kind: "new_applications", Title: "Candidates awaiting screening", Detail: countNoun(d.NewApplications, "new application", "new applications") + " ready for review.", Href: "/recruiter/pipeline?stage=new_application"})
 	}
-	var unreadConversations int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM chat_threads t WHERE t.recruiter_id=$1 AND EXISTS (SELECT 1 FROM chat_messages m WHERE m.thread_id=t.id AND m.sender_id<>$1 AND m.is_read=false)`, userID).Scan(&unreadConversations); err != nil {
+	var unread int
+	if err = tx.QueryRow(ctx, `SELECT count(*) FROM chat_threads t WHERE t.recruiter_id=$1 AND EXISTS(SELECT 1 FROM chat_messages m WHERE m.thread_id=t.id AND m.sender_id<>$1 AND NOT m.is_read)`, userID).Scan(&unread); err != nil {
 		return Dashboard{}, err
 	}
-	if unreadConversations > 0 {
-		d.NeedsAttention = append(d.NeedsAttention, AttentionItem{Kind: "unread_messages", Title: "Candidate messages to answer", Detail: countNoun(unreadConversations, "conversation has", "conversations have") + " unread candidate messages.", Href: "/recruiter/messages?unread=1"})
+	if unread > 0 {
+		d.NeedsAttention = append(d.NeedsAttention, AttentionItem{Kind: "unread_messages", Title: "Candidate messages to answer", Detail: countNoun(unread, "conversation has", "conversations have") + " unread candidate messages.", Href: "/recruiter/messages?unread=1"})
 	}
 	if d.Offers > 0 {
 		d.NeedsAttention = append(d.NeedsAttention, AttentionItem{Kind: "offers", Title: "Offers in progress", Detail: countNoun(d.Offers, "application is", "applications are") + " in the offer stage.", Href: "/recruiter/pipeline?stage=offer"})
 	}
-	var stalled int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM applications a JOIN jobs j ON j.id=a.job_id WHERE j.company_id=$1 AND a.stage NOT IN('hired','rejected','withdrawn') AND a.updated_at<now()-interval '7 days'`, companyID).Scan(&stalled); err != nil {
-		return Dashboard{}, err
-	}
 	if stalled > 0 {
 		d.NeedsAttention = append(d.NeedsAttention, AttentionItem{Kind: "stalled", Title: "Stalled candidates", Detail: countNoun(stalled, "candidate has", "candidates have") + " had no stage movement for 7+ days.", Href: "/recruiter/pipeline?attention=stalled"})
-	}
-	var expiring int
-	if err := s.db.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE company_id=$1 AND status='active' AND application_deadline BETWEEN current_date AND current_date+3`, companyID).Scan(&expiring); err != nil {
-		return Dashboard{}, err
 	}
 	if expiring > 0 {
 		d.NeedsAttention = append(d.NeedsAttention, AttentionItem{Kind: "deadline", Title: "Jobs closing soon", Detail: countNoun(expiring, "active job closes", "active jobs close") + " within 3 days.", Href: "/recruiter/jobs?deadline=soon"})
 	}
-	rows, err := s.db.Query(ctx, `SELECT i.id,cp.full_name,j.title,i.scheduled_at FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id WHERE j.company_id=$1 AND i.status='scheduled' AND i.scheduled_at>=now() ORDER BY i.scheduled_at ASC LIMIT 3`, companyID)
+	rows, err := tx.Query(ctx, `SELECT a.id::text FROM applications a JOIN jobs j ON j.id=a.job_id WHERE `+scope+` ORDER BY a.updated_at DESC,a.id LIMIT 6`, args...)
 	if err != nil {
 		return Dashboard{}, err
 	}
-	defer rows.Close()
-	d.UpcomingItems = make([]UpcomingItem, 0)
+	recent := []string{}
+	for rows.Next() {
+		var id string
+		if err = rows.Scan(&id); err != nil {
+			rows.Close()
+			return Dashboard{}, err
+		}
+		recent = append(recent, id)
+	}
+	err = rows.Err()
+	rows.Close()
+	if err != nil {
+		return Dashboard{}, err
+	}
+	rows, err = tx.Query(ctx, `SELECT i.id,a.id::text,cp.full_name,j.title,i.scheduled_at FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id WHERE `+scope+` AND i.status='scheduled' AND i.scheduled_at>=now() ORDER BY i.scheduled_at,i.id LIMIT 3`, args...)
+	if err != nil {
+		return Dashboard{}, err
+	}
+	ids := append([]string{}, recent...)
 	for rows.Next() {
 		var item UpcomingItem
-		if err := rows.Scan(&item.ID, &item.CandidateName, &item.JobTitle, &item.ScheduledAt); err != nil {
+		if err = rows.Scan(&item.ID, &item.ApplicationID, &item.CandidateName, &item.JobTitle, &item.ScheduledAt); err != nil {
+			rows.Close()
 			return Dashboard{}, err
 		}
 		d.UpcomingItems = append(d.UpcomingItems, item)
+		ids = append(ids, item.ApplicationID)
 	}
-	if err := rows.Err(); err != nil {
+	err = rows.Err()
+	rows.Close()
+	if err != nil {
 		return Dashboard{}, err
+	}
+	candidates, err := pipelineSummariesForApplications(ctx, tx, userID, m.CompanyID, ids)
+	if err != nil {
+		return Dashboard{}, err
+	}
+	for _, id := range recent {
+		if row, ok := candidates[id]; ok {
+			d.RecentApplications = append(d.RecentApplications, row)
+		}
+	}
+	for i := range d.UpcomingItems {
+		if row, ok := candidates[d.UpcomingItems[i].ApplicationID]; ok {
+			d.UpcomingItems[i].Candidate = &row
+		}
 	}
 	return d, nil
 }
@@ -318,8 +363,8 @@ func validEnum(v string, allowed ...string) bool {
 func (s *Service) CreateJob(ctx context.Context, userID string, in JobInput) (Job, error) {
 	return s.CreateJobEfficient(ctx, userID, in)
 }
-func (s *Service) SetJobStatus(ctx context.Context, userID, jobID, status string) error {
-	return s.transitionJobStatus(ctx, userID, jobID, status)
+func (s *Service) SetJobStatus(ctx context.Context, userID, jobID, status string, changes ...JobStatusChange) error {
+	return s.transitionJobStatus(ctx, userID, jobID, status, changes...)
 }
 func (s *Service) Pipeline(ctx context.Context, userID string, filters PipelineFilters, page, limit int) (PipelineList, error) {
 	companyID, _, _, err := s.recruiterCompany(ctx, userID)
@@ -393,26 +438,16 @@ func (s *Service) Pipeline(ctx context.Context, userID string, filters PipelineF
 	}
 	return PipelineList{Items: items, Page: page, Limit: limit, Total: total, StageCounts: counts}, nil
 }
-func (s *Service) pipeline(ctx context.Context, companyID, recruiterID, q, stage, jobID string, limit int) ([]PipelineRow, error) {
-	if limit < 1 || limit > 100 {
-		limit = 50
-	}
-	rows, err := s.db.Query(ctx, `SELECT `+pipelineCandidateFields+` FROM applications a JOIN jobs j ON j.id=a.job_id JOIN candidate_profiles cp ON cp.user_id=a.candidate_id JOIN users u ON u.id=a.candidate_id WHERE j.company_id=$1 AND ($2='' OR cp.full_name ILIKE '%'||$2||'%' OR COALESCE(cp.headline,'') ILIKE '%'||$2||'%') AND ($3='' OR a.stage::text=$3) AND ($4='' OR j.id::text=$4) AND ($5<>'stalled' OR (a.stage NOT IN('hired','rejected','withdrawn') AND a.updated_at<now()-interval '7 days')) ORDER BY a.updated_at DESC LIMIT $6 OFFSET $7`, companyID, strings.TrimSpace(q), strings.TrimSpace(stage), strings.TrimSpace(jobID), "", limit, 0, recruiterID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := make([]PipelineRow, 0)
-	for rows.Next() {
-		p, err := scanPipelineRow(rows)
-		if err != nil {
-			return nil, err
-		}
-		items = append(items, p)
-	}
-	return items, rows.Err()
+
+type StageChangeOptions struct {
+	ExpectedStage string
+	Reason        string
+	RequireReason bool
 }
-func (s *Service) UpdateStage(ctx context.Context, userID, applicationID, stage string) error {
+
+var ErrStageStale = errors.New("application stage has changed")
+
+func (s *Service) UpdateStage(ctx context.Context, userID, applicationID, stage string, options ...StageChangeOptions) error {
 	if !validEnum(stage, "new_application", "screening", "shortlisted", "technical_interview", "hr_round", "final_interview", "offer", "hired", "rejected", "withdrawn") {
 		return ErrInvalid
 	}
@@ -425,8 +460,18 @@ func (s *Service) UpdateStage(ctx context.Context, userID, applicationID, stage 
 		return err
 	}
 	defer tx.Rollback(ctx)
+	if err = company.LockCompanyTx(ctx, tx, companyID); err != nil {
+		return err
+	}
+	m, err := company.MemberTx(ctx, tx, userID)
+	if err != nil {
+		return err
+	}
+	if m.CompanyID != companyID || !m.Can("applications.manage") {
+		return company.ErrForbidden
+	}
 	var candidateID, previousStage string
-	err = tx.QueryRow(ctx, `SELECT a.candidate_id,a.stage::text FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND j.company_id=$2 FOR UPDATE OF a`, applicationID, companyID).Scan(&candidateID, &previousStage)
+	err = tx.QueryRow(ctx, `SELECT a.candidate_id,a.stage::text FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND j.company_id=$2 AND ($3::boolean OR j.department=ANY($4::text[]) OR j.city=ANY($5::text[]) OR j.id::text=ANY($6::text[])) FOR UPDATE OF a`, applicationID, companyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs).Scan(&candidateID, &previousStage)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
@@ -436,10 +481,22 @@ func (s *Service) UpdateStage(ctx context.Context, userID, applicationID, stage 
 	if previousStage == stage {
 		return nil
 	}
+	reason := ""
+	if len(options) > 0 {
+		option := options[0]
+		reason = strings.TrimSpace(option.Reason)
+		if option.ExpectedStage != "" && option.ExpectedStage != previousStage {
+			return ErrStageStale
+		}
+		ranks := map[string]int{"new_application": 0, "screening": 1, "shortlisted": 2, "technical_interview": 3, "hr_round": 4, "final_interview": 5, "offer": 6, "hired": 7, "rejected": 8, "withdrawn": 8}
+		if len(reason) > 1000 || option.RequireReason && (stage == "rejected" || stage == "withdrawn" || stage == "hired" || ranks[stage] < ranks[previousStage]) && len(reason) < 10 {
+			return ErrInvalid
+		}
+	}
 	if _, err = tx.Exec(ctx, `UPDATE applications SET stage=$2::application_stage WHERE id=$1`, applicationID, stage); err != nil {
 		return err
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO application_stage_audit(application_id,actor_recruiter_id,previous_stage,new_stage) VALUES($1,$2,$3::application_stage,$4::application_stage)`, applicationID, userID, previousStage, stage); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO application_stage_audit(application_id,actor_recruiter_id,previous_stage,new_stage,reason) VALUES($1,$2,$3::application_stage,$4::application_stage,$5)`, applicationID, userID, previousStage, stage, reason); err != nil {
 		return err
 	}
 	_, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'application_stage','Application status updated',$2,'/candidate/applications')`, candidateID, "Your application moved to "+strings.ReplaceAll(stage, "_", " ")+".")

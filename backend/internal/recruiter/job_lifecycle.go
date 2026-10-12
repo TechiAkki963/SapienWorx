@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -17,6 +18,12 @@ var jobLifecycleTransitions = map[string]map[string]bool{
 	"expired":  {"active": true, "archived": true},
 	"archived": {},
 }
+var ErrJobStatusStale = errors.New("job status changed; reload before continuing")
+
+type JobStatusChange struct {
+	ExpectedStatus string `json:"expected_status"`
+	Reason         string `json:"reason"`
+}
 
 func canTransitionJobStatus(current, next string) bool {
 	if current == next {
@@ -25,7 +32,7 @@ func canTransitionJobStatus(current, next string) bool {
 	return jobLifecycleTransitions[current][next]
 }
 
-func (s *Service) transitionJobStatus(ctx context.Context, userID, jobID, nextStatus string) error {
+func (s *Service) transitionJobStatus(ctx context.Context, userID, jobID, nextStatus string, changes ...JobStatusChange) error {
 	if !validEnum(nextStatus, "draft", "active", "paused", "closed", "expired", "archived") {
 		return ErrInvalid
 	}
@@ -33,10 +40,20 @@ func (s *Service) transitionJobStatus(ctx context.Context, userID, jobID, nextSt
 	if err != nil {
 		return err
 	}
-	return s.transitionJobStatusForCompany(ctx, userID, companyID, jobID, nextStatus, "status_changed", nil)
+	return s.transitionJobStatusForCompany(ctx, userID, companyID, jobID, nextStatus, "status_changed", nil, changes...)
 }
 
-func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, companyID, jobID, nextStatus, auditAction string, bulkOperationID *string) error {
+func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, companyID, jobID, nextStatus, auditAction string, bulkOperationID *string, changes ...JobStatusChange) error {
+	if len(changes) > 1 {
+		return ErrInvalid
+	}
+	change := JobStatusChange{}
+	if len(changes) == 1 {
+		change = changes[0]
+		if !validEnum(change.ExpectedStatus, "draft", "active", "paused", "closed", "expired", "archived") || len(change.Reason) > 1000 || validEnum(nextStatus, "closed", "archived") && len(strings.TrimSpace(change.Reason)) < 10 {
+			return ErrInvalid
+		}
+	}
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -44,6 +61,16 @@ func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, com
 	defer tx.Rollback(ctx)
 	if err = company.LockCompanyTx(ctx, tx, companyID); err != nil {
 		return err
+	}
+	member, err := company.MemberTx(ctx, tx, userID)
+	if err != nil {
+		return err
+	}
+	if !member.Can("jobs.manage") {
+		return company.ErrForbidden
+	}
+	if member.CompanyID != companyID || !company.JobAllowedTx(ctx, tx, member, jobID) {
+		return ErrNotFound
 	}
 	var currentStatus, description string
 	var responsibilities *string
@@ -61,6 +88,9 @@ func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, com
 	}
 	if err != nil {
 		return err
+	}
+	if change.ExpectedStatus != "" && currentStatus != change.ExpectedStatus {
+		return ErrJobStatusStale
 	}
 	if !canTransitionJobStatus(currentStatus, nextStatus) {
 		return ErrInvalid
@@ -100,7 +130,7 @@ func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, com
 	}
 
 	var next []byte
-	if err := tx.QueryRow(ctx, `SELECT to_jsonb(j) FROM jobs j WHERE j.id=$1 AND j.company_id=$2`, jobID, companyID).Scan(&next); err != nil {
+	if err := tx.QueryRow(ctx, `SELECT to_jsonb(j)||jsonb_build_object('status_change_reason',$3::text) FROM jobs j WHERE j.id=$1 AND j.company_id=$2`, jobID, companyID, strings.TrimSpace(change.Reason)).Scan(&next); err != nil {
 		return err
 	}
 	if err := auditJobChangeWithOperationTx(ctx, tx, jobID, userID, auditAction, bulkOperationID, previous, next); err != nil {

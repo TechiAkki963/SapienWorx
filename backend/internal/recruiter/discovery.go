@@ -21,6 +21,8 @@ type DiscoveryFilters struct {
 }
 
 type DiscoveryCandidate struct {
+	PreviousCompany    string     `json:"previous_company,omitempty"`
+	EducationSummaries []string   `json:"education_summaries,omitempty"`
 	ID                 string     `json:"id"`
 	FullName           string     `json:"full_name"`
 	Headline           *string    `json:"headline,omitempty"`
@@ -49,6 +51,12 @@ type DiscoveryList struct {
 const discoveryEmployment = `jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'employment')='array' THEN cp.profile_details->'employment' ELSE '[]'::jsonb END)`
 const discoverySkills = `jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'it_skills')='array' THEN cp.profile_details->'it_skills' ELSE '[]'::jsonb END)`
 const discoveryEducation = `jsonb_array_elements(CASE WHEN jsonb_typeof(cp.profile_details->'education')='array' THEN cp.profile_details->'education' ELSE '[]'::jsonb END)`
+
+// Candidate card summaries are bounded, consent-scoped and contain no contact,
+// personal details, compensation, notes or document references.
+const candidateCardCareerProjection = `coalesce((SELECT e->>'company' FROM ` + discoveryEmployment + ` e WHERE lower(coalesce(e->>'current_company',''))<>'yes' AND nullif(trim(e->>'company'),'') IS NOT NULL LIMIT 1),''),
+ ARRAY(SELECT concat_ws(' · ',nullif(coalesce(e->>'education',e->>'level'),''),nullif(e->>'specialization',''),nullif(e->>'university','')) FROM ` + discoveryEducation + ` e WHERE concat_ws('',e->>'education',e->>'level',e->>'university',e->>'specialization')<>'' LIMIT 2)`
+
 const discoveryDiversityOptIn = `lower(trim(coalesce(cp.profile_details->>'diversity_search_opt_in','')))='true'`
 
 func (s *Service) Discover(ctx context.Context, recruiterID string, f DiscoveryFilters) (DiscoveryList, error) {
@@ -157,8 +165,8 @@ func (s *Service) discover(ctx context.Context, recruiterID string, f DiscoveryF
 		coalesce((SELECT e->>'company' FROM ` + discoveryEmployment + ` e WHERE lower(e->>'current_company')='yes' LIMIT 1),''),
 		cp.current_city,cp.current_state,cp.total_experience_months,cp.notice_period_days,
 		coalesce(cp.profile_details->>'preferred_locations',''),
-		(candidate_discovery_skill_names(cp.profile_details))[1:6],
-		coalesce((SELECT concat_ws(' · ',nullif(e->>'level',''),nullif(e->>'specialization',''),nullif(e->>'university','')) FROM ` + discoveryEducation + ` e LIMIT 1),''),cp.updated_at,u.last_active_at,u.email_verified_at IS NOT NULL,u.phone_verified_at IS NOT NULL` + from +
+		(candidate_discovery_skill_names(cp.profile_details))[1:50],
+		coalesce((SELECT concat_ws(' · ',nullif(e->>'level',''),nullif(e->>'specialization',''),nullif(e->>'university','')) FROM ` + discoveryEducation + ` e LIMIT 1),''),cp.updated_at,u.last_active_at,u.email_verified_at IS NOT NULL,u.phone_verified_at IS NOT NULL,` + candidateCardCareerProjection + from +
 		fmt.Sprintf(` ORDER BY `+orderBy+` LIMIT $%d OFFSET $%d`, len(args)-1, len(args))
 	rows, err := s.db.Query(ctx, query, args...)
 	if err != nil {
@@ -167,7 +175,7 @@ func (s *Service) discover(ctx context.Context, recruiterID string, f DiscoveryF
 	defer rows.Close()
 	for rows.Next() {
 		var item DiscoveryCandidate
-		if err := rows.Scan(&item.ID, &item.FullName, &item.Headline, &item.Designation, &item.CurrentCompany, &item.CurrentCity, &item.CurrentState, &item.ExperienceMonths, &item.NoticePeriodDays, &item.PreferredLocations, &item.Skills, &item.Education, &item.UpdatedAt, &item.LastActiveAt, &item.EmailVerified, &item.MobileVerified); err != nil {
+		if err := rows.Scan(&item.ID, &item.FullName, &item.Headline, &item.Designation, &item.CurrentCompany, &item.CurrentCity, &item.CurrentState, &item.ExperienceMonths, &item.NoticePeriodDays, &item.PreferredLocations, &item.Skills, &item.Education, &item.UpdatedAt, &item.LastActiveAt, &item.EmailVerified, &item.MobileVerified, &item.PreviousCompany, &item.EducationSummaries); err != nil {
 			return DiscoveryList{}, err
 		}
 		result.Items = append(result.Items, item)

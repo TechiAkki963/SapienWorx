@@ -10,13 +10,18 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+var ErrInterviewStale = errors.New("interview changed since it was read")
+
 type InterviewChangeInput struct {
-	Action          string    `json:"action"`
-	ScheduledAt     time.Time `json:"scheduled_at"`
-	DurationMinutes int       `json:"duration_minutes"`
-	MeetingURL      string    `json:"meeting_url"`
-	RoundLabel      string    `json:"round_label"`
-	Notes           string    `json:"notes"`
+	ExpectedScheduledAt time.Time `json:"expected_scheduled_at"`
+	Timezone            string    `json:"timezone"`
+	Location            *string   `json:"location"`
+	Action              string    `json:"action"`
+	ScheduledAt         time.Time `json:"scheduled_at"`
+	DurationMinutes     int       `json:"duration_minutes"`
+	MeetingURL          string    `json:"meeting_url"`
+	RoundLabel          string    `json:"round_label"`
+	Notes               string    `json:"notes"`
 }
 
 type InterviewChangeEvent struct {
@@ -75,23 +80,36 @@ func (s *Service) ChangeInterview(ctx context.Context, userID, interviewID strin
 		return err
 	}
 
-	var status, candidateID, jobTitle, previousRound, format string
+	var status, candidateID, jobTitle, previousRound, format, previousTimezone string
 	var previousScheduledAt time.Time
 	var previousDuration int
-	err = tx.QueryRow(ctx, `SELECT i.status,a.candidate_id,j.title,i.scheduled_at,i.duration_minutes,i.round_label,i.format FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id WHERE i.id=$1 AND j.company_id=$2 FOR UPDATE OF i`, interviewID, companyID).Scan(&status, &candidateID, &jobTitle, &previousScheduledAt, &previousDuration, &previousRound, &format)
+	err = tx.QueryRow(ctx, `SELECT i.status,a.candidate_id,j.title,i.scheduled_at,i.duration_minutes,i.round_label,i.format,i.timezone FROM interviews i JOIN applications a ON a.id=i.application_id JOIN jobs j ON j.id=a.job_id WHERE i.id=$1 AND j.company_id=$2 FOR UPDATE OF i`, interviewID, companyID).Scan(&status, &candidateID, &jobTitle, &previousScheduledAt, &previousDuration, &previousRound, &format, &previousTimezone)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}
 	if err != nil {
 		return err
 	}
+	if !in.ExpectedScheduledAt.IsZero() && !in.ExpectedScheduledAt.Equal(previousScheduledAt) {
+		return ErrInterviewStale
+	}
 	if status != "scheduled" {
 		return ErrInvalid
 	}
 	newStatus, newScheduledAt, newDuration, newRound := status, previousScheduledAt, previousDuration, previousRound
+	newTimezone := previousTimezone
 
 	switch in.Action {
 	case "reschedule":
+		if strings.TrimSpace(in.Timezone) != "" {
+			if _, e := time.LoadLocation(in.Timezone); e != nil {
+				return ErrInvalid
+			}
+			newTimezone = in.Timezone
+		}
+		if len(in.Notes) > 4000 || in.Location != nil && (len(*in.Location) > 500 || format == "in_person" && strings.TrimSpace(*in.Location) == "") {
+			return ErrInvalid
+		}
 		if in.ScheduledAt.IsZero() || !in.ScheduledAt.After(time.Now()) || in.DurationMinutes < 10 || in.DurationMinutes > 480 {
 			return ErrInvalid
 		}
@@ -125,7 +143,7 @@ func (s *Service) ChangeInterview(ctx context.Context, userID, interviewID strin
 			return err
 		}
 
-		_, err = tx.Exec(ctx, `UPDATE interviews SET scheduled_at=$2,duration_minutes=$3,meeting_url=$4,round_label=$5,notes=NULLIF($6,'') WHERE id=$1`, interviewID, in.ScheduledAt, in.DurationMinutes, meetingURL, in.RoundLabel, strings.TrimSpace(in.Notes))
+		_, err = tx.Exec(ctx, `UPDATE interviews SET scheduled_at=$2,duration_minutes=$3,meeting_url=$4,round_label=$5,notes=NULLIF($6,''),timezone=$7,location=COALESCE($8,location) WHERE id=$1`, interviewID, in.ScheduledAt, in.DurationMinutes, meetingURL, in.RoundLabel, strings.TrimSpace(in.Notes), newTimezone, in.Location)
 		if err != nil {
 			return err
 		}
@@ -145,7 +163,7 @@ func (s *Service) ChangeInterview(ctx context.Context, userID, interviewID strin
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(ctx, `INSERT INTO interview_change_audit(interview_id,actor_recruiter_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,previous_duration_minutes,new_duration_minutes,previous_round_label,new_round_label) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`, interviewID, userID, in.Action, status, newStatus, previousScheduledAt, newScheduledAt, previousDuration, newDuration, previousRound, newRound)
+	_, err = tx.Exec(ctx, `INSERT INTO interview_change_audit(interview_id,actor_recruiter_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,previous_duration_minutes,new_duration_minutes,previous_round_label,new_round_label,previous_timezone,new_timezone) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, interviewID, userID, in.Action, status, newStatus, previousScheduledAt, newScheduledAt, previousDuration, newDuration, previousRound, newRound, previousTimezone, newTimezone)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -38,6 +39,20 @@ func (s *Service) WithdrawApplication(ctx context.Context, userID, applicationID
 		return err
 	}
 	defer tx.Rollback(ctx)
+	// Stage notifications reference the company row. Take the same company-first
+	// lock as recruiter stage writes before locking the application, so a
+	// concurrent withdrawal and hiring action cannot form an FK-lock cycle.
+	var companyID string
+	err = tx.QueryRow(ctx, `SELECT j.company_id FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND a.candidate_id=$2`, applicationID, userID).Scan(&companyID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+	if err = company.LockCompanyTx(ctx, tx, companyID); err != nil {
+		return err
+	}
 	var stage string
 	err = tx.QueryRow(ctx, `SELECT stage::text FROM applications WHERE id=$1 AND candidate_id=$2 FOR UPDATE`, applicationID, userID).Scan(&stage)
 	if errors.Is(err, pgx.ErrNoRows) {

@@ -3,14 +3,14 @@ import fs from "node:fs/promises";
 import {login,resetE2E,MOCK_API} from "./helpers";
 test.beforeEach(async ({request})=>resetE2E(request));
 
-test("drawers retain focus, full-width mobile layout and readable appearances",async ({page})=>{
+test("centered actions retain focus, full-width mobile layout and readable appearances",async ({page})=>{
   test.setTimeout(300000);await login(page,"recruiter");const root="visual-artifacts/recruiter-workspace-actions";await fs.mkdir(root,{recursive:true});
   for(const [width,height] of [[1920,1080],[1440,900],[1366,768],[1024,768],[768,1024],[428,926],[360,800]]){
     await page.setViewportSize({width,height});
     for(const colorScheme of ["light","dark"] as const){
       await page.emulateMedia({colorScheme});
-      for(const [name,route,button,dialog] of [["schedule","/recruiter/interviews","Schedule interview","Schedule interview"],["offer","/recruiter/offers","Create offer","Create offer"],["pool-tags","/recruiter/talent-pool","Edit tags for Aarav Mehta","Edit pool tags"],["campaign","/recruiter/outreach","Create campaign","Create campaign"]]){
-        await page.goto(route);const trigger=page.getByRole("button",{name:button,exact:true}).first();await trigger.click();
+      for(const [name,route,button,dialog] of [["schedule","/recruiter/interviews","Schedule interview","Schedule interview"],["pool-tags","/recruiter/talent-pool","Edit tags for Aarav Mehta","Edit pool tags"],["campaign","/recruiter/outreach","Create campaign","Create campaign"]]){
+        await page.goto(route);if(name==="pool-tags")await page.getByLabel("More actions for Aarav Mehta",{exact:true}).click();const trigger=page.getByRole("button",{name:name==="pool-tags"?"Edit tags":button,exact:true}).first();await trigger.click();
         const drawer=page.getByRole("dialog",{name:dialog,exact:true});await expect(drawer).toBeVisible();
         expect(await drawer.evaluate(node=>node.getBoundingClientRect().right<=innerWidth+1)).toBeTruthy();
         expect(await drawer.evaluate(node=>node.scrollWidth<=node.clientWidth+1)).toBeTruthy();
@@ -23,7 +23,8 @@ test("drawers retain focus, full-width mobile layout and readable appearances",a
         await page.keyboard.press("Escape");await expect(drawer).not.toBeVisible();await expect(trigger).toBeFocused();
       }
       await page.goto("/recruiter/discover");await page.locator(".swx-search-actions").getByRole("button",{name:"Search Talent",exact:true}).click();
-      await page.getByRole("button",{name:"Aarav Mehta",exact:true}).click();await expect(page.getByRole("dialog",{name:"Candidate preview"})).toBeVisible();await page.screenshot({path:`${root}/preview-${width}-${colorScheme}.png`,caret:"initial",animations:"disabled"});await page.keyboard.press("Escape");
+      await page.getByRole("link",{name:"Aarav Mehta",exact:true}).click();await expect(page.getByText("Candidate 360°",{exact:true})).toBeVisible();await page.screenshot({path:`${root}/profile-${width}-${colorScheme}.png`,caret:"initial",animations:"disabled"});await page.goBack();
+      await expect(page.getByLabel("Minimum experience (years)",{exact:true})).toBeVisible();
       await page.locator(".swx-search-actions").getByRole("button",{name:"Save search",exact:true}).click();await expect(page.getByRole("dialog",{name:"Save search",exact:true})).toBeVisible();await page.screenshot({path:`${root}/save-search-${width}-${colorScheme}.png`,caret:"initial",animations:"disabled"});await page.keyboard.press("Escape");
     }
   }

@@ -1,33 +1,14 @@
 "use client";
-
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-
-import { StatusMenu } from "@/components/recruiter/status-menu";
-import { apiRequest } from "@/lib/api";
-import { jobStatusTransitions } from "@/lib/recruiter";
-
-export function JobStatusControl({ jobId, status }: { jobId: string; status: string }) {
-  const router = useRouter();
-  const [error,setError]=useState("");
-  const [busy, setBusy] = useState(false);
-
-  return (
-    <div><StatusMenu
-      value={status}
-      options={jobStatusTransitions[status] ?? [status]}
-      disabled={busy}
-      ariaLabel="Job status"
-      onChange={async (next) => {
-        if (["closed","archived"].includes(next)&&!window.confirm("Stop new applications to this job? Existing applications remain available."))return;
-        setBusy(true);setError("");
-        try {
-          await apiRequest(`/api/v1/recruiter/jobs/${jobId}/status`, { method: "PATCH", body: JSON.stringify({ status: next }) });
-          router.refresh();
-        } catch(c){setError(c instanceof Error?c.message:"Could not update job status.")} finally {
-          setBusy(false);
-        }
-      }}
-    />{error&&<p role="alert" className="mt-2 text-xs text-rose-700">{error}</p>}</div>
-  );
+import {StatusMenu} from "./status-menu";
+import {jobStatusTransitions,label} from "@/lib/recruiter";
+import {useJobStatusChange} from "./use-job-status-change";
+import {RecruiterModal,RecruiterModalClose,recruiterInput,recruiterPrimary,recruiterSecondary} from "./workspace-ui";
+export function JobStatusControl({jobId,status,embedded=false}:{jobId:string;status:string;embedded?:boolean}){
+ const s=useJobStatusChange(jobId,status);
+ const confirm=<div className="grid gap-3"><p className="text-sm leading-6 text-ink">{label(s.pending)} this job? New applications will stop. Existing applications and hiring records remain available.</p><label className="grid gap-2 text-sm font-semibold text-ink">Reason for job status change<textarea data-modal-initial-focus value={s.reason} disabled={s.busy} onChange={e=>s.setReason(e.target.value)} minLength={10} maxLength={1000} rows={3} className={recruiterInput}/></label><p className="text-xs text-ink-muted">Add at least 10 characters. The previous status and your reason are recorded in job activity.</p>{s.error&&<p role="alert" className="text-sm text-rose-700">{s.error}</p>}</div>;
+ const confirmButton=<button type="button" className={recruiterPrimary} disabled={s.busy||s.reason.trim().length<10} onClick={()=>void s.change(s.pending,s.reason)}>Confirm job change</button>;
+ return <div className="grid gap-2">{embedded?<div className="flex flex-wrap gap-2">{(jobStatusTransitions[s.value]??[]).filter(next=>next!==s.value).map(next=><button type="button" disabled={s.busy||Boolean(s.pending)} key={next} className={recruiterSecondary} onClick={()=>s.request(next)}>{label(next)} job</button>)}</div>:<StatusMenu value={s.value} options={jobStatusTransitions[s.value]??[s.value]} disabled={s.busy} ariaLabel="Job status" onChange={s.request}/>}
+ {s.error&&!s.pending&&<p role="alert" className="text-xs leading-5 text-rose-700">{s.error}</p>}{s.undo&&<p role="status" className="text-xs leading-5 text-ink-muted">Job is {label(s.undo.after)}. <button type="button" disabled={s.busy} className="min-h-11 px-1 font-semibold text-indigo" onClick={()=>void s.change(s.undo!.before,"Undo recent job status change",true)}>Undo</button></p>}
+ {embedded?s.pending&&<section aria-label="Confirm job status change" className="grid gap-3 rounded-xl border border-line p-4">{confirm}<div className="flex flex-wrap gap-2"><button type="button" disabled={s.busy} className={recruiterSecondary} onClick={()=>{s.setPending("");s.setReason("")}}>Keep current status</button>{confirmButton}</div></section>:<RecruiterModal open={Boolean(s.pending)} onClose={()=>s.setPending("")} title="Confirm job status change" size="small" busy={s.busy} footer={<><RecruiterModalClose>Cancel</RecruiterModalClose>{confirmButton}</>}>{confirm}</RecruiterModal>}
+ </div>
 }

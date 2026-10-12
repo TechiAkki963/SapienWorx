@@ -212,7 +212,7 @@ func (s *Service) NamedPoolCandidates(ctx context.Context, userID, poolID, q, ta
 		}
 		out := TalentPoolList{Items: []TalentPoolCandidate{}, Page: page, Limit: limit, Total: matches.Total}
 		for _, c := range matches.Items {
-			out.Items = append(out.Items, TalentPoolCandidate{CandidateID: c.ID, FullName: c.FullName, Headline: c.Headline, CurrentCity: c.CurrentCity, ExperienceMonths: c.ExperienceMonths, NoticePeriodDays: c.NoticePeriodDays, Tags: []string{}, CurrentCompany: c.CurrentCompany, LastActiveAt: c.LastActiveAt, Skills: c.Skills})
+			out.Items = append(out.Items, TalentPoolCandidate{CandidateID: c.ID, FullName: c.FullName, Headline: c.Headline, CurrentCity: c.CurrentCity, ExperienceMonths: c.ExperienceMonths, NoticePeriodDays: c.NoticePeriodDays, Tags: []string{}, CurrentCompany: c.CurrentCompany, PreviousCompany: c.PreviousCompany, EducationSummaries: c.EducationSummaries, PreferredLocations: c.PreferredLocations, LastActiveAt: c.LastActiveAt, Skills: c.Skills})
 		}
 		return out, nil
 	}
@@ -228,14 +228,14 @@ func (s *Service) NamedPoolCandidates(ctx context.Context, userID, poolID, q, ta
 		return out, err
 	}
 	args = append(args, limit, (page-1)*limit)
-	rows, err := s.db.Query(ctx, `SELECT cp.user_id,cp.full_name,cp.headline,cp.current_city,cp.total_experience_months,cp.notice_period_days,e.tags,e.created_at,saver.full_name,u.last_active_at,(candidate_discovery_skill_names(cp.profile_details))[1:6],coalesce((SELECT item->>'company' FROM `+discoveryEmployment+` item WHERE lower(item->>'current_company')='yes' LIMIT 1),'')`+from+fmt.Sprintf(` ORDER BY e.created_at DESC,e.candidate_id LIMIT $%d OFFSET $%d`, len(args)-1, len(args)), args...)
+	rows, err := s.db.Query(ctx, `SELECT cp.user_id,cp.full_name,cp.headline,cp.current_city,cp.total_experience_months,cp.notice_period_days,e.tags,e.created_at,saver.full_name,u.last_active_at,(candidate_discovery_skill_names(cp.profile_details))[1:50],coalesce((SELECT item->>'company' FROM `+discoveryEmployment+` item WHERE lower(item->>'current_company')='yes' LIMIT 1),''),coalesce(cp.profile_details->>'preferred_locations',''),`+candidateCardCareerProjection+from+fmt.Sprintf(` ORDER BY e.created_at DESC,e.candidate_id LIMIT $%d OFFSET $%d`, len(args)-1, len(args)), args...)
 	if err != nil {
 		return out, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var c TalentPoolCandidate
-		if err = rows.Scan(&c.CandidateID, &c.FullName, &c.Headline, &c.CurrentCity, &c.ExperienceMonths, &c.NoticePeriodDays, &c.Tags, &c.SavedAt, &c.SavedBy, &c.LastActiveAt, &c.Skills, &c.CurrentCompany); err != nil {
+		if err = rows.Scan(&c.CandidateID, &c.FullName, &c.Headline, &c.CurrentCity, &c.ExperienceMonths, &c.NoticePeriodDays, &c.Tags, &c.SavedAt, &c.SavedBy, &c.LastActiveAt, &c.Skills, &c.CurrentCompany, &c.PreferredLocations, &c.PreviousCompany, &c.EducationSummaries); err != nil {
 			return out, err
 		}
 		out.Items = append(out.Items, c)

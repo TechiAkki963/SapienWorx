@@ -18,7 +18,7 @@ type fakeDB struct{ err error }
 func (f fakeDB) Ping(context.Context) error { return f.err }
 
 func testConfig() config.Config {
-	return config.Config{HTTP: config.HTTPConfig{Address: ":0", ReadTimeout: time.Second, ReadHeaderTimeout: time.Second, WriteTimeout: time.Second, IdleTimeout: time.Second, AllowedOrigins: []string{"http://localhost:3000"}, MaxBodyBytes: 1024}, Database: config.DatabaseConfig{HealthTimeout: time.Second}, Auth: config.AuthConfig{AccessCookieName: "sw_access", RefreshCookieName: "sw_refresh"}}
+	return config.Config{HTTP: config.HTTPConfig{Address: ":0", ReadTimeout: time.Second, ReadHeaderTimeout: time.Second, WriteTimeout: time.Second, IdleTimeout: time.Second, AllowedOrigins: []string{"http://localhost:3000"}, MaxBodyBytes: 1024}, Database: config.DatabaseConfig{HealthTimeout: time.Second}, Auth: config.AuthConfig{AccessCookieName: "sw_access", RefreshCookieName: "sw_refresh", CSRFCookieName: "sw_csrf"}}
 }
 
 func testTokens(t *testing.T) *auth.TokenManager {

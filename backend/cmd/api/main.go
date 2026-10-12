@@ -131,6 +131,25 @@ func run(logger *slog.Logger) error {
 	}
 	errCh := make(chan error, 1)
 	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				passCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+				if _, err := recruiterService.ExpireGovernedOffers(passCtx, 50); err != nil {
+					logger.Warn("offer expiry pass failed", "error", err)
+				}
+				if err := candidateService.PurgeJobViewEvidence(passCtx); err != nil {
+					logger.Warn("job view retention pass failed", "error", err)
+				}
+				cancel()
+			}
+		}
+	}()
+	go func() {
 		logger.Info("http server listening", "address", cfg.HTTP.Address)
 		errCh <- server.ListenAndServe()
 	}()

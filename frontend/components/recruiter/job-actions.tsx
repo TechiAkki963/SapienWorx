@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { type RecruiterJob, type RecruiterTeamMember, type BulkJobActionResult, jobStatusTransitions, label } from "@/lib/recruiter";
 import { JobShareMenu } from "./job-share-menu";
-import { RecruiterDrawer, recruiterPrimary, recruiterSecondary, recruiterInput } from "./workspace-ui";
+import { JobStatusControl } from "./job-status-control";
+import { RecruiterModal, recruiterPrimary, recruiterSecondary, recruiterInput } from "./workspace-ui";
 
 export function JobActions({ job, team, compact = false }: { job: RecruiterJob; team: RecruiterTeamMember[]; compact?: boolean }) {
   const router = useRouter();
@@ -19,7 +20,6 @@ export function JobActions({ job, team, compact = false }: { job: RecruiterJob; 
 
   async function run(action: string) {
     if (busy) return;
-    if (["closed", "archived"].includes(action) && !window.confirm(`${label(action)} this job? New applications will stop. Existing applications remain available.`)) return;
     setBusy(true);
     setError("");
     try {
@@ -29,9 +29,6 @@ export function JobActions({ job, team, compact = false }: { job: RecruiterJob; 
       } else if (action === "assign") {
         const result = await apiRequest<BulkJobActionResult>("/api/v1/recruiter/jobs/bulk", { method: "POST", body: JSON.stringify({ job_ids: [job.id], action: "reassign", assigned_recruiter_id: owner }) });
         if (result.failed_count) throw new Error("The job could not be reassigned under its organization rules.");
-        router.refresh();
-      } else {
-        await apiRequest(`/api/v1/recruiter/jobs/${job.id}/status`, { method: "PATCH", body: JSON.stringify({ status: action }) });
         router.refresh();
       }
       setOpen(false);
@@ -45,7 +42,7 @@ export function JobActions({ job, team, compact = false }: { job: RecruiterJob; 
   return <div className="flex flex-wrap gap-2">
     {!compact && <Link className={`${recruiterPrimary} whitespace-nowrap !px-2 !text-xs`} href={`/recruiter/jobs/${job.id}/applicants`}>View applicants</Link>}
     <button className={`${recruiterSecondary} ${compact ? "w-10 !px-0" : ""}`} aria-label={`More actions for ${job.title}`} onClick={() => setOpen(true)}>⋯</button>
-    <RecruiterDrawer open={open} onClose={() => { if (!busy) setOpen(false); }} title={job.title}>
+    <RecruiterModal open={open} onClose={() => { if (!busy) setOpen(false); }} title={job.title}>
       <div className="grid gap-3">
         <dl className="grid gap-2 border-b border-line pb-4 text-xs">
           <div><dt className="text-ink-muted">Job ID</dt><dd className="mt-1 text-ink">{job.job_reference}</dd></div>
@@ -66,9 +63,9 @@ export function JobActions({ job, team, compact = false }: { job: RecruiterJob; 
           </select>
         </label>
         <button className={recruiterSecondary} disabled={busy || !owner} onClick={() => void run("assign")}>Assign selected recruiter</button>
-        {(jobStatusTransitions[job.status] || []).filter(value => value !== job.status).map(value => <button disabled={busy} key={value} className={recruiterSecondary} onClick={() => void run(value)}>{label(value)} job</button>)}
+        <JobStatusControl jobId={job.id} status={job.status} embedded/>
         {error && <p role="alert" className="text-sm text-rose-700">{error}</p>}
       </div>
-    </RecruiterDrawer>
+    </RecruiterModal>
   </div>;
 }

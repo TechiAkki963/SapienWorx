@@ -38,3 +38,15 @@ func TestNormalizeJobWorkspaceFiltersRejectsInvalidEnums(t *testing.T) {
 		}
 	}
 }
+
+func TestJobAdditionalFiltersValidateDatesAndPosterWithoutBroadeningScope(t *testing.T) {
+	for _, input := range []JobWorkspaceFilters{{PostedBy: "not-a-user"}, {PostedFrom: "2026-02-30"}, {PostedFrom: "2026-10-13", PostedTo: "2026-10-12"}, {Location: string(make([]byte, 161))}} {
+		if normalizeJobWorkspaceFilters(&input) != ErrInvalid {
+			t.Fatal("invalid job filter accepted", input)
+		}
+	}
+	valid := JobWorkspaceFilters{Location: " Mumbai ", Department: " Engineering ", PostedFrom: "2026-01-02", PostedTo: "2026-01-02", PostedBy: "11111111-1111-4111-8111-111111111111"}
+	if err := normalizeJobWorkspaceFilters(&valid); err != nil || valid.Location != "Mumbai" || valid.Department != "Engineering" {
+		t.Fatal(valid, err)
+	}
+}

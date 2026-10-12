@@ -40,6 +40,9 @@ type JobAnalytics struct {
 	ClosedAt                    *time.Time        `json:"closed_at,omitempty"`
 	ApplicationDeadline         *time.Time        `json:"application_deadline,omitempty"`
 	TotalApplications           int               `json:"total_applications"`
+	Views                       int64             `json:"views"`
+	TotalViews                  int64             `json:"total_views"`
+	ViewToApplicationPercent    float64           `json:"view_to_application_percent"`
 	Hires                       int               `json:"hires"`
 	RemainingOpenings           int               `json:"remaining_openings"`
 	FillRatePercent             float64           `json:"fill_rate_percent"`
@@ -117,6 +120,9 @@ func (s *Service) JobAnalytics(ctx context.Context, userID, jobID string) (JobAn
 		return JobAnalytics{}, err
 	}
 	result.DaysToDeadline = daysToDeadline
+	if err = s.db.QueryRow(ctx, `SELECT COALESCE((SELECT unique_views FROM job_view_metrics WHERE job_id=$1),0),COALESCE((SELECT total_views FROM job_view_metrics WHERE job_id=$1),0)`, jobID).Scan(&result.Views, &result.TotalViews); err != nil {
+		return JobAnalytics{}, err
+	}
 	result.ClosingSoon = result.Status == "active" && daysToDeadline != nil && *daysToDeadline >= 0 && *daysToDeadline <= 3
 	result.Overdue = result.Status == "active" && daysToDeadline != nil && *daysToDeadline < 0
 
@@ -172,6 +178,7 @@ func (s *Service) JobAnalytics(ctx context.Context, userID, jobID string) (JobAn
 		return JobAnalytics{}, err
 	}
 	result.RemainingOpenings = remainingOpenings(result.Openings, result.Hires)
+	result.ViewToApplicationPercent = jobPercentage(result.TotalApplications, int(result.Views))
 	result.FillRatePercent = jobPercentage(result.Hires, result.Openings)
 	result.Funnel = []JobFunnelPoint{
 		{Stage: "Applied", Count: result.TotalApplications, ConversionPercent: jobPercentage(result.TotalApplications, result.TotalApplications)},

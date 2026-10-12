@@ -1,80 +1,25 @@
 "use client";
-
-import { FormEvent, useId, useState, useEffect } from "react";
-import { RecruiterDataTable, RecruiterDrawer, WorkspaceState, recruiterPrimary, recruiterSecondary } from "./workspace-ui";
-import { label } from "@/lib/recruiter";
-import { apiRequest } from "@/lib/api";
-
-export type OfferItem = {
-  id:string; application_id:string; candidate_name:string; job_title:string; job_reference:string;
-  title:string; currency:string; annual_compensation?:number; joining_date?:string; expires_at?:string;
-  status:string; notes?:string; updated_at:string;
-};
-export type OfferApplicationOption = { application_id:string; candidate_name:string; job_title:string; job_reference:string; stage:string };
-
-export function OffersWorkspace({initialItems,applications}:{initialItems:OfferItem[];applications:OfferApplicationOption[]}) {
-  const formID = useId();
-  const [items,setItems]=useState(initialItems);
-  const [busy,setBusy]=useState(false);
-  const [notice,setNotice]=useState("");
-  const [error,setError]=useState("");
-  const [open,setOpen]=useState(false);
-  const [status,setFilterStatus]=useState("");
-  const [selected,setSelected]=useState<OfferItem|null>(null);
-  useEffect(()=>{const id=new URLSearchParams(location.search).get("offer_id");setSelected(initialItems.find(item=>item.id===id)??null);},[initialItems]);
-
-  async function create(event:FormEvent<HTMLFormElement>) {
-    event.preventDefault(); if(busy)return;
-    const node=event.currentTarget;
-    const form=new FormData(node);
-    setBusy(true);setError("");setNotice("");
-    try{
-      const item=await apiRequest<OfferItem>("/api/v1/recruiter/offers",{method:"POST",body:JSON.stringify({
-        application_id:String(form.get("application_id")||""),
-        title:String(form.get("title")||""),
-        currency:String(form.get("currency")||"INR"),
-        annual_compensation:form.get("annual_compensation")?Number(form.get("annual_compensation")):undefined,
-        joining_date:String(form.get("joining_date")||""),
-        expires_at:String(form.get("expires_at")||""),
-        notes:String(form.get("notes")||""),
-      })});
-      setItems(current=>[item,...current]);node.reset();setOpen(false);setNotice("Offer draft created.");
-    }catch(cause){setError(cause instanceof Error?cause.message:"Could not create offer.");}
-    finally{setBusy(false)}
-  }
-
-  async function setStatus(id:string,status:string){
-    setBusy(true);setError("");setNotice("");
-    try{
-      await apiRequest("/api/v1/recruiter/offers/"+id,{method:"PATCH",body:JSON.stringify({status})});
-      setItems(current=>current.map(item=>item.id===id?{...item,status}:item));
-      setNotice(status==="sent"?"Offer shared with candidate.":"Offer status updated.");
-    }catch(cause){setError(cause instanceof Error?cause.message:"Could not update offer.");}
-    finally{setBusy(false)}
-  }
-
-  const visible=items.filter(item=>!status||item.status===status);
-  const date=(value?:string)=>value?new Date(value).toLocaleDateString("en-IN",{timeZone:"UTC"}):"Not set";
-  const actions=(item:OfferItem)=><details><summary aria-label={`Actions for ${item.candidate_name}`} className={recruiterSecondary}>Actions</summary><div className="mt-2 grid gap-2 border border-line p-2">{item.status==="draft"&&<button disabled={busy} onClick={()=>void setStatus(item.id,"sent")} className={recruiterPrimary}>Send offer</button>}{item.status==="sent"&&<><button disabled={busy} onClick={()=>void setStatus(item.id,"accepted")} className={recruiterSecondary}>Mark accepted</button><button disabled={busy} onClick={()=>void setStatus(item.id,"declined")} className={recruiterSecondary}>Mark declined</button></>}{["draft","sent"].includes(item.status)&&<button disabled={busy} onClick={()=>void setStatus(item.id,"withdrawn")} className={recruiterSecondary}>Withdraw</button>}{!["draft","sent"].includes(item.status)&&<p className="text-xs text-ink-muted">No open actions for this offer.</p>}</div></details>;
-  const summary=(item:OfferItem)=><div><p className="font-semibold text-navy">{item.candidate_name}</p><p className="mt-1 text-xs leading-5 text-ink-muted">{item.job_title} · {item.job_reference}</p></div>;
-  return <div className="grid min-w-0 gap-4">
-    <div className="flex flex-wrap items-center justify-between gap-3"><nav aria-label="Offer status views" className="flex flex-wrap gap-1">{["","draft","sent","accepted","declined","withdrawn","expired"].map(value=><button key={value} aria-pressed={status===value} onClick={()=>setFilterStatus(value)} className={`min-h-11 border-b-2 px-3 text-sm font-semibold ${status===value?"border-indigo text-indigo":"border-transparent text-ink-muted"}`}>{value?label(value):"All offers"}</button>)}</nav><button className={recruiterPrimary} onClick={()=>setOpen(true)}>Create offer</button></div>
-    {notice&&<p role="status" className="text-sm text-ink">{notice}</p>}{error&&!open&&<p role="alert" className="text-sm text-rose-700">{error}</p>}
-    {visible.length?<RecruiterDataTable label="Recruiter offers" rows={visible} rowKey={item=>item.id} columns={[{key:"candidate",title:"Candidate / job",width:"33%",render:summary},{key:"status",title:"Status",width:"16%",render:item=>label(item.status)},{key:"compensation",title:"Compensation",width:"19%",secondary:true,render:item=>item.annual_compensation!=null?`${item.currency} ${item.annual_compensation.toLocaleString("en-IN")}`:"Not set"},{key:"dates",title:"Key dates",width:"20%",render:item=><div className="text-xs leading-6 text-ink-muted"><p>Expires {date(item.expires_at)}</p><p>Joining {date(item.joining_date)}</p></div>},{key:"actions",title:"Actions",width:"12%",render:actions}]} mobileRow={item=><div className="grid gap-3">{summary(item)}<p className="text-sm text-ink">{label(item.status)}</p><p className="text-xs text-ink-muted">{item.annual_compensation!=null?`${item.currency} ${item.annual_compensation.toLocaleString("en-IN")}`:"Compensation not set"} · Joining {date(item.joining_date)}</p>{actions(item)}</div>}/>:<WorkspaceState title="No offers in this view" description="Choose another status or create a draft linked to an authorized application." />}
-    <RecruiterDrawer open={!!selected} onClose={()=>setSelected(null)} title="Offer details">{selected&&<div className="space-y-4">{summary(selected)}<h3 className="text-lg font-semibold text-navy">{selected.title}</h3><p>{label(selected.status)}</p><p className="text-sm text-ink-muted">Joining {date(selected.joining_date)} · Expires {date(selected.expires_at)}</p><p className="text-sm">{selected.annual_compensation!=null?`${selected.currency} ${selected.annual_compensation.toLocaleString("en-IN")}`:"Compensation not set"}</p>{selected.notes&&<p className="whitespace-pre-wrap text-sm text-ink-muted">{selected.notes}</p>}</div>}</RecruiterDrawer>
-    <RecruiterDrawer open={open} onClose={()=>{if(!busy)setOpen(false);}} title="Create offer" footer={<><button type="button" disabled={busy} onClick={()=>setOpen(false)} className={recruiterSecondary}>Cancel</button><button type="submit" form={formID} disabled={busy} className={recruiterPrimary}>{busy?"Saving…":"Create draft"}</button></>}><form id={formID} onSubmit={create} className="min-w-0">
-      <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Create offer</p>
-      <h2 className="mt-1 text-xl font-bold text-navy">Draft from an application</h2>
-      <p className="mt-1 text-sm leading-6 text-ink-muted">Offer records stay linked to the company application and pipeline.</p>
-      <div className="mt-5 grid gap-3">
-        <label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Application<select name="application_id" required className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-white px-3 text-sm"><option value="">Choose candidate and role</option>{applications.map(a=><option key={a.application_id} value={a.application_id}>{a.candidate_name} · {a.job_reference} · {a.job_title}</option>)}</select></label>
-        <label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Offer title<input name="title" defaultValue="Employment offer" maxLength={200} className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm"/></label>
-        <div className="grid gap-3 sm:grid-cols-[7rem_1fr]"><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Currency<input name="currency" defaultValue="INR" maxLength={3} className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm uppercase"/></label><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Annual compensation<input name="annual_compensation" type="number" min="0" step="1000" className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm"/></label></div>
-        <div className="grid gap-3 sm:grid-cols-2"><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Expires on<input name="expires_at" type="date" className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm"/></label><label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Joining date<input name="joining_date" type="date" className="min-h-11 w-full min-w-0 rounded-xl border border-line px-3 text-sm"/></label></div>
-        <label className="grid min-w-0 gap-1 text-xs font-bold text-ink-muted">Internal note<textarea name="notes" rows={4} maxLength={5000} className="w-full min-w-0 rounded-xl border border-line px-3 py-2 text-sm"/></label>
-      </div>
-      {notice&&<p role="status" className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">{notice}</p>}
-      {error&&<p role="alert" className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800">{error}</p>}
-    </form></RecruiterDrawer>
-  </div>;
+import Link from "next/link";
+import {useState} from "react";
+import {useRouter} from "next/navigation";
+import {CandidateCard,applicationCardSummary} from "./candidate-card";
+import {RecruiterModal,RecruiterModalClose,WorkspaceState,recruiterInput,recruiterPrimary,recruiterSecondary} from "./workspace-ui";
+import type {OfferList,OfferSettings} from "@/lib/offers";
+import {offerDate,offerMoney,offerStatus,offerStatuses} from "@/lib/offers";
+export function OfferStudioTabs({active,jobID}:{active:string;jobID?:string}){
+ const p=jobID?`job_id=${encodeURIComponent(jobID)}`:"";
+ return <nav aria-label="Offer Studio" className="flex flex-wrap gap-1 border-b border-line">{[["Overview","/recruiter/offers"],["All offers","/recruiter/offers?view=all"],["Templates","/recruiter/offers/templates"],["Approvals","/recruiter/offers?view=approvals"],["Insights","/recruiter/offers?view=insights"]].map(([label,path])=><Link key={label} aria-current={active===label?"page":undefined} href={path+(p?(path.includes("?")?"&":"?")+p:"")} className={`min-h-11 content-center border-b-2 px-3 text-sm font-semibold ${active===label?"border-indigo text-indigo":"border-transparent text-ink-muted hover:text-navy"}`}>{label}</Link>)}</nav>
+}
+export function OffersWorkspace({data,settings,jobID,view="overview",status="",query=""}:{data:OfferList;settings:OfferSettings;jobID?:string;view?:string;status?:string;query?:string}){
+ const router=useRouter();const [usage,setUsage]=useState(false);const active=view==="all"?"All offers":view==="approvals"?"Approvals":view==="insights"?"Insights":"Overview";
+ const href=(page:number,nextStatus=status,nextQuery=query)=>{const p=new URLSearchParams({view,page:String(page)});if(jobID)p.set("job_id",jobID);if(nextStatus)p.set("status",nextStatus);if(nextQuery)p.set("q",nextQuery);return "/recruiter/offers?"+p};
+ const canCreate=settings.permissions["offer.create"]&&settings.permissions["offer.view_compensation"]&&settings.entitlements.features["offers.studio"];
+ return <div className="grid min-w-0 gap-5"><OfferStudioTabs active={active} jobID={jobID}/><div className="flex flex-wrap items-center justify-end gap-2"><button className={recruiterSecondary} onClick={()=>setUsage(true)}>Plan & usage</button>{canCreate?<Link className={recruiterPrimary} href={`/recruiter/offers/new${jobID?"?job_id="+encodeURIComponent(jobID):""}`}>Create offer</Link>:<p className="text-sm text-ink-muted">Offer creation requires company permission and an active Offer Studio entitlement.</p>}</div>
+ {view==="overview"&&<section aria-label="Offer summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[["Awaiting approval","awaiting_approval"],["Ready to send","approved"],["With candidates","sent"],["Accepted","accepted"]].map(([label,key])=><Link href={href(1,key)} key={key} className="swx-workspace-surface rounded-xl border border-line p-4"><span className="text-sm text-ink-muted">{label}</span><strong className="mt-2 block text-2xl text-navy">{key==="sent"?(data.counts.sent??0)+(data.counts.viewed??0):data.counts[key]??0}</strong></Link>)}</section>}
+ {view==="insights"?<section className="swx-workspace-surface rounded-xl border border-line p-5"><h2 className="text-lg font-semibold text-navy">Current offer outcomes</h2><p className="mt-2 text-sm text-ink-muted">Observed counts for current versions in your authorized job scope. Application stages and superseded versions are excluded.</p>{settings.entitlements.features["offers.analytics"]?<div className="grid gap-5">{data.insights&&<dl className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">{[["Released versions",String(data.insights.released_versions)],["Viewed versions",String(data.insights.viewed_versions)],["Accepted versions",String(data.insights.accepted_versions)],["Declined versions",String(data.insights.declined_versions)],["Acceptance rate",data.insights.released_versions?Math.round(data.insights.accepted_versions/data.insights.released_versions*100)+"%":"No released offers"],["Average response time",data.insights.average_response_hours==null?"No candidate decisions yet":data.insights.average_response_hours.toFixed(1)+" hours"]].map(([label,value])=><div key={label}><dt className="text-sm text-ink-muted">{label}</dt><dd className="mt-1 text-lg font-semibold text-navy">{value}</dd></div>)}</dl>}<p className="text-xs leading-5 text-ink-muted">Lifetime observations in your authorized job scope. Acceptance rate uses released versions; response time includes only recorded candidate accept / decline decisions. Superseded releases remain in the denominator.</p><dl className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">{offerStatuses.map(key=><div key={key}><dt className="text-sm text-ink-muted">{offerStatus(key)}</dt><dd className="mt-1 text-xl font-semibold text-navy">{data.counts[key]??0}</dd></div>)}</dl></div>:<p className="mt-5 text-sm text-ink-muted">Offer insights are unavailable under the current subscription. Your offer history is preserved.</p>}</section>:<>
+ <form className="flex flex-wrap items-end gap-3" aria-label="Filter offers" onSubmit={event=>{event.preventDefault();const f=new FormData(event.currentTarget);router.push(href(1,String(f.get("status")||""),String(f.get("q")||"")))}}><label className="grid gap-1 text-sm text-ink-muted">Candidate or role<input className={recruiterInput} name="q" defaultValue={query} maxLength={160}/></label>{view!=="approvals"&&<label className="grid gap-1 text-sm text-ink-muted">Status<select name="status" defaultValue={status} className={recruiterInput}><option value="">All statuses</option>{offerStatuses.map(key=><option key={key} value={key}>{offerStatus(key)}</option>)}</select></label>}<button className={recruiterSecondary}>Apply filters</button><p className="min-h-11 content-center text-sm text-ink-muted">{data.total} offers</p></form>
+ {data.items.length?<section aria-label="Offer candidates" className="grid gap-3">{data.items.map(item=><CandidateCard key={item.id} candidate={item.candidate?applicationCardSummary(item.candidate):{id:item.candidate_id,name:item.candidate_name,href:`/recruiter/candidates/${item.candidate_id}?application_id=${item.application_id}&job_id=${item.job_id}`}} context={<div className="grid gap-2"><Link href={`/recruiter/jobs/${item.job_id}`} className="font-semibold text-navy">{item.job_title}</Link><p className="text-sm text-ink">{offerStatus(item.status)} · Version {item.active_version}</p><p className="text-xs text-ink-muted">Valid until {offerDate(item.expires_at)}</p>{item.snapshot&&<p className="text-sm font-semibold text-navy">{offerMoney(item.snapshot.currency,item.snapshot.annual_compensation)}</p>}</div>} actions={<Link className={recruiterPrimary} href={`/recruiter/offers/${item.id}${jobID?"?job_id="+encodeURIComponent(jobID):""}`}>Review offer</Link>}/>)}</section>:<WorkspaceState title={view==="approvals"?"No offers awaiting approval":"No offers in this view"} description="Only offers linked to applications in your authorized company and job scope appear here."/>}
+ {data.total>data.limit&&<nav aria-label="Offer result pages" className="flex items-center justify-between gap-3">{data.page>1?<Link className={recruiterSecondary} href={href(data.page-1)}>Previous</Link>:<span/>}<p className="text-sm text-ink-muted">Page {data.page} of {Math.ceil(data.total/data.limit)}</p>{data.page*data.limit<data.total?<Link className={recruiterSecondary} href={href(data.page+1)}>Next</Link>:<span/>}</nav>}</>}
+ <RecruiterModal open={usage} onClose={()=>setUsage(false)} title="Offer Studio plan" size="small" protectChanges={false} footer={<RecruiterModalClose>Close</RecruiterModalClose>}><p className="font-semibold text-navy">{settings.entitlements.plan_name}</p><p className="mt-2 text-sm text-ink-muted">{settings.entitlements.state.replaceAll("_"," ")}. Existing offers, candidate responses and released documents remain available after subscription expiry.</p><dl className="mt-4 grid gap-3 text-sm">{["offer_templates","offer_monthly_sends","offer_approval_steps","offer_custom_fields","offer_document_bytes"].map(key=><div key={key} className="flex justify-between gap-4"><dt className="text-ink-muted">{key.replaceAll("_"," ").replace(/^offer /,"")}</dt><dd className="text-right font-semibold text-navy">{settings.usage?.[key]!==undefined&&<span className="mr-1">{key==="offer_document_bytes"?(settings.usage[key]/1048576).toFixed(1)+" MB used · ":settings.usage[key]+" used / "}</span>}{!settings.entitlements.limits_approved?"Not commercially enforced":settings.entitlements.capacity[key]??"Unlimited"}</dd></div>)}</dl><p className="mt-3 text-xs leading-5 text-ink-muted">Sends reset at the start of each calendar month (UTC). Templates and private document storage remain allocated until retained resources are removed through approved retention workflows.</p>{settings.members.length>0&&<Link href="/company/plan" className={`${recruiterSecondary} mt-5`}>Company plan</Link>}</RecruiterModal>
+ </div>
 }

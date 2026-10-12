@@ -2,10 +2,11 @@
 
 import { useId, useMemo, useRef, useState } from "react";
 
-import { RecruiterDataTable, WorkspaceState, RecruiterDrawer, recruiterPrimary, recruiterSecondary } from "./workspace-ui";
+import {RecruiterModalClose, RecruiterDataTable, WorkspaceState, RecruiterModal, recruiterPrimary, recruiterSecondary } from "./workspace-ui";
+import {CandidateCard} from "./candidate-card";
 import { apiRequest } from "@/lib/api";
 import type { TalentPoolCandidate } from "@/components/recruiter/talent-pool-selection";
-import type { BulkMessageTemplate, BulkRecruiterJob } from "@/components/recruiter/bulk-inmail-drawer";
+import type { BulkMessageTemplate, BulkRecruiterJob } from "@/components/recruiter/bulk-inmail-modal";
 
 export type OutreachSequenceStep = {
   id: string;
@@ -288,7 +289,7 @@ export function OutreachWorkspace({
 
       {tab === "templates" && (
         <div role="tabpanel" id="outreach-panel-templates" aria-labelledby="outreach-tab-templates" className="min-w-0 grid gap-5 ">
-          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("templates");setCampaignStep(0);}}>Create message template</button><RecruiterDrawer open={editor==="templates"} onClose={()=>{if(!busy)setEditor(null);}} title="Create message template" footer={<><button type="button" disabled={Boolean(busy)} className={recruiterSecondary} onClick={()=>setEditor(null)}>Cancel</button><button type="submit" form={`${formID}-template`} disabled={busy === "template"} className={recruiterPrimary}>{busy === "template" ? "Creating…" : "Create template"}</button></>}><form id={`${formID}-template`} onSubmit={createTemplate} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5 shadow-[0_8px_24px_rgba(16,33,63,0.05)]">
+          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("templates");setCampaignStep(0);}}>Create message template</button><RecruiterModal busy={Boolean(busy)} open={editor==="templates"} onClose={()=>{if(!busy)setEditor(null);}} title="Create message template" footer={<><RecruiterModalClose disabled={Boolean(busy)}>Cancel</RecruiterModalClose><button type="submit" form={`${formID}-template`} disabled={busy === "template"} className={recruiterPrimary}>{busy === "template" ? "Creating…" : "Create template"}</button></>}><form id={`${formID}-template`} onSubmit={createTemplate} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5 shadow-[0_8px_24px_rgba(16,33,63,0.05)]">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Reusable copy</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create message template</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">Use CandidateName and JobTitle variables. Every sequence step references one saved template.</p>
@@ -303,7 +304,7 @@ export function OutreachWorkspace({
                 <textarea value={templateBody} onChange={(e) => setTemplateBody(e.target.value)} required rows={7} placeholder="Hi {{CandidateName}}, ..." className="w-full min-w-0 rounded-xl border border-line bg-white px-3 py-3 text-sm leading-6 text-ink outline-none focus:border-indigo focus:ring-2 focus:ring-indigo-100" />
               </label>
             </div>
-          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterDrawer></div>
+          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterModal></div>
 
           <section><h2 className="mb-3 text-lg font-semibold text-navy">Saved templates</h2>{templates.length ? <RecruiterDataTable label="Message templates" rows={templates} rowKey={item=>item.id} columns={[
             {key:"name",title:"Template",width:"30%",render:item=><p className="font-semibold text-navy">{item.title}</p>},
@@ -315,7 +316,7 @@ export function OutreachWorkspace({
 
       {tab === "sequences" && (
         <div role="tabpanel" id="outreach-panel-sequences" aria-labelledby="outreach-tab-sequences" className="min-w-0 grid gap-5 ">
-          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("sequences");setCampaignStep(0);}}>Create sequence</button><RecruiterDrawer open={editor==="sequences"} onClose={()=>{if(!busy)setEditor(null);}} title="Create sequence" footer={<><button type="button" disabled={Boolean(busy)} className={recruiterSecondary} onClick={()=>setEditor(null)}>Cancel</button><button type="submit" form={`${formID}-sequence`} disabled={busy === "sequence" || templates.length === 0} className={recruiterPrimary}>{busy === "sequence" ? "Creating…" : "Save sequence"}</button></>}><form id={`${formID}-sequence`} onSubmit={createSequence} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
+          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("sequences");setCampaignStep(0);}}>Create sequence</button><RecruiterModal busy={Boolean(busy)} open={editor==="sequences"} onClose={()=>{if(!busy)setEditor(null);}} title="Create sequence" footer={<><RecruiterModalClose disabled={Boolean(busy)}>Cancel</RecruiterModalClose><button type="submit" form={`${formID}-sequence`} disabled={busy === "sequence" || templates.length === 0} className={recruiterPrimary}>{busy === "sequence" ? "Creating…" : "Save sequence"}</button></>}><form id={`${formID}-sequence`} onSubmit={createSequence} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Follow-up logic</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Build a sequence</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">The first step sends immediately. Later steps run server-side and stop automatically after a candidate replies.</p>
@@ -346,7 +347,7 @@ export function OutreachWorkspace({
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <button type="button" disabled={sequenceSteps.length >= 12 || templates.length === 0} onClick={() => setSequenceSteps((current) => [...current, { template_id: templates[0]?.id ?? "", delay_hours: 24 }])} className="min-h-11 flex-1 rounded-xl border border-line bg-white px-4 text-sm font-bold text-indigo disabled:opacity-40">+ Add follow-up</button>
             </div>
-          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterDrawer></div>
+          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterModal></div>
 
           <section><h2 className="mb-3 text-lg font-semibold text-navy">Active sequences</h2>{sequences.length ? <RecruiterDataTable label="Outreach sequences" rows={sequences} rowKey={item=>item.id} columns={[
             {key:"name",title:"Sequence",width:"40%",render:item=><p className="font-semibold text-navy">{item.name}</p>},
@@ -358,7 +359,7 @@ export function OutreachWorkspace({
 
       {tab === "campaigns" && (
         <div role="tabpanel" id="outreach-panel-campaigns" aria-labelledby="outreach-tab-campaigns" className="min-w-0 grid gap-5 ">
-          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("campaigns");setCampaignStep(0);}}>Create campaign</button><RecruiterDrawer open={editor==="campaigns"} onClose={()=>{if(!busy)setEditor(null);}} title="Create campaign" footer={<><button type="button" disabled={Boolean(busy)} className={recruiterSecondary} onClick={()=>setEditor(null)}>Cancel</button>{campaignStep>0&&<button type="button" className={recruiterSecondary} onClick={()=>setCampaignStep(step=>step-1)}>Back</button>}{campaignStep<3?<button key="continue-step" type="button" className={recruiterPrimary} disabled={campaignStep===0?(!campaignName.trim()||selectedCount===0):campaignStep===1?!campaignSequenceID:false} onClick={event=>{event.preventDefault();setCampaignStep(step=>step+1);}}>Continue</button>:<button key="create-reviewed-draft" type="submit" form={`${formID}-campaign`} className={recruiterPrimary} disabled={busy==="campaign"||!campaignName.trim()||!selectedCount||!campaignSequenceID}>{busy==="campaign"?"Creating…":"Create draft campaign"}</button>}</>}><form id={`${formID}-campaign`} onSubmit={createCampaign} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
+          <div><button type="button" className={recruiterPrimary} onClick={()=>{setEditor("campaigns");setCampaignStep(0);}}>Create campaign</button><RecruiterModal busy={Boolean(busy)} open={editor==="campaigns"} onClose={()=>{if(!busy)setEditor(null);}} title="Create campaign" footer={<><RecruiterModalClose disabled={Boolean(busy)}>Cancel</RecruiterModalClose>{campaignStep>0&&<button type="button" className={recruiterSecondary} onClick={()=>setCampaignStep(step=>step-1)}>Back</button>}{campaignStep<3?<button key="continue-step" type="button" className={recruiterPrimary} disabled={campaignStep===0?(!campaignName.trim()||selectedCount===0):campaignStep===1?!campaignSequenceID:false} onClick={event=>{event.preventDefault();setCampaignStep(step=>step+1);}}>Continue</button>:<button key="create-reviewed-draft" type="submit" form={`${formID}-campaign`} className={recruiterPrimary} disabled={busy==="campaign"||!campaignName.trim()||!selectedCount||!campaignSequenceID}>{busy==="campaign"?"Creating…":"Create draft campaign"}</button>}</>}><form id={`${formID}-campaign`} onSubmit={createCampaign} className="min-w-0 max-w-full rounded-2xl border border-line/70 bg-white p-5">
             <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-indigo">Targeted outreach</p>
             <h2 className="mt-1 text-xl font-bold text-navy">Create campaign</h2>
             <p className="mt-1 text-sm leading-6 text-ink-muted">Campaigns start as drafts so you can verify the sequence, job context and recipients before launch.</p>
@@ -368,10 +369,7 @@ export function OutreachWorkspace({
                 <legend className="ml-3 px-2 text-xs font-bold text-ink-muted">Recipients · {selectedCount} selected</legend>
                 <div className="max-h-72 overflow-y-auto p-2">
                   {candidates.length === 0 ? <p className="p-3 text-sm text-ink-muted">Save candidates to Talent Pools before creating a campaign.</p> : candidates.map((candidate) => (
-                    <label key={candidate.candidate_id} className="flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 hover:bg-slate-50">
-                      <input type="checkbox" checked={selectedCandidates.has(candidate.candidate_id)} onChange={() => toggleCandidate(candidate.candidate_id)} className="mt-0.5 h-4 w-4 rounded border-line" />
-                      <span className="min-w-0"><span className="block truncate text-sm font-bold text-ink">{candidate.full_name}</span><span className="block truncate text-xs text-ink-muted">{candidate.headline ?? candidate.current_city ?? "Candidate"}</span></span>
-                    </label>
+                    <div key={candidate.candidate_id} className="mb-3"><CandidateCard candidate={{id:candidate.candidate_id,name:candidate.full_name,href:`/recruiter/candidates/${candidate.candidate_id}`,headline:candidate.headline,experienceMonths:candidate.experience_months,location:candidate.current_city,currentCompany:candidate.current_company,noticeDays:candidate.notice_period_days,skills:candidate.skills}} selection={<input type="checkbox" aria-label={`Select ${candidate.full_name}`} checked={selectedCandidates.has(candidate.candidate_id)} onChange={()=>toggleCandidate(candidate.candidate_id)} className="mt-3 h-5 w-5 shrink-0 accent-indigo"/>}/></div>
                   ))}
                 </div>
               </fieldset></div><div hidden={campaignStep!==1}>              <label className="min-w-0 grid gap-1.5 text-xs font-bold text-ink-muted">Sequence
@@ -385,7 +383,7 @@ export function OutreachWorkspace({
                   {activeJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
                 </select>
               </label></div><div hidden={campaignStep!==2}><h3 className="text-sm font-semibold text-navy">Follow-up schedule</h3><p className="mt-2 text-sm leading-6 text-ink-muted">The existing sequence begins when you explicitly launch the draft. It stops future follow-ups after a reply. Calendar-based campaign scheduling is unavailable.</p><ol className="mt-4 grid gap-2">{sequences.find(sequence=>sequence.id===campaignSequenceID)?.steps.map(step=><li key={step.id} className="border-b border-line py-3 text-sm text-ink">{step.step_order}. {step.title} · {humanDelay(step.delay_hours)}</li>)}</ol></div><div hidden={campaignStep!==3}><h3 className="text-sm font-semibold text-navy">Review draft campaign</h3><p className="mt-3 text-sm text-ink">{campaignName} · {selectedCount} recipients selected</p><p className="mt-2 text-sm text-ink-muted">Sequence: {sequences.find(sequence=>sequence.id===campaignSequenceID)?.name}</p><p className="mt-3 text-xs leading-6 text-ink-muted">Consent, suppression, cooldown and delivery budgets are checked by the protected server path at launch. Creating this draft sends no messages.</p></div>            </div>
-          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterDrawer></div>
+          </form>{notice&&<p role="status" className="mt-3 text-sm text-ink">{notice}</p>}</RecruiterModal></div>
 
           <section><h2 className="mb-3 text-lg font-semibold text-navy">Campaigns</h2>{campaigns.length ? <RecruiterDataTable label="Outreach campaigns" rows={campaigns} rowKey={item=>item.id} columns={[
             {key:"name",title:"Campaign",width:"33%",render:item=><div><p className="font-semibold text-navy">{item.name}</p><p className="mt-1 text-xs leading-5 text-ink-muted">{item.sequence_name}{item.job_title?` · ${item.job_title}`:""}</p></div>},

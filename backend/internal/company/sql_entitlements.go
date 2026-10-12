@@ -55,6 +55,14 @@ func readSubscription(ctx context.Context, db querier, id string) (Subscription,
 func (s *SQLStore) Subscription(ctx context.Context, id string) (Subscription, []Override, error) {
 	return readSubscription(ctx, s.db, id)
 }
+
+func EffectiveTx(ctx context.Context, tx pgx.Tx, id string) (Effective, error) {
+	p, grants, err := readSubscription(ctx, tx, id)
+	if err != nil {
+		return Effective{}, err
+	}
+	return Resolve(p, grants, time.Now().UTC()), nil
+}
 func (s *SQLStore) CompanyForRecruiter(ctx context.Context, userID string) (string, error) {
 	var id string
 	err := s.db.QueryRow(ctx, `SELECT rp.company_id FROM recruiter_profiles rp JOIN users u ON u.id=rp.user_id JOIN companies c ON c.id=rp.company_id WHERE rp.user_id=$1 AND rp.verification_status='verified' AND c.verification_status='verified' AND u.is_active AND u.status='active'`, userID).Scan(&id)

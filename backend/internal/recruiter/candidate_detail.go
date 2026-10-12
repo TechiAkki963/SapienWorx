@@ -18,6 +18,7 @@ type CandidateDetail struct {
 	Email                 string                `json:"email,omitempty"`
 	EmailVerified         bool                  `json:"email_verified"`
 	MaskedPhone           string                `json:"masked_phone,omitempty"`
+	HasSecondaryContact   bool                  `json:"has_secondary_contact"`
 	HasCompanyApplication bool                  `json:"has_company_application"`
 	CanViewCV             bool                  `json:"can_view_cv"`
 	CanViewContact        bool                  `json:"can_view_contact"`
@@ -101,19 +102,30 @@ func (s *Service) CandidateDetail(ctx context.Context, recruiterUserID, candidat
 	detail.Details = recruiterVisibleCandidateDetails(storedDetails)
 	detail.CanViewCV = detail.HasCompanyApplication
 	detail.CanCollaborate = detail.HasCompanyApplication
+	if !detail.CanCollaborate {
+		tx, e := s.db.Begin(ctx)
+		if e != nil {
+			return CandidateDetail{}, e
+		}
+		_, e = candidateNotesMemberTx(ctx, tx, recruiterUserID, candidateUserID, false)
+		tx.Rollback(ctx)
+		detail.CanCollaborate = e == nil
+	}
 	detail.CanViewContact = false
 	if detail.HasCompanyApplication {
 		var phone *string
-		err = s.db.QueryRow(ctx, `SELECT COALESCE(u.phone_e164,cp.alternate_phone_e164)
+		err = s.db.QueryRow(ctx, `SELECT u.phone_e164,cp.alternate_phone_e164 IS NOT NULL
 			FROM candidate_profiles cp
 			JOIN users u ON u.id=cp.user_id
 			WHERE cp.user_id=$1
 			  AND cp.contact_reveal_enabled
 			  AND `+candidateContactPublicPredicate+`
-			  AND COALESCE(u.phone_e164,cp.alternate_phone_e164) IS NOT NULL`, candidateUserID).Scan(&phone)
-		if err == nil && phone != nil {
+			  AND COALESCE(u.phone_e164,cp.alternate_phone_e164) IS NOT NULL`, candidateUserID).Scan(&phone, &detail.HasSecondaryContact)
+		if err == nil && (phone != nil || detail.HasSecondaryContact) {
 			detail.CanViewContact = true
-			detail.MaskedPhone = maskCandidatePhone(*phone)
+			if phone != nil {
+				detail.MaskedPhone = "••••••••••"
+			}
 		} else if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return CandidateDetail{}, err
 		}

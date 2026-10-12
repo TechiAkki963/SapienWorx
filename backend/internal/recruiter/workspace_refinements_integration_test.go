@@ -255,6 +255,51 @@ func TestWorkspaceRefinementsIsolationAndReferralConsent(t *testing.T) {
 	if err != nil || !recruiterView.CanViewCandidate {
 		t.Fatal("applied referral missing authorized profile")
 	}
+	referrals, err := svc.ReferralInvitations(ctx, owner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var summary *PipelineRow
+	for _, r := range referrals {
+		if r.ID == invite.ID {
+			summary = r.Candidate
+		}
+	}
+	if summary == nil || summary.ApplicationID != *applied.ApplicationID || summary.CandidateID != cand {
+		t.Fatal("referral omitted consented application card summary")
+	}
+	foreignReferrals, err := svc.ReferralInvitations(ctx, outsider)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range foreignReferrals {
+		if r.ID == invite.ID {
+			t.Fatal("referral list leaked another tenant")
+		}
+	}
+	// A member in the same company cannot use direct IDs to escape assigned jobs.
+	exec(`INSERT INTO company_memberships(company_id,user_id,role,scope) VALUES($1,$2,'recruiter',jsonb_build_object('all',false,'job_ids',jsonb_build_array(gen_random_uuid()::text)))`, company, member)
+	scopedReferrals, e := svc.ReferralInvitations(ctx, member)
+	if e != nil || len(scopedReferrals) != 0 {
+		t.Fatal("scoped referral list escaped assigned jobs", e)
+	}
+	if _, e = svc.recruiterInvitation(ctx, member, invite.ID); !errors.Is(e, ErrNotFound) {
+		t.Fatal("scoped direct invitation leak", e)
+	}
+	if _, e = svc.ReferralEvents(ctx, member, invite.ID); !errors.Is(e, ErrNotFound) {
+		t.Fatal("scoped activity leak", e)
+	}
+	if e = svc.ReviewReferralReward(ctx, member, invite.ID, "cancelled", "Synthetic scope check", true); !errors.Is(e, ErrNotFound) {
+		t.Fatal("scoped reward mutation", e)
+	}
+	if e = svc.UpdateStage(ctx, member, *applied.ApplicationID, "screening"); !errors.Is(e, ErrNotFound) {
+		t.Fatal("scoped stage mutation", e)
+	}
+	dashboard, e := svc.Dashboard(ctx, member)
+	if e != nil || dashboard.Applications != 0 || dashboard.ActiveJobs != 0 || len(dashboard.RecentApplications) != 0 || len(dashboard.UpcomingItems) != 0 {
+		t.Fatal("scoped Home leaked jobs/applications", e)
+	}
+	exec(`UPDATE company_memberships SET scope='{"all":true}' WHERE user_id=$1`, member)
 	detail, err := svc.CandidateDetail(ctx, owner, cand)
 	if err != nil || len(detail.ReferralAttributions) != 1 || detail.ReferralAttributions[0].ID != invite.ID {
 		t.Fatalf("authorized referral attribution: %+v %v", detail.ReferralAttributions, err)
@@ -281,6 +326,14 @@ func TestWorkspaceRefinementsIsolationAndReferralConsent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	exec(`UPDATE company_memberships SET scope=jsonb_build_object('all',false,'job_ids',jsonb_build_array($2::text)) WHERE user_id=$1`, member, job)
+	if _, e := svc.ReferralLink(ctx, member, pending.ID, false); !errors.Is(e, ErrNotFound) {
+		t.Fatal("scoped member obtained unassigned general invitation", e)
+	}
+	if e := svc.CancelReferralInvitation(ctx, member, pending.ID); !errors.Is(e, ErrNotFound) {
+		t.Fatal("scoped member cancelled unassigned general invitation", e)
+	}
+	exec(`UPDATE company_memberships SET scope='{"all":true}' WHERE user_id=$1`, member)
 	oldLink, err := svc.ReferralLink(ctx, owner, pending.ID, false)
 	if err != nil {
 		t.Fatal(err)

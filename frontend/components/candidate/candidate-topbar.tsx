@@ -20,7 +20,7 @@ export function safeNotificationDestination(value?: string) {
     const url = new URL(value, "https://candidate.invalid");
     if (
       url.origin === "https://candidate.invalid" &&
-      /^\/candidate(?:\/(?:applications|interviews|inbox|notifications|saved|settings|profile|jobs)(?:\/[a-zA-Z0-9-]+)?)?\/?$/.test(
+      /^\/candidate(?:\/(?:applications|interviews|offers|inbox|notifications|saved|settings|profile|jobs)(?:\/[a-zA-Z0-9-]+)?)?\/?$/.test(
         url.pathname,
       )
     )
@@ -142,6 +142,7 @@ export function CandidateTopbar({ name }: { name: string }) {
             >
               Saved jobs
             </Link>
+            <Link href="/candidate/offers" onClick={()=>setPanel(null)} className="candidate-secondary-mobile">Offers</Link>
             <Link
               href="/candidate/interviews"
               onClick={() => setPanel(null)}

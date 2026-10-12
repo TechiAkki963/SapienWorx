@@ -665,7 +665,9 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		if err != nil {
 			t.Fatalf("discoverable professional detail rejected: %v", err)
 		}
-		if discoverable.HasCompanyApplication || discoverable.CanViewCV || discoverable.CanViewContact || discoverable.CanCollaborate || discoverable.Email != "" {
+		// Consented Talent profiles may have company-private notes, but that
+		// capability must never grant applicant CV, contact or email access.
+		if discoverable.HasCompanyApplication || discoverable.CanViewCV || discoverable.CanViewContact || !discoverable.CanCollaborate || discoverable.Email != "" {
 			t.Fatalf("discoverable candidate received application-private capabilities: %+v", discoverable)
 		}
 		if discoverable.Details["professional_summary"] != "Safe recruiter-visible summary" {
@@ -679,7 +681,7 @@ func TestRecruiterJobSecurityIsolatedDatabase(t *testing.T) {
 		if err != nil {
 			t.Fatalf("own talent-pool candidate detail rejected: %v", err)
 		}
-		if !pooled.Saved || pooled.HasCompanyApplication || pooled.CanViewCV || pooled.CanViewContact || pooled.CanCollaborate || pooled.Email != "" {
+		if !pooled.Saved || pooled.HasCompanyApplication || pooled.CanViewCV || pooled.CanViewContact || !pooled.CanCollaborate || pooled.Email != "" {
 			t.Fatalf("talent-pool candidate capabilities incorrect: %+v", pooled)
 		}
 		exec(`UPDATE privacy_consents SET granted=false WHERE user_id=$1 AND purpose='recruiter_search_discovery'`, pooledCandidate)

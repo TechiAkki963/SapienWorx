@@ -145,7 +145,7 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 		}
 		now := time.Now().UTC()
 		if result.Total == 0 {
-			if _, err := s.db.Exec(ctx, `UPDATE recruiter_saved_searches SET last_alerted_at=$2 WHERE id=$1 AND recruiter_id=$3`, item.ID, now, item.RecruiterID); err != nil {
+			if _, err := s.db.Exec(ctx, `UPDATE recruiter_saved_searches SET last_alerted_at=$2,last_match_count=$4,last_matches_evaluated_at=$2 WHERE id=$1 AND recruiter_id=$3`, item.ID, now, item.RecruiterID, result.Total); err != nil {
 				return queued, err
 			}
 			continue
@@ -178,7 +178,7 @@ func (s *Service) ProcessSavedSearchAlerts(ctx context.Context, limit int) (int,
 			ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING
 		`, item.RecruiterEmail, subject, body, htmlBody, "saved-search-alert:"+item.ID+":"+window)
 		if err == nil {
-			_, err = tx.Exec(ctx, `UPDATE recruiter_saved_searches SET last_alerted_at=$2 WHERE id=$1 AND recruiter_id=$3`, item.ID, now, item.RecruiterID)
+			_, err = tx.Exec(ctx, `UPDATE recruiter_saved_searches SET last_alerted_at=$2,last_match_count=$4,last_matches_evaluated_at=$2 WHERE id=$1 AND recruiter_id=$3`, item.ID, now, item.RecruiterID, result.Total)
 		}
 		if err != nil {
 			_ = tx.Rollback(ctx)

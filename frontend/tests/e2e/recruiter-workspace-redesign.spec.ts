@@ -27,7 +27,7 @@ test("Discover Talent seven viewports, appearances and mobile navigation", async
   expect(errors).toEqual([]);
 });
 
-test("deep search decimals, skill chips, protected fields, preview and draft restoration",async ({page,request})=>{
+test("deep search decimals, skill chips, protected fields, profile and draft restoration",async ({page,request})=>{
   await login(page,"recruiter"); await page.goto("/recruiter/discover");
   await page.getByLabel("Minimum experience (years)",{exact:true}).fill("2.5");
   await page.getByLabel("Maximum experience (years)",{exact:true}).fill("8.75");
@@ -39,10 +39,14 @@ test("deep search decimals, skill chips, protected fields, preview and draft res
   const recorded=await waitForRecordedRequest(request,r=>r.method==="POST" && r.path==="/api/v1/recruiter/discover");
   expect(recorded.body.filters).toMatchObject({min_experience:"2.5",max_experience:"8.75",skills:"Go, SQL, Leadership"});
   expect(recorded.body.filters).not.toHaveProperty("gender"); expect(recorded.body.filters).not.toHaveProperty("min_salary");
-  const candidate=page.getByRole("table",{name:"Discover Talent candidates"}).getByRole("button",{name:"Aarav Mehta",exact:true}); await candidate.click();
-  const drawer=page.getByRole("dialog",{name:"Candidate preview"}); await expect(drawer).toBeVisible();
-  await page.keyboard.press("Shift+Tab"); expect(await drawer.evaluate(node=>node.contains(document.activeElement))).toBeTruthy();
-  await page.keyboard.press("Escape"); await expect(candidate).toBeFocused();
+  await expect(page.getByRole("table",{name:"Discover Talent candidates"})).toHaveCount(0);
+  const candidate=page.getByRole("link",{name:"Meera Nair",exact:true}); await candidate.click();
+  await expect(page).toHaveURL(/\/recruiter\/candidates\/[^/?]+\?from=discover/);
+  await expect(page.getByRole("heading",{name:"Meera Nair",exact:true})).toBeVisible();
+  await page.goBack();
+  await expect(page.getByLabel("Maximum experience (years)",{exact:true})).toHaveValue("8.75");
+  await page.locator(".swx-search-actions").getByRole("button",{name:"Search Talent",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Discover Talent Results",exact:true})).toBeVisible();
   await page.getByRole("button",{name:"Edit search",exact:true}).click(); await page.reload();
   await expect(page.getByLabel("Maximum experience (years)",{exact:true})).toHaveValue("8.75");
   await page.locator(".swx-search-actions").getByRole("button",{name:"Save search",exact:true}).click();

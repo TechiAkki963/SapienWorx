@@ -2,11 +2,8 @@ package recruiter
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"time"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type RecruiterOffer struct {
@@ -137,114 +134,13 @@ func (s *Service) OffersForJob(ctx context.Context, recruiterID, jobID string) (
 	return items, rows.Err()
 }
 
+// Legacy offer mutations are deliberately closed. The versioned repository
+// enforces decimal calculations, eligible stages, permissions and approvals.
 func (s *Service) CreateOffer(ctx context.Context, recruiterID string, in RecruiterOfferInput) (RecruiterOffer, error) {
-	companyID, _, _, err := s.recruiterCompany(ctx, recruiterID)
-	if err != nil {
-		return RecruiterOffer{}, err
-	}
-	in.ApplicationID = strings.TrimSpace(in.ApplicationID)
-	in.Title = strings.TrimSpace(in.Title)
-	in.Currency = strings.ToUpper(strings.TrimSpace(in.Currency))
-	if in.ApplicationID == "" {
-		return RecruiterOffer{}, ErrInvalid
-	}
-	if in.Title == "" {
-		in.Title = "Employment offer"
-	}
-	if len(in.Title) > 200 || len(in.Currency) != 3 || (in.AnnualCompensation != nil && *in.AnnualCompensation < 0) || len(in.Notes) > 5000 {
-		return RecruiterOffer{}, ErrInvalid
-	}
-	joining, err := parseOptionalDate(in.JoiningDate)
-	if err != nil {
-		return RecruiterOffer{}, err
-	}
-	expires, err := parseOptionalDate(in.ExpiresAt)
-	if err != nil {
-		return RecruiterOffer{}, err
-	}
-	if joining != nil && expires != nil && expires.After(*joining) {
-		return RecruiterOffer{}, ErrInvalid
-	}
-	var candidateID string
-	err = s.db.QueryRow(ctx, `SELECT a.candidate_id FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.id=$1 AND j.company_id=$2 AND a.stage NOT IN('hired','rejected','withdrawn')`, in.ApplicationID, companyID).Scan(&candidateID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return RecruiterOffer{}, ErrNotFound
-	}
-	if err != nil {
-		return RecruiterOffer{}, err
-	}
-	var id string
-	err = s.db.QueryRow(ctx, `INSERT INTO recruiter_offers(application_id,company_id,recruiter_id,title,currency,annual_compensation,joining_date,expires_at,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,NULLIF($9,'')) RETURNING id`,
-		in.ApplicationID, companyID, recruiterID, in.Title, in.Currency, in.AnnualCompensation, joining, expires, strings.TrimSpace(in.Notes)).Scan(&id)
-	if err != nil {
-		return RecruiterOffer{}, err
-	}
-	items, err := s.Offers(ctx, recruiterID)
-	if err != nil {
-		return RecruiterOffer{}, err
-	}
-	for _, x := range items {
-		if x.ID == id {
-			return x, nil
-		}
-	}
-	return RecruiterOffer{}, ErrNotFound
+	return RecruiterOffer{}, ErrOfferApproval
 }
-
 func (s *Service) SetOfferStatus(ctx context.Context, recruiterID, offerID, status string) error {
-	if !validEnum(status, "draft", "sent", "accepted", "declined", "withdrawn", "expired") {
-		return ErrInvalid
-	}
-	companyID, _, _, err := s.recruiterCompany(ctx, recruiterID)
-	if err != nil {
-		return err
-	}
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-	var applicationID, candidateID, jobTitle, current, applicationStage string
-	err = tx.QueryRow(ctx, `SELECT o.application_id,a.candidate_id,j.title,o.status,a.stage::text FROM recruiter_offers o JOIN applications a ON a.id=o.application_id JOIN jobs j ON j.id=a.job_id WHERE o.id=$1 AND o.company_id=$2 FOR UPDATE OF o,a`, offerID, companyID).Scan(&applicationID, &candidateID, &jobTitle, &current, &applicationStage)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return ErrNotFound
-	}
-	if err != nil {
-		return err
-	}
-	if current == status {
-		return nil
-	}
-	allowed := (current == "draft" && (status == "sent" || status == "withdrawn")) ||
-		(current == "sent" && (status == "accepted" || status == "declined" || status == "withdrawn" || status == "expired"))
-	if !allowed {
-		return ErrInvalid
-	}
-	if status == "sent" {
-		if _, err = tx.Exec(ctx, `UPDATE recruiter_offers SET status='sent',sent_at=COALESCE(sent_at,now()) WHERE id=$1`, offerID); err != nil {
-			return err
-		}
-		if applicationStage != "offer" {
-			if applicationStage == "hired" || applicationStage == "rejected" || applicationStage == "withdrawn" {
-				return ErrInvalid
-			}
-			if _, err = tx.Exec(ctx, `UPDATE applications SET stage='offer' WHERE id=$1`, applicationID); err != nil {
-				return err
-			}
-			if _, err = tx.Exec(ctx, `INSERT INTO application_stage_audit(application_id,actor_recruiter_id,previous_stage,new_stage) VALUES($1,$2,$3::application_stage,'offer')`, applicationID, recruiterID, applicationStage); err != nil {
-				return err
-			}
-		}
-		if _, err = tx.Exec(ctx, `INSERT INTO candidate_notifications(candidate_id,kind,title,body,action_url) VALUES($1,'offer','Offer shared',$2,'/candidate/applications')`, candidateID, "An offer has been shared for "+jobTitle+"."); err != nil {
-			return err
-		}
-	} else {
-		responded := status == "accepted" || status == "declined"
-		if _, err = tx.Exec(ctx, `UPDATE recruiter_offers SET status=$2,responded_at=CASE WHEN $3 THEN now() ELSE responded_at END WHERE id=$1`, offerID, status, responded); err != nil {
-			return err
-		}
-	}
-	return tx.Commit(ctx)
+	return ErrOfferApproval
 }
 
 func (s *Service) Referrals(ctx context.Context, recruiterID string) ([]RecruiterReferral, error) {

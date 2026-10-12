@@ -85,7 +85,7 @@ test("campaign draft can be created and launched from the protected workflow", a
   await page.getByRole("button", { name: "Create campaign", exact: true }).click();
   const drawer = page.getByRole("dialog", { name: "Create campaign" });
   await drawer.getByLabel("Campaign name", { exact: true }).fill("Healthcare specialist outreach");
-  await drawer.getByText("Meera Nair", { exact: true }).click();
+  await drawer.getByRole("checkbox", { name: "Select Meera Nair", exact: true }).check();
   await drawer.getByRole("button", { name: "Continue", exact: true }).click();
   await drawer.getByRole("combobox", { name: "Sequence", exact: true }).selectOption("76000000-0000-4000-8000-000000000001");
   await drawer.getByRole("combobox", { name: "Job context (optional)", exact: true }).selectOption("60000000-0000-4000-8000-000000000001");

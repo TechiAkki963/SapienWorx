@@ -272,6 +272,17 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 		return BulkInMailResult{}, err
 	}
 
+	if err := company.LockCompanyTx(ctx, tx, companyID); err != nil {
+		return BulkInMailResult{}, err
+	}
+	member, err := company.MemberTx(ctx, tx, recruiterID)
+	if err != nil {
+		return BulkInMailResult{}, err
+	}
+	if member.CompanyID != companyID || !member.Can("applications.manage") || !member.Scope.All {
+		return BulkInMailResult{}, ErrForbidden
+	}
+
 	if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended('bulk-inmail-company:' || $1, 0))`, companyID); err != nil {
 		return BulkInMailResult{}, err
 	}
@@ -328,12 +339,14 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 	}
 
 	rows, err := tx.Query(ctx, `
-		SELECT tp.candidate_id,cp.full_name
-		FROM talent_pool_memberships tp
-		JOIN candidate_profiles cp ON cp.user_id=tp.candidate_id
-		JOIN users u ON u.id=tp.candidate_id
-		WHERE tp.recruiter_id=$1
-		  AND tp.candidate_id=ANY($2::uuid[])
+		SELECT cp.user_id,cp.full_name,
+          EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=u.id AND j.company_id=$3)
+          OR EXISTS(SELECT 1 FROM chat_threads t JOIN recruiter_profiles sender ON sender.user_id=t.recruiter_id WHERE t.candidate_id=u.id AND sender.company_id=$3 AND EXISTS(SELECT 1 FROM chat_messages m WHERE m.thread_id=t.id))
+        FROM candidate_profiles cp
+        JOIN users u ON u.id=cp.user_id
+        LEFT JOIN talent_pool_memberships tp ON tp.candidate_id=cp.user_id AND tp.recruiter_id=$1
+        WHERE cp.user_id=ANY($2::uuid[])
+          AND (tp.candidate_id IS NOT NULL OR EXISTS(SELECT 1 FROM applications a JOIN jobs j ON j.id=a.job_id WHERE a.candidate_id=u.id AND j.company_id=$3))
 		  AND u.role='candidate'
 		  AND u.status='active'
 		  AND u.is_active=true
@@ -349,13 +362,16 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 		return BulkInMailResult{}, err
 	}
 	candidateNames := make(map[string]string, len(candidateIDs))
+	relationships := make(map[string]bool, len(candidateIDs))
 	for rows.Next() {
 		var candidateID, candidateName string
-		if err := rows.Scan(&candidateID, &candidateName); err != nil {
+		var relationship bool
+		if err := rows.Scan(&candidateID, &candidateName, &relationship); err != nil {
 			rows.Close()
 			return BulkInMailResult{}, err
 		}
 		candidateNames[candidateID] = candidateName
+		relationships[candidateID] = relationship
 	}
 	if err := rows.Err(); err != nil {
 		rows.Close()
@@ -401,6 +417,7 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 		CooldownDays:        BulkInMailCooldownDays,
 	}
 	payload := make([]bulkRecipientPayload, 0, len(candidateIDs)-len(skipped))
+	coldRecipients := 0
 	for _, candidateID := range candidateIDs {
 		if _, shouldSkip := skipped[candidateID]; shouldSkip {
 			result.SkippedCandidateIDs = append(result.SkippedCandidateIDs, candidateID)
@@ -413,6 +430,9 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 			return BulkInMailResult{}, err
 		}
 		payload = append(payload, bulkRecipientPayload{CandidateID: candidateID, Subject: subject, Content: content})
+		if !relationships[candidateID] {
+			coldRecipients++
+		}
 	}
 
 	result.SkippedCount = len(result.SkippedCandidateIDs)
@@ -485,7 +505,7 @@ func (s *Service) BulkInMail(ctx context.Context, recruiterID string, input Bulk
 
 	result.RecipientCount = inserted
 	result.SentCount = inserted
-	if err := company.ConsumeOutreachTx(ctx, tx, recruiterID, inserted, "bulk:"+idempotencyKey); err != nil {
+	if err := company.ConsumeOutreachTx(ctx, tx, recruiterID, coldRecipients, "bulk:"+idempotencyKey); err != nil {
 		return BulkInMailResult{}, err
 	}
 	if len(deliveryJSON) > 0 {

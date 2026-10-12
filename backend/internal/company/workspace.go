@@ -418,6 +418,12 @@ func (s *SQLStore) JobAllowed(ctx context.Context, m Member, id string) bool {
 	err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs j WHERE j.id=$6 AND `+jobScopeSQL+`)`, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs, id).Scan(&exists)
 	return err == nil && exists
 }
+
+func JobAllowedTx(ctx context.Context, tx pgx.Tx, m Member, id string) bool {
+	var exists bool
+	err := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs j WHERE j.id=$6 AND `+jobScopeSQL+`)`, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs, id).Scan(&exists)
+	return err == nil && exists
+}
 func (s *SQLStore) ScopedWork(ctx context.Context, m Member) ([]map[string]any, error) {
 	rows, err := s.db.Query(ctx, `SELECT j.id,j.title,COALESCE(j.department,''),COALESCE(j.city,''),j.status::text,(SELECT count(*) FROM applications a WHERE a.job_id=j.id) FROM jobs j WHERE `+jobScopeSQL+` ORDER BY j.updated_at DESC LIMIT 100`, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs)
 	if err != nil {

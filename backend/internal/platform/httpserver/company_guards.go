@@ -77,6 +77,9 @@ func (s *Server) companyRecruiterGuard(next http.Handler) http.Handler {
 	})
 }
 func PremiumFeature(path string, read bool) string {
+	if strings.Contains(path, "/talent/overview") {
+		return "talent.discovery"
+	}
 	if strings.Contains(path, "/sourcing-insights") {
 		return "talent.analytics"
 	}

@@ -285,11 +285,12 @@ func (s *Service) CandidateJobs(ctx context.Context, filters CandidateJobFilters
 		AND ($17 <= 0 OR j.published_at >= now() - make_interval(days => $17))
  AND (cardinality($18::uuid[])=0 AND cardinality($19::text[])=0 OR
  EXISTS(SELECT 1 FROM workforce.term_mappings m WHERE m.source_type='job_required_skill' AND m.source_id=j.id AND m.entity_id=ANY($18::uuid[])) OR
+ EXISTS(SELECT 1 FROM workforce.taxonomy_entities e,unnest(j.required_skills) skill WHERE e.id=ANY($18::uuid[]) AND (btrim(workforce.normalize_term(skill))=btrim(workforce.normalize_term(e.canonical_name)) OR EXISTS(SELECT 1 FROM workforce.taxonomy_aliases alias WHERE alias.entity_id=e.id AND alias.status='active' AND alias.normalized_alias=btrim(workforce.normalize_term(skill))))) OR
  EXISTS(SELECT 1 FROM unnest($19::text[]) term WHERE strpos(lower(concat_ws(' ',j.title,j.description,c.display_name,j.role_category,array_to_string(j.required_skills,' '))),lower(term))>0))
  AND (cardinality($20::uuid[])=0 AND cardinality($21::text[])=0 OR
  EXISTS(SELECT 1 FROM workforce.geography_entities g WHERE g.id=ANY($20::uuid[]) AND g.country_code=j.country_code AND (workforce.normalize_term(g.canonical_name)=workforce.normalize_term(j.city) OR EXISTS(SELECT 1 FROM unnest(g.aliases) a WHERE workforce.normalize_term(a)=workforce.normalize_term(j.city)))) OR
  EXISTS(SELECT 1 FROM unnest($21::text[]) term WHERE strpos(lower(concat_ws(' ',j.city,j.state)),lower(term))>0))
- AND NOT EXISTS(SELECT 1 FROM unnest($22::uuid[]) eid WHERE NOT EXISTS(SELECT 1 FROM workforce.term_mappings m WHERE m.source_type='job_required_skill' AND m.source_id=j.id AND m.entity_id=eid))
+ AND NOT EXISTS(SELECT 1 FROM unnest($22::uuid[]) eid WHERE NOT EXISTS(SELECT 1 FROM workforce.term_mappings m WHERE m.source_type='job_required_skill' AND m.source_id=j.id AND m.entity_id=eid) AND NOT EXISTS(SELECT 1 FROM workforce.taxonomy_entities e,unnest(j.required_skills) skill WHERE e.id=eid AND (btrim(workforce.normalize_term(skill))=btrim(workforce.normalize_term(e.canonical_name)) OR EXISTS(SELECT 1 FROM workforce.taxonomy_aliases alias WHERE alias.entity_id=e.id AND alias.status='active' AND alias.normalized_alias=btrim(workforce.normalize_term(skill))))))
  AND NOT EXISTS(SELECT 1 FROM unnest($23::text[]) term WHERE NOT EXISTS(SELECT 1 FROM unnest(j.required_skills) skill WHERE strpos(lower(skill),lower(term))>0) AND NOT EXISTS(SELECT 1 FROM workforce.term_mappings m JOIN workforce.taxonomy_entities e ON e.id=m.entity_id WHERE m.source_type='job_required_skill' AND m.source_id=j.id AND lower(e.canonical_name)=lower(term)))`
 
 	args := []any{

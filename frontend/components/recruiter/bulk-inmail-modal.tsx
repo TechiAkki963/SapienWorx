@@ -1,8 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
+import { FormEvent, useEffect, useId, useMemo, useRef, useState } from "react";
+import {RecruiterModal,RecruiterModalClose,recruiterPrimary} from "./workspace-ui";
 
 import { apiRequest } from "@/lib/api";
 
@@ -58,15 +57,18 @@ function Spinner() {
   return <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-white/45 border-t-white" />;
 }
 
-export function BulkInMailDrawer({
+export function BulkInMailModal({
   onSent,
+  applicant = false,
   initialTemplates,
   initialJobs,
 }: {
   onSent: () => void;
+  applicant?: boolean;
   initialTemplates?: BulkMessageTemplate[];
   initialJobs?: BulkRecruiterJob[];
 }) {
+  const formID=useId(),sendLock=useRef(false),retryRequest=useRef<{fingerprint:string;key:string}|null>(null);
   const [open, setOpen] = useState(false);
   const [candidateIDs, setCandidateIDs] = useState<string[]>([]);
   const [templates, setTemplates] = useState<BulkMessageTemplate[]>(initialTemplates ?? []);
@@ -159,30 +161,14 @@ export function BulkInMailDrawer({
     setBody(selectedTemplate.body_template);
   }, [selectedTemplate]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !sending) setOpen(false);
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open, sending]);
-
-  function closeDrawer() {
+  function closeModal() {
     if (sending) return;
-    setOpen(false);
+    retryRequest.current=null;setOpen(false);setSubject("");setBody("");setTemplateID("");setJobID("");setSuccess("");
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if(sendLock.current)return;
     if (!recipientCount || !subject.trim() || !body.trim()) {
       setError("Choose recipients and complete both the subject and message before sending.");
       return;
@@ -196,7 +182,7 @@ export function BulkInMailDrawer({
       return;
     }
 
-    setSending(true);
+    sendLock.current=true;setSending(true);
     setError("");
     setSuccess("");
 
@@ -206,13 +192,15 @@ export function BulkInMailDrawer({
       };
 
       if (jobID) payload.job_id = jobID;
-      if (templateID) payload.template_id = templateID;
+      if (templateID && selectedTemplate && subject === selectedTemplate.subject_template && body === selectedTemplate.body_template) payload.template_id = templateID;
       else {
         payload.subject = subject.trim();
         payload.body = body.trim();
       }
 
-      const idempotencyKey = window.crypto.randomUUID();
+      const fingerprint=JSON.stringify(payload);
+      if(retryRequest.current?.fingerprint!==fingerprint)retryRequest.current={fingerprint,key:window.crypto.randomUUID()};
+      const idempotencyKey = retryRequest.current.key;
       const result = await apiRequest<BulkAccepted>("/api/v1/recruiter/inmail/bulk", {
         method: "POST",
         headers: { "X-Idempotency-Key": idempotencyKey },
@@ -222,76 +210,22 @@ export function BulkInMailDrawer({
       const sentCount = result.sent_count ?? result.recipient_count ?? 0;
       const skippedCount = result.skipped_count ?? 0;
       if (skippedCount > 0) {
-        setSuccess(`Sent ${sentCount} InMail${sentCount === 1 ? "" : "s"}. ${skippedCount} candidate${skippedCount === 1 ? "" : "s"} skipped by the ${result.cooldown_days || 14}-day anti-spam cooldown.`);
+        setSuccess(`Sent ${sentCount} ${applicant?"message":"InMail"}${sentCount === 1 ? "" : "s"}. ${skippedCount} candidate${skippedCount === 1 ? "" : "s"} skipped by the ${result.cooldown_days || 14}-day anti-spam cooldown.`);
       } else {
-        setSuccess(`Sent ${sentCount} InMail${sentCount === 1 ? "" : "s"} successfully.`);
+        setSuccess(`Sent ${sentCount} ${applicant?"message":"InMail"}${sentCount === 1 ? "" : "s"} successfully.`);
       }
       onSent();
 
-      window.setTimeout(() => {
-        setOpen(false);
-        setCandidateIDs([]);
-        setTemplateID("");
-        setJobID("");
-        setSubject("");
-        setBody("");
-        setSuccess("");
-      }, 1200);
+
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Bulk InMail could not be sent.");
     } finally {
-      setSending(false);
+      setSending(false);sendLock.current=false;
     }
   }
 
-  if (typeof document === "undefined") return null;
-
-  const portalTarget = document.querySelector(".theme-surface") ?? document.body;
-
-  return createPortal(
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.button
-            type="button"
-            aria-label="Close Bulk InMail composer"
-            className="fixed inset-0 z-[60] cursor-default bg-[#10213f]/28 backdrop-blur-[2px]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeDrawer}
-          />
-
-          <motion.aside
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="bulk-inmail-title"
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.9 }}
-            className="swx-bulk-inmail fixed inset-y-0 right-0 z-[70] flex w-full max-w-[38rem] flex-col border-l border-white/70 bg-[linear-gradient(165deg,#ffffff_0%,#f7f8ff_48%,#f3f7ff_100%)] shadow-[-24px_0_70px_rgba(16,33,63,0.16)]"
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-line/70 bg-white/80 px-5 py-5 backdrop-blur-xl sm:px-6">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-indigo">Bulk outreach</p>
-                  <span className="rounded-full border border-[#cfe8df] bg-[#ecf9f4] px-2.5 py-1 text-[13px] font-extrabold uppercase tracking-[0.11em] text-[#18775e]">
-                    {recipientCount} recipient{recipientCount === 1 ? "" : "s"}
-                  </span>
-                </div>
-                <h2 id="bulk-inmail-title" className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-navy">Send Bulk InMail</h2>
-                <p className="mt-1 max-w-lg text-sm leading-6 text-ink-muted">Personalise one message across your selected talent without creating repetitive manual work.</p>
-              </div>
-
-              <button type="button" onClick={closeDrawer} disabled={sending} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-white text-xl text-ink-muted transition hover:bg-slate-50 hover:text-navy disabled:opacity-50" aria-label="Close drawer">
-                ×
-              </button>
-            </div>
-
-            <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
-              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-6">
-                <section className="rounded-2xl border border-[#dfeee9] bg-white/85 p-4 shadow-[0_8px_24px_rgba(36,164,127,0.05)]">
+  return <RecruiterModal open={open} onClose={closeModal} title={applicant?"Message selected applicants":"Send Bulk InMail"} size="medium" busy={sending} protectChanges={!success} resetKey={success} initialFocus="select" returnFocus={applicant?'input[aria-label="Select all visible applicants"]':"#main-content"} footer={<><RecruiterModalClose disabled={sending}>Cancel</RecruiterModalClose><button type="submit" form={formID} disabled={sending||Boolean(success)||recipientCount===0||recipientCount>200||!subject.trim()||!body.trim()||(usesJobTitle&&!jobID)} className={recruiterPrimary}>{sending&&<Spinner/>}{sending?"Sending…":`Send to ${recipientCount}`}</button></>}>
+ <p className="mb-4 text-sm text-ink-muted">{recipientCount} selected recipient{recipientCount===1?"":"s"}. Messages use the existing consent and anti-spam safeguards.</p><form id={formID} onSubmit={submit}><fieldset disabled={sending||Boolean(success)} className="min-w-0 space-y-5">                <section className="rounded-2xl border border-[#dfeee9] bg-white/85 p-4 shadow-[0_8px_24px_rgba(36,164,127,0.05)]">
                   <label htmlFor="bulk-template" className="text-xs font-extrabold uppercase tracking-[0.12em] text-navy">Message template</label>
                   <select
                     id="bulk-template"
@@ -395,44 +329,5 @@ export function BulkInMailDrawer({
                 </div>
 
                 {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-3 text-sm font-semibold text-red-700">{error}</p>}
-              </div>
-
-              <div className="border-t border-line/70 bg-white/90 px-5 py-3.5 backdrop-blur-xl sm:px-6">
-                <div className="flex justify-end gap-2">
-                  <div className="flex w-full gap-2 sm:w-auto">
-                    <button type="button" onClick={closeDrawer} disabled={sending} className="min-h-11 flex-1 rounded-xl border border-line bg-white px-4 text-sm font-bold text-ink-muted transition hover:bg-slate-50 hover:text-navy disabled:opacity-50 sm:flex-none">Cancel</button>
-                    <button type="submit" disabled={sending || recipientCount === 0 || recipientCount > 200 || !subject.trim() || !body.trim() || (usesJobTitle && !jobID)} className="inline-flex min-h-11 min-w-0 flex-[1.35] items-center justify-center gap-2 rounded-xl bg-indigo px-5 text-sm font-extrabold text-white shadow-[0_10px_26px_rgba(79,70,229,0.22)] transition hover:bg-indigo/90 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[10.5rem] sm:flex-none">
-                      {sending && <Spinner />}
-                      {sending ? "Sending…" : `Send to ${recipientCount}`}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </form>
-
-            <AnimatePresence>
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, y: 14, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                  className="pointer-events-none absolute bottom-24 left-5 right-5 rounded-2xl border border-[#bde3d7] bg-[#effbf6] px-4 py-3.5 shadow-[0_16px_40px_rgba(36,164,127,0.18)] sm:left-auto sm:right-6 sm:w-[22rem]"
-                  role="status"
-                >
-                  <div className="flex items-center gap-3">
-                    <motion.span initial={{ scale: 0.4, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 420, damping: 18 }} className="flex h-9 w-9 items-center justify-center rounded-full bg-[#24A47F] text-base font-black text-white">✓</motion.span>
-                    <div>
-                      <p className="text-sm font-extrabold text-[#155f4b]">Bulk InMail processed</p>
-                      <p className="mt-0.5 text-xs font-semibold text-[#397666]">{success}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.aside>
-        </>
-      )}
-    </AnimatePresence>,
-    portalTarget,
-  );
+</fieldset></form>{success&&<p role="status" className="mt-4 rounded-lg border border-line p-4 text-sm text-ink">{success}</p>}</RecruiterModal>;
 }

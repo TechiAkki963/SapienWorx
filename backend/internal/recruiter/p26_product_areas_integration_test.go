@@ -206,15 +206,25 @@ func TestP26RecruiterProductAreasScaleAndIsolation(t *testing.T) {
 		t.Fatalf("company application access lost: %+v %v", companyPool, err)
 	}
 
-	offer, err := svc.CreateOffer(ctx, recA, RecruiterOfferInput{ApplicationID: appA, Title: "P26 offer", Currency: "INR"})
+	if _, err := svc.CreateOffer(ctx, recA, RecruiterOfferInput{ApplicationID: appA, Title: "Legacy bypass"}); err != ErrOfferApproval {
+		t.Fatalf("legacy offer mutation remained open: %v", err)
+	}
+	if err := svc.UpdateStage(ctx, recA, appA, "offer", StageChangeOptions{ExpectedStage: "final_interview", RequireReason: true}); err != nil {
+		t.Fatal(err)
+	}
+	store := svc.OfferStudio(&offerMemoryObjects{data: map[string][]byte{}})
+	offer, err := store.Save(ctx, recA, "", OfferWriteInput{ApplicationID: appA, Title: "P26 governed offer", Currency: "INR", Values: map[string]string{"annual_compensation": "1200000.00"}, JoiningDate: time.Now().UTC().AddDate(0, 1, 0).Format("2006-01-02"), ExpiresAt: time.Now().UTC().AddDate(0, 0, 14).Format("2006-01-02"), CommandKey: "p26-governed-create"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := svc.SetOfferStatus(ctx, recB, offer.ID, "sent"); err != ErrNotFound {
-		t.Fatalf("cross-company offer mutation=%v", err)
+	if _, err := store.Offer(ctx, recB, offer.ID, false); err != ErrNotFound {
+		t.Fatalf("cross-company offer access=%v", err)
 	}
-	if err := svc.SetOfferStatus(ctx, recA, offer.ID, "sent"); err != nil {
-		t.Fatal(err)
+	for _, action := range []string{"submit", "send"} {
+		offer, err = store.Command(ctx, recA, offer.ID, false, OfferCommand{Action: action, ExpectedVersion: offer.ActiveVersion, ExpectedRevision: offer.Revision, TermsHash: offer.TermsHash, CommandKey: "p26-governed-" + action})
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 	if scoped, err := svc.OffersForJob(ctx, recA, jobB); err != nil || len(scoped) != 0 {
 		t.Fatalf("foreign job offer data %+v %v", scoped, err)

@@ -138,7 +138,7 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
     ).toBeVisible();
     await expect(page.getByLabel("Job match score 86 percent")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /Recruiter Notes/ }),
+      page.getByRole("button", { name: /^(Notes \d+|Add note)$/ }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Professional Summary" }),
@@ -191,7 +191,7 @@ test("Candidate 360 supports system, light and dark modes without losing recruit
   });
 });
 
-test("Application pipeline supports system, light and dark modes with scan-first rows", async ({
+test("Application pipeline supports system, light and dark modes with canonical candidate cards", async ({
   page,
 }) => {
   await fs.mkdir("visual-artifacts/theme-modes", { recursive: true });
@@ -210,11 +210,11 @@ test("Application pipeline supports system, light and dark modes with scan-first
       page.locator('summary[aria-label="More actions for Candidate 001"]:visible'),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "View candidate", exact: true }).first(),
+      page.getByRole("link", { name: "Candidate 001", exact: true }),
     ).toBeVisible();
-    await page.locator('summary[aria-label="More actions for Candidate 001"]:visible').click();
     await expect(page.getByRole("link", { name: "Message", exact: true }).first()).toBeVisible();
-    await page.locator('summary[aria-label="More actions for Candidate 001"]:visible').click();
+    await expect(page.locator(".swx-candidate-card")).toHaveCount(10);
+    await expect(page.getByRole("table",{name:"Hiring pipeline"})).toHaveCount(0);
     await assertNoHorizontalOverflow(page, "Application pipeline theme mode");
   };
 

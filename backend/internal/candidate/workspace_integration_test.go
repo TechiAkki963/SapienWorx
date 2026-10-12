@@ -159,7 +159,7 @@ func TestCandidateWorkspaceIsolatedDatabase(t *testing.T) {
 		interviewID := id(`INSERT INTO interviews(application_id,recruiter_id,scheduled_at,duration_minutes,meeting_url,round_label,notes) VALUES($1,$2,now()+interval '1 day',45,'https://meeting.example.test','Technical discussion','INTERNAL SECRET NOTE') RETURNING id::text`, appID, recruiterID)
 		exec(`INSERT INTO interview_change_audit(interview_id,actor_recruiter_id,action,previous_status,new_status,previous_scheduled_at,new_scheduled_at,previous_duration_minutes,new_duration_minutes,previous_round_label,new_round_label) VALUES($1,$2,'reschedule','scheduled','scheduled',now(),now()+interval '1 day',45,45,'Technical discussion','Technical discussion')`, interviewID, recruiterID)
 		rows, err := svc.InterviewsForCandidate(ctx, candidateID)
-		if err != nil || len(rows) != 1 || rows[0].RoundLabel != "Technical discussion" || !rows[0].Rescheduled || rows[0].TimeZone != "UTC" {
+		if err != nil || len(rows) != 1 || rows[0].RoundLabel != "Technical discussion" || !rows[0].Rescheduled || rows[0].TimeZone != "Asia/Kolkata" {
 			t.Fatalf("interviews=%+v err=%v", rows, err)
 		}
 		raw, _ := json.Marshal(rows)

@@ -135,8 +135,29 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 		return "awaiting_review", nil
 	}
 
-	var cvKey *string
-	_ = tx.QueryRow(ctx, `SELECT cv_s3_key FROM candidate_profiles WHERE user_id=$1`, userID).Scan(&cvKey)
+	// Capture every retained application version before removing profile access.
+	// Each object gets an idempotent deletion job; fulfilment waits for all jobs.
+	cvRows, err := tx.Query(ctx, `SELECT object_key FROM (
+	SELECT cv_s3_key AS object_key FROM candidate_profiles WHERE user_id=$1
+	UNION SELECT submitted_cv_key FROM applications WHERE candidate_id=$1
+	) objects WHERE object_key IS NOT NULL AND btrim(object_key)<>'' ORDER BY object_key`, userID)
+	if err != nil {
+		return "", err
+	}
+	cvKeys := []string{}
+	for cvRows.Next() {
+		var key string
+		if err = cvRows.Scan(&key); err != nil {
+			cvRows.Close()
+			return "", err
+		}
+		cvKeys = append(cvKeys, key)
+	}
+	err = cvRows.Err()
+	cvRows.Close()
+	if err != nil {
+		return "", err
+	}
 
 	if _, err = tx.Exec(ctx, `UPDATE company_reviews SET moderation_status='deleted',title='[deleted]',pros='',cons='',advice='',ratings='{}',interview_details='{}',public_name=NULL,anonymous=true,job_function='',location='',period_start=NULL,period_end=NULL,recommend=NULL,outlook=NULL,verification_basis=NULL,moderation_flags='{}',edited_at=now(),revision=revision+1 WHERE author_id=$1`, userID); err != nil {
 		return "", err
@@ -148,6 +169,9 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 		return "", err
 	}
 	if _, err = tx.Exec(ctx, `DELETE FROM candidate_profiles WHERE user_id=$1`, userID); err != nil {
+		return "", err
+	}
+	if _, err = tx.Exec(ctx, `UPDATE applications SET submitted_cv_key=NULL,submitted_cv_filename=NULL,submitted_cv_uploaded_at=NULL,submitted_cv_provenance='none' WHERE candidate_id=$1`, userID); err != nil {
 		return "", err
 	}
 	if _, err = tx.Exec(ctx, `UPDATE refresh_sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE user_id=$1 AND revoked_at IS NULL`, userID); err != nil {
@@ -166,9 +190,11 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 
 	manifest := `{"account":"anonymised","candidate_profile":"deleted","messaging":"deleted","sessions":"revoked"}`
 	status := "fulfilled"
-	if cvKey != nil && strings.TrimSpace(*cvKey) != "" {
-		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'delete_private_cv_object',$2,'pending',jsonb_build_object('object_key',$3::text)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "cv-delete:"+requestID, *cvKey); err != nil {
-			return "", err
+	if len(cvKeys) > 0 {
+		for index, key := range cvKeys {
+			if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'delete_private_cv_object',$2,'pending',jsonb_build_object('object_key',$3::text)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, fmt.Sprintf("cv-delete:%s:%d", requestID, index), key); err != nil {
+				return "", err
+			}
 		}
 		status = "in_progress"
 		if _, err = tx.Exec(ctx, `UPDATE privacy_requests SET status='in_progress',result_manifest=$2::jsonb,completed_at=NULL,error_message=NULL WHERE id=$1`, requestID, manifest); err != nil {

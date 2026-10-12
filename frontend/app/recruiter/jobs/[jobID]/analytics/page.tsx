@@ -35,6 +35,7 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
 
   return <RecruiterShell>
     <div className="grid min-w-0 gap-5">
+      <Link href={`/recruiter/jobs/${jobID}`} className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-indigo">← Back to job overview</Link>
       <RecruiterProductHeader eyebrow={`Vacancy performance · ${analytics.job_reference}`} title="Job analytics" description={`${analytics.title} · ${label(analytics.status)} · published ${compactDate(analytics.published_at)}`} actions={<>
           <Link href={`/recruiter/jobs/${jobID}/applicants`} className="rounded-xl bg-indigo px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-navy">View applicants</Link>
           <Link href={`/recruiter/jobs/${jobID}/edit`} className="rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm hover:text-indigo">Edit job</Link>
@@ -45,6 +46,8 @@ export default async function RecruiterJobAnalyticsPage({ params }: { params: Pr
       </section>}
 
       <section aria-label="Job performance summary" className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+        {metric("Views",(analytics.views??0).toLocaleString("en-IN"),"Unique views per rolling 24 hours")}
+        {metric("View conversion",percent(analytics.view_to_application_percent??0),"Views → applications")}
         {metric("Applications", analytics.total_applications.toLocaleString("en-IN"), "Recorded applications")}
         {metric("Hires", analytics.hires.toLocaleString("en-IN"), `${analytics.remaining_openings} openings remaining`)}
         {metric("Fill rate", percent(analytics.fill_rate_percent), `${analytics.hires} of ${analytics.openings} openings filled`)}

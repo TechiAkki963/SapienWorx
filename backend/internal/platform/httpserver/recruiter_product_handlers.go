@@ -2,7 +2,6 @@ package httpserver
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 )
@@ -34,21 +33,7 @@ func (s *Server) recruiterOffers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) recruiterOfferStatus(w http.ResponseWriter, r *http.Request) {
-	id, ok := recruiterID(r)
-	if !ok {
-		return
-	}
-	var input struct {
-		Status string `json:"status"`
-	}
-	if !decodeJSON(w, r, &input) {
-		return
-	}
-	if err := s.recruiter.SetOfferStatus(r.Context(), id, r.PathValue("offerID"), strings.TrimSpace(input.Status)); err != nil {
-		s.writeRecruiterError(w, r, err)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
+	writeError(w, r, http.StatusGone, "governed_offer_action_required", "Use a versioned offer action. Candidate decisions cannot be recorded by a recruiter.")
 }
 
 func (s *Server) recruiterReferrals(w http.ResponseWriter, r *http.Request) {

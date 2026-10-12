@@ -4,7 +4,7 @@ Phase 6 introduces the verified recruiter operational workspace.
 
 ## UX rule
 
-The recruiter workspace is deliberately dense and list/table-first. **Kanban is not used.** Candidate stage changes happen inline from the pipeline table so recruiters keep cross-candidate context visible.
+The recruiter workspace is deliberately dense and filter-rich. **Kanban is not used.** The October 2026 governed-workspace specification makes recruiter candidate results card-only; stage changes remain inline on each canonical Candidate Card. Jobs retains a compact operational table.
 
 ## Surfaces
 
@@ -25,4 +25,12 @@ Migration `000005_recruiter_workspace` adds interviews. Jobs and applications co
 
 ## Deferred
 
-Candidate notes/tags, talent pools, outreach sequences, referral rewards, recruiter-level assignment, resume document viewing, advanced sourcing search, analytics exports, and AI-assisted matching remain later phases.
+The original Phase 6 deferrals have since advanced. Company-private notes, CV viewing, Talent pools/search/outreach, scoped referrals and recorded analytics use the existing domain stores. Future intelligence and optional pinned-note/activity enhancements remain deferred.
+
+## October 2026 governed workspace
+
+The sidebar separates Workspace, Recruit Plus+ and Profile, with contextual usage and user-specific collapse preferences. Focused actions share centered, keyboard-contained dialogs; Offer Studio preparation and template editing use dedicated pages.
+
+Migrations 65 and 66 add CV provenance/view evidence and governed offer versions. Offer compensation uses exact server calculations; immutable snapshots, approval identities, document authorization and command idempotency are authoritative server-side. Application relationships remain distinct from cold Talent outreach consent and quota rules.
+
+See [the requirements matrix](../RECRUITER_GOVERNED_WORKSPACE_MATRIX.md) and [pre-deployment audit](../RECRUITER_GOVERNED_WORKSPACE_AUDIT.md) for release evidence and boundaries. These migrations must not be reversed over populated evidence merely to roll back application images. Deployment remains subject to separate approval.

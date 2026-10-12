@@ -1,130 +1,17 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
-
 import { apiRequest } from "@/lib/api";
-
-type Contact = { primary?: string; alternate?: string };
-
-export function CandidateContact({
-  candidateID,
-  maskedPhone,
-  compact = false,
-}: {
-  candidateID: string;
-  maskedPhone?: string;
-  compact?: boolean;
-}) {
-  const [contact, setContact] = useState<Contact | null>(null);
-  const [selected, setSelected] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
-  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => () => { if (clickTimer.current) clearTimeout(clickTimer.current); }, []);
-
-  const numbers = [contact?.primary, contact?.alternate].filter((number): number is string => !!number);
-  const current = numbers[selected] ?? "";
-
-  async function loadContact() {
-    setBusy(true);
-    setMessage("");
-    try {
-      const result = await apiRequest<Contact>(`/api/v1/recruiter/candidates/${candidateID}/contact`, { cache: "no-store" });
-      setContact(result);
-      setSelected(0);
-      return result;
-    } catch {
-      setMessage("Contact is unavailable. The candidate may not have enabled sharing.");
-      return null;
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function copy(number = current) {
-    if (!number) return;
-    try {
-      await navigator.clipboard.writeText(number);
-      setMessage("Number copied.");
-    } catch {
-      setMessage("Could not copy. Please use the visible number.");
-    }
-  }
-
-  function onSingleClick() {
-    if (clickTimer.current) clearTimeout(clickTimer.current);
-    clickTimer.current = setTimeout(() => {
-      clickTimer.current = null;
-      if (!contact) void loadContact();
-    }, 220);
-  }
-
-  async function onDoubleClick() {
-    if (clickTimer.current) {
-      clearTimeout(clickTimer.current);
-      clickTimer.current = null;
-    }
-    if (current) {
-      await copy(current);
-      return;
-    }
-    const result = await loadContact();
-    const number = result?.primary ?? result?.alternate ?? "";
-    if (number) await copy(number);
-  }
-
-  if (compact) {
-    const label = contact ? current : maskedPhone ? "••••••••••" : "Contact unavailable";
-    return (
-      <div className="min-w-0">
-        <button
-          type="button"
-          onClick={onSingleClick}
-          onDoubleClick={() => void onDoubleClick()}
-          disabled={busy || (!contact && !maskedPhone)}
-          aria-label={contact ? `Phone ${current}. Double click to copy` : "Hidden phone number. Click once to show. Double click to copy"}
-          title={contact ? "Double-click to copy" : "Click once to show · double-click to copy"}
-          className="inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border border-line/70 bg-white px-2.5 py-1 text-xs font-bold text-navy transition hover:border-indigo/30 hover:bg-indigo-soft/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/35 disabled:cursor-not-allowed disabled:opacity-55"
-        >
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 fill-none stroke-current stroke-[1.8]">
-            <path d="M6.5 3h3l1.2 4-1.8 1.5a15 15 0 0 0 6.6 6.6l1.5-1.8 4 1.2v3c0 1-.8 1.8-1.8 1.8C10 20.3 3.7 14 3.7 5.2 3.7 4 4.7 3h1.8Z" />
-          </svg>
-          <span className="truncate">{busy ? "Checking…" : label}</span>
-        </button>
-        {message && <p role="status" className="mt-1 text-[13px] leading-4 text-ink-muted">{message}</p>}
-      </div>
-    );
-  }
-
-  if (!contact) return (
-    <div className="min-w-0">
-      <button type="button" onClick={() => void loadContact()} disabled={busy} aria-label="View Contact" className="flex min-h-11 w-full items-center gap-2 rounded-lg border border-[#e2eaf5] px-2 py-1.5 text-left text-xs font-bold text-navy hover:border-blue-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/40">
-        <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><path d="M6.5 3h3l1.2 4-1.8 1.5a15 15 0 0 0 6.6 6.6l1.5-1.8 4 1.2v3c0 1-.8 1.8-1.8 1.8C10 20.3 3.7 14 3.7 5.2 3.7 4 4.7 3h1.8Z" /></svg>
-        </span>
-        <span className="min-w-0 flex-1">{busy ? "Checking access…" : "View Contact"}<span className="block text-[13px] font-normal text-[#526990]">Available only with candidate consent</span></span>
-        <span aria-hidden="true" className="text-lg font-normal text-[#526990]">⌄</span>
-      </button>
-      {message && <p role="status" className="mt-1 text-xs text-ink-muted">{message}</p>}
-    </div>
-  );
-
-  return (
-    <div className="rounded-xl border border-line bg-slate-50 p-2 text-sm">
-      <p className="text-[13px] font-bold uppercase tracking-wider text-ink-muted">{selected === 0 ? "Primary contact" : "Alternate contact"}</p>
-      <div className="mt-1 flex flex-wrap items-center gap-1">
-        <button type="button" title="Double-click to copy" onDoubleClick={() => void copy()} className="mr-auto min-h-9 break-all rounded px-1 font-bold text-navy focus-visible:ring-2 focus-visible:ring-indigo">{current}</button>
-        {numbers.length > 1 && (
-          <div className="flex gap-1">
-            <button type="button" aria-label="Show primary contact" onClick={() => setSelected(0)} disabled={selected === 0} className="min-h-9 min-w-9 rounded border border-line bg-white disabled:opacity-40">↑</button>
-            <button type="button" aria-label="Show alternate contact" onClick={() => setSelected(1)} disabled={selected === 1} className="min-h-9 min-w-9 rounded border border-line bg-white disabled:opacity-40">↓</button>
-          </div>
-        )}
-        <button type="button" onClick={() => void copy()} className="min-h-9 rounded border border-line bg-white px-2 font-semibold">Copy</button>
-        <button type="button" onClick={() => { setContact(null); setMessage(""); }} className="min-h-9 rounded border border-line bg-white px-2 font-semibold">Hide</button>
-      </div>
-      {message && <p role="status" className="mt-1 text-xs text-ink-muted">{message}</p>}
-    </div>
-  );
+type Contact={primary?:string;alternate?:string};
+export function CandidateContact({candidateID,maskedPhone,hasSecondary=false,compact=false}:{candidateID:string;maskedPhone?:string;hasSecondary?:boolean;compact?:boolean}) {
+ const [contact,setContact]=useState<Contact|null>(null),[revealed,setRevealed]=useState<Record<string,boolean>>({}),[busy,setBusy]=useState(""),[message,setMessage]=useState("");
+ const timer=useRef<ReturnType<typeof setTimeout>|null>(null);
+ useEffect(()=>()=>{if(timer.current)clearTimeout(timer.current)},[]);
+ async function load(kind:"primary"|"alternate",copy=false){setBusy(kind);setMessage("");try{const data=await apiRequest<Contact>(`/api/v1/recruiter/candidates/${candidateID}/contact?action=${copy?"copy":"reveal"}&number=${kind}`,{cache:"no-store"});setContact(current=>({...current,...data}));const number=data[kind];if(!number){setMessage("This number is unavailable under the candidate's sharing preferences.");return}setRevealed(current=>({...current,[kind]:true}));if(copy){try{await navigator.clipboard.writeText(number);setMessage("Number copied.")}catch{setMessage("Copy is unavailable. Select the revealed number to copy it.")}}}catch(cause){setMessage(cause instanceof Error?cause.message:"Contact is unavailable under the candidate's sharing preferences.")}finally{setBusy("")}}
+ function click(kind:"primary"|"alternate",keyboard:boolean){if(timer.current)clearTimeout(timer.current);if(revealed[kind])return;if(keyboard){void load(kind);return}timer.current=setTimeout(()=>{timer.current=null;void load(kind)},220)}
+ function double(kind:"primary"|"alternate"){if(timer.current){clearTimeout(timer.current);timer.current=null}void load(kind,true)}
+ const primary=Boolean(maskedPhone)||Boolean(contact?.primary);
+ const alternate=hasSecondary||Boolean(contact?.alternate);
+ const choices:("primary"|"alternate")[]=[...(primary?["primary" as const]:[]),...(alternate?["alternate" as const]:[])];
+ if(!choices.length)return <p className="text-xs text-ink-muted">Contact unavailable</p>;
+ return <div className={compact?"min-w-0":"grid min-w-0 gap-2"}>{choices.map(kind=><div key={kind} className="flex min-w-0 flex-wrap items-center gap-1"><button type="button" onClick={event=>click(kind,event.detail===0)} onDoubleClick={()=>double(kind)} disabled={Boolean(busy)} aria-label={revealed[kind]?`${kind==="primary"?"Primary":"Secondary"} phone ${contact?.[kind]}. Double click to copy`:`Hidden ${kind==="primary"?"primary":"secondary"} phone. Click to show or double click to copy`} title="Click to show · double-click to copy" className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-lg border border-line bg-white px-2.5 text-[13px] font-medium text-navy"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-none stroke-current stroke-[1.8]"><path d="M6.5 3h3l1.2 4-1.8 1.5a15 15 0 0 0 6.6 6.6l1.5-1.8 4 1.2v3c0 1-.8 1.8-1.8 1.8C10 20.3 3.7 14 3.7 5.2 3.7 4 4.7 3h1.8Z"/></svg><span className="break-all">{busy===kind?"Checking…":revealed[kind]?contact?.[kind]:"••••••••••"}</span>{kind==="alternate"&&<span className="sr-only">Secondary phone</span>}</button>{revealed[kind]&&<><button type="button" disabled={Boolean(busy)} onClick={()=>void load(kind,true)} className="min-h-11 px-2 text-xs font-semibold text-indigo" aria-label={`Copy ${kind==="primary"?"primary":"secondary"} phone`}>Copy</button><button type="button" onClick={()=>setRevealed(s=>({...s,[kind]:false}))} className="min-h-11 px-2 text-xs text-ink-muted" aria-label={`Hide ${kind==="primary"?"primary":"secondary"} phone`}>Hide</button></>}</div>)}{message&&<p role="status" className="mt-1 text-xs leading-5 text-ink-muted">{message}</p>}</div>;
 }

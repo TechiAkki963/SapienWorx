@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { RecruiterWorkspaceContext } from "@/components/recruiter/workspace-context";
-import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
+import { RecruiterFrame } from "./recruiter-frame";
+import type { RecruiterNavigationAccess } from "./recruiter-nav";
 import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 import { RecruiterDashboard } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
@@ -24,11 +26,13 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
     messagingAPI<ThreadListResponse>("/api/v1/messaging/threads").catch(() => null),
     getSessionUser(),
     recruiterAPI<RecruiterNotificationInbox>("/api/v1/recruiter/notifications?limit=1").catch(() => null),
-    recruiterAPI<{member:{role:string}}>("/api/v1/company/access").catch(()=>null),
+    recruiterAPI<RecruiterNavigationAccess>("/api/v1/company/access").catch(()=>null),
   ]);
   const recruiterName = workspace?.recruiter_name ?? "Recruiter";
   const companyName = workspace?.company_name ?? "SapienWorx workspace";
   const unreadCount = conversations?.items?.reduce((total, thread) => total + thread.unread_count, 0) ?? 0;
+  const preferenceKey=`sw_recruiter_sidebar_${session?.id || "guest"}`;
+  const collapsed=(await cookies()).get(preferenceKey)?.value==="collapsed";
 
   return (
     <div className="theme-surface swx-recruiter-workspace min-h-screen bg-[#f5f7fb] text-ink">
@@ -73,12 +77,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 pb-24 pt-4 sm:px-6 lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:px-6 lg:py-6 xl:grid-cols-[11.5rem_minmax(0,1fr)]">
-        <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
-          <RecruiterNav unreadCount={unreadCount} />
-        </aside>
-        <main id="main-content" tabIndex={-1} className="min-w-0 outline-none"><RecruiterWorkspaceContext />{children}</main>
-      </div>
+      <RecruiterFrame initialCollapsed={collapsed} preferenceKey={preferenceKey} unreadCount={unreadCount} access={companyAccess}><RecruiterWorkspaceContext />{children}</RecruiterFrame>
     </div>
   );
 }
