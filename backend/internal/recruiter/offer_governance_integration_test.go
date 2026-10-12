@@ -12,6 +12,7 @@ import (
 
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/privacy"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/resume"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/storage"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -643,6 +644,111 @@ func TestOfferGovernanceIsolatedDatabase(t *testing.T) {
 		}
 		if _, e = command(owner, "send", submitted, "frozen-employment-premature-send"); e == nil {
 			t.Fatal("employment review was bypassed")
+		}
+	})
+	t.Run("candidate erasure requires retention review while immutable offers remain", func(t *testing.T) {
+		versions := count(`SELECT count(*) FROM governed_offer_versions v JOIN recruiter_offers o ON o.id=v.offer_id JOIN applications a ON a.id=o.application_id WHERE a.candidate_id=$1`, cand)
+		if versions == 0 {
+			t.Fatal("missing retained offer fixture")
+		}
+		status, e := privacy.NewService(db).EraseAccount(ctx, cand)
+		if e != nil || status != "awaiting_review" {
+			t.Fatal("retained offer identity was falsely reported erased", status, e)
+		}
+		if count(`SELECT count(*) FROM privacy_requests WHERE user_id=$1 AND request_type='erasure' AND status='awaiting_review' AND completed_at IS NULL AND result_manifest->>'reason'='offer_retention_review'`, cand) != 1 || count(`SELECT count(*) FROM privacy_fulfilment_jobs f JOIN privacy_requests r ON r.id=f.request_id WHERE r.user_id=$1 AND f.job_type='erasure_review' AND f.status='awaiting_review'`, cand) != 1 {
+			t.Fatal("offer retention was not presented to the existing privacy review workflow")
+		}
+		if count(`SELECT count(*) FROM governed_offer_versions v JOIN recruiter_offers o ON o.id=v.offer_id JOIN applications a ON a.id=o.application_id WHERE a.candidate_id=$1`, cand) != versions || count(`SELECT count(*) FROM candidate_profiles WHERE user_id=$1`, cand) != 1 {
+			t.Fatal("unreviewed erasure modified retained history or candidate data")
+		}
+		if _, e = privacy.NewService(db).EraseAccount(ctx, cand); e != nil || count(`SELECT count(*) FROM privacy_requests WHERE user_id=$1 AND request_type='erasure' AND status='awaiting_review'`, cand) != 1 {
+			t.Fatal("retention review retry duplicated its request", e)
+		}
+	})
+	t.Run("erasure waits for in-flight offer identity before reporting its outcome", func(t *testing.T) {
+		raceCtx, cancel := context.WithTimeout(ctx, 8*time.Second)
+		defer cancel()
+		person := user("candidate")
+		exec(`INSERT INTO candidate_profiles(user_id,full_name) VALUES($1,'Concurrent retention candidate')`, person)
+		application := id(`INSERT INTO applications(candidate_id,job_id,stage) VALUES($1,$2,'offer') RETURNING id::text`, person, job)
+		writer, e := db.Begin(raceCtx)
+		if e != nil {
+			t.Fatal(e)
+		}
+		defer writer.Rollback(ctx)
+		if _, e = writer.Exec(raceCtx, `SELECT id FROM applications WHERE id=$1 FOR UPDATE`, application); e != nil {
+			t.Fatal(e)
+		}
+		privacyCfg, e := pgxpool.ParseConfig(dsn)
+		if e != nil {
+			t.Fatal(e)
+		}
+		name := "privacy-offer-race-" + person
+		privacyCfg.ConnConfig.RuntimeParams["application_name"] = name
+		privacyDB, e := pgxpool.NewWithConfig(raceCtx, privacyCfg)
+		if e != nil {
+			t.Fatal(e)
+		}
+		defer privacyDB.Close()
+		type outcome struct {
+			state string
+			err   error
+		}
+		done := make(chan outcome, 1)
+		go func() {
+			state, err := privacy.NewService(privacyDB).EraseAccount(raceCtx, person)
+			done <- outcome{state, err}
+		}()
+		for {
+			var waiting bool
+			if e = db.QueryRow(raceCtx, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE application_name=$1 AND wait_event_type='Lock')`, name).Scan(&waiting); e != nil {
+				t.Fatal("erasure did not wait for the in-flight application", e)
+			}
+			if waiting {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		// Waiting on an application must not hold the account lock needed by
+		// offer delivery's candidate foreign keys, otherwise the order deadlocks.
+		probe, e := db.Begin(raceCtx)
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, e = probe.Exec(raceCtx, `SELECT id FROM users WHERE id=$1 FOR UPDATE NOWAIT`, person)
+		probe.Rollback(ctx)
+		if e != nil {
+			t.Fatal("erasure acquired account before application", e)
+		}
+		var offerID string
+		if e = writer.QueryRow(raceCtx, `INSERT INTO recruiter_offers(application_id,company_id,recruiter_id,title,currency,annual_compensation,status) VALUES($1,$2,$3,'Concurrent retention offer','INR',1000,'draft') RETURNING id::text`, application, tenant, owner).Scan(&offerID); e != nil {
+			t.Fatal(e)
+		}
+		snapshot := OfferSnapshot{Provenance: "governed", Title: "Concurrent retention offer", CandidateName: "Concurrent retention candidate", CompanyName: "Offer QA", JobID: job, Currency: "INR", AnnualCompensation: "1000"}
+		terms, e := offerHash(snapshot)
+		if e != nil {
+			t.Fatal(e)
+		}
+		raw, e := json.Marshal(snapshot)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = writer.Exec(raceCtx, `INSERT INTO governed_offer_versions(offer_id,company_id,version,status,snapshot,terms_hash,approval_policy,created_by) VALUES($1,$2,1,'draft',$3,$4,'{"mode":"none","steps":[],"rules":[]}',$5)`, offerID, tenant, raw, terms, owner); e != nil {
+			t.Fatal(e)
+		}
+		if e = writer.Commit(raceCtx); e != nil {
+			t.Fatal(e)
+		}
+		select {
+		case result := <-done:
+			if result.err != nil || result.state != "awaiting_review" {
+				t.Fatal("concurrent offer identity was falsely reported erased", result.state, result.err)
+			}
+		case <-raceCtx.Done():
+			t.Fatal("erasure/offer lock order did not complete")
+		}
+		if count(`SELECT count(*) FROM candidate_profiles WHERE user_id=$1`, person) != 1 || count(`SELECT count(*) FROM governed_offer_versions WHERE offer_id=$1 AND snapshot->>'candidate_name'='Concurrent retention candidate'`, offerID) != 1 {
+			t.Fatal("concurrent retained identity was silently changed")
 		}
 	})
 

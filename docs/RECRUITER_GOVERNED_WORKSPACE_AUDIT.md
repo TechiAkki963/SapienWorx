@@ -61,6 +61,7 @@ All APIs remain REST. There is no GraphQL or added external API.
 | Recruiter Talent overview/plan | Bounded recorded summaries; contextual usage; no N+1 plan reads |
 | Candidate outreach interest | Explicit candidate-owned interest event; fabricated engagement is not counted |
 | Recruiter CV/contact/notes and stage actions | Company/application/consent and privacy scope preserved; actual submitted CV distinguished from later profile CV; company-private notes |
+| `DELETE /api/v1/user/account` | Candidate accounts with retained offer records return 202 `awaiting_review`, with an auditable `offer_retention_review` reason. Application locks precede the account lock; an in-flight offer cannot be missed or falsely reported erased. Ordinary candidate erasure and CV deletion orchestration remain available when no retained offer requires review. |
 | Recruiter job list/status/public view recording | Added `location`, `department`, `posted_by`, `posted_from`, `posted_to`; strict range/UUID validation; India-time posted boundaries; company scope remains mandatory; status CAS and audited Undo; bot/internal-preview view exclusions |
 
 Offer handlers map invalid data, permissions, not-found and conflicts explicitly. 500-class failures remain errors. This is a targeted API audit and regression suite, not an enumeration claim for every endpoint in the entire repository.
@@ -80,6 +81,8 @@ Hiring relationships are treated separately from cold Talent sourcing. An owned 
 ## 8. Security results
 
 **PASS for exercised local application boundaries.** Tests cover unauthorized roles, foreign identifiers, CSRF, revoked membership/consent, payload validation, exact/unsafe formulas, stale revisions, self/duplicate approval, concurrent send/quota transitions, annexure scanning, document access and erasure queues.
+
+Final privacy inspection found that automatic candidate erasure could report completion while immutable offer snapshots retained identity. The existing review gate now explicitly handles candidate offer retention. Real PostgreSQL regression proves review status/reason, request idempotency and preservation of history/profile; a second test holds an in-flight offer application and verifies application-before-account lock order, correct eventual review outcome and preserved captured identity. The complete 24 isolated suites, Go unit/vet and Linux race suite were rerun after this fix. Retention decisions remain explicit reviewed actions, not an automated legal determination.
 
 Production npm dependency audit reports zero findings. `govulncheck` reports no reachable application vulnerability; it reports an unimported `golang.org/x/crypto/openpgp` module advisory, [GO-2026-5932](https://pkg.go.dev/vuln/GO-2026-5932). The application does not import OpenPGP. This is recorded, not treated as a reachable finding or hidden.
 
@@ -166,6 +169,7 @@ Local gallery: `frontend/visual-artifacts/governed-final-states/index.html`. Fur
 | QA-05 | Medium measurement limit | Future approved beta gate | Local performance is not live capacity. After a separately approved rollout, measure existing EC2 RAM/CPU/disk, scanner health, real database TLS/isolation and controlled beta-only concurrency. Do not provision new instances/RDS as part of this release. |
 | QA-06 | Low | Documented | Unimported OpenPGP module advisory. Avoid introducing that package; retain reachable-dependency scans and review a parent dependency update when available. |
 | QA-07 | Low | Optional deferral | Activity/telemetry, pinned notes, KPI strip and future intelligence remain outside mandatory final architecture; retain actual recorded counts and current note workflow. |
+| QA-08 | High | FIXED, regression passed | Candidate erasure could falsely report completion while offer identity remained. The privacy service now locks applications before the account, detects retained offers and uses the existing auditable retention-review gate. PostgreSQL tests verify pending review and the actual in-flight-offer lock race. No immutable history is silently edited or deleted. |
 
 Reproduced implementation defects fixed during acceptance include foreign-role data projections, privacy/CV erasure gaps, draft source/rendering loss, unsafe numeric coercion, command retry identity, lock-order/membership rechecks, advanced-filter propagation, Safari pointer focus, late PDF reopening and missing Review-step incomplete saving. Tests exercise the corresponding behavior. No remaining reproduced critical/high application defect is knowingly hidden by this report.
 

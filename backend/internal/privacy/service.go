@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -105,6 +106,11 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 	}
 	defer tx.Rollback(ctx)
 
+	// Acquire application locks before the account lock: offer send/preparation
+	// holds an application before inserting rows that reference the candidate.
+	if _, err = tx.Exec(ctx, `SELECT id FROM applications WHERE candidate_id=$1 ORDER BY id FOR UPDATE`, userID); err != nil {
+		return "", err
+	}
 	var role string
 	if err := tx.QueryRow(ctx, `SELECT role::text FROM users WHERE id=$1 AND is_active=true FOR UPDATE`, userID).Scan(&role); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -119,14 +125,31 @@ func (s *Service) EraseAccount(ctx context.Context, userID string) (string, erro
 		return "", err
 	}
 
-	if role != "candidate" {
-		if _, err = tx.Exec(ctx, `UPDATE privacy_requests SET status='awaiting_review',result_manifest=jsonb_build_object('reason','role_retention_review'),completed_at=NULL WHERE id=$1`, requestID); err != nil {
+	retentionReason := "role_retention_review"
+	retentionReview := role != "candidate"
+	if role == "candidate" {
+		// Recheck rows inserted before the account lock was acquired. Do not wait
+		// behind a writer now waiting for our account lock; let the caller retry.
+		if _, err = tx.Exec(ctx, `SELECT id FROM applications WHERE candidate_id=$1 ORDER BY id FOR UPDATE NOWAIT`, userID); err != nil {
+			var busy *pgconn.PgError
+			if errors.As(err, &busy) && busy.Code == "55P03" {
+				return "", ErrReview
+			}
 			return "", err
 		}
-		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'erasure_review',$2,'awaiting_review',jsonb_build_object('role',$3::text)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "erasure-review:"+requestID, role); err != nil {
+		if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM recruiter_offers o JOIN applications a ON a.id=o.application_id WHERE a.candidate_id=$1)`, userID).Scan(&retentionReview); err != nil {
 			return "", err
 		}
-		if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.erasure.review_required','privacy_request',$2,'review_required',jsonb_build_object('role',$3::text))`, userID, requestID, role); err != nil {
+		retentionReason = "offer_retention_review"
+	}
+	if retentionReview {
+		if _, err = tx.Exec(ctx, `UPDATE privacy_requests SET status='awaiting_review',result_manifest=jsonb_build_object('reason',$2::text),completed_at=NULL WHERE id=$1`, requestID, retentionReason); err != nil {
+			return "", err
+		}
+		if _, err = tx.Exec(ctx, `INSERT INTO privacy_fulfilment_jobs(request_id,job_type,idempotency_key,status,result) VALUES($1,'erasure_review',$2,'awaiting_review',jsonb_build_object('role',$3::text,'reason',$4::text)) ON CONFLICT(idempotency_key) DO NOTHING`, requestID, "erasure-review:"+requestID, role, retentionReason); err != nil {
+			return "", err
+		}
+		if _, err = tx.Exec(ctx, `INSERT INTO privacy_audit_events(actor_user_id,subject_user_id,event_type,resource_type,resource_id,outcome,metadata) VALUES($1,$1,'privacy.erasure.review_required','privacy_request',$2,'review_required',jsonb_build_object('role',$3::text,'reason',$4::text))`, userID, requestID, role, retentionReason); err != nil {
 			return "", err
 		}
 		if err = tx.Commit(ctx); err != nil {
