@@ -106,6 +106,8 @@ UI mocks and screenshots are explicitly **not** security evidence. The database 
 | Production build | Next.js production build and TypeScript passed after the final Review-step correction. |
 | Published CI | Pending at this checkpoint; exact-head PR checks must pass before release classification changes. No check is bypassed. |
 
+The first published CI attempt at `c9aadcdf7f1b1e051a4b998a8abd1aa59f39630a` reproduced two additional acceptance issues: Phase 3 migration CI attempted to reverse a database after tests created governed offer evidence, and staging acceptance still targeted the removed `SapienWorx Recruit` navigation group. The workflow now clones a pristine rollback fixture before mutations, runs real governed workspace/offer database acceptance, explicitly proves populated reversal refuses loss and preserves its count, and reverses all 66 migrations only on the pristine fixture. Local combined product/workspace/offer tests and the full pristine reversal passed. Staging now asserts Talent under the approved Recruit Plus+ group. These changes preserve the rollback guard and authorization assertions; fresh exact-head CI remains mandatory.
+
 The two legacy skipped tests are superseded candidate-table/Kanban expectations. Current card/inline-stage tests replace them. Additional focused cases were added after the broad checkpoint; final remote CI must rerun the complete current suite.
 
 ## 11. Accessibility results

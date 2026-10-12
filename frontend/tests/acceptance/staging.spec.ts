@@ -103,7 +103,7 @@ test.describe.serial("deployed staging acceptance", () => {
     const hiringOverview = recruiterPage.getByRole("region", { name: "Hiring overview", exact: true });
     await expect(hiringOverview.getByRole("link")).toHaveCount(4);
     await expect(hiringOverview.getByRole("link", { name: /^View active jobs:/ })).toHaveAttribute("href", "/recruiter/jobs?status=active");
-    await expect(recruiterPage.getByRole("navigation", { name: "SapienWorx Recruit", exact: true })
+    await expect(recruiterPage.getByRole("navigation", { name: "Recruit Plus+", exact: true })
       .getByRole("link", { name: "Talent", exact: true })).toHaveAttribute("href", "/recruiter/talent");
     await expect(recruiterPage.getByText("Northstar Product Labs").first()).toBeVisible();
     await recruiterPage.goto("/recruiter/outreach");
