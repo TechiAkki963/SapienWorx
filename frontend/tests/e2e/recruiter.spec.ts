@@ -5,14 +5,14 @@ import { login, MOCK_API, resetE2E } from "./helpers";
 test.describe("recruiter pipeline", () => {
   test.beforeEach(async ({ request }) => resetE2E(request));
 
-  test("renders a table and mobile rows and preserves organization-scoped filters", async ({ page, request }) => {
+  test("renders canonical cards and preserves organization-scoped filters", async ({ page, request }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/pipeline");
 
     await expect(page.getByRole("heading", { name: "Applications", exact: true })).toBeVisible();
     await expect(page.getByText("Showing 1–25 of 1000 matching applications")).toBeVisible();
-    await expect(page.getByRole("table",{name:"Hiring pipeline",exact:true}).locator("tbody tr")).toHaveCount(10);
-    await expect(page.getByRole("table")).toHaveCount(1);
+    await expect(page.locator(".swx-candidate-card")).toHaveCount(10);
+    await expect(page.getByRole("table")).toHaveCount(0);
 
     await page.getByRole("button", { name: /^Filters/ }).click();
     const filters = page.getByRole("form", { name: "Application filters", exact: true });
@@ -26,7 +26,7 @@ test.describe("recruiter pipeline", () => {
     await expect(page).toHaveURL(/stage=new_application/);
     await expect(page).toHaveURL(/location=Mumbai/);
     await expect(page).toHaveURL(/sort=most_experienced/);
-    await expect(page.getByRole("table",{name:"Hiring pipeline",exact:true}).locator("tbody tr")).toHaveCount(1);
+    await expect(page.locator(".swx-candidate-card")).toHaveCount(1);
     await expect(page.getByRole("link", { name: "Candidate 005",exact:true })).toBeVisible();
     const requests = await (await request.get(`${MOCK_API}/__e2e/requests`)).json();
     const search = requests.items.findLast((item: { path: string; method: string; search: string }) => item.path === "/api/v1/recruiter/pipeline" && item.method === "GET");
@@ -40,7 +40,7 @@ test.describe("recruiter pipeline", () => {
     await expect(page.getByRole("link", { name: "Candidate 005",exact:true })).toBeVisible();
   });
 
-  test("changes only the selected application stage through its row", async ({ page }) => {
+  test("changes only the selected application stage through its card with a compare-and-set precondition", async ({ page }) => {
     await login(page, "recruiter");
     await page.goto("/recruiter/pipeline");
 
@@ -50,7 +50,7 @@ test.describe("recruiter pipeline", () => {
 
     const stageMutation = page.waitForRequest((request) => /\/api\/v1\/recruiter\/applications\/[^/]+\/stage$/.test(new URL(request.url()).pathname) && request.method() === "PATCH");
     await page.getByRole("button", { name: /Shortlisted/ }).click();
-    expect((await stageMutation).postDataJSON()).toEqual({ stage: "shortlisted" });
+    expect((await stageMutation).postDataJSON()).toEqual({ stage: "shortlisted", expected_stage: "screening", reason: "" });
     await expect(page.getByRole("button", {name:"Stage for Candidate 001 on Senior Go Platform Engineer",exact:true})).toContainText("Shortlisted");
   });
 
@@ -62,11 +62,11 @@ test.describe("recruiter pipeline", () => {
     await page.getByRole("button", { name: /^Filters/ }).click();
     await expect(page.getByRole("form", { name: "Application filters", exact: true })).toBeVisible();
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("link", { name: "View candidate" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Candidate 001", exact:true }).first()).toBeVisible();
   });
 
   test.skip("drags a candidate across Kanban columns and persists the stage", async () => {
-    // Product constraint: SapienWorx currently specifies a dense table pipeline and explicitly excludes Kanban.
+    // Product constraint: The approved recruiter candidate workspace uses canonical cards and excludes Kanban.
   });
 });
 
@@ -121,7 +121,7 @@ test.describe("job applicant workspace", () => {
     await login(page, "recruiter");
     await page.goto("/recruiter/jobs?q=Private%20Operations%20Lead");
 
-    await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
+    await expect(page.getByRole("link",{name:"Private Operations Lead",exact:true})).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
     await page.getByRole("button",{name:"More actions for Private Operations Lead"}).click();
@@ -173,7 +173,7 @@ test.describe("job applicant workspace", () => {
     await expect(page).toHaveURL(/\/recruiter\/jobs\/60000000-0000-4000-8000-000000000001\/applicants$/);
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
     await expect(page.getByText("Job ID: SWX-JOB-2026-00001")).toBeVisible();
-    await expect(page.getByRole("table",{name:"Hiring pipeline",exact:true}).locator("tbody tr")).toHaveCount(10);
+    await expect(page.locator(".swx-candidate-card")).toHaveCount(10);
     await expect(page.getByRole("form", { name: "Application filters", exact: true }).getByRole("combobox", { name: "Job" })).toHaveCount(0);
   });
 

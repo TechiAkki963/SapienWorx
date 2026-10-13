@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { login, resetE2E } from "./helpers";
+import { login, resetE2E, MOCK_API } from "./helpers";
 
 const jobID = "60000000-0000-4000-8000-000000000001";
 const candidateWithApplication = "71000000-0000-4000-8000-000000000001";
@@ -50,7 +50,7 @@ test("Talent Pool context preserves return navigation without inventing a job ma
 
 test("Candidate 360 header reveals masked contact on single click and copies on double click", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/contact$/, route => route.fulfill({
+  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/contact(?:\?.*)?$/, route => route.fulfill({
     status: 200,
     contentType: "application/json",
     body: JSON.stringify({ primary: "+919900000011", alternate: "+919900000099" }),
@@ -61,14 +61,14 @@ test("Candidate 360 header reveals masked contact on single click and copies on 
   await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
   await expect(page.getByText("Verified", { exact: true })).toBeVisible();
 
-  const phone = page.getByRole("button", { name: "Hidden phone number. Click once to show. Double click to copy" });
+  const phone = page.getByRole("button", { name: "Hidden primary phone. Click to show or double click to copy" });
   await expect(phone).toContainText("••••••••••");
   await expect(phone).not.toContainText("0011");
   await expect(phone).not.toContainText("Reveal");
   await phone.click();
-  await expect(page.getByRole("button", { name: /Phone \+919900000011/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Primary phone \+919900000011/ })).toBeVisible();
 
-  const revealed = page.getByRole("button", { name: /Phone \+919900000011/ });
+  const revealed = page.getByRole("button", { name: /Primary phone \+919900000011/ });
   await revealed.dblclick();
   await expect(page.getByText("Number copied.", { exact: true })).toBeVisible();
   await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe("+919900000011");
@@ -88,12 +88,13 @@ test("sourced Candidate 360 never exposes verified email or masked contact in it
   await page.goto(`/recruiter/candidates/${sourcedCandidate}?from=discover`);
 
   await expect(page.getByText("private@example.test", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Hidden phone number/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Hidden (primary|secondary) phone/ })).toHaveCount(0);
 });
 
 
-test("opening a Candidate 360 CV requests the metered view mode", async ({ page }) => {
-  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/cv\?mode=view$/, route => route.fulfill({
+test("opening a Candidate 360 CV requests the metered view mode", async ({ page, request }) => {
+  await request.post(`${MOCK_API}/__e2e/recruiter-pipeline`, { data: { cv_filename: "candidate-001.pdf" } });
+  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/cv\?mode=view(?:&.*)?$/, route => route.fulfill({
     status: 200,
     contentType: "application/json",
     body: JSON.stringify({
@@ -108,7 +109,7 @@ test("opening a Candidate 360 CV requests the metered view mode", async ({ page 
     const url = new URL(request.url());
     return url.pathname.endsWith(`/recruiter/candidates/${candidateWithApplication}/cv`) && url.searchParams.get("mode") === "view";
   });
-  await page.getByRole("tab", { name: "Privacy", exact: true }).click();
-  await page.getByRole("button", { name: "Open private CV" }).click();
+  await page.getByRole("tab", { name: "Resume", exact: true }).click();
+  await page.getByRole("button", { name: "View CV" }).click();
   await view;
 });

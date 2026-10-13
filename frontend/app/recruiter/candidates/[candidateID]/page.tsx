@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ candidateID: string }>;
-  searchParams: Promise<{ job_id?: string; compose?: string; request_contact?: string; from?: string }>;
+  searchParams: Promise<{ job_id?: string; application_id?:string; compose?: string; request_contact?: string; from?: string }>;
 };
 type RecordItem = Record<string, unknown>;
 
@@ -128,6 +128,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
     .filter((item) => item.candidate_id === candidateID)
     .sort((a, b) => Number(b.job_id === query.job_id) - Number(a.job_id === query.job_id));
 
+  const submittedApplication=candidateApplications.find(row=>row.application_id===query.application_id)??candidateApplications[0];
   const employment = records(candidate.details, "employment");
   const itSkills = records(candidate.details, "it_skills");
   const keySkills = Array.isArray(candidate.details.key_skills) ? candidate.details.key_skills.filter((value): value is string => typeof value === "string") : [];
@@ -157,7 +158,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
   return (
     <RecruiterShell>
       <div className="grid gap-5">
-        <CandidateProfileView
+        <CandidateProfileView applicant={candidate.has_company_application}
           candidateID={candidateID}
           candidateName={candidate.full_name}
           candidateHeadline={candidate.headline}
@@ -216,7 +217,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                           </span>
                         )}
                         {candidate.can_view_contact && candidate.masked_phone && (
-                          <CandidateContact candidateID={candidateID} maskedPhone={candidate.masked_phone} compact />
+                          <CandidateContact candidateID={candidateID} maskedPhone={candidate.masked_phone} hasSecondary={candidate.has_secondary_contact} compact />
                         )}
                       </div>
                     )}
@@ -237,6 +238,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                     candidateID={candidateID}
                     initialSaved={candidate.saved}
                     applications={candidateApplications}
+                    initialApplicationID={submittedApplication?.application_id}
                   />
                 </div>
               </div>
@@ -259,7 +261,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
             </section>
 
             <Candidate360Sections
-              resume={<section className="rounded-xl border border-line bg-white p-5"><h2 className="text-lg font-semibold text-navy">Resume</h2><p className="mt-2 text-sm leading-6 text-ink-muted">{candidate.can_view_cv ? "Resume access is authorized through an application to your company. Links expire automatically." : "The resume remains private until this candidate applies to your company."}</p>{candidate.can_view_cv && <div className="mt-4"><CandidateCVButton candidateID={candidateID}/></div>}</section>}
+              resume={<section className="rounded-xl border border-line bg-white p-5"><h2 className="text-lg font-semibold text-navy">Resume</h2><p className="mt-2 text-sm leading-6 text-ink-muted">{candidate.can_view_cv ? "This resume is linked to the selected company application. Access links expire automatically." : "The resume remains private until this candidate applies to your company."}</p>{candidate.can_view_cv && <div className="mt-4"><CandidateCVButton candidateID={candidateID} applicationID={submittedApplication?.application_id} available={Boolean(submittedApplication?.cv_filename)}/></div>}</section>}
               interviews={<section className="rounded-xl border border-line bg-white p-5"><h2 className="text-lg font-semibold text-navy">Interviews</h2>{activity.items.filter(item=>item.type==="interview").length ? <ol className="mt-4 divide-y divide-line">{activity.items.filter(item=>item.type==="interview").map((item,index)=><li key={`${item.occurred_at}-${index}`} className="py-3"><p className="text-sm font-semibold text-ink">{item.title}</p><p className="mt-1 text-xs leading-6 text-ink-muted">{item.description} · {formatDate(item.occurred_at)} IST</p></li>)}</ol> : <p className="mt-2 text-sm leading-6 text-ink-muted">No recorded interview events in your company context.</p>}{candidate.can_collaborate && <div className="mt-3 flex flex-wrap gap-3">{candidateApplications.map(application=><Link key={application.application_id} href={`/recruiter/interviews?job_id=${encodeURIComponent(application.job_id)}`} className="min-h-11 content-center text-xs font-semibold text-indigo">Interviews · {application.job_title}</Link>)}</div>}</section>}
               overview={<>{candidate.can_collaborate ? (
                   <CandidateComments candidateID={candidateID} jobID={query.job_id} applicationID={candidateApplications[0]?.application_id} />
@@ -478,7 +480,7 @@ export default async function RecruiterCandidatePage({ params, searchParams }: P
                       ? "CV access is authorized because this candidate has an application with your company. The download link expires automatically."
                       : "CV remains private until the candidate applies to your company."}
                   </p>
-                  {candidate.can_view_cv && <div className="mt-3"><CandidateCVButton candidateID={candidateID} /></div>}
+
                 </section>}{<section className="rounded-2xl border border-line/70 bg-white p-4">
                   <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-ink-muted">Profile context</p>
                   <dl className="mt-3 grid gap-3 text-sm">

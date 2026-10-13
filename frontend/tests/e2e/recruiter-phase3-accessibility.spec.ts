@@ -77,13 +77,13 @@ test("Candidate 360 header actions support keyboard entry, Escape and focus retu
   await login(page, "recruiter");
   await page.goto(`/recruiter/candidates/71000000-0000-4000-8000-000000000001?job_id=${jobID}`);
 
-  const inmail = page.getByRole("button", { name: "Send InMail" });
+  const inmail = page.getByRole("button", { name: "Message", exact: true });
   await expect(inmail).toBeEnabled();
   await inmail.focus();
   await inmail.press("Enter");
-  await expect(page.getByRole("complementary", { name: "InMail composer" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Message candidate",exact:true })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("complementary", { name: "InMail composer" })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Message candidate",exact:true })).not.toBeVisible();
   await expect(inmail).toBeFocused();
 
   const interview = page.getByRole("button", { name: "Schedule interview" });
@@ -91,7 +91,7 @@ test("Candidate 360 header actions support keyboard entry, Escape and focus retu
   await interview.press("Enter");
   const dialog = page.getByRole("dialog", { name: "Schedule interview" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("combobox", { name: "Candidate and job" })).toBeFocused();
+  await expect(dialog.getByLabel("Interview round", {exact:true})).toBeFocused();
   await dialog.getByRole("button", { name: "Close Schedule interview" }).focus();
   await page.keyboard.press("Shift+Tab");
   await expect(dialog.getByRole("button", { name: "Schedule interview", exact: true })).toBeFocused();
@@ -99,7 +99,7 @@ test("Candidate 360 header actions support keyboard entry, Escape and focus retu
   await expect(dialog.getByRole("button", { name: "Close Schedule interview" })).toBeFocused();
   await page.screenshot({ path: "test-results/interview-focus-light.png" });
   await page.keyboard.press("Escape");
-  await expect(dialog).toHaveCount(0);
+  await expect(dialog).not.toBeVisible();
   await expect(interview).toBeFocused();
 });
 
@@ -120,6 +120,6 @@ test("interview modal traps both keyboard boundaries in Dark mode", async ({ pag
   await expect(close).toBeFocused();
   await page.screenshot({ path: "test-results/interview-focus-dark.png" });
   await page.keyboard.press("Escape");
-  await expect(dialog).toHaveCount(0);
+  await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
 });

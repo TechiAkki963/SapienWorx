@@ -24,18 +24,21 @@ type TalentPoolMembership struct {
 }
 
 type TalentPoolCandidate struct {
-	SavedBy          string     `json:"saved_by,omitempty"`
-	CurrentCompany   string     `json:"current_company,omitempty"`
-	LastActiveAt     *time.Time `json:"last_active_at,omitempty"`
-	Skills           []string   `json:"skills,omitempty"`
-	CandidateID      string     `json:"candidate_id"`
-	FullName         string     `json:"full_name"`
-	Headline         *string    `json:"headline,omitempty"`
-	CurrentCity      *string    `json:"current_city,omitempty"`
-	ExperienceMonths int        `json:"experience_months"`
-	NoticePeriodDays *int       `json:"notice_period_days,omitempty"`
-	Tags             []string   `json:"tags"`
-	SavedAt          time.Time  `json:"saved_at"`
+	PreviousCompany    string     `json:"previous_company,omitempty"`
+	EducationSummaries []string   `json:"education_summaries,omitempty"`
+	PreferredLocations string     `json:"preferred_locations,omitempty"`
+	SavedBy            string     `json:"saved_by,omitempty"`
+	CurrentCompany     string     `json:"current_company,omitempty"`
+	LastActiveAt       *time.Time `json:"last_active_at,omitempty"`
+	Skills             []string   `json:"skills,omitempty"`
+	CandidateID        string     `json:"candidate_id"`
+	FullName           string     `json:"full_name"`
+	Headline           *string    `json:"headline,omitempty"`
+	CurrentCity        *string    `json:"current_city,omitempty"`
+	ExperienceMonths   int        `json:"experience_months"`
+	NoticePeriodDays   *int       `json:"notice_period_days,omitempty"`
+	Tags               []string   `json:"tags"`
+	SavedAt            time.Time  `json:"saved_at"`
 }
 
 func normalizeTags(tags []string) []string {
@@ -143,15 +146,15 @@ func (s *Service) PaginatedTalentPool(ctx context.Context, recruiterID, query, t
 	}
 	args = append(args, limit, (page-1)*limit)
 	rows, err := s.db.Query(ctx, `SELECT tpm.candidate_id,cp.full_name,cp.headline,cp.current_city,cp.total_experience_months,cp.notice_period_days,tpm.tags,tpm.created_at,
- (SELECT full_name FROM recruiter_profiles WHERE user_id=tpm.recruiter_id),u.last_active_at,(candidate_discovery_skill_names(cp.profile_details))[1:6],
- coalesce((SELECT item->>'company' FROM `+discoveryEmployment+` item WHERE lower(item->>'current_company')='yes' LIMIT 1),'')`+from+fmt.Sprintf(` ORDER BY tpm.updated_at DESC,cp.full_name ASC,tpm.candidate_id LIMIT $%d OFFSET $%d`, len(args)-1, len(args)), args...)
+ (SELECT full_name FROM recruiter_profiles WHERE user_id=tpm.recruiter_id),u.last_active_at,(candidate_discovery_skill_names(cp.profile_details))[1:50],
+ coalesce((SELECT item->>'company' FROM `+discoveryEmployment+` item WHERE lower(item->>'current_company')='yes' LIMIT 1),''),coalesce(cp.profile_details->>'preferred_locations',''),`+candidateCardCareerProjection+from+fmt.Sprintf(` ORDER BY tpm.updated_at DESC,cp.full_name ASC,tpm.candidate_id LIMIT $%d OFFSET $%d`, len(args)-1, len(args)), args...)
 	if err != nil {
 		return result, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var item TalentPoolCandidate
-		if err := rows.Scan(&item.CandidateID, &item.FullName, &item.Headline, &item.CurrentCity, &item.ExperienceMonths, &item.NoticePeriodDays, &item.Tags, &item.SavedAt, &item.SavedBy, &item.LastActiveAt, &item.Skills, &item.CurrentCompany); err != nil {
+		if err := rows.Scan(&item.CandidateID, &item.FullName, &item.Headline, &item.CurrentCity, &item.ExperienceMonths, &item.NoticePeriodDays, &item.Tags, &item.SavedAt, &item.SavedBy, &item.LastActiveAt, &item.Skills, &item.CurrentCompany, &item.PreferredLocations, &item.PreviousCompany, &item.EducationSummaries); err != nil {
 			return result, err
 		}
 		result.Items = append(result.Items, item)

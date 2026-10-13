@@ -1,7 +1,7 @@
 import { OutreachWorkspace, type OutreachCampaign, type OutreachSequence } from "@/components/recruiter/outreach-workspace";
 import Link from "next/link";
 import { WorkspaceState, recruiterSecondary } from "@/components/recruiter/workspace-ui";
-import type { BulkMessageTemplate, BulkRecruiterJob } from "@/components/recruiter/bulk-inmail-drawer";
+import type { BulkMessageTemplate, BulkRecruiterJob } from "@/components/recruiter/bulk-inmail-modal";
 import type { TalentPoolCandidate } from "@/components/recruiter/talent-pool-selection";
 import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";

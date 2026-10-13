@@ -9,7 +9,7 @@ const recruiterAreas = [
   { slug: "talent-pool", path: "/recruiter/talent-pool", heading: "Talent Pool", sharedHeader: true },
   { slug: "jobs", path: "/recruiter/jobs", heading: "Job management", sharedHeader: true },
   { slug: "interviews", path: "/recruiter/interviews", heading: "Interviews", sharedHeader: true },
-  { slug: "offers", path: "/recruiter/offers", heading: "Offers", sharedHeader: true },
+  { slug: "offers", path: "/recruiter/offers", heading: "Offer Studio", sharedHeader: true },
   { slug: "outreach", path: "/recruiter/outreach", heading: "Outreach", sharedHeader: true },
   { slug: "saved-searches", path: "/recruiter/saved-searches", heading: "Saved searches & alerts", sharedHeader: true },
   { slug: "referrals", path: "/recruiter/referrals", heading: "Referrals", sharedHeader: true },

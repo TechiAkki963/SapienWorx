@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 import { LogoutButton } from "@/components/auth/logout-button";
-import { Wordmark } from "@/components/brand/wordmark";
+import { SettingsLink } from "@/components/ui/settings-link";
 import { RecruiterWorkspaceContext } from "@/components/recruiter/workspace-context";
-import { RecruiterNav } from "@/components/recruiter/recruiter-nav";
+import { RecruiterFrame } from "./recruiter-frame";
+import type { RecruiterNavigationAccess } from "./recruiter-nav";
 import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 import { RecruiterDashboard } from "@/lib/recruiter";
 import { recruiterAPI } from "@/lib/recruiter-server";
@@ -24,20 +26,20 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
     messagingAPI<ThreadListResponse>("/api/v1/messaging/threads").catch(() => null),
     getSessionUser(),
     recruiterAPI<RecruiterNotificationInbox>("/api/v1/recruiter/notifications?limit=1").catch(() => null),
-    recruiterAPI<{member:{role:string}}>("/api/v1/company/access").catch(()=>null),
+    recruiterAPI<RecruiterNavigationAccess>("/api/v1/company/access").catch(()=>null),
   ]);
   const recruiterName = workspace?.recruiter_name ?? "Recruiter";
   const companyName = workspace?.company_name ?? "SapienWorx workspace";
   const unreadCount = conversations?.items?.reduce((total, thread) => total + thread.unread_count, 0) ?? 0;
+  const preferenceKey=`sw_recruiter_sidebar_${session?.id || "guest"}`;
+  const collapsed=(await cookies()).get(preferenceKey)?.value==="collapsed";
 
   return (
     <div className="theme-surface swx-recruiter-workspace min-h-screen bg-[#f5f7fb] text-ink">
       <a href="#main-content" className="skip-link">Skip to recruiter workspace</a>
-      <header className="sticky top-0 z-40 border-b border-line/70 bg-white/95">
-        <div className="mx-auto flex min-h-[4.25rem] max-w-[108rem] items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <Link href="/recruiter" aria-label="Recruiter dashboard" className="shrink-0 max-[340px]:[&_.swx-wordmark-label]:hidden"><Wordmark /></Link>
-
-          <form action="/recruiter/pipeline" className="hidden min-w-0 max-w-xl flex-1 md:block">
+      <RecruiterFrame initialCollapsed={collapsed} preferenceKey={preferenceKey} unreadCount={unreadCount} access={companyAccess} header={<header className="swx-recruiter-navbar sticky top-0 z-40 border-b border-line/70 bg-white/95">
+        <div className="flex min-h-[63px] items-center gap-4 px-4 sm:px-6">
+          <form action="/recruiter/pipeline" className="swx-recruiter-navbar-search min-w-0 flex-1">
             <label className="relative block">
               <span className="sr-only">Search candidates</span>
               <svg aria-hidden="true" viewBox="0 0 24 24" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 fill-none stroke-ink-muted stroke-[1.8]"><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4" /></svg>
@@ -45,14 +47,15 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
             </label>
           </form>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="swx-recruiter-navbar-actions ml-auto flex shrink-0 items-center gap-2">
             <ThemeModeControl compact />
             <RecruiterNotificationBell initialUnread={notificationInbox?.unread ?? 0} />
+            <SettingsLink href="/recruiter/settings" />
 
             <details className="relative">
               <summary aria-label={`Account menu for ${recruiterName}`} className="flex cursor-pointer list-none items-center gap-0 rounded-xl border border-line bg-white p-1.5 transition hover:bg-slate-50 sm:gap-2 sm:pr-2.5">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy text-[13px] font-extrabold text-white">{initials(recruiterName)}</span>
-                <span className="hidden max-w-36 text-left lg:block">
+                <span className="hidden max-w-36 text-left xl:block">
                   <span className="block truncate text-xs font-bold text-ink">{recruiterName}</span>
                   <span className="block truncate text-[13px] text-ink-muted">{companyName}</span>
                 </span>
@@ -71,14 +74,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
             </details>
           </div>
         </div>
-      </header>
-
-      <div className="mx-auto grid max-w-[108rem] grid-cols-[minmax(0,1fr)] gap-5 px-4 pb-24 pt-4 sm:px-6 lg:grid-cols-[4.5rem_minmax(0,1fr)] lg:px-6 lg:py-6 xl:grid-cols-[11.5rem_minmax(0,1fr)]">
-        <aside className="min-w-0 lg:sticky lg:top-[5.75rem] lg:self-start">
-          <RecruiterNav unreadCount={unreadCount} />
-        </aside>
-        <main id="main-content" tabIndex={-1} className="min-w-0 outline-none"><RecruiterWorkspaceContext />{children}</main>
-      </div>
+      </header>}><RecruiterWorkspaceContext />{children}</RecruiterFrame>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import {JobAdditionalFilters} from "@/components/recruiter/job-additional-filters";
 import {JobActions} from "@/components/recruiter/job-actions";
 import { AutoFilterForm } from "@/components/recruiter/auto-filter-form";
 import { JobSelectAll } from "@/components/recruiter/job-select-all";
@@ -62,7 +63,7 @@ function dateOffset(value: string | undefined, now: Date) {
 
 function JobDate({ value, kind, now }: { value?: string; kind: "posted" | "deadline"; now: Date }) {
   const days = dateOffset(value, now);
-  if (days === null || !value) return <span className="text-xs text-ink-muted">{kind === "posted" ? "Not posted" : "No deadline"}</span>;
+  if (days === null || !value) return <span className="text-xs text-ink-muted">{kind === "posted" ? "Not published" : "No deadline"}</span>;
   const date = new Date(value);
   const sameYear = calendarParts.formatToParts(date).find(part => part.type === "year")?.value === calendarParts.formatToParts(now).find(part => part.type === "year")?.value;
   const dateLabel = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", ...(sameYear ? {} : { year: "numeric" as const }), timeZone: jobTimeZone }).format(date);
@@ -75,17 +76,6 @@ function JobDate({ value, kind, now }: { value?: string; kind: "posted" | "deadl
   return <div className="text-xs"><time dateTime={value} title={`${fullDate} (IST)`} aria-label={`${kind === "posted" ? "Posted" : "Deadline"} ${fullDate}`} className="whitespace-nowrap font-semibold text-ink">{dateLabel}</time><p className="mt-1 whitespace-nowrap text-ink-muted">{hint}</p></div>;
 }
 
-function JobHealth({ job, now }: { job: RecruiterJob; now: Date }) {
-  const days = dateOffset(job.application_deadline, now);
-  let title = "Healthy", reason = "Active job with no pending application queue or expired deadline.";
-  if (job.status !== "active") { title = "Inactive"; reason = "Health actions apply to active roles."; }
-  else if (days !== null && days < 0) { title = "Deadline passed"; reason = "The application deadline has passed. Review or close this role."; }
-  else if (days !== null && days <= 3) { title="Closing soon"; reason="The deadline is within three days."; }
-  else if (job.new_applications > 0) { title = "Needs attention"; reason = `${job.new_applications} new applications are awaiting a recruiter review.`; }
-  else if (job.applications === 0) { title = "No applications"; reason = "No applications have been received. Review the role requirements and visibility."; }
-  return <details><summary className="min-h-11 cursor-pointer content-center text-xs font-semibold text-ink">{title}</summary><p className="mt-1 text-xs leading-5 text-ink-muted">{reason}</p></details>;
-}
-
 export default async function RecruiterJobsPage({ searchParams }: Props) {
   await requireRole("recruiter");
   const params = await searchParams;
@@ -95,6 +85,8 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
   const workMode = single(params.work_mode);
   const roleCategory = single(params.role_category);
   const deadline = single(params.deadline);
+  const extraFilters=["location","department","posted_by","posted_from","posted_to"] as const;
+  const extra=Object.fromEntries(extraFilters.map(key=>[key,single(params[key])]));
   const sort = single(params.sort) || "updated";
   const page = Math.max(1, Number(single(params.page)) || 1);
 
@@ -105,6 +97,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
   if (workMode) query.set("work_mode", workMode);
   if (roleCategory) query.set("role_category", roleCategory);
   if (deadline) query.set("deadline", deadline);
+  for(const key of extraFilters)if(extra[key])query.set(key,extra[key]);
 
   const [result, teamResponse] = await Promise.all([
     recruiterAPI<RecruiterJobWorkspace>(`/api/v1/recruiter/jobs?${query.toString()}`),
@@ -113,7 +106,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
   const team = teamResponse.items;
   const now = new Date();
   const pageCount = Math.max(1, Math.ceil(result.total / result.limit));
-  const hasFilters = Boolean(q || status || employmentType || workMode || roleCategory || deadline || sort !== "updated");
+  const hasFilters = Boolean(q || status || employmentType || workMode || roleCategory || deadline || sort !== "updated" || extraFilters.some(key=>Boolean(extra[key])));
   const pageHref = (next: number) => {
     const nextQuery = new URLSearchParams(query);
     nextQuery.set("page", String(next));
@@ -133,7 +126,8 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
         <nav aria-label="Job status views" className="flex flex-wrap gap-1 border-b border-line">{["", "active", "draft", "paused", "closed", "expired", "archived"].map(value=>{const next=new URLSearchParams(query);next.delete("page");if(value)next.set("status",value);else next.delete("status");return <Link key={value} href={`/recruiter/jobs?${next}`} aria-current={status===value?"page":undefined} className={`min-h-11 border-b-2 px-3 py-3 text-sm font-semibold ${status===value?"border-indigo text-indigo":"border-transparent text-ink-muted"}`}>{value?label(value):"All jobs"} <span className="ml-1 text-xs">{(value ? result.summary[`${value}_jobs` as keyof typeof result.summary] : result.summary.total_jobs)?.toLocaleString()}</span></Link>;})}</nav>
 
         <section>
-          <AutoFilterForm label="Job filters" action="/recruiter/jobs" className="grid min-w-0 gap-2 grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(12rem,2fr)_repeat(5,minmax(0,1fr))]">
+          <div className="flex flex-wrap items-end gap-3">
+          <AutoFilterForm label="Job filters" action="/recruiter/jobs" className="grid min-w-0 grow basis-full gap-2 grid-cols-2 sm:basis-0 lg:grid-cols-3 xl:grid-cols-[minmax(12rem,2fr)_repeat(5,minmax(0,1fr))]">
             <label className="grid gap-1 text-xs font-bold text-ink-muted">
               Search
               <input name="q" defaultValue={q} className={inputClass} placeholder="Job ID, title, team or location" />
@@ -183,15 +177,20 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
                 <option value="updated">Recently updated</option>
                 <option value="applications">Most applications</option>
                 <option value="newest">Newest jobs</option>
+                <option value="oldest">Oldest jobs</option><option value="title">Job title A–Z</option><option value="job_id">Job ID</option><option value="status">Status A–Z</option><option value="views">Most views</option><option value="posted">Recently posted</option>
                 <option value="deadline">Deadline</option>
               </select>
             </label>
             {deadline && <input type="hidden" name="deadline" value={deadline} />}
+            {extraFilters.filter(key=>extra[key]).map(key=><input type="hidden" key={key} name={key} value={extra[key]}/>)}
             <div className="flex items-end gap-2">
+
 
               {hasFilters && <Link href="/recruiter/jobs" className="inline-flex min-h-11 items-center rounded-xl border border-line px-3 text-sm font-bold text-ink hover:text-indigo">Clear</Link>}
             </div>
           </AutoFilterForm>
+              <JobAdditionalFilters values={extra} team={team} preserved={[...query].filter(([key])=>!extraFilters.includes(key as typeof extraFilters[number])&&key!=="page")}/>
+          </div>
           {deadline === "soon" && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-950"><span>Showing active jobs closing in the next 3 days.</span><Link href="/recruiter/jobs" className="text-indigo hover:underline">Show all jobs</Link></div>}
           {status === "active" && deadline !== "soon" && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-indigo/20 bg-indigo-soft/40 px-3 py-2 text-xs font-semibold text-navy"><span>Showing active jobs.</span><Link href="/recruiter/jobs" className="text-indigo hover:underline">Show all jobs</Link></div>}
         </section>
@@ -206,17 +205,17 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
 
           {result.items.length ? (
             <>
-              <div className="hidden min-w-0 max-w-full overflow-x-auto rounded-2xl border border-line/70 bg-white shadow-[0_4px_20px_rgba(16,33,63,0.035)] lg:block">
-                <table className="w-full table-fixed border-collapse text-left text-sm">
+              <div role="region" aria-label="Job management table" className="swx-jobs-table-scroll relative hidden min-w-0 max-w-full overflow-x-auto rounded-2xl border border-line/70 bg-white shadow-[0_4px_20px_rgba(16,33,63,0.035)] lg:block">
+                <table className="w-full min-w-[960px] table-fixed border-collapse text-left text-sm">
                   <thead className="bg-slate-50/90 text-[13px] font-extrabold uppercase tracking-[0.08em] text-ink-muted">
                     <tr>
                       <th scope="col" className="w-10 px-3 py-3"><JobSelectAll/></th>
-                      <th scope="col" className="px-4 py-3">Job</th>
+                      <th scope="col" className="px-4 py-3">Job title</th>
+                      <th scope="col" className="w-36 px-3 py-3">Job ID</th>
                       <th scope="col" className="w-36 px-3 py-3">Status</th>
-                      <th scope="col" className="w-[14%] px-3 py-3 text-right">Applications</th>
+                      <th scope="col" className="w-28 px-3 py-3 text-right">Applications</th>
+                      <th scope="col" className="w-20 px-3 py-3 text-right">Views</th>
                       <th scope="col" className="w-28 px-3 py-3">Posted</th>
-                      <th scope="col" className="w-28 px-3 py-3">Deadline</th>
-                      <th scope="col" className="w-32 px-3 py-3">Health</th>
                       <th scope="col" className="w-16 px-3 py-3"><span className="sr-only">Actions</span></th>
                     </tr>
                   </thead>
@@ -229,14 +228,14 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
                           <p className="mt-0.5 break-words font-bold text-navy"><Link href={`/recruiter/jobs/${job.id}`} className="hover:text-indigo">{job.title}</Link></p>
                           <p className="mt-1 text-xs leading-5 text-ink-muted">{location(job)} · {job.department || job.role_category || "Other"} · {job.openings} {job.openings === 1 ? "opening" : "openings"}</p>
                         </td>
+                        <td className="px-3 py-3"><span className="select-text break-words font-mono text-[13px] text-ink-muted" title={job.job_reference}>{job.job_reference}</span></td>
                         <td className="px-3 py-3"><JobStatusControl jobId={job.id} status={job.status} /></td>
                         <td className="px-3 py-3 text-right">
                           <Link href={`/recruiter/jobs/${job.id}/applicants`} aria-label={`View ${job.applications.toLocaleString()} applications for ${job.title}`} className="font-bold text-navy hover:text-indigo">{job.applications.toLocaleString()}</Link>
-                          <Link href={`/recruiter/jobs/${job.id}/applicants?stage=new_application`} className="mt-1 block text-xs font-semibold leading-5 text-indigo">+{job.new_applications.toLocaleString()} new</Link>
+                          {job.new_applications>0&&<Link title="Applications at the New application stage, awaiting recruiter review" href={`/recruiter/jobs/${job.id}/applicants?stage=new_application`} className="mt-1 block text-xs font-semibold leading-5 text-indigo">+{job.new_applications.toLocaleString()} new</Link>}
                         </td>
+                        <td className="px-3 py-3 text-right"><Link href={`/recruiter/jobs/${job.id}/analytics`} aria-label={`View analytics for ${job.title}`} className="inline-flex min-h-11 items-center font-semibold text-ink">{(job.views??0).toLocaleString()}</Link></td>
                         <td className="px-3 py-3"><JobDate value={job.published_at} kind="posted" now={now} /></td>
-                        <td className="px-3 py-3"><JobDate value={job.application_deadline} kind="deadline" now={now} /></td>
-                        <td className="px-3 py-3"><JobHealth job={job} now={now} /></td>
                         <td className="px-3 py-3"><JobActions job={job} team={team} compact /></td>
                       </tr>
                     ))}
@@ -247,7 +246,7 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
               <div className="grid gap-3 lg:hidden">
                 {result.items.map((job) => (
                   <article key={job.id} className="rounded-2xl border border-line/70 bg-white p-4 shadow-[0_4px_20px_rgba(16,33,63,0.04)]">
-                    <div className="mb-3 flex items-center gap-2 border-b border-line/60 pb-3"><input type="checkbox" data-bulk-job-id={job.id} aria-label={`Select ${job.job_reference} ${job.title}`} className="h-4 w-4 rounded border-line accent-indigo" /><span className="text-xs font-bold text-ink-muted">Select vacancy</span></div>
+                    <div className="mb-3 flex items-center gap-2 border-b border-line/60 pb-3"><input type="checkbox" data-bulk-job-id={job.id} aria-label={`Select ${job.job_reference} ${job.title}`} className="h-4 w-4 rounded border-line accent-indigo" /><span className="select-text break-all font-mono text-[13px] text-ink-muted">{job.job_reference}</span></div>
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
 
@@ -256,16 +255,12 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
                       </div>
                       <JobStatusControl jobId={job.id} status={job.status} />
                     </div>
-                    <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-slate-50/80 p-3 text-xs">
-                      <div><p className="text-ink-muted">Applications</p><p className="mt-1 text-lg font-extrabold text-navy">{job.applications}</p></div>
-                      <div><p className="text-ink-muted">New</p><p className="mt-1 text-lg font-extrabold text-emerald-800">{job.new_applications}</p></div>
-                      <div><p className="text-ink-muted">Openings</p><p className="mt-1 text-lg font-extrabold text-navy">{job.openings}</p></div>
-                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3 rounded-xl bg-slate-50/80 p-3 text-xs"><div><p className="text-ink-muted">Applications</p><Link href={`/recruiter/jobs/${job.id}/applicants`} className="inline-flex min-h-11 items-center text-lg font-semibold text-navy">{job.applications}</Link>{job.new_applications>0&&<p className="text-xs font-semibold text-indigo">+{job.new_applications} new</p>}</div><div><p className="text-ink-muted">Views</p><Link className="inline-flex min-h-11 items-center text-lg font-semibold text-navy" href={`/recruiter/jobs/${job.id}/analytics`}>{job.views??0}</Link></div></div>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-ink-muted">
                       <span>{label(job.work_mode)} · {label(job.employment_type)}</span>
                     </div>
-                    <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-line/60 pt-3"><div><dt className="mb-1 text-xs text-ink-muted">Posted</dt><dd><JobDate value={job.published_at} kind="posted" now={now} /></dd></div><div><dt className="mb-1 text-xs text-ink-muted">Deadline</dt><dd><JobDate value={job.application_deadline} kind="deadline" now={now} /></dd></div></dl>
-                    <div className="mt-3"><JobHealth job={job} now={now} /></div><div className="mt-3 border-t border-line/60 pt-3"><JobActions job={job} team={team} /></div>
+                    <dl className="mt-3 border-t border-line/60 pt-3"><dt className="mb-1 text-xs text-ink-muted">Posted</dt><dd><JobDate value={job.published_at} kind="posted" now={now}/></dd></dl>
+                    <div className="mt-3 border-t border-line/60 pt-3"><JobActions job={job} team={team}/></div>
                   </article>
                 ))}
               </div>

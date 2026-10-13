@@ -4,7 +4,7 @@ import {AutoFilterForm} from "@/components/recruiter/auto-filter-form";
 import {CreatePool,type NamedPool} from "@/components/recruiter/create-pool";
 import {RecruiterProductHeader} from "@/components/recruiter/recruiter-product-header";
 import {RecruiterShell} from "@/components/recruiter/recruiter-shell";
-import {type BulkMessageTemplate,type BulkRecruiterJob} from "@/components/recruiter/bulk-inmail-drawer";
+import {type BulkMessageTemplate,type BulkRecruiterJob} from "@/components/recruiter/bulk-inmail-modal";
 import {TalentPoolSelection,type TalentPoolCandidate} from "@/components/recruiter/talent-pool-selection";
 import {requireRole} from "@/lib/auth-server";
 import {messagingAPI} from "@/lib/messaging-server";

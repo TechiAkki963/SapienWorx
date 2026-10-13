@@ -29,9 +29,12 @@ test("search waits for hydration and draft restoration before accepting its firs
     const completed = await response;
     expect(completed.status()).toBe(200);
     expect(completed.request().postDataJSON().filters.min_experience).toBe("3.5");
-    await expect(searchPage.getByRole("button", { name: "Aarav Mehta", exact: true })).toBeVisible();
-    await searchPage.getByRole("button", { name: "Aarav Mehta", exact: true }).click();
-    await expect(searchPage.getByRole("dialog", { name: "Candidate preview", exact: true })).toBeVisible();
+    const profile = searchPage.getByRole("link", { name: "Meera Nair", exact: true });
+    await expect(profile).toBeVisible();
+    await expect(searchPage.getByRole("table", {name: "Discover Talent candidates"})).toHaveCount(0);
+    await profile.click();
+    await expect(searchPage).toHaveURL(/\/recruiter\/candidates\/[^/?]+\?from=discover/);
+    await expect(searchPage.getByRole("heading", {name:"Meera Nair",exact:true})).toBeVisible();
   } finally {
     releaseScripts();
     await context.close();

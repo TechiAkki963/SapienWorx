@@ -72,7 +72,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await expect(page.getByRole("heading", { name: "Applications" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Candidate 001", exact: true })).toBeVisible();
     await expect(page.locator('summary[aria-label="More actions for Candidate 001"]:visible')).toBeVisible();
-    await expect(page.getByRole("link", { name: "View candidate", exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Candidate 001", exact: true }).first()).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} application pipeline`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase5-application-pipeline/application-pipeline-${viewport.name}.png`, fullPage: true });
@@ -90,7 +90,7 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
 
     // 1b. Active private job must not expose a public preview/share path
     await page.goto("/recruiter/jobs?q=Private%20Operations%20Lead");
-    await expect(page.locator("p:visible, h2:visible").filter({ hasText: "Private Operations Lead" }).first()).toBeVisible();
+    await expect(page.getByRole("link",{name:"Private Operations Lead",exact:true}).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
     await page.getByRole("button", { name: "More actions for Private Operations Lead" }).click();
@@ -106,24 +106,24 @@ test("Phase 3.7 full recruiter workflow is visually coherent across target width
     await page.goto(`/recruiter/jobs/${jobID}/applicants`);
     await expect(page.getByRole("heading", { name: "Senior Go Platform Engineer" })).toBeVisible();
     await expect(page.getByText("Job ID: SWX-JOB-2026-00001")).toBeVisible();
-    await expect(page.getByRole("link", { name: "View candidate" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Candidate 001", exact: true }).first()).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} applicants`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/02-applicants-${viewport.name}.png`, fullPage: true });
 
     // 3. Candidate profile from the application workflow
-    await page.getByRole("link", { name: "View candidate" }).first().click();
+    await page.getByRole("link", { name: "Candidate 001", exact: true }).first().click();
     await expect(page).toHaveURL(/\/recruiter\/candidates\//);
     await expect(page.getByText("Candidate 001", { exact: true }).first()).toBeVisible();
     await assertNoHorizontalOverflow(page, `${viewport.name} candidate profile`);
     await prepareShot(page);
     await page.screenshot({ path: `visual-artifacts/phase3-full-workflow/03-candidate-${viewport.name}.png`, fullPage: true });
     await expect(page.getByText("Candidate 360°", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Recruiter Notes/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^(Notes \d+|Add note)$/ })).toBeVisible();
     await expect(page.getByText("Preferred location:", { exact: true })).toBeVisible();
     await expect(page.getByText("private@example.test", { exact: true })).toBeVisible();
     await expect(page.getByText("Verified", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Hidden phone number. Click once to show. Double click to copy" })).toContainText("••••••••••");
+    await expect(page.getByRole("button", { name: "Hidden primary phone. Click to show or double click to copy" })).toContainText("••••••••••");
     await page.getByRole("tab", { name: "Experience", exact: true }).click();
     await expect(page.getByText("8.4 · CGPA / 10", { exact: true })).toBeVisible();
     await expect(page.getByText("Jan 2024 – Present", { exact: false })).toBeVisible();

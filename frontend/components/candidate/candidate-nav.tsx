@@ -33,6 +33,7 @@ const items = [
     icon: "M5 4h14v17H5ZM9 4V2h6v2M8 9h8M8 13h8M8 17h5",
     primary: true,
   },
+  {label:"Offers",mobile:"Offers",href:"/candidate/offers",icon:"M5 3h14v18H5ZM8 7h8M8 11h8M8 15h5",primary:false},
   {
     label: "Interviews",
     mobile: "Interviews",

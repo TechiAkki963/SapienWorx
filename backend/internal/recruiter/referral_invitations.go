@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"net/mail"
@@ -24,25 +25,26 @@ var ErrReferralRateLimited = errors.New("candidate referral daily limit reached"
 var ErrReferralNotReady = errors.New("required profile information or referral consent is incomplete")
 
 type ReferralInvitation struct {
-	ID               string    `json:"id"`
-	CandidateName    string    `json:"candidate_name"`
-	CandidateID      *string   `json:"candidate_id,omitempty"`
-	JobID            *string   `json:"job_id,omitempty"`
-	JobTitle         *string   `json:"job_title,omitempty"`
-	CompanyName      string    `json:"company_name"`
-	ReferrerName     string    `json:"referrer_name"`
-	Source           string    `json:"source"`
-	Status           string    `json:"status"`
-	HiringStage      *string   `json:"hiring_stage,omitempty"`
-	RewardStatus     string    `json:"reward_status"`
-	ExpiresAt        time.Time `json:"expires_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	CreatedAt        time.Time `json:"created_at"`
-	ApplicationID    *string   `json:"application_id,omitempty"`
-	Relationship     string    `json:"relationship,omitempty"`
-	Note             string    `json:"note,omitempty"`
-	Missing          []string  `json:"missing,omitempty"`
-	CanViewCandidate bool      `json:"can_view_candidate"`
+	Candidate        *PipelineRow `json:"candidate,omitempty"`
+	ID               string       `json:"id"`
+	CandidateName    string       `json:"candidate_name"`
+	CandidateID      *string      `json:"candidate_id,omitempty"`
+	JobID            *string      `json:"job_id,omitempty"`
+	JobTitle         *string      `json:"job_title,omitempty"`
+	CompanyName      string       `json:"company_name"`
+	ReferrerName     string       `json:"referrer_name"`
+	Source           string       `json:"source"`
+	Status           string       `json:"status"`
+	HiringStage      *string      `json:"hiring_stage,omitempty"`
+	RewardStatus     string       `json:"reward_status"`
+	ExpiresAt        time.Time    `json:"expires_at"`
+	UpdatedAt        time.Time    `json:"updated_at"`
+	CreatedAt        time.Time    `json:"created_at"`
+	ApplicationID    *string      `json:"application_id,omitempty"`
+	Relationship     string       `json:"relationship,omitempty"`
+	Note             string       `json:"note,omitempty"`
+	Missing          []string     `json:"missing,omitempty"`
+	CanViewCandidate bool         `json:"can_view_candidate"`
 }
 type ReferralInvitationInput struct {
 	FirstName     string `json:"first_name"`
@@ -116,7 +118,7 @@ func (s *Service) CreateReferralInvitation(ctx context.Context, userID string, i
 	}
 	return s.createReferralInvitation(ctx, userID, company, false, in)
 }
-func (s *Service) createReferralInvitation(ctx context.Context, userID, company string, candidateActor bool, in ReferralInvitationInput) (ReferralInvitation, error) {
+func (s *Service) createReferralInvitation(ctx context.Context, userID, companyID string, candidateActor bool, in ReferralInvitationInput) (ReferralInvitation, error) {
 	in.FirstName = strings.TrimSpace(in.FirstName)
 	in.LastName = strings.TrimSpace(in.LastName)
 	in.ReferrerName = strings.TrimSpace(in.ReferrerName)
@@ -144,6 +146,15 @@ func (s *Service) createReferralInvitation(ctx context.Context, userID, company 
 		return ReferralInvitation{}, err
 	}
 	defer tx.Rollback(ctx)
+	if !candidateActor {
+		m, authErr := referralMemberTx(ctx, tx, userID, true)
+		if authErr != nil {
+			return ReferralInvitation{}, authErr
+		}
+		if m.CompanyID != companyID || (in.JobID == "" && !m.Scope.All) || (in.JobID != "" && !company.JobAllowedTx(ctx, tx, m, in.JobID)) {
+			return ReferralInvitation{}, ErrNotFound
+		}
+	}
 	if candidateActor {
 		// Serialize per actor so concurrent requests cannot bypass the durable daily cap.
 		if _, err = tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1, 917))`, userID); err != nil {
@@ -177,7 +188,7 @@ func (s *Service) createReferralInvitation(ctx context.Context, userID, company 
 	}
 	if in.JobID != "" {
 		var owned bool
-		if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND company_id=$2 AND status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date) AND (referral_deadline IS NULL OR referral_deadline>=current_date))`, in.JobID, company).Scan(&owned); err != nil {
+		if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND company_id=$2 AND status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date) AND (referral_deadline IS NULL OR referral_deadline>=current_date))`, in.JobID, companyID).Scan(&owned); err != nil {
 			return ReferralInvitation{}, err
 		}
 		if !owned {
@@ -197,7 +208,7 @@ func (s *Service) createReferralInvitation(ctx context.Context, userID, company 
 	} else {
 		recruiterActor = userID
 	}
-	_, err = tx.Exec(ctx, `INSERT INTO referral_invitations(id,company_id,recruiter_id,job_id,first_name,last_name,candidate_email,candidate_phone,referrer_name,referrer_email,source,relationship,note,token_nonce,token_hash,expires_at,candidate_referrer_id) VALUES($1,$2,$3,$4::uuid,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`, id, company, recruiterActor, nullableString(in.JobID), in.FirstName, in.LastName, in.Email, nullableString(in.Phone), in.ReferrerName, nullableString(in.ReferrerEmail), in.Source, in.Relationship, in.Note, nonce, hash[:], expiry, candidateReferrer)
+	_, err = tx.Exec(ctx, `INSERT INTO referral_invitations(id,company_id,recruiter_id,job_id,first_name,last_name,candidate_email,candidate_phone,referrer_name,referrer_email,source,relationship,note,token_nonce,token_hash,expires_at,candidate_referrer_id) VALUES($1,$2,$3,$4::uuid,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`, id, companyID, recruiterActor, nullableString(in.JobID), in.FirstName, in.LastName, in.Email, nullableString(in.Phone), in.ReferrerName, nullableString(in.ReferrerEmail), in.Source, in.Relationship, in.Note, nonce, hash[:], expiry, candidateReferrer)
 	if err != nil {
 		var pg *pgconn.PgError
 		if errors.As(err, &pg) && pg.Code == "23505" {
@@ -235,59 +246,124 @@ func scanInvitation(row pgx.Row) (ReferralInvitation, error) {
 	err := row.Scan(&x.ID, &x.CandidateName, &x.CandidateID, &x.JobID, &x.JobTitle, &x.CompanyName, &x.ReferrerName, &x.Source, &x.Status, &x.HiringStage, &x.RewardStatus, &x.ExpiresAt, &x.UpdatedAt, &x.CreatedAt, &x.ApplicationID, &x.Relationship, &x.Note)
 	return x, err
 }
+
+// Referral reads and writes share the same company membership and job scope.
+func referralMemberTx(ctx context.Context, tx pgx.Tx, userID string, write bool) (company.Member, error) {
+	m, err := company.MemberTx(ctx, tx, userID)
+	if err != nil {
+		return m, err
+	}
+	if write {
+		if err = company.LockCompanyTx(ctx, tx, m.CompanyID); err != nil {
+			return m, err
+		}
+		m, err = company.MemberTx(ctx, tx, userID)
+		if err != nil {
+			return m, err
+		}
+	}
+	permission := "applications.view"
+	if write {
+		permission = "applications.manage"
+	}
+	if !m.Can(permission) {
+		return m, company.ErrForbidden
+	}
+	return m, nil
+}
+
+const referralScopeSQL = ` AND ($3::boolean OR j.department=ANY($4::text[]) OR j.city=ANY($5::text[]) OR j.id::text=ANY($6::text[]))`
+
 func (s *Service) recruiterInvitation(ctx context.Context, userID, id string) (ReferralInvitation, error) {
-	company, _, _, err := s.recruiterCompany(ctx, userID)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return ReferralInvitation{}, err
 	}
-	x, err := scanInvitation(s.db.QueryRow(ctx, `SELECT `+invitationFields+` FROM referral_invitations ri JOIN companies c ON c.id=ri.company_id LEFT JOIN jobs j ON j.id=ri.job_id LEFT JOIN applications a ON a.id=ri.application_id WHERE ri.id=$1 AND ri.company_id=$2`, id, company))
+	defer tx.Rollback(ctx)
+	m, err := referralMemberTx(ctx, tx, userID, false)
+	if err != nil {
+		return ReferralInvitation{}, err
+	}
+	x, err := scanInvitation(tx.QueryRow(ctx, `SELECT `+invitationFields+` FROM referral_invitations ri JOIN companies c ON c.id=ri.company_id LEFT JOIN jobs j ON j.id=ri.job_id LEFT JOIN applications a ON a.id=ri.application_id WHERE ri.id=$1 AND ri.company_id=$2`+referralScopeSQL, id, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return x, ErrNotFound
 	}
+	if err != nil {
+		return x, err
+	}
 	if x.Source == "candidate" {
 		x.Note = ""
-	} // Personal invitation messages belong to sender and recipient.
-	x.CanViewCandidate = x.ApplicationID != nil
-	if x.CandidateID != nil && !x.CanViewCandidate {
-		x.CandidateID = nil
 	}
-	return x, err
+	x.CanViewCandidate = x.ApplicationID != nil
+	if !x.CanViewCandidate {
+		x.CandidateID = nil
+	} else {
+		candidates, readErr := pipelineSummariesForApplications(ctx, tx, userID, m.CompanyID, []string{*x.ApplicationID})
+		if readErr != nil {
+			return x, readErr
+		}
+		if candidate, ok := candidates[*x.ApplicationID]; ok {
+			x.Candidate = &candidate
+		}
+	}
+	return x, nil
 }
 func (s *Service) ReferralInvitations(ctx context.Context, userID string) ([]ReferralInvitation, error) {
-	company, _, _, err := s.recruiterCompany(ctx, userID)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Query(ctx, `SELECT ri.id FROM referral_invitations ri WHERE ri.company_id=$1 ORDER BY ri.updated_at DESC,ri.id LIMIT 100`, company)
+	defer tx.Rollback(ctx)
+	m, err := company.MemberTx(ctx, tx, userID)
 	if err != nil {
 		return nil, err
 	}
+	if !m.Can("applications.view") {
+		return nil, company.ErrForbidden
+	}
+	rows, err := tx.Query(ctx, `SELECT `+invitationFields+` FROM referral_invitations ri JOIN companies c ON c.id=ri.company_id LEFT JOIN jobs j ON j.id=ri.job_id LEFT JOIN applications a ON a.id=ri.application_id WHERE ri.company_id=$1 AND ($2::boolean OR j.department=ANY($3::text[]) OR j.city=ANY($4::text[]) OR j.id::text=ANY($5::text[])) ORDER BY ri.updated_at DESC,ri.id LIMIT 100`, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs)
+	if err != nil {
+		return nil, err
+	}
+	out := []ReferralInvitation{}
 	ids := []string{}
 	for rows.Next() {
-		var id string
-		if err = rows.Scan(&id); err != nil {
+		x, scanErr := scanInvitation(rows)
+		if scanErr != nil {
 			rows.Close()
-			return nil, err
+			return nil, scanErr
 		}
-		ids = append(ids, id)
+		if x.Source == "candidate" {
+			x.Note = ""
+		}
+		x.CanViewCandidate = x.ApplicationID != nil
+		if !x.CanViewCandidate {
+			x.CandidateID = nil
+		} else {
+			ids = append(ids, *x.ApplicationID)
+		}
+		out = append(out, x)
 	}
 	err = rows.Err()
 	rows.Close()
 	if err != nil {
 		return nil, err
 	}
-	out := []ReferralInvitation{}
-	for _, id := range ids {
-		x, err := s.recruiterInvitation(ctx, userID, id)
-		if err != nil {
-			return nil, err
+	candidates, err := pipelineSummariesForApplications(ctx, tx, userID, m.CompanyID, ids)
+	if err != nil {
+		return nil, err
+	}
+	for i := range out {
+		if out[i].ApplicationID != nil {
+			if candidate, ok := candidates[*out[i].ApplicationID]; ok {
+				out[i].Candidate = &candidate
+			}
 		}
-		out = append(out, x)
 	}
 	return out, nil
 }
 func (s *Service) ReferralLink(ctx context.Context, userID, id string, resend bool) (string, error) {
-	company, _, _, err := s.recruiterCompany(ctx, userID)
+	_, _, _, err := s.recruiterCompany(ctx, userID)
 	if err != nil {
 		return "", err
 	}
@@ -296,9 +372,13 @@ func (s *Service) ReferralLink(ctx context.Context, userID, id string, resend bo
 		return "", err
 	}
 	defer tx.Rollback(ctx)
+	m, err := referralMemberTx(ctx, tx, userID, true)
+	if err != nil {
+		return "", err
+	}
 	var nonce, email string
 	var expiry, last time.Time
-	err = tx.QueryRow(ctx, `SELECT token_nonce,candidate_email,expires_at,last_sent_at FROM referral_invitations WHERE id=$1 AND company_id=$2 AND recruiter_id IS NOT NULL AND cancelled_at IS NULL AND declined_at IS NULL AND application_id IS NULL FOR UPDATE`, id, company).Scan(&nonce, &email, &expiry, &last)
+	err = tx.QueryRow(ctx, `SELECT ri.token_nonce,ri.candidate_email,ri.expires_at,ri.last_sent_at FROM referral_invitations ri LEFT JOIN jobs j ON j.id=ri.job_id WHERE ri.id=$1 AND ri.company_id=$2 AND ri.recruiter_id IS NOT NULL AND ri.cancelled_at IS NULL AND ri.declined_at IS NULL AND ri.application_id IS NULL`+referralScopeSQL+` FOR UPDATE OF ri`, id, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs).Scan(&nonce, &email, &expiry, &last)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", ErrNotFound
 	}
@@ -530,7 +610,7 @@ func (s *Service) CandidateReferral(ctx context.Context, userID, token, action s
 	return x, nil
 }
 func (s *Service) CancelReferralInvitation(ctx context.Context, userID, id string) error {
-	company, _, _, err := s.recruiterCompany(ctx, userID)
+	_, _, _, err := s.recruiterCompany(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -539,7 +619,11 @@ func (s *Service) CancelReferralInvitation(ctx context.Context, userID, id strin
 		return err
 	}
 	defer tx.Rollback(ctx)
-	tag, err := tx.Exec(ctx, `UPDATE referral_invitations SET cancelled_at=now(),updated_at=now() WHERE id=$1 AND company_id=$2 AND recruiter_id IS NOT NULL AND application_id IS NULL AND cancelled_at IS NULL`, id, company)
+	m, err := referralMemberTx(ctx, tx, userID, true)
+	if err != nil {
+		return err
+	}
+	tag, err := tx.Exec(ctx, `UPDATE referral_invitations ri SET cancelled_at=now(),updated_at=now() WHERE ri.id=$1 AND ri.company_id=$2 AND ri.recruiter_id IS NOT NULL AND ri.application_id IS NULL AND ri.cancelled_at IS NULL AND ($3::boolean OR EXISTS(SELECT 1 FROM jobs j WHERE j.id=ri.job_id AND (j.department=ANY($4::text[]) OR j.city=ANY($5::text[]) OR j.id::text=ANY($6::text[]))))`, id, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs)
 	if err != nil {
 		return err
 	}
@@ -576,7 +660,7 @@ func (s *Service) ReferralEvents(ctx context.Context, userID, id string) ([]map[
 	return out, rows.Err()
 }
 func (s *Service) ReviewReferralReward(ctx context.Context, userID, id, status, note string, confirmed bool) error {
-	company, _, _, err := s.recruiterCompany(ctx, userID)
+	_, _, _, err := s.recruiterCompany(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -588,13 +672,17 @@ func (s *Service) ReviewReferralReward(ctx context.Context, userID, id, status, 
 		return err
 	}
 	defer tx.Rollback(ctx)
+	m, err := referralMemberTx(ctx, tx, userID, true)
+	if err != nil {
+		return err
+	}
 	var stage string
 	var old string
 	var eligible bool
 	err = tx.QueryRow(ctx, `SELECT coalesce(a.stage::text,''),ri.reward_status,
  (ri.source<>'candidate' OR ((coalesce(j.referral_reward_enabled,false) OR ri.reward_status IN ('pending','approved','paid')) AND coalesce(a.referral_id=ri.id,false)))
  FROM referral_invitations ri LEFT JOIN applications a ON a.id=ri.application_id LEFT JOIN jobs j ON j.id=ri.job_id
- WHERE ri.id=$1 AND ri.company_id=$2 FOR UPDATE OF ri`, id, company).Scan(&stage, &old, &eligible)
+ WHERE ri.id=$1 AND ri.company_id=$2`+referralScopeSQL+` FOR UPDATE OF ri`, id, m.CompanyID, m.Scope.All, m.Scope.Departments, m.Scope.Locations, m.Scope.JobIDs).Scan(&stage, &old, &eligible)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	}

@@ -2,10 +2,9 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, LazyMotion, MotionConfig, domAnimation, m } from "motion/react";
+import { RecruiterModal, RecruiterModalClose, recruiterPrimary } from "./workspace-ui";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/api";
 
 type Template = {
@@ -36,9 +35,8 @@ type Props = {
   initialJobID?: string;
   requestContact?: boolean;
   toolbarStart?: ReactNode;
+  applicant?: boolean;
 };
-
-const spring = { type: "spring" as const, stiffness: 245, damping: 28, mass: 0.85 };
 
 function applyVariables(value: string, candidateName: string, jobTitle: string) {
   return value
@@ -46,7 +44,7 @@ function applyVariables(value: string, candidateName: string, jobTitle: string) 
     .replaceAll("{{JobTitle}}", jobTitle || "{{JobTitle}}");
 }
 
-export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children, composeOnOpen = false, initialJobID = "", requestContact = false, toolbarStart }: Props) {
+export function CandidateProfileView({ candidateID, candidateName, candidateHeadline, jobs, children, composeOnOpen = false, initialJobID = "", requestContact = false, toolbarStart, applicant = false }: Props) {
   const [composerOpen, setComposerOpen] = useState(composeOnOpen);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -60,7 +58,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [sentThreadID, setSentThreadID] = useState("");
-  const openerRef = useRef<HTMLElement | null>(null);
+  const sendLock = useRef(false);
 
   const selectedTemplate = useMemo(
     () => templates.find((template) => template.id === selectedTemplateID),
@@ -72,7 +70,6 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
 
   useEffect(() => {
     const openComposer = () => {
-      openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setComposerOpen(true);
     };
     window.addEventListener("sapienworx:open-candidate-inmail", openComposer);
@@ -80,7 +77,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
   }, []);
 
   useEffect(() => {
-    if (!composerOpen || templatesLoaded || templatesLoading) return;
+    if (!composerOpen || templatesLoaded) return;
     let active = true;
     setTemplatesLoading(true);
     apiRequest<{ items: Template[] }>("/api/v1/recruiter/message-templates")
@@ -98,7 +95,7 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     return () => {
       active = false;
     };
-  }, [composerOpen, templatesLoaded, templatesLoading]);
+  }, [composerOpen, templatesLoaded]);
 
   function renderSelectedTemplate(template: Template | undefined, jobTitle: string) {
     if (!template) return;
@@ -137,23 +134,17 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
     setComposerOpen(false);
     setError("");
     setSentThreadID("");
-    window.requestAnimationFrame(() => openerRef.current?.focus());
+    setSubject("");
+    setBody("");
+    setSelectedTemplateID("");
+    setSelectedJobID(initialJobID);
+    setSubjectDirty(false);
+    setBodyDirty(false);
   }
 
-  useEffect(() => {
-    if (!composerOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !sending) {
-        event.preventDefault();
-        closeComposer();
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [composerOpen, sending]);
-
   async function sendInMail() {
-    if (!canSend) return;
+    if (!canSend || sendLock.current) return;
+    sendLock.current = true;
     setSending(true);
     setError("");
     try {
@@ -171,66 +162,21 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
       setError(cause instanceof Error ? cause.message : "Could not send InMail.");
     } finally {
       setSending(false);
+      sendLock.current = false;
     }
   }
 
-  return (
-    <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user">
-        <div className="grid gap-4">
-          {toolbarStart && <div className="min-w-0">{toolbarStart}</div>}
-
-          <m.div
-            layout
-            transition={spring}
-            className={composerOpen ? "grid gap-5 lg:grid-cols-2 lg:items-start" : "grid grid-cols-1"}
-            data-inmail-layout={composerOpen ? "split" : "profile"}
-          >
-            <m.section
-              layout
-              transition={spring}
-              className={composerOpen
-                ? "min-w-0 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1 [&_.candidate-profile-header]:!flex-col [&_.candidate-profile-header]:!items-stretch [&_.candidate-profile-two-column]:!grid-cols-1"
-                : "min-w-0"}
-              aria-label="Candidate profile context"
-            >
-              {children}
-            </m.section>
-
-            <AnimatePresence initial={false} mode="popLayout">
-              {composerOpen && (
-                <m.aside
-                  key="inmail-composer"
-                  layout
-                  initial={{ opacity: 0, x: 42, scale: 0.985 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: 36, scale: 0.985 }}
-                  transition={spring}
-                  className="relative min-w-0 overflow-hidden rounded-[2rem] border border-indigo-100/80 bg-[linear-gradient(145deg,#fbfaff_0%,#f5f2ff_48%,#eef4ff_100%)] p-5 shadow-[0_28px_70px_rgba(74,65,140,0.16),0_4px_16px_rgba(72,67,117,0.08)] sm:p-6 lg:sticky lg:top-4 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto"
-                  aria-label="InMail composer"
-                >
-                  <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-[42%_58%_64%_36%] bg-indigo-200/25 blur-2xl" />
-                  <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-20 h-52 w-52 rounded-[61%_39%_42%_58%] bg-sky-200/25 blur-2xl" />
-
-                  <div className="relative">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Direct conversation</p>
-                        <h2 className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">Send InMail</h2>
-                        <p className="mt-1 text-sm leading-5 text-ink-muted">Message {candidateName}{candidateHeadline ? ` · ${candidateHeadline}` : ""}</p>
-                      </div>
-                      <button type="button" onClick={closeComposer} className="grid h-9 w-9 place-items-center rounded-full border border-white/80 bg-white/75 text-lg text-ink-muted shadow-sm transition hover:bg-white hover:text-navy" aria-label="Close InMail composer">×</button>
-                    </div>
-
-                    {sentThreadID ? (
-                      <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 rounded-2xl border border-emerald-200/80 bg-emerald-50/80 p-5 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
-                        <p className="text-sm font-extrabold text-emerald-800">InMail sent</p>
+  return <div className="grid gap-4">{toolbarStart&&<div className="min-w-0">{toolbarStart}</div>}<section className="min-w-0" aria-label="Candidate profile context">{children}</section>
+ <RecruiterModal open={composerOpen} onClose={closeComposer} title={applicant?"Message candidate":"InMail composer"} size="medium" busy={sending} protectChanges={!sentThreadID} resetKey={sentThreadID} initialFocus="input" footer={sentThreadID?<RecruiterModalClose>Return to profile</RecruiterModalClose>:<><RecruiterModalClose disabled={sending}>Cancel</RecruiterModalClose><button type="button" disabled={!canSend} onClick={()=>void sendInMail()} className={recruiterPrimary}>{sending?"Sending…":applicant?"Send message":"Send InMail"}</button></>}>
+ <p className="text-sm leading-6 text-ink-muted">{candidateName}{candidateHeadline?` · ${candidateHeadline}`:""}</p><fieldset disabled={sending} className="min-w-0">                    {sentThreadID ? (
+                      <div className="mt-6 rounded-2xl border border-emerald-200/80 bg-emerald-50/80 p-5 shadow-[0_12px_28px_rgba(16,185,129,0.08)]">
+                        <p className="text-sm font-extrabold text-emerald-800">{applicant ? "Message sent" : "InMail sent"}</p>
                         <p className="mt-1 text-sm leading-6 text-emerald-700">A two-way conversation has been created. Replies will continue in this thread.</p>
                         <div className="mt-4 flex flex-wrap gap-2">
                           <Link href={`/recruiter/messages?thread=${encodeURIComponent(sentThreadID)}`} className="inline-flex h-10 items-center rounded-xl bg-indigo px-4 text-sm font-bold text-white hover:bg-indigo/90">Open conversation</Link>
-                          <Button type="button" variant="secondary" onClick={closeComposer}>Return to profile</Button>
+
                         </div>
-                      </m.div>
+                      </div>
                     ) : (
                       <div className="mt-6 grid gap-4">
                         <label className="grid gap-1.5 text-xs font-bold text-ink">
@@ -292,21 +238,8 @@ export function CandidateProfileView({ candidateID, candidateName, candidateHead
                         )}
                         {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold leading-5 text-rose-700">{error}</p>}
 
-                        <div className="flex items-center justify-end gap-2 border-t border-indigo-100/80 pt-4">
-                          <Button type="button" variant="secondary" onClick={closeComposer}>Cancel</Button>
-                          <Button type="button" onClick={sendInMail} disabled={!canSend} className="min-w-28 shadow-[0_12px_24px_rgba(79,70,229,0.16)]">
-                            {sending ? "Sending…" : "Send InMail"}
-                          </Button>
-                        </div>
+
                       </div>
                     )}
-                  </div>
-                </m.aside>
-              )}
-            </AnimatePresence>
-          </m.div>
-        </div>
-      </MotionConfig>
-    </LazyMotion>
-  );
+</fieldset></RecruiterModal></div>;
 }

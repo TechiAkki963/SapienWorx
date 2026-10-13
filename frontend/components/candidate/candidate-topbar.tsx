@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ThemeModeControl } from "@/components/theme/theme-mode-control";
+import { SettingsIcon } from "@/components/ui/settings-icon";
+import { SettingsLink } from "@/components/ui/settings-link";
 import { apiRequest } from "@/lib/api";
 import { CandidateAvatar } from "./candidate-avatar";
 import { useCandidateWorkspace } from "./candidate-workspace-state";
@@ -20,7 +22,7 @@ export function safeNotificationDestination(value?: string) {
     const url = new URL(value, "https://candidate.invalid");
     if (
       url.origin === "https://candidate.invalid" &&
-      /^\/candidate(?:\/(?:applications|interviews|inbox|notifications|saved|settings|profile|jobs)(?:\/[a-zA-Z0-9-]+)?)?\/?$/.test(
+      /^\/candidate(?:\/(?:applications|interviews|offers|inbox|notifications|saved|settings|profile|jobs)(?:\/[a-zA-Z0-9-]+)?)?\/?$/.test(
         url.pathname,
       )
     )
@@ -94,6 +96,7 @@ export function CandidateTopbar({ name }: { name: string }) {
           </span>
         )}
       </button>
+      <SettingsLink href="/candidate/settings" onClick={() => setPanel(null)} />
       <button
         type="button"
         className="candidate-account-trigger"
@@ -126,8 +129,8 @@ export function CandidateTopbar({ name }: { name: string }) {
               View profile
             </Link>
             <Link href="/candidate/referrals" onClick={() => setPanel(null)}>My Referrals</Link>
-            <Link href="/candidate/settings" onClick={() => setPanel(null)}>
-              Settings
+            <Link href="/candidate/settings" onClick={() => setPanel(null)} className="flex items-center gap-2.5">
+              <SettingsIcon />Settings
             </Link>
             <Link
               href="/candidate/profile?panel=visibility"
@@ -142,6 +145,7 @@ export function CandidateTopbar({ name }: { name: string }) {
             >
               Saved jobs
             </Link>
+            <Link href="/candidate/offers" onClick={()=>setPanel(null)} className="candidate-secondary-mobile">Offers</Link>
             <Link
               href="/candidate/interviews"
               onClick={() => setPanel(null)}

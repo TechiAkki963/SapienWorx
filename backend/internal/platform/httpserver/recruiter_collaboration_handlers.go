@@ -27,7 +27,7 @@ func (s *Server) recruiterCandidateContact(w http.ResponseWriter, r *http.Reques
 	if !ok {
 		return
 	}
-	contact, err := s.recruiter.CandidateContact(r.Context(), id, r.PathValue("candidateID"))
+	contact, err := s.recruiter.CandidateContact(r.Context(), id, r.PathValue("candidateID"), recruiter.ContactAccessOptions{Action: r.URL.Query().Get("action"), Number: r.URL.Query().Get("number")})
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return

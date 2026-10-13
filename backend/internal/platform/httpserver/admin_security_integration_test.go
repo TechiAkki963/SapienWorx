@@ -72,6 +72,8 @@ func TestAdminSecurityHTTPIsolatedDatabase(t *testing.T) {
 		}
 		if refresh != "" {
 			r.AddCookie(&http.Cookie{Name: cfg.Auth.RefreshCookieName, Value: refresh})
+			r.AddCookie(&http.Cookie{Name: cfg.Auth.CSRFCookieName, Value: "synthetic-csrf"})
+			r.Header.Set("X-CSRF-Token", "synthetic-csrf")
 		}
 		w := httptest.NewRecorder()
 		server.http.Handler.ServeHTTP(w, r)
@@ -405,14 +407,17 @@ func TestAdminSecurityHTTPIsolatedDatabase(t *testing.T) {
 		if err = json.Unmarshal(w.Body.Bytes(), &rotated); err != nil {
 			t.Fatal(err)
 		}
-		// Refresh credentials intentionally are not present in JSON.
+		// Both credentials are HttpOnly cookies, never JSON response fields.
 		for _, cookie := range w.Result().Cookies() {
+			if cookie.Name == cfg.Auth.AccessCookieName {
+				rotated.AccessToken = cookie.Value
+			}
 			if cookie.Name == cfg.Auth.RefreshCookieName {
 				rotated.RefreshToken = cookie.Value
 			}
 		}
-		if rotated.RefreshToken == "" {
-			t.Fatal("refresh cookie absent")
+		if rotated.RefreshToken == "" || rotated.AccessToken == "" {
+			t.Fatal("authentication cookie absent")
 		}
 		nextClaims, _ := tokens.Parse(rotated.AccessToken)
 		after, err := adminService.ScopedAccess(ctx, id, nextClaims.TokenID)

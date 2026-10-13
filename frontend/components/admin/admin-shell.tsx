@@ -6,7 +6,8 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 import type { SessionUser } from "@/lib/auth-server";
-import { adminRoleLabel, type AdminAccess } from "@/lib/admin-access";
+import { adminRoleLabel, canAdmin, type AdminAccess } from "@/lib/admin-access";
+import { SettingsLink } from "@/components/ui/settings-link";
 
 function shortID(value: string) {
   return value.length > 10 ? `${value.slice(0, 8)}…` : value;
@@ -29,6 +30,7 @@ export function AdminShell({ user, access, children }: { user: SessionUser; acce
 
           <div className="ml-auto flex items-center gap-2">
             <ThemeModeControl compact />
+            {canAdmin(access, "control_plane.read") && <SettingsLink href="/swx-command-centre/content-settings" label="Command Centre settings" />}
             <div className="hidden rounded-xl border border-[#dfe4f0] bg-[#fafbff] px-3 py-2 text-right md:block">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">{roleLabel}</p>
               <p className="mt-0.5 text-xs font-semibold text-slate-700">Session {shortID(user.id)}</p>

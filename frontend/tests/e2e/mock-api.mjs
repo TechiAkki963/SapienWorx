@@ -1,5 +1,6 @@
 import http from "node:http";
 import {handleCompanyMock} from "./company-mock.mjs";
+import {handleOfferStudioMock} from "./offer-studio-mock.mjs";
 import { URL } from "node:url";
 import adminCatalog from "../../lib/admin-permission-catalog.json" with { type: "json" };
 
@@ -345,7 +346,7 @@ function intelligenceDashboard() {
 }
 
 function poolCandidates(){return [
- {candidate_id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",current_company:"Acme Logistics",current_city:"Mumbai",experience_months:96,notice_period_days:30,tags:["Operations","Leadership"],skills:["Operations","Planning"],saved_by:"Riya Recruiter",saved_at:new Date(Date.now()-3*86400000).toISOString(),last_active_at:new Date(Date.now()-86400000).toISOString()},
+ {candidate_id:"71000000-0000-4000-8000-000000000001",full_name:"Aarav Mehta",headline:"Regional operations leader",current_company:"Acme Logistics",previous_company:"Prior Partners",education_summaries:["B.E. Computer Engineering · QA University","M.Sc. Data Systems · QA Institute"],preferred_locations:"Mumbai",current_city:"Mumbai",experience_months:96,notice_period_days:30,tags:["Operations","Leadership"],skills:["Operations","Planning"],saved_by:"Riya Recruiter",saved_at:new Date(Date.now()-3*86400000).toISOString(),last_active_at:new Date(Date.now()-86400000).toISOString()},
  {candidate_id:"71000000-0000-4000-8000-000000000002",full_name:"Meera Nair",headline:"Critical care nursing professional",current_city:"Navi Mumbai",experience_months:72,notice_period_days:15,tags:["Healthcare","Critical Care"],saved_by:"Riya Recruiter",saved_at:new Date(Date.now()-2*86400000).toISOString()},
  {candidate_id:"71000000-0000-4000-8000-000000000003",full_name:"Kabir Singh",headline:"B2B relationship and branch sales",current_city:"Pune",experience_months:60,notice_period_days:0,tags:["B2B Sales","CRM"],saved_by:"Riya Recruiter",saved_at:new Date(Date.now()-86400000).toISOString()}
 ]}
@@ -369,7 +370,9 @@ function pipelineRows() {
       preferred_location: "",
       key_skills: "Go, PostgreSQL, AWS",
       photo_data_url: "",
-      cv_filename: "",
+      cv_filename: state.pipelineCVFilename ?? "",
+      has_primary_contact: n === 1,
+      has_secondary_contact: n === 1,
       saved: false,
       comment_count: 0,
       experience_months: 24 + n,
@@ -413,8 +416,10 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/__e2e/state" && req.method === "GET") return json(res, 200, { ...state, stages: Object.fromEntries(state.stages) });
 
   const payload = ["POST", "PATCH", "PUT"].includes(req.method ?? "") ? await body(req) : {};
+  if(handleOfferStudioMock(req,res,url,payload,{state,json,logRequest,pipelineRows,role:roleFromCookie(req)})!==false)return;
   if(handleCompanyMock(req,res,url,payload,{state,json,noContent,logRequest})!==false)return;
   if (["/api/v1/auth/password/forgot","/api/v1/auth/password/reset"].includes(url.pathname) && req.method==="POST") { state.requests.push({method:req.method,path:url.pathname,search:url.search,query:Object.fromEntries(url.searchParams),body:payload}); return json(res,200,{status:"accepted"}); }
+  if(url.pathname === "/__e2e/recruiter-pipeline" && req.method === "POST") { state.pipelineCVFilename=payload.cv_filename; return json(res,200,{configured:true}); }
   if(url.pathname==="/__e2e/recruiter-notifications"&&req.method==="POST"){state.recruiterNotifications=payload.items;return json(res,200,{seeded:true});}
   if(url.pathname.startsWith("/api/v1/recruiter/notification"))logRequest(req,url,payload);
   if(url.pathname==="/api/v1/recruiter/notifications"&&req.method==="GET"){
@@ -437,6 +442,7 @@ const server = http.createServer(async (req, res) => {
   }
   if(url.pathname==="/__e2e/interviews" && req.method==="POST"){ state.recruiterInterviews=payload.items; return json(res,200,{seeded:true}); }
   logRequest(req, url, payload);
+  if(url.pathname === "/api/v1/recruiter/talent/usage" && req.method === "GET") return json(res,200,{owner:true,entitlements:{company_id:companyID,managed:true,state:"active",plan_name:"Recruit Plus",features:{},capacity:{},usage:{talent_profile_unlock:100,outreach_message:500},limits_approved:true,data_preserved:true},usage:{talent_profile_unlock:12,outreach_message:48}});
   if (url.pathname === "/__e2e/public-job" && req.method === "POST") {
     state.publicJobFixture = payload.job || {};
     state.publicJobStatus = payload.status || 200;
@@ -468,6 +474,13 @@ const server = http.createServer(async (req, res) => {
     if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });
     if (state.adminAccess.fail) return json(res, 503, { error: { message: "administrator security is unavailable" } });
     return json(res, 200, { ...state.adminAccess, permissions: adminCatalog[state.adminAccess.admin_role] ?? [] });
+  }
+  if (url.pathname === "/api/v1/admin/control-plane" && req.method === "GET") {
+    const access = state.adminAccess;
+    if (roleFromCookie(req) !== "master_admin" || (access.enabled && (!access.assigned || !access.mfa_verified || !adminCatalog[access.admin_role]?.includes("control_plane.read")))) {
+      return json(res, 403, { error: { message: "control plane access denied" } });
+    }
+    return json(res, 200, { knowledge: [], settings: [], costs: [] });
   }
   if (url.pathname === "/api/v1/admin/workforce-taxonomy" && req.method === "GET") {
     if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "taxonomy access denied" } });
@@ -746,6 +759,12 @@ const server = http.createServer(async (req, res) => {
     ...state.publicJobFixture,
   }));
 
+  if (/^\/api\/v1\/recruiter\/jobs\/[^/]+\/status$/.test(url.pathname)&&req.method==="PATCH"){
+    const current=state.jobStatus??"active";
+    if(payload.expected_status!==current)return json(res,409,{error:{message:"This job status changed. Reload before trying again."}});
+    if(["closed","archived"].includes(payload.status)&&String(payload.reason??"").trim().length<10)return json(res,400,{error:{message:"Add a reason of at least 10 characters."}});
+    state.jobStatus=payload.status;return noContent(res);
+  }
   if (url.pathname === "/api/v1/recruiter/team" && req.method === "GET") return json(res, 200, { items: [
     { user_id: recruiterID, full_name: "Riya Recruiter", designation: "Senior Recruiter" },
     { user_id: "20000000-0000-4000-8000-000000000002", full_name: "Kabir Recruiter", designation: "Healthcare Recruiter" },
@@ -792,7 +811,7 @@ const server = http.createServer(async (req, res) => {
       new_applications: 9,
       shortlisted: 1,
       interviews: 0,
-      status: "active",
+      status: state.jobStatus??"active",
       application_deadline: new Date(Date.now() + 2 * 86400000).toISOString(),
       updated_at: now(),
     }];
@@ -837,7 +856,7 @@ const server = http.createServer(async (req, res) => {
     });
   }
   if (url.pathname === `/api/v1/recruiter/jobs/${jobID}` && req.method === "GET") return json(res, 200, {
-    id: jobID, job_reference: "SWX-JOB-2026-00001", status: "active", title: "Senior Go Platform Engineer", department: "Engineering",
+    id: jobID, job_reference: "SWX-JOB-2026-00001", status: state.jobStatus??"active", title: "Senior Go Platform Engineer", department: "Engineering",
     employment_type: "full_time", work_mode: "hybrid", role_category: "Technology", location: "Mumbai, Maharashtra",
     min_experience_years: 2, max_experience_years: 6, min_salary_lakhs: 8, max_salary_lakhs: 18,
     skills: ["Go", "PostgreSQL"], description: "Build recruitment infrastructure.", responsibilities: "Own reliable services.",
@@ -935,7 +954,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/recruiter/candidates/71000000-0000-4000-8000-000000000001" && req.method === "GET") return json(res, 200, {
     user_id: "71000000-0000-4000-8000-000000000001", full_name: "Candidate 001", headline: "Backend engineer", email: "private@example.test",
     saved: true, talent_pool_tags: ["Priority", "Go Platform", "Mumbai"], current_city: "Mumbai", current_state: "Maharashtra", country_code: "IN", total_experience_months: 25,
-    email_verified: true, masked_phone: "••••••••••",
+    email_verified: true, masked_phone: "••••••••••", has_secondary_contact: true,
     profile_completion: 92, last_active_at: now(), profile_updated_at: now(), has_company_application: true, can_view_cv: true, can_view_contact: true, can_collaborate: true,
     details: {
       professional_summary: "Backend engineer focused on reliable recruitment infrastructure, data quality, and operationally simple services.",
@@ -977,9 +996,8 @@ const server = http.createServer(async (req, res) => {
     if(req.method==="DELETE") { state.savedSearches.splice(index,1); return noContent(res); }
     if(req.method==="PATCH") {const previous=state.savedSearches[index]; const item={...previous,...(payload.name!==undefined?{name:payload.name}:{}),...(payload.filters!==undefined?{filters:payload.filters}:{}),...(payload.enabled!==undefined?{alert_enabled:payload.enabled}:{}),...(payload.frequency!==undefined?{alert_frequency:payload.frequency}:{}),updated_at:now()}; state.savedSearches[index]=item; return json(res,200,item); }
   }
-  if (url.pathname === "/api/v1/recruiter/offers" && req.method === "GET") return json(res, 200, {items:[{id:"of-1",application_id:"70000000-0000-4000-8000-000000000001",candidate_id:"71000000-0000-4000-8000-000000000001",candidate_name:"Aarav Mehta",job_id:jobID,job_title:"Senior Go Platform Engineer",job_reference:"SWX-JOB-2026-00001",title:"Employment offer",currency:"INR",annual_compensation:1800000,joining_date:"2026-11-15",expires_at:"2026-10-20",status:"sent",updated_at:now()}]});
-  if (url.pathname === "/api/v1/recruiter/offers" && req.method === "POST") return json(res, 201, {id:"of-new",application_id:String(payload.application_id||""),candidate_name:"Aarav Mehta",job_title:"Senior Go Platform Engineer",job_reference:"SWX-JOB-2026-00001",title:String(payload.title||"Employment offer"),currency:String(payload.currency||"INR"),annual_compensation:payload.annual_compensation,status:"draft",updated_at:now()});
-  if (/^\/api\/v1\/recruiter\/offers\/[^/]+$/.test(url.pathname) && req.method === "PATCH") return noContent(res);
+  if(url.pathname==="/api/v1/recruiter/talent/overview")return json(res,200,{recent_searches:[{id:1,filters:{q:"Java",location:"Mumbai"},created_at:now()}],pools:[{id:"81000000-0000-4000-8000-000000000001",name:"Engineering shortlist",kind:"manual",count:3}],alerts:[{id:"90000000-0000-4000-8000-000000000001",name:"Java developers",enabled:true,frequency:"daily",matches:3,checked_at:now()}],outreach:{days:Number(url.searchParams.get("days")||30),sent:6,opened:3,replies:2,unread_replies:1,interested:1,failed:0},recommended_candidates:poolCandidates(),recommendations_reason:"Recently saved candidates available to your workspace"});
+  if(/^\/api\/v1\/candidate\/outreach\/[^/]+\/interest$/.test(url.pathname))return json(res,200,{available:false,interested:false});
   if (url.pathname === "/api/v1/recruiter/referrals" && req.method === "GET") return json(res, 200, {items:[{id:"ref-1",candidate_id:"71000000-0000-4000-8000-000000000002",candidate_name:"Meera Nair",job_id:jobID,job_title:"Senior Go Platform Engineer",referrer_name:"Nisha Rao",referrer_email:"nisha@example.test",source:"employee",status:"contacted",reward_status:"pending",updated_at:now()}]});
   if (url.pathname === "/api/v1/recruiter/referrals" && req.method === "POST") return json(res, 201, {id:"ref-new",candidate_id:String(payload.candidate_id||""),candidate_name:"Aarav Mehta",job_title:"Senior Go Platform Engineer",referrer_name:String(payload.referrer_name||""),referrer_email:String(payload.referrer_email||""),source:String(payload.source||"employee"),status:"referred",reward_status:"not_eligible",updated_at:now()});
   if (/^\/api\/v1\/recruiter\/referrals\/[^/]+$/.test(url.pathname) && req.method === "PATCH") return noContent(res);

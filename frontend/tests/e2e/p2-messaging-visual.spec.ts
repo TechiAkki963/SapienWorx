@@ -16,15 +16,15 @@ async function drawerGeometry(page: import("@playwright/test").Page, dialog: imp
     const box = await dialog.boundingBox();
     if (!box) return null;
     return {
-      right: Math.round(box.x + box.width),
+      center: Math.round(box.x + box.width / 2),
       width: Math.round(box.width),
     };
   }, {
-    message: `Bulk InMail drawer settles against the viewport edge at ${width}px`,
+    message: `Bulk InMail dialog is centered at ${width}px`,
     timeout: 5_000,
   }).toEqual({
-    right: width,
-    width: width < 608 ? width : 608,
+    center: Math.round(width / 2),
+    width: width < 768 ? width : 640,
   });
 }
 

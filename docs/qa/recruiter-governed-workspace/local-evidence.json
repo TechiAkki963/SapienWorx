@@ -1,0 +1,300 @@
+{
+  "date": "2026-10-13 Asia/Calcutta",
+  "baseline_sha": "30f1b507758bbd539db44925d6a73136b94eb524",
+  "scope": "Local implementation QA. No live beta deployment or migration.",
+  "requirements": {
+    "unique_specification_references": 375,
+    "status_counts": {
+      "Implemented": 344,
+      "Blocked": 18,
+      "Deferred": 5,
+      "Already compliant": 8
+    }
+  },
+  "postgresql": [
+    {
+      "test": "TestDashboardIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestGovernanceIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestAdminSecurityIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestRecruitmentIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCandidatePhoneChangeIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCandidateIdentityIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestProfileV2IsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCandidateWorkspaceIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCompanyGovernanceIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestP25EmailDeliverySuppressionAndRetryIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestReferralDeliveryFailureDoesNotSuppressRetriableContent",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestAdminSecurityHTTPIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCandidateWorkspaceBodyEnvelopeIsLimitedToImageMutations",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCandidateWorkspaceHTTPAuthorizationIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCompanyHTTPAndInvitationIsolation",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestCandidateReferralPrivacyAttributionAndAbuse",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestDiscoveryExactProfessionalSkillsAndLegacyShapes",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestGovernedWorkspaceEvidenceIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestRecruiterJobWorkspaceScaleIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestRecruiterJobSecurityIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestOfferGovernanceIsolatedDatabase",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestP26RecruiterProductAreasScaleAndIsolation",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestWorkspaceRefinementsIsolationAndReferralConsent",
+      "exit_code": 0,
+      "failures": []
+    },
+    {
+      "test": "TestReferralTokenAuthenticationAndExpiry",
+      "exit_code": 0,
+      "failures": []
+    }
+  ],
+  "migration65": {
+    "pristine_down_up": "PASS",
+    "submitted_cv_lossy_reversal_refused": "PASS",
+    "job_view_metrics_lossy_reversal_refused": "PASS",
+    "reviewed_empty_evidence_down_up": "PASS"
+  },
+  "migration66_legacy": {
+    "legacy_statuses_preserved": 6,
+    "captured_candidate_identity_preserved": true,
+    "compensation_and_letter_preserved": true,
+    "legacy_only_down_up": "PASS",
+    "governed_data_lossy_down_refused": "PASS"
+  },
+  "production_browser": {
+    "errors": [],
+    "viewport_appearance_checks": 112,
+    "focus_checks": [
+      {
+        "engine": "firefox",
+        "keyboardDialog": "PASS",
+        "pageErrors": []
+      },
+      {
+        "engine": "firefox",
+        "pdfCancelFocus": "PASS"
+      },
+      {
+        "engine": "webkit",
+        "keyboardDialog": "PASS",
+        "pageErrors": []
+      },
+      {
+        "engine": "webkit",
+        "pdfCancelFocus": "PASS"
+      }
+    ]
+  },
+  "performance": {
+    "baseline": {
+      "/recruiter/jobs": {
+        "median_FCP_ms": 152,
+        "median_usable_ms": 212.4,
+        "max_CLS": 0,
+        "max_long_task_ms": 54,
+        "cards": 0,
+        "calls": {}
+      },
+      "/recruiter/pipeline?limit=25": {
+        "median_FCP_ms": 192,
+        "median_usable_ms": 315.7,
+        "max_CLS": 0,
+        "max_long_task_ms": 86,
+        "cards": 0,
+        "calls": {}
+      },
+      "/recruiter/pipeline?limit=50": {
+        "median_FCP_ms": 244,
+        "median_usable_ms": 368.2,
+        "max_CLS": 0,
+        "max_long_task_ms": 88,
+        "cards": 0,
+        "calls": {}
+      },
+      "/recruiter/talent": {
+        "median_FCP_ms": 160,
+        "median_usable_ms": 216.7,
+        "max_CLS": 0,
+        "max_long_task_ms": 54,
+        "cards": 0,
+        "calls": {}
+      }
+    },
+    "final": {
+      "/recruiter/jobs": {
+        "median_FCP_ms": 140,
+        "median_usable_ms": 193.5,
+        "max_CLS": 0,
+        "max_long_task_ms": 54,
+        "cards": 0,
+        "calls": {
+          "POST /api/v1/auth/login": 1,
+          "GET /api/v1/auth/me": 2,
+          "GET /api/v1/recruiter/jobs": 1,
+          "GET /api/v1/recruiter/team": 1,
+          "GET /api/v1/recruiter/dashboard": 1,
+          "GET /api/v1/messaging/threads": 1,
+          "GET /api/v1/recruiter/notifications": 1,
+          "GET /api/v1/company/access": 1
+        }
+      },
+      "/recruiter/pipeline?limit=25": {
+        "median_FCP_ms": 168,
+        "median_usable_ms": 246.6,
+        "max_CLS": 0,
+        "max_long_task_ms": 66,
+        "cards": 25,
+        "calls": {
+          "POST /api/v1/auth/login": 1,
+          "GET /api/v1/auth/me": 2,
+          "GET /api/v1/recruiter/pipeline": 1,
+          "GET /api/v1/recruiter/jobs": 1,
+          "GET /api/v1/recruiter/dashboard": 1,
+          "GET /api/v1/messaging/threads": 1,
+          "GET /api/v1/recruiter/notifications": 1,
+          "GET /api/v1/company/access": 1
+        }
+      },
+      "/recruiter/pipeline?limit=50": {
+        "median_FCP_ms": 192,
+        "median_usable_ms": 281.8,
+        "max_CLS": 0,
+        "max_long_task_ms": 70,
+        "cards": 50,
+        "calls": {
+          "POST /api/v1/auth/login": 1,
+          "GET /api/v1/auth/me": 2,
+          "GET /api/v1/recruiter/pipeline": 1,
+          "GET /api/v1/recruiter/jobs": 1,
+          "GET /api/v1/recruiter/dashboard": 1,
+          "GET /api/v1/messaging/threads": 1,
+          "GET /api/v1/recruiter/notifications": 1,
+          "GET /api/v1/company/access": 1
+        }
+      },
+      "/recruiter/talent": {
+        "median_FCP_ms": 136,
+        "median_usable_ms": 196.0,
+        "max_CLS": 0,
+        "max_long_task_ms": 59,
+        "cards": 3,
+        "calls": {
+          "POST /api/v1/auth/login": 1,
+          "GET /api/v1/auth/me": 2,
+          "GET /api/v1/company/access": 1,
+          "GET /api/v1/recruiter/talent/overview": 1,
+          "GET /api/v1/recruiter/dashboard": 1,
+          "GET /api/v1/messaging/threads": 1,
+          "GET /api/v1/recruiter/notifications": 1
+        }
+      }
+    },
+    "navigation_memory": {
+      "samples": 20,
+      "first_five_heap_max_bytes": 8862476,
+      "last_five_heap_max_bytes": 8857984,
+      "max_nodes": 6821,
+      "min_nodes": 562
+    }
+  },
+  "final_visual_capture_count": 77,
+  "bundle": {
+    "baseline_gzip_kib": 709.1,
+    "final_gzip_kib": 716.7,
+    "baseline_raw_kib": 2273.0,
+    "final_raw_kib": 2267.3,
+    "final_chunks": 90
+  },
+  "dependency_audit": {
+    "npm_production_findings": 0,
+    "go_reachable_findings": 0,
+    "unimported_module_advisory": "GO-2026-5932"
+  },
+  "published_ci": "pending at committed local checkpoint",
+  "deployment": "not performed"
+}

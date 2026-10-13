@@ -43,7 +43,10 @@ func tokenizeDiscovery(input string) ([]discoveryToken, error) {
 			for i < len(input) && !strings.ContainsRune(" \t\n()\"", rune(input[i])) {
 				i++
 			}
-			word := input[start:i]
+			word := strings.Trim(input[start:i], ",;")
+			if word == "" {
+				continue
+			}
 			upper := strings.ToUpper(word)
 			if upper == "AND" || upper == "OR" || upper == "NOT" {
 				tokens = append(tokens, discoveryToken{kind: upper})

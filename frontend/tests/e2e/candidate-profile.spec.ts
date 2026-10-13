@@ -82,7 +82,7 @@ test.describe("Candidate Profile V2", () => {
       writes.filter((r) => r.path === "/api/v1/candidate/profile").length,
     ).toBe(3);
     await page.reload();
-    await expect(page.getByText("Updated professional story.")).toBeVisible();
+    await expect(page.locator("#main-content").getByText("Updated professional story.",{exact:true})).toBeVisible();
   });
   test("individual employment, skill and education editing preserves other items and normalizes months", async ({
     page,

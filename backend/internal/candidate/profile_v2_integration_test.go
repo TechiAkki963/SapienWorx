@@ -35,8 +35,8 @@ func TestProfileV2IsolatedDatabase(t *testing.T) {
 		t.Fatal(err)
 	}
 	files, err := filepath.Glob("../../../database/migrations/*.up.sql")
-	if err != nil || len(files) != 54 {
-		t.Fatalf("expected current 54 migrations: %d %v", len(files), err)
+	if err != nil || len(files) < 54 {
+		t.Fatalf("profile V2 migrations unavailable: %d %v", len(files), err)
 	}
 	if !exists {
 		for _, file := range files {

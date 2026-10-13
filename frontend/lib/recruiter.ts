@@ -15,7 +15,7 @@ export type RecruiterDashboard = {
 };
 
 export type AttentionItem = { kind: string; title: string; detail: string; href: string };
-export type UpcomingInterviewItem = { id: string; candidate_name: string; job_title: string; scheduled_at: string };
+export type UpcomingInterviewItem = { candidate?: PipelineRow; application_id?:string; id: string; candidate_name: string; job_title: string; scheduled_at: string };
 export type RecruiterJob = {
   id: string;
   job_reference: string;
@@ -34,6 +34,7 @@ export type RecruiterJob = {
   new_applications: number;
   shortlisted: number;
   interviews: number;
+	views?: number;
   published_at?: string;
   application_deadline?: string;
   updated_at: string;
@@ -44,7 +45,7 @@ export type RecruiterJobWorkspace = {
   page: number;
   limit: number;
   total: number;
-  sort: "updated" | "applications" | "newest" | "deadline";
+  sort: "updated" | "applications" | "newest" | "oldest" | "deadline" | "title" | "job_id" | "status" | "views" | "posted";
   summary: {
     total_jobs: number; closed_jobs?: number; expired_jobs?: number; archived_jobs?: number;
     active_jobs: number;
@@ -64,6 +65,9 @@ export type JobAnalytics = {
   closed_at?: string;
   application_deadline?: string;
   total_applications: number;
+	views?:number;
+	total_views?:number;
+	view_to_application_percent?:number;
   hires: number;
   remaining_openings: number;
   fill_rate_percent: number;
@@ -104,6 +108,8 @@ export type PipelineRow = {
   key_skills: string;
   photo_data_url?: string;
   cv_filename?: string;
+	 has_primary_contact?: boolean;
+	 has_secondary_contact?: boolean;
   saved: boolean;
   talent_pool_tags: string[];
   comment_count: number;
@@ -208,6 +214,7 @@ export type RecruiterCandidateDetail = {
   email?: string;
   email_verified: boolean;
   masked_phone?: string;
+	 has_secondary_contact?: boolean;
   has_company_application: boolean;
   can_view_cv: boolean;
   can_view_contact: boolean;
@@ -262,6 +269,8 @@ export const jobStatusTransitions: Record<string, readonly string[]> = {
   archived: ["archived"],
 };
 export function label(value: string) { return value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()); }
-export function experience(months: number) { const years=Math.floor(months/12); const rest=months%12; return years ? `${years}y${rest ? ` ${rest}m` : ""}` : `${rest}m`; }
+export function experience(months: number) { if(!Number.isFinite(months)||months<0)return "Not provided";if(months<12)return "< 1 yr";const years=Math.floor(months/12),rest=months%12;return `${years} ${years===1?"yr":"yrs"}${rest?` ${rest} ${rest===1?"mo":"mos"}`:""}`; }
 // Business dates must remain identical in server rendering and browser hydration.
 export function compactDate(value?: string) { if(!value) return "—"; return new Intl.DateTimeFormat("en-IN",{day:"2-digit",month:"short",year:"numeric",timeZone:"Asia/Kolkata"}).format(new Date(value)); }
+
+export type LegacyReferralItem={id:string;candidate_name:string;job_title?:string;referrer_name:string;referrer_email?:string;source:string;status:string;reward_status:string;updated_at:string};

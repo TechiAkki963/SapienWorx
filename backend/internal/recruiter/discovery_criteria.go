@@ -48,6 +48,9 @@ func ParseDiscoveryFilters(values map[string]string) (DiscoveryFilters, error) {
 			clean[key] = value
 		}
 	}
+	if words := strings.Fields(clean["q"]); len(words) == 1 {
+		clean["q"] = strings.Trim(words[0], ",;")
+	}
 	f := DiscoveryFilters{Query: clean["q"], Designation: clean["designation"], CurrentCompany: clean["current_company"], PreviousCompany: clean["previous_company"],
 		Education: clean["education"], Skills: clean["skills"], Location: clean["location"], PreferredLocation: clean["preferred_location"],
 		EmploymentType: clean["employment_type"], WorkMode: clean["work_mode"], Industry: clean["industry"], FunctionalArea: clean["functional_area"],

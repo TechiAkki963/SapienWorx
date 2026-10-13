@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useId, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 export const recruiterInput = "min-h-11 w-full min-w-0 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-indigo";
 export const recruiterPrimary = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-indigo px-4 text-sm font-semibold text-white hover:bg-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo focus-visible:ring-offset-2 disabled:opacity-50";
@@ -41,36 +42,68 @@ export function RecruiterDataTable<T>({ rows, columns, rowKey, mobileRow, label 
   </>;
 }
 
-/** Native modal dialog supplies background inertness, focus containment and Escape.
- * Explicit focus return also covers programmatic closing and route changes. */
-export function RecruiterDrawer({ open, onClose, title, children, footer, wide = false, initialFocus, side = "right" }: {
-  open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode; wide?: boolean; initialFocus?: string; side?: "left" | "right";
+/** Centered native dialog keeps the background inert and returns keyboard focus.
+ * Dirty forms use an inline discard decision rather than opening a second modal. */
+const ModalDismiss = createContext<()=>void>(()=>{});
+let triggerSubscriptions=0;
+let lastModalActivation:{element:WeakRef<HTMLElement>;at:number}|null=null;
+function recordModalActivation(event:Event){
+  if(event instanceof KeyboardEvent && event.key!=="Enter" && event.key!==" ")return;
+  const target=event.target instanceof Element?event.target.closest<HTMLElement>('button,a[href],summary,input,select,textarea,[role="button"]'):null;
+  if(target)lastModalActivation={element:new WeakRef(target),at:performance.now()};
+}
+function observeModalActivations(){
+  // One shared listener set regardless of how many candidate cards contain dialogs.
+  if(triggerSubscriptions++===0){document.addEventListener("pointerdown",recordModalActivation,true);document.addEventListener("click",recordModalActivation,true);document.addEventListener("keydown",recordModalActivation,true)}
+  return()=>{if(--triggerSubscriptions===0){document.removeEventListener("pointerdown",recordModalActivation,true);document.removeEventListener("click",recordModalActivation,true);document.removeEventListener("keydown",recordModalActivation,true);lastModalActivation=null}};
+}
+export function RecruiterModalClose({children="Cancel",className=recruiterSecondary,disabled=false}:{children?:ReactNode;className?:string;disabled?:boolean}) {
+  const dismiss=useContext(ModalDismiss);
+  return <button type="button" disabled={disabled} className={className} onClick={dismiss}>{children}</button>;
+}
+export function RecruiterModal({ open, onClose, title, children, footer, wide = false, size, initialFocus, returnFocus, busy = false, protectChanges = true, resetKey }: {
+  open:boolean;onClose:()=>void;title:string;children:ReactNode;footer?:ReactNode;wide?:boolean;
+  size?:"small"|"medium"|"large"|"extra-large";initialFocus?:string;returnFocus?:string;busy?:boolean;protectChanges?:boolean;resetKey?:string|number;
 }) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const close = useRef(onClose);
-  close.current = onClose;
-  useEffect(() => {
-    const node = dialog.current;
-    if (!node || !open) return;
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousOverflow = document.body.style.overflow;
-    node.showModal();
-    if (initialFocus) node.querySelector<HTMLElement>(initialFocus)?.focus();
-    document.body.style.overflow = "hidden";
-    return () => { node.close(); document.body.style.overflow = previousOverflow; opener?.focus(); };
-  }, [open, initialFocus]);
-  return <dialog ref={dialog} aria-label={title} onKeyDown={event => {
-    if (event.key !== "Tab" || (event.target as HTMLElement).closest("dialog") !== event.currentTarget) return;
-    const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex="0"]')).filter(node => node.tabIndex >= 0 && node.getClientRects().length > 0 && getComputedStyle(node).visibility !== "hidden" && !node.closest("[inert]") && node.closest("dialog") === event.currentTarget);
-    const first = controls[0], last = controls[controls.length - 1];
-    if (!first) { event.preventDefault(); return; }
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-  }} onCancel={event => { event.preventDefault(); close.current(); }} onClick={event => { if (event.target === event.currentTarget) close.current(); }} className={`swx-workspace-drawer ${wide ? "swx-workspace-drawer-wide" : ""} ${side === "left" ? "swx-workspace-drawer-left" : ""}`}>
-    <div className="flex h-full min-h-0 flex-col">
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line px-5 py-4"><h2 className="text-lg font-semibold text-navy">{title}</h2><button autoFocus type="button" onClick={onClose} aria-label={`Close ${title}`} className={`${recruiterSecondary} h-11 w-11 px-0`}>×</button></header>
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
-      {footer && <footer className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-line px-5 py-4">{footer}</footer>}
-    </div>
-  </dialog>;
+  const dialog=useRef<HTMLDialogElement>(null),close=useRef(onClose),dirty=useRef(false);
+  const [confirmDiscard,setConfirmDiscard]=useState(false);
+  const [mounted,setMounted]=useState(false);
+  const titleID=useId();
+  close.current=onClose;
+  function requestClose(){if(busy)return;if(protectChanges&&dirty.current){setConfirmDiscard(true);return}close.current()}
+  useEffect(()=>{setMounted(true);return observeModalActivations()},[]);
+  useEffect(()=>{dirty.current=false;setConfirmDiscard(false)},[resetKey]);
+  useEffect(()=>{
+    const node=dialog.current;if(!node||!open)return;
+    // Safari does not focus every pointer-activated button. Remember activation
+    // without forcing pointer users through an artificial focus transition.
+    const activated=lastModalActivation&&performance.now()-lastModalActivation.at<1500?lastModalActivation.element.deref():null;
+    const opener=activated?.isConnected?activated:document.activeElement instanceof HTMLElement&&document.activeElement!==document.body?document.activeElement:null;
+    const previousOverflow=document.body.style.overflow;
+    dirty.current=false;setConfirmDiscard(false);
+    node.showModal();document.body.style.overflow="hidden";
+    const target=node.querySelector<HTMLElement>(initialFocus||'[data-modal-initial-focus],input:not([type="hidden"]),textarea,select');
+    (target??node.querySelector<HTMLElement>("[data-modal-close]"))?.focus();
+    return()=>{node.close();document.body.style.overflow=previousOverflow;
+      // A successful bulk action can remove its trigger by clearing selection.
+      // Restore focus to a logical workspace control instead of losing it to body.
+      const target=opener?.isConnected?opener:document.querySelector<HTMLElement>(returnFocus||"#main-content");
+      target?.focus();
+    };
+  },[open,initialFocus,returnFocus,mounted]);
+  if(!mounted)return null;
+  return createPortal(<ModalDismiss.Provider value={requestClose}><dialog ref={dialog} aria-labelledby={titleID} aria-modal="true" aria-busy={busy||undefined} onInput={()=>{dirty.current=true}} onChange={()=>{dirty.current=true}} onKeyDown={event=>{
+    if(event.key!=="Tab"||(event.target as HTMLElement).closest("dialog")!==event.currentTarget)return;
+    const controls=Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex="0"]')).filter(node=>node.tabIndex>=0&&node.getClientRects().length>0&&getComputedStyle(node).visibility!=="hidden"&&!node.closest("[inert]")&&node.closest("dialog")===event.currentTarget);
+    const first=controls[0],last=controls.at(-1);
+    if(!first||!last){event.preventDefault();event.currentTarget.focus();return}
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+  }} onCancel={event=>{event.preventDefault();requestClose()}} onClick={event=>{if(event.target===event.currentTarget)requestClose()}} className={`theme-surface swx-recruiter-workspace swx-workspace-modal swx-workspace-modal-${size??(wide?"large":"medium")}`}>
+    {open&&<div className="flex h-full min-h-0 flex-col">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line px-5 py-4"><h2 id={titleID} className="text-lg font-semibold text-navy">{title}</h2><button data-modal-close type="button" disabled={busy} onClick={requestClose} aria-label={`Close ${title}`} className={`${recruiterSecondary} h-11 w-11 px-0`}>×</button></header>
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">{children}</div>
+      {confirmDiscard?<footer role="alert" className="shrink-0 border-t border-line px-5 py-4"><p className="mb-3 text-sm font-semibold text-ink">Discard your unsaved changes?</p><div className="flex flex-wrap justify-end gap-2"><button type="button" className={recruiterSecondary} onClick={()=>setConfirmDiscard(false)}>Keep editing</button><button type="button" className={recruiterPrimary} onClick={()=>{dirty.current=false;setConfirmDiscard(false);close.current()}}>Discard changes</button></div></footer>:footer&&<footer className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-line px-5 py-4">{footer}</footer>}
+    </div>}
+  </dialog></ModalDismiss.Provider>,document.body);
 }

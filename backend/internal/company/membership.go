@@ -75,6 +75,11 @@ func ValidateScope(scope Scope, role string) error {
 func (s *SQLStore) Member(ctx context.Context, userID string) (Member, error) {
 	return readMember(ctx, s.db, userID)
 }
+
+// MemberTx rechecks membership under the company lock used by governed writes.
+func MemberTx(ctx context.Context, tx pgx.Tx, userID string) (Member, error) {
+	return readMember(ctx, tx, userID)
+}
 func readMember(ctx context.Context, q querier, userID string) (Member, error) {
 	var m Member
 	var raw []byte

@@ -20,6 +20,7 @@ import {
 } from "@/lib/candidate-server";
 import { publicJob, publicJobOrigin } from "@/lib/public-job";
 import { jobSocialData } from "@/lib/job-social-data";
+import { JobViewEvent } from "@/components/jobs/job-view-event";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,7 @@ export default async function JobDetailPage({ params }: Props) {
 
   return (
     <main id="main-content" className="min-h-screen">
+      {(!session||session.role==="candidate")&&<JobViewEvent jobID={job.id}/>}
       <PublicHeader sessionRole={session?.role} />
       <Container className="py-8 sm:py-12">
         <Button

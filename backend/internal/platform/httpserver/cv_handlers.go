@@ -106,8 +106,17 @@ func (s *Server) recruiterCandidateCVDownload(w http.ResponseWriter, r *http.Req
 		writeError(w, r, http.StatusServiceUnavailable, "storage_unavailable", "private CV storage is not configured")
 		return
 	}
-	object, err := s.recruiter.CandidateCV(r.Context(), recruiterID, r.PathValue("candidateID"))
+	mode := r.URL.Query().Get("mode")
+	if mode != "" && mode != "view" && mode != "download" {
+		writeError(w, r, 400, "invalid_request", "CV action is invalid")
+		return
+	}
+	object, err := s.recruiter.CandidateCV(r.Context(), recruiterID, r.PathValue("candidateID"), r.URL.Query().Get("application_id"))
 	if err != nil {
+		if errors.Is(err, recruiter.ErrInvalid) {
+			writeError(w, r, http.StatusBadRequest, "invalid_request", "CV application selection is invalid")
+			return
+		}
 		if errors.Is(err, recruiter.ErrNotFound) {
 			writeError(w, r, http.StatusNotFound, "not_found", "candidate CV was not found or is not available to this company")
 			return
@@ -127,14 +136,18 @@ func (s *Server) recruiterCandidateCVDownload(w http.ResponseWriter, r *http.Req
 		writeError(w, r, http.StatusServiceUnavailable, "storage_unavailable", "private CV storage is temporarily unavailable")
 		return
 	}
-	if r.URL.Query().Get("mode") == "view" {
-		if err := s.recruiter.RecordCandidateCVView(r.Context(), object.CompanyID, recruiterID, r.PathValue("candidateID"), RequestIDFromContext(r.Context())); err != nil {
+	{
+		action := "download"
+		if mode == "view" {
+			action = "view"
+		}
+		if err := s.recruiter.RecordCandidateCVAccess(r.Context(), object.CompanyID, recruiterID, r.PathValue("candidateID"), object.ApplicationID, action, RequestIDFromContext(r.Context())); err != nil {
 			s.logger.Error("meter recruiter CV view failed", "error", err, "request_id", RequestIDFromContext(r.Context()))
 			writeError(w, r, http.StatusInternalServerError, "usage_metering_failed", "candidate CV could not be opened because usage metering failed")
 			return
 		}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"download": presigned, "filename": object.Filename})
+	writeJSON(w, http.StatusOK, map[string]any{"download": presigned, "filename": object.Filename, "application_id": object.ApplicationID, "provenance": object.Provenance})
 }
 
 var _ storage.Presigner

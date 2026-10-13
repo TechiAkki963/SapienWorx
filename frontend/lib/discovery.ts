@@ -3,6 +3,7 @@ export type DiscoveryCandidate = {
   id: string; full_name: string; headline?: string; designation: string; current_company: string;
   current_city?: string; current_state?: string; experience_months: number; notice_period_days?: number;
   preferred_locations: string; skills: string[]; education: string; updated_at: string; last_active_at?: string;
+  previous_company?: string; education_summaries?: string[];
   email_verified?: boolean; mobile_verified?: boolean;
 };
 export type DiscoveryResults = { items: DiscoveryCandidate[]; page: number; limit: number; total: number };

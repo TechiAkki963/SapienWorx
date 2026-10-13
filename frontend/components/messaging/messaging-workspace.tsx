@@ -1,11 +1,12 @@
 "use client";
+import {CandidateOutreachInterest} from "./candidate-outreach-interest";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 
 import { API_URL, apiRequest } from "@/lib/api";
 import { RecruiterConversationContext } from "./recruiter-conversation-context";
-import { RecruiterDrawer, recruiterSecondary } from "@/components/recruiter/workspace-ui";
+import { RecruiterModal, recruiterSecondary } from "@/components/recruiter/workspace-ui";
 import { MessageBubble } from "@/components/messaging/message-bubble";
 import { TypingIndicator } from "@/components/messaging/typing-indicator";
 import { useSapienChat } from "@/hooks/use-sapien-chat";
@@ -233,6 +234,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
                   <p className="truncate text-sm font-extrabold text-navy">{activeThread.subject}</p>
                   <p className="mt-0.5 truncate text-xs text-ink-muted">{activeThread.counterparty_name}{activeThread.job_title ? ` · ${activeThread.job_title}` : ""}</p>
                 </div>
+                {role==="candidate"&&<CandidateOutreachInterest threadID={activeThread.id}/>}
                 {role === "recruiter" && <button type="button" onClick={()=>setContextOpen(true)} className={`${recruiterSecondary} 2xl:hidden`}>Candidate context</button>}
                 <div className="flex items-center gap-2 text-[11px] font-bold">
                   <span className={`h-2 w-2 rounded-full ${connectionState === "live" ? "bg-emerald-400" : connectionState === "connecting" ? "bg-amber-400" : "bg-slate-300"}`} />
@@ -306,7 +308,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
             </div>
           )}
         </div>
-        {role === "recruiter" && activeThread && <><aside className="hidden border-l border-line bg-white 2xl:block"><RecruiterConversationContext thread={activeThread}/></aside><RecruiterDrawer open={contextOpen} onClose={()=>setContextOpen(false)} title="Candidate context">{contextOpen && <RecruiterConversationContext thread={activeThread}/>}</RecruiterDrawer></>}
+        {role === "recruiter" && activeThread && <><aside className="hidden border-l border-line bg-white 2xl:block"><RecruiterConversationContext thread={activeThread}/></aside><RecruiterModal open={contextOpen} onClose={()=>setContextOpen(false)} title="Candidate context">{contextOpen && <RecruiterConversationContext thread={activeThread}/>}</RecruiterModal></>}
       </div>
     </section>
   );

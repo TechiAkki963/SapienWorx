@@ -9,10 +9,12 @@ import type { PipelineRow } from "@/lib/recruiter";
 export function CandidateHeaderActions({
   candidateID,
   initialSaved,
+  initialApplicationID,
   applications,
 }: {
   candidateID: string;
   initialSaved: boolean;
+  initialApplicationID?: string;
   applications: PipelineRow[];
 }) {
   const [hydrated, setHydrated] = useState(false);
@@ -33,10 +35,10 @@ export function CandidateHeaderActions({
           <path d="M4 5.5h16v11H9l-5 3v-14Z" />
           <path d="M7.5 9h9M7.5 12.5h6" />
         </svg>
-        <span className="sm:hidden">InMail</span><span className="max-sm:hidden">Send InMail</span>
+        <span>{applications.length?"Message":"Send InMail"}</span>
       </button>
 
-      {applications.length > 0 && <ScheduleInterviewForm applications={applications} compactTrigger />}
+      {applications.length > 0 && <ScheduleInterviewForm applications={applications} initialApplicationID={initialApplicationID} compactTrigger />}
       <SaveProfileButton candidateID={candidateID} initialSaved={initialSaved} compact />
     </div>
   );

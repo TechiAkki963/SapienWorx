@@ -94,6 +94,7 @@ func recruiterJobWorkspaceFiltersFromRequest(r *http.Request) (recruiter.JobWork
 		}
 	}
 	return recruiter.JobWorkspaceFilters{
+		Location: q.Get("location"), Department: q.Get("department"), PostedBy: q.Get("posted_by"), PostedFrom: q.Get("posted_from"), PostedTo: q.Get("posted_to"),
 		Query:          q.Get("q"),
 		Status:         q.Get("status"),
 		EmploymentType: q.Get("employment_type"),
@@ -170,11 +171,12 @@ func (s *Server) recruiterJobStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	var input struct {
 		Status string `json:"status"`
+		recruiter.JobStatusChange
 	}
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	if err := s.recruiter.SetJobStatus(r.Context(), id, r.PathValue("jobID"), strings.TrimSpace(input.Status)); err != nil {
+	if err := s.recruiter.SetJobStatus(r.Context(), id, r.PathValue("jobID"), strings.TrimSpace(input.Status), input.JobStatusChange); err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
 	}
@@ -276,12 +278,14 @@ func (s *Server) recruiterApplicationStage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	var input struct {
-		Stage string `json:"stage"`
+		Stage         string `json:"stage"`
+		ExpectedStage string `json:"expected_stage"`
+		Reason        string `json:"reason"`
 	}
 	if !decodeJSON(w, r, &input) {
 		return
 	}
-	if err := s.recruiter.UpdateStage(r.Context(), id, r.PathValue("applicationID"), strings.TrimSpace(input.Stage)); err != nil {
+	if err := s.recruiter.UpdateStage(r.Context(), id, r.PathValue("applicationID"), strings.TrimSpace(input.Stage), recruiter.StageChangeOptions{ExpectedStage: input.ExpectedStage, Reason: input.Reason, RequireReason: true}); err != nil {
 		s.writeRecruiterError(w, r, err)
 		return
 	}
@@ -349,6 +353,12 @@ func (s *Server) writeRecruiterError(w http.ResponseWriter, r *http.Request, err
 		return
 	}
 	switch {
+	case errors.Is(err, recruiter.ErrJobStatusStale):
+		writeError(w, r, http.StatusConflict, "job_status_changed", "This job status changed. Reload before trying again.")
+	case errors.Is(err, recruiter.ErrStageStale):
+		writeError(w, r, http.StatusConflict, "stage_changed", "This application changed since you opened it. Refresh before trying again.")
+	case errors.Is(err, recruiter.ErrInterviewStale):
+		writeError(w, r, http.StatusConflict, "interview_changed", "This interview changed since you opened it. Refresh before trying again.")
 	case errors.Is(err, recruiter.ErrInterviewConflict):
 		writeError(w, r, http.StatusConflict, "interview_conflict", "The candidate or an interviewer already has an interview during this time. Choose a different time or panel.")
 	case errors.Is(err, recruiter.ErrReferralRateLimited):

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { login, resetE2E } from "./helpers";
+import { login, resetE2E, recordedRequests } from "./helpers";
 
 const jobID = "60000000-0000-4000-8000-000000000001";
 const noteID = "80000000-0000-4000-8000-000000000001";
@@ -9,7 +9,7 @@ test.beforeEach(async ({ request }) => resetE2E(request));
 
 test("candidate card keeps contact private and supports save, bulk selection, and responsive actions", async ({ page }) => {
   await page.route(/\/api\/v1\/recruiter\/talent-pool\/[^/]+$/, route => route.fulfill({ status: 204 }));
-  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/contact$/, route => route.fulfill({
+  await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/contact(?:\?.*)?$/, route => route.fulfill({
     status: 200,
     contentType: "application/json",
     body: JSON.stringify({ primary: "+919900000011", alternate: "+919900000099" }),
@@ -17,9 +17,10 @@ test("candidate card keeps contact private and supports save, bulk selection, an
   await login(page, "recruiter");
   await page.goto(`/recruiter/pipeline?job_id=${jobID}`);
 
-  const card = page.locator("tr:visible, article:visible").filter({ has: page.getByRole("link", { name: "Candidate 001", exact: true }) });
+  const card = page.locator(".swx-candidate-card").filter({ has: page.getByRole("link", { name: "Candidate 001", exact: true }) });
   await expect(card).toBeVisible();
-  await expect(card).toContainText("Senior Go Platform Engineer");
+  await expect(card).toContainText("Backend Engineer");
+  await expect(card).not.toContainText("candidate_referral");
   await expect(card).not.toContainText("+919900000011");
 
   await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
@@ -31,33 +32,32 @@ test("candidate card keeps contact private and supports save, bulk selection, an
   await card.getByRole("checkbox", { name: /Select Candidate 001/ }).check();
   await expect(page.getByRole("button", { name: "Save for future roles" })).toBeEnabled();
 
-  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
-  await card.getByRole("button", { name: "Notes, CV & application details" }).click();
-  const details = page.getByRole("dialog", { name: "Application details", exact: true });
-  await expect(details).toContainText("Not provided");
-  await expect(details.getByRole("button", { name: "View Contact" })).toBeVisible();
-  await details.getByRole("button", { name: "View Contact" }).click();
-  await expect(details).toContainText("+919900000011");
-  await expect(details).not.toContainText("+919900000099");
-  await details.getByRole("button", { name: "Show alternate contact" }).click();
-  await expect(details).toContainText("+919900000099");
-  await expect(details).not.toContainText("+919900000011");
-  await details.getByRole("button", { name: "Hide" }).click();
-  await expect(details).not.toContainText("+919900000099");
-
-  await page.keyboard.press("Escape");
-  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
+  const primary = card.getByRole("button", {name: "Hidden primary phone. Click to show or double click to copy", exact:true});
+  const secondary = card.getByRole("button", {name: "Hidden secondary phone. Click to show or double click to copy", exact:true});
+  await primary.click();
+  await expect(card.getByRole("button",{name:/Primary phone \+919900000011/})).toBeVisible();
+  await expect(secondary).toBeVisible();
+  await expect(card).not.toContainText("+919900000099");
+  await secondary.click();
+  await expect(card.getByRole("button",{name:/Secondary phone \+919900000099/})).toBeVisible();
+  await card.getByRole("button",{name:"Hide secondary phone",exact:true}).click();
+  await expect(card).not.toContainText("+919900000099");
+  await expect(card).toContainText("+919900000011");
+  await card.getByRole("button",{name:"Hide primary phone",exact:true}).click();
+  await expect(card).not.toContainText("+919900000011");
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: width > 768 ? 900 : 844 });
-    await expect(card.getByRole("link", { name: "View candidate", exact: true })).toBeVisible();
-    await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
+    await expect(card.getByRole("link",{name:"Candidate 001",exact:true})).toBeVisible();
     await expect(card.getByRole("link", { name: "Message", exact: true })).toBeVisible();
-    await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
+    const more=card.getByLabel("More actions for Candidate 001",{exact:true});
+    if(!(await card.getByRole("link",{name:"View Candidate 360",exact:true}).isVisible())) await more.click();
+    await expect(card.getByRole("link",{name:"View Candidate 360",exact:true})).toBeVisible();
+    await more.click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   }
 });
 
-test("internal recruiter notes lazy-load and support author edits and deletion", async ({ page }) => {
+test("internal recruiter notes lazy-load and support author edits and deletion", async ({ page, request }) => {
   let note = "";
   await page.route(/\/api\/v1\/recruiter\/candidates\/[^/]+\/comments(?:\/[^/]+)?(?:\?.*)?$/, async route => {
     const method = route.request().method();
@@ -73,11 +73,10 @@ test("internal recruiter notes lazy-load and support author edits and deletion",
   await login(page, "recruiter");
   await page.goto(`/recruiter/pipeline?job_id=${jobID}`);
 
-  const card = page.locator("tr:visible, article:visible").filter({ has: page.getByRole("link", { name: "Candidate 001", exact: true }) });
-  await card.getByLabel("More actions for Candidate 001", { exact: true }).click();
-  await card.getByRole("button", { name: "Notes, CV & application details" }).click();
-  await page.getByRole("dialog", { name: "Application details", exact: true }).getByRole("button", { name: /Recruiter Notes/ }).click();
-  const dialog = page.getByRole("dialog", { name: "Recruiter notes" });
+  const card = page.locator(".swx-candidate-card").filter({ has: page.getByRole("link", { name: "Candidate 001", exact: true }) });
+  expect((await recordedRequests(request)).filter(item=>item.path.endsWith("/comments"))).toHaveLength(0);
+  await card.getByRole("button", { name: "Add note",exact:true }).click();
+  const dialog = page.getByRole("dialog", { name: "Company notes",exact:true });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText("No notes yet");
   await dialog.getByRole("textbox", { name: "Add an internal note" }).fill("Initial screening call completed.");

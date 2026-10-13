@@ -17,7 +17,7 @@ const areas = [
   { slug: "talent-pool", path: "/recruiter/talent-pool", heading: "Talent Pool" },
   { slug: "jobs", path: "/recruiter/jobs", heading: "Job management" },
   { slug: "interviews", path: "/recruiter/interviews", heading: "Interviews" },
-  { slug: "offers", path: "/recruiter/offers", heading: "Offers" },
+  { slug: "offers", path: "/recruiter/offers", heading: "Offer Studio" },
   { slug: "outreach", path: "/recruiter/outreach", heading: "Outreach" },
   { slug: "saved-searches", path: "/recruiter/saved-searches", heading: "Saved searches & alerts" },
   { slug: "referrals", path: "/recruiter/referrals", heading: "Referrals" },
