@@ -57,9 +57,11 @@ The Command Centre Settings navigation item also uses the shared SVG. No new Set
 | Scoped access | PASS — collaborator has no Company Admin shortcut; Support Admin has no Command Centre Settings shortcut and direct navigation is rejected by the existing guard |
 | Browser errors | PASS — final production matrix has zero page/console errors and failed shared-Settings HTTP responses |
 
-**22 unique focused scenarios passed across final applicable runs**, excluding repeats: nine existing governed recruiter scenarios, six sidebar/Preferences scenarios, four shared Settings scenarios, two existing recovery scenarios and one existing candidate account-menu keyboard/mobile/logout scenario. Final TypeScript validation and Next.js production build passed.
+**23 unique focused scenarios passed across final applicable runs**, excluding repeats: nine existing governed recruiter scenarios, six sidebar/Preferences scenarios, four shared Settings scenarios, two existing recovery scenarios, one existing candidate account-menu keyboard/mobile/logout scenario and the final recovery/referral visual review. Final TypeScript validation and Next.js production build passed.
 
 The first shared-Settings run exposed three harness issues: programmatic focus after hover was not keyboard focus, the candidate account dialog made a broad Settings selector ambiguous, and the mock lacked a control-plane read response. Final tests use actual Tab/Shift+Tab, a scoped navbar selector and a permission-checked synthetic fixture. Functional assertions were retained.
+
+Published full-suite CI on `be52d01c736975b44aef01dae97c0c99cff369e6` exposed an additional stale visual-test selector: it expected the navbar to be a direct child of the workspace, before the full-height frame was introduced. The test now uses the page's banner landmark and retains its y=0 sticky-position assertion. The complete recovery/referral review and six sidebar scenarios passed locally, 7/7. This correction changes test selection only; the runtime UI is unchanged.
 
 **148 production browser checks passed; 90 captures; zero errors.**
 
@@ -83,6 +85,7 @@ No dependency, backend, migration, workflow, billing, entitlement, AWS, Caddy, T
 - Gear preview: `frontend/visual-artifacts/recruiter-fullheight-shell/settings-states.png`.
 - Production results: `tmp/sidebar-fullheight-visual-results.json` — 148 PASS, 90 captures, 0 errors.
 - Focused logs: `tmp/sidebar-fullheight-settings-functional.log` (15 recruiter passes; initial shared harness failures), `tmp/sidebar-settings-navigation-final.log` (4/4 final), `tmp/sidebar-settings-recovery-final.log` (2/2), `tmp/sidebar-settings-account-recovery.log` (1/1 candidate account).
+- Published-CI selector regression: `tmp/governed-beta-banner-regression.log` (7/7, including the additional visual review).
 - Build/typecheck: `tmp/sidebar-fullheight-build.log`, `tmp/sidebar-fullheight-typecheck.log`.
 
 Evidence uses an isolated local production frontend and synthetic APIs. It does not certify live beta behavior, production data, native devices or a full screen-reader audit. This report establishes the local source-review checkpoint; subsequent publication and beta deployment require exact-head CI and separate live evidence.
