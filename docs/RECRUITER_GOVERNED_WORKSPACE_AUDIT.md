@@ -37,6 +37,8 @@ The companion [requirements matrix](RECRUITER_GOVERNED_WORKSPACE_MATRIX.md) cont
 
 The per-section matrix uses a shared evidence catalog for cross-cutting requirements. The final report below states practical limits rather than treating every section heading as a certification.
 
+Final CI inspection found both browser jobs failing the same candidate-message keyboard assertion while the other 390 tests passed. Three immediate local repeats passed; a separate delayed-JavaScript diagnostic reproduced the failure mechanism: `focus()` on the disabled server-rendered button did not focus it, and Enter before hydration did not open the dialog. Waiting for readiness then using the same keyboard action opened it correctly. The regression now explicitly waits for the button to be enabled and confirms focus before Enter, retaining every dialog, dirty-close, keyboard-containment and focus-return assertion. This is consistent with the CI failure; the original CI trace did not independently establish its timing. Fresh exact-head CI remains the release gate. No runtime UI behavior was changed by this test correction.
+
 ## 4. Database migrations
 
 | Migration | Changes | Rehearsal and reversal |

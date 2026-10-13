@@ -57,7 +57,10 @@ test("Talent overview loads plan usage only on explicit request",async({page,req
 
 test("applicant message uses a centered keyboard dialog with guarded unsaved content",async({page})=>{
  await login(page,"recruiter");await page.goto("/recruiter/candidates/71000000-0000-4000-8000-000000000001");
- const trigger=page.getByRole("button",{name:"Message",exact:true});await trigger.focus();await trigger.press("Enter");
+ const trigger=page.getByRole("button",{name:"Message",exact:true});
+ // The server-rendered trigger stays disabled until its client handler is ready.
+ // focus()/press() do not wait for an enabled control as click() does.
+ await expect(trigger).toBeEnabled();await trigger.focus();await expect(trigger).toBeFocused();await trigger.press("Enter");
  const modal=page.getByRole("dialog",{name:"Message candidate",exact:true});await expect(modal).toBeVisible();
  const box=(await modal.boundingBox())!;expect(Math.abs(box.x+box.width/2-page.viewportSize()!.width/2)).toBeLessThan(1);
  await expect(modal.getByRole("textbox",{name:"Subject",exact:true})).toBeFocused();
