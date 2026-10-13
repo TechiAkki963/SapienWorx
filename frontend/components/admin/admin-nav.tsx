@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { canAdmin, type AdminAccess, type AdminPermission } from "@/lib/admin-access";
+import { SettingsIcon } from "@/components/ui/settings-icon";
 
 const items = [
   ["/swx-command-centre/overview", "Overview"],
@@ -51,6 +52,7 @@ const mobileLabels = [
 ] as const;
 
 function Icon({ index }: { index: number }) {
+  if (index === 17) return <SettingsIcon />;
   const paths = [
     "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
     "M5 20V6l7-3 7 3v14M3 20h18M9 9h1M14 9h1M9 14h1M14 14h1",

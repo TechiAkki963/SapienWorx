@@ -475,6 +475,13 @@ const server = http.createServer(async (req, res) => {
     if (state.adminAccess.fail) return json(res, 503, { error: { message: "administrator security is unavailable" } });
     return json(res, 200, { ...state.adminAccess, permissions: adminCatalog[state.adminAccess.admin_role] ?? [] });
   }
+  if (url.pathname === "/api/v1/admin/control-plane" && req.method === "GET") {
+    const access = state.adminAccess;
+    if (roleFromCookie(req) !== "master_admin" || (access.enabled && (!access.assigned || !access.mfa_verified || !adminCatalog[access.admin_role]?.includes("control_plane.read")))) {
+      return json(res, 403, { error: { message: "control plane access denied" } });
+    }
+    return json(res, 200, { knowledge: [], settings: [], costs: [] });
+  }
   if (url.pathname === "/api/v1/admin/workforce-taxonomy" && req.method === "GET") {
     if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "taxonomy access denied" } });
     return json(res, 200, {

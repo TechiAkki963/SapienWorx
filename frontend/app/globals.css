@@ -731,24 +731,60 @@ html:has(.swx-search-actions) { scroll-padding-bottom: 11rem; }
   .swx-workspace-modal footer { padding-bottom: max(1rem,env(safe-area-inset-bottom)); }
 }
 
-.swx-recruiter-frame { grid-template-columns: minmax(0,1fr); }
+.swx-recruiter-frame { --recruiter-sidebar-width: 248px; min-height: 100dvh; }
+.swx-recruiter-frame[data-sidebar-collapsed="true"] { --recruiter-sidebar-width: 68px; }
+.swx-recruiter-sidebar-region { display: contents; }
+.swx-recruiter-main-shell { min-width: 0; min-height: 100dvh; }
+.swx-recruiter-navbar-search { max-width: 560px; }
+/* One Settings control across portals, without a permanent tile or filled gear. */
+.swx-settings-link { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: #0f172a; }
+.swx-settings-link:hover { background: #dbeafe; }
+.swx-settings-link[aria-current="page"] { color: #2563eb; }
+.swx-settings-link:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.swx-dark .swx-settings-link { color: #eff6ff; }
+.swx-dark .swx-settings-link:hover { background: #1e3a5f; }
+.swx-dark .swx-settings-link[aria-current="page"] { color: #2563eb; }
+.swx-dark .swx-settings-link[aria-current="page"]:hover { background: #101f37; }
+.swx-dark .swx-settings-link:focus-visible { outline-color: #a5c8ff; }
+@media (prefers-reduced-motion: no-preference) { .swx-settings-link { transition: color 150ms ease-out, background-color 150ms ease-out; } }
+@media (max-width: 400px) { .swx-company-navbar .swx-wordmark-label { display: none; } }
 @media (min-width: 1024px) {
-  .swx-recruiter-frame { grid-template-columns: 16rem minmax(0,1fr); }
-  .swx-recruiter-frame[data-sidebar-collapsed="true"] { grid-template-columns: 4.5rem minmax(0,1fr); }
+  .swx-recruiter-sidebar-region { position: fixed; inset: 0 auto 0 0; z-index: 50; display: block; width: var(--recruiter-sidebar-width); height: 100dvh; }
+  .swx-recruiter-main-shell { margin-left: var(--recruiter-sidebar-width); }
+  .swx-recruiter-nav.swx-navy-sidebar { height: 100%; grid-template-rows: 48px minmax(0,1fr); padding-top: 8px; border-radius: 0; border-right: 1px solid #213958; }
+  .swx-recruiter-nav .swx-sidebar-toggle { top: 16px; }
+  .swx-recruiter-navbar-search { min-width: 320px; }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .swx-recruiter-sidebar-region { transition: width 200ms ease-out; }
+  .swx-recruiter-main-shell { transition: margin-left 200ms ease-out; }
+  .swx-recruiter-frame .swx-search-actions { transition: left 200ms ease-out; }
 }
 .swx-navy-sidebar { background: #102342; color: #edf3ff; border-radius: 1rem; padding: .625rem; gap: .875rem; }
-.swx-sidebar-heading { padding: .625rem .75rem .375rem; color: #afc2e1; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.swx-recruiter-nav { position: relative; overflow: visible; }
+.swx-sidebar-sections { position: relative; display: grid; align-content: start; gap: .875rem; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #526b90 transparent; }
+.swx-sidebar-heading { overflow: hidden; white-space: nowrap; padding: .625rem .75rem .375rem; color: #afc2e1; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .swx-navy-sidebar .swx-sidebar-item { position: relative; display: flex; align-items: center; gap: .75rem; width: 100%; min-height: 44px; border-radius: .625rem; padding: .625rem .75rem; color: #e1ebff !important; background: transparent !important; font-size: .875rem; font-weight: 600; text-align: left; }
 .swx-navy-sidebar .swx-sidebar-item:hover { background: #213958 !important; }
 .swx-navy-sidebar .swx-sidebar-active { color: #fff !important; background: #0a66ff !important; }
 .swx-navy-sidebar .swx-sidebar-premium-active { color: #fff !important; background: linear-gradient(110deg,#6d28d9,#7c3aed) !important; }
 .swx-sidebar-item svg { flex-shrink: 0; }
-.swx-sidebar-toggle { display: flex; align-items: center; gap: .75rem; min-height: 44px; padding: .625rem .75rem; color: #c6d5ed; font-size: .8125rem; border-bottom: 1px solid #334b6f; }
+.swx-sidebar-label { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.swx-sidebar-toggle { position: absolute; top: 1.25rem; right: -1rem; z-index: 50; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid #526b90; border-radius: 50%; background: #102342 !important; color: #edf3ff !important; cursor: pointer; }
+.swx-sidebar-toggle:hover { background: #213958 !important; }
+.swx-recruiter-nav .swx-sidebar-toggle:focus-visible { outline: 2px solid #a5c8ff; outline-offset: 2px; }
+.swx-sidebar-brand-link { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: .625rem; }
+.swx-recruiter-sidebar-brand { display: flex; align-items: center; justify-content: center; min-width: 0; height: 48px; }
+.swx-recruiter-sidebar-brand .swx-recruiter-brand-wordmark { width: 172px; height: auto; max-width: 100%; }
+.swx-recruiter-brand-icon { width: 32px; height: 32px; flex-shrink: 0; }
+.swx-recruiter-preferences [role="group"][aria-label="Appearance"] button > span:last-child { display: inline; }
 .swx-sidebar-count { margin-left: auto; border-radius: 1rem; padding: .125rem .375rem; background: #e5efff; color: #123c79; font-size: .75rem; }
-[data-sidebar-collapsed="true"] .swx-recruiter-nav .swx-sidebar-item,
-[data-sidebar-collapsed="true"] .swx-sidebar-toggle { justify-content: center; padding-inline: .5rem; }
+[data-sidebar-collapsed="true"] .swx-recruiter-nav .swx-sidebar-item { justify-content: center; padding-inline: .5rem; }
 [data-sidebar-collapsed="true"] .swx-recruiter-nav .swx-sidebar-count { position: absolute; top: 0; right: -2px; }
+[data-sidebar-collapsed="true"] .swx-recruiter-nav .swx-sidebar-restriction { position: absolute; right: 3px; bottom: 2px; }
 .swx-sidebar-tooltip { position: absolute; left: calc(100% + 1rem); top: 50%; transform: translateY(-50%); z-index: 60; display: none; white-space: nowrap; padding: .5rem .75rem; border-radius: .5rem; color: #fff; background: #102342; box-shadow: 0 4px 18px #10234233; }
+.swx-sidebar-toggle-tooltip { display: block; left: calc(100% + .5rem); }
+.swx-sidebar-floating-tooltip { position: fixed; z-index: 60; transform: translateY(-50%); pointer-events: none; white-space: nowrap; padding: .5rem .75rem; border-radius: .5rem; color: #fff; background: #102342; box-shadow: 0 4px 18px #10234233; font: 500 .875rem/1.5 var(--font-sans-stack); }
 .swx-sidebar-item:is(:hover,:focus-visible) .swx-sidebar-tooltip { display: block; }
 .swx-candidate-card { display: grid; grid-template-columns: minmax(0,1fr); gap: 1rem; padding: 1rem; border: 1px solid var(--workspace-line,#dce3ec); border-radius: .875rem; box-shadow: 0 2px 10px #10234205; }
 .swx-candidate-footer { grid-column: 1 / -1; }
@@ -776,6 +812,18 @@ html:has(.swx-company-review-form) { scroll-padding-block: 6rem 15rem; }
 .swx-company-review-form :is(input,select,textarea) { scroll-margin-block: 6rem 15rem; }
 
 @media (min-width:1024px) {
-  .swx-recruiter-frame .swx-search-actions { left:max(calc((100vw - 1728px) / 2 + 304px),304px); }
-  .swx-recruiter-frame[data-sidebar-collapsed="true"] .swx-search-actions { left:max(calc((100vw - 1728px) / 2 + 120px),120px); }
+  .swx-recruiter-frame .swx-search-actions { left: calc(var(--recruiter-sidebar-width) + 24px); right: 24px; }
+}
+/* Keep every operational Jobs column readable on smaller recruiter laptops. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .swx-jobs-table-scroll table { min-width: 0; }
+  .swx-jobs-table-scroll :is(th,td) { padding-inline: 6px; }
+  .swx-jobs-table-scroll :is(th,td):nth-child(2) { padding-inline: 12px; }
+  .swx-jobs-table-scroll th:nth-child(1) { width: 32px; }
+  .swx-jobs-table-scroll th:nth-child(3) { width: 104px; }
+  .swx-jobs-table-scroll th:nth-child(4) { width: 108px; }
+  .swx-jobs-table-scroll th:nth-child(5) { width: 92px; }
+  .swx-jobs-table-scroll th:nth-child(6) { width: 56px; }
+  .swx-jobs-table-scroll th:nth-child(7) { width: 96px; }
+  .swx-jobs-table-scroll th:nth-child(8) { width: 52px; }
 }

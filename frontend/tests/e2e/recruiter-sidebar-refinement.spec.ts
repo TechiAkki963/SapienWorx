@@ -1,0 +1,138 @@
+import { expect, test } from "@playwright/test";
+import { login, MOCK_API, resetE2E } from "./helpers";
+
+test.beforeEach(async ({ request }) => resetE2E(request));
+
+test("edge chevron supports keyboard, server-rendered persistence, tooltips and unread badges", async ({ page }) => {
+  await login(page, "recruiter");
+  const nav = page.locator("#recruiter-desktop-nav");
+  const toggle = page.getByRole("button", { name: "Collapse sidebar", exact: true });
+  await expect(toggle).toBeEnabled();
+  const edge = (await nav.boundingBox())!;
+  const control = (await toggle.boundingBox())!;
+  expect(edge.width).toBe(248);
+  expect(control.width).toBe(32);
+  expect(control.x).toBeLessThan(edge.x + edge.width);
+  expect(control.x + control.width).toBeGreaterThan(edge.x + edge.width);
+  await expect(toggle.locator("svg path")).toHaveAttribute("d", "m15 6-6 6 6 6");
+  await expect(toggle).not.toContainText("Collapse sidebar");
+  await toggle.hover();
+  await expect(page.getByRole("tooltip", { name: "Collapse sidebar", exact: true })).toBeVisible();
+  await toggle.focus();
+  await toggle.press("Enter");
+  const expand = page.getByRole("button", { name: "Expand sidebar", exact: true });
+  await expect(expand).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("#recruiter-sidebar-toggle-tooltip")).toHaveCount(0);
+  await expect.poll(async () => Math.round((await nav.boundingBox())!.width)).toBe(68);
+  const jobs = nav.getByRole("link", { name: "Jobs", exact: true });
+  await jobs.hover();
+  const tip = page.getByRole("tooltip", { name: "Jobs", exact: true });
+  await expect(tip).toBeVisible();
+  const bounds = (await tip.boundingBox())!;
+  expect(bounds.x).toBeGreaterThan((await nav.boundingBox())!.x + (await nav.boundingBox())!.width);
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("sapienworx:unread-change", { detail: 5 })));
+  await expect(nav.getByRole("link", { name: "Messages", exact: true }).locator(".swx-sidebar-count")).toBeVisible();
+  await jobs.click();
+  await expect(page).toHaveURL(/\/recruiter\/jobs$/);
+  await expect(nav.getByRole("link", { name: "Jobs", exact: true })).toHaveAttribute("aria-current", "page");
+  const response = await page.reload();
+  expect(await response!.text()).toContain('data-sidebar-collapsed="true"');
+  await expect(expand).toBeEnabled();
+  await expect.poll(async () => Math.round((await nav.boundingBox())!.width)).toBe(68);
+  await expand.focus();
+  await expand.press("Space");
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect.poll(async () => Math.round((await nav.boundingBox())!.width)).toBe(248);
+  await expect(toggle).toBeFocused();
+});
+
+test("Preferences lives in navbar Settings while Profile and existing recovery remain available", async ({ page }) => {
+  await login(page, "recruiter");
+  const nav = page.locator("#recruiter-desktop-nav");
+  await expect(nav.getByRole("link", { name: "Preferences", exact: true })).toHaveCount(0);
+  await expect(nav.getByRole("button", { name: "My profile", exact: true })).toBeVisible();
+  await nav.getByRole("button", { name: "My profile", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Your recruiter profile", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  const settings = page.getByRole("banner").getByRole("link", { name: "Settings", exact: true });
+  await expect(settings.locator("svg")).toHaveAttribute("data-icon", "settings");
+  await settings.focus();
+  await settings.press("Enter");
+  await expect(page).toHaveURL(/\/recruiter\/settings$/);
+  const preferences = page.getByRole("region", { name: "Preferences", exact: true });
+  await expect(preferences).toBeVisible();
+  await expect(preferences).not.toContainText(/Billing|Subscriptions|Company administration|Reset your password/);
+  await preferences.getByTitle("Dark mode").click();
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await preferences.getByTitle("Light mode").click();
+  await expect(page.locator("html")).not.toHaveClass(/swx-dark/);
+  await preferences.getByTitle("System mode").click();
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("html")).toHaveClass(/swx-dark/);
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator("html")).not.toHaveClass(/swx-dark/);
+  await expect(page.getByRole("link", { name: "Reset your password", exact: true })).toHaveAttribute("href", "/forgot-password?returnTo=%2Frecruiter%2Fsettings");
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.getByRole("button", { name: "More", exact: true }).click();
+  const more = page.getByRole("dialog", { name: "More recruiter tools", exact: true });
+  await expect(more.getByRole("link", { name: "Preferences", exact: true })).toHaveCount(0);
+  await expect(more.getByRole("button", { name: "My profile", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^(Collapse|Expand) sidebar$/ })).toBeHidden();
+});
+
+test("collapsed restricted tools retain access explanations and centered icons", async ({ page, request }) => {
+  await login(page, "recruiter");
+  await request.post(`${MOCK_API}/__e2e/company`, { data: { member: { company_id: "40000000-0000-4000-8000-000000000001", user_id: "20000000-0000-4000-8000-000000000001", role: "collaborator", status: "active", scope: { all: false }, talent_seat: false } } });
+  await page.goto("/recruiter");
+  await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+  const talent = page.locator("#recruiter-desktop-nav").getByRole("button", { name: "Talent — access information", exact: true });
+  await expect.poll(async () => Math.round((await page.locator("#recruiter-desktop-nav").boundingBox())!.width)).toBe(68);
+  const item = (await talent.boundingBox())!, icon = (await talent.locator("svg").boundingBox())!;
+  expect(Math.abs(item.x + item.width / 2 - icon.x - icon.width / 2)).toBeLessThan(1);
+  await talent.click();
+  const reason = page.getByRole("dialog", { name: "Workspace access", exact: true });
+  await expect(reason).toContainText("Your company role does not permit this workspace");
+  await page.keyboard.press("Escape");
+  await expect(talent).toBeFocused();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Settings", exact: true })).toBeVisible();
+});
+
+test("expanded laptop sidebar retains readable job titles and all columns without horizontal scrolling", async ({ page }) => {
+  await login(page, "recruiter");
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("/recruiter/jobs");
+  const scroll = page.getByRole("region", { name: "Job management table", exact: true });
+  const titleCell = scroll.locator("tbody tr").first().locator("td").nth(1);
+  expect((await titleCell.boundingBox())!.width).toBeGreaterThanOrEqual(180);
+  expect((await titleCell.locator("p").first().boundingBox())!.height).toBeLessThanOrEqual(50);
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) console.log("Laptop layout diagnostic", await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, outside: [...document.querySelectorAll("body *")].map(node => ({ tag: node.tagName, class: node.className, right: node.getBoundingClientRect().right, overflow: getComputedStyle(node).overflowX })).filter(item => item.right > innerWidth + 1).slice(0, 18) })));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  expect(await scroll.evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+  await expect(scroll.getByRole("columnheader", { name: "Posted", exact: true })).toBeVisible();
+});
+
+test("full-height sidebar owns branding and navbar/content reclaim collapsed width", async ({ page }) => {
+  await login(page, "recruiter");
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto("/recruiter/pipeline");
+  const nav=page.locator("#recruiter-desktop-nav"), header=page.getByRole("banner"), search=header.getByRole("textbox",{name:"Search candidates",exact:true});
+  await expect(header.locator('img[src*="/brand/recruiter/"]')).toHaveCount(0);
+  await expect(nav.locator(".swx-recruiter-sidebar-brand")).toBeVisible();
+  const expanded=(await header.boundingBox())!;
+  expect((await nav.boundingBox())!.x).toBe(0);expect((await nav.boundingBox())!.y).toBe(0);expect((await nav.boundingBox())!.height).toBe(768);expect(expanded.x).toBe(248);expect(expanded.height).toBe(64);
+  const sb=(await search.boundingBox())!, ab=(await page.locator(".swx-recruiter-navbar-actions").boundingBox())!;expect(sb.width).toBeGreaterThanOrEqual(320);expect(sb.x+sb.width).toBeLessThanOrEqual(ab.x);
+  await page.getByRole("button",{name:"Collapse sidebar",exact:true}).click();await expect.poll(async()=>(await header.boundingBox())!.x).toBe(68);
+  expect((await header.boundingBox())!.width-expanded.width).toBe(180);
+  await page.evaluate(()=>window.scrollTo(0,300));expect((await nav.boundingBox())!.y).toBe(0);expect((await header.boundingBox())!.y).toBe(0);
+  await search.fill("Approved candidate query");await search.press("Enter");await expect(page).toHaveURL(/\/recruiter\/pipeline\?q=Approved(?:\+|%20)candidate(?:\+|%20)query/);
+});
+
+test("short desktop keeps brand fixed while navigation scrolls and tooltips escape the scroll region", async ({ page }) => {
+  await login(page,"recruiter");await page.setViewportSize({width:1366,height:460});await page.goto("/recruiter/jobs");
+  const nav=page.locator("#recruiter-desktop-nav"), body=nav.locator(".swx-sidebar-sections"), brand=nav.getByRole("link",{name:"SapienWorx recruiter home",exact:true}), profile=nav.getByRole("button",{name:"My profile",exact:true});
+  const initial=(await brand.boundingBox())!;await profile.scrollIntoViewIfNeeded();expect(await body.evaluate(node=>node.scrollTop)).toBeGreaterThan(0);expect((await brand.boundingBox())!.y).toBe(initial.y);
+  await profile.click();await expect(page.getByRole("dialog",{name:"Your recruiter profile",exact:true})).toBeVisible();await page.keyboard.press("Escape");
+  await page.getByRole("button",{name:"Collapse sidebar",exact:true}).click();await expect.poll(async()=>Math.round((await nav.boundingBox())!.width)).toBe(68);
+  const jobs=nav.getByRole("link",{name:"Jobs",exact:true});await jobs.scrollIntoViewIfNeeded();await jobs.hover();const tip=page.getByRole("tooltip",{name:"Jobs",exact:true});await expect(tip).toBeVisible();expect((await tip.boundingBox())!.x).toBeGreaterThan((await body.boundingBox())!.x+(await body.boundingBox())!.width);
+  await jobs.focus();await page.keyboard.press("Escape");await expect(tip).toHaveCount(0);await expect(jobs).toBeFocused();
+});

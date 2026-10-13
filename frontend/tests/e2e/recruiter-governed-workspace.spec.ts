@@ -9,7 +9,7 @@ test("nav preference persists without duplicate selection, and job context retai
  await expect(nav.getByText("Usage",{exact:true})).toHaveCount(0);
  await page.getByRole("button",{name:"Collapse sidebar",exact:true}).click();
  await page.reload();await expect(page.getByRole("button",{name:"Expand sidebar",exact:true})).toBeVisible();
- expect(Math.round((await nav.boundingBox())!.width)).toBe(72);
+ expect(Math.round((await nav.boundingBox())!.width)).toBe(68);
  await page.goto("/recruiter/jobs/60000000-0000-4000-8000-000000000001/analytics");
  await expect(nav.getByRole("link",{name:"Jobs",exact:true})).toHaveAttribute("aria-current","page");
  await expect(page.getByRole("link",{name:"← Back to job overview",exact:true})).toHaveAttribute("href","/recruiter/jobs/60000000-0000-4000-8000-000000000001");

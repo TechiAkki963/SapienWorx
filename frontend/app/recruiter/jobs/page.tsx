@@ -205,8 +205,8 @@ export default async function RecruiterJobsPage({ searchParams }: Props) {
 
           {result.items.length ? (
             <>
-              <div className="hidden min-w-0 max-w-full overflow-x-auto rounded-2xl border border-line/70 bg-white shadow-[0_4px_20px_rgba(16,33,63,0.035)] lg:block">
-                <table className="w-full table-fixed border-collapse text-left text-sm">
+              <div role="region" aria-label="Job management table" className="swx-jobs-table-scroll relative hidden min-w-0 max-w-full overflow-x-auto rounded-2xl border border-line/70 bg-white shadow-[0_4px_20px_rgba(16,33,63,0.035)] lg:block">
+                <table className="w-full min-w-[960px] table-fixed border-collapse text-left text-sm">
                   <thead className="bg-slate-50/90 text-[13px] font-extrabold uppercase tracking-[0.08em] text-ink-muted">
                     <tr>
                       <th scope="col" className="w-10 px-3 py-3"><JobSelectAll/></th>
