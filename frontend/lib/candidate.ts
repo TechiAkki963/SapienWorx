@@ -1,4 +1,6 @@
 export type CandidateJob = {
+  screening_questions?: string[];
+  screening_question_version?:string;
   referral_enabled?: boolean;
   referral_deadline?: string|null;
   referral_reward_enabled?: boolean;
@@ -170,6 +172,7 @@ export type CandidateDetails = {
   military_experience?: string;
   career_break?: string;
   onboarding_status?: CandidateOnboardingStatus;
+  product_analytics_enabled?:boolean;
   onboarding_method?: string;
   onboarding_step?: number;
   onboarding_return_to?: string;
@@ -225,6 +228,8 @@ export function safeCandidateJobPath(
 }
 
 export type CandidateProfileSummary = {
+  product_analytics_enabled?:boolean;
+  onboarding_status?: CandidateOnboardingStatus;
   full_name: string;
   headline?: string;
   email: string;

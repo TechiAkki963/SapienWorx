@@ -1,3 +1,4 @@
+import { candidateBrowsingSession } from "@/components/candidate/candidate-public-layout";
 import { JobCard } from "@/components/candidate/job-card";
 import { Container } from "@/components/layout/container";
 import { PublicFooter } from "@/components/site/public-footer";
@@ -14,6 +15,8 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 function single(value: string | string[] | undefined): string { return Array.isArray(value) ? value[0] ?? "" : value ?? ""; }
 
 export default async function JobsPage({ searchParams }: Props) {
+  const browsingSession=await candidateBrowsingSession();
+  const Main=browsingSession?.role==="candidate"?"div":"main";
   const params = await searchParams;
   const q = single(params.q);
   const location = single(params.location);
@@ -31,8 +34,8 @@ export default async function JobsPage({ searchParams }: Props) {
   const pageHref = (next: number) => { const nextQuery = new URLSearchParams(query); nextQuery.set("page", String(next)); return `/jobs?${nextQuery.toString()}`; };
 
   return (
-    <main id="main-content" className="min-h-screen">
-      <PublicHeader />
+    <Main id={browsingSession?.role==="candidate"?undefined:"main-content"} className="min-h-screen">
+      {browsingSession?.role!=="candidate"&&<PublicHeader sessionRole={browsingSession?.role}/>}
       <Container className="py-8 sm:py-12">
         <div className="grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
           <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -55,13 +58,13 @@ export default async function JobsPage({ searchParams }: Props) {
               {result && <p className="text-sm font-semibold text-ink-muted">{result.total} active {result.total === 1 ? "role" : "roles"}</p>}
             </div>
 
-            {failed ? <Surface className="mt-7 p-8 text-center" tone="peach"><h2 className="text-xl font-bold">Live jobs are temporarily unavailable.</h2><p className="mt-2 text-sm text-ink-muted">The public site is working, but the jobs API could not be reached. No placeholder jobs are being substituted.</p></Surface> : result && result.items.length > 0 ? <div className="mt-7 grid gap-4 xl:grid-cols-2">{result.items.map((job) => <JobCard key={job.id} job={job} />)}</div> : <Surface className="mt-7 p-8 text-center" tone="mint"><h2 className="text-xl font-bold">No roles match those filters yet.</h2><p className="mt-2 text-sm text-ink-muted">Try a broader keyword, nearby location, experience level, or another work mode.</p><div className="mt-5"><Button href="/jobs" variant="secondary">Reset search</Button></div></Surface>}
+            {failed ? <Surface className="mt-7 p-8 text-center" tone="peach"><h2 className="text-xl font-bold">Live jobs are temporarily unavailable.</h2><p className="mt-2 text-sm text-ink-muted">The public site is working, but the jobs API could not be reached. No placeholder jobs are being substituted.</p></Surface> : result && result.items.length > 0 ? <div className="mt-7 grid gap-4 xl:grid-cols-2">{result.items.map((job) => <JobCard key={job.id} job={job} canSave={browsingSession?.role==="candidate"}/>)}</div> : <Surface className="mt-7 p-8 text-center" tone="mint"><h2 className="text-xl font-bold">No roles match those filters yet.</h2><p className="mt-2 text-sm text-ink-muted">Try a broader keyword, nearby location, experience level, or another work mode.</p><div className="mt-5"><Button href="/jobs" variant="secondary">Reset search</Button></div></Surface>}
 
             {result && result.total > result.limit && <nav className="mt-8 flex items-center justify-between gap-4" aria-label="Job result pages"><Button href={pageHref(Math.max(1,page-1))} variant="secondary" size="sm" className={page <= 1 ? "pointer-events-none opacity-50" : undefined}>← Previous</Button><span className="text-sm font-semibold text-ink-muted">Page {page} of {pageCount}</span><Button href={pageHref(Math.min(pageCount,page+1))} variant="secondary" size="sm" className={page >= pageCount ? "pointer-events-none opacity-50" : undefined}>Next →</Button></nav>}
           </section>
         </div>
       </Container>
-      <PublicFooter />
-    </main>
+      {browsingSession?.role!=="candidate"&&<PublicFooter/>}
+    </Main>
   );
 }

@@ -43,7 +43,7 @@ for (const mode of ["Light", "Dark"] as const) {
   }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await login(page, "candidate");
-    await page.getByTitle("Appearance").click();
+    await page.goto("/candidate/settings#appearance");
     await page.getByTitle(`${mode} mode`).click();
     await page.goto("/candidate/profile");
     await page.getByRole("button", { name: /^Notifications,/ }).click();
@@ -51,7 +51,7 @@ for (const mode of ["Light", "Dark"] as const) {
       ".candidate-photo-actions button",
       ".candidate-notification-toolbar button",
       ".candidate-view-notifications",
-      ".candidate-mobile-nav a[aria-current]",
+      ".candidate-mobile-nav a",
     ]) {
       const ratio = await page
         .locator(selector)
@@ -293,7 +293,7 @@ test("System follows live OS appearance while explicit choices remain stable", a
   await page.emulateMedia({ colorScheme: "light" });
   await expect(page.locator("html")).not.toHaveClass(/swx-dark/);
   for (const mode of ["Dark", "Light"]) {
-    await page.getByLabel(/Appearance:/).click();
+    await page.goto("/candidate/settings#appearance");
     await page.getByRole("button", { name: mode, exact: true }).click();
     await page.emulateMedia({
       colorScheme: mode === "Dark" ? "light" : "dark",
@@ -383,10 +383,11 @@ for (const viewport of viewports)
       });
       if (viewport.width >= 768) {
         await expect(sidebar).toBeVisible();
-        await expect(sidebar.getByRole("link")).toHaveCount(10);
-        await expect(sidebar.getByRole("link", { name: "Offers", exact: true })).toHaveAttribute("href", "/candidate/offers");
+        await expect(sidebar.getByRole("link")).toHaveCount(7);
+        await expect(sidebar.getByRole("link", { name: "Offers", exact: true })).toHaveCount(0);
+        await expect(sidebar.getByRole("link", { name: "Jobs", exact: true })).toHaveAttribute("href", "/candidate/jobs");
         await expect(sidebar.getByRole("link", { name: "Companies", exact: true })).toHaveAttribute("href", "/companies");
-        await expect(sidebar.getByRole("link", { name: "My company reviews", exact: true })).toHaveAttribute("href", "/candidate/company-reviews");
+        await expect(sidebar.getByRole("link", { name: "My company reviews", exact: true })).toHaveCount(0);
       } else
         await expect(
           page.getByRole("navigation", { name: "Candidate mobile navigation" }),

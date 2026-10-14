@@ -11,7 +11,7 @@ export default async function CandidateInboxPage() {
     <div className="grid gap-4">
       <div>
         <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Recruiter conversations</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-[-0.035em] text-navy">Inbox</h1>
+        <h1 className="mt-1 text-2xl font-bold tracking-[-0.035em] text-navy">Messages</h1>
         <p className="mt-1 text-sm text-ink-muted">Private conversations started by recruiters about roles and opportunities.</p>
       </div>
       <MessagingWorkspace initialThreads={threads.items ?? []} role="candidate" />

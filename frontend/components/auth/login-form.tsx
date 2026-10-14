@@ -78,7 +78,7 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
   const verificationHref = `/verify-email?${new URLSearchParams({ email: attemptedEmail, role, ...(role === "candidate" && nextPath ? {next:nextPath} : {}) }).toString()}`;
 
   return (
-    <form className="grid gap-5" onSubmit={submit}>
+    <form method="post" className="grid gap-5" onSubmit={submit}>
       <div>
         <p className="text-sm font-semibold text-indigo">{role === "master_admin" ? "Restricted session" : "Welcome back"}</p>
         <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-ink">{role === "master_admin" ? "Enter the command centre" : "Sign in to SapienWorx"}</h2>

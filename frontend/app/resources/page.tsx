@@ -1,3 +1,4 @@
+import { candidateBrowsingSession } from "@/components/candidate/candidate-public-layout";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,10 +13,12 @@ export const metadata: Metadata = {
   description: "Practical career guides on résumés, interviews, growing your skills and working thoughtfully with AI.",
 };
 
-export default function KnowledgeHubPage() {
+export default async function KnowledgeHubPage() {
+  const browsingSession=await candidateBrowsingSession();
+  const Main=browsingSession?.role==="candidate"?"div":"main";
   return (
-    <main id="main-content" className="swx-landing min-h-screen bg-[#f4f9ff]">
-      <LandingHeader />
+    <Main id={browsingSession?.role==="candidate"?undefined:"main-content"} className="swx-landing min-h-screen bg-[#f4f9ff]">
+      {browsingSession?.role!=="candidate"&&<LandingHeader/>}
       <Container className="py-12 sm:py-20">
         <Link href="/" className="text-sm font-semibold text-indigo hover:underline">← Back to SapienWorx</Link>
         <div className="mt-8 max-w-[44rem]">
@@ -39,7 +42,7 @@ export default function KnowledgeHubPage() {
           ))}
         </div>
       </Container>
-      <LandingFooter />
-    </main>
+      {browsingSession?.role!=="candidate"&&<LandingFooter/>}
+    </Main>
   );
 }

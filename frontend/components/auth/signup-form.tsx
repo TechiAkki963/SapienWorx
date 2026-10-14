@@ -46,7 +46,7 @@ export function SignupForm({ recruiter = false, nextPath, invitation }: { recrui
   }
 
   return (
-    <form className="grid gap-4" onSubmit={submit}>
+    <form method="post" className="grid gap-4" onSubmit={submit}>
       <div><p className="text-sm font-semibold text-indigo">{recruiter ? "Recruiter workspace" : "Candidate account"}</p><h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-ink">Create your account</h2></div>
       {error && <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
       <Input label="Full name" name="full_name" autoComplete="name" defaultValue={invitation?.name} required />

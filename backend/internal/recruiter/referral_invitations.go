@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -22,7 +23,7 @@ import (
 var ErrReferralUnavailable = errors.New("referral invitation unavailable")
 var ErrReferralDuplicate = errors.New("referral already exists for this person and job")
 var ErrReferralRateLimited = errors.New("candidate referral daily limit reached")
-var ErrReferralNotReady = errors.New("required profile information or referral consent is incomplete")
+var ErrReferralNotReady = errors.New("required profile information, screening answers or referral consent is incomplete")
 
 type ReferralInvitation struct {
 	Candidate        *PipelineRow `json:"candidate,omitempty"`
@@ -454,7 +455,7 @@ func (s *Service) InvitationLookup(ctx context.Context, token string) (ReferralI
 	_, err = s.db.Exec(ctx, `WITH opened AS (UPDATE referral_invitations SET opened_at=now(),updated_at=now() WHERE id=$1 AND opened_at IS NULL RETURNING id) INSERT INTO referral_invitation_events(referral_id,action) SELECT id,'invitation_opened' FROM opened`, id)
 	return x, err
 }
-func (s *Service) CandidateReferral(ctx context.Context, userID, token, action string, consent bool) (ReferralInvitation, error) {
+func (s *Service) CandidateReferral(ctx context.Context, userID, token, action string, consent bool, screening ...candidate.ApplicationSubmission) (ReferralInvitation, error) {
 	id, err := s.invitationID(token)
 	if err != nil {
 		return ReferralInvitation{}, err
@@ -465,6 +466,10 @@ func (s *Service) CandidateReferral(ctx context.Context, userID, token, action s
 		return ReferralInvitation{}, err
 	}
 	defer tx.Rollback(ctx)
+	var owner string
+	if err = tx.QueryRow(ctx, `SELECT user_id::text FROM candidate_profiles WHERE user_id=$1 FOR UPDATE`, userID).Scan(&owner); err != nil {
+		return ReferralInvitation{}, ErrReferralUnavailable
+	}
 	var valid bool
 	err = tx.QueryRow(ctx, `SELECT ri.token_hash=$3 AND lower(u.email)=ri.candidate_email AND u.email_verified_at IS NOT NULL AND u.role='candidate' AND u.is_active AND u.status='active' FROM referral_invitations ri JOIN users u ON u.id=$2 WHERE ri.id=$1 AND ri.expires_at>now() AND ri.cancelled_at IS NULL AND ri.declined_at IS NULL FOR UPDATE OF ri`, id, userID, hash[:]).Scan(&valid)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
@@ -565,11 +570,22 @@ func (s *Service) CandidateReferral(ctx context.Context, userID, token, action s
 		}
 		if x.ApplicationID == nil {
 			var active bool
-			if err = tx.QueryRow(ctx, `SELECT status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date) AND (referral_deadline IS NULL OR referral_deadline>=current_date) FROM jobs WHERE id=$1 FOR SHARE`, *x.JobID).Scan(&active); err != nil {
+			var questions []string
+			if err = tx.QueryRow(ctx, `SELECT screening_questions,status='active' AND visibility='public' AND referral_enabled AND (application_deadline IS NULL OR application_deadline>=current_date) AND (referral_deadline IS NULL OR referral_deadline>=current_date) FROM jobs WHERE id=$1 FOR SHARE`, *x.JobID).Scan(&questions, &active); err != nil {
 				return x, err
 			}
 			if !active {
 				return x, ErrInvalid
+			}
+			var submission candidate.ApplicationSubmission
+			if len(screening) > 1 {
+				return x, ErrInvalid
+			}
+			if len(screening) == 1 {
+				submission = screening[0]
+			}
+			if err = candidate.ValidateScreeningSubmission(questions, submission.Answers, submission.QuestionVersion); err != nil {
+				return x, ErrReferralNotReady
 			}
 			var appID string
 			err = tx.QueryRow(ctx, `INSERT INTO applications(candidate_id,job_id,source,referral_id) VALUES($1,$2,'referral',$3) ON CONFLICT(candidate_id,job_id) DO NOTHING RETURNING id`, userID, *x.JobID, id).Scan(&appID)
@@ -577,6 +593,14 @@ func (s *Service) CandidateReferral(ctx context.Context, userID, token, action s
 				return x, ErrReferralDuplicate
 			}
 			if err != nil {
+				return x, err
+			}
+			if len(questions) > 0 {
+				if _, err = tx.Exec(ctx, `INSERT INTO application_screening_answers(application_id,questions,answers) VALUES($1,$2,$3)`, appID, questions, submission.Answers); err != nil {
+					return x, err
+				}
+			}
+			if _, err = tx.Exec(ctx, `DELETE FROM candidate_application_drafts WHERE candidate_id=$1 AND job_id=$2`, userID, *x.JobID); err != nil {
 				return x, err
 			}
 			if _, err = tx.Exec(ctx, `UPDATE referral_invitations SET application_id=$2,applied_at=now(),updated_at=now() WHERE id=$1`, id, appID); err != nil {
@@ -587,6 +611,11 @@ func (s *Service) CandidateReferral(ctx context.Context, userID, token, action s
 			}
 			if err = referralEvent(ctx, tx, id, userID, "application_submitted_with_consent"); err != nil {
 				return x, err
+			}
+			for _, event := range []string{"application_started", "application_submitted"} {
+				if err = candidate.RecordApplicationJobEvent(ctx, tx, userID, *x.JobID, event); err != nil {
+					return x, err
+				}
 			}
 			x.ApplicationID = &appID
 		}

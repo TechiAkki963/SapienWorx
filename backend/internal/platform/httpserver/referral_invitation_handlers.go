@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"errors"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
 	"net/http"
 	"strconv"
@@ -96,14 +97,16 @@ func (s *Server) candidateReferralInvitation(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	var in struct {
-		Token   string `json:"token"`
-		Action  string `json:"action"`
-		Consent bool   `json:"consent"`
+		Token           string   `json:"token"`
+		Action          string   `json:"action"`
+		Consent         bool     `json:"consent"`
+		Answers         []string `json:"answers"`
+		QuestionVersion string   `json:"question_version"`
 	}
 	if !decodeJSON(w, r, &in) {
 		return
 	}
-	item, err := s.recruiter.CandidateReferral(r.Context(), id, in.Token, in.Action, in.Consent)
+	item, err := s.recruiter.CandidateReferral(r.Context(), id, in.Token, in.Action, in.Consent, candidate.ApplicationSubmission{Answers: in.Answers, QuestionVersion: in.QuestionVersion})
 	if err != nil {
 		s.writeRecruiterError(w, r, err)
 		return

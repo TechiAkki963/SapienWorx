@@ -1,3 +1,4 @@
+import { candidateBrowsingSession } from "@/components/candidate/candidate-public-layout";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,9 +27,11 @@ export default async function ResourcePage({ params }: Props) {
   const guide = guides.find((item) => item.slug === slug);
   if (!guide) notFound();
 
+  const browsingSession=await candidateBrowsingSession();
+  const Main=browsingSession?.role==="candidate"?"div":"main";
   return (
-    <main id="main-content" className="min-h-screen bg-[#fffcf8]">
-      <PublicHeader />
+    <Main id={browsingSession?.role==="candidate"?undefined:"main-content"} className="min-h-screen bg-[#fffcf8]">
+      {browsingSession?.role!=="candidate"&&<PublicHeader/>}
       <article className="py-10 sm:py-16">
         <Container>
           <nav aria-label="Breadcrumb" className="flex flex-wrap gap-2 text-sm text-ink-muted">
@@ -58,7 +61,7 @@ export default async function ResourcePage({ params }: Props) {
           </div>
         </Container>
       </article>
-      <PublicFooter />
-    </main>
+      {browsingSession?.role!=="candidate"&&<PublicFooter/>}
+    </Main>
   );
 }

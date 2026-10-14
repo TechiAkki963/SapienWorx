@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import fs from "node:fs/promises";
 
-import { login, resetE2E } from "./helpers";
+import { login, resetE2E,chooseCandidateAppearance } from "./helpers";
 
 const viewports = [
   { label: "1440x900", width: 1440, height: 900 },
@@ -21,6 +21,7 @@ async function noOverflow(page: Page, label: string) {
 }
 
 async function chooseMode(page: Page, label: "System" | "Light" | "Dark") {
+ if(new URL(page.url()).pathname.startsWith("/candidate")){await chooseCandidateAppearance(page,label);return}
   await page.getByTitle("Appearance").click();
   await page.getByTitle(label + " mode").click();
 }
@@ -39,14 +40,14 @@ test.beforeEach(async ({ request, page }) => {
 test("P2.5 candidate inbox responsive matrix", async ({ page }) => {
   await login(page, "candidate");
   await page.goto("/candidate/inbox");
-  await expect(page.getByRole("heading", { name: "Inbox" }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Messages" }).first()).toBeVisible();
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/candidate/inbox");
     await expect(page.getByText("Riya Recruiter").first()).toBeVisible();
     if (viewport.width <= 428) {
-      const active = page.getByRole("link", { name: "Inbox" });
+      const active = page.getByRole("link", { name: "Messages" });
       await expect(active).toHaveAttribute("aria-current", "page");
       const box = await active.boundingBox();
       expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);

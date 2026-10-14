@@ -23,7 +23,7 @@ func NotificationDestination(kind string, value *string) *string {
 	raw := strings.TrimSpace(*value)
 	parsed, err := url.Parse(raw)
 	if err == nil && parsed.Scheme == "" && parsed.Host == "" && strings.HasPrefix(raw, "/candidate") && !strings.ContainsAny(raw, "\\\r\n\x00") && path.Clean(parsed.Path) == parsed.Path {
-		allowed := []string{"/candidate", "/candidate/jobs", "/candidate/saved", "/candidate/saved-jobs", "/candidate/applications", "/candidate/interviews", "/candidate/inbox", "/candidate/profile", "/candidate/notifications", "/candidate/settings"}
+		allowed := []string{"/candidate", "/candidate/jobs", "/candidate/saved", "/candidate/saved-jobs", "/candidate/applications", "/candidate/interviews", "/candidate/inbox", "/candidate/messages", "/candidate/offers", "/candidate/referrals", "/candidate/career-hub", "/candidate/profile", "/candidate/notifications", "/candidate/settings"}
 		for _, base := range allowed {
 			if parsed.Path == base || (base != "/candidate" && strings.HasPrefix(parsed.Path, base+"/")) {
 				return &raw
@@ -53,10 +53,10 @@ func (s *Service) NotificationInbox(ctx context.Context, userID string, page, li
 		return result, err
 	}
 	defer tx.Rollback(ctx)
-	if err = tx.QueryRow(ctx, `SELECT count(*),count(*) FILTER(WHERE read_at IS NULL) FROM candidate_notifications WHERE candidate_id=$1`, userID).Scan(&result.Total, &result.UnreadCount); err != nil {
+	if err = tx.QueryRow(ctx, notificationPreferenceCTE+`SELECT count(*),count(*) FILTER(WHERE read_at IS NULL) FROM candidate_notifications CROSS JOIN notification_preference WHERE candidate_id=$1 AND `+visibleNotification, userID).Scan(&result.Total, &result.UnreadCount); err != nil {
 		return result, err
 	}
-	rows, err := tx.Query(ctx, `SELECT id,kind,title,body,action_url,read_at,created_at FROM candidate_notifications WHERE candidate_id=$1 ORDER BY created_at DESC,id DESC LIMIT $2 OFFSET $3`, userID, limit, (page-1)*limit)
+	rows, err := tx.Query(ctx, notificationPreferenceCTE+`SELECT id,kind,title,body,action_url,read_at,created_at FROM candidate_notifications CROSS JOIN notification_preference WHERE candidate_id=$1 AND `+visibleNotification+` ORDER BY created_at DESC,id DESC LIMIT $2 OFFSET $3`, userID, limit, (page-1)*limit)
 	if err != nil {
 		return result, err
 	}
@@ -77,6 +77,6 @@ func (s *Service) NotificationInbox(ctx context.Context, userID string, page, li
 }
 
 func (s *Service) MarkAllNotificationsRead(ctx context.Context, userID string) (int64, error) {
-	tag, err := s.db.Exec(ctx, `UPDATE candidate_notifications SET read_at=now() WHERE candidate_id=$1 AND read_at IS NULL`, userID)
+	tag, err := s.db.Exec(ctx, notificationPreferenceCTE+`UPDATE candidate_notifications SET read_at=now() FROM notification_preference WHERE candidate_id=$1 AND read_at IS NULL AND `+visibleNotification, userID)
 	return tag.RowsAffected(), err
 }

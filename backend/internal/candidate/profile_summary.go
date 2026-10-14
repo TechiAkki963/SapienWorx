@@ -12,21 +12,23 @@ import (
 )
 
 type ProfileSummary struct {
-	FullName              string   `json:"full_name"`
-	Headline              *string  `json:"headline,omitempty"`
-	Email                 string   `json:"email"`
-	EmailVerified         bool     `json:"email_verified"`
-	PrimaryPhone          *string  `json:"primary_phone,omitempty"`
-	SecondaryPhone        string   `json:"secondary_phone,omitempty"`
-	CurrentLocation       string   `json:"current_location,omitempty"`
-	PreferredLocations    []string `json:"preferred_locations"`
-	TotalExperienceMonths int      `json:"total_experience_months"`
-	ProfileCompletion     int      `json:"profile_completion"`
-	PhotoDataURL          string   `json:"photo_data_url,omitempty"`
-	PhoneVerified         bool     `json:"phone_verified"`
-	ShareToken            string   `json:"share_token"`
-	ProfileVisible        bool     `json:"profile_visible"`
-	Discoverable          bool     `json:"discoverable_to_recruiters"`
+	ProductAnalyticsEnabled bool     `json:"product_analytics_enabled"`
+	OnboardingStatus        string   `json:"onboarding_status,omitempty"`
+	FullName                string   `json:"full_name"`
+	Headline                *string  `json:"headline,omitempty"`
+	Email                   string   `json:"email"`
+	EmailVerified           bool     `json:"email_verified"`
+	PrimaryPhone            *string  `json:"primary_phone,omitempty"`
+	SecondaryPhone          string   `json:"secondary_phone,omitempty"`
+	CurrentLocation         string   `json:"current_location,omitempty"`
+	PreferredLocations      []string `json:"preferred_locations"`
+	TotalExperienceMonths   int      `json:"total_experience_months"`
+	ProfileCompletion       int      `json:"profile_completion"`
+	PhotoDataURL            string   `json:"photo_data_url,omitempty"`
+	PhoneVerified           bool     `json:"phone_verified"`
+	ShareToken              string   `json:"share_token"`
+	ProfileVisible          bool     `json:"profile_visible"`
+	Discoverable            bool     `json:"discoverable_to_recruiters"`
 }
 
 func stringValue(m map[string]any, key string) string {
@@ -42,8 +44,8 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 	var photo []byte
 	var photoMime *string
 	var visible, discoverable bool
-	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,COALESCE(cp.profile_details->>'profile_visible_in_sourcing'='true',false),COALESCE(cp.profile_details->>'discoverable_to_recruiters'='true',false),u.phone_verified_at IS NOT NULL FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
-		&result.FullName, &headline, &result.Email, &emailVerified, &phone, &city, &state, &result.TotalExperienceMonths, &result.ProfileCompletion, &raw, &photo, &photoMime, &result.ShareToken, &visible, &discoverable, &result.PhoneVerified,
+	err := s.db.QueryRow(ctx, `SELECT cp.full_name,cp.headline,u.email,u.email_verified_at,u.phone_e164,cp.current_city,cp.current_state,cp.total_experience_months,cp.profile_completion,cp.profile_details,cp.profile_photo,cp.profile_photo_mime,cp.profile_share_token::text,COALESCE(cp.profile_details->>'profile_visible_in_sourcing'='true',false),COALESCE(cp.profile_details->>'discoverable_to_recruiters'='true',false),u.phone_verified_at IS NOT NULL,EXISTS(SELECT 1 FROM privacy_consents pc WHERE pc.user_id=cp.user_id AND pc.purpose='product_analytics' AND pc.granted AND pc.withdrawn_at IS NULL) FROM candidate_profiles cp JOIN users u ON u.id=cp.user_id WHERE cp.user_id=$1`, userID).Scan(
+		&result.FullName, &headline, &result.Email, &emailVerified, &phone, &city, &state, &result.TotalExperienceMonths, &result.ProfileCompletion, &raw, &photo, &photoMime, &result.ShareToken, &visible, &discoverable, &result.PhoneVerified, &result.ProductAnalyticsEnabled,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ProfileSummary{}, ErrNotFound
@@ -65,6 +67,7 @@ func (s *Service) Summary(ctx context.Context, userID string) (ProfileSummary, e
 		details = map[string]any{}
 	}
 	result.SecondaryPhone = stringValue(details, "secondary_phone")
+	result.OnboardingStatus = stringValue(details, "onboarding_status")
 	if preferred := stringValue(details, "preferred_locations"); preferred != "" {
 		for _, item := range strings.Split(preferred, ",") {
 			if item = strings.TrimSpace(item); item != "" {

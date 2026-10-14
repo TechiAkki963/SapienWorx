@@ -1,3 +1,6 @@
+"use client";
+import { useEffect, useRef } from "react";
+import { profileReadiness } from "@/lib/profile-readiness";
 import type {
   CandidateProfile,
   CandidateProfileDetails,
@@ -6,10 +9,14 @@ import { profileKeySkills } from "@/lib/profile-key-skills";
 export function ProfileCompletionChecklist({
   profile,
   extended,
+  initiallyExpanded=false,
 }: {
   profile: CandidateProfile;
   extended: CandidateProfileDetails;
+  initiallyExpanded?: boolean;
 }) {
+  const checklist=useRef<HTMLDetailsElement>(null);
+  useEffect(()=>{if(initiallyExpanded){checklist.current?.scrollIntoView({block:"center"});checklist.current?.querySelector<HTMLElement>('[data-incomplete="true"]')?.focus()}},[initiallyExpanded]);
   const d = extended.details;
   const hasContent = (value: unknown) =>
     Array.isArray(value)
@@ -61,10 +68,11 @@ export function ProfileCompletionChecklist({
     ],
   ] as const;
   return (
-    <details className="profile-completion-checklist">
+    <details ref={checklist} id="profile-completion" className="profile-completion-checklist" open={initiallyExpanded}>
       <summary>
         Profile completeness <strong>{profile.profile_completion}%</strong>
       </summary>
+      <div className="profile-readiness-missing"><h3>Next steps for your profile</h3>{profileReadiness(profile,extended).length?<ul>{profileReadiness(profile,extended).map(item=><li key={item.href}><a href={item.href} data-incomplete="true">{item.label} →</a></li>)}</ul>:<p>Your core profile sections are ready.</p>}</div>
       <ul>
         {items.map(([label, id, ready]) => (
           <li key={id}>

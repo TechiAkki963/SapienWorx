@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext } from "@playwright/test";
 import { login, resetE2E, MOCK_API } from "./helpers";
+import {chooseCandidateAppearance} from "./helpers";
 import { profileV2Fixture } from "./profile-v2-fixture";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -413,8 +414,7 @@ for (const [width, height] of [
     await page
       .getByRole("button", { name: "Close Profile Visibility" })
       .press("Escape");
-    await page.getByLabel("Appearance: System", { exact: true }).click();
-    await page.getByRole("button", { name: "Dark", exact: true }).click();
+    await chooseCandidateAppearance(page,"Dark");
     await page.screenshot({
       path: path.join(dir, "dark-profile.png"),
       fullPage: true,

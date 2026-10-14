@@ -1,41 +1,9 @@
-import Link from "next/link";
-
-import { Wordmark } from "@/components/brand/wordmark";
-import { CandidateNav } from "@/components/candidate/candidate-nav";
+import { cookies } from "next/headers";
 import type { CandidateProfileSummary } from "@/lib/candidate";
-import { CandidateTopbar } from "./candidate-topbar";
+import { CandidateFrame } from "./candidate-frame";
 import { CandidateWorkspaceState } from "./candidate-workspace-state";
-
-export function CandidateShell({
-  children,
-  identity,
-  name,
-}: {
-  children: React.ReactNode;
-  identity: CandidateProfileSummary | null;
-  name: string;
-}) {
-  return (
-    <CandidateWorkspaceState initialIdentity={identity}>
-      <div className="theme-surface candidate-workspace">
-        <header className="candidate-workspace-header">
-          <div className="candidate-workspace-topbar">
-            <Link href="/candidate" aria-label="Candidate dashboard">
-              <Wordmark />
-            </Link>
-            <CandidateTopbar name={name} />
-          </div>
-        </header>
-        <div className="candidate-workspace-grid">
-          <aside className="candidate-workspace-sidebar">
-            <CandidateNav />
-          </aside>
-          <main id="main-content" className="candidate-workspace-main">
-            {children}
-          </main>
-        </div>
-        <CandidateNav mobile />
-      </div>
-    </CandidateWorkspaceState>
-  );
+export async function CandidateShell({children,identity,name,userID}:{children:React.ReactNode;identity:CandidateProfileSummary|null;name:string;userID:string}) {
+  const preferenceKey="swx-candidate-sidebar-"+userID;
+  const initialCollapsed=(await cookies()).get(preferenceKey)?.value==="collapsed";
+  return <CandidateWorkspaceState initialIdentity={identity}><div className="theme-surface candidate-workspace"><CandidateFrame name={name} initialCollapsed={initialCollapsed} preferenceKey={preferenceKey}>{children}</CandidateFrame></div></CandidateWorkspaceState>;
 }

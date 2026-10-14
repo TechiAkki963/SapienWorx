@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  distDir: process.env.SWX_NEXT_DIST_DIR || ".next",
+  devIndicators: false,
   agentRules: false,
   output: "standalone",
   reactStrictMode: true,

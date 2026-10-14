@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import {JobApplyButton} from "@/components/candidate/job-apply-button";
 import { JobSaveButton } from "@/components/candidate/job-save-button";
 import { Surface } from "@/components/ui/surface";
 import {
@@ -57,15 +58,13 @@ export function JobCard({
   const allowSave = canSave ?? hrefBase.startsWith("/candidate/");
 
   return (
-    <Surface className="group relative h-full overflow-hidden border-line/80 bg-white p-5 shadow-[0_8px_28px_rgba(16,33,63,0.05)] transition duration-200 hover:-translate-y-0.5 hover:border-indigo/20 hover:shadow-card">
+    <Surface data-candidate-job-card={job.id} className="group relative h-full overflow-hidden border-line/80 bg-white p-5 shadow-[0_8px_28px_rgba(16,33,63,0.05)] transition duration-200 hover:-translate-y-0.5 hover:border-indigo/20 hover:shadow-card">
       <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <h3 className="pr-1 text-lg font-extrabold leading-6 tracking-[-0.025em] text-navy sm:text-xl">
             <Link
               href={detailHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="outline-none after:absolute after:inset-0 focus-visible:underline"
+                            className="outline-none after:absolute after:inset-0 focus-visible:underline"
             >
               {job.title}
             </Link>
@@ -149,14 +148,14 @@ export function JobCard({
         </div>
       )}
 
-      <div className="relative z-10 mt-5 flex items-center justify-between gap-3 border-t border-line/60 pt-3">
+      <div className="relative z-10 mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line/60 pt-3">
         <span className="text-xs font-semibold text-ink-muted">
           {postedAgo(job.published_at)}
         </span>
         {allowSave ? (
-          <JobSaveButton jobId={job.id} initialSaved={initialSaved} />
+          <div className="candidate-job-card-actions"><JobSaveButton jobId={job.id} initialSaved={initialSaved} iconOnly/><JobApplyButton jobId={job.id} jobTitle={job.title} companyName={job.company_name} trackCard/></div>
         ) : (
-          <span className="text-xs font-bold text-indigo">View role ↗</span>
+          <div className="candidate-job-card-actions"><Link className="candidate-secondary-action" aria-label="Sign in to save job" href={`/login?next=${encodeURIComponent(detailHref)}`}>Save</Link><Link className="candidate-primary-action" href={`/login?next=${encodeURIComponent(detailHref)}`}>Apply →</Link></div>
         )}
       </div>
     </Surface>

@@ -1,3 +1,6 @@
+import { publicJobOrigin } from "@/lib/public-job";
+import {CareerIcon} from "@/components/candidate/career-icon";
+import { canonicalJobPath } from "@/lib/job-public-path";
 import { notFound } from "next/navigation";
 
 import { JobActions } from "@/components/candidate/job-actions";
@@ -37,7 +40,7 @@ export default async function CandidateJobDetailPage({ params }: Props) {
       "/api/v1/candidate/saved-jobs",
     ).catch(() => null),
     candidateAPI<{ items: CandidateApplication[] | null }>(
-      `/api/v1/candidate/applications?job_id=${encodeURIComponent(jobID)}&limit=1`,
+      `/api/v1/candidate/applications?job_id=${encodeURIComponent(job.id)}&limit=1`,
     ).catch(() => null),
   ]);
   const initialSaved =
@@ -50,6 +53,7 @@ export default async function CandidateJobDetailPage({ params }: Props) {
       job.application_deadline.slice(0, 10) >=
         new Date().toISOString().slice(0, 10));
   const salary = salaryLabel(job);
+  const origin=await publicJobOrigin();
 
   return (
     <div>
@@ -121,18 +125,19 @@ export default async function CandidateJobDetailPage({ params }: Props) {
           </Surface>
         </article>
         <aside className="lg:sticky lg:top-24">
-          <Surface className="p-5" tone="mint">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">
+          <Surface className="candidate-next-step-panel p-5">
+            <p className="candidate-next-step-eyebrow">
               Your next step
             </p>
             <h2 className="mt-2 text-xl font-bold">Interested in this role?</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-muted">
+            <p className="candidate-next-step-description">
               Apply here and the role will stay connected to your candidate
               tracker.
             </p>
             <div className="mt-5">
               <JobActions
                 jobId={job.id}
+                canonicalUrl={canonicalJobPath(job.job_reference)?origin+canonicalJobPath(job.job_reference):undefined}
                 referralEnabled={job.referral_enabled===true&&(!job.referral_deadline||job.referral_deadline>=new Date().toISOString().slice(0,10))}
                 referralRewardEnabled={job.referral_reward_enabled}
                 referralTerms={job.referral_terms}
@@ -147,6 +152,7 @@ export default async function CandidateJobDetailPage({ params }: Props) {
                 applicationStateAvailable={Boolean(applications)}
               />
             </div>
+            <p className="candidate-next-step-note"><CareerIcon name="info"/>Your professional profile accompanies your application.</p>
           </Surface>
         </aside>
       </div>

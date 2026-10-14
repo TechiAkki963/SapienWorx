@@ -2,15 +2,21 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useJobSave } from "@/components/candidate/use-job-save";
 
+
+
+import {JobApplyButton} from "./job-apply-button";
+import {useOptionalCandidateWorkspace} from "./candidate-workspace-state";
+import {apiRequest} from "@/lib/api";
+import {JobSaveButton} from "./job-save-button";
+import { JobShareButton } from "./job-share-button";
 import { ReferSomeone } from "./refer-someone";
 import { Button } from "@/components/ui/button";
-import { apiRequest } from "@/lib/api";
+
 
 export function JobActions({
   jobId,
+  canonicalUrl,
   referralEnabled = false,
   referralRewardEnabled = false,
   referralTerms = "",
@@ -20,11 +26,10 @@ export function JobActions({
   location,
   isCandidate,
   initialSaved = false,
-  initialApplied = false,
   acceptingApplications = true,
-  applicationStateAvailable = true,
 }: {
   jobId: string;
+  canonicalUrl?: string;
   referralEnabled?: boolean;
   referralRewardEnabled?: boolean;
   referralTerms?: string;
@@ -38,23 +43,14 @@ export function JobActions({
   acceptingApplications?: boolean;
   applicationStateAvailable?: boolean;
 }) {
-  const [message, setMessage] = useState("");
-  const [applying, setApplying] = useState(false);
-  const {
-    saved,
-    busy: saving,
-    error: saveError,
-    toggle: save,
-  } = useJobSave(jobId, initialSaved);
-  const router = useRouter();
-  const [applied, setApplied] = useState(initialApplied);
-  const [pendingReferral,setPendingReferral]=useState(false),[referralContextReady,setReferralContextReady]=useState(false);
-  useEffect(()=>{try{setPendingReferral(sessionStorage.getItem("swx.pending.referral.job")===jobId&&!!sessionStorage.getItem("swx.pending.referral"))}catch{setPendingReferral(false)}finally{setReferralContextReady(true)}},[jobId]);
-  useEffect(() => setApplied(initialApplied), [initialApplied]);
+  const workspace=useOptionalCandidateWorkspace();
+ useEffect(()=>{if(!isCandidate||!workspace?.identity?.product_analytics_enabled)return;let sent=false;const viewed=()=>{if(sent||document.visibilityState!=="visible")return;sent=true;void apiRequest("/api/v1/candidate/job-events",{method:"POST",body:JSON.stringify({job_id:jobId,event:"job_detail_viewed"})}).catch(()=>{})};viewed();document.addEventListener("visibilitychange",viewed);return()=>document.removeEventListener("visibilitychange",viewed)},[jobId,isCandidate,workspace?.identity?.product_analytics_enabled]);
+  const [pendingReferral,setPendingReferral]=useState(false);
+  useEffect(()=>{try{setPendingReferral(sessionStorage.getItem("swx.pending.referral.job")===jobId&&!!sessionStorage.getItem("swx.pending.referral"))}catch{setPendingReferral(false)}},[jobId]);
 
   if (!isCandidate) {
     return (
-      <div className="grid gap-3">
+      <div className="candidate-detail-actions grid gap-3">
         <Button href={`/login?next=${encodeURIComponent(pendingReferral?"/referrals":`/jobs/${jobId}`)}`} size="lg">
           Sign in to apply
         </Button>
@@ -68,86 +64,18 @@ export function JobActions({
           </Link>
           .
         </p>
+        <JobShareButton jobId={jobId} jobTitle={jobTitle} companyName={companyName} canonicalUrl={canonicalUrl}/>
       </div>
     );
   }
 
-  async function apply() {
-    if (
-      pendingReferral ||
-      !referralContextReady ||
-      applied ||
-      applying ||
-      !acceptingApplications ||
-      !applicationStateAvailable
-    )
-      return;
-    setApplying(true);
-    setMessage("");
-    try {
-      await apiRequest("/api/v1/candidate/applications", {
-        method: "POST",
-        body: JSON.stringify({ job_id: jobId }),
-      });
-      setApplied(true);
-      setMessage("Application added to your tracker.");
-      router.refresh();
-    } catch (cause) {
-      setMessage(
-        cause instanceof Error
-          ? cause.message
-          : "Could not apply to this role.",
-      );
-    } finally {
-      setApplying(false);
-    }
-  }
-
-  async function share(){
-    setMessage("");
-    const url=`${window.location.origin}/jobs/${encodeURIComponent(jobId)}`;
-    try { await navigator.clipboard.writeText(url);setMessage("Job link copied. Sharing a link creates no referral record.") }
-    catch {setMessage(`Share this job link: ${url}`)}
-  }
   return (
-    <div className="grid gap-3">
-      {pendingReferral?<Button href="/referrals" size="lg">Review referral invitation</Button>:<Button
-        size="lg"
-        onClick={apply}
-        disabled={
-          !referralContextReady ||
-          applying ||
-          applied ||
-          !acceptingApplications ||
-          !applicationStateAvailable
-        }
-      >
-        {applied
-          ? "Applied ✓"
-          : !acceptingApplications
-            ? "Applications closed"
-            : !applicationStateAvailable
-              ? "Application status unavailable"
-              : applying
-                ? "Applying…"
-                : !referralContextReady?"Checking application…":"Apply now"}
-      </Button>}
+    <div className="candidate-detail-actions grid gap-3">
+      <div className="candidate-job-card-actions"><JobSaveButton jobId={jobId} initialSaved={initialSaved} iconOnly/><JobApplyButton jobId={jobId} jobTitle={jobTitle} companyName={companyName} detail/></div>
       {referralEnabled&&acceptingApplications&&<ReferSomeone jobId={jobId} title={jobTitle} company={companyName} location={location} terms={referralTerms} eligibility={referralEligibility} rewardEnabled={referralRewardEnabled}/>}
       {referralEnabled&&referralRewardEnabled&&acceptingApplications&&<p className="text-[13px] leading-6 text-ink-muted">Referral reward programme available. Employer eligibility and terms apply; submitting an invitation does not guarantee a reward.</p>}
-      <div className="grid grid-cols-2 gap-2"><button type="button" className="min-h-11 rounded-xl px-3 text-sm font-semibold text-indigo focus-visible:ring-2 focus-visible:ring-indigo" onClick={save} disabled={saving} aria-pressed={saved} aria-label={saved?"Remove from saved jobs":"Save job"}>{saving?"Updating…":saved?"Saved ✓":"Save"}</button><button type="button" className="min-h-11 rounded-xl px-3 text-sm font-semibold text-ink focus-visible:ring-2 focus-visible:ring-indigo" onClick={()=>void share()}>Share</button></div>
-      {saveError && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
-          {saveError}
-        </p>
-      )}
-      {message && (
-        <p
-          className="rounded-2xl bg-indigo-soft/45 px-4 py-3 text-sm leading-5 text-ink"
-          role="status"
-        >
-          {message}
-        </p>
-      )}
+      <JobShareButton jobId={jobId} jobTitle={jobTitle} companyName={companyName} canonicalUrl={canonicalUrl}/>
+
     </div>
   );
 }

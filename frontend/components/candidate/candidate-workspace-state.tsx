@@ -26,6 +26,7 @@ type WorkspaceState = {
   refreshIdentity: () => Promise<void>;
   notifications: CandidateNotification[];
   unreadCount: number | null;
+  messageUnreadCount: number;
   notificationError: string;
   refreshNotifications: () => Promise<void>;
   markRead: (id: string) => Promise<void>;
@@ -47,6 +48,24 @@ export function CandidateWorkspaceState({
   });
   const [unreadCount, setUnreadCount] = useState<number | null>(null);
   const [notificationError, setNotificationError] = useState("");
+  const [messageUnreadCount, setMessageUnreadCount] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    let revision = 0;
+    const refresh = async () => {
+      if (document.visibilityState !== "visible") return;
+      const current = ++revision;
+      try {
+        const result = await apiRequest<{ items: { unread_count: number }[] }>("/api/v1/messaging/threads", { signal: controller.signal });
+        if (current === revision) setMessageUnreadCount((result.items || []).reduce((count, row) => count + Math.max(0, row.unread_count || 0), 0));
+      } catch { /* Navigation remains available if the inbox summary is offline. */ }
+    };
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), 30000);
+    const update = () => void refresh();
+    window.addEventListener("focus", update); window.addEventListener("sapienworx:unread-change", update); document.addEventListener("visibilitychange", update);
+    return () => { revision++; controller.abort(); clearInterval(timer); window.removeEventListener("focus", update); window.removeEventListener("sapienworx:unread-change", update); document.removeEventListener("visibilitychange", update); };
+  }, []);
   const sequence = useRef(0);
   const identitySequence = useRef(0);
   useEffect(() => {
@@ -138,6 +157,7 @@ export function CandidateWorkspaceState({
         refreshIdentity,
         notifications: inbox.items,
         unreadCount,
+        messageUnreadCount,
         notificationError,
         refreshNotifications,
         markRead,
@@ -154,3 +174,5 @@ export function useCandidateWorkspace() {
   if (!value) throw new Error("Candidate workspace state is required.");
   return value;
 }
+
+export function useOptionalCandidateWorkspace(){return useContext(WorkspaceContext)}

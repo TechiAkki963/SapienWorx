@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import http from "node:http";
 import {handleCompanyMock} from "./company-mock.mjs";
 import {handleOfferStudioMock} from "./offer-studio-mock.mjs";
@@ -40,6 +41,8 @@ function adminPage(items,url) {
 function initialState() {
   return {
     publicJobFixture: {},
+    applicationDrafts:{},
+    candidatePreferences:{notifications:{applications:true,interviews:true,offers:true,messages:true,job_alerts:true},product_analytics:false},
     publicJobStatus: 200,
     namedPools:[{id:"81000000-0000-4000-8000-000000000001",name:"Engineering future hires",kind:"manual",visibility:"private",owner_name:"Riya Recruiter",count:3,can_edit:true,criteria:{}},{id:"81000000-0000-4000-8000-000000000002",name:"Pune Go engineers",kind:"smart",visibility:"team",owner_name:"Riya Recruiter",count:3,can_edit:true,criteria:{skills:"Go",location:"Pune"}}],
     recruiterNotifications:[{id:"91000000-0000-4000-8000-000000000001",category:"interviews",title:"Interview panel invitation",message:"Review the schedule and confirm your availability.",created_at:now(),read:false,href:"/recruiter/interviews?status=all&interview_id=80000000-0000-4000-8000-000000000001"},{id:"91000000-0000-4000-8000-000000000002",category:"messages",title:"New candidate message",message:"A candidate replied to your conversation.",created_at:now(),read:false,href:"/recruiter/messages?thread=73000000-0000-4000-8000-000000000001"}],
@@ -390,7 +393,8 @@ function pipelineRows() {
 }
 
 function profileSummary() {
-  return {
+  return {product_analytics_enabled:state.candidatePreferences.product_analytics,
+    onboarding_status: state.profileDetails.details.onboarding_status,
     full_name: state.profile.full_name,
     headline: state.profile.headline,
     email: state.profile.email,
@@ -631,6 +635,26 @@ const server = http.createServer(async (req, res) => {
     if(!challenge||challenge.attempts>=5||payload.code!=='123456'){if(challenge)challenge.attempts++;return json(res,400,{error:{message:'Invalid or expired verification code.'}});}
     state.profile.phone=challenge.phone;delete state.phoneChallenges[payload.challenge_id];return json(res,200,{primary_phone:state.profile.phone,phone_verified:true});
   }
+
+  if(url.pathname==='/api/v1/candidate/preferences'){
+   if(req.method==='PATCH'){if(payload.notifications)state.candidatePreferences.notifications={...state.candidatePreferences.notifications,...payload.notifications};if(typeof payload.product_analytics==='boolean')state.candidatePreferences.product_analytics=payload.product_analytics}
+   return json(res,200,state.candidatePreferences);
+  }
+  if(url.pathname==='/api/v1/candidate/job-events')return noContent(res);
+  if(url.pathname==='/api/v1/user/privacy/requests'){if(req.method==='POST')return json(res,201,{id:'request-1',request_type:payload.request_type,status:'received',created_at:now()});return json(res,200,{items:[]})}
+  if(url.pathname==='/api/v1/user/privacy/export')return json(res,200,{generated_at:now(),sections:{account:{email:'candidate@example.com'}}});
+  const journey=id=>{const questions=state.publicJobFixture.screening_questions||[],question_version=createHash('sha256').update(JSON.stringify(questions)).digest('hex'),draft=state.applicationDrafts[id],applied=state.candidateApplications.some(item=>item.job_id===id);return{job_id:id,state:applied?'applied':state.publicJobStatus!==200?'unavailable':state.publicJobFixture.status==='closed'?'closed':state.publicJobFixture.application_deadline&&new Date(state.publicJobFixture.application_deadline)<new Date(new Date().toISOString().slice(0,10))?'expired':draft?'draft':'apply',questions,question_version,answers:draft&&draft.question_version===question_version?draft.answers:[],...(draft&&draft.question_version!==question_version?{previous_questions:draft.questions,previous_answers:draft.answers}:{}),revision:draft?.revision||0}};
+  if(url.pathname==='/api/v1/candidate/application-state'){if(state.workspaceFail.application_state)return json(res,503,{error:{message:'Application status unavailable'}});return json(res,200,{items:(url.searchParams.get('job_ids')||'').split(',').map(id=>{const value=journey(id);return url.searchParams.get('details')==='true'?value:{...value,questions:[],answers:[],question_version:'',revision:0,previous_questions:undefined,previous_answers:undefined}})})}
+  if(url.pathname==='/api/v1/candidate/application-draft'||url.pathname==='/api/v1/candidate/applications'&&req.method==='POST'){
+   const current=journey(payload.job_id),submit=url.pathname.endsWith('/applications');
+   if(state.workspaceFail.applications_post)return json(res,503,{error:{message:'Application service unavailable'}});
+   if(current.state==='applied')return json(res,409,{error:{code:'already_applied',message:'You have already applied.'}});
+   if(!['apply','draft'].includes(current.state))return json(res,409,{error:{code:'job_inactive',message:'Applications closed.'}});
+   if(payload.question_version!==current.question_version||payload.revision!==current.revision)return json(res,409,{error:{code:'application_changed',message:'Application questions or draft changed; reload before continuing'}});
+   if(submit&&current.questions.some((_,i)=>!payload.answers?.[i]?.trim()))return json(res,400,{error:{message:'Answer each screening question.'}});
+   if(submit){const result={id:'70000000-0000-4000-8000-000000000099',job_id:payload.job_id,job_title:'Senior Go Platform Engineer',company_name:'Sapien Labs India',stage:'new_application',applied_at:now(),updated_at:now()};state.candidateApplications.push(result);delete state.applicationDrafts[payload.job_id];return json(res,201,result)}
+   const result={...current,state:'draft',revision:current.revision+1,answers:payload.answers||[]};state.applicationDrafts[payload.job_id]=result;return json(res,200,result);
+  }
   if(url.pathname==='/api/v1/candidate/applications'&&req.method==='GET'){
     if(state.workspaceFail.applications_get)return json(res,503,{error:{message:'Applications unavailable'}});
     const page=Math.max(1,Number(url.searchParams.get('page')||1)),limit=Number(url.searchParams.get('limit')||25),items=state.candidateApplications.filter(item=>!url.searchParams.get('job_id')||item.job_id===url.searchParams.get('job_id'));return json(res,200,{items:items.slice((page-1)*limit,page*limit),page,limit,total:items.length});
@@ -736,8 +760,8 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
-  if (url.pathname === `/api/v1/jobs/${jobID}` && req.method === "GET" && state.publicJobStatus !== 200) return json(res, state.publicJobStatus, { error: { message: "Synthetic public job unavailable" } });
-  if (url.pathname === `/api/v1/jobs/${jobID}` && req.method === "GET") return json(res, 200, job({
+  if ([ `/api/v1/jobs/${jobID}`, "/api/v1/jobs/SWX-JOB-2026-00001" ].includes(url.pathname) && req.method === "GET" && state.publicJobStatus !== 200) return json(res, state.publicJobStatus, { error: { message: "Synthetic public job unavailable" } });
+  if ([ `/api/v1/jobs/${jobID}`, "/api/v1/jobs/SWX-JOB-2026-00001" ].includes(url.pathname) && req.method === "GET") return json(res, 200, job({
     id: jobID,
     job_reference: "SWX-JOB-2026-00001",
     title: "Senior Go Platform Engineer",
@@ -1188,7 +1212,7 @@ const server = http.createServer(async (req, res) => {
     return noContent(res);
   }
   if (url.pathname === "/api/v1/candidate/notifications" && req.method === "GET") return json(res, 200, { items: state.candidateNotifications });
-  if(url.pathname==='/api/v1/candidate/notifications/inbox'&&req.method==='GET')return state.workspaceFail.notifications_get?json(res,503,{error:{message:'Notifications unavailable'}}):json(res,200,{items:state.candidateNotifications.slice(0,Number(url.searchParams.get('limit')||8)),unread_count:state.candidateNotifications.filter(item=>!item.read_at).length,total:state.candidateNotifications.length,page:1,limit:Number(url.searchParams.get('limit')||8)});
+  if(url.pathname==='/api/v1/candidate/notifications/inbox'&&req.method==='GET')return state.workspaceFail.notifications_get?json(res,503,{error:{message:'Notifications unavailable'}}):json(res,200,{items:state.candidateNotifications.filter(item=>state.candidatePreferences.notifications[item.kind.includes('interview')?'interviews':item.kind.includes('offer')?'offers':item.kind.includes('message')?'messages':'applications']!==false).slice(0,Number(url.searchParams.get('limit')||8)),unread_count:state.candidateNotifications.filter(item=>!item.read_at).length,total:state.candidateNotifications.length,page:1,limit:Number(url.searchParams.get('limit')||8)});
   if(url.pathname==='/api/v1/candidate/notifications/read-all'&&req.method==='PATCH'){if(state.workspaceFail.notifications_read)return json(res,503,{error:{message:'Read update failed'}});for(const item of state.candidateNotifications)item.read_at=now();return json(res,200,{unread_count:0});}
   const notificationReadMatch = url.pathname.match(/^\/api\/v1\/candidate\/notifications\/([^/]+)\/read$/);
   if (notificationReadMatch && req.method === "PATCH") {

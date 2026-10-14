@@ -132,9 +132,7 @@ func (s *Server) candidateApplications(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, items)
 		return
 	}
-	var input struct {
-		JobID string `json:"job_id"`
-	}
+	var input candidate.ApplicationSubmission
 	if !decodeJSON(w, r, &input) {
 		return
 	}
@@ -142,7 +140,7 @@ func (s *Server) candidateApplications(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusBadRequest, "validation_error", "job_id is required")
 		return
 	}
-	item, err := s.candidate.Apply(r.Context(), id, input.JobID)
+	item, err := s.candidate.SubmitApplication(r.Context(), id, input)
 	if err != nil {
 		s.writeCandidateError(w, r, err)
 		return
@@ -255,6 +253,8 @@ func (s *Server) writeCandidateError(w http.ResponseWriter, r *http.Request, err
 	switch {
 	case errors.Is(err, candidate.ErrWorkspaceInput):
 		writeError(w, r, http.StatusBadRequest, "validation_error", err.Error())
+	case errors.Is(err, candidate.ErrApplicationChanged):
+		writeError(w, r, http.StatusConflict, "application_changed", err.Error())
 	case errors.Is(err, candidate.ErrProfileConflict):
 		writeError(w, r, http.StatusConflict, "profile_conflict", "This profile changed in another session. Reload before saving; your draft has been retained.")
 	case errors.Is(err, candidate.ErrNotFound):
