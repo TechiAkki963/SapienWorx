@@ -21,15 +21,18 @@ var (
 // SafeExportSections is deliberately closed. Adding a new export section
 // requires an explicit code change and field-level review in export.go.
 var SafeExportSections = map[string]struct{}{
-	"account":          {},
-	"profile":          {},
-	"applications":     {},
-	"saved_jobs":       {},
-	"notifications":    {},
-	"messages":         {},
-	"consents":         {},
-	"privacy_requests": {},
-	"company_reviews":  {},
+	"account":            {},
+	"profile":            {},
+	"applications":       {},
+	"application_drafts": {},
+	"screening_answers":  {},
+	"job_journey_events": {},
+	"saved_jobs":         {},
+	"notifications":      {},
+	"messages":           {},
+	"consents":           {},
+	"privacy_requests":   {},
+	"company_reviews":    {},
 }
 
 type Service struct{ db *pgxpool.Pool }

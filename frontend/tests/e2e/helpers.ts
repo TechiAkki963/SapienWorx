@@ -74,3 +74,7 @@ export async function login(page: Page, role: "candidate" | "recruiter" | "maste
   await page.getByRole("button", { name: role === "master_admin" ? "Enter command centre" : "Sign in" }).click();
   await expect(page).toHaveURL(destination);
 }
+
+export async function chooseCandidateAppearance(page:Page,mode:"Light"|"Dark"|"System"){
+ const previous=page.url();await page.goto("/candidate/settings#appearance");await page.getByRole("group",{name:"Appearance",exact:true}).getByRole("button",{name:mode,exact:true}).click();await page.goto(previous);
+}

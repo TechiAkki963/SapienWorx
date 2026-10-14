@@ -70,6 +70,9 @@ func (s *Service) BuildSafeExport(ctx context.Context, userID string) (ExportBun
 		name string
 		sql  string
 	}{
+		{"application_drafts", `SELECT COALESCE(jsonb_agg(jsonb_build_object('job_id',job_id,'questions',questions,'answers',answers,'revision',revision,'updated_at',updated_at)),'[]') FROM candidate_application_drafts WHERE candidate_id=$1`},
+		{"screening_answers", `SELECT COALESCE(jsonb_agg(jsonb_build_object('application_id',sa.application_id,'questions',sa.questions,'answers',sa.answers)),'[]') FROM application_screening_answers sa JOIN applications a ON a.id=sa.application_id WHERE a.candidate_id=$1`},
+		{"job_journey_events", `SELECT COALESCE(jsonb_agg(jsonb_build_object('job_id',job_id,'event_type',event_type,'occurred_at',occurred_at)),'[]') FROM candidate_job_events WHERE candidate_id=$1 AND event_day>=current_date-90`},
 		{"account", `SELECT jsonb_build_object(
 			'id',id,'email',email,'role',role::text,'status',status::text,
 			'phone',phone_e164,'email_verified_at',email_verified_at,

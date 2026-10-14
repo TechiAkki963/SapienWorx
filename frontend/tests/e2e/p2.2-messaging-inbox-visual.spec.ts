@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import fs from "node:fs/promises";
 
-import { login, resetE2E } from "./helpers";
+import { login, resetE2E, chooseCandidateAppearance } from "./helpers";
 
 async function noOverflow(page: import("@playwright/test").Page, label: string) {
   const { width, viewport } = await page.evaluate(() => ({
@@ -23,7 +23,7 @@ test("candidate inbox stays readable from laptop to mobile conversation view", a
   await login(page, "candidate");
   await page.goto("/candidate/inbox");
 
-  await expect(page.getByRole("heading", { name: "Inbox" }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Messages" }).first()).toBeVisible();
   await expect(page.getByText("Riya Recruiter").first()).toBeVisible();
   await expect(page.getByText("Senior Go Platform Engineer opportunity").first()).toBeVisible();
   await noOverflow(page, "candidate inbox 1440");
@@ -52,8 +52,7 @@ test("candidate inbox dark mode preserves messaging hierarchy", async ({ page })
   await page.setViewportSize({ width: 1440, height: 900 });
   await login(page, "candidate");
   await page.goto("/candidate/inbox");
-  await page.getByTitle("Appearance").click();
-  await page.getByTitle("Dark mode").click();
+  await chooseCandidateAppearance(page,"Dark");
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
   await expect(page.getByText("Riya Recruiter").first()).toBeVisible();
   await noOverflow(page, "candidate inbox dark 1440");
@@ -110,8 +109,7 @@ test("candidate notifications remain clear across laptop mobile and dark mode", 
   await page.screenshot({ path: "../output/p2.2-candidate-notifications-390.png", fullPage: true });
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.getByTitle("Appearance").click();
-  await page.getByTitle("Dark mode").click();
+  await chooseCandidateAppearance(page,"Dark");
   await expect(page.locator("html")).toHaveClass(/swx-dark/);
   await expect(page.getByText("New message from a recruiter")).toBeVisible();
   await noOverflow(page, "candidate notifications dark 1440");

@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext } from "@playwright/test";
 import { login, resetE2E, MOCK_API } from "./helpers";
+import {chooseCandidateAppearance} from "./helpers";
 import { profileV2Fixture } from "./profile-v2-fixture";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -364,7 +365,7 @@ for (const [width, height] of [
     await expect(
       page.getByRole("heading", { name: "Quick links", exact: true }),
     ).toBeAttached();
-    await page.screenshot({
+    await page.screenshot({ caret: "initial",
       path: path.join(dir, "light-profile.png"),
       fullPage: true,
     });
@@ -399,7 +400,7 @@ for (const [width, height] of [
       await page.getByRole("button", { name: buttons[i], exact: true }).click();
       await expect(page.getByRole("dialog")).toBeVisible();
       await fit();
-      await page.screenshot({
+      await page.screenshot({ caret: "initial",
         path: path.join(dir, `${String(i + 1).padStart(2, "0")}-editor.png`),
       });
       await page.getByRole("button", { name: "Cancel", exact: true }).click();
@@ -409,28 +410,27 @@ for (const [width, height] of [
       .getByRole("button", { name: "Profile Visibility", exact: true })
       .first()
       .click();
-    await page.screenshot({ path: path.join(dir, "visibility.png") });
+    await page.screenshot({ caret: "initial", path: path.join(dir, "visibility.png") });
     await page
       .getByRole("button", { name: "Close Profile Visibility" })
       .press("Escape");
-    await page.getByLabel("Appearance: System", { exact: true }).click();
-    await page.getByRole("button", { name: "Dark", exact: true }).click();
-    await page.screenshot({
+    await chooseCandidateAppearance(page,"Dark");
+    await page.screenshot({ caret: "initial",
       path: path.join(dir, "dark-profile.png"),
       fullPage: true,
     });
     await page
       .getByRole("button", { name: "Edit personal details", exact: true })
       .click();
-    await page.screenshot({ path: path.join(dir, "dark-personal-editor.png") });
+    await page.screenshot({ caret: "initial", path: path.join(dir, "dark-personal-editor.png") });
     await page.getByRole("button", { name: "Cancel", exact: true }).click();
     await fit();
     expect(errors).toEqual([]);
     if (width >= 768) {
       await page
         .getByRole("navigation", { name: "Candidate workspace" })
-        .getByRole("link", { name: "Inbox", exact: true })
+        .getByRole("link", { name: /^Messages(?:, \d+ unread)?$/ })
         .click();
-      await expect(page).toHaveURL(/\/candidate\/inbox$/);
+      await expect(page).toHaveURL(/\/candidate\/messages$/);
     }
   });

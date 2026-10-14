@@ -6,6 +6,7 @@ import { MOCK_API, resetE2E } from "./helpers";
 
 const id = "60000000-0000-4000-8000-000000000001";
 const route = `/jobs/${id}`;
+const canonicalRoute = "/jobs/SWX-JOB-2026-00001";
 const bot = { "User-Agent": "LinkedInBot/1.0" };
 
 test.beforeEach(async ({ request }) => { await resetE2E(request); });
@@ -19,7 +20,8 @@ test("anonymous social crawlers receive job-specific metadata in the initial hea
     expect(head).toContain("Senior Go Platform Engineer at Sapien Labs India | SapienWorx");
     for (const property of ["og:title", "og:description", "og:image", "og:url", "og:type", "og:site_name"]) expect(head).toContain(`property="${property}"`);
     expect(head).toContain("Mumbai, Maharashtra · Hybrid · 2–6 years · Go, PostgreSQL");
-    expect(head).toContain(`${route}/social-card`);
+    expect(head).toContain(`${canonicalRoute}/social-card`);
+    expect(head).not.toContain(`${route}/social-card`);
     expect(head).toContain('name="twitter:card" content="summary_large_image"');
     expect(response.headers()["set-cookie"]).toBeUndefined();
     expect(html).toContain("Sign in to apply");
@@ -32,11 +34,23 @@ test("canonical and image URLs follow trusted environments and reject forwarded-
     expect(response.status()).toBe(200);
     const head = (await response.text()).split("</head>")[0];
     const expected = host === "evil.example.test" ? "beta.sapienworx.com" : host;
-    expect(head).toContain(`property="og:url" content="https://${expected}${route}"`);
-    expect(head).toContain(`property="og:image" content="https://${expected}${route}/social-card"`);
-    expect(head).toContain(`rel="canonical" href="https://${expected}${route}"`);
+    expect(head).toContain(`property="og:url" content="https://${expected}${canonicalRoute}"`);
+    expect(head).toContain(`property="og:image" content="https://${expected}${canonicalRoute}/social-card"`);
+    expect(head).toContain(`rel="canonical" href="https://${expected}${canonicalRoute}"`);
     expect(head).not.toContain("evil.example.test");
   }
+});
+
+test("public job reference and its social image work without authentication", async ({ request }) => {
+  const response = await request.get(canonicalRoute, { headers: bot, maxRedirects: 0 });
+  expect(response.status()).toBe(200);
+  expect((await response.text()).split("</head>")[0]).toContain(`${canonicalRoute}/social-card`);
+  expect(response.headers()["set-cookie"]).toBeUndefined();
+  const image = await request.get(canonicalRoute + "/social-card", { headers: bot });
+  expect(image.status()).toBe(200);
+  expect(image.headers()["content-type"]).toBe("image/png");
+  const png = await image.body();
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
 });
 
 for (const variant of ["normal", "reference", "long", "incomplete", "untrusted-logo"] as const) {

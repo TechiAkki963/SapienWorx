@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import fs from "node:fs/promises";
 
-import { login, resetE2E } from "./helpers";
+import { login, resetE2E,chooseCandidateAppearance } from "./helpers";
 
 async function assertNoHorizontalOverflow(
   page: import("@playwright/test").Page,
@@ -49,6 +49,7 @@ async function chooseMode(
   page: import("@playwright/test").Page,
   label: "System" | "Light" | "Dark",
 ) {
+  if(new URL(page.url()).pathname.startsWith("/candidate")){await chooseCandidateAppearance(page,label);return}
   await page.getByTitle("Appearance").click();
   await page.getByTitle(label + " mode").click();
 }

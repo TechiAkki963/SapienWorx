@@ -13,7 +13,7 @@ import "@/components/candidate/profile-reference.css";
 export default async function CandidateProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ panel?: string; return_to?: string }>;
+  searchParams: Promise<{ panel?: string; return_to?: string; edit?: string }>;
 }) {
   const params = await searchParams;
   let profile: CandidateProfile;
@@ -51,6 +51,8 @@ export default async function CandidateProfilePage({
         extended={extended}
         summary={{ ...summary, profile_completion: profile.profile_completion }}
         openVisibility={params.panel === "visibility"}
+        openCompletion={params.panel === "completion"}
+        initialEdit={params.edit === "intro" || params.edit === "preferences" ? params.edit : undefined}
       />
     </div>
   );

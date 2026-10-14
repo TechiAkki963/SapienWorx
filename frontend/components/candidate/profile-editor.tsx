@@ -84,11 +84,15 @@ export function ProfileEditor({
   extended,
   summary,
   openVisibility = false,
+  openCompletion = false,
+  initialEdit,
 }: {
   profile: CandidateProfile;
   extended: CandidateProfileDetails;
   summary: CandidateProfileSummary;
   openVisibility?: boolean;
+  openCompletion?: boolean;
+  initialEdit?: "intro" | "preferences";
 }) {
   const { patchIdentity } = useCandidateWorkspace();
   const router = useRouter();
@@ -115,6 +119,9 @@ export function ProfileEditor({
   useEffect(() => {
     if (openVisibility) setDrawer("visibility");
   }, [openVisibility]);
+  useEffect(() => {
+    if (initialEdit) setTarget({section:initialEdit});
+  }, [initialEdit]);
 
   useEffect(() => {
     setCurrent(profile);
@@ -215,7 +222,7 @@ export function ProfileEditor({
           className="profile-v2-nav profile-reference-quicklinks"
         >
           <h2>Quick links</h2>
-          <ProfileCompletionChecklist profile={current} extended={details} />
+          <ProfileCompletionChecklist profile={current} extended={details} initiallyExpanded={openCompletion}/>
           <div className="profile-reference-links">
             {profileQuickLinks.map(([id, label]) => (
               <div key={id}>

@@ -1,3 +1,6 @@
+import { canonicalJobPath } from "@/lib/job-public-path";
+import {CareerIcon} from "@/components/candidate/career-icon";
+import { candidateBrowsingSession } from "@/components/candidate/candidate-public-layout";
 import type { Metadata } from "next";
 
 import { JobActions } from "@/components/candidate/job-actions";
@@ -6,7 +9,6 @@ import { PublicFooter } from "@/components/site/public-footer";
 import { PublicHeader } from "@/components/site/public-header";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
-import { getSessionUser } from "@/lib/auth-server";
 import {
   CandidateApplication,
   CandidateJob,
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { jobID } = await params;
   const [job, origin] = await Promise.all([publicJob(jobID), publicJobOrigin()]);
   const data = jobSocialData(job);
-  const url = `${origin}/jobs/${encodeURIComponent(job.id)}`;
+  const url = origin+(canonicalJobPath(job.job_reference)||"/jobs/"+encodeURIComponent(job.id));
   const image = { url: `${url}/social-card`, width: 1200, height: 630, type: "image/png", alt: `${data.heading} · SapienWorx Jobs` };
   return {
     title: { absolute: `${data.heading} | SapienWorx` },
@@ -45,7 +47,8 @@ export default async function JobDetailPage({ params }: Props) {
   const { jobID } = await params;
   const job = await publicJob(jobID);
 
-  const session = await getSessionUser().catch(() => null);
+  const session = await candidateBrowsingSession();
+  const Main=session?.role==="candidate"?"div":"main";
   let initialSaved = false;
   let initialApplied = false;
   let applicationStateAvailable = true;
@@ -55,7 +58,7 @@ export default async function JobDetailPage({ params }: Props) {
         "/api/v1/candidate/saved-jobs",
       ).catch(() => null),
       candidateAPI<{ items: CandidateApplication[] | null }>(
-        `/api/v1/candidate/applications?job_id=${encodeURIComponent(jobID)}&limit=1`,
+        `/api/v1/candidate/applications?job_id=${encodeURIComponent(job.id)}&limit=1`,
       ).catch(() => null),
     ]);
     initialSaved = saved?.items?.some((item) => item.id === job.id) ?? false;
@@ -65,11 +68,12 @@ export default async function JobDetailPage({ params }: Props) {
   }
 
   const salary = salaryLabel(job);
+  const origin=await publicJobOrigin();
 
   return (
-    <main id="main-content" className="min-h-screen">
+    <Main id={session?.role==="candidate"?undefined:"main-content"} className="min-h-screen">
       {(!session||session.role==="candidate")&&<JobViewEvent jobID={job.id}/>}
-      <PublicHeader sessionRole={session?.role} />
+      {session?.role!=="candidate"&&<PublicHeader sessionRole={session?.role}/>}
       <Container className="py-8 sm:py-12">
         <Button
           href={session?.role === "recruiter" ? "/recruiter/jobs" : "/jobs"}
@@ -160,20 +164,21 @@ export default async function JobDetailPage({ params }: Props) {
                 </div>
               </Surface>
             ) : (
-              <Surface className="p-5" tone="mint">
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">
+              <Surface className="candidate-next-step-panel p-5">
+                <p className="candidate-next-step-eyebrow">
                   Your next step
                 </p>
                 <h2 className="mt-2 text-xl font-bold">
                   Interested in this role?
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-ink-muted">
+                <p className="candidate-next-step-description">
                   Applications are stored once and appear immediately in your
                   candidate tracker.
                 </p>
                 <div className="mt-5">
                   <JobActions
                     jobId={job.id}
+                canonicalUrl={canonicalJobPath(job.job_reference)?origin+canonicalJobPath(job.job_reference):undefined}
                 referralEnabled={job.referral_enabled===true&&(!job.referral_deadline||job.referral_deadline>=new Date().toISOString().slice(0,10))}
                 referralRewardEnabled={job.referral_reward_enabled}
                 referralTerms={job.referral_terms}
@@ -193,12 +198,13 @@ export default async function JobDetailPage({ params }: Props) {
                     }
                   />
                 </div>
+                <p className="candidate-next-step-note"><CareerIcon name="info"/>{session?.role==="candidate"?"Your professional profile accompanies your application.":"Sign in to review and submit your application."}</p>
               </Surface>
             )}
           </aside>
         </div>
       </Container>
-      <PublicFooter />
-    </main>
+      {session?.role!=="candidate"&&<PublicFooter/>}
+    </Main>
   );
 }

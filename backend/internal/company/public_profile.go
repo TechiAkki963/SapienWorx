@@ -65,21 +65,26 @@ func (s *SQLStore) PublicCompanies(ctx context.Context, q string, page int) ([]P
 	return items, total, rows.Err()
 }
 func (s *SQLStore) PublicJobs(ctx context.Context, id string) ([]map[string]any, error) {
-	rows, err := s.db.Query(ctx, `SELECT id,title,COALESCE(city,''),work_mode::text FROM jobs WHERE company_id=$1 AND status='active' AND visibility='public' AND (application_deadline IS NULL OR application_deadline>=CURRENT_DATE) ORDER BY published_at DESC LIMIT 100`, id)
+	rows, err := s.db.Query(ctx, `SELECT jsonb_build_object('id',j.id,'job_reference',j.job_reference,'title',j.title,'company_name',c.display_name,'company_logo_url',c.logo_url,'description',j.description,'city',j.city,'state',j.state,'country_code',j.country_code,'work_mode',j.work_mode::text,'employment_type',j.employment_type::text,'min_experience_months',j.min_experience_months,'max_experience_months',j.max_experience_months,'salary_currency',j.salary_currency,'openings',j.openings,'published_at',j.published_at,'application_deadline',j.application_deadline,'required_skills',j.required_skills) FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.company_id=$1 AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline>=CURRENT_DATE) ORDER BY j.published_at DESC,j.id LIMIT 100`, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	items := []map[string]any{}
 	for rows.Next() {
-		var id, title, city, mode string
-		if err = rows.Scan(&id, &title, &city, &mode); err != nil {
+		var raw []byte
+		var v map[string]any
+		if err = rows.Scan(&raw); err != nil {
 			return nil, err
 		}
-		items = append(items, map[string]any{"id": id, "title": title, "city": city, "work_mode": mode})
+		if err = json.Unmarshal(raw, &v); err != nil {
+			return nil, err
+		}
+		items = append(items, v)
 	}
 	return items, rows.Err()
 }
+
 func (s *SQLStore) CategoryRatings(ctx context.Context, id string) (map[string]any, error) {
 	rows, err := s.db.Query(ctx, `SELECT key,avg((value::text)::numeric)::float8,count(*) FROM company_reviews r CROSS JOIN LATERAL jsonb_each(r.ratings) WHERE r.company_id=$1 AND r.kind='employee' AND r.moderation_status='published' AND r.verified AND value<>'null'::jsonb GROUP BY key`, id)
 	if err != nil {

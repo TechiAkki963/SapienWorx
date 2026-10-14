@@ -52,6 +52,10 @@ func (s *Service) SaveWorkspaceJob(ctx context.Context, userID, jobID string) er
 		return err
 	}
 	defer tx.Rollback(ctx)
+	var owner string
+	if err = tx.QueryRow(ctx, `SELECT user_id::text FROM candidate_profiles WHERE user_id=$1 FOR UPDATE`, userID).Scan(&owner); err != nil {
+		return err
+	}
 	var accepting bool
 	err = tx.QueryRow(ctx, `SELECT status='active' AND visibility='public' AND (application_deadline IS NULL OR application_deadline>=current_date) FROM jobs WHERE id=$1 FOR SHARE`, jobID).Scan(&accepting)
 	if errors.Is(err, pgx.ErrNoRows) || err == nil && !accepting {
@@ -60,8 +64,14 @@ func (s *Service) SaveWorkspaceJob(ctx context.Context, userID, jobID string) er
 	if err != nil {
 		return err
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO saved_jobs(candidate_id,job_id) VALUES($1,$2) ON CONFLICT(candidate_id,job_id) DO NOTHING`, userID, jobID); err != nil {
+	command, err := tx.Exec(ctx, `INSERT INTO saved_jobs(candidate_id,job_id) VALUES($1,$2) ON CONFLICT(candidate_id,job_id) DO NOTHING`, userID, jobID)
+	if err != nil {
 		return err
+	}
+	if command.RowsAffected() > 0 {
+		if err = recordJobEvent(ctx, tx, userID, jobID, "job_saved"); err != nil {
+			return err
+		}
 	}
 	return tx.Commit(ctx)
 }

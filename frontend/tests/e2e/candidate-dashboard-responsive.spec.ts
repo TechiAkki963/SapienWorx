@@ -29,7 +29,7 @@ for (const [width, height] of [
     expect(layout.content).toBeLessThanOrEqual(layout.viewport);
     expect(layout.headingRight).toBeLessThanOrEqual(layout.viewport);
     await expect(
-      page.getByRole("link", { name: "View and edit profile →", exact: true }),
+      page.getByRole("link", { name: "Edit profile", exact: true }),
     ).toBeVisible();
   });
   test(`recruiter profile controls do not cover initials at ${width}x${height}`, async ({

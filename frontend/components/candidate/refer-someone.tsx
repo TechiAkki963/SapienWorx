@@ -6,6 +6,7 @@ import {apiRequest} from "@/lib/api";
 import {CandidateReferralSummary} from "@/lib/candidate-referrals";
 import {WorkspaceDialog} from "./workspace-dialog";
 import "./candidate-workspace.css";
+import {CareerIcon} from "./career-icon";
 const input="min-h-11 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm font-normal text-ink focus:border-indigo focus:outline-none focus:ring-2 focus:ring-indigo/20";
 export function ReferSomeone({jobId,title,company,location,terms="",eligibility="",rewardEnabled=false}:{jobId:string;title:string;company:string;location?:string;terms?:string;eligibility?:string;rewardEnabled?:boolean}){
  const[open,setOpen]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(""),[created,setCreated]=useState<CandidateReferralSummary|null>(null);
@@ -17,7 +18,7 @@ export function ReferSomeone({jobId,title,company,location,terms="",eligibility=
   catch(c){setError(c instanceof Error?c.message:"Could not queue this invitation. Please try again.")}
   finally{pending.current=false;setBusy(false)}
  }
- return <><button type="button" className="min-h-11 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-ink hover:border-indigo" onClick={()=>{setCreated(null);setError("");setOpen(true)}}>Refer someone</button>
+ return <><button type="button" className="candidate-referral-trigger min-h-11 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-ink hover:border-indigo" onClick={()=>{setCreated(null);setError("");setOpen(true)}}><CareerIcon name="person"/>Refer someone</button>
  {open&&<WorkspaceDialog drawer title="Refer someone" busy={busy} onClose={()=>setOpen(false)} footer={created?<Button onClick={()=>setOpen(false)}>Done</Button>:<><Button variant="secondary" disabled={busy} onClick={()=>setOpen(false)}>Cancel</Button><Button form={formID} type="submit" disabled={busy}>{busy?"Queuing…":"Send invitation"}</Button></>}>
  {created?<div role="status" className="grid gap-4"><span aria-hidden="true" className="grid h-12 w-12 place-items-center rounded-full bg-mint text-2xl text-navy">✓</span><h3 className="text-xl font-semibold text-navy">{created.status==="invitation_queued"?"Referral invitation queued":"Referral invitation recorded"}</h3><p className="text-sm leading-7 text-ink">{created.candidate_name} has been invited to consider <strong>{title}</strong> at {company}.</p><p className="text-sm leading-7 text-ink-muted">Email delivery is tracked in My Referrals. No account or application is created on their behalf; they decide whether to apply.</p><Link href="/candidate/referrals" className="inline-flex min-h-11 items-center font-semibold text-indigo hover:underline">View my referrals →</Link></div>:<form id={formID} onSubmit={submit} className="grid gap-5">
  <div><p className="text-sm leading-7 text-ink-muted">Know someone who could be a good fit? Invite them to view this opportunity and decide for themselves.</p><div className="mt-4 rounded-xl border border-line bg-indigo-soft/25 p-4"><h3 className="font-semibold text-navy">{title}</h3><p className="mt-1 text-sm text-ink-muted">{company}{location?` · ${location}`:""}</p></div></div>

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import fs from "node:fs/promises";
 
-import { login, resetE2E } from "./helpers";
+import { login, resetE2E,chooseCandidateAppearance } from "./helpers";
 
 const recruiterAreas = [
   { slug: "dashboard", path: "/recruiter", heading: /Good|Welcome|Dashboard/i, sharedHeader: true },
@@ -28,6 +28,7 @@ async function noOverflow(page: import("@playwright/test").Page, label: string) 
 }
 
 async function chooseMode(page: import("@playwright/test").Page, label: "System" | "Light" | "Dark") {
+  if(new URL(page.url()).pathname.startsWith("/candidate")){await chooseCandidateAppearance(page,label);return}
   await page.getByTitle("Appearance").click();
   await page.getByTitle(label + " mode").click();
 }

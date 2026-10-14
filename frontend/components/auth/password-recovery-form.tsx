@@ -55,7 +55,7 @@ export function PasswordRecoveryForm({ navigation = {href:"/login",label:"sign i
   const back = <Link href={navigation.href} className="inline-flex min-h-11 items-center text-sm font-semibold text-indigo">← Back to {navigation.label}</Link>;
   const exit = <Link href={navigation.href} className="min-h-11 content-center text-center text-sm font-semibold text-indigo">Return to {navigation.label}</Link>;
   if (step === "request") return (
-    <form className="grid gap-5" onSubmit={request}>
+    <form method="post" className="grid gap-5" onSubmit={request}>
       {back}
       <div><p className="text-sm font-semibold text-indigo">Account recovery</p><h2 className="mt-2 text-3xl font-semibold text-ink">Reset your password</h2></div>
       {error && <p role="alert" className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
@@ -65,7 +65,7 @@ export function PasswordRecoveryForm({ navigation = {href:"/login",label:"sign i
     </form>
   );
   return (
-    <form className="grid gap-5" onSubmit={reset}>
+    <form method="post" className="grid gap-5" onSubmit={reset}>
       {back}
       <div><p className="text-sm font-semibold text-indigo">Secure reset</p><h2 className="mt-2 text-3xl font-semibold text-ink">Choose a new password</h2><p role="status" className="mt-3 text-sm text-ink-muted">{message}</p></div>
       <OTPCodeInput label="Password reset code" value={code} onChange={setCode} disabled={busy} error={error} />

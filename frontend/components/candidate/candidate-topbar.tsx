@@ -2,11 +2,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ThemeModeControl } from "@/components/theme/theme-mode-control";
-import { SettingsIcon } from "@/components/ui/settings-icon";
-import { SettingsLink } from "@/components/ui/settings-link";
-import { apiRequest } from "@/lib/api";
-import { CandidateAvatar } from "./candidate-avatar";
+import { CandidateProfileMenu } from "./candidate-profile-menu";
+import { CandidateSettingsMenu } from "./candidate-settings-menu";
 import { useCandidateWorkspace } from "./candidate-workspace-state";
 import { WorkspaceDialog } from "./workspace-dialog";
 
@@ -22,7 +19,7 @@ export function safeNotificationDestination(value?: string) {
     const url = new URL(value, "https://candidate.invalid");
     if (
       url.origin === "https://candidate.invalid" &&
-      /^\/candidate(?:\/(?:applications|interviews|offers|inbox|notifications|saved|settings|profile|jobs)(?:\/[a-zA-Z0-9-]+)?)?\/?$/.test(
+      /^\/candidate(?:\/(?:applications|interviews|offers|inbox|messages|referrals|career-hub|notifications|saved|settings|profile|jobs)(?:\/[a-zA-Z0-9-]+)?)?\/?$/.test(
         url.pathname,
       )
     )
@@ -34,7 +31,6 @@ export function safeNotificationDestination(value?: string) {
 export function CandidateTopbar({ name }: { name: string }) {
   const router = useRouter();
   const {
-    identity,
     notifications,
     unreadCount,
     notificationError,
@@ -42,7 +38,7 @@ export function CandidateTopbar({ name }: { name: string }) {
     markRead,
     markAllRead,
   } = useCandidateWorkspace();
-  const [panel, setPanel] = useState<"account" | "notifications" | null>(null);
+  const [panel, setPanel] = useState<"notifications" | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   async function action(work: () => Promise<void>) {
@@ -62,7 +58,6 @@ export function CandidateTopbar({ name }: { name: string }) {
   }
   return (
     <div className="candidate-topbar-actions">
-      <ThemeModeControl compact />
       <button
         type="button"
         className="candidate-icon-button candidate-bell"
@@ -96,85 +91,8 @@ export function CandidateTopbar({ name }: { name: string }) {
           </span>
         )}
       </button>
-      <SettingsLink href="/candidate/settings" onClick={() => setPanel(null)} />
-      <button
-        type="button"
-        className="candidate-account-trigger"
-        aria-label="Candidate account"
-        aria-haspopup="dialog"
-        aria-expanded={panel === "account"}
-        onClick={() => {
-          setError("");
-          setPanel("account");
-        }}
-      >
-        <CandidateAvatar name={name} />
-      </button>
-      {panel === "account" && (
-        <WorkspaceDialog
-          title="Your account"
-          onClose={() => setPanel(null)}
-          popover
-          busy={pending}
-        >
-          <div className="candidate-account-identity">
-            <CandidateAvatar name={name} />
-            <div>
-              <strong>{identity?.full_name || name}</strong>
-              {identity?.email && <p>{identity.email}</p>}
-            </div>
-          </div>
-          <nav aria-label="Account links" className="candidate-account-links">
-            <Link href="/candidate/profile" onClick={() => setPanel(null)}>
-              View profile
-            </Link>
-            <Link href="/candidate/referrals" onClick={() => setPanel(null)}>My Referrals</Link>
-            <Link href="/candidate/settings" onClick={() => setPanel(null)} className="flex items-center gap-2.5">
-              <SettingsIcon />Settings
-            </Link>
-            <Link
-              href="/candidate/profile?panel=visibility"
-              onClick={() => setPanel(null)}
-            >
-              Privacy & visibility
-            </Link>
-            <Link
-              href="/candidate/saved"
-              onClick={() => setPanel(null)}
-              className="candidate-secondary-mobile"
-            >
-              Saved jobs
-            </Link>
-            <Link href="/candidate/offers" onClick={()=>setPanel(null)} className="candidate-secondary-mobile">Offers</Link>
-            <Link
-              href="/candidate/interviews"
-              onClick={() => setPanel(null)}
-              className="candidate-secondary-mobile"
-            >
-              Interviews
-            </Link>
-          </nav>
-          <button
-            type="button"
-            className="candidate-logout"
-            disabled={pending}
-            onClick={() =>
-              void action(async () => {
-                await apiRequest("/api/v1/auth/logout", { method: "POST" });
-                router.replace("/login");
-                router.refresh();
-              })
-            }
-          >
-            {pending ? "Logging out…" : "Log out"}
-          </button>
-          {error && (
-            <p role="alert" className="candidate-error">
-              {error}
-            </p>
-          )}
-        </WorkspaceDialog>
-      )}
+      <CandidateSettingsMenu />
+      <CandidateProfileMenu name={name} />
       {panel === "notifications" && (
         <WorkspaceDialog
           title="Notifications"

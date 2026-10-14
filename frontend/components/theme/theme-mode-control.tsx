@@ -42,6 +42,7 @@ export function ThemeModeControl({ compact = false }: { compact?: boolean }) {
               <button
                 key={option.value}
                 type="button"
+                aria-label={option.label}
                 aria-pressed={active}
                 title={option.label + " mode"}
                 onClick={() => choose(option.value)}
@@ -71,7 +72,8 @@ export function ThemeModeControl({ compact = false }: { compact?: boolean }) {
           <button
             key={option.value}
             type="button"
-            aria-pressed={active}
+            aria-label={option.label}
+                aria-pressed={active}
             title={option.label + " mode"}
             onClick={() => choose(option.value)}
             className={[

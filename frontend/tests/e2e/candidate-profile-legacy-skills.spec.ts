@@ -103,7 +103,9 @@ for (const fixture of [
       profileV2Fixture.details.legacy_extension,
     );
     await page.reload();
-    await expect(section.getByText("Testing", { exact: true })).toBeVisible();
+    const visibleSection = page.locator("#section-keyskills:visible");
+    await expect(visibleSection).toHaveCount(1);
+    await expect(visibleSection.getByText("Testing", { exact: true })).toBeVisible();
     expect(errors).toEqual([]);
   });
 }

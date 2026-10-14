@@ -108,7 +108,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
   }, [initialThreads, initialUnreadOnly]);
 
   const handleMessage = useCallback((message: ChatMessage) => {
-    if (role === "recruiter" && message.sender_type === otherRole) {
+    if (message.sender_type === otherRole) {
       window.dispatchEvent(new CustomEvent("sapienworx:unread-change", { detail: 1 }));
     }
     setThreads((current) => current.map((thread) => thread.id === message.thread_id ? {
@@ -121,7 +121,7 @@ export function MessagingWorkspace({ initialThreads, role, initialUnreadOnly = f
 
   const handleVisibleRead = useCallback((messageIDs: string[]) => {
     if (messageIDs.length === 0) return;
-    if (role === "recruiter") window.dispatchEvent(new CustomEvent("sapienworx:unread-change", { detail: -messageIDs.length }));
+    window.dispatchEvent(new CustomEvent("sapienworx:unread-change", { detail: -messageIDs.length }));
     setThreads((current) => current.map((thread) => thread.id === activeThreadID ? {
       ...thread,
       unread_count: Math.max(0, thread.unread_count - messageIDs.length),

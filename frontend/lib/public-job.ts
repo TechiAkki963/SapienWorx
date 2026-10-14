@@ -7,7 +7,7 @@ import { BackendResponseError, publicAPI } from "@/lib/candidate-server";
 // Share cards use the same anonymous visibility/lifecycle check as the page.
 // Request-local memoization shares this read with generateMetadata, never sessions.
 export const publicJob = cache(async (jobID: string): Promise<CandidateJob> => {
-  if (!/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(jobID)) notFound();
+  if (!/^(?:[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}|SWX-JOB-\d{4}-\d{5,10})$/i.test(jobID)) notFound();
   try {
     return await publicAPI<CandidateJob>(`/api/v1/jobs/${encodeURIComponent(jobID)}`);
   } catch (error) {

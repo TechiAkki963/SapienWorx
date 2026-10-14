@@ -299,10 +299,10 @@ test("account menu supports keyboard/mobile, secure logout failure and successfu
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog", { name: "Your account" });
   await expect(
-    dialog.getByText("candidate@example.com", { exact: true }),
+    dialog.getByText("Job Seeker", { exact: true }),
   ).toBeVisible();
   await expect(
-    dialog.getByRole("link", { name: "Settings", exact: true }),
+    dialog.getByRole("link", { name: "Edit profile", exact: true }),
   ).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(account).toBeFocused();

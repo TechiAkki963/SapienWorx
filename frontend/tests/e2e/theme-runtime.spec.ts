@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { login, MOCK_API, resetE2E } from "./helpers";
+import { login, MOCK_API, resetE2E,chooseCandidateAppearance } from "./helpers";
 
 test.beforeEach(async ({ request }) => resetE2E(request));
 
@@ -38,11 +38,9 @@ for (const mode of ["system", "light", "dark"] as const) {
 test("switching explicit appearance back to System uses current OS preference immediately", async ({ page }) => {
   await login(page, "candidate");
   for (const [explicit, scheme] of [["Light", "dark"], ["Dark", "light"]] as const) {
-    await page.getByTitle("Appearance").click();
-    await page.getByTitle(`${explicit} mode`).click();
+    await chooseCandidateAppearance(page,explicit);
     await page.emulateMedia({ colorScheme: scheme });
-    await page.getByTitle("Appearance").click();
-    await page.getByTitle("System mode").click();
+    await chooseCandidateAppearance(page,"System");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "system");
     if (scheme === "dark") await expect(page.locator("html")).toHaveClass(/swx-dark/);
     else await expect(page.locator("html")).not.toHaveClass(/swx-dark/);

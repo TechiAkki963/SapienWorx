@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -29,31 +27,34 @@ func NewService(db *pgxpool.Pool) *Service {
 }
 
 type Job struct {
-	ReferralEnabled       bool       `json:"referral_enabled"`
-	ReferralDeadline      *string    `json:"referral_deadline,omitempty"`
-	ReferralRewardEnabled bool       `json:"referral_reward_enabled"`
-	ReferralTerms         string     `json:"referral_terms"`
-	ReferralEligibility   string     `json:"referral_eligibility"`
-	ID                    string     `json:"id"`
-	CompanyName           string     `json:"company_name"`
-	CompanyLogoURL        *string    `json:"company_logo_url,omitempty"`
-	RequiredSkills        []string   `json:"required_skills,omitempty"`
-	Title                 string     `json:"title"`
-	Department            *string    `json:"department,omitempty"`
-	Description           string     `json:"description"`
-	EmploymentType        string     `json:"employment_type"`
-	WorkMode              string     `json:"work_mode"`
-	City                  *string    `json:"city,omitempty"`
-	State                 *string    `json:"state,omitempty"`
-	CountryCode           string     `json:"country_code"`
-	MinExperienceMonths   int        `json:"min_experience_months"`
-	MaxExperienceMonths   *int       `json:"max_experience_months,omitempty"`
-	MinSalaryAmount       *float64   `json:"min_salary_amount,omitempty"`
-	MaxSalaryAmount       *float64   `json:"max_salary_amount,omitempty"`
-	SalaryCurrency        string     `json:"salary_currency"`
-	Openings              int        `json:"openings"`
-	ApplicationDeadline   *time.Time `json:"application_deadline,omitempty"`
-	PublishedAt           *time.Time `json:"published_at,omitempty"`
+	JobReference             string     `json:"job_reference,omitempty"`
+	ScreeningQuestionVersion string     `json:"screening_question_version,omitempty"`
+	ScreeningQuestions       []string   `json:"screening_questions,omitempty"`
+	ReferralEnabled          bool       `json:"referral_enabled"`
+	ReferralDeadline         *string    `json:"referral_deadline,omitempty"`
+	ReferralRewardEnabled    bool       `json:"referral_reward_enabled"`
+	ReferralTerms            string     `json:"referral_terms"`
+	ReferralEligibility      string     `json:"referral_eligibility"`
+	ID                       string     `json:"id"`
+	CompanyName              string     `json:"company_name"`
+	CompanyLogoURL           *string    `json:"company_logo_url,omitempty"`
+	RequiredSkills           []string   `json:"required_skills,omitempty"`
+	Title                    string     `json:"title"`
+	Department               *string    `json:"department,omitempty"`
+	Description              string     `json:"description"`
+	EmploymentType           string     `json:"employment_type"`
+	WorkMode                 string     `json:"work_mode"`
+	City                     *string    `json:"city,omitempty"`
+	State                    *string    `json:"state,omitempty"`
+	CountryCode              string     `json:"country_code"`
+	MinExperienceMonths      int        `json:"min_experience_months"`
+	MaxExperienceMonths      *int       `json:"max_experience_months,omitempty"`
+	MinSalaryAmount          *float64   `json:"min_salary_amount,omitempty"`
+	MaxSalaryAmount          *float64   `json:"max_salary_amount,omitempty"`
+	SalaryCurrency           string     `json:"salary_currency"`
+	Openings                 int        `json:"openings"`
+	ApplicationDeadline      *time.Time `json:"application_deadline,omitempty"`
+	PublishedAt              *time.Time `json:"published_at,omitempty"`
 }
 
 type JobList struct {
@@ -217,9 +218,24 @@ func (s *Service) ListJobs(ctx context.Context, filters JobFilters) (JobList, er
 
 func (s *Service) Job(ctx context.Context, id string) (Job, error) {
 	var job Job
-	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+`,c.logo_url,j.required_skills FROM jobs j JOIN companies c ON c.id=j.company_id WHERE j.id=$1 AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job, &job.CompanyLogoURL, &job.RequiredSkills)
+	id = strings.TrimSpace(id)
+	lookup := "j.id=$1"
+	if !workspaceUUID.MatchString(id) {
+		if !publicJobReference.MatchString(id) {
+			return Job{}, ErrNotFound
+		}
+		lookup = "j.job_reference=$1"
+	}
+	err := scanJob(s.db.QueryRow(ctx, `SELECT `+jobColumns+`,c.logo_url,j.required_skills,j.job_reference,j.screening_questions FROM jobs j JOIN companies c ON c.id=j.company_id WHERE `+lookup+` AND j.status='active' AND j.visibility='public' AND (j.application_deadline IS NULL OR j.application_deadline >= current_date)`, id), &job, &job.CompanyLogoURL, &job.RequiredSkills, &job.JobReference, &job.ScreeningQuestions)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Job{}, ErrNotFound
+	}
+	if err == nil {
+		questions := job.ScreeningQuestions
+		if questions == nil {
+			questions = []string{}
+		}
+		job.ScreeningQuestionVersion = questionVersion(questions)
 	}
 	return job, err
 }
@@ -319,33 +335,7 @@ func (s *Service) Applications(ctx context.Context, userID string, limit int) ([
 }
 
 func (s *Service) Apply(ctx context.Context, userID, jobID string) (Application, error) {
-	var active bool
-	if err := s.db.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM jobs WHERE id=$1 AND status='active' AND visibility='public' AND (application_deadline IS NULL OR application_deadline >= current_date))`, jobID).Scan(&active); err != nil {
-		return Application{}, err
-	}
-	if !active {
-		return Application{}, ErrInactiveJob
-	}
-
-	var id string
-	err := s.db.QueryRow(ctx, `INSERT INTO applications(candidate_id,job_id) VALUES($1,$2) RETURNING id`, userID, jobID).Scan(&id)
-	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return Application{}, ErrAlreadyApplied
-		}
-		return Application{}, err
-	}
-	apps, err := s.Applications(ctx, userID, 100)
-	if err != nil {
-		return Application{}, err
-	}
-	for _, app := range apps {
-		if app.ID == id {
-			return app, nil
-		}
-	}
-	return Application{}, fmt.Errorf("created application could not be loaded")
+	return s.SubmitApplication(ctx, userID, ApplicationSubmission{JobID: jobID})
 }
 
 func (s *Service) SavedJobs(ctx context.Context, userID string) ([]Job, error) {

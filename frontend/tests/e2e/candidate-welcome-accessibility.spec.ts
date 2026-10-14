@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { login, MOCK_API, resetE2E } from "./helpers";
+import { login, MOCK_API, resetE2E,chooseCandidateAppearance } from "./helpers";
 
 test.use({ viewport: { width: 1440, height: 900 } });
 test.beforeEach(async ({ request }) => resetE2E(request));
@@ -33,8 +33,7 @@ for (const mode of ["Light", "Dark"] as const) {
     request,
   }) => {
     await login(page, "candidate");
-    await page.getByTitle("Appearance").click();
-    await page.getByTitle(`${mode} mode`).click();
+    await chooseCandidateAppearance(page,mode);
     await request.post(`${MOCK_API}/__e2e/onboarding`, {
       data: { status: "not_started" },
     });

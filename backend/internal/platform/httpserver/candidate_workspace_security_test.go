@@ -122,7 +122,7 @@ func TestCandidateWorkspaceHTTPAuthorizationIsolatedDatabase(t *testing.T) {
 		server.http.Handler.ServeHTTP(w, r)
 		return w
 	}
-	for _, path := range []string{"/api/v1/candidate/profile/metrics", "/api/v1/candidate/job-locations?q=Bangalore", "/api/v1/candidate/notifications/inbox", "/api/v1/candidate/profile/photo"} {
+	for _, path := range []string{"/api/v1/candidate/preferences", "/api/v1/candidate/application-state?job_ids=60000000-0000-4000-8000-000000000001", "/api/v1/candidate/profile/metrics", "/api/v1/candidate/job-locations?q=Bangalore", "/api/v1/candidate/notifications/inbox", "/api/v1/candidate/profile/photo"} {
 		if w := call(http.MethodGet, path, "", false, ""); w.Code != 401 {
 			t.Fatalf("missing token %s=%d", path, w.Code)
 		}
@@ -130,7 +130,7 @@ func TestCandidateWorkspaceHTTPAuthorizationIsolatedDatabase(t *testing.T) {
 			t.Fatalf("wrong role %s=%d body=%s", path, w.Code, w.Body.String())
 		}
 	}
-	for _, v := range []struct{ method, path string }{{http.MethodPost, "/api/v1/candidate/profile/phone/request"}, {http.MethodPost, "/api/v1/candidate/profile/phone/verify"}, {http.MethodPost, "/api/v1/candidate/profile/photo"}, {http.MethodDelete, "/api/v1/candidate/profile/photo"}, {http.MethodPatch, "/api/v1/candidate/notifications/read-all"}} {
+	for _, v := range []struct{ method, path string }{{http.MethodPut, "/api/v1/candidate/application-draft"}, {http.MethodPost, "/api/v1/candidate/job-events"}, {http.MethodPatch, "/api/v1/candidate/preferences"}, {http.MethodPost, "/api/v1/candidate/profile/phone/request"}, {http.MethodPost, "/api/v1/candidate/profile/phone/verify"}, {http.MethodPost, "/api/v1/candidate/profile/photo"}, {http.MethodDelete, "/api/v1/candidate/profile/photo"}, {http.MethodPatch, "/api/v1/candidate/notifications/read-all"}} {
 		if w := call(v.method, v.path, "", false, ""); w.Code != 401 {
 			t.Fatalf("missing token mutation %s=%d", v.path, w.Code)
 		}

@@ -390,11 +390,11 @@ test.describe("Candidate Profile V2", () => {
     await expect(page.locator("html")).toHaveClass(/swx-dark/);
     await page.emulateMedia({ colorScheme: "light" });
     await expect(page.locator("html")).not.toHaveClass(/swx-dark/);
-    await page.getByLabel("Appearance: System", { exact: true }).click();
+    await page.goto("/candidate/settings#appearance");
     await page.getByRole("button", { name: "Dark", exact: true }).click();
     await page.emulateMedia({ colorScheme: "light" });
     await expect(page.locator("html")).toHaveClass(/swx-dark/);
-    await page.getByLabel("Appearance: Dark", { exact: true }).click();
+    await page.goto("/candidate/settings#appearance");
     await page.getByRole("button", { name: "Light", exact: true }).click();
     await page.emulateMedia({ colorScheme: "dark" });
     await expect(page.locator("html")).not.toHaveClass(/swx-dark/);

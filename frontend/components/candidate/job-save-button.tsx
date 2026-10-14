@@ -5,9 +5,11 @@ import { useJobSave } from "@/components/candidate/use-job-save";
 export function JobSaveButton({
   jobId,
   initialSaved = false,
+  iconOnly=false,
 }: {
   jobId: string;
   initialSaved?: boolean;
+  iconOnly?:boolean;
 }) {
   const { saved, busy, error, toggle } = useJobSave(jobId, initialSaved);
   return (
@@ -16,9 +18,10 @@ export function JobSaveButton({
         type="button"
         onClick={toggle}
         disabled={busy}
+        title={saved ? "Remove from saved jobs" : "Save job"}
         aria-pressed={saved}
         aria-label={saved ? "Remove from saved jobs" : "Save job"}
-        className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-bold text-ink-muted transition hover:bg-indigo-soft/40 hover:text-indigo focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo disabled:opacity-60"
+        className={`${iconOnly?"candidate-save-icon ":""}inline-flex min-h-11 min-w-11 justify-center items-center gap-1.5 rounded-lg px-2 text-xs font-bold text-ink-muted transition hover:bg-indigo-soft/40 hover:text-indigo focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo disabled:opacity-60`}
       >
         <svg
           aria-hidden="true"
@@ -27,7 +30,7 @@ export function JobSaveButton({
         >
           <path d="M6.5 4.5h11v15l-5.5-3.6-5.5 3.6z" />
         </svg>
-        {busy ? "Updating…" : saved ? "Saved" : "Save"}
+        {!iconOnly&&(busy ? "Updating…" : saved ? "Saved" : "Save")}
       </button>
       {error && (
         <p

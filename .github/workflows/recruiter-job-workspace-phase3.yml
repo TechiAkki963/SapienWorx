@@ -80,6 +80,13 @@ jobs:
           done
       - name: Preserve pristine migration rollback fixture
         run: createdb -h 127.0.0.1 -U sapienworx -T sapienworx_ci sapienworx_rollback_ci
+      - name: Candidate application drafts, screening answers and consent integrity
+        env:
+          JOURNEY_TEST_DATABASE_URL: postgres://sapienworx:sapienworx_ci@127.0.0.1:5432/sapienworx_journey_test?sslmode=disable
+        run: |
+          createdb -h 127.0.0.1 -U sapienworx -T sapienworx_rollback_ci sapienworx_journey_test
+          cd backend
+          go test -race ./internal/candidate -run TestApplicationJourneyIsolatedDatabase -count=1 -v
       - name: Verify Phase 3.2 job governance schema
         run: |
           set -euo pipefail

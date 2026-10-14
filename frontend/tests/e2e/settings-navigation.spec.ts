@@ -55,25 +55,37 @@ test("recruiter gear has transparent, hover, active, dark and keyboard states", 
   await expect(gear).toHaveCSS("background-color", "rgb(30, 58, 95)");
 });
 
-test("candidate navbar and account menu share the Settings gear without mobile collisions", async ({ page }) => {
+test("candidate gear opens Settings separately from the account menu without mobile collisions", async ({ page }) => {
   await login(page, "candidate");
   const header = page.getByRole("banner");
-  const gear = header.getByRole("link", { name: "Settings", exact: true }).and(page.locator(".swx-settings-link"));
+  const gear = header.getByRole("button", { name: "Settings", exact: true }).and(page.locator(".swx-settings-link"));
   for (const width of [1440, 768, 428, 360]) {
     await page.setViewportSize({ width, height: 900 });
     await expectSettingsControl(gear);
-    const brand = (await header.getByRole("link", { name: "Candidate dashboard", exact: true }).boundingBox())!;
+    const brand = header.getByRole("link", { name: "SapienWorx Candidate home", exact: true });
     const actions = (await page.locator(".candidate-topbar-actions").boundingBox())!;
-    expect(brand.x + brand.width).toBeLessThanOrEqual(actions.x);
+    if (width < 768) {
+      await expect(brand).toBeVisible();
+      const box = (await brand.boundingBox())!;
+      expect(box.x + box.width).toBeLessThanOrEqual(actions.x);
+    } else await expect(brand).toBeHidden();
+    const search = (await page.locator(".candidate-global-search").boundingBox())!;
+    expect(search.x + search.width).toBeLessThanOrEqual(actions.x);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   }
   await page.getByRole("button", { name: "Candidate account", exact: true }).click();
   const account = page.getByRole("dialog", { name: "Your account", exact: true });
-  const accountSettings = account.getByRole("link", { name: "Settings", exact: true });
-  expect(await accountSettings.locator("svg path").getAttribute("d")).toBe(await gear.locator("svg path").getAttribute("d"));
-  await accountSettings.click();
-  await expect(page).toHaveURL(/\/candidate\/settings$/);
+  await expect(account.getByRole("link", { name: "Settings", exact: true })).toHaveCount(0);
+  await expect(account.getByRole("link", { name: "View profile", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Candidate account", exact: true })).toBeFocused();
   await expect(account).toHaveCount(0);
+  await gear.press("Enter");
+  const choices = page.getByRole("navigation", { name: "Settings choices", exact: true });
+  await expect(choices.getByRole("link")).toHaveCount(6);
+  await choices.getByRole("link", { name: "Notification preferences", exact: true }).click();
+  await expect(page).toHaveURL(/\/candidate\/settings#notifications$/);
+  await expect(choices).toHaveCount(0);
   await expect(gear).toHaveAttribute("aria-current", "page");
 });
 

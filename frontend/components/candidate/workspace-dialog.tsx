@@ -9,6 +9,9 @@ export function WorkspaceDialog({
   busy = false,
   drawer = false,
   footer,
+  className = "",
+  headerIcon,
+  description,
 }: {
   title: string;
   onClose: () => void;
@@ -17,6 +20,9 @@ export function WorkspaceDialog({
   busy?: boolean;
   drawer?: boolean;
   footer?: ReactNode;
+  className?: string;
+  headerIcon?: ReactNode;
+  description?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(
@@ -41,8 +47,9 @@ export function WorkspaceDialog({
   return (
     <dialog
       ref={dialog}
-      className={`candidate-dialog ${popover ? "candidate-popover" : ""} ${drawer ? "candidate-referral-drawer" : ""}`}
+      className={`candidate-dialog ${popover ? "candidate-popover" : ""} ${drawer ? "candidate-referral-drawer" : ""} ${className}`}
       aria-label={title}
+      aria-modal="true"
       onKeyDown={(event) => {
         if(event.key!=="Tab") return;
         const items=Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter(item=>item.getClientRects().length>0&&item.tabIndex>=0);
@@ -70,7 +77,7 @@ export function WorkspaceDialog({
       }}
     >
       <div className="candidate-dialog-head">
-        <h2>{title}</h2>
+        <div className="candidate-dialog-heading">{headerIcon}<div><h2>{title}</h2>{description&&<p>{description}</p>}</div></div>
         <button
           type="button"
           className="candidate-icon-button"

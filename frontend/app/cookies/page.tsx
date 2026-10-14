@@ -49,7 +49,7 @@ export default function CookieInformationPage() {
           <section className="mt-8 rounded-2xl border border-indigo/15 bg-indigo-soft/35 p-6">
             <h2 className="text-lg font-bold text-navy">Why there is no consent banner</h2>
             <p className="mt-2 text-sm leading-7 text-ink-muted">
-              There are currently no optional cookies to accept or reject. If SapienWorx later introduces non-essential analytics, advertising, or similar tracking, those technologies must remain off until the required preference controls and consent records are available.
+              There are currently no optional cookies to accept or reject. Optional Candidate product analytics is a separate server-side preference, off by default and controlled under Settings → Data & consent. It introduces no additional cookies or third-party tracking service. Any future optional-cookie technology must have its own preference controls and consent records before activation.
             </p>
           </section>
         </article>
