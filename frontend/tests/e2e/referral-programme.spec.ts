@@ -3,7 +3,7 @@ import {login,resetE2E,MOCK_API} from "./helpers";
 const job="60000000-0000-4000-8000-000000000001";
 test.beforeEach(async({request})=>resetE2E(request));
 test("applied and saved candidates can still refer; closing date and disabled programme govern the action",async({page,request})=>{
- await request.post(`${MOCK_API}/__e2e/workspace`,{data:{saved_job_ids:[job]}});await login(page,"candidate");await page.goto(`/candidate/jobs/${job}`);await expect(page.getByRole("button",{name:"Applied ✓",exact:true})).toBeVisible();await expect(page.getByRole("button",{name:"Refer someone",exact:true})).toBeVisible();await expect(page.getByRole("button",{name:"Remove from saved jobs",exact:true})).toHaveText("Saved ✓");
+ await request.post(`${MOCK_API}/__e2e/workspace`,{data:{saved_job_ids:[job]}});await login(page,"candidate");await page.goto(`/candidate/jobs/${job}`);await expect(page.getByRole("button",{name:"Applied ✓",exact:true})).toBeVisible();await expect(page.getByRole("button",{name:"Refer someone",exact:true})).toBeVisible();const saved=page.getByRole("button",{name:"Remove from saved jobs",exact:true});await expect(saved).toHaveAttribute("aria-pressed","true");await expect(saved.locator("svg")).toHaveClass(/fill-indigo/);
  await request.post(`${MOCK_API}/__e2e/public-job`,{data:{job:{referral_enabled:true,referral_deadline:"2020-01-01"}}});await page.reload();await expect(page.getByRole("button",{name:"Refer someone",exact:true})).toHaveCount(0);
  await request.post(`${MOCK_API}/__e2e/public-job`,{data:{job:{referral_enabled:false}}});await page.reload();await expect(page.getByRole("button",{name:"Refer someone",exact:true})).toHaveCount(0);
 });
