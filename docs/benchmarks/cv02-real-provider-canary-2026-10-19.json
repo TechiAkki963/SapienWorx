@@ -1,0 +1,283 @@
+{
+  "title": "SapienWorx cv-02 Real Provider Canary Report",
+  "date": "2026-10-19",
+  "kind": "VALIDATION_EVIDENCE_ONLY_NOT_BASELINE",
+  "decision": "CANARY PASSED — READY FOR REMAINING TARGETED RETEST",
+  "execution_utc": "2026-10-19T10:35:43.024687Z",
+  "preflight": {
+    "model": "gpt-6-luna",
+    "task": "cv.parse",
+    "case": "cv-02",
+    "logical_cases": 1,
+    "prompt_version": "p2",
+    "cv_wire_schema_version": "v1.1",
+    "canonical_profile_version": "v1",
+    "parser_version": "openai-p2-v1",
+    "global_openai_enabled": false,
+    "key_configured_privately": true,
+    "synthetic_data_only": true,
+    "attempt_timeout_seconds": 30,
+    "operation_timeout_seconds": 65,
+    "command_deadline_seconds": 85,
+    "max_provider_attempts": 2,
+    "max_retries": 1,
+    "expected_first_cost_usd": 0.0009612,
+    "worst_first_attempt_usd": 0.005516,
+    "worst_retry_usd": 0.005516,
+    "hard_cap_usd": 0.011032,
+    "plan": {
+      "task_timeout_seconds": {
+        "cv.parse": 30
+      },
+      "operation_timeout_seconds": {
+        "cv.parse": 65
+      },
+      "prompt_version": "p2",
+      "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+      "schema_sha256": {
+        "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177"
+      },
+      "dataset_version": "synthetic-parsing-eval-v1",
+      "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+      "model": "gpt-6-luna",
+      "pricing_version": "openai-standard-2026-10-17.v1",
+      "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+      "service_tier": "default",
+      "requests": 1,
+      "tasks": {
+        "cv.parse": {
+          "requests": 1,
+          "approx_input_tokens": 3992,
+          "input_token_byte_bound": 19551,
+          "approx_output_tokens": 1124,
+          "maximum_output_tokens": 12288,
+          "estimated_usd": 0.0009612,
+          "worst_case_usd": 0.011032
+        }
+      },
+      "approx_input_tokens": 3992,
+      "input_token_byte_bound": 19551,
+      "approx_output_tokens": 1124,
+      "maximum_output_tokens": 12288,
+      "estimated_total_usd": 0.0009612,
+      "worst_case_total_usd": 0.011032,
+      "cost_cap_usd": 0.011032,
+      "hard_request_cap": 2,
+      "timeout_seconds": 30,
+      "retries": 1,
+      "concurrency": 1,
+      "case_ids": [
+        "cv-02"
+      ],
+      "plan_sha256": "0e6490d8ab5fb17650de2522bbb61384ebe56106e53c66c80ee34710d169b73e"
+    }
+  },
+  "execution": {
+    "logical_cases": 1,
+    "provider_attempts": 1,
+    "retries": 0,
+    "provider_result": "completed",
+    "resolved_model": "gpt-6-luna",
+    "internal_error": null,
+    "other_real_cases": [],
+    "attempts": [
+      {
+        "logical_case_id": "cv-02",
+        "request_id": "90000000-0000-4000-8000-000000000001",
+        "task": "cv.parse",
+        "attempt_number": 1,
+        "model": "gpt-6-luna",
+        "payload_bytes": 15455,
+        "estimated_input_tokens": 3992,
+        "configured_timeout_ms": 30000,
+        "elapsed_ms": 14999,
+        "provider_request_id": "req_a538d9f4aa684f768b29a8191a9a18a3",
+        "classification": "",
+        "retryable": false,
+        "retry_delay_ms": 0,
+        "status": "completed",
+        "usage": {
+          "input_tokens": 3318,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 3315,
+          "output_tokens": 1732,
+          "total_tokens": 5050
+        },
+        "usage_known": true,
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.000414375,
+          "output_usd": 0.000866,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.001280675
+        }
+      }
+    ]
+  },
+  "performance": {
+    "first_attempt_ms": 14999,
+    "logical_gateway_ms": 15005,
+    "second_attempt_ms": null,
+    "configured_attempt_ms": 30000,
+    "timeout_occurred": false
+  },
+  "accounting": {
+    "usage": {
+      "input_tokens": 3318,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 3315,
+      "output_tokens": 1732,
+      "total_tokens": 5050
+    },
+    "known_usage_estimated_cost_usd": 0.001280675,
+    "conservative_reconciled_cost_usd": 0.001280675,
+    "conservative_first_reservation_usd": 0.005516,
+    "unknown_usage_attempts": 0,
+    "hard_cap_usd": 0.011032,
+    "remaining_cap_usd": 0.009751325,
+    "first_admission": {
+      "spend_before_usd": 0,
+      "worst_next_usd": 0.005516,
+      "sum_usd": 0.005516,
+      "cap_usd": 0.011032,
+      "pass": true
+    },
+    "retry_admission": "NOT_NEEDED_NOT_EXECUTED",
+    "unused_cap_not_reallocated": true,
+    "actual_invoice_total": "NOT_QUERIED"
+  },
+  "parser": {
+    "schema_valid": true,
+    "raw_domain_valid": true,
+    "postprocessed_domain_valid": true,
+    "canonical_profile_valid": true,
+    "provider_name_correct": true,
+    "normalization": "PASS; JS mapped only by exact approved alias",
+    "postprocessing": "PASS; missing qualification projection filled from supplied degree; existing experience/current-role derivations agree with source",
+    "raw_exact": {
+      "status": "measured",
+      "numerator": 46,
+      "denominator": 50,
+      "value": 0.92
+    },
+    "raw_normalized_strict": {
+      "status": "measured",
+      "numerator": 47,
+      "denominator": 50,
+      "value": 0.94
+    },
+    "final_exact": {
+      "status": "measured",
+      "numerator": 48,
+      "denominator": 50,
+      "value": 0.96
+    },
+    "final_normalized_strict": {
+      "status": "measured",
+      "numerator": 48,
+      "denominator": 50,
+      "value": 0.96
+    },
+    "representation_adjusted_raw": {
+      "status": "measured",
+      "numerator": 50,
+      "denominator": 50,
+      "value": 1
+    },
+    "representation_adjusted_final": {
+      "status": "measured",
+      "numerator": 50,
+      "denominator": 50,
+      "value": 1
+    },
+    "final_strict_error_paths": [
+      "/certifications",
+      "/location/preferred"
+    ],
+    "source_assertions_reviewed": 29,
+    "factual_errors": 0,
+    "source_fact_omissions": 0,
+    "hallucinations_observed": 0,
+    "postprocessing_errors": 0,
+    "final_representation_differences": 2,
+    "raw_duplicate_projection_absence": 1,
+    "contract_ambiguities_observed": 0,
+    "zero_experience_check": "NOT_APPLICABLE: source explicitly 57 months; cv-19 not executed",
+    "human_review_required": true
+  },
+  "reliability": {
+    "timeout_policy": "PASS on this observation; 14999ms<30000ms, no early15s header cutoff",
+    "retry_policy": "PASS: success made no retry; real transient retry path not exercised",
+    "budget": "PASS: independently recomputed all usage components and cap; denial branch not needed",
+    "telemetry": "PASS: exactly one matching pending/completed pair, one logical result, matching usage/cost/IDs/model"
+  },
+  "tests": {
+    "groups": [
+      {
+        "group": "gateway",
+        "exit_code": 0,
+        "top_pass": 56,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 116
+      },
+      {
+        "group": "captured-replay",
+        "exit_code": 0,
+        "top_pass": 1,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 226
+      },
+      {
+        "group": "budget",
+        "exit_code": 0,
+        "top_pass": 6,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 6
+      },
+      {
+        "group": "normalization",
+        "exit_code": 0,
+        "top_pass": 10,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 34
+      },
+      {
+        "group": "runner",
+        "exit_code": 0,
+        "top_pass": 5,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 11
+      }
+    ],
+    "top_level_pass": 78,
+    "top_level_skip": 1,
+    "passing_test_subtest_events": 393,
+    "failed_final_checks": 0,
+    "captured_replay_cases": 40,
+    "captured_replay_regressions": 185,
+    "initial_filtered_replay_note": "Child cv-02 and its six checks passed, but the parent coverage guard requires all185. Complete parent was rerun and passed; no code/data changes were made."
+  },
+  "integrity": {
+    "frozen440_match": true,
+    "code_prompt_schema_scoring_goldens_unchanged": true,
+    "global_private_environment_unchanged": true,
+    "v1_baseline_preserved": true,
+    "v1_1_created": false,
+    "additional_real_provider_calls": 0,
+    "commit_push_merge_deploy": false,
+    "beta_or_production_records_used": false
+  },
+  "artifacts": {
+    "evidence": "cv02-real-provider-canary-2026-10-19-evidence.json",
+    "attempts": "cv02-real-provider-canary-2026-10-19-attempts.csv",
+    "source_audit": "cv02-real-provider-canary-2026-10-19-source-audit.csv"
+  }
+}

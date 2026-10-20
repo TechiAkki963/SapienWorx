@@ -99,6 +99,13 @@ func (s *Service) transitionJobStatusForCompany(ctx context.Context, userID, com
 		return nil
 	}
 	if nextStatus == "active" {
+		var generation JobGenerationMetadata
+		if err = tx.QueryRow(ctx, `SELECT ai_generation FROM jobs WHERE id=$1 AND company_id=$2`, jobID, companyID).Scan(&generation); err != nil {
+			return err
+		}
+		if !generationAllowsPublish(generation) {
+			return ErrAIReviewRequired
+		}
 		if err = company.CheckCapacityTx(ctx, tx, companyID, "active_jobs", 1); err != nil {
 			return err
 		}

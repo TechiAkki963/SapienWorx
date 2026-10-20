@@ -1,0 +1,779 @@
+{
+  "record_type": "non_passing_real_provider_quality_evaluation",
+  "name": "JD Generation V1 — Eight-case evaluation",
+  "client_date": "2026-10-20",
+  "timezone": "Asia/Calcutta",
+  "readiness": "REAL GENERATION EVALUATED",
+  "beta_jd_generator_candidate": false,
+  "quality_passes": 0,
+  "provider_successes": 8,
+  "logical_cases": 8,
+  "provider_attempts": 8,
+  "retries": 0,
+  "provider_failures": 0,
+  "model": "gpt-6-luna",
+  "resolved_models": [
+    "gpt-6-luna"
+  ],
+  "service_tier": "default",
+  "task": "job.generate_description",
+  "task_version": "v1.1",
+  "prompt_version": "jd-p1",
+  "schema_version": "jd-generation-v1",
+  "JobProfile_contract": "Existing recruiter.DetailedJobInput; restricted GenerationFields request v1; no independent JobProfile version tag",
+  "taxonomy": {
+    "explicit_version_tag": null,
+    "fixture": "Unchanged seeded taxonomy from frozen migrations 1–69; no live taxonomy",
+    "seed_migration": "database/migrations/000039_workforce_taxonomy_foundation.up.sql",
+    "seed_migration_sha256": "8b55465581479c37a56896a58b5990e320f009d55932efb47c11f4a6fb366060",
+    "migration_manifest_sha256": "2352de25ae0da02f99a34307b39afed58dedeaf5af52dca0f6428b947579868f",
+    "suggestions_never_promoted_to_mandatory_requirements": true
+  },
+  "pricing": {
+    "version": "openai-standard-2026-10-17.v1",
+    "sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+    "source": "https://developers.openai.com/api/docs/pricing",
+    "reverified_client_date": "2026-10-20",
+    "expected_usd": 0.0006025000000000001,
+    "conservative_usd": 0.009093999999999998,
+    "actual_estimated_usd": 0.0003811,
+    "hard_cap_usd": 0.03,
+    "remaining_usd": 0.0296189,
+    "durable_spent_micro_usd": 386,
+    "durable_reserved_micro_usd": 0,
+    "durable_remaining_usd": 0.029613999999999998
+  },
+  "usage": {
+    "input_tokens": 1536,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 455,
+    "total_tokens": 1991
+  },
+  "latency_ms": {
+    "p50": 2177.0,
+    "p95": 3827,
+    "max": 3827,
+    "p95_method": "nearest rank; n=8; p95 equals max",
+    "clock": "gateway wall duration including admission/validation; attempt timings in local journal"
+  },
+  "score_method": "Qualitative agent review against the supplied 0–5 rubric; not an independent human recruiter panel or provider grader",
+  "score_scale": {
+    "0": "absent/unacceptable",
+    "1": "poor",
+    "2": "weak",
+    "3": "adequate",
+    "4": "good",
+    "5": "excellent within observed scope"
+  },
+  "human_recruiter_review": "Still required; artifacts not marked owner_reviewed",
+  "cases": [
+    {
+      "AI_generated_prose": "Java Backend Developer\n\nAbout the Role\nThis opportunity is for a Java Backend Developer in Bengaluru.\n\nExperience\n3–5 years\n\nLocation / Work Mode\nBengaluru",
+      "attempts": 1,
+      "case_id": "jd-01",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.94e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 2.9e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 4.84e-05
+      },
+      "domain_valid": true,
+      "industry": "Technology",
+      "latency_ms": 3520,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"concise\",\"section_order\":[]}",
+      "provider_request_id": "req_ede9b91d7b124ecc9d1b928286441f10",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "Java Backend Developer",
+        "location": "Bengaluru",
+        "min_experience_years": 3,
+        "max_experience_years": 5
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "Java Backend Developer",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [],
+      "usage": {
+        "input_tokens": 194,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 58,
+        "total_tokens": 252
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 24
+    },
+    {
+      "AI_generated_prose": "Registered Nurse\n\nAbout the Role\nWe are looking for a Registered Nurse based in Mumbai.\n\nExperience\n2–4 years\n\nLocation / Work Mode\nMumbai",
+      "attempts": 1,
+      "case_id": "jd-02",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.9e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 2.85e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 4.75e-05
+      },
+      "domain_valid": true,
+      "industry": "Healthcare",
+      "latency_ms": 2162,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"direct\",\"section_order\":[]}",
+      "provider_request_id": "req_dff377e6f1cc43cbbef6648513cccfba",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "Registered Nurse",
+        "location": "Mumbai",
+        "min_experience_years": 2,
+        "max_experience_years": 4
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "Registered Nurse",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [
+        "Clinical Documentation",
+        "Medication Administration",
+        "Patient Assessment"
+      ],
+      "usage": {
+        "input_tokens": 190,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 57,
+        "total_tokens": 247
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [
+        "Clinical Documentation",
+        "Medication Administration",
+        "Patient Assessment"
+      ],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 23
+    },
+    {
+      "AI_generated_prose": "Relationship Manager\n\nAbout the Role\nThis opportunity is for a Relationship Manager in Pune.\n\nExperience\n3–6 years\n\nLocation / Work Mode\nPune",
+      "attempts": 1,
+      "case_id": "jd-03",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.91e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 2.7e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 4.6099999999999996e-05
+      },
+      "domain_valid": true,
+      "industry": "BFSI",
+      "latency_ms": 2241,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"concise\",\"section_order\":[]}",
+      "provider_request_id": "req_107dc81fd4404f74b6d1605dc3457542",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "Relationship Manager",
+        "location": "Pune",
+        "min_experience_years": 3,
+        "max_experience_years": 6
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "Relationship Manager",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [],
+      "usage": {
+        "input_tokens": 191,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 54,
+        "total_tokens": 245
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 22
+    },
+    {
+      "AI_generated_prose": "CNC Machine Operator\n\nAbout the Role\nThis opportunity is for a CNC Machine Operator in Chennai.\n\nExperience\n2–5 years\n\nLocation / Work Mode\nChennai",
+      "attempts": 1,
+      "case_id": "jd-04",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.93e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 2.85e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 4.78e-05
+      },
+      "domain_valid": true,
+      "industry": "Manufacturing",
+      "latency_ms": 2192,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"concise\",\"section_order\":[]}",
+      "provider_request_id": "req_a63b7f175d3b438c97b43b30b2f77368",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "CNC Machine Operator",
+        "location": "Chennai",
+        "min_experience_years": 2,
+        "max_experience_years": 5
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "CNC Machine Operator",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [
+        "Blueprint Interpretation",
+        "CNC Operation"
+      ],
+      "usage": {
+        "input_tokens": 193,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 57,
+        "total_tokens": 250
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [
+        "Blueprint Interpretation",
+        "CNC Operation"
+      ],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 24
+    },
+    {
+      "AI_generated_prose": "Warehouse Supervisor\n\nAbout the Role\nThis opportunity is for a Warehouse Supervisor in Navi Mumbai.\n\nExperience\n4–7 years\n\nLocation / Work Mode\nNavi Mumbai",
+      "attempts": 1,
+      "case_id": "jd-05",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.9200000000000003e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 3.1e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 5.02e-05
+      },
+      "domain_valid": true,
+      "industry": "Logistics",
+      "latency_ms": 3827,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"concise\",\"section_order\":[]}",
+      "provider_request_id": "req_7640a56b9fb14de4aa928799f2f3ac54",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "Warehouse Supervisor",
+        "location": "Navi Mumbai",
+        "min_experience_years": 4,
+        "max_experience_years": 7
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "Warehouse Supervisor",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [
+        "Warehouse Operations"
+      ],
+      "usage": {
+        "input_tokens": 192,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 62,
+        "total_tokens": 254
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [
+        "Warehouse Operations"
+      ],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 24
+    },
+    {
+      "AI_generated_prose": "Primary School Teacher\n\nAbout the Role\nThis opportunity is for a Primary School Teacher in Hyderabad.\n\nExperience\n2–5 years\n\nLocation / Work Mode\nHyderabad",
+      "attempts": 1,
+      "case_id": "jd-06",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.9200000000000003e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 2.7e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 4.62e-05
+      },
+      "domain_valid": true,
+      "industry": "Education",
+      "latency_ms": 2124,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"concise\",\"section_order\":[]}",
+      "provider_request_id": "req_11f9d0852f694817bf2a3fe6595952e1",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "Primary School Teacher",
+        "location": "Hyderabad",
+        "min_experience_years": 2,
+        "max_experience_years": 5
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "Primary School Teacher",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [],
+      "usage": {
+        "input_tokens": 192,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 54,
+        "total_tokens": 246
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 24
+    },
+    {
+      "AI_generated_prose": "Hotel Operations Manager\n\nAbout the Role\nThis opportunity is for a Hotel Operations Manager in Goa.\n\nExperience\n5–8 years\n\nLocation / Work Mode\nGoa",
+      "attempts": 1,
+      "case_id": "jd-07",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.9200000000000003e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 2.85e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 4.770000000000001e-05
+      },
+      "domain_valid": true,
+      "industry": "Hospitality",
+      "latency_ms": 2047,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"concise\",\"section_order\":[]}",
+      "provider_request_id": "req_4edc57bf7aed46009dff9c6b8ea62e73",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "Hotel Operations Manager",
+        "location": "Goa",
+        "min_experience_years": 5,
+        "max_experience_years": 8
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "Hotel Operations Manager",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [
+        "Guest Services",
+        "Hotel Operations"
+      ],
+      "usage": {
+        "input_tokens": 192,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 57,
+        "total_tokens": 249
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [
+        "Guest Services",
+        "Hotel Operations"
+      ],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 24
+    },
+    {
+      "AI_generated_prose": "Industrial Electrician\n\nAbout the Role\nThis opportunity is for a Industrial Electrician in Ahmedabad.\n\nExperience\n3–6 years\n\nLocation / Work Mode\nAhmedabad",
+      "attempts": 1,
+      "case_id": "jd-08",
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 1.9200000000000003e-05,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0,
+        "output_usd": 2.8e-05,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 4.72e-05
+      },
+      "domain_valid": true,
+      "industry": "Blue Collar / Technical",
+      "latency_ms": 1765,
+      "model": "gpt-6-luna",
+      "provider_plan": "{\"opening\":\"concise\",\"section_order\":[]}",
+      "provider_request_id": "req_6391acecd355414d9d8f54ddb40d207c",
+      "provider_status": 0,
+      "provider_success": true,
+      "recruiter_supplied": {
+        "title": "Industrial Electrician",
+        "location": "Ahmedabad",
+        "min_experience_years": 3,
+        "max_experience_years": 6
+      },
+      "requires_recruiter_review": true,
+      "resolved_model": "gpt-6-luna",
+      "role": "Industrial Electrician",
+      "schema_valid": true,
+      "status": "requires_review",
+      "taxonomy_suggested": [],
+      "usage": {
+        "input_tokens": 192,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 56,
+        "total_tokens": 248
+      },
+      "warnings": [
+        "Add explicit skills before publishing; no skills have been invented.",
+        "Add role responsibilities before publishing; no duties have been invented."
+      ],
+      "quality_scores_0_to_5": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 3,
+        "professional_quality": 2,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "quality_pass": false,
+      "quality_failure_categories": [
+        "OVERLY_GENERIC",
+        "STRUCTURE_PROBLEM",
+        "OTHER"
+      ],
+      "unsupported_additions": [],
+      "suggested_skills": [],
+      "mandatory_skills_invented": [],
+      "preferred_skills_invented": [],
+      "fact_preservation": {
+        "title": true,
+        "location": true,
+        "experience": true
+      },
+      "required_sections": {
+        "role_overview": "present but generic",
+        "responsibilities": false,
+        "requirements": false,
+        "experience": true,
+        "location": true
+      },
+      "recommendation": "Fail minimal-input usefulness gate. Require useful role-specific responsibilities and separately reviewed requirement suggestions before beta candidacy.",
+      "word_count": 22
+    }
+  ],
+  "database_reconciliation": {
+    "database": "sapienworx_jd_generation_eval",
+    "operations": 8,
+    "review_required_operations": 8,
+    "usage_events": 8,
+    "successful_usage_events": 8,
+    "reservations": 8,
+    "finalized_reservations": 8,
+    "generation_events": 16,
+    "created_jobs": 0,
+    "enabled_eval_switches": 0
+  },
+  "controls": {
+    "openai_globally_enabled": false,
+    "code_prompt_or_schema_changes_during_evaluation": false,
+    "source_hashes_unchanged": 1141,
+    "git_head": "b00fab7ee80f7eb4791d64e2e85e95657643129e",
+    "new_jobs": 0,
+    "new_provider_calls_after_eight": 0,
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "deployment": false,
+    "parser_baselines_modified": false
+  },
+  "plan_sha256": "a07385d8d65287d47b9bba408f89969e0ee0e803b335e99798d51d1767e2b3e0",
+  "raw_result_sha256": "eb4627021b028d7dd5fd1c42326f646124702f65a7cdc9b8cd3b3625db470647",
+  "journal_sha256": "5589478fa51418843a9d5fc56f4f4f6c50a38ab50b2bb764fcba20ccf81847f9",
+  "frozen_source_manifest_sha256": "b95d801e0fe212371113cb44b8283dc387219446fc5155a379539a24e31abf43",
+  "passing_baseline_created": false,
+  "post_run_verification": {
+    "go_parent_tests_and_database_gates_passed": 73,
+    "browser_tests_passed": 16,
+    "failures": 0,
+    "flaky": 0,
+    "unit_database_skips_resolved_by_isolated_gates": true,
+    "source_hashes_unchanged": 1141,
+    "offline_test_result_sha256": "b37422c04883825f12a54c479fbdd29014ac94cfe83fbb2a2b7c7802ec327075",
+    "database_test_result_sha256": "0cc62e133015097205d8ca42f8b38fb7835201daa794d531c49b25d94d199f57",
+    "builder_browser_result_sha256": "9182625f35a2f956b00d4e24c2581147beeb20cb890d57b5300852df09ac99a3",
+    "captured_draft_browser_result_sha256": "0f8dff415a16a4f1f8024f8d832adf56068652b3a8ae2e3b739e2ba7ce2f90e7"
+  }
+}

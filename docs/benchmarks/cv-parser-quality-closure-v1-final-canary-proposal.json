@@ -1,0 +1,79 @@
+{
+  "kind": "PROPOSAL_ONLY_NOT_AUTHORIZED_NOT_EXECUTED",
+  "case_ids": [
+    "cv-18"
+  ],
+  "reason": "Validate recovered employment-status projection and source/raw/derived/review lineage on a fresh response while conflicting title/notice remain unknown. Prompt/schema/model did not change; other cases have complete offline original/new-capture regression coverage.",
+  "model": "gpt-6-luna",
+  "cv_processing_task_version": "v1.1",
+  "parser_version": "openai-p2-v1.1",
+  "prompt_version": "p2",
+  "cv_wire_schema_version": "v1.1",
+  "canonical_profile_version": "v1",
+  "maximum_provider_attempts": 1,
+  "retries": 0,
+  "concurrency": 1,
+  "attempt_deadline_seconds": 30,
+  "logical_deadline_seconds": 30,
+  "command_deadline_seconds": 50,
+  "estimated_input_tokens": 4090,
+  "estimated_output_tokens": 1199,
+  "input_byte_token_upper_bound": 19944,
+  "maximum_output_tokens": 6144,
+  "estimated_cost_usd": 0.0010085,
+  "conservative_cost_usd": 0.005565,
+  "hard_cap_usd": 0.005565,
+  "previous_reliability_retest_spend_usd": 0.004256155,
+  "shared_original_hard_cap_usd": 0.046,
+  "maximum_combined_if_authorized_usd": "0.009821155",
+  "pricing_must_be_revalidated_before_live_execution": true,
+  "dry_plan": {
+    "task_timeout_seconds": {
+      "cv.parse": 30
+    },
+    "operation_timeout_seconds": {
+      "cv.parse": 30
+    },
+    "prompt_version": "p2",
+    "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+    "schema_sha256": {
+      "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177"
+    },
+    "dataset_version": "synthetic-parsing-eval-v1",
+    "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+    "model": "gpt-6-luna",
+    "pricing_version": "openai-standard-2026-10-17.v1",
+    "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+    "service_tier": "default",
+    "requests": 1,
+    "tasks": {
+      "cv.parse": {
+        "requests": 1,
+        "approx_input_tokens": 4090,
+        "input_token_byte_bound": 19944,
+        "approx_output_tokens": 1199,
+        "maximum_output_tokens": 6144,
+        "estimated_usd": 0.0010085,
+        "worst_case_usd": 0.005565
+      }
+    },
+    "approx_input_tokens": 4090,
+    "input_token_byte_bound": 19944,
+    "approx_output_tokens": 1199,
+    "maximum_output_tokens": 6144,
+    "estimated_total_usd": 0.0010085,
+    "worst_case_total_usd": 0.005565,
+    "cost_cap_usd": 0.005565,
+    "hard_request_cap": 1,
+    "timeout_seconds": 30,
+    "retries": 0,
+    "concurrency": 1,
+    "case_ids": [
+      "cv-18"
+    ],
+    "plan_sha256": "3272d4feb29f4a3f8894c7f792a9351b54bef7c1834a7f7547128774a7e10740"
+  },
+  "binary_sha256": "0f2e9d1bec6af2d6c495d18fe789ff94f1ef160e6d755121935b16de040942e0",
+  "employment_status_source_sha256": "b7780f60a98c8c63fe25386ad147e13b21d1c1822ad2218996a4d3c135b1290f",
+  "authorization": "Separate explicit approval required; do not issue a paid call from this task. No secret included or loaded by dry run."
+}

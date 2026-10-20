@@ -1,0 +1,546 @@
+[
+  {
+    "id": "synthetic-cv-01",
+    "industry": "Technology",
+    "text": "Synthetic Candidate 01\nPlatform Engineer\nBengaluru, India\nSkills: Go, PostgreSQL.\nNotice period: 30 days. This is a wholly synthetic resume for Technology parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 01"
+      },
+      "professional": {
+        "headline": "Platform Engineer"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Go"
+          }
+        },
+        {
+          "entity": {
+            "name": "PostgreSQL"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-02",
+    "industry": "Healthcare",
+    "text": "Synthetic Candidate 02\nStaff Nurse\nBengaluru, India\nSkills: Patient care, Nursing.\nNotice period: 30 days. This is a wholly synthetic resume for Healthcare parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 02"
+      },
+      "professional": {
+        "headline": "Staff Nurse"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Patient care"
+          }
+        },
+        {
+          "entity": {
+            "name": "Nursing"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-03",
+    "industry": "BFSI",
+    "text": "Synthetic Candidate 03\nCredit Analyst\nBengaluru, India\nSkills: Credit analysis, Risk assessment.\nNotice period: 30 days. This is a wholly synthetic resume for BFSI parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 03"
+      },
+      "professional": {
+        "headline": "Credit Analyst"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Credit analysis"
+          }
+        },
+        {
+          "entity": {
+            "name": "Risk assessment"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-04",
+    "industry": "Manufacturing",
+    "text": "Synthetic Candidate 04\nProduction Supervisor\nBengaluru, India\nSkills: Lean manufacturing, Quality control.\nNotice period: 30 days. This is a wholly synthetic resume for Manufacturing parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 04"
+      },
+      "professional": {
+        "headline": "Production Supervisor"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Lean manufacturing"
+          }
+        },
+        {
+          "entity": {
+            "name": "Quality control"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-05",
+    "industry": "Retail",
+    "text": "Synthetic Candidate 05\nStore Manager\nBengaluru, India\nSkills: Inventory management, Customer service.\nNotice period: 30 days. This is a wholly synthetic resume for Retail parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 05"
+      },
+      "professional": {
+        "headline": "Store Manager"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Inventory management"
+          }
+        },
+        {
+          "entity": {
+            "name": "Customer service"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-06",
+    "industry": "Sales",
+    "text": "Synthetic Candidate 06\nAccount Executive\nBengaluru, India\nSkills: B2B sales, Negotiation.\nNotice period: 30 days. This is a wholly synthetic resume for Sales parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 06"
+      },
+      "professional": {
+        "headline": "Account Executive"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "B2B sales"
+          }
+        },
+        {
+          "entity": {
+            "name": "Negotiation"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-07",
+    "industry": "Marketing",
+    "text": "Synthetic Candidate 07\nMarketing Analyst\nBengaluru, India\nSkills: Campaign analytics, SEO.\nNotice period: 30 days. This is a wholly synthetic resume for Marketing parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 07"
+      },
+      "professional": {
+        "headline": "Marketing Analyst"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Campaign analytics"
+          }
+        },
+        {
+          "entity": {
+            "name": "SEO"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-08",
+    "industry": "Operations",
+    "text": "Synthetic Candidate 08\nOperations Coordinator\nBengaluru, India\nSkills: Process improvement, Scheduling.\nNotice period: 30 days. This is a wholly synthetic resume for Operations parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 08"
+      },
+      "professional": {
+        "headline": "Operations Coordinator"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Process improvement"
+          }
+        },
+        {
+          "entity": {
+            "name": "Scheduling"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-09",
+    "industry": "Logistics",
+    "text": "Synthetic Candidate 09\nWarehouse Supervisor\nBengaluru, India\nSkills: Warehouse operations, Supply chain.\nNotice period: 30 days. This is a wholly synthetic resume for Logistics parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 09"
+      },
+      "professional": {
+        "headline": "Warehouse Supervisor"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Warehouse operations"
+          }
+        },
+        {
+          "entity": {
+            "name": "Supply chain"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-10",
+    "industry": "Hospitality",
+    "text": "Synthetic Candidate 10\nGuest Relations Manager\nBengaluru, India\nSkills: Guest services, Hospitality.\nNotice period: 30 days. This is a wholly synthetic resume for Hospitality parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 10"
+      },
+      "professional": {
+        "headline": "Guest Relations Manager"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Guest services"
+          }
+        },
+        {
+          "entity": {
+            "name": "Hospitality"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-11",
+    "industry": "Education",
+    "text": "Synthetic Candidate 11\nMathematics Teacher\nBengaluru, India\nSkills: Mathematics, Teaching.\nNotice period: 30 days. This is a wholly synthetic resume for Education parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 11"
+      },
+      "professional": {
+        "headline": "Mathematics Teacher"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Mathematics"
+          }
+        },
+        {
+          "entity": {
+            "name": "Teaching"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-12",
+    "industry": "Construction",
+    "text": "Synthetic Candidate 12\nSite Engineer\nBengaluru, India\nSkills: Site supervision, Safety compliance.\nNotice period: 30 days. This is a wholly synthetic resume for Construction parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 12"
+      },
+      "professional": {
+        "headline": "Site Engineer"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Site supervision"
+          }
+        },
+        {
+          "entity": {
+            "name": "Safety compliance"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-13",
+    "industry": "Finance",
+    "text": "Synthetic Candidate 13\nFinancial Accountant\nBengaluru, India\nSkills: Accounting, Financial reporting.\nNotice period: 30 days. This is a wholly synthetic resume for Finance parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 13"
+      },
+      "professional": {
+        "headline": "Financial Accountant"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Accounting"
+          }
+        },
+        {
+          "entity": {
+            "name": "Financial reporting"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-14",
+    "industry": "Legal",
+    "text": "Synthetic Candidate 14\nLegal Associate\nBengaluru, India\nSkills: Legal research, Contract review.\nNotice period: 30 days. This is a wholly synthetic resume for Legal parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 14"
+      },
+      "professional": {
+        "headline": "Legal Associate"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Legal research"
+          }
+        },
+        {
+          "entity": {
+            "name": "Contract review"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-15",
+    "industry": "HR",
+    "text": "Synthetic Candidate 15\nHR Generalist\nBengaluru, India\nSkills: Employee relations, Recruitment.\nNotice period: 30 days. This is a wholly synthetic resume for HR parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 15"
+      },
+      "professional": {
+        "headline": "HR Generalist"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Employee relations"
+          }
+        },
+        {
+          "entity": {
+            "name": "Recruitment"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  },
+  {
+    "id": "synthetic-cv-16",
+    "industry": "Blue-collar",
+    "text": "Synthetic Candidate 16\nMaintenance Electrician\nBengaluru, India\nSkills: Electrical maintenance, Troubleshooting.\nNotice period: 30 days. This is a wholly synthetic resume for Blue-collar parsing evaluation; no real person or employment is represented.",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Candidate 16"
+      },
+      "professional": {
+        "headline": "Maintenance Electrician"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Electrical maintenance"
+          }
+        },
+        {
+          "entity": {
+            "name": "Troubleshooting"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Bengaluru",
+          "country_code": "IN"
+        }
+      },
+      "availability": {
+        "notice_period_days": 30
+      }
+    }
+  }
+]

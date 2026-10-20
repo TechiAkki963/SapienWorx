@@ -9,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/localenv"
 )
 
 type Config struct {
@@ -20,6 +23,7 @@ type Config struct {
 	Messaging   MessagingConfig
 	Email       EmailConfig
 	AWS         AWSConfig
+	AI          gateway.Config
 }
 
 type HTTPConfig struct {
@@ -92,6 +96,20 @@ type AdminConfig struct {
 }
 
 func Load() (Config, error) {
+	return LoadWithOpenAIEnv("")
+}
+
+// LoadWithOpenAIEnv explicitly opts into a development-only, server-side file.
+// Other application settings still come from the existing runtime environment.
+func LoadWithOpenAIEnv(path string) (Config, error) {
+	lookup, err := localenv.Lookup(os.Getenv, path)
+	if err != nil {
+		return Config{}, err
+	}
+	ai, err := gateway.LoadConfig(lookup)
+	if err != nil {
+		return Config{}, err
+	}
 	jwtSecret := strings.TrimSpace(os.Getenv("JWT_SECRET"))
 	otpSecret := strings.TrimSpace(os.Getenv("AUTH_OTP_HMAC_SECRET"))
 	if otpSecret == "" {
@@ -99,6 +117,7 @@ func Load() (Config, error) {
 	}
 	environment := env("APP_ENV", "development")
 	cfg := Config{
+		AI:          ai,
 		Environment: environment,
 		Admin: AdminConfig{
 			AccessEnabled:         boolEnv("ADMIN_ACCESS_ENABLED", false),
@@ -172,6 +191,12 @@ func Load() (Config, error) {
 
 func (c Config) Validate() error {
 	var problems []string
+	if err := c.AI.Validate(); err != nil {
+		problems = append(problems, "AI_CONFIGURATION_ERROR")
+	}
+	if c.AI.Enabled && (c.HTTP.WriteTimeout <= 0 || c.AI.MaxOperationTimeout()+4*time.Second >= c.HTTP.WriteTimeout) {
+		problems = append(problems, "AI task operation timeout plus completion headroom must be shorter than HTTP_WRITE_TIMEOUT")
+	}
 	if c.Admin.AccessEnabled && (len(c.Admin.MFAEncryptionKey) < 32 || c.Admin.MFAEncryptionKey == c.Auth.JWTSecret || c.Admin.MFAEncryptionKey == c.Auth.OTPSecret) {
 		problems = append(problems, "ADMIN_MFA_ENCRYPTION_KEY must be at least 32 bytes and distinct from authentication secrets when admin access enforcement is enabled")
 	}

@@ -1,0 +1,10 @@
+[
+  {"id":"jd-01","industry":"Technology","title":"Java Backend Developer","location":"Bengaluru","minimum":3,"maximum":5},
+  {"id":"jd-02","industry":"Healthcare","title":"Registered Nurse","location":"Mumbai","minimum":2,"maximum":4},
+  {"id":"jd-03","industry":"BFSI","title":"Relationship Manager","location":"Pune","minimum":3,"maximum":6},
+  {"id":"jd-04","industry":"Manufacturing","title":"CNC Machine Operator","location":"Chennai","minimum":2,"maximum":5},
+  {"id":"jd-05","industry":"Logistics","title":"Warehouse Supervisor","location":"Navi Mumbai","minimum":4,"maximum":7},
+  {"id":"jd-06","industry":"Education","title":"Primary School Teacher","location":"Hyderabad","minimum":2,"maximum":5},
+  {"id":"jd-07","industry":"Hospitality","title":"Hotel Operations Manager","location":"Goa","minimum":5,"maximum":8},
+  {"id":"jd-08","industry":"Blue Collar / Technical","title":"Industrial Electrician","location":"Ahmedabad","minimum":3,"maximum":6}
+]

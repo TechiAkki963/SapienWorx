@@ -1,0 +1,307 @@
+{
+  "title": "SapienWorx OpenAI Parser Targeted Re-Test Report",
+  "date": "2026-10-19",
+  "kind": "INCOMPLETE_TARGETED_REAL_RETEST_NOT_A_NEW_BASELINE",
+  "status": "STOPPED_AFTER_THIRD_ATTEMPT",
+  "classification": "NOT READY",
+  "scope": "6 selected fixed synthetic cases; 3 attempted; 2 JD responses; no usable CV responses. No full40 rerun or extrapolation.",
+  "plan": {
+    "prompt_version": "p2",
+    "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+    "schema_sha256": {
+      "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177",
+      "job.parse": "06c3a8e1dfcb5aae0f69c211e5810b9c6dfd7d60a4c046b3a8dec394bef784e9"
+    },
+    "dataset_version": "synthetic-parsing-eval-v1",
+    "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+    "model": "gpt-6-luna",
+    "pricing_version": "openai-standard-2026-10-17.v1",
+    "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+    "service_tier": "default",
+    "requests": 6,
+    "tasks": {
+      "cv.parse": {
+        "requests": 4,
+        "approx_input_tokens": 16065,
+        "input_token_byte_bound": 78592,
+        "approx_output_tokens": 4297,
+        "maximum_output_tokens": 24576,
+        "estimated_usd": 0.0037550000000000005,
+        "worst_case_usd": 0.022113
+      },
+      "job.parse": {
+        "requests": 2,
+        "approx_input_tokens": 2498,
+        "input_token_byte_bound": 17158,
+        "approx_output_tokens": 752,
+        "maximum_output_tokens": 4096,
+        "estimated_usd": 0.0006258,
+        "worst_case_usd": 0.004193
+      }
+    },
+    "approx_input_tokens": 18563,
+    "input_token_byte_bound": 95750,
+    "approx_output_tokens": 5049,
+    "maximum_output_tokens": 28672,
+    "estimated_total_usd": 0.004380800000000001,
+    "worst_case_total_usd": 0.026306,
+    "cost_cap_usd": 0.03,
+    "hard_request_cap": 6,
+    "timeout_seconds": 20,
+    "retries": 0,
+    "concurrency": 1,
+    "case_ids": [
+      "jd-05",
+      "jd-19",
+      "cv-02",
+      "cv-12",
+      "cv-19",
+      "cv-18"
+    ],
+    "plan_sha256": "810620dd69dfb5b4f7b499b1463406e866feec700713a9428cf4e3d79274b9ad"
+  },
+  "selection": [
+    {
+      "id": "jd-05",
+      "task": "job.parse",
+      "reason": "Department must remain unknown; explicit Accounting family belongs in role_category; CA certification must not contaminate BCom education."
+    },
+    {
+      "id": "jd-19",
+      "task": "job.parse",
+      "reason": "Customer Service family ownership; zero minimum experience; representative JD injection after p2 untrusted-document instructions changed."
+    },
+    {
+      "id": "cv-02",
+      "task": "cv.parse",
+      "reason": "Minimum representative omitted-name case; explicit source name and remote preference must survive all stages."
+    },
+    {
+      "id": "cv-12",
+      "task": "cv.parse",
+      "reason": "Explicit India country, decomposed degree/study representation and representative CV injection on the modified prompt path."
+    },
+    {
+      "id": "cv-19",
+      "task": "cv.parse",
+      "reason": "Career starter: explicit zero months and immediate zero-day notice; preserve zero through normalization/postprocessing."
+    },
+    {
+      "id": "cv-18",
+      "task": "cv.parse",
+      "reason": "Headline representation ambiguity and conflicting current-title/notice facts must remain reviewable, not invented."
+    }
+  ],
+  "execution": {
+    "selected_logical_cases": 6,
+    "attempted_logical_cases": 3,
+    "provider_attempts": 3,
+    "successful_responses": 2,
+    "failed_attempts": 1,
+    "not_attempted": 3,
+    "retries": 0,
+    "model": "gpt-6-luna",
+    "global_openai_enabled": false,
+    "manual_process_override_only": true
+  },
+  "versions": {
+    "task": "v1",
+    "prompt": "p2",
+    "job_schema": "v1.2",
+    "cv_wire_schema": "v1.1",
+    "canonical_contract": "v1",
+    "parser": "openai-p2-v1",
+    "frozen_head": "b00fab7ee80f7eb4791d64e2e85e95657643129e",
+    "uncommitted_hardening": true,
+    "source_freeze_file_count": 97
+  },
+  "failed_attempt": {
+    "id": "cv-02",
+    "error_code": "AI_PROVIDER_UNAVAILABLE",
+    "latency_ms": 15007,
+    "provider_status": null,
+    "provider_request_id": null,
+    "usage_known": false,
+    "schema_evaluated": false,
+    "raw_result": null,
+    "diagnosis": "Timing consistent with existing 15s transport ResponseHeaderTimeout, earlier than 20s gateway deadline. No raw transport error retained, so exact network cause is unproven.",
+    "remediation_not_performed": "Separate hardening change should align timeout budgets, classify net.Error.Timeout(), add deterministic slow-header regression, and preserve no-retry accounting for unknown-charge attempts."
+  },
+  "quality": {
+    "job.parse": {
+      "completed_cases": 2,
+      "strict": {
+        "numerator": 22,
+        "denominator": 22,
+        "value": 1
+      },
+      "representation_adjusted": {
+        "numerator": 22,
+        "denominator": 22,
+        "value": 1
+      },
+      "schema_pass": 2,
+      "domain_pass": 2,
+      "field_placement_pass": 2,
+      "source_audited_non_null_scalar_claims": 24,
+      "factual_errors": 0,
+      "unsupported_hallucinated_claims": 0,
+      "factual_error_rate": 0,
+      "hallucination_rate": 0,
+      "human_review_required": true,
+      "readiness": "BETA READY WITH REVIEW",
+      "limitation": "Narrow parser disposition for the two affected JD cases only; no activation/deployment approval. Deferred wire fields remain review gaps."
+    },
+    "cv.parse": {
+      "selected_cases": 4,
+      "attempted_cases": 1,
+      "usable_provider_responses": 0,
+      "strict": null,
+      "representation_adjusted": null,
+      "factual_error_rate": null,
+      "hallucination_rate": null,
+      "zero_live_gate": "BLOCKED_NOT_EXECUTED",
+      "name_live_gate": "BLOCKED_NO_RESPONSE",
+      "human_review_required": true,
+      "readiness": "HUMAN-REVIEW ONLY",
+      "limitation": "Offline hardening evidence retained; no fresh CV correctness/readiness inference from a transport failure."
+    }
+  },
+  "historical_cv_discrepancies": {
+    "scope": "40-case replay of original V1 captures, zero new CV responses",
+    "strict": {
+      "numerator": 949,
+      "denominator": 996
+    },
+    "representation_adjusted": {
+      "numerator": 992,
+      "denominator": 996
+    },
+    "strict_disagreements": 47,
+    "categories": {
+      "F. EVALUATOR_OVER-STRICTNESS": 35,
+      "C. EQUIVALENT_REPRESENTATION": 11,
+      "E. CONTRACT_AMBIGUITY": 1
+    },
+    "adjusted_disagreements_retained": 4,
+    "labels_or_metrics_changed": false
+  },
+  "accounting": {
+    "known_usage_only": {
+      "input_tokens": 1593,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 459,
+      "total_tokens": 2052
+    },
+    "unknown_usage_attempts": [
+      "cv-02"
+    ],
+    "known_usage_estimated_subtotal_usd": 0.0003888,
+    "unknown_attempt_conservative_reservation_usd": 0.005516,
+    "conservative_reconciled_spend_usd": 0.0059048,
+    "hard_cap_usd": 0.03,
+    "remaining_budget_conservative_usd": 0.024095199999999997,
+    "actual_full_bill": "UNKNOWN",
+    "average_known_cost_per_successful_document_usd": 0.0001944,
+    "average_actual_cost_per_attempt_usd": null,
+    "average_conservative_cost_per_attempt_usd": 0.0019682666666666665,
+    "per_request_admissions": [
+      {
+        "id": "jd-05",
+        "spend_before_usd": 0.0,
+        "worst_next_usd": 0.002087,
+        "sum_usd": 0.002087,
+        "cap_usd": 0.03,
+        "pass": true
+      },
+      {
+        "id": "jd-19",
+        "spend_before_usd": 0.0002072,
+        "worst_next_usd": 0.002106,
+        "sum_usd": 0.0023131999999999996,
+        "cap_usd": 0.03,
+        "pass": true
+      },
+      {
+        "id": "cv-02",
+        "spend_before_usd": 0.0003888,
+        "worst_next_usd": 0.005516,
+        "sum_usd": 0.0059048,
+        "cap_usd": 0.03,
+        "pass": true
+      }
+    ],
+    "latency_ms": {
+      "all_attempts_p50": 8123,
+      "all_attempts_p95_nearest_rank": 15007,
+      "successful_p50": 5699.5,
+      "successful_p95_nearest_rank": 8123
+    },
+    "pricing_source": "https://developers.openai.com/api/docs/pricing",
+    "pricing_verified_date": "2026-10-19"
+  },
+  "tests": {
+    "pre_live_four_packages": "PASS",
+    "post_live_packages": 8,
+    "post_live_top_level": {
+      "pass": 124,
+      "skip": 2
+    },
+    "post_live_test_and_subtest_events": {
+      "pass": 646,
+      "skip": 2
+    },
+    "by_package": {
+      "internal/platform/localenv": {
+        "pass": 3
+      },
+      "internal/candidate/profilecontract": {
+        "pass": 105
+      },
+      "internal/resume": {
+        "pass": 20
+      },
+      "internal/intelligence/gateway/openaiadapter": {
+        "pass": 21
+      },
+      "internal/intelligence/gateway": {
+        "pass": 78,
+        "skip": 1
+      },
+      "internal/intelligence/parsing": {
+        "pass": 105,
+        "skip": 1
+      },
+      "internal/intelligence/evaluation": {
+        "pass": 296
+      },
+      "cmd/ai-eval": {
+        "pass": 18
+      }
+    },
+    "captured_replay_cases_pass": 40,
+    "captured_error_regressions_pass": 185,
+    "vet": "PASS",
+    "database": "SKIP_FRESH_DSN_NOT_PROVIDED_NO_DATABASE_CODE_CHANGED; prior isolated26PASS retained, not presented as fresh"
+  },
+  "integrity": {
+    "freeze97_unchanged": true,
+    "protected_prior_files_unchanged": 92,
+    "original_v1_baseline_preserved": true,
+    "source_inputs_checked": 61,
+    "source_inputs_unchanged": true,
+    "global_disabled_verified": true,
+    "key_not_exposed": true,
+    "production_parser_modified_this_task": false,
+    "live_parser_or_harness_modified": false,
+    "commit_push_merge_deploy": false,
+    "v1_1_baseline_created": false
+  },
+  "artifacts": {
+    "attempts": "openai-parser-targeted-retest-2026-10-19-attempts.csv",
+    "case_evidence": "openai-parser-targeted-retest-2026-10-19-evidence.json",
+    "cv_differences": "openai-parser-targeted-retest-2026-10-19-cv-differences.csv",
+    "jd_source_audit": "openai-parser-targeted-retest-2026-10-19-jd-source-audit.csv"
+  }
+}

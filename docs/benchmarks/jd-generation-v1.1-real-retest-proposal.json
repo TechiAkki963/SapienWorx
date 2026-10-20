@@ -1,0 +1,202 @@
+{
+  "calls": 8,
+  "cases": [
+    {
+      "case_id": "jd-01",
+      "conservative_input_tokens": 15716,
+      "conservative_usd": 0.002477,
+      "expected_input_tokens": 2777,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.0004277,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10596,
+      "role": "Java Backend Developer"
+    },
+    {
+      "case_id": "jd-02",
+      "conservative_input_tokens": 15756,
+      "conservative_usd": 0.002482,
+      "expected_input_tokens": 2787,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.0004287,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10636,
+      "role": "Registered Nurse"
+    },
+    {
+      "case_id": "jd-03",
+      "conservative_input_tokens": 15785,
+      "conservative_usd": 0.002486,
+      "expected_input_tokens": 2795,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.0004295,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10665,
+      "role": "Relationship Manager"
+    },
+    {
+      "case_id": "jd-04",
+      "conservative_input_tokens": 15840,
+      "conservative_usd": 0.002492,
+      "expected_input_tokens": 2808,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.0004308,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10720,
+      "role": "CNC Machine Operator"
+    },
+    {
+      "case_id": "jd-05",
+      "conservative_input_tokens": 15806,
+      "conservative_usd": 0.002488,
+      "expected_input_tokens": 2800,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.00043,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10686,
+      "role": "Warehouse Supervisor"
+    },
+    {
+      "case_id": "jd-06",
+      "conservative_input_tokens": 15783,
+      "conservative_usd": 0.002485,
+      "expected_input_tokens": 2794,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.00042940000000000003,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10663,
+      "role": "Primary School Teacher"
+    },
+    {
+      "case_id": "jd-07",
+      "conservative_input_tokens": 15836,
+      "conservative_usd": 0.002492,
+      "expected_input_tokens": 2807,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.0004307,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10716,
+      "role": "Hotel Operations Manager"
+    },
+    {
+      "case_id": "jd-08",
+      "conservative_input_tokens": 15940,
+      "conservative_usd": 0.002505,
+      "expected_input_tokens": 2833,
+      "expected_output_tokens": 300,
+      "expected_usd": 0.0004333,
+      "max_output_tokens": 1024,
+      "payload_bytes": 10820,
+      "role": "Industrial Electrician"
+    }
+  ],
+  "conservative_usd": 0.019907,
+  "expected_usd": 0.0034401,
+  "max_retries": 0,
+  "model": "gpt-6-luna",
+  "pricing_version": "openai-standard-2026-10-17.v1",
+  "proposed_hard_cap_usd": 0.03,
+  "provider_requests": 0,
+  "service_tier": "default",
+  "status": "PROPOSAL_ONLY_NOT_AUTHORIZED_NOT_EXECUTED",
+  "timeout_seconds": 30,
+  "record_type": "proposed_offline_preflight_not_an_evaluation_result",
+  "client_date": "2026-10-20",
+  "timezone": "Asia/Calcutta",
+  "executed": false,
+  "approval_required": true,
+  "concurrency": 1,
+  "scenario_inputs": [
+    {
+      "id": "jd-01",
+      "industry": "Technology",
+      "title": "Java Backend Developer",
+      "location": "Bengaluru",
+      "minimum": 3,
+      "maximum": 5
+    },
+    {
+      "id": "jd-02",
+      "industry": "Healthcare",
+      "title": "Registered Nurse",
+      "location": "Mumbai",
+      "minimum": 2,
+      "maximum": 4
+    },
+    {
+      "id": "jd-03",
+      "industry": "BFSI",
+      "title": "Relationship Manager",
+      "location": "Pune",
+      "minimum": 3,
+      "maximum": 6
+    },
+    {
+      "id": "jd-04",
+      "industry": "Manufacturing",
+      "title": "CNC Machine Operator",
+      "location": "Chennai",
+      "minimum": 2,
+      "maximum": 5
+    },
+    {
+      "id": "jd-05",
+      "industry": "Logistics",
+      "title": "Warehouse Supervisor",
+      "location": "Navi Mumbai",
+      "minimum": 4,
+      "maximum": 7
+    },
+    {
+      "id": "jd-06",
+      "industry": "Education",
+      "title": "Primary School Teacher",
+      "location": "Hyderabad",
+      "minimum": 2,
+      "maximum": 5
+    },
+    {
+      "id": "jd-07",
+      "industry": "Hospitality",
+      "title": "Hotel Operations Manager",
+      "location": "Goa",
+      "minimum": 5,
+      "maximum": 8
+    },
+    {
+      "id": "jd-08",
+      "industry": "Blue Collar / Technical",
+      "title": "Industrial Electrician",
+      "location": "Ahmedabad",
+      "minimum": 3,
+      "maximum": 6
+    }
+  ],
+  "product_version": "v1.1",
+  "task_version": "v1.2",
+  "prompt_version": "jd-p2",
+  "schema_version": "jd-generation-v1.1",
+  "blueprint_version": "rb-1.1",
+  "expected_input_tokens": 22401,
+  "expected_output_tokens": 2400,
+  "conservative_input_token_bound": 126462,
+  "maximum_output_tokens_total": 8192,
+  "pricing_source": "https://developers.openai.com/api/docs/pricing",
+  "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+  "cost_basis": "Expected input = ceil(payload UTF-8 bytes / 4) + 128; expected output 300 per case. Conservative = payload bytes + 4096 gateway envelope + 1024 SQL UUID/framing allowance, input rate with 25% headroom/cache-write maximum, 1024 output per case, rounded up in micro-USD per case. No cache savings assumed.",
+  "future_preflight_requirement": "Before any separately approved paid run, freeze the actual SQL taxonomy projection, complete serialized provider envelopes and binary; recount/reserve each exact request with existing gateway guards and enforce the lower of approved batch cap and tenant/global limits. Stop if the bound, prices, exact model or scenarios differ. No executor is included here.",
+  "quality_gate": {
+    "minimum_usable_cases": 7,
+    "total_cases": 8,
+    "average_minimum": {
+      "groundedness": 4,
+      "role_relevance": 4,
+      "recruiter_usefulness": 4,
+      "clarity": 4
+    },
+    "material_factual_contradictions": 0,
+    "employer_fact_hallucinations": 0,
+    "discriminatory_additions": 0,
+    "human_review_required": true
+  }
+}

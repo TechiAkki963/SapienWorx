@@ -194,6 +194,10 @@ func (s *Service) DuplicateJob(ctx context.Context, userID, jobID string) (Edita
 	if err != nil {
 		return EditableJob{}, err
 	}
+	// Duplicating AI prose preserves provenance but requires the new owner to review it.
+	if _, err = tx.Exec(ctx, `UPDATE jobs dst SET ai_generation=CASE WHEN coalesce((src.ai_generation->>'generated_by_ai')::boolean,false) THEN (src.ai_generation-'reviewed_by'-'reviewed_at'-'content_hash')||'{"requires_review":true}'::jsonb ELSE '{}'::jsonb END FROM jobs src WHERE dst.id=$1 AND src.id=$2 AND dst.company_id=$3 AND src.company_id=$3`, newID, jobID, companyID); err != nil {
+		return EditableJob{}, err
+	}
 	newSnapshot, err := jobSnapshotTx(ctx, tx, newID, companyID, false)
 	if err != nil {
 		return EditableJob{}, err

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { JDGenerationAssistant, JDGenerationFields, JDGenerationState } from "@/components/recruiter/jd-generation-assistant";
 import { TaxonomyInput } from "@/components/workforce/taxonomy-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -267,6 +268,8 @@ export function JobBuilder({
   const [step, setStep] = useState(1);
   const [state, setState] = useState<BuilderState>(() => stateFromJob(job));
   const [skills, setSkills] = useState<string[]>(() => job?.skills ?? []);
+  const [generationConditions, setGenerationConditions] = useState({ employment_type: Boolean(job), work_mode: Boolean(job) });
+  const [generation, setGeneration] = useState<JDGenerationState>({ id: job?.ai_generation?.generation_id || "", revision: 0, reviewed: !job?.ai_generation?.requires_review, existing: true });
   const [busy, setBusy] = useState<"draft" | "publish" | "">("");
   const [error, setError] = useState("");
   const stepRef = useRef<HTMLHeadingElement>(null);
@@ -292,35 +295,14 @@ export function JobBuilder({
 
   function update<K extends keyof BuilderState>(key: K, value: BuilderState[K]) {
     setState((current) => ({ ...current, [key]: value }));
+    if (key === "employment_type" || key === "work_mode") setGenerationConditions(current => ({ ...current, [key]: true }));
+    if (["title", "location", "department", "role_category", "employment_type", "work_mode", "min_experience_years", "max_experience_years", "description", "responsibilities", "company_overview", "why_join", "education_requirements"].includes(key)) setGeneration(current => ({ ...current, reviewed: false }));
     if (error) setError("");
   }
 
-  async function save(publish: boolean) {
-    setError("");
-    if (!state.title.trim()) {
-      setStep(1);
-      setError("Add a job title before saving this role.");
-      return;
-    }
-    const openings = Number(state.openings);
-    if (!Number.isInteger(openings) || openings < 1 || openings > 10000) {
-      setStep(1);
-      setError("Enter an openings count between 1 and 10,000.");
-      return;
-    }
-    if (publish && (!publishReady || !builderCanPublish)) {
-      setStep(5);
-      setError(builderCanPublish
-        ? "Complete the role summary, responsibilities, at least one competency, and at least three hiring stages before publishing."
-        : "Save your edits here, then use the governed status control in Job Management to reopen this role.");
-      return;
-    }
-    if(state.referral_reward_enabled&&(!state.referral_terms?.trim()||!state.referral_eligibility?.trim())){setStep(5);setError("Add the employer’s eligibility rules and referral terms before enabling rewards.");return;}
-    setBusy(publish ? "publish" : "draft");
-    try {
-      await apiRequest<RecruiterJob | void>(job ? `/api/v1/recruiter/jobs/${job.id}` : "/api/v1/recruiter/jobs/builder", {
-        method: job ? "PATCH" : "POST",
-        body: JSON.stringify({
+  function jobPayload(publish = false) {
+    const openings = Number(state.openings || 1);
+    return {
           title: state.title,
           department: state.department,
           employment_type: state.employment_type,
@@ -346,8 +328,44 @@ export function JobBuilder({
           visibility: state.visibility,
           internal_notes: state.internal_notes,
           assigned_recruiter_id: state.assigned_recruiter_id || null,
+          ai_generation_id: generation.id || undefined,
+          ai_generation_reviewed: generation.existing && generation.reviewed,
           publish,
-        }),
+        };
+  }
+
+  const generationFields: JDGenerationFields = {
+    title: state.title, location: state.location, min_experience_years: optionalNumber(state.min_experience_years), max_experience_years: optionalNumber(state.max_experience_years),
+    employment_type: generationConditions.employment_type ? state.employment_type : "", work_mode: generationConditions.work_mode ? state.work_mode : "", department: state.department, role_category: state.role_category, skills, responsibilities: state.responsibilities, company_overview: state.company_overview, why_join: state.why_join, education_requirements: lines(state.education_requirements),
+  };
+
+  async function save(publish: boolean) {
+    setError("");
+    if (!state.title.trim()) {
+      setStep(1);
+      setError("Add a job title before saving this role.");
+      return;
+    }
+    const openings = Number(state.openings);
+    if (!Number.isInteger(openings) || openings < 1 || openings > 10000) {
+      setStep(1);
+      setError("Enter an openings count between 1 and 10,000.");
+      return;
+    }
+    if (publish && generation.id && !generation.reviewed) { setStep(2); setError("Review the AI description and structured requirements before publishing."); return; }
+    if (publish && (!publishReady || !builderCanPublish)) {
+      setStep(5);
+      setError(builderCanPublish
+        ? "Complete the role summary, responsibilities, at least one competency, and at least three hiring stages before publishing."
+        : "Save your edits here, then use the governed status control in Job Management to reopen this role.");
+      return;
+    }
+    if(state.referral_reward_enabled&&(!state.referral_terms?.trim()||!state.referral_eligibility?.trim())){setStep(5);setError("Add the employer’s eligibility rules and referral terms before enabling rewards.");return;}
+    setBusy(publish ? "publish" : "draft");
+    try {
+      await apiRequest<RecruiterJob | void>(job ? `/api/v1/recruiter/jobs/${job.id}` : "/api/v1/recruiter/jobs/builder", {
+        method: job ? "PATCH" : "POST",
+        body: JSON.stringify(jobPayload(publish)),
       });
       router.push("/recruiter/jobs");
       router.refresh();
@@ -382,10 +400,24 @@ export function JobBuilder({
 
       {error && <div ref={errorRef} id="job-builder-error" role="alert" tabIndex={-1} className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-800">{error}</div>}
 
+
       <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
         <section className="min-w-0 rounded-2xl border border-line/70 bg-white shadow-[0_1px_2px_rgba(16,33,63,0.03)]">
           <div className="border-b border-line/60 px-5 py-4 sm:px-6"><p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Step {step} of 5</p><h2 ref={stepRef} tabIndex={-1} className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">{steps[step - 1].title}</h2></div>
-          <div className="p-5 sm:p-6">
+          <div className="flex flex-col gap-5 p-5 sm:p-6">
+      <div hidden={step !== 1 && step !== 2} className={step === 1 ? "order-last" : undefined}>
+        <JDGenerationAssistant fields={generationFields} generation={generation} reviewFields={{ ...generationFields, employment_type:state.employment_type, work_mode:state.work_mode, min_experience_years: Number(state.min_experience_years || 0), description: state.description, openings: Number(state.openings || 1) }}
+          onUseDraft={(description, next) => { setState(current => ({ ...current, description })); setGeneration(next); setStep(2); }}
+          onReviewed={(revision, reviewed = true) => setGeneration(current => ({ ...current, revision, reviewed }))}
+          onAcceptSkill={skill => { setSkills(current => [...new Set([...current, skill])]); setGeneration(current => ({ ...current, reviewed: false })); }}
+          onAcceptSuggestion={(kind, value, receipt) => {
+            if (kind === "required_skills") setSkills(current => [...new Set([...current, value])]);
+            else if (kind === "responsibilities") setState(current => ({ ...current, responsibilities: [current.responsibilities, `- ${value}`].filter(Boolean).join("\n") }));
+            else if (kind === "qualifications") setState(current => ({ ...current, education_requirements: [...new Set([...lines(current.education_requirements), value])].join("\n") }));
+            else setState(current => ({ ...current, description: current.description.includes(value) ? current.description : [current.description, `Preferred skill (optional): ${value}`].filter(Boolean).join("\n\n") }));
+            setGeneration(receipt);
+          }} />
+      </div>
             {step === 1 && <div className="grid gap-5">
               <Input label="Job title" value={state.title} onChange={(event) => update("title", event.target.value)} placeholder="e.g. Critical Care Nurse" required error={error.startsWith("Add a job title") ? error : undefined} />
               <Input label="Department or team" value={state.department} onChange={(event) => update("department", event.target.value)} placeholder="e.g. Intensive Care Unit" />
@@ -407,7 +439,7 @@ export function JobBuilder({
               <TextareaField labelText="Company overview" value={state.company_overview} onChange={(value) => update("company_overview", value)} placeholder="Introduce the company, its mission and the team this person will join." rows={4} />
               <TextareaField labelText="Why join" value={state.why_join} onChange={(value) => update("why_join", value)} placeholder="Give candidates honest reasons to consider this opportunity." rows={4} />
               <TextareaField labelText="Education requirements" value={state.education_requirements} onChange={(value) => update("education_requirements", value)} placeholder={"B.Sc Nursing\nGNM\nValid state nursing registration"} rows={4} hint="One requirement per line. Keep requirements genuinely necessary for the role." />
-              <ChipInput skills={skills} setSkills={setSkills} />
+              <ChipInput skills={skills} setSkills={next => { setSkills(next); setGeneration(current => ({ ...current, reviewed: false })); }} />
             </div>}
 
             {step === 3 && <div className="grid gap-5">
@@ -467,11 +499,11 @@ export function JobBuilder({
             </div>
             {step < 5
               ? <Button type="submit">Continue →</Button>
-              : builderCanPublish && <Button type="button" disabled={Boolean(busy) || !publishReady} onClick={() => save(true)}>{busy === "publish" ? "Publishing…" : job?.status === "active" ? "Save and keep published" : "Publish job"}</Button>}
+              : builderCanPublish && <Button type="button" disabled={Boolean(busy) || !publishReady || Boolean(generation.id && !generation.reviewed)} onClick={() => save(true)}>{busy === "publish" ? "Publishing…" : job?.status === "active" ? "Save and keep published" : "Publish job"}</Button>}
           </div>
         </section>
 
-        <CandidatePreview companyName={companyName} state={state} skills={skills} />
+        {generation.id && !generation.reviewed ? <aside className="rounded-2xl border border-line bg-white p-5 lg:self-start" aria-label="Candidate preview locked"><h2 className="font-bold text-navy">Review before preview</h2><p className="mt-2 text-sm leading-6 text-ink-muted">Read and edit your AI draft in Description, then confirm the description and structured requirements. You can save an unpublished draft at any time.</p></aside> : <CandidatePreview companyName={companyName} state={state} skills={skills} />}
       </div>
     </form>
   );

@@ -1,0 +1,611 @@
+{
+  "title": "SapienWorx OpenAI Parser Remaining Targeted Re-Test Report",
+  "date": "2026-10-19",
+  "kind": "VALIDATION_EVIDENCE_WITH_QUALITY_BLOCKER_NOT_BASELINE",
+  "classification": "NOT READY",
+  "job_parse_readiness": "BETA READY WITH REVIEW",
+  "cv_parse_readiness": "HUMAN-REVIEW ONLY",
+  "cases": {
+    "original_approved_six": [
+      "jd-05",
+      "jd-19",
+      "cv-02",
+      "cv-12",
+      "cv-19",
+      "cv-18"
+    ],
+    "latest_reliability_retest_four": [
+      "cv-02",
+      "cv-12",
+      "cv-19",
+      "cv-18"
+    ],
+    "prior_jd_retained": [
+      "jd-05",
+      "jd-19"
+    ],
+    "canary_already_completed": "cv-02",
+    "newly_executed": [
+      "cv-12",
+      "cv-19",
+      "cv-18"
+    ],
+    "cv02_repeated": false,
+    "original40_repeated": false
+  },
+  "preflight": {
+    "plan": {
+      "task_timeout_seconds": {
+        "cv.parse": 30
+      },
+      "operation_timeout_seconds": {
+        "cv.parse": 65
+      },
+      "prompt_version": "p2",
+      "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+      "schema_sha256": {
+        "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177"
+      },
+      "dataset_version": "synthetic-parsing-eval-v1",
+      "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+      "model": "gpt-6-luna",
+      "pricing_version": "openai-standard-2026-10-17.v1",
+      "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+      "service_tier": "default",
+      "requests": 3,
+      "tasks": {
+        "cv.parse": {
+          "requests": 3,
+          "approx_input_tokens": 12073,
+          "input_token_byte_bound": 59041,
+          "approx_output_tokens": 3173,
+          "maximum_output_tokens": 36864,
+          "estimated_usd": 0.0027938,
+          "worst_case_usd": 0.033194
+        }
+      },
+      "approx_input_tokens": 12073,
+      "input_token_byte_bound": 59041,
+      "approx_output_tokens": 3173,
+      "maximum_output_tokens": 36864,
+      "estimated_total_usd": 0.0027938,
+      "worst_case_total_usd": 0.033194,
+      "cost_cap_usd": 0.034,
+      "hard_request_cap": 6,
+      "timeout_seconds": 30,
+      "retries": 1,
+      "concurrency": 1,
+      "case_ids": [
+        "cv-12",
+        "cv-19",
+        "cv-18"
+      ],
+      "plan_sha256": "60ea03509cdde9cadbdf9856abe9f9edd3880dfe0b2559580c0847789624c3d9"
+    },
+    "combined_budget": {
+      "combined_hard_cap_usd": "0.046",
+      "carryover_cv02_usd": "0.001280675",
+      "remaining_combined_allowance_usd": "0.044719325",
+      "fixed_remaining_subcap_usd": "0.034",
+      "maximum_allocated_combined_usd": "0.035280675",
+      "remaining_all_attempts_bound_usd": "0.033194",
+      "combined_worst_case_usd": "0.034474675",
+      "no_subcap_reallocation": true,
+      "max_remaining_provider_attempts": 6,
+      "frozen_file_count": 468,
+      "global_openai_enabled": false,
+      "synthetic_only": true,
+      "beta_production_data_used": false
+    }
+  },
+  "execution": {
+    "new_logical_cases": 3,
+    "new_provider_attempts": 3,
+    "new_successful_attempts": 3,
+    "new_failed_attempts": 0,
+    "new_retries": 0,
+    "new_timeouts": 0,
+    "complete_reliability_cohort_logical_cases": 4,
+    "complete_reliability_cohort_provider_attempts": 4,
+    "complete_six_case_evidence_successful_responses": 6,
+    "model": "gpt-6-luna",
+    "openai_enabled": false,
+    "synthetic_only": true,
+    "historical_failure_retained_separately": "Original pre-reliability retest had one cv-02 transport failure and 2 JD successes; 7 lifetime attempts across the selected six cases, not silently erased. Current 4-call reliability retest envelope has 0 failed attempts."
+  },
+  "quality": {
+    "job.parse": {
+      "strict": {
+        "numerator": 22,
+        "denominator": 22,
+        "value": 1
+      },
+      "representation_adjusted": {
+        "numerator": 22,
+        "denominator": 22,
+        "value": 1
+      },
+      "factual_error_response_rate": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "supported_contract_omission_response_rate": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "hallucination_response_rate": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "schema": {
+        "numerator": 2,
+        "denominator": 2,
+        "value": 1
+      },
+      "readiness": "BETA READY WITH REVIEW",
+      "evidence_age": "Earlier unchanged real responses, not newly executed",
+      "limitation": "Supported JD contract only; typed credentials, preferred skills, industry and notice expectations remain deferred and reviewer-visible. No universal completeness or beta activation claim."
+    },
+    "cv.parse": {
+      "strict": {
+        "numerator": 166,
+        "denominator": 178,
+        "value": 0.9325842696629213
+      },
+      "representation_adjusted": {
+        "numerator": 175,
+        "denominator": 178,
+        "value": 0.9831460674157303
+      },
+      "factual_error_response_rate": {
+        "numerator": 0,
+        "denominator": 4,
+        "value": 0
+      },
+      "omission_response_rate": {
+        "numerator": 1,
+        "denominator": 4,
+        "value": 0.25
+      },
+      "hallucination_response_rate": {
+        "numerator": 0,
+        "denominator": 4,
+        "value": 0
+      },
+      "schema": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "canonical_profile": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "parser_result": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "readiness": "HUMAN-REVIEW ONLY",
+      "source_audit_assertions": 137,
+      "source_audit_pass": 135,
+      "source_audit_fail": 1,
+      "source_audit_review": 1,
+      "rate_method": "Response-level engineering source audit: a response has an error/omission/hallucination if any such claim is observed. These 4 selected synthetic responses are not a general-population estimate; missing duplicate representation is not a fabricated fact."
+    }
+  },
+  "cv_case_metrics": [
+    {
+      "case_id": "cv-02",
+      "raw_normalized_strict": {
+        "status": "measured",
+        "numerator": 47,
+        "denominator": 50,
+        "value": 0.94
+      },
+      "postprocessed_strict": {
+        "status": "measured",
+        "numerator": 48,
+        "denominator": 50,
+        "value": 0.96
+      },
+      "frozen_representation_adjusted": {
+        "status": "measured",
+        "numerator": 50,
+        "denominator": 50,
+        "value": 1
+      },
+      "schema_valid": true,
+      "domain_valid": true,
+      "candidate_profile_valid": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "DUPLICATE_PROJECTION_NORMALIZED",
+          "path": "/education/0/qualification/name"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_company/name"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_designation/name"
+        },
+        {
+          "severity": "warning",
+          "code": "EXPERIENCE_CALCULATED",
+          "path": "/professional/total_experience_months"
+        }
+      ]
+    },
+    {
+      "case_id": "cv-12",
+      "raw_normalized_strict": {
+        "status": "measured",
+        "numerator": 46,
+        "denominator": 50,
+        "value": 0.92
+      },
+      "postprocessed_strict": {
+        "status": "measured",
+        "numerator": 46,
+        "denominator": 50,
+        "value": 0.92
+      },
+      "frozen_representation_adjusted": {
+        "status": "measured",
+        "numerator": 50,
+        "denominator": 50,
+        "value": 1
+      },
+      "schema_valid": true,
+      "domain_valid": true,
+      "candidate_profile_valid": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "DUPLICATE_PROJECTION_NORMALIZED",
+          "path": "/education/0/qualification/name"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_company/name"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_designation/name"
+        },
+        {
+          "severity": "warning",
+          "code": "EXPERIENCE_CALCULATED",
+          "path": "/professional/total_experience_months"
+        }
+      ]
+    },
+    {
+      "case_id": "cv-19",
+      "raw_normalized_strict": {
+        "status": "measured",
+        "numerator": 24,
+        "denominator": 28,
+        "value": 0.8571428571428571
+      },
+      "postprocessed_strict": {
+        "status": "measured",
+        "numerator": 25,
+        "denominator": 28,
+        "value": 0.8928571428571429
+      },
+      "frozen_representation_adjusted": {
+        "status": "measured",
+        "numerator": 27,
+        "denominator": 28,
+        "value": 0.9642857142857143
+      },
+      "schema_valid": true,
+      "domain_valid": true,
+      "candidate_profile_valid": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "DUPLICATE_PROJECTION_NORMALIZED",
+          "path": "/education/0/degree"
+        },
+        {
+          "severity": "warning",
+          "code": "EXPERIENCE_TOTAL_REQUIRES_REVIEW",
+          "path": "/professional/total_experience_months"
+        }
+      ]
+    },
+    {
+      "case_id": "cv-18",
+      "raw_normalized_strict": {
+        "status": "measured",
+        "numerator": 46,
+        "denominator": 50,
+        "value": 0.92
+      },
+      "postprocessed_strict": {
+        "status": "measured",
+        "numerator": 47,
+        "denominator": 50,
+        "value": 0.94
+      },
+      "frozen_representation_adjusted": {
+        "status": "measured",
+        "numerator": 48,
+        "denominator": 50,
+        "value": 0.96
+      },
+      "schema_valid": true,
+      "domain_valid": true,
+      "candidate_profile_valid": true,
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "DUPLICATE_PROJECTION_NORMALIZED",
+          "path": "/education/0/degree"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_company/name"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_designation/name"
+        },
+        {
+          "severity": "warning",
+          "code": "EXPERIENCE_CALCULATED",
+          "path": "/professional/total_experience_months"
+        }
+      ]
+    }
+  ],
+  "discrepancy_categories": {
+    "EVALUATOR_OVER_STRICTNESS": 7,
+    "EQUIVALENT_REPRESENTATION": 3,
+    "PROVIDER_OMISSION": 1,
+    "CONTRACT_AMBIGUITY": 1
+  },
+  "reliability": {
+    "remaining_provider": {
+      "n": 3,
+      "p50_ms": 17669,
+      "p95_nearest_rank_ms": 20071,
+      "maximum_ms": 20071
+    },
+    "complete_cv_cohort_provider": {
+      "n": 4,
+      "p50_ms": 17406.0,
+      "p95_nearest_rank_ms": 20071,
+      "maximum_ms": 20071
+    },
+    "remaining_logical_gateway": {
+      "n": 3,
+      "p50_ms": 17674,
+      "p95_nearest_rank_ms": 20077,
+      "maximum_ms": 20077
+    },
+    "cv02_comparator_ms": 14999,
+    "timeout_attempts": 0,
+    "http_429": 0,
+    "http_5xx": 0,
+    "connection_failures": 0,
+    "circuit_breaker_events": 0,
+    "retries": 0,
+    "configured_attempt_ms": 30000,
+    "logical_deadline_seconds": 65,
+    "command_deadline_seconds": 215,
+    "limit": "Descriptive n=3/n=4 selected synthetic observations; no load/SLO estimate. Real transient retry not triggered; offline coverage passed."
+  },
+  "cost": {
+    "cv02_canary_usd": "0.001280675",
+    "remaining_run_usage_estimated_usd": "0.002975480",
+    "combined_usage_estimated_usd": "0.004256155",
+    "combined_conservative_reconciled_usd": "0.004256155",
+    "combined_hard_cap_usd": "0.046",
+    "combined_remaining_usd": "0.041743845",
+    "fixed_remaining_subcap_usd": "0.034",
+    "unused_subcap_not_reallocated_usd": "0.031024520",
+    "unknown_usage_attempts": 0,
+    "budget_admissions": [
+      {
+        "case_id": "cv-12",
+        "attempt_number": 1,
+        "carryover_cv02_usd": "0.001280675",
+        "remaining_run_spend_before_usd": "0",
+        "combined_spend_before_usd": "0.001280675",
+        "worst_case_next_attempt_usd": "0.005541000",
+        "combined_admission_sum_usd": "0.006821675",
+        "combined_hard_cap_usd": "0.046",
+        "fixed_remaining_subcap_usd": "0.034",
+        "pass": true,
+        "enforcement": "Frozen evaluator enforces remaining-run spend + held + worst-next <= .034; fixed .001280675 carry + .034 < .046, therefore also enforces combined inequality on every attempt, including eligible retries."
+      },
+      {
+        "case_id": "cv-19",
+        "attempt_number": 1,
+        "carryover_cv02_usd": "0.001280675",
+        "remaining_run_spend_before_usd": "0.0013313",
+        "combined_spend_before_usd": "0.002611975",
+        "worst_case_next_attempt_usd": "0.005491000",
+        "combined_admission_sum_usd": "0.008102975",
+        "combined_hard_cap_usd": "0.046",
+        "fixed_remaining_subcap_usd": "0.034",
+        "pass": true,
+        "enforcement": "Frozen evaluator enforces remaining-run spend + held + worst-next <= .034; fixed .001280675 carry + .034 < .046, therefore also enforces combined inequality on every attempt, including eligible retries."
+      },
+      {
+        "case_id": "cv-18",
+        "attempt_number": 1,
+        "carryover_cv02_usd": "0.001280675",
+        "remaining_run_spend_before_usd": "0.001987765",
+        "combined_spend_before_usd": "0.003268440",
+        "worst_case_next_attempt_usd": "0.005565000",
+        "combined_admission_sum_usd": "0.008833440",
+        "combined_hard_cap_usd": "0.046",
+        "fixed_remaining_subcap_usd": "0.034",
+        "pass": true,
+        "enforcement": "Frozen evaluator enforces remaining-run spend + held + worst-next <= .034; fixed .001280675 carry + .034 < .046, therefore also enforces combined inequality on every attempt, including eligible retries."
+      }
+    ],
+    "prior_jd_usd_separate_older_envelope": ".000388800",
+    "six_successful_responses_lifetime_known_subtotal_usd": "0.004644955",
+    "old_failed_cv02_unknown_reservation_separate_older_envelope_usd": ".005516",
+    "all_lifetime_selected_attempts_conservative_usd": "0.010160955",
+    "actual_invoice": "Not queried; estimates independently recomputed from known token usage, all cached reads/writes included."
+  },
+  "tests": {
+    "offline_groups": [
+      {
+        "group": "gateway",
+        "exit_code": 0,
+        "top_pass": 56,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 116,
+        "skips": [
+          "TestAIGovernanceIsolatedDatabase"
+        ]
+      },
+      {
+        "group": "evaluation",
+        "exit_code": 0,
+        "top_pass": 13,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 298,
+        "skips": []
+      },
+      {
+        "group": "parsing",
+        "exit_code": 0,
+        "top_pass": 20,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 97,
+        "skips": [
+          "TestPhase1IsolatedDatabase"
+        ]
+      },
+      {
+        "group": "canonical-contract",
+        "exit_code": 0,
+        "top_pass": 21,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 100,
+        "skips": []
+      },
+      {
+        "group": "runner",
+        "exit_code": 0,
+        "top_pass": 11,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 20,
+        "skips": []
+      }
+    ],
+    "offline_top_pass": 121,
+    "offline_top_skip": 2,
+    "offline_passing_test_subtest_events": 631,
+    "isolated_db": [
+      {
+        "test": "TestAIGovernanceIsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      },
+      {
+        "test": "TestPhase1IsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      }
+    ],
+    "isolated_db_passing_test_subtest_events": 9,
+    "effective_distinct_top_pass": 123,
+    "fail": 0,
+    "unresolved_affected_skips": 0,
+    "initial_environmental_block": "Docker pipe permission denied in restricted sandbox before any tests ran. Same offline commands passed with approved local Docker access; initial output retained."
+  },
+  "database": {
+    "latest_canary_skipped_test": "TestAIGovernanceIsolatedDatabase",
+    "required_environment": "AI_GATEWAY_TEST_DATABASE_URL",
+    "reason": "Empty DSN triggers explicit t.Skip; no live/persistence failure was observed.",
+    "block_beta_parser_activation_by_itself": false,
+    "fresh_gates": [
+      {
+        "test": "TestAIGovernanceIsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      },
+      {
+        "test": "TestPhase1IsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      }
+    ],
+    "historical_full_isolated_gates": "26/26 PASS preserved as historical evidence; unrelated 24 not rerun.",
+    "fixture": "Fresh disposable PostgreSQL17, network none, no host ports, no existing application data, removed after both gates."
+  },
+  "baseline": {
+    "v1_preserved": true,
+    "v1_1_created": false,
+    "v1_1_location": null,
+    "reason": "New cv-18 employment_status omission plus unadjudicated strict/representation/precedence acceptance prevent a clean targeted PASS. CV frozen strict 93.26% is below prior >=97% target. Do not manufacture a passing baseline; source/evidence candidate retained separately."
+  },
+  "integrity": {
+    "frozen_files_match": 468,
+    "production_code_changed": false,
+    "prompts_schemas_scoring_goldens_changed": false,
+    "private_environment_changed": false,
+    "global_openai_enabled": false,
+    "owner_review_removed": false,
+    "customer_beta_production_data_used": false,
+    "commit_push_merge_deploy": false,
+    "additional_calls_after_selected_three": 0
+  },
+  "blockers": [
+    {
+      "case": "cv-18",
+      "field": "/professional/employment_status",
+      "category": "PROVIDER_OMISSION",
+      "severity": "Medium",
+      "recommendation": "Review status projection ownership. In a separately approved hardening change, preserve raw null, derive employed only from validated unambiguous current full-time employment with system_derived provenance and a review issue, or correct the prompt field guidance; add the captured response to offline regressions. Do not infer a designation or conflicting notice."
+    },
+    {
+      "case": "cv-18",
+      "field": "/professional/headline",
+      "category": "CONTRACT_AMBIGUITY",
+      "severity": "Medium",
+      "recommendation": "Human-adjudicate explicit headline precedence; retain both literal claims and review conflict without changing frozen expected values in this validation run."
+    },
+    {
+      "case": "cv-19",
+      "field": "/employment",
+      "category": "EQUIVALENT_REPRESENTATION",
+      "severity": "Medium",
+      "recommendation": "Review explicit no-history collection semantics separately. Preserve zero/fresher/source; do not silently change scorer or globally equate unknown null and empty []."
+    }
+  ],
+  "artifacts": {
+    "evidence": "openai-parser-remaining-targeted-retest-2026-10-19-evidence.json",
+    "attempts": "openai-parser-remaining-targeted-retest-2026-10-19-attempts.csv",
+    "budget_admissions": "openai-parser-remaining-targeted-retest-2026-10-19-budget-admissions.csv",
+    "source_audit": "openai-parser-remaining-targeted-retest-2026-10-19-cv-source-audit.csv",
+    "discrepancies": "openai-parser-remaining-targeted-retest-2026-10-19-discrepancies.csv"
+  }
+}

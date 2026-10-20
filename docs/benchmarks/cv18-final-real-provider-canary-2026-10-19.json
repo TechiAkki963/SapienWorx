@@ -1,0 +1,306 @@
+{
+  "title": "SapienWorx cv-18 Final Real Provider Canary Report",
+  "date": "2026-10-19",
+  "execution_utc": "2026-10-19T15:22:13.4601152Z",
+  "preflight": {
+    "case": "cv-18",
+    "task": "cv.parse",
+    "model": "gpt-6-luna",
+    "logical_cases": 1,
+    "max_provider_attempts": 1,
+    "retries": 0,
+    "attempt_deadline_seconds": 30,
+    "logical_deadline_seconds": 30,
+    "command_deadline_seconds": 50,
+    "hard_cap_usd": ".005565",
+    "worst_attempt_usd": ".005565",
+    "expected_cost_usd": ".0010085",
+    "approx_input_tokens": 4090,
+    "approx_output_tokens": 1199,
+    "maximum_output_tokens": 6144,
+    "input_byte_token_upper_bound": 19944,
+    "existing_retest_spend_usd": "0.004256155",
+    "maximum_combined_usd": "0.009821155",
+    "combined_hard_cap_usd": "0.046",
+    "global_openai_enabled": false,
+    "api_key_configured_privately": true,
+    "synthetic_fixture_only": true,
+    "beta_production_data_used": false,
+    "reviewed_input_hashes_verified": 473,
+    "reviewed_binary_sha256": "0f2e9d1bec6af2d6c495d18fe789ff94f1ef160e6d755121935b16de040942e0",
+    "plan_sha256": "3272d4feb29f4a3f8894c7f792a9351b54bef7c1834a7f7547128774a7e10740",
+    "pricing_source": "https://developers.openai.com/api/docs/pricing",
+    "pricing_verified_utc_date": "2026-10-19",
+    "source_sha256": "c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc"
+  },
+  "execution": {
+    "case": "cv-18",
+    "task": "cv.parse",
+    "model": "gpt-6-luna",
+    "logical_cases": 1,
+    "provider_attempts": 1,
+    "successful_attempts": 1,
+    "failed_attempts": 0,
+    "retries": 0,
+    "status": "requires_review",
+    "provider_result": "completed",
+    "provider_latency_ms": 19838,
+    "gateway_latency_ms": 19843,
+    "provider_request_id": "req_a0c224ae0a59444b9315e9dcef3933bc",
+    "internal_classification": null,
+    "attempt": {
+      "logical_case_id": "cv-18",
+      "request_id": "90000000-0000-4000-8000-000000000001",
+      "task": "cv.parse",
+      "attempt_number": 1,
+      "model": "gpt-6-luna",
+      "payload_bytes": 15848,
+      "estimated_input_tokens": 4090,
+      "configured_timeout_ms": 30000,
+      "elapsed_ms": 19838,
+      "provider_request_id": "req_a0c224ae0a59444b9315e9dcef3933bc",
+      "classification": "",
+      "retryable": false,
+      "retry_delay_ms": 0,
+      "status": "completed",
+      "usage": {
+        "input_tokens": 3380,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 3377,
+        "output_tokens": 2195,
+        "total_tokens": 5575
+      },
+      "usage_known": true,
+      "cost": {
+        "pricing_version": "openai-standard-2026-10-17.v1",
+        "input_usd": 3.0000000000000004e-07,
+        "cached_input_usd": 0,
+        "cache_write_input_usd": 0.000422125,
+        "output_usd": 0.0010975,
+        "known": true,
+        "currency": "USD",
+        "estimated_usd": 0.0015199249999999999
+      }
+    }
+  },
+  "cost": {
+    "new_canary_usd": "0.001519925",
+    "new_canary_hard_cap_usd": "0.005565",
+    "new_canary_remaining_usd": "0.004045075",
+    "prior_cv_reliability_retest_spend_usd": "0.004256155",
+    "all_five_successful_reliability_cv_attempts_usd": "0.005776080",
+    "combined_hard_cap_usd": "0.046",
+    "combined_remaining_usd": "0.040223920",
+    "latest_four_cv_quality_cohort_usd": "0.004788365",
+    "earlier_two_JD_usd": ".000388800",
+    "all_seven_successful_targeted_attempts_usd": "0.006164880",
+    "old_failed_cv02_unknown_reservation_usd": ".005516",
+    "all_eight_lifetime_targeted_attempts_conservative_usd": "0.011680880",
+    "not_invoice_total": true
+  },
+  "employment_status": {
+    "source_evidence": "Fictional Employer 18; from 2024-01 to present; full-time. Current designation and 15/60 notice are independently conflicting.",
+    "provider_raw": "employed",
+    "normalized": "employed",
+    "final": "employed",
+    "expected": "employed",
+    "derived_value": "NOT_NEEDED_ALREADY_PROVIDER_SUPPLIED",
+    "derivation_rule": "Frozen v1.1 fallback permits only unique validated current full-time record independently matched to source company/date/type, rejecting ambiguous/negative evidence.",
+    "derivation_triggered_live": false,
+    "provenance": {
+      "provenance": {
+        "source": "ai_derived",
+        "kind": "inferred",
+        "section": "professional",
+        "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+        "page": null
+      },
+      "confidence": null,
+      "review_status": "unreviewed",
+      "raw_value": "employed"
+    },
+    "semantic_provenance_label": "provider_extracted proposal maps to existing ai_derived/inferred, not an invented enum or verified fact",
+    "human_correction": "NONE",
+    "human_review_required": true,
+    "pass": true
+  },
+  "quality": {
+    "raw_strict": {
+      "status": "measured",
+      "numerator": 47,
+      "denominator": 50,
+      "value": 0.94
+    },
+    "raw_adjusted": {
+      "status": "measured",
+      "numerator": 49,
+      "denominator": 50,
+      "value": 0.98
+    },
+    "final_strict": {
+      "status": "measured",
+      "numerator": 48,
+      "denominator": 50,
+      "value": 0.96
+    },
+    "final_adjusted": {
+      "status": "measured",
+      "numerator": 49,
+      "denominator": 50,
+      "value": 0.98
+    },
+    "source_supported_populated_semantic_leaves": 39,
+    "source_aware_material_omissions": 0,
+    "factual_errors": 0,
+    "hallucinations": 0,
+    "normalization_errors": 0,
+    "postprocessing_errors": 0,
+    "source_supported_derived_fields": [
+      "/professional/current_company/name",
+      "/professional/total_experience_months"
+    ],
+    "derived_fields_correct": 2,
+    "derived_field_errors": 0,
+    "status_derivation_live_check": "NOT_TRIGGERED; separately fresh offline capture/31 negative/SQL coverage passed",
+    "differences": [
+      {
+        "case_id": "cv-18",
+        "field": "/location/preferred",
+        "expected": "[]",
+        "actual": "null",
+        "category": "EVALUATOR_OVER_STRICTNESS",
+        "severity": "Low",
+        "strict": "FAIL",
+        "adjusted": "PASS",
+        "reason": "No preferred location assertion. Unknown null differs from frozen empty; no global null/empty equivalence."
+      },
+      {
+        "case_id": "cv-18",
+        "field": "/professional/headline",
+        "expected": "\"Electrical Maintenance Technician\"",
+        "actual": "\"Technician\"",
+        "category": "CONTRACT_AMBIGUITY",
+        "severity": "Medium",
+        "strict": "FAIL",
+        "adjusted": "FAIL",
+        "reason": "Both literal source header and later profile-headline statement exist; actual is source-backed. Precedence remains candidate review; no automatic promotion."
+      }
+    ],
+    "raw_projection_gap": "location.remote_preference null but preferences.work_modes=[onsite] preserves source fact; frozen deterministic projection restores singular field.",
+    "canonical_profile_valid": true,
+    "parser_result_valid": true
+  },
+  "security": {
+    "api_key_not_logged": "PASS",
+    "system_prompt_leakage": "NONE",
+    "real_private_customer_PII": "NONE",
+    "beta_production_data_used": false,
+    "cross_case_contamination": "NONE_OBSERVED; exact synthetic marker guard passed",
+    "model_substitution": false,
+    "reviewed_input_hashes_match": 473,
+    "source_fixture_digest_match": true,
+    "pass": true
+  },
+  "tests": {
+    "groups": [
+      {
+        "group": "gateway",
+        "exit_code": 0,
+        "top_pass": 56,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 116,
+        "skips": [
+          "TestAIGovernanceIsolatedDatabase"
+        ]
+      },
+      {
+        "group": "evaluation",
+        "exit_code": 0,
+        "top_pass": 14,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 303,
+        "skips": []
+      },
+      {
+        "group": "parsing",
+        "exit_code": 0,
+        "top_pass": 26,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 149,
+        "skips": [
+          "TestPhase1IsolatedDatabase"
+        ]
+      },
+      {
+        "group": "canonical-contract",
+        "exit_code": 0,
+        "top_pass": 22,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 105,
+        "skips": []
+      },
+      {
+        "group": "runner",
+        "exit_code": 0,
+        "top_pass": 11,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 20,
+        "skips": []
+      }
+    ],
+    "base_top_pass": 129,
+    "base_top_skip": 2,
+    "base_test_subtest_seed_pass": 693,
+    "isolated_db": [
+      {
+        "test": "TestAIGovernanceIsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      },
+      {
+        "test": "TestPhase1IsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      }
+    ],
+    "effective_distinct_top_pass": 131,
+    "unresolved_affected_skips": 0,
+    "final_failures": 0,
+    "negative_inference_cases": 31,
+    "full_original_replay_cases": 40,
+    "full_original_error_regressions": 185
+  },
+  "baseline": {
+    "v1_preserved": true,
+    "v1_1_created": true,
+    "v1_1_path": "docs/benchmarks/openai-parsing-baseline-v1.1.json",
+    "v1_1_sha256": "1f5cf07162e8b4d2c2059d5334612940a72464088cb56e4b168b5e6d98c73e98",
+    "measurement_scope": "Not a new 40-case provider run. Original full40 V1 immutable reference; 2 retained p2 JD responses; retained p2 cv02/cv12/cv19 responses replayed under current deterministic code; one fresh cv18 final canary. Prior superseded cv18 and historical failed attempt retained in lineage/cost, not silently erased."
+  },
+  "readiness": {
+    "job.parse": "BETA READY WITH REVIEW",
+    "cv.parse": "BETA READY WITH REVIEW",
+    "overall": "BETA PARSER CANDIDATE",
+    "human_review_required": true,
+    "global_activation_authorized": false,
+    "production_ready": false
+  },
+  "integrity": {
+    "code_prompt_schema_scoring_golden_changes": false,
+    "global_openai_enabled": false,
+    "private_environment_unchanged": true,
+    "other_provider_calls_this_task": 0,
+    "commit_push_merge_deploy": false
+  },
+  "artifacts": {
+    "evidence": "cv18-final-real-provider-canary-2026-10-19-evidence.json",
+    "attempt": "cv18-final-real-provider-canary-2026-10-19-attempts.csv",
+    "source_audit": "cv18-final-real-provider-canary-2026-10-19-source-audit.csv",
+    "discrepancies": "cv18-final-real-provider-canary-2026-10-19-discrepancies.csv"
+  }
+}

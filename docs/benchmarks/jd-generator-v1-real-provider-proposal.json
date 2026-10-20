@@ -1,0 +1,39 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_AUTHORIZED_NOT_EXECUTED",
+  "task": "job.generate_description",
+  "model": "gpt-6-luna",
+  "service_tier": "default",
+  "cases": [
+    "jdgen-01-minimal-projection",
+    "jdgen-01-supplied-responsibilities-and-skills",
+    "jdgen-02-healthcare"
+  ],
+  "maximum_provider_attempts": 3,
+  "maximum_attempts_per_case": 1,
+  "max_retries": 0,
+  "concurrency": 1,
+  "timeout_seconds_per_attempt": 30,
+  "expected_input_tokens_total": 3000,
+  "expected_output_tokens_total": 240,
+  "max_conservative_input_tokens_per_case": 10000,
+  "max_output_tokens_per_case": 512,
+  "estimated_usd_uncached": 0.00042,
+  "estimated_usd_all_input_cache_write": 0.000495,
+  "conservative_worst_case_usd": 0.004518,
+  "hard_cap_usd": 0.005,
+  "pricing_catalog": "config/ai-pricing.v1.json",
+  "pricing_version": "openai-standard-2026-10-17.v1",
+  "pricing_reverified_utc_date": "2026-10-19",
+  "pricing_source": "https://developers.openai.com/api/docs/pricing",
+  "global_openai_enabled": false,
+  "provider_requests_executed": 0,
+  "requirements": [
+    "Separate explicit approval before any request",
+    "Synthetic fixtures only; no beta/production/customer data",
+    "Use current gateway admission and durable reservation; abort before transmission if any cap cannot be enforced",
+    "Freeze source and fixture hashes before execution",
+    "Fail closed on missing/expired pricing or an oversized complete request",
+    "Record only safe usage/latency/cost/request-ID metadata",
+    "Human review of every output; no publishing or deployment"
+  ]
+}

@@ -1,0 +1,3624 @@
+{
+  "model": "gpt-6-luna",
+  "cases_completed": 8,
+  "provider_attempts": 8,
+  "retries": 0,
+  "provider_successes": 8,
+  "provider_failures": 0,
+  "automated_passes": 8,
+  "cases": [
+    {
+      "case_id": "jd-01",
+      "role": "Java Backend Developer",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "9c5ffade-074f-4647-99a6-35da76cd6d5b",
+          "name": "Java Backend Developer",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "73b6706c-d8ec-436d-b6d4-26a9faf533b8",
+          "name": "Software Development",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "b25626e7-e6a2-482b-bf5b-2d84b45eab90",
+          "name": "Engineering",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "5874f2f1-47ee-4baa-9bce-a8bc7daa51df",
+          "name": "Technology",
+          "entity_type": "industry"
+        },
+        "about_role": "Develop and maintain Java backend services, data access and APIs with attention to reliability and maintainable code.",
+        "core_responsibilities": [
+          "Design and implement Java backend services around clear business and data requirements.",
+          "Build and document REST API endpoints with input validation and controlled failure responses.",
+          "Work with relational data models and SQL queries to support service operations.",
+          "Write automated tests and review code changes to keep backend services maintainable.",
+          "Investigate service defects using logs, reproduce issues and implement verified fixes.",
+          "Coordinate API and data changes with engineering colleagues and document technical decisions."
+        ],
+        "core_skills": [
+          {
+            "id": "93bf2063-30bc-49b3-9f58-9062d8f37105",
+            "name": "Automated Testing",
+            "entity_type": "competency"
+          },
+          {
+            "id": "797ed28f-7195-4c4f-9c50-52339fd745bd",
+            "name": "Git",
+            "entity_type": "competency"
+          },
+          {
+            "id": "540d2a4f-aca3-4f2c-8b48-95fabfb2bb74",
+            "name": "Java",
+            "entity_type": "competency"
+          },
+          {
+            "id": "9fb92530-52d1-46d8-9779-2fd783284736",
+            "name": "REST APIs",
+            "entity_type": "competency"
+          },
+          {
+            "id": "271556db-861c-455e-abe9-f28ac1865828",
+            "name": "SQL",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "bf74e5d8-07df-4e21-8052-9f25ef9253f0",
+            "name": "Container Fundamentals",
+            "entity_type": "competency"
+          },
+          {
+            "id": "54463a39-1e92-49f6-b454-a6c8c0eb5949",
+            "name": "Spring Boot",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": [
+          {
+            "id": "797ed28f-7195-4c4f-9c50-52339fd745bd",
+            "name": "Git",
+            "entity_type": "competency"
+          }
+        ],
+        "common_competencies": [
+          {
+            "id": "83c9cd28-2dca-49af-bfa5-0b4a4cd796c9",
+            "name": "Code Review",
+            "entity_type": "competency"
+          },
+          {
+            "id": "5a7b6703-7ce2-4815-b179-ecb79cfd1be6",
+            "name": "Debugging",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm which optional frameworks and tools are relevant to this employer; no company stack is assumed."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Automated Testing",
+        "Git",
+        "Java",
+        "REST APIs",
+        "SQL"
+      ],
+      "optional_skills": [
+        "Container Fundamentals",
+        "Spring Boot"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "Java Backend Developer\n\nAbout the Role\nDevelop and maintain Java backend services, data access and APIs with attention to reliability and maintainable code.\n\nKey Responsibilities — role recommendations for review\n- Design and implement Java backend services around clear business and data requirements.\n- Build and document REST API endpoints with input validation and controlled failure responses.\n- Work with relational data models and SQL queries to support service operations.\n- Write automated tests and review code changes to keep backend services maintainable.\n- Investigate service defects using logs, reproduce issues and implement verified fixes.\n- Coordinate API and data changes with engineering colleagues and document technical decisions.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Automated Testing\n- Git\n- Java\n- REST APIs\n- SQL\n\nPreferred Skills — optional recommendations for review\n- Container Fundamentals\n- Spring Boot\n\nExperience\n3–5 years\n\nLocation\nBengaluru",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm which optional frameworks and tools are relevant to this employer; no company stack is assumed.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "All six duties address Java services, REST validation, relational data, testing, debugging and engineering coordination. Five core themes are useful; Spring Boot and containers remain optional. No cloud/employer stack claim.",
+        "normal_recruiter_review": "Confirm actual framework/tool use and employer priorities; accept only relevant structured skills.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 0,
+        "professional_quality": 1,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.3333333333333335,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 0.9999999999999996,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "Java Backend Developer",
+          "location": "Bengaluru",
+          "min_experience_years": 3,
+          "max_experience_years": 5
+        },
+        "case_id": "jd-01",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.000355875,
+          "output_usd": 0.000138,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.000494175
+        },
+        "domain_valid": true,
+        "generated_description": "Java Backend Developer\n\nAbout the Role\nDevelop and maintain Java backend services, data access and APIs with attention to reliability and maintainable code.\n\nKey Responsibilities — role recommendations for review\n- Design and implement Java backend services around clear business and data requirements.\n- Build and document REST API endpoints with input validation and controlled failure responses.\n- Work with relational data models and SQL queries to support service operations.\n- Write automated tests and review code changes to keep backend services maintainable.\n- Investigate service defects using logs, reproduce issues and implement verified fixes.\n- Coordinate API and data changes with engineering colleagues and document technical decisions.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Automated Testing\n- Git\n- Java\n- REST APIs\n- SQL\n\nPreferred Skills — optional recommendations for review\n- Container Fundamentals\n- Spring Boot\n\nExperience\n3–5 years\n\nLocation\nBengaluru",
+        "industry": "Technology",
+        "latency_ms": 5228,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\"about_role\":\"blueprint:about\",\"ai_suggested_skills\":[],\"assumptions_requiring_review\":[\"blueprint:review:1\",\"editorial:employer-review\"],\"headline\":\"Java Backend Developer\",\"location\":\"Bengaluru\",\"max_experience_years\":5,\"min_experience_years\":3,\"preferred_skills\":[\"blueprint:optional:1\",\"blueprint:optional:2\"],\"qualifications\":[],\"required_skills\":[\"blueprint:core:1\",\"blueprint:core:2\",\"blueprint:core:3\",\"blueprint:core:4\",\"blueprint:core:5\"],\"responsibilities\":[\"blueprint:duty:1\",\"blueprint:duty:2\",\"blueprint:duty:3\",\"blueprint:duty:4\",\"blueprint:duty:5\",\"blueprint:duty:6\"]}",
+        "provider_request_id": "req_a502e0a6d6a94a36859b0040027fbeae",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "Java Backend Developer",
+          "location": "Bengaluru",
+          "min_experience_years": 3,
+          "max_experience_years": 5
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "Java Backend Developer",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "935bcc265bbab9ff2050a51dc1600715244af2ed5cc72ea6b315b2b13899ee03",
+          "headline": {
+            "id": "fact:title",
+            "value": "Java Backend Developer",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Develop and maintain Java backend services, data access and APIs with attention to reliability and maintainable code.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Design and implement Java backend services around clear business and data requirements.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Build and document REST API endpoints with input validation and controlled failure responses.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Work with relational data models and SQL queries to support service operations.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Write automated tests and review code changes to keep backend services maintainable.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Investigate service defects using logs, reproduce issues and implement verified fixes.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Coordinate API and data changes with engineering colleagues and document technical decisions.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Automated Testing",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:93bf2063-30bc-49b3-9f58-9062d8f37105@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "Git",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:797ed28f-7195-4c4f-9c50-52339fd745bd@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Java",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:540d2a4f-aca3-4f2c-8b48-95fabfb2bb74@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "REST APIs",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9fb92530-52d1-46d8-9779-2fd783284736@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "SQL",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:271556db-861c-455e-abe9-f28ac1865828@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "Container Fundamentals",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:bf74e5d8-07df-4e21-8052-9f25ef9253f0@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "Spring Boot",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:54463a39-1e92-49f6-b454-a6c8c0eb5949@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Bengaluru",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 3,
+            "maximum": 5,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm which optional frameworks and tools are relevant to this employer; no company stack is assumed.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c5ffade-074f-4647-99a6-35da76cd6d5b@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Automated Testing",
+          "Git",
+          "Java",
+          "REST APIs",
+          "SQL"
+        ],
+        "usage": {
+          "input_tokens": 2850,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2847,
+          "output_tokens": 276,
+          "total_tokens": 3126
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    },
+    {
+      "case_id": "jd-02",
+      "role": "Registered Nurse",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "f2f5fb97-7863-488d-927e-346e46efeee1",
+          "name": "Registered Nurse",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "ec7194c4-01fd-4329-919e-88d343382164",
+          "name": "Nursing",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "614b7909-66c5-47e1-9535-e62ab7eb7ec4",
+          "name": "Clinical Care",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "515c9ed4-dc63-4902-be35-56c85eaeb7ce",
+          "name": "Healthcare",
+          "entity_type": "industry"
+        },
+        "about_role": "Support patient assessment, nursing care and clear clinical handovers within the agreed clinical scope.",
+        "core_responsibilities": [
+          "Assess assigned patients and record observations so changes in care needs are visible.",
+          "Carry out agreed nursing care activities within the role's clinical scope and patient care plan.",
+          "Support prescribed medication administration using verified clinical procedures and accurate records.",
+          "Maintain clear clinical documentation and communicate relevant changes to the care team.",
+          "Apply infection prevention practices when preparing equipment and supporting patient care.",
+          "Prepare structured patient handovers and explain care information respectfully to patients and carers."
+        ],
+        "core_skills": [
+          {
+            "id": "e6b8de7a-db93-4896-9c29-863eb2a36a51",
+            "name": "Clinical Documentation",
+            "entity_type": "competency"
+          },
+          {
+            "id": "99ab5d86-7d59-42c2-a72d-13d9c080738b",
+            "name": "Infection Prevention",
+            "entity_type": "competency"
+          },
+          {
+            "id": "9902bd43-f03f-4c34-8154-a656205a9aad",
+            "name": "Medication Administration",
+            "entity_type": "competency"
+          },
+          {
+            "id": "e329e413-834c-4f8a-b5fb-f5c8b39d95f2",
+            "name": "Patient Assessment",
+            "entity_type": "competency"
+          },
+          {
+            "id": "af00a5df-d363-4e25-95a1-8f4cd03fab07",
+            "name": "Patient Handover",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "9c40f745-4f54-4fbe-bc60-4e3d40499c8c",
+            "name": "Emergency Response",
+            "entity_type": "competency"
+          },
+          {
+            "id": "c130a925-c3ee-4a36-83fd-da8bbbfe50cb",
+            "name": "Wound Care",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": null,
+        "common_competencies": [
+          {
+            "id": "47dee0cb-4124-43a2-ae89-084df7381316",
+            "name": "Patient Communication",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm nursing registration, clinical scope and jurisdiction with the hiring team; no specific licence is asserted."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Clinical Documentation",
+        "Infection Prevention",
+        "Medication Administration",
+        "Patient Assessment",
+        "Patient Handover"
+      ],
+      "optional_skills": [
+        "Emergency Response",
+        "Wound Care"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "Registered Nurse\n\nAbout the Role\nSupport patient assessment, nursing care and clear clinical handovers within the agreed clinical scope.\n\nKey Responsibilities — role recommendations for review\n- Assess assigned patients and record observations so changes in care needs are visible.\n- Carry out agreed nursing care activities within the role's clinical scope and patient care plan.\n- Support prescribed medication administration using verified clinical procedures and accurate records.\n- Maintain clear clinical documentation and communicate relevant changes to the care team.\n- Apply infection prevention practices when preparing equipment and supporting patient care.\n- Prepare structured patient handovers and explain care information respectfully to patients and carers.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Clinical Documentation\n- Infection Prevention\n- Medication Administration\n- Patient Assessment\n- Patient Handover\n\nPreferred Skills — optional recommendations for review\n- Emergency Response\n- Wound Care\n\nExperience\n2–4 years\n\nLocation\nMumbai",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm nursing registration, clinical scope and jurisdiction with the hiring team; no specific licence is asserted.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "Six differentiated nursing duties cover assessment, care within scope, prescribed medication procedures, records, infection prevention and handover. No registration, degree or jurisdiction is asserted.",
+        "normal_recruiter_review": "Hiring team must confirm nursing registration/jurisdiction and permitted clinical scope before publication.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 0,
+        "professional_quality": 1,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.3333333333333335,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 0.9999999999999996,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "Registered Nurse",
+          "location": "Mumbai",
+          "min_experience_years": 2,
+          "max_experience_years": 4
+        },
+        "case_id": "jd-02",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.000342625,
+          "output_usd": 0.000142,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.000484925
+        },
+        "domain_valid": true,
+        "generated_description": "Registered Nurse\n\nAbout the Role\nSupport patient assessment, nursing care and clear clinical handovers within the agreed clinical scope.\n\nKey Responsibilities — role recommendations for review\n- Assess assigned patients and record observations so changes in care needs are visible.\n- Carry out agreed nursing care activities within the role's clinical scope and patient care plan.\n- Support prescribed medication administration using verified clinical procedures and accurate records.\n- Maintain clear clinical documentation and communicate relevant changes to the care team.\n- Apply infection prevention practices when preparing equipment and supporting patient care.\n- Prepare structured patient handovers and explain care information respectfully to patients and carers.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Clinical Documentation\n- Infection Prevention\n- Medication Administration\n- Patient Assessment\n- Patient Handover\n\nPreferred Skills — optional recommendations for review\n- Emergency Response\n- Wound Care\n\nExperience\n2–4 years\n\nLocation\nMumbai",
+        "industry": "Healthcare",
+        "latency_ms": 3903,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\"about_role\":\"blueprint:about\",\"ai_suggested_skills\":[],\"assumptions_requiring_review\":[\"blueprint:review:1\",\"editorial:employer-review\"],\"headline\":\"Registered Nurse\",\"location\":\"Mumbai\",\"max_experience_years\":4,\"min_experience_years\":2,\"preferred_skills\":[\"blueprint:optional:1\",\"blueprint:optional:2\"],\"qualifications\":[],\"required_skills\":[\"blueprint:core:1\",\"blueprint:core:2\",\"blueprint:core:3\",\"blueprint:core:4\",\"blueprint:core:5\"],\"responsibilities\":[\"blueprint:duty:1\",\"blueprint:duty:2\",\"blueprint:duty:3\",\"blueprint:duty:4\",\"blueprint:duty:5\",\"blueprint:duty:6\"]}",
+        "provider_request_id": "req_87056cbcbd104825804a1eb41bd302d1",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "Registered Nurse",
+          "location": "Mumbai",
+          "min_experience_years": 2,
+          "max_experience_years": 4
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "Registered Nurse",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "5193aca5eb57925ec9f7446c79d1caaf09566dfe3039f89d01980a184b427ba0",
+          "headline": {
+            "id": "fact:title",
+            "value": "Registered Nurse",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Support patient assessment, nursing care and clear clinical handovers within the agreed clinical scope.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Assess assigned patients and record observations so changes in care needs are visible.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Carry out agreed nursing care activities within the role's clinical scope and patient care plan.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Support prescribed medication administration using verified clinical procedures and accurate records.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Maintain clear clinical documentation and communicate relevant changes to the care team.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Apply infection prevention practices when preparing equipment and supporting patient care.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Prepare structured patient handovers and explain care information respectfully to patients and carers.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Clinical Documentation",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:e6b8de7a-db93-4896-9c29-863eb2a36a51@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "Infection Prevention",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:99ab5d86-7d59-42c2-a72d-13d9c080738b@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Medication Administration",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9902bd43-f03f-4c34-8154-a656205a9aad@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "Patient Assessment",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:e329e413-834c-4f8a-b5fb-f5c8b39d95f2@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "Patient Handover",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:af00a5df-d363-4e25-95a1-8f4cd03fab07@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "Emergency Response",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:9c40f745-4f54-4fbe-bc60-4e3d40499c8c@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "Wound Care",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c130a925-c3ee-4a36-83fd-da8bbbfe50cb@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Mumbai",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 2,
+            "maximum": 4,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm nursing registration, clinical scope and jurisdiction with the hiring team; no specific licence is asserted.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:f2f5fb97-7863-488d-927e-346e46efeee1@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Clinical Documentation",
+          "Infection Prevention",
+          "Medication Administration",
+          "Patient Assessment",
+          "Patient Handover"
+        ],
+        "usage": {
+          "input_tokens": 2744,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2741,
+          "output_tokens": 284,
+          "total_tokens": 3028
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    },
+    {
+      "case_id": "jd-03",
+      "role": "Relationship Manager",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "81a0b25e-ab37-45a7-96d9-5c036f0ea42c",
+          "name": "Relationship Manager",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "47d6fe78-599b-4131-9974-c4a0a4fdb896",
+          "name": "Client Relationship Management",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "912c4efe-28e3-45f2-8487-a6a819df9c6f",
+          "name": "Sales and Service",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "24ad3748-ca70-42a7-be51-07288ce91b5b",
+          "name": "Banking and Financial Services",
+          "entity_type": "industry"
+        },
+        "about_role": "Develop client relationships, understand service needs and coordinate timely follow-up with relevant teams.",
+        "core_responsibilities": [
+          "Build and maintain client relationships through clear communication and planned follow-up.",
+          "Understand client needs and document relevant information before discussing suitable service options.",
+          "Coordinate responses to client queries with service and operational colleagues.",
+          "Maintain accurate relationship records and track agreed client actions to completion.",
+          "Review account activity to identify service gaps and prepare practical account plans.",
+          "Prepare relationship updates and communicate client feedback to the appropriate teams."
+        ],
+        "core_skills": [
+          {
+            "id": "34ff139e-8b98-4ff2-91e6-181e44507a09",
+            "name": "Account Planning",
+            "entity_type": "competency"
+          },
+          {
+            "id": "df33cbe6-8ac1-46eb-ac82-6300f45fb617",
+            "name": "Client Communication",
+            "entity_type": "competency"
+          },
+          {
+            "id": "4c680b42-3059-4936-941f-f2d984ea0a42",
+            "name": "Needs Assessment",
+            "entity_type": "competency"
+          },
+          {
+            "id": "1cfcb999-a906-44a6-9db4-ae3a5bd034e1",
+            "name": "Record Keeping",
+            "entity_type": "competency"
+          },
+          {
+            "id": "07da9aab-4271-47bd-ac41-04382e12197e",
+            "name": "Relationship Management",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "b4f52a76-9623-4b49-bcda-8f7b6c4e5911",
+            "name": "CRM Systems",
+            "entity_type": "competency"
+          },
+          {
+            "id": "171af4b9-5a08-4f25-ae66-f7ae29da72ae",
+            "name": "Negotiation",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": [
+          {
+            "id": "b4f52a76-9623-4b49-bcda-8f7b6c4e5911",
+            "name": "CRM Systems",
+            "entity_type": "competency"
+          }
+        ],
+        "common_competencies": [
+          {
+            "id": "360ff3c0-339d-4fb0-8a06-4127fb16c422",
+            "name": "Service Coordination",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm the industry and service scope; no financial product, sales quota or regulatory credential is assumed."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Account Planning",
+        "Client Communication",
+        "Needs Assessment",
+        "Record Keeping",
+        "Relationship Management"
+      ],
+      "optional_skills": [
+        "CRM Systems",
+        "Negotiation"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "Relationship Manager\n\nAbout the Role\nDevelop client relationships, understand service needs and coordinate timely follow-up with relevant teams.\n\nKey Responsibilities — role recommendations for review\n- Build and maintain client relationships through clear communication and planned follow-up.\n- Understand client needs and document relevant information before discussing suitable service options.\n- Coordinate responses to client queries with service and operational colleagues.\n- Maintain accurate relationship records and track agreed client actions to completion.\n- Review account activity to identify service gaps and prepare practical account plans.\n- Prepare relationship updates and communicate client feedback to the appropriate teams.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Account Planning\n- Client Communication\n- Needs Assessment\n- Record Keeping\n- Relationship Management\n\nPreferred Skills — optional recommendations for review\n- CRM Systems\n- Negotiation\n\nExperience\n3–6 years\n\nLocation\nPune",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm the industry and service scope; no financial product, sales quota or regulatory credential is assumed.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "Client needs, relationship records, query follow-up, account planning and feedback are relevant to a relationship role. No financial product, quota or regulatory credential is fabricated.",
+        "normal_recruiter_review": "Specify actual industry/services, client segment and employer outcomes after normal recruiter review.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 0,
+        "professional_quality": 1,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.3333333333333335,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 0.9999999999999996,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "Relationship Manager",
+          "location": "Pune",
+          "min_experience_years": 3,
+          "max_experience_years": 6
+        },
+        "case_id": "jd-03",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.0003505,
+          "output_usd": 0.000207,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.0005578
+        },
+        "domain_valid": true,
+        "generated_description": "Relationship Manager\n\nAbout the Role\nDevelop client relationships, understand service needs and coordinate timely follow-up with relevant teams.\n\nKey Responsibilities — role recommendations for review\n- Build and maintain client relationships through clear communication and planned follow-up.\n- Understand client needs and document relevant information before discussing suitable service options.\n- Coordinate responses to client queries with service and operational colleagues.\n- Maintain accurate relationship records and track agreed client actions to completion.\n- Review account activity to identify service gaps and prepare practical account plans.\n- Prepare relationship updates and communicate client feedback to the appropriate teams.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Account Planning\n- Client Communication\n- Needs Assessment\n- Record Keeping\n- Relationship Management\n\nPreferred Skills — optional recommendations for review\n- CRM Systems\n- Negotiation\n\nExperience\n3–6 years\n\nLocation\nPune",
+        "industry": "BFSI",
+        "latency_ms": 4764,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\n  \"about_role\": \"blueprint:about\",\n  \"ai_suggested_skills\": [],\n  \"assumptions_requiring_review\": [\n    \"blueprint:review:1\",\n    \"editorial:employer-review\"\n  ],\n  \"headline\": \"Relationship Manager\",\n  \"location\": \"Pune\",\n  \"max_experience_years\": 6,\n  \"min_experience_years\": 3,\n  \"preferred_skills\": [\n    \"blueprint:optional:1\",\n    \"blueprint:optional:2\"\n  ],\n  \"qualifications\": [],\n  \"required_skills\": [\n    \"blueprint:core:1\",\n    \"blueprint:core:2\",\n    \"blueprint:core:3\",\n    \"blueprint:core:4\",\n    \"blueprint:core:5\"\n  ],\n  \"responsibilities\": [\n    \"blueprint:duty:1\",\n    \"blueprint:duty:2\",\n    \"blueprint:duty:3\",\n    \"blueprint:duty:4\",\n    \"blueprint:duty:5\",\n    \"blueprint:duty:6\"\n  ]\n}",
+        "provider_request_id": "req_b6fb804e859c444fa2ab8b178ea3439c",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "Relationship Manager",
+          "location": "Pune",
+          "min_experience_years": 3,
+          "max_experience_years": 6
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "Relationship Manager",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "0b413130e08319f1835bd0faee7c7e31610fd83789d40978d22e7b4a1ddf69a4",
+          "headline": {
+            "id": "fact:title",
+            "value": "Relationship Manager",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Develop client relationships, understand service needs and coordinate timely follow-up with relevant teams.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Build and maintain client relationships through clear communication and planned follow-up.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Understand client needs and document relevant information before discussing suitable service options.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Coordinate responses to client queries with service and operational colleagues.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Maintain accurate relationship records and track agreed client actions to completion.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Review account activity to identify service gaps and prepare practical account plans.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Prepare relationship updates and communicate client feedback to the appropriate teams.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Account Planning",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:34ff139e-8b98-4ff2-91e6-181e44507a09@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "Client Communication",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:df33cbe6-8ac1-46eb-ac82-6300f45fb617@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Needs Assessment",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:4c680b42-3059-4936-941f-f2d984ea0a42@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "Record Keeping",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:1cfcb999-a906-44a6-9db4-ae3a5bd034e1@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "Relationship Management",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:07da9aab-4271-47bd-ac41-04382e12197e@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "CRM Systems",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:b4f52a76-9623-4b49-bcda-8f7b6c4e5911@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "Negotiation",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:171af4b9-5a08-4f25-ae66-f7ae29da72ae@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Pune",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 3,
+            "maximum": 6,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm the industry and service scope; no financial product, sales quota or regulatory credential is assumed.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81a0b25e-ab37-45a7-96d9-5c036f0ea42c@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Account Planning",
+          "Client Communication",
+          "Needs Assessment",
+          "Record Keeping",
+          "Relationship Management"
+        ],
+        "usage": {
+          "input_tokens": 2807,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2804,
+          "output_tokens": 414,
+          "total_tokens": 3221
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    },
+    {
+      "case_id": "jd-04",
+      "role": "CNC Machine Operator",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "50e8a991-d114-43f0-b780-b46043a7a206",
+          "name": "CNC Machine Operator",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "ba347a88-3be5-48a7-b105-eaeaff38b476",
+          "name": "Manufacturing Operations",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "a088cc25-83f6-4d05-8afd-8ab971119b04",
+          "name": "Production",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "8490567e-34ec-430a-bb72-7375cbf6efd0",
+          "name": "Manufacturing",
+          "entity_type": "industry"
+        },
+        "about_role": "Prepare and operate CNC equipment, interpret production drawings and check finished work against specifications.",
+        "core_responsibilities": [
+          "Read production drawings and identify dimensions, tolerances and machining instructions.",
+          "Prepare machine setups, tooling and workholding arrangements for the assigned production work.",
+          "Operate CNC equipment and monitor the machining process for changes or visible defects.",
+          "Measure finished components and record inspection results against the supplied specifications.",
+          "Report machine faults and coordinate corrective action before affected work continues.",
+          "Maintain orderly work areas and record production progress, tool changes and handover information."
+        ],
+        "core_skills": [
+          {
+            "id": "08eec58e-0e71-44e9-9617-bf1e59c94a48",
+            "name": "Blueprint Interpretation",
+            "entity_type": "competency"
+          },
+          {
+            "id": "2c4e762a-4c23-487f-a3c8-6fbf396878cc",
+            "name": "CNC Operation",
+            "entity_type": "competency"
+          },
+          {
+            "id": "6b09327d-6f8f-4bc8-b759-45262debddd6",
+            "name": "Dimensional Measurement",
+            "entity_type": "competency"
+          },
+          {
+            "id": "ae3f11d3-d77f-4960-897e-ec290d1fad1c",
+            "name": "Machine Setup",
+            "entity_type": "competency"
+          },
+          {
+            "id": "54cb6bf2-3b53-4e17-8bf3-183562a27948",
+            "name": "Quality Inspection",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "c1fb4f29-e9f2-43fd-964c-14520f77bab0",
+            "name": "CNC Programming Fundamentals",
+            "entity_type": "competency"
+          },
+          {
+            "id": "81c7b49b-40e1-4b5a-896d-f1c677918c64",
+            "name": "Tool Maintenance",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": [
+          {
+            "id": "437494a8-34eb-42a4-9a02-c3b5a314d822",
+            "name": "Precision Measuring Tools",
+            "entity_type": "competency"
+          }
+        ],
+        "common_competencies": [
+          {
+            "id": "e64014f6-508c-490e-bd47-95621e3fa11c",
+            "name": "Production Record Keeping",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm machine type and control system; no brand, shift pattern or certification is assumed."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Blueprint Interpretation",
+        "CNC Operation",
+        "Dimensional Measurement",
+        "Machine Setup",
+        "Quality Inspection"
+      ],
+      "optional_skills": [
+        "CNC Programming Fundamentals",
+        "Tool Maintenance"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "CNC Machine Operator\n\nAbout the Role\nPrepare and operate CNC equipment, interpret production drawings and check finished work against specifications.\n\nKey Responsibilities — role recommendations for review\n- Read production drawings and identify dimensions, tolerances and machining instructions.\n- Prepare machine setups, tooling and workholding arrangements for the assigned production work.\n- Operate CNC equipment and monitor the machining process for changes or visible defects.\n- Measure finished components and record inspection results against the supplied specifications.\n- Report machine faults and coordinate corrective action before affected work continues.\n- Maintain orderly work areas and record production progress, tool changes and handover information.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Blueprint Interpretation\n- CNC Operation\n- Dimensional Measurement\n- Machine Setup\n- Quality Inspection\n\nPreferred Skills — optional recommendations for review\n- CNC Programming Fundamentals\n- Tool Maintenance\n\nExperience\n2–5 years\n\nLocation\nChennai",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm machine type and control system; no brand, shift pattern or certification is assumed.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "Drawings/tolerances, setup/tooling, CNC monitoring, dimensional inspection, fault reporting and handover are concrete manufacturing duties. No brand, shift or exact certification is assumed.",
+        "normal_recruiter_review": "Confirm actual machines, control systems, materials and work scope with the hiring team.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 0,
+        "professional_quality": 1,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.3333333333333335,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 0.9999999999999996,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "CNC Machine Operator",
+          "location": "Chennai",
+          "min_experience_years": 2,
+          "max_experience_years": 5
+        },
+        "case_id": "jd-04",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.000348,
+          "output_usd": 0.000147,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.0004953
+        },
+        "domain_valid": true,
+        "generated_description": "CNC Machine Operator\n\nAbout the Role\nPrepare and operate CNC equipment, interpret production drawings and check finished work against specifications.\n\nKey Responsibilities — role recommendations for review\n- Read production drawings and identify dimensions, tolerances and machining instructions.\n- Prepare machine setups, tooling and workholding arrangements for the assigned production work.\n- Operate CNC equipment and monitor the machining process for changes or visible defects.\n- Measure finished components and record inspection results against the supplied specifications.\n- Report machine faults and coordinate corrective action before affected work continues.\n- Maintain orderly work areas and record production progress, tool changes and handover information.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Blueprint Interpretation\n- CNC Operation\n- Dimensional Measurement\n- Machine Setup\n- Quality Inspection\n\nPreferred Skills — optional recommendations for review\n- CNC Programming Fundamentals\n- Tool Maintenance\n\nExperience\n2–5 years\n\nLocation\nChennai",
+        "industry": "Manufacturing",
+        "latency_ms": 4977,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\"about_role\":\"blueprint:about\",\"ai_suggested_skills\":[],\"assumptions_requiring_review\":[\"blueprint:review:1\",\"editorial:employer-review\"],\"headline\":\"CNC Machine Operator\",\"location\":\"Chennai\",\"max_experience_years\":5,\"min_experience_years\":2,\"preferred_skills\":[\"blueprint:optional:1\",\"blueprint:optional:2\"],\"qualifications\":[],\"required_skills\":[\"blueprint:core:1\",\"blueprint:core:2\",\"blueprint:core:3\",\"blueprint:core:4\",\"blueprint:core:5\"],\"responsibilities\":[\"blueprint:duty:1\",\"blueprint:duty:2\",\"blueprint:duty:3\",\"blueprint:duty:4\",\"blueprint:duty:5\",\"blueprint:duty:6\"]}",
+        "provider_request_id": "req_e44c9aa79ad74ef990f1a12c554c6d9d",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "CNC Machine Operator",
+          "location": "Chennai",
+          "min_experience_years": 2,
+          "max_experience_years": 5
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "CNC Machine Operator",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "2cf4e8b08d02600c51329a8b5fc804aeab392dad1810bec98da2ea5ef9858f20",
+          "headline": {
+            "id": "fact:title",
+            "value": "CNC Machine Operator",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Prepare and operate CNC equipment, interpret production drawings and check finished work against specifications.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Read production drawings and identify dimensions, tolerances and machining instructions.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Prepare machine setups, tooling and workholding arrangements for the assigned production work.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Operate CNC equipment and monitor the machining process for changes or visible defects.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Measure finished components and record inspection results against the supplied specifications.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Report machine faults and coordinate corrective action before affected work continues.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Maintain orderly work areas and record production progress, tool changes and handover information.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Blueprint Interpretation",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:08eec58e-0e71-44e9-9617-bf1e59c94a48@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "CNC Operation",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:2c4e762a-4c23-487f-a3c8-6fbf396878cc@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Dimensional Measurement",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:6b09327d-6f8f-4bc8-b759-45262debddd6@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "Machine Setup",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:ae3f11d3-d77f-4960-897e-ec290d1fad1c@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "Quality Inspection",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:54cb6bf2-3b53-4e17-8bf3-183562a27948@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "CNC Programming Fundamentals",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c1fb4f29-e9f2-43fd-964c-14520f77bab0@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "Tool Maintenance",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:81c7b49b-40e1-4b5a-896d-f1c677918c64@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Chennai",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 2,
+            "maximum": 5,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm machine type and control system; no brand, shift pattern or certification is assumed.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50e8a991-d114-43f0-b780-b46043a7a206@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Blueprint Interpretation",
+          "CNC Operation",
+          "Dimensional Measurement",
+          "Machine Setup",
+          "Quality Inspection"
+        ],
+        "usage": {
+          "input_tokens": 2787,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2784,
+          "output_tokens": 294,
+          "total_tokens": 3081
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    },
+    {
+      "case_id": "jd-05",
+      "role": "Warehouse Supervisor",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "fc48d880-37fa-4f6a-b314-cccc9fbd586a",
+          "name": "Warehouse Supervisor",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "b83d4e5c-e0c5-4503-bdd7-bb95efe84084",
+          "name": "Warehouse Operations",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "d3e6c421-6bac-4a88-9eb3-199dff57ec25",
+          "name": "Supply Chain",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "f0a242fc-a065-4275-83d9-f75a54933d94",
+          "name": "Logistics",
+          "entity_type": "industry"
+        },
+        "about_role": "Coordinate receiving, storage, inventory and dispatch work while supporting accurate warehouse records and team handovers.",
+        "core_responsibilities": [
+          "Coordinate incoming goods checks and record discrepancies for receiving follow-up.",
+          "Organise storage and replenishment work so goods remain identifiable and accessible.",
+          "Plan picking, packing and dispatch priorities with the warehouse team.",
+          "Review stock counts and investigate inventory differences using warehouse records.",
+          "Brief colleagues on assigned warehouse work and monitor progress against agreed priorities.",
+          "Maintain clear handovers and report damaged goods, equipment issues and workflow delays."
+        ],
+        "core_skills": [
+          {
+            "id": "3d1fa8ca-dfc2-4fa8-b8e5-801f4059e399",
+            "name": "Dispatch Coordination",
+            "entity_type": "competency"
+          },
+          {
+            "id": "bbe5d181-8779-48b1-b3e8-6925bd4db4cc",
+            "name": "Inventory Control",
+            "entity_type": "competency"
+          },
+          {
+            "id": "7c087616-2589-44ce-8872-fd3dd25383ce",
+            "name": "Stock Reconciliation",
+            "entity_type": "competency"
+          },
+          {
+            "id": "8d6bf70f-152e-414c-a221-9b00ab4e08be",
+            "name": "Team Coordination",
+            "entity_type": "competency"
+          },
+          {
+            "id": "dcba045d-931c-4871-901e-a0c76484394d",
+            "name": "Warehouse Operations",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "37e5a99f-5cff-490c-a930-76568894e81d",
+            "name": "Material Handling Awareness",
+            "entity_type": "competency"
+          },
+          {
+            "id": "da98ec8a-2a66-4569-8d4b-b1b22fc6b741",
+            "name": "Warehouse Management Systems",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": [
+          {
+            "id": "da98ec8a-2a66-4569-8d4b-b1b22fc6b741",
+            "name": "Warehouse Management Systems",
+            "entity_type": "competency"
+          }
+        ],
+        "common_competencies": [
+          {
+            "id": "bbc303cc-6278-4f61-85d6-f4db1ea9b0cd",
+            "name": "Operational Handover",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm equipment and warehouse scope; no forklift licence, hours or shift schedule is assumed."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Dispatch Coordination",
+        "Inventory Control",
+        "Stock Reconciliation",
+        "Team Coordination",
+        "Warehouse Operations"
+      ],
+      "optional_skills": [
+        "Material Handling Awareness",
+        "Warehouse Management Systems"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "Warehouse Supervisor\n\nAbout the Role\nCoordinate receiving, storage, inventory and dispatch work while supporting accurate warehouse records and team handovers.\n\nKey Responsibilities — role recommendations for review\n- Coordinate incoming goods checks and record discrepancies for receiving follow-up.\n- Organise storage and replenishment work so goods remain identifiable and accessible.\n- Plan picking, packing and dispatch priorities with the warehouse team.\n- Review stock counts and investigate inventory differences using warehouse records.\n- Brief colleagues on assigned warehouse work and monitor progress against agreed priorities.\n- Maintain clear handovers and report damaged goods, equipment issues and workflow delays.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Dispatch Coordination\n- Inventory Control\n- Stock Reconciliation\n- Team Coordination\n- Warehouse Operations\n\nPreferred Skills — optional recommendations for review\n- Material Handling Awareness\n- Warehouse Management Systems\n\nExperience\n4–7 years\n\nLocation\nNavi Mumbai",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm equipment and warehouse scope; no forklift licence, hours or shift schedule is assumed.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "Receiving discrepancies, storage/replenishment, picking/dispatch, inventory reconciliation, priorities and handover form a credible warehouse-supervision draft.",
+        "normal_recruiter_review": "Confirm site scale, equipment and operational expectations. Do not turn optional material-handling awareness into a licence requirement.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 0,
+        "professional_quality": 1,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.3333333333333335,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 0.9999999999999996,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "Warehouse Supervisor",
+          "location": "Navi Mumbai",
+          "min_experience_years": 4,
+          "max_experience_years": 7
+        },
+        "case_id": "jd-05",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.00034675,
+          "output_usd": 0.000153,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.00050005
+        },
+        "domain_valid": true,
+        "generated_description": "Warehouse Supervisor\n\nAbout the Role\nCoordinate receiving, storage, inventory and dispatch work while supporting accurate warehouse records and team handovers.\n\nKey Responsibilities — role recommendations for review\n- Coordinate incoming goods checks and record discrepancies for receiving follow-up.\n- Organise storage and replenishment work so goods remain identifiable and accessible.\n- Plan picking, packing and dispatch priorities with the warehouse team.\n- Review stock counts and investigate inventory differences using warehouse records.\n- Brief colleagues on assigned warehouse work and monitor progress against agreed priorities.\n- Maintain clear handovers and report damaged goods, equipment issues and workflow delays.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Dispatch Coordination\n- Inventory Control\n- Stock Reconciliation\n- Team Coordination\n- Warehouse Operations\n\nPreferred Skills — optional recommendations for review\n- Material Handling Awareness\n- Warehouse Management Systems\n\nExperience\n4–7 years\n\nLocation\nNavi Mumbai",
+        "industry": "Logistics",
+        "latency_ms": 4809,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\"about_role\":\"blueprint:about\",\"ai_suggested_skills\":[],\"assumptions_requiring_review\":[\"blueprint:review:1\",\"editorial:employer-review\"],\"headline\":\"Warehouse Supervisor\",\"location\":\"Navi Mumbai\",\"max_experience_years\":7,\"min_experience_years\":4,\"preferred_skills\":[\"blueprint:optional:1\",\"blueprint:optional:2\"],\"qualifications\":[],\"required_skills\":[\"blueprint:core:1\",\"blueprint:core:2\",\"blueprint:core:3\",\"blueprint:core:4\",\"blueprint:core:5\"],\"responsibilities\":[\"blueprint:duty:1\",\"blueprint:duty:2\",\"blueprint:duty:3\",\"blueprint:duty:4\",\"blueprint:duty:5\",\"blueprint:duty:6\"]}",
+        "provider_request_id": "req_07c3b3311a2340c59a24e5f548637156",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "Warehouse Supervisor",
+          "location": "Navi Mumbai",
+          "min_experience_years": 4,
+          "max_experience_years": 7
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "Warehouse Supervisor",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "cf54fe658bd26b5438e433b78491caee166bc456fb456d777c7ff78db945044b",
+          "headline": {
+            "id": "fact:title",
+            "value": "Warehouse Supervisor",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Coordinate receiving, storage, inventory and dispatch work while supporting accurate warehouse records and team handovers.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Coordinate incoming goods checks and record discrepancies for receiving follow-up.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Organise storage and replenishment work so goods remain identifiable and accessible.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Plan picking, packing and dispatch priorities with the warehouse team.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Review stock counts and investigate inventory differences using warehouse records.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Brief colleagues on assigned warehouse work and monitor progress against agreed priorities.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Maintain clear handovers and report damaged goods, equipment issues and workflow delays.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Dispatch Coordination",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:3d1fa8ca-dfc2-4fa8-b8e5-801f4059e399@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "Inventory Control",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:bbe5d181-8779-48b1-b3e8-6925bd4db4cc@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Stock Reconciliation",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:7c087616-2589-44ce-8872-fd3dd25383ce@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "Team Coordination",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:8d6bf70f-152e-414c-a221-9b00ab4e08be@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "Warehouse Operations",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:dcba045d-931c-4871-901e-a0c76484394d@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "Material Handling Awareness",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:37e5a99f-5cff-490c-a930-76568894e81d@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "Warehouse Management Systems",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:da98ec8a-2a66-4569-8d4b-b1b22fc6b741@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Navi Mumbai",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 4,
+            "maximum": 7,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm equipment and warehouse scope; no forklift licence, hours or shift schedule is assumed.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:fc48d880-37fa-4f6a-b314-cccc9fbd586a@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Dispatch Coordination",
+          "Inventory Control",
+          "Stock Reconciliation",
+          "Team Coordination",
+          "Warehouse Operations"
+        ],
+        "usage": {
+          "input_tokens": 2777,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2774,
+          "output_tokens": 306,
+          "total_tokens": 3083
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    },
+    {
+      "case_id": "jd-06",
+      "role": "Primary School Teacher",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "0eda6293-b509-4c49-9d34-e174a1a128ec",
+          "name": "Primary School Teacher",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "85a39d35-413a-4b7e-ab57-5392af6e6405",
+          "name": "Primary Education",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "92f0e857-f8c4-4a38-acf4-1cb7afe842b4",
+          "name": "Teaching",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "5e99f0f9-8866-4a05-a7fa-470c5a3ce226",
+          "name": "Education",
+          "entity_type": "industry"
+        },
+        "about_role": "Plan age-appropriate lessons, support pupils' learning and use classroom assessment to guide teaching.",
+        "core_responsibilities": [
+          "Plan primary-school lessons around the agreed curriculum and pupils' learning needs.",
+          "Prepare learning activities and resources that make lesson objectives understandable.",
+          "Teach and adapt classroom activities to support pupils with different learning needs.",
+          "Assess pupil work and use observations to plan the next learning steps.",
+          "Maintain a supportive classroom environment and communicate expectations clearly.",
+          "Record pupil progress and share relevant learning updates with colleagues and carers."
+        ],
+        "core_skills": [
+          {
+            "id": "0d10bd69-61b4-4631-a48a-f8d1081df302",
+            "name": "Classroom Management",
+            "entity_type": "competency"
+          },
+          {
+            "id": "50ffe0ff-ba75-43d5-ba64-4f31c8dd228a",
+            "name": "Inclusive Teaching",
+            "entity_type": "competency"
+          },
+          {
+            "id": "b4409343-ab14-4e8a-a2a2-00a261b27180",
+            "name": "Learning Communication",
+            "entity_type": "competency"
+          },
+          {
+            "id": "28fa6501-9583-40c8-9698-68d3f44a3e1a",
+            "name": "Lesson Planning",
+            "entity_type": "competency"
+          },
+          {
+            "id": "1119888b-b715-4201-abbf-8efe951a67c7",
+            "name": "Pupil Assessment",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "75da3f6f-586f-4346-8c49-3776f2deeb3f",
+            "name": "Curriculum Adaptation",
+            "entity_type": "competency"
+          },
+          {
+            "id": "217b20de-42a7-4275-91f1-888485dd4b05",
+            "name": "Digital Learning Tools",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": [
+          {
+            "id": "217b20de-42a7-4275-91f1-888485dd4b05",
+            "name": "Digital Learning Tools",
+            "entity_type": "competency"
+          }
+        ],
+        "common_competencies": [
+          {
+            "id": "99a58c67-2bb4-42e6-a0ea-9071f0cb8d81",
+            "name": "Learning Resource Preparation",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm curriculum, year group and any jurisdiction-specific teaching requirements; no degree or teaching certificate is assumed."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Classroom Management",
+        "Inclusive Teaching",
+        "Learning Communication",
+        "Lesson Planning",
+        "Pupil Assessment"
+      ],
+      "optional_skills": [
+        "Curriculum Adaptation",
+        "Digital Learning Tools"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "Primary School Teacher\n\nAbout the Role\nPlan age-appropriate lessons, support pupils' learning and use classroom assessment to guide teaching.\n\nKey Responsibilities — role recommendations for review\n- Plan primary-school lessons around the agreed curriculum and pupils' learning needs.\n- Prepare learning activities and resources that make lesson objectives understandable.\n- Teach and adapt classroom activities to support pupils with different learning needs.\n- Assess pupil work and use observations to plan the next learning steps.\n- Maintain a supportive classroom environment and communicate expectations clearly.\n- Record pupil progress and share relevant learning updates with colleagues and carers.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Classroom Management\n- Inclusive Teaching\n- Learning Communication\n- Lesson Planning\n- Pupil Assessment\n\nPreferred Skills — optional recommendations for review\n- Curriculum Adaptation\n- Digital Learning Tools\n\nExperience\n2–5 years\n\nLocation\nHyderabad",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm curriculum, year group and any jurisdiction-specific teaching requirements; no degree or teaching certificate is assumed.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "Lesson planning, learning resources, differentiated teaching, assessment, supportive classroom practice and progress communication are specific to primary education.",
+        "normal_recruiter_review": "Confirm curriculum, year group and applicable teaching credentials; none are invented by the draft.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 0,
+        "professional_quality": 1,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.3333333333333335,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 0.9999999999999996,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "Primary School Teacher",
+          "location": "Hyderabad",
+          "min_experience_years": 2,
+          "max_experience_years": 5
+        },
+        "case_id": "jd-06",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.00034725,
+          "output_usd": 0.000159,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.00050655
+        },
+        "domain_valid": true,
+        "generated_description": "Primary School Teacher\n\nAbout the Role\nPlan age-appropriate lessons, support pupils' learning and use classroom assessment to guide teaching.\n\nKey Responsibilities — role recommendations for review\n- Plan primary-school lessons around the agreed curriculum and pupils' learning needs.\n- Prepare learning activities and resources that make lesson objectives understandable.\n- Teach and adapt classroom activities to support pupils with different learning needs.\n- Assess pupil work and use observations to plan the next learning steps.\n- Maintain a supportive classroom environment and communicate expectations clearly.\n- Record pupil progress and share relevant learning updates with colleagues and carers.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Classroom Management\n- Inclusive Teaching\n- Learning Communication\n- Lesson Planning\n- Pupil Assessment\n\nPreferred Skills — optional recommendations for review\n- Curriculum Adaptation\n- Digital Learning Tools\n\nExperience\n2–5 years\n\nLocation\nHyderabad",
+        "industry": "Education",
+        "latency_ms": 5372,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\"about_role\":\"blueprint:about\",\"ai_suggested_skills\":[],\"assumptions_requiring_review\":[\"blueprint:review:1\",\"editorial:employer-review\"],\"headline\":\"Primary School Teacher\",\"location\":\"Hyderabad\",\"max_experience_years\":5,\"min_experience_years\":2,\"preferred_skills\":[\"blueprint:optional:1\",\"blueprint:optional:2\"],\"qualifications\":[],\"required_skills\":[\"blueprint:core:1\",\"blueprint:core:2\",\"blueprint:core:3\",\"blueprint:core:4\",\"blueprint:core:5\"],\"responsibilities\":[\"blueprint:duty:1\",\"blueprint:duty:2\",\"blueprint:duty:3\",\"blueprint:duty:4\",\"blueprint:duty:5\",\"blueprint:duty:6\"]}",
+        "provider_request_id": "req_5ff3148b16c94c73872af5fc6268328d",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "Primary School Teacher",
+          "location": "Hyderabad",
+          "min_experience_years": 2,
+          "max_experience_years": 5
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "Primary School Teacher",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "3023681988ddece1dbd9164db42917cc94635519ba3468ac70bfe55867955f97",
+          "headline": {
+            "id": "fact:title",
+            "value": "Primary School Teacher",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Plan age-appropriate lessons, support pupils' learning and use classroom assessment to guide teaching.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Plan primary-school lessons around the agreed curriculum and pupils' learning needs.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Prepare learning activities and resources that make lesson objectives understandable.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Teach and adapt classroom activities to support pupils with different learning needs.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Assess pupil work and use observations to plan the next learning steps.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Maintain a supportive classroom environment and communicate expectations clearly.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Record pupil progress and share relevant learning updates with colleagues and carers.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Classroom Management",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0d10bd69-61b4-4631-a48a-f8d1081df302@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "Inclusive Teaching",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50ffe0ff-ba75-43d5-ba64-4f31c8dd228a@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Learning Communication",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:b4409343-ab14-4e8a-a2a2-00a261b27180@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "Lesson Planning",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:28fa6501-9583-40c8-9698-68d3f44a3e1a@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "Pupil Assessment",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:1119888b-b715-4201-abbf-8efe951a67c7@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "Curriculum Adaptation",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:75da3f6f-586f-4346-8c49-3776f2deeb3f@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "Digital Learning Tools",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:217b20de-42a7-4275-91f1-888485dd4b05@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Hyderabad",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 2,
+            "maximum": 5,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm curriculum, year group and any jurisdiction-specific teaching requirements; no degree or teaching certificate is assumed.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:0eda6293-b509-4c49-9d34-e174a1a128ec@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Classroom Management",
+          "Inclusive Teaching",
+          "Learning Communication",
+          "Lesson Planning",
+          "Pupil Assessment"
+        ],
+        "usage": {
+          "input_tokens": 2781,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2778,
+          "output_tokens": 318,
+          "total_tokens": 3099
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    },
+    {
+      "case_id": "jd-07",
+      "role": "Hotel Operations Manager",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "cdce6831-ab25-40ef-9d1f-b8b8810c17e5",
+          "name": "Hotel Operations Manager",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "6d8cee26-34cf-4dd0-96e1-6c59eb7b912b",
+          "name": "Hospitality Operations",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "04396d5c-1147-4a62-bcd5-ff6abc2aba61",
+          "name": "Hotel Management",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "c481700b-c003-43fd-b05a-54cb5ee33688",
+          "name": "Hospitality",
+          "entity_type": "industry"
+        },
+        "about_role": "Coordinate hotel operating departments, resolve guest-service issues and support consistent operational handovers.",
+        "core_responsibilities": [
+          "Coordinate daily hotel operating priorities with the relevant department leads.",
+          "Review guest feedback and organise follow-up on service issues and unresolved requests.",
+          "Support coordination between front office, housekeeping and maintenance activities.",
+          "Review operational records to identify service delays and practical improvements.",
+          "Brief department colleagues on agreed actions and track progress through clear handovers.",
+          "Maintain operational reports and communicate resource or maintenance concerns to the appropriate teams."
+        ],
+        "core_skills": [
+          {
+            "id": "8b4e0c83-7ccf-4ed0-b829-47a631ea0bb6",
+            "name": "Department Coordination",
+            "entity_type": "competency"
+          },
+          {
+            "id": "78ab2c9c-4cd2-4102-b2c5-b01cc7cdfcfb",
+            "name": "Guest Services",
+            "entity_type": "competency"
+          },
+          {
+            "id": "2aa91de8-307a-4142-b1d4-99edbe77d79c",
+            "name": "Hotel Operations",
+            "entity_type": "competency"
+          },
+          {
+            "id": "1f1d3ba6-d7d7-4123-aa4a-6e140c9a2d5b",
+            "name": "Operational Reporting",
+            "entity_type": "competency"
+          },
+          {
+            "id": "696938b2-f511-4d1f-a517-173164cd9f0a",
+            "name": "Service Recovery",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "b68f54aa-c760-42d4-9938-a299b628c5e5",
+            "name": "Property Management Systems",
+            "entity_type": "competency"
+          },
+          {
+            "id": "ffefdb1c-3170-4ee2-98d6-3ce9fe6704cb",
+            "name": "Service Quality Review",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": [
+          {
+            "id": "b68f54aa-c760-42d4-9938-a299b628c5e5",
+            "name": "Property Management Systems",
+            "entity_type": "competency"
+          }
+        ],
+        "common_competencies": [
+          {
+            "id": "bbc303cc-6278-4f61-85d6-f4db1ea9b0cd",
+            "name": "Operational Handover",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm the property's operating scope; no hotel brand, star rating, working hours or benefit is assumed."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Department Coordination",
+        "Guest Services",
+        "Hotel Operations",
+        "Operational Reporting",
+        "Service Recovery"
+      ],
+      "optional_skills": [
+        "Property Management Systems",
+        "Service Quality Review"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "Hotel Operations Manager\n\nAbout the Role\nCoordinate hotel operating departments, resolve guest-service issues and support consistent operational handovers.\n\nKey Responsibilities — role recommendations for review\n- Coordinate daily hotel operating priorities with the relevant department leads.\n- Review guest feedback and organise follow-up on service issues and unresolved requests.\n- Support coordination between front office, housekeeping and maintenance activities.\n- Review operational records to identify service delays and practical improvements.\n- Brief department colleagues on agreed actions and track progress through clear handovers.\n- Maintain operational reports and communicate resource or maintenance concerns to the appropriate teams.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Department Coordination\n- Guest Services\n- Hotel Operations\n- Operational Reporting\n- Service Recovery\n\nPreferred Skills — optional recommendations for review\n- Property Management Systems\n- Service Quality Review\n\nExperience\n5–8 years\n\nLocation\nGoa",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm the property's operating scope; no hotel brand, star rating, working hours or benefit is assumed.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "Guest follow-up, departmental priorities, front-office/housekeeping coordination, operational records, handovers and reports are useful hospitality content.",
+        "normal_recruiter_review": "Confirm actual property/department scope and priorities; no star rating, brand, benefits or rota is implied.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 4,
+        "professional_quality": 3,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 0,
+        "professional_quality": 1,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.3333333333333335,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 0.9999999999999996,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "Hotel Operations Manager",
+          "location": "Goa",
+          "min_experience_years": 5,
+          "max_experience_years": 8
+        },
+        "case_id": "jd-07",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.00035075,
+          "output_usd": 0.00015,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.00050105
+        },
+        "domain_valid": true,
+        "generated_description": "Hotel Operations Manager\n\nAbout the Role\nCoordinate hotel operating departments, resolve guest-service issues and support consistent operational handovers.\n\nKey Responsibilities — role recommendations for review\n- Coordinate daily hotel operating priorities with the relevant department leads.\n- Review guest feedback and organise follow-up on service issues and unresolved requests.\n- Support coordination between front office, housekeeping and maintenance activities.\n- Review operational records to identify service delays and practical improvements.\n- Brief department colleagues on agreed actions and track progress through clear handovers.\n- Maintain operational reports and communicate resource or maintenance concerns to the appropriate teams.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Department Coordination\n- Guest Services\n- Hotel Operations\n- Operational Reporting\n- Service Recovery\n\nPreferred Skills — optional recommendations for review\n- Property Management Systems\n- Service Quality Review\n\nExperience\n5–8 years\n\nLocation\nGoa",
+        "industry": "Hospitality",
+        "latency_ms": 4181,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\"about_role\":\"blueprint:about\",\"ai_suggested_skills\":[],\"assumptions_requiring_review\":[\"blueprint:review:1\",\"editorial:employer-review\"],\"headline\":\"Hotel Operations Manager\",\"location\":\"Goa\",\"max_experience_years\":8,\"min_experience_years\":5,\"preferred_skills\":[\"blueprint:optional:1\",\"blueprint:optional:2\"],\"qualifications\":[],\"required_skills\":[\"blueprint:core:1\",\"blueprint:core:2\",\"blueprint:core:3\",\"blueprint:core:4\",\"blueprint:core:5\"],\"responsibilities\":[\"blueprint:duty:1\",\"blueprint:duty:2\",\"blueprint:duty:3\",\"blueprint:duty:4\",\"blueprint:duty:5\",\"blueprint:duty:6\"]}",
+        "provider_request_id": "req_c0a3121cba654deb85590ed70dbc7dd8",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "Hotel Operations Manager",
+          "location": "Goa",
+          "min_experience_years": 5,
+          "max_experience_years": 8
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "Hotel Operations Manager",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "23e45409f12ab285e6319935ad5ebf9734fc1bd63e7bcb021462779a22efac30",
+          "headline": {
+            "id": "fact:title",
+            "value": "Hotel Operations Manager",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Coordinate hotel operating departments, resolve guest-service issues and support consistent operational handovers.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Coordinate daily hotel operating priorities with the relevant department leads.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Review guest feedback and organise follow-up on service issues and unresolved requests.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Support coordination between front office, housekeeping and maintenance activities.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Review operational records to identify service delays and practical improvements.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Brief department colleagues on agreed actions and track progress through clear handovers.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Maintain operational reports and communicate resource or maintenance concerns to the appropriate teams.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Department Coordination",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:8b4e0c83-7ccf-4ed0-b829-47a631ea0bb6@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "Guest Services",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:78ab2c9c-4cd2-4102-b2c5-b01cc7cdfcfb@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Hotel Operations",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:2aa91de8-307a-4142-b1d4-99edbe77d79c@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "Operational Reporting",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:1f1d3ba6-d7d7-4123-aa4a-6e140c9a2d5b@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "Service Recovery",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:696938b2-f511-4d1f-a517-173164cd9f0a@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "Property Management Systems",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:b68f54aa-c760-42d4-9938-a299b628c5e5@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "Service Quality Review",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:ffefdb1c-3170-4ee2-98d6-3ce9fe6704cb@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Goa",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 5,
+            "maximum": 8,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm the property's operating scope; no hotel brand, star rating, working hours or benefit is assumed.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:cdce6831-ab25-40ef-9d1f-b8b8810c17e5@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Department Coordination",
+          "Guest Services",
+          "Hotel Operations",
+          "Operational Reporting",
+          "Service Recovery"
+        ],
+        "usage": {
+          "input_tokens": 2809,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2806,
+          "output_tokens": 300,
+          "total_tokens": 3109
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    },
+    {
+      "case_id": "jd-08",
+      "role": "Industrial Electrician",
+      "blueprint": {
+        "version": "rb-1.1",
+        "source": "product_authorised_occupation_guidance",
+        "approval_status": "approved",
+        "employer_policy": false,
+        "occupation": {
+          "id": "c235abb2-a93b-4ee3-baa7-dfcce60e27da",
+          "name": "Industrial Electrician",
+          "entity_type": "occupation"
+        },
+        "job_family": {
+          "id": "f9ecc95f-b084-4396-b082-1271c09f388b",
+          "name": "Electrical Maintenance",
+          "entity_type": "job_family"
+        },
+        "functional_area": {
+          "id": "7314dc34-49ad-4032-b0cf-b09f177c6d3a",
+          "name": "Technical Operations",
+          "entity_type": "functional_area"
+        },
+        "industry_context": {
+          "id": "ea5e25ca-6fd6-483d-8e5f-152765c4f6f7",
+          "name": "Industrial Services",
+          "entity_type": "industry"
+        },
+        "about_role": "Inspect, install and maintain industrial electrical equipment using systematic fault diagnosis and clear maintenance records.",
+        "core_responsibilities": [
+          "Read electrical drawings to understand equipment connections and the planned work scope.",
+          "Inspect electrical equipment and record visible defects or abnormal operating conditions.",
+          "Coordinate safe isolation with authorised colleagues before inspecting or working on circuits.",
+          "Use suitable electrical test methods to investigate faults and document findings.",
+          "Install or replace assigned electrical components and verify the completed work.",
+          "Maintain service records and communicate unresolved faults and maintenance needs at handover."
+        ],
+        "core_skills": [
+          {
+            "id": "3a068cbc-7326-463d-b221-2537eb14982f",
+            "name": "Electrical Drawings",
+            "entity_type": "competency"
+          },
+          {
+            "id": "b21f0bb8-4ed3-47a9-a994-78420088a50c",
+            "name": "Electrical Maintenance",
+            "entity_type": "competency"
+          },
+          {
+            "id": "a1528441-0f50-4fe8-bd6c-71a794aa928f",
+            "name": "Electrical Testing",
+            "entity_type": "competency"
+          },
+          {
+            "id": "086d9677-72dd-4cab-87fb-7bf612c4525c",
+            "name": "Fault Diagnosis",
+            "entity_type": "competency"
+          },
+          {
+            "id": "50964678-b18c-4965-9243-958b6ea646a6",
+            "name": "Isolation Awareness",
+            "entity_type": "competency"
+          }
+        ],
+        "optional_skills": [
+          {
+            "id": "3ae5d9c8-8262-4058-a3a5-c60178b5507a",
+            "name": "Industrial Automation Awareness",
+            "entity_type": "competency"
+          },
+          {
+            "id": "68952944-8b59-4d52-b2cf-144d509dcf69",
+            "name": "PLC Fundamentals",
+            "entity_type": "competency"
+          }
+        ],
+        "common_tools": [
+          {
+            "id": "cc673074-7415-4fb9-bbf9-30e2461f5833",
+            "name": "Electrical Test Instruments",
+            "entity_type": "competency"
+          }
+        ],
+        "common_competencies": [
+          {
+            "id": "bd1a3116-d605-4f5b-b960-e3e17bceeba4",
+            "name": "Maintenance Documentation",
+            "entity_type": "competency"
+          }
+        ],
+        "typical_qualifications": [],
+        "review_notes": [
+          "Confirm permitted work scope and local authorisation requirements; no specific licence, voltage range or shift pattern is assumed."
+        ]
+      },
+      "checks": {
+        "provider_success": true,
+        "exact_model": true,
+        "schema_and_domain_valid": true,
+        "title": true,
+        "location": true,
+        "experience": true,
+        "authoritative_fields_unchanged": true,
+        "draft_requires_review": true,
+        "sources_present": true,
+        "unconfirmed_items_remain_recommendations": true,
+        "responsibility_count": true,
+        "duties_from_role_blueprint": true,
+        "no_exact_generic_filler": true,
+        "core_and_optional_separate": true,
+        "no_invented_qualification": true,
+        "required_sections": true,
+        "concept_coverage": true,
+        "skill_theme_coverage": true,
+        "golden_forbidden_claims_absent": true
+      },
+      "automated_pass": true,
+      "concept_groups_covered": 4,
+      "forbidden_term_hits": [],
+      "responsibility_count": 6,
+      "core_skills": [
+        "Electrical Drawings",
+        "Electrical Maintenance",
+        "Electrical Testing",
+        "Fault Diagnosis",
+        "Isolation Awareness"
+      ],
+      "optional_skills": [
+        "Industrial Automation Awareness",
+        "PLC Fundamentals"
+      ],
+      "source_counts": {
+        "ai_suggested": 1,
+        "recruiter_supplied": 2,
+        "sapienworx_suggested": 15
+      },
+      "rendered_description": "Industrial Electrician\n\nAbout the Role\nInspect, install and maintain industrial electrical equipment using systematic fault diagnosis and clear maintenance records.\n\nKey Responsibilities — role recommendations for review\n- Read electrical drawings to understand equipment connections and the planned work scope.\n- Inspect electrical equipment and record visible defects or abnormal operating conditions.\n- Coordinate safe isolation with authorised colleagues before inspecting or working on circuits.\n- Use suitable electrical test methods to investigate faults and document findings.\n- Install or replace assigned electrical components and verify the completed work.\n- Maintain service records and communicate unresolved faults and maintenance needs at handover.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Electrical Drawings\n- Electrical Maintenance\n- Electrical Testing\n- Fault Diagnosis\n- Isolation Awareness\n\nPreferred Skills — optional recommendations for review\n- Industrial Automation Awareness\n- PLC Fundamentals\n\nExperience\n3–6 years\n\nLocation\nAhmedabad",
+      "review_notes": [
+        {
+          "id": "blueprint:review:1",
+          "value": "Confirm permitted work scope and local authorisation requirements; no specific licence, voltage range or shift pattern is assumed.",
+          "source": "sapienworx_suggested",
+          "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/review/1",
+          "requires_confirmation": true
+        },
+        {
+          "id": "editorial:employer-review",
+          "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+          "source": "ai_suggested",
+          "source_reference": "editorial_review_boundary:v1.1",
+          "requires_confirmation": true
+        }
+      ],
+      "review": {
+        "reviewer": "Codex qualitative review against frozen 0–5 rubric; not an independent human recruiter panel",
+        "scores": {
+          "groundedness": 5,
+          "role_relevance": 4,
+          "clarity": 4,
+          "professional_quality": 4,
+          "structure": 4,
+          "conciseness": 4,
+          "recruiter_usefulness": 4,
+          "non_discrimination": 5,
+          "editability": 5
+        },
+        "usable": true,
+        "material_failures": [],
+        "unsupported_additions": [],
+        "assessment": "Electrical drawings, inspection, authorised isolation coordination, testing, component work and maintenance records are concrete industrial electrical themes. The V1 article error is absent.",
+        "normal_recruiter_review": "Confirm local authorisation and permitted voltage/work scope; do not infer a specific licence from occupation guidance.",
+        "score_rationale": "Grounding and neutral language are fully traceable. Useful role content merits 4 rather than 5 because employer-specific prioritisation/confirmation and removal of review-only recommendation labels remain normal recruiter work. Structured local editing is verified separately in browser/database gates."
+      },
+      "v1_scores": {
+        "groundedness": 5,
+        "role_relevance": 1,
+        "clarity": 3,
+        "professional_quality": 2,
+        "structure": 2,
+        "conciseness": 4,
+        "recruiter_usefulness": 1,
+        "non_discrimination": 5,
+        "editability": 5
+      },
+      "score_deltas": {
+        "groundedness": 0,
+        "role_relevance": 3,
+        "clarity": 1,
+        "professional_quality": 2,
+        "structure": 2,
+        "conciseness": 0,
+        "recruiter_usefulness": 3,
+        "non_discrimination": 0,
+        "editability": 0
+      },
+      "v1_mean": 3.111111111111111,
+      "v11_mean": 4.333333333333333,
+      "mean_delta": 1.2222222222222219,
+      "captured_result": {
+        "attempts": 1,
+        "authoritative_fields_after": {
+          "title": "Industrial Electrician",
+          "location": "Ahmedabad",
+          "min_experience_years": 3,
+          "max_experience_years": 6
+        },
+        "case_id": "jd-08",
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.00034375,
+          "output_usd": 0.000139,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.00048304999999999995
+        },
+        "domain_valid": true,
+        "generated_description": "Industrial Electrician\n\nAbout the Role\nInspect, install and maintain industrial electrical equipment using systematic fault diagnosis and clear maintenance records.\n\nKey Responsibilities — role recommendations for review\n- Read electrical drawings to understand equipment connections and the planned work scope.\n- Inspect electrical equipment and record visible defects or abnormal operating conditions.\n- Coordinate safe isolation with authorised colleagues before inspecting or working on circuits.\n- Use suitable electrical test methods to investigate faults and document findings.\n- Install or replace assigned electrical components and verify the completed work.\n- Maintain service records and communicate unresolved faults and maintenance needs at handover.\n\nSkills / Competencies — core recommendations, not confirmed requirements\n- Electrical Drawings\n- Electrical Maintenance\n- Electrical Testing\n- Fault Diagnosis\n- Isolation Awareness\n\nPreferred Skills — optional recommendations for review\n- Industrial Automation Awareness\n- PLC Fundamentals\n\nExperience\n3–6 years\n\nLocation\nAhmedabad",
+        "industry": "Blue Collar / Technical",
+        "latency_ms": 3725,
+        "model": "gpt-6-luna",
+        "provider_plan": "{\"about_role\":\"blueprint:about\",\"ai_suggested_skills\":[],\"assumptions_requiring_review\":[\"blueprint:review:1\",\"editorial:employer-review\"],\"headline\":\"Industrial Electrician\",\"location\":\"Ahmedabad\",\"max_experience_years\":6,\"min_experience_years\":3,\"preferred_skills\":[\"blueprint:optional:1\",\"blueprint:optional:2\"],\"qualifications\":[],\"required_skills\":[\"blueprint:core:1\",\"blueprint:core:2\",\"blueprint:core:3\",\"blueprint:core:4\",\"blueprint:core:5\"],\"responsibilities\":[\"blueprint:duty:1\",\"blueprint:duty:2\",\"blueprint:duty:3\",\"blueprint:duty:4\",\"blueprint:duty:5\",\"blueprint:duty:6\"]}",
+        "provider_request_id": "req_f6196201330f4156960a003377f0d293",
+        "provider_status": 0,
+        "provider_success": true,
+        "recruiter_supplied": {
+          "title": "Industrial Electrician",
+          "location": "Ahmedabad",
+          "min_experience_years": 3,
+          "max_experience_years": 6
+        },
+        "requires_recruiter_review": true,
+        "resolved_model": "gpt-6-luna",
+        "role": "Industrial Electrician",
+        "schema_valid": true,
+        "status": "requires_review",
+        "structured_draft": {
+          "version": "v1.1",
+          "blueprint_version": "rb-1.1",
+          "blueprint_hash": "20d459515d069314bc6fceb8d20ea0c6b09676996b092f55e9dd823ee201ae18",
+          "headline": {
+            "id": "fact:title",
+            "value": "Industrial Electrician",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.title",
+            "requires_confirmation": false
+          },
+          "about_role": {
+            "id": "blueprint:about",
+            "value": "Inspect, install and maintain industrial electrical equipment using systematic fault diagnosis and clear maintenance records.",
+            "source": "sapienworx_suggested",
+            "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/about_role",
+            "requires_confirmation": true
+          },
+          "responsibilities": [
+            {
+              "id": "blueprint:duty:1",
+              "value": "Read electrical drawings to understand equipment connections and the planned work scope.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/responsibility/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:2",
+              "value": "Inspect electrical equipment and record visible defects or abnormal operating conditions.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/responsibility/2",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:3",
+              "value": "Coordinate safe isolation with authorised colleagues before inspecting or working on circuits.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/responsibility/3",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:4",
+              "value": "Use suitable electrical test methods to investigate faults and document findings.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/responsibility/4",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:5",
+              "value": "Install or replace assigned electrical components and verify the completed work.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/responsibility/5",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:duty:6",
+              "value": "Maintain service records and communicate unresolved faults and maintenance needs at handover.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/responsibility/6",
+              "requires_confirmation": true
+            }
+          ],
+          "required_skills": [
+            {
+              "id": "blueprint:core:1",
+              "value": "Electrical Drawings",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:3a068cbc-7326-463d-b221-2537eb14982f@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:2",
+              "value": "Electrical Maintenance",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:b21f0bb8-4ed3-47a9-a994-78420088a50c@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:3",
+              "value": "Electrical Testing",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:a1528441-0f50-4fe8-bd6c-71a794aa928f@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:4",
+              "value": "Fault Diagnosis",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:086d9677-72dd-4cab-87fb-7bf612c4525c@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:core:5",
+              "value": "Isolation Awareness",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:50964678-b18c-4965-9243-958b6ea646a6@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "preferred_skills": [
+            {
+              "id": "blueprint:optional:1",
+              "value": "Industrial Automation Awareness",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:3ae5d9c8-8262-4058-a3a5-c60178b5507a@rb-1.1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "blueprint:optional:2",
+              "value": "PLC Fundamentals",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:68952944-8b59-4d52-b2cf-144d509dcf69@rb-1.1",
+              "requires_confirmation": true
+            }
+          ],
+          "qualifications": [],
+          "location": {
+            "id": "fact:location",
+            "value": "Ahmedabad",
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.location",
+            "requires_confirmation": false
+          },
+          "experience": {
+            "minimum": 3,
+            "maximum": 6,
+            "source": "recruiter_supplied",
+            "source_reference": "JobProfile.min_experience_years,max_experience_years"
+          },
+          "assumptions_requiring_review": [
+            {
+              "id": "blueprint:review:1",
+              "value": "Confirm permitted work scope and local authorisation requirements; no specific licence, voltage range or shift pattern is assumed.",
+              "source": "sapienworx_suggested",
+              "source_reference": "workforce:c235abb2-a93b-4ee3-baa7-dfcce60e27da@rb-1.1/review/1",
+              "requires_confirmation": true
+            },
+            {
+              "id": "editorial:employer-review",
+              "value": "Confirm employer-specific requirements before publishing; role recommendations are not confirmed employer policy.",
+              "source": "ai_suggested",
+              "source_reference": "editorial_review_boundary:v1.1",
+              "requires_confirmation": true
+            }
+          ]
+        },
+        "taxonomy_suggested": [
+          "Electrical Drawings",
+          "Electrical Maintenance",
+          "Electrical Testing",
+          "Fault Diagnosis",
+          "Isolation Awareness"
+        ],
+        "usage": {
+          "input_tokens": 2753,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 2750,
+          "output_tokens": 278,
+          "total_tokens": 3031
+        },
+        "warnings": [
+          "Role duties and core/optional skills are recommendations, not confirmed employer requirements. Accept or edit structured requirements explicitly before reviewing and publishing.",
+          "Prose edits do not change matching requirements. Employer-specific conditions remain unspecified unless you supplied them."
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "input_tokens": 22308,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 22284,
+    "output_tokens": 2470,
+    "total_tokens": 24778
+  },
+  "actual_estimated_usd": 0.0040229,
+  "hard_cap_usd": 0.03,
+  "durable_spent_micro_usd": 4028,
+  "durable_reserved_micro_usd": 0,
+  "latency_ms": {
+    "p50": 4786.5,
+    "p95": 5372,
+    "max": 5372
+  },
+  "scoring": "Rubric-based Codex review recorded separately; no additional provider/LLM judge calls; independent recruiter review is not claimed.",
+  "remaining_usd": 0.0259771,
+  "score_averages": {
+    "groundedness": 5.0,
+    "role_relevance": 4.0,
+    "clarity": 4.0,
+    "professional_quality": 4.0,
+    "structure": 4.0,
+    "conciseness": 4.0,
+    "recruiter_usefulness": 4.0,
+    "non_discrimination": 5.0,
+    "editability": 5.0
+  },
+  "usable_cases": 8,
+  "material_failures": 0,
+  "beta_quality_gate_pass": true,
+  "record_type": "passing_real_provider_quality_evaluation",
+  "name": "JD Generation Baseline V1.1",
+  "client_date": "2026-10-20",
+  "timezone": "Asia/Calcutta",
+  "readiness": "BETA JD GENERATOR CANDIDATE",
+  "beta_jd_generator_candidate": true,
+  "task": "job.generate_description",
+  "task_version": "v1.2",
+  "prompt_version": "jd-p2",
+  "schema_version": "jd-generation-v1.1",
+  "blueprint_version": "rb-1.1",
+  "service_tier": "default",
+  "JobProfile_version": null,
+  "JobProfile_contract": "Existing recruiter.DetailedJobInput and restricted GenerationFields request v1.1; no independent JobProfile version tag",
+  "taxonomy": {
+    "explicit_version_tag": null,
+    "blueprint_version": "rb-1.1",
+    "migration_count": 70,
+    "migration_manifest_sha256": "d1fca7a707e51f1456b15ab65dfe3ebcf0b97c20ed7941b693b835fb5112014a",
+    "role_blueprint_migration_sha256": "4d1b5d4f337fdeb238ebbfe481dcb10d3dc9b4c6b6d5d27455702880b905cdad"
+  },
+  "logical_case_ids": [
+    "jd-01",
+    "jd-02",
+    "jd-03",
+    "jd-04",
+    "jd-05",
+    "jd-06",
+    "jd-07",
+    "jd-08"
+  ],
+  "pricing": {
+    "catalog": "openai-standard-2026-10-17.v1",
+    "sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+    "source": "https://developers.openai.com/api/docs/pricing",
+    "reverified_client_date": "2026-10-20",
+    "expected_usd": 0.0034638000000000004,
+    "conservative_usd": 0.020025,
+    "hard_cap_usd": 0.03
+  },
+  "historical_database_skips_review": [
+    {
+      "test": "TestCandidateReferralPrivacyAttributionAndAbuse",
+      "category": "Referrals",
+      "analysis": "Candidate invitation/consent/attribution and abuse checks; seeded jobs are fixtures, not generated JD writes.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    },
+    {
+      "test": "TestDiscoveryExactProfessionalSkillsAndLegacyShapes",
+      "category": "Candidate discovery",
+      "analysis": "Candidate-profile skill search/legacy-shape semantics; no generated requirement acceptance or JD review writes.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    },
+    {
+      "test": "TestGovernedWorkspaceEvidenceIsolatedDatabase",
+      "category": "Job lifecycle + privacy evidence",
+      "analysis": "Contains SetJobStatus activation/undo/CAS safety. The job_status_compare-and-swap,_undo_and_destructive_reasons subtest was therefore run against isolated PostgreSQL and passed; unrelated privacy evidence children were not rerun.",
+      "final_disposition": "Relevant job-lifecycle portion PASS; no remaining JD blocker"
+    },
+    {
+      "test": "TestRecruiterJobWorkspaceScaleIsolatedDatabase",
+      "category": "Job workspace / bulk lifecycle",
+      "analysis": "Contains 10k-job queries and governed bulk pause, so it is lifecycle-relevant. Full isolated test now passes, including performance budgets.",
+      "final_disposition": "Relevant gate PASS"
+    },
+    {
+      "test": "TestOfferGovernanceIsolatedDatabase",
+      "category": "Offers",
+      "analysis": "Offer/template approval/publication and offer quotas, not JD generation or job publication. Shared job rows are direct fixtures.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    },
+    {
+      "test": "TestP26RecruiterProductAreasScaleAndIsolation",
+      "category": "Talent/search/product areas",
+      "analysis": "Discovery/pools/search product isolation; no generation review/acceptance or JD publishing path.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    },
+    {
+      "test": "TestWorkspaceRefinementsIsolationAndReferralConsent",
+      "category": "Talent/referrals",
+      "analysis": "Pools, candidate consent, referral rewards and scoped home counts; no generated JD persistence/review.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    },
+    {
+      "test": "TestAdminSecurityHTTPIsolatedDatabase",
+      "category": "Command Centre security",
+      "analysis": "Admin MFA/session/dashboard access; JD generation uses recruiter scope and its separately passed gateway/HTTP/SQL ownership gates.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    },
+    {
+      "test": "TestCandidateWorkspaceHTTPAuthorizationIsolatedDatabase",
+      "category": "Candidate workspace",
+      "analysis": "Candidate-owned workspace HTTP authorization, not recruiter generation/JobProfile writes.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    },
+    {
+      "test": "TestCompanyHTTPAndInvitationIsolation",
+      "category": "Company administration",
+      "analysis": "Company/invitation membership endpoints, not generation/publication. Existing tenant identity is enforced independently in the passed generation/job-security gates.",
+      "final_disposition": "NON-BLOCKING — still skipped"
+    }
+  ],
+  "post_run_tests": {
+    "groups": [
+      {
+        "group": "gateway",
+        "exit_code": 0,
+        "pass": 56,
+        "fail": 0,
+        "skips": [
+          "TestAIGovernanceIsolatedDatabase"
+        ]
+      },
+      {
+        "group": "generation",
+        "exit_code": 0,
+        "pass": 16,
+        "fail": 0,
+        "skips": [
+          "TestGenerationV1IsolatedDatabase"
+        ]
+      },
+      {
+        "group": "blueprints",
+        "exit_code": 0,
+        "pass": 5,
+        "fail": 0,
+        "skips": []
+      },
+      {
+        "group": "review",
+        "exit_code": 0,
+        "pass": 2,
+        "fail": 0,
+        "skips": []
+      },
+      {
+        "group": "http-generation",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": 0,
+        "skips": []
+      },
+      {
+        "group": "ai-governance-db",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": 0,
+        "skips": []
+      },
+      {
+        "group": "generation-db",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": 0,
+        "skips": []
+      },
+      {
+        "group": "job-security-db",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": 0,
+        "skips": []
+      },
+      {
+        "group": "governed-job-status-db",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": 0,
+        "skips": []
+      },
+      {
+        "group": "job-workspace-scale-db",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": 0,
+        "skips": []
+      }
+    ],
+    "ordinary_go_parents": 80,
+    "isolated_checks": 5,
+    "go_total_parent_invocations": 85,
+    "browser": {
+      "startTime": "2026-10-20T08:42:39.940Z",
+      "duration": 58740.437000000005,
+      "expected": 20,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "captured_result_replay": {
+      "startTime": "2026-10-20T08:43:39.102Z",
+      "duration": 39728.221,
+      "expected": 8,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "remaining_unrelated_db_gates": 8,
+    "no_cv_suite_rerun": true
+  },
+  "database_reconciliation": {
+    "database": "sapienworx_jd_generation_v11_eval",
+    "created_jobs": 0,
+    "operations": [
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      },
+      {
+        "task": "job.generate_description",
+        "task_version": "v1.2",
+        "prompt_version": "jd-p2",
+        "schema_version": "jd-generation-v1.1",
+        "status": "requires_review"
+      }
+    ],
+    "global_budgets": [
+      {
+        "spent_micro_usd": 4028,
+        "reserved_micro_usd": 0
+      },
+      {
+        "spent_micro_usd": 4028,
+        "reserved_micro_usd": 0
+      }
+    ],
+    "engine_switches": {
+      "global_intelligence": false,
+      "ai_gateway": false,
+      "job_intelligence": false
+    }
+  },
+  "controls": {
+    "global_openai_enabled": false,
+    "global_ai_enabled": false,
+    "manual_evaluation_override_only": true,
+    "source_files_unchanged": 1633,
+    "no_prompt_blueprint_schema_or_evaluator_changes_during_run": true,
+    "no_calls_after_eight": true,
+    "created_jobs": 0,
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "deployment": false,
+    "production_data_or_infrastructure_modified": false,
+    "independent_human_recruiter_panel": false,
+    "recruiter_review_still_required": true,
+    "git_head": "b00fab7ee80f7eb4791d64e2e85e95657643129e"
+  },
+  "plan_sha256": "375889eef1f8d9d1dcb4ae1fbd30c8176df862ec57eb47103b807cdad34531f4",
+  "raw_result_sha256": "25a0e403caa6d26ab35e69fcdf9d15526f9ee20ab52eb9c8a0224b34a37e8858",
+  "journal_sha256": "b56dc5fcc7b0aa4e18be927499cc208cba7b8346e4c232abaf39a404ed6a00b5",
+  "frozen_source_manifest_sha256": "f0e1b2026fcacb936f609b77f8f0ee81ca7c4d79e4d41c1ebc324e4415cf67d5",
+  "v1_preserved_sha256": "e8a13737b49a93e28d8bf2cfc061f55800175235ae46774123750d152f2bdf37",
+  "evaluation_program_sha256": "68acfbcc45415bafa8b6787cb70b50dad05cb87e7b670956cce8f9961e9c0386",
+  "baseline_limit": "Eight synthetic exact-match roles, Standard/default gpt-6-luna; model selected curated content. No generalisation or production-readiness claim."
+}

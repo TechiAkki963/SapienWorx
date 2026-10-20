@@ -1,0 +1,5501 @@
+{
+  "kind": "FINAL_SINGLE_CASE_REAL_CANARY_EVIDENCE",
+  "source_fixture": {
+    "id": "cv-18",
+    "task": "cv.parse",
+    "industry": "Blue-collar",
+    "synthetic": true,
+    "tags": [
+      "synthetic",
+      "employment_gap",
+      "conflicting_text"
+    ],
+    "text": "Synthetic Evaluation Candidate 18\nElectrical Maintenance Technician\nCurrent location: Vadodara, India.\nSkills: Electrical maintenance; Troubleshooting; Lockout tagout.\nEmployer: Fictional Prior Employer 18; title: Electrical Maintenance Technician; from 2021-01 to 2023-01; full-time. Duties: Performed the stated professional duties.\nEmployer: Fictional Employer 18; title: Electrical Maintenance Technician (conflicting Manager claim elsewhere); from 2024-01 to present; full-time. Duties: Performed the stated professional duties.\nTotal non-overlapping experience as of 2026-10-01: 57 months.\nEducation: ITI Electrician, Fictional Institute 18; graduation year 2020.\nCertification: Electrical Safety Certificate.\nLanguage: English; can read, write and speak.\nWork preference: onsite.\nConflicting statements: profile headline says Technician; current title also says Manager without corroboration. Notice period is listed once as 15 days and elsewhere as 60 days. Treat current title and notice period as unknown pending human review.",
+    "expected_profile": {
+      "identity": {
+        "display_name": "Synthetic Evaluation Candidate 18"
+      },
+      "professional": {
+        "headline": "Electrical Maintenance Technician",
+        "current_designation": {
+          "name": null
+        },
+        "current_company": {
+          "name": "Fictional Employer 18"
+        },
+        "total_experience_months": 57,
+        "seniority": null,
+        "employment_status": "employed"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "Electrical maintenance"
+          }
+        },
+        {
+          "entity": {
+            "name": "Troubleshooting"
+          }
+        },
+        {
+          "entity": {
+            "name": "Lockout tagout"
+          }
+        }
+      ],
+      "employment": [
+        {
+          "company": {
+            "name": "Fictional Prior Employer 18"
+          },
+          "designation": {
+            "name": "Electrical Maintenance Technician"
+          },
+          "start_date": {
+            "precision": "month",
+            "year": 2021,
+            "month": 1,
+            "day": null,
+            "raw_value": "2021-01"
+          },
+          "end_date": {
+            "precision": "month",
+            "year": 2023,
+            "month": 1,
+            "day": null,
+            "raw_value": "2023-01"
+          },
+          "is_current": false,
+          "employment_type": "full_time",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ]
+        },
+        {
+          "company": {
+            "name": "Fictional Employer 18"
+          },
+          "designation": {
+            "name": null,
+            "raw_value": "Electrical Maintenance Technician / Manager (conflicting source)"
+          },
+          "start_date": {
+            "precision": "month",
+            "year": 2024,
+            "month": 1,
+            "day": null,
+            "raw_value": "2024-01"
+          },
+          "end_date": null,
+          "is_current": true,
+          "employment_type": "full_time",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ]
+        }
+      ],
+      "education": [
+        {
+          "institution": {
+            "name": "Fictional Institute 18"
+          },
+          "qualification": {
+            "name": "ITI Electrician"
+          },
+          "degree": "ITI Electrician",
+          "graduation_year": 2020
+        }
+      ],
+      "certifications": [
+        {
+          "entity": {
+            "name": "Electrical Safety Certificate"
+          }
+        }
+      ],
+      "location": {
+        "current": {
+          "city": "Vadodara",
+          "country_code": "IN"
+        },
+        "preferred": [],
+        "remote_preference": "onsite"
+      },
+      "languages": [
+        {
+          "entity": {
+            "name": "English"
+          },
+          "read": true,
+          "write": true,
+          "speak": true
+        }
+      ],
+      "availability": {
+        "notice_period_days": null,
+        "immediate_joiner": null
+      },
+      "contact": {
+        "primary_email": null,
+        "primary_phone": null
+      }
+    },
+    "expected": {},
+    "unsupported_claim_sentinels": [],
+    "provenance_policy": {
+      "source": "resume",
+      "reference": "cv-18:authored-source",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "expected_field_metadata": {
+      "/identity/display_name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "identity",
+          "reference": "cv-18:authored-source:/identity/display_name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Synthetic Evaluation Candidate 18"
+      },
+      "/professional/headline": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-18:authored-source:/professional/headline",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Maintenance Technician"
+      },
+      "/professional/current_company/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-18:authored-source:/professional/current_company/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 18"
+      },
+      "/professional/total_experience_months": {
+        "provenance": {
+          "source": "resume",
+          "kind": "derived",
+          "section": "professional",
+          "reference": "cv-18:authored-source:/professional/total_experience_months",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 57
+      },
+      "/professional/employment_status": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-18:authored-source:/professional/employment_status",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "employed"
+      },
+      "/skills/0/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "skills",
+          "reference": "cv-18:authored-source:/skills/0/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical maintenance"
+      },
+      "/skills/1/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "skills",
+          "reference": "cv-18:authored-source:/skills/1/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Troubleshooting"
+      },
+      "/skills/2/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "skills",
+          "reference": "cv-18:authored-source:/skills/2/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Lockout tagout"
+      },
+      "/employment/0/company/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/company/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Prior Employer 18"
+      },
+      "/employment/0/designation/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/designation/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Maintenance Technician"
+      },
+      "/employment/0/start_date/precision": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/start_date/precision",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/start_date/year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/start_date/year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2021
+      },
+      "/employment/0/start_date/month": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/start_date/month",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/start_date/raw_value": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/start_date/raw_value",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2021-01"
+      },
+      "/employment/0/end_date/precision": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/end_date/precision",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/end_date/year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/end_date/year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2023
+      },
+      "/employment/0/end_date/month": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/end_date/month",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/end_date/raw_value": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/end_date/raw_value",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2023-01"
+      },
+      "/employment/0/is_current": {
+        "provenance": {
+          "source": "resume",
+          "kind": "derived",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/is_current",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": false
+      },
+      "/employment/0/employment_type": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/employment_type",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/0/responsibilities/0": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/0/responsibilities/0",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/1/company/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/company/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 18"
+      },
+      "/employment/1/designation/raw_value": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/designation/raw_value",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Maintenance Technician / Manager (conflicting source)"
+      },
+      "/employment/1/start_date/precision": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/start_date/precision",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/1/start_date/year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/start_date/year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2024
+      },
+      "/employment/1/start_date/month": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/start_date/month",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/1/start_date/raw_value": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/start_date/raw_value",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2024-01"
+      },
+      "/employment/1/is_current": {
+        "provenance": {
+          "source": "resume",
+          "kind": "derived",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/is_current",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/employment/1/employment_type": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/employment_type",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/1/responsibilities/0": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-18:authored-source:/employment/1/responsibilities/0",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/education/0/institution/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-18:authored-source:/education/0/institution/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Institute 18"
+      },
+      "/education/0/qualification/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-18:authored-source:/education/0/qualification/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "ITI Electrician"
+      },
+      "/education/0/degree": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-18:authored-source:/education/0/degree",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "ITI Electrician"
+      },
+      "/education/0/graduation_year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-18:authored-source:/education/0/graduation_year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2020
+      },
+      "/certifications/0/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "certifications",
+          "reference": "cv-18:authored-source:/certifications/0/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Safety Certificate"
+      },
+      "/location/current/city": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "location",
+          "reference": "cv-18:authored-source:/location/current/city",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Vadodara"
+      },
+      "/location/current/country_code": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "location",
+          "reference": "cv-18:authored-source:/location/current/country_code",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "IN"
+      },
+      "/location/remote_preference": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "location",
+          "reference": "cv-18:authored-source:/location/remote_preference",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "onsite"
+      },
+      "/languages/0/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-18:authored-source:/languages/0/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "English"
+      },
+      "/languages/0/read": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-18:authored-source:/languages/0/read",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/write": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-18:authored-source:/languages/0/write",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/speak": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-18:authored-source:/languages/0/speak",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      }
+    }
+  },
+  "source_sha256": "c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+  "actual_execution_utc": "2026-10-19T15:22:13.4601152Z",
+  "record": {
+    "provider_attempts": [
+      {
+        "logical_case_id": "cv-18",
+        "request_id": "90000000-0000-4000-8000-000000000001",
+        "task": "cv.parse",
+        "attempt_number": 1,
+        "model": "gpt-6-luna",
+        "payload_bytes": 15848,
+        "estimated_input_tokens": 4090,
+        "configured_timeout_ms": 30000,
+        "elapsed_ms": 19838,
+        "provider_request_id": "req_a0c224ae0a59444b9315e9dcef3933bc",
+        "classification": "",
+        "retryable": false,
+        "retry_delay_ms": 0,
+        "status": "completed",
+        "usage": {
+          "input_tokens": 3380,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 3377,
+          "output_tokens": 2195,
+          "total_tokens": 5575
+        },
+        "usage_known": true,
+        "cost": {
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "input_usd": 3.0000000000000004e-07,
+          "cached_input_usd": 0,
+          "cache_write_input_usd": 0.000422125,
+          "output_usd": 0.0010975,
+          "known": true,
+          "currency": "USD",
+          "estimated_usd": 0.0015199249999999999
+        }
+      }
+    ],
+    "task": "cv.parse",
+    "provider_succeeded": true,
+    "resolved_model": "gpt-6-luna",
+    "occurred_at": "2026-10-19T15:22:13.4601152Z",
+    "id": "cv-18",
+    "status": "requires_review",
+    "metrics": {
+      "cv_skills": {
+        "precision": {
+          "status": "measured",
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1
+        },
+        "recall": {
+          "status": "measured",
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1
+        },
+        "f1": {
+          "status": "measured",
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        }
+      },
+      "id": "cv-18",
+      "task": "cv.parse",
+      "industry": "Blue-collar",
+      "exact_field_correctness": {
+        "status": "measured",
+        "numerator": 47,
+        "denominator": 50,
+        "value": 0.94
+      },
+      "normalized_field_correctness": {
+        "status": "measured",
+        "numerator": 47,
+        "denominator": 50,
+        "value": 0.94
+      },
+      "required_skills": {
+        "precision": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "recall": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "f1": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "preferred_skills": {
+        "precision": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "recall": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "f1": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "taxonomy_resolution": {
+        "status": "measured",
+        "numerator": 3,
+        "denominator": 3,
+        "value": 1
+      },
+      "seniority_accuracy": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "experience_accuracy": {
+        "status": "measured",
+        "numerator": 13,
+        "denominator": 13,
+        "value": 1
+      },
+      "work_mode_accuracy": {
+        "status": "measured",
+        "numerator": 0,
+        "denominator": 1,
+        "value": 0
+      },
+      "location_accuracy": {
+        "status": "measured",
+        "numerator": 2,
+        "denominator": 4,
+        "value": 0.5
+      },
+      "unsupported_field_rate": {
+        "status": "measured",
+        "numerator": 2,
+        "denominator": 38,
+        "value": 0.05263157894736842
+      },
+      "schema_compliance": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "validation_pass": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "requires_review": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "contract_coverage": {
+        "status": "measured",
+        "numerator": 50,
+        "denominator": 50,
+        "value": 1
+      },
+      "aggregate_quality": 91.32631578947368,
+      "fields": {
+        "/availability/immediate_joiner": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/availability/notice_period_days": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/certifications/0/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/contact/primary_email": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/contact/primary_phone": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/degree": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/graduation_year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/institution/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/qualification/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/employment_type": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/end_date": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/is_current": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/responsibilities/0": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/employment_type": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/is_current": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/responsibilities/0": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/identity/display_name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/read": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/speak": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/write": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/current/city": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/current/country_code": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/preferred": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/location/remote_preference": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/professional/current_company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/current_designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/employment_status": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/headline": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/professional/seniority": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/total_experience_months": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/0/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/1/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/2/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        }
+      },
+      "contract_gaps": [],
+      "error_paths": [
+        "/location/preferred",
+        "/location/remote_preference",
+        "/professional/headline"
+      ],
+      "injection_violation": false,
+      "manual_text_fields": 0
+    },
+    "model": "gpt-6-luna",
+    "provider_request_id": "req_a0c224ae0a59444b9315e9dcef3933bc",
+    "attempts": 1,
+    "usage": {
+      "input_tokens": 3380,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 3377,
+      "output_tokens": 2195,
+      "total_tokens": 5575
+    },
+    "cost": {
+      "pricing_version": "openai-standard-2026-10-17.v1",
+      "input_usd": 3.0000000000000004e-07,
+      "cached_input_usd": 0,
+      "cache_write_input_usd": 0.000422125,
+      "output_usd": 0.0010975,
+      "known": true,
+      "currency": "USD",
+      "estimated_usd": 0.0015199249999999999
+    },
+    "latency_ms": 19843,
+    "synthetic_output": {
+      "availability": {
+        "available_from": null,
+        "currently_serving_notice": null,
+        "immediate_joiner": null,
+        "notice_period_days": null,
+        "notice_period_raw": null
+      },
+      "awards": null,
+      "certifications": [
+        {
+          "credential_id": null,
+          "credential_url": null,
+          "does_not_expire": null,
+          "entity": {
+            "id": null,
+            "name": "Electrical Safety Certificate",
+            "namespace": null,
+            "raw_value": "Electrical Safety Certificate"
+          },
+          "expiry_date": null,
+          "issue_date": null,
+          "issuing_organization": null
+        }
+      ],
+      "classification": {
+        "domains": null,
+        "functions": null,
+        "industries": null,
+        "roles": null
+      },
+      "compensation": {
+        "current": null,
+        "expected": null
+      },
+      "contact": {
+        "alternate_email": null,
+        "alternate_phone": null,
+        "country_code": null,
+        "primary_email": null,
+        "primary_phone": null
+      },
+      "education": [
+        {
+          "degree": "ITI Electrician",
+          "education_id": null,
+          "end_date": null,
+          "field_of_study": null,
+          "grade": null,
+          "grade_type": null,
+          "graduation_year": 2020,
+          "institution": {
+            "id": null,
+            "name": "Fictional Institute 18",
+            "namespace": null,
+            "raw_value": "Fictional Institute 18"
+          },
+          "location": null,
+          "qualification": {
+            "id": null,
+            "name": "ITI Electrician",
+            "namespace": null,
+            "raw_value": "ITI Electrician"
+          },
+          "specialization": null,
+          "start_date": null
+        }
+      ],
+      "employment": [
+        {
+          "achievements": null,
+          "company": {
+            "id": null,
+            "name": "Fictional Prior Employer 18",
+            "namespace": null,
+            "raw_value": "Fictional Prior Employer 18"
+          },
+          "description": null,
+          "designation": {
+            "id": null,
+            "name": "Electrical Maintenance Technician",
+            "namespace": null,
+            "raw_value": "Electrical Maintenance Technician"
+          },
+          "employment_type": "full_time",
+          "end_date": {
+            "day": null,
+            "month": 1,
+            "precision": "month",
+            "raw_value": "2023-01",
+            "year": 2023
+          },
+          "engagement": null,
+          "experience_id": null,
+          "is_current": false,
+          "location": null,
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "skills": null,
+          "start_date": {
+            "day": null,
+            "month": 1,
+            "precision": "month",
+            "raw_value": "2021-01",
+            "year": 2021
+          }
+        },
+        {
+          "achievements": null,
+          "company": {
+            "id": null,
+            "name": "Fictional Employer 18",
+            "namespace": null,
+            "raw_value": "Fictional Employer 18"
+          },
+          "description": null,
+          "designation": {
+            "id": null,
+            "name": null,
+            "namespace": null,
+            "raw_value": null
+          },
+          "employment_type": "full_time",
+          "end_date": null,
+          "engagement": null,
+          "experience_id": null,
+          "is_current": true,
+          "location": null,
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "skills": null,
+          "start_date": {
+            "day": null,
+            "month": 1,
+            "precision": "month",
+            "raw_value": "2024-01",
+            "year": 2024
+          }
+        }
+      ],
+      "honors": null,
+      "identity": {
+        "display_name": "Synthetic Evaluation Candidate 18",
+        "first_name": null,
+        "last_name": null,
+        "middle_name": null,
+        "preferred_name": null
+      },
+      "languages": [
+        {
+          "entity": {
+            "id": null,
+            "name": "English",
+            "namespace": null,
+            "raw_value": "English"
+          },
+          "proficiency": null,
+          "read": true,
+          "speak": true,
+          "write": true
+        }
+      ],
+      "links": null,
+      "location": {
+        "current": {
+          "city": "Vadodara",
+          "country_code": "IN",
+          "id": null,
+          "postal_code": null,
+          "raw_value": "Vadodara, India",
+          "state": null
+        },
+        "preferred": null,
+        "remote_preference": null,
+        "willing_to_relocate": null
+      },
+      "patents": null,
+      "preferences": {
+        "employment_types": null,
+        "functions": null,
+        "industries": null,
+        "willing_to_travel": null,
+        "work_modes": [
+          "onsite"
+        ]
+      },
+      "professional": {
+        "current_company": {
+          "id": null,
+          "name": "Fictional Employer 18",
+          "namespace": null,
+          "raw_value": "Fictional Employer 18"
+        },
+        "current_designation": {
+          "id": null,
+          "name": null,
+          "namespace": null,
+          "raw_value": null
+        },
+        "employment_status": "employed",
+        "headline": "Technician",
+        "relevant_experience_months": null,
+        "seniority": null,
+        "summary": null,
+        "total_experience_months": 57
+      },
+      "projects": null,
+      "publications": null,
+      "skills": [
+        {
+          "category": null,
+          "entity": {
+            "id": null,
+            "name": "Electrical maintenance",
+            "namespace": null,
+            "raw_value": "Electrical maintenance"
+          },
+          "experience_months": null,
+          "last_used": null,
+          "proficiency": null
+        },
+        {
+          "category": null,
+          "entity": {
+            "id": null,
+            "name": "Troubleshooting",
+            "namespace": null,
+            "raw_value": "Troubleshooting"
+          },
+          "experience_months": null,
+          "last_used": null,
+          "proficiency": null
+        },
+        {
+          "category": null,
+          "entity": {
+            "id": null,
+            "name": "Lockout tagout",
+            "namespace": null,
+            "raw_value": "Lockout tagout"
+          },
+          "experience_months": null,
+          "last_used": null,
+          "proficiency": null
+        }
+      ],
+      "work_authorization": null
+    },
+    "stages": {
+      "schema_valid": true,
+      "raw_domain_valid": true,
+      "normalized_value": {
+        "identity": {
+          "display_name": "Synthetic Evaluation Candidate 18",
+          "first_name": null,
+          "middle_name": null,
+          "last_name": null,
+          "preferred_name": null
+        },
+        "contact": {
+          "primary_email": null,
+          "alternate_email": null,
+          "primary_phone": null,
+          "alternate_phone": null,
+          "country_code": null
+        },
+        "professional": {
+          "headline": "Technician",
+          "summary": null,
+          "current_designation": {
+            "id": null,
+            "namespace": null,
+            "name": null,
+            "raw_value": null
+          },
+          "current_company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Employer 18",
+            "raw_value": "Fictional Employer 18"
+          },
+          "employment_status": "employed",
+          "total_experience_months": 57,
+          "relevant_experience_months": null,
+          "seniority": null
+        },
+        "location": {
+          "current": {
+            "id": null,
+            "city": "Vadodara",
+            "state": null,
+            "country_code": "IN",
+            "postal_code": null,
+            "raw_value": "Vadodara, India"
+          },
+          "preferred": null,
+          "willing_to_relocate": null,
+          "remote_preference": null
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000024",
+              "namespace": "intelligence",
+              "name": "Electrical maintenance",
+              "raw_value": "Electrical maintenance"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          },
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000074",
+              "namespace": "intelligence",
+              "name": "Troubleshooting",
+              "raw_value": "Troubleshooting"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          },
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000043",
+              "namespace": "intelligence",
+              "name": "Lockout tagout",
+              "raw_value": "Lockout tagout"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          }
+        ],
+        "employment": [
+          {
+            "experience_id": null,
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Prior Employer 18",
+              "raw_value": "Fictional Prior Employer 18"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Electrical Maintenance Technician",
+              "raw_value": "Electrical Maintenance Technician"
+            },
+            "employment_type": "full_time",
+            "engagement": null,
+            "location": null,
+            "start_date": {
+              "precision": "month",
+              "year": 2021,
+              "month": 1,
+              "day": null,
+              "raw_value": "2021-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "is_current": false,
+            "description": null,
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "achievements": null,
+            "skills": null
+          },
+          {
+            "experience_id": null,
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Employer 18",
+              "raw_value": "Fictional Employer 18"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": null,
+              "raw_value": null
+            },
+            "employment_type": "full_time",
+            "engagement": null,
+            "location": null,
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "end_date": null,
+            "is_current": true,
+            "description": null,
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "achievements": null,
+            "skills": null
+          }
+        ],
+        "education": [
+          {
+            "education_id": null,
+            "institution": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Institute 18",
+              "raw_value": "Fictional Institute 18"
+            },
+            "qualification": {
+              "id": null,
+              "namespace": null,
+              "name": "ITI Electrician",
+              "raw_value": "ITI Electrician"
+            },
+            "degree": "ITI Electrician",
+            "specialization": null,
+            "field_of_study": null,
+            "start_date": null,
+            "end_date": null,
+            "graduation_year": 2020,
+            "grade": null,
+            "grade_type": null,
+            "location": null
+          }
+        ],
+        "certifications": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Electrical Safety Certificate",
+              "raw_value": "Electrical Safety Certificate"
+            },
+            "issuing_organization": null,
+            "credential_id": null,
+            "credential_url": null,
+            "issue_date": null,
+            "expiry_date": null,
+            "does_not_expire": null
+          }
+        ],
+        "projects": null,
+        "languages": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "English",
+              "raw_value": "English"
+            },
+            "proficiency": null,
+            "read": true,
+            "write": true,
+            "speak": true
+          }
+        ],
+        "links": null,
+        "availability": {
+          "notice_period_days": null,
+          "notice_period_raw": null,
+          "available_from": null,
+          "immediate_joiner": null,
+          "currently_serving_notice": null
+        },
+        "compensation": {
+          "current": null,
+          "expected": null
+        },
+        "preferences": {
+          "employment_types": null,
+          "work_modes": [
+            "onsite"
+          ],
+          "willing_to_travel": null,
+          "industries": null,
+          "functions": null
+        },
+        "classification": {
+          "industries": null,
+          "functions": null,
+          "roles": null,
+          "domains": null
+        },
+        "work_authorization": null,
+        "publications": null,
+        "patents": null,
+        "awards": null,
+        "honors": null
+      },
+      "postprocessed_value": {
+        "identity": {
+          "display_name": "Synthetic Evaluation Candidate 18",
+          "first_name": null,
+          "middle_name": null,
+          "last_name": null,
+          "preferred_name": null
+        },
+        "contact": {
+          "primary_email": null,
+          "alternate_email": null,
+          "primary_phone": null,
+          "alternate_phone": null,
+          "country_code": null
+        },
+        "professional": {
+          "headline": "Technician",
+          "summary": null,
+          "current_designation": {
+            "id": null,
+            "namespace": null,
+            "name": null,
+            "raw_value": null
+          },
+          "current_company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Employer 18",
+            "raw_value": "Fictional Employer 18"
+          },
+          "employment_status": "employed",
+          "total_experience_months": 57,
+          "relevant_experience_months": null,
+          "seniority": null
+        },
+        "location": {
+          "current": {
+            "id": null,
+            "city": "Vadodara",
+            "state": null,
+            "country_code": "IN",
+            "postal_code": null,
+            "raw_value": "Vadodara, India"
+          },
+          "preferred": null,
+          "willing_to_relocate": null,
+          "remote_preference": "onsite"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000024",
+              "namespace": "intelligence",
+              "name": "Electrical maintenance",
+              "raw_value": "Electrical maintenance"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          },
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000074",
+              "namespace": "intelligence",
+              "name": "Troubleshooting",
+              "raw_value": "Troubleshooting"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          },
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000043",
+              "namespace": "intelligence",
+              "name": "Lockout tagout",
+              "raw_value": "Lockout tagout"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          }
+        ],
+        "employment": [
+          {
+            "experience_id": null,
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Prior Employer 18",
+              "raw_value": "Fictional Prior Employer 18"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Electrical Maintenance Technician",
+              "raw_value": "Electrical Maintenance Technician"
+            },
+            "employment_type": "full_time",
+            "engagement": null,
+            "location": null,
+            "start_date": {
+              "precision": "month",
+              "year": 2021,
+              "month": 1,
+              "day": null,
+              "raw_value": "2021-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "is_current": false,
+            "description": null,
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "achievements": null,
+            "skills": null
+          },
+          {
+            "experience_id": null,
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Employer 18",
+              "raw_value": "Fictional Employer 18"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": null,
+              "raw_value": null
+            },
+            "employment_type": "full_time",
+            "engagement": null,
+            "location": null,
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "end_date": null,
+            "is_current": true,
+            "description": null,
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "achievements": null,
+            "skills": null
+          }
+        ],
+        "education": [
+          {
+            "education_id": null,
+            "institution": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Institute 18",
+              "raw_value": "Fictional Institute 18"
+            },
+            "qualification": {
+              "id": null,
+              "namespace": null,
+              "name": "ITI Electrician",
+              "raw_value": "ITI Electrician"
+            },
+            "degree": "ITI Electrician",
+            "specialization": null,
+            "field_of_study": null,
+            "start_date": null,
+            "end_date": null,
+            "graduation_year": 2020,
+            "grade": null,
+            "grade_type": null,
+            "location": null
+          }
+        ],
+        "certifications": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Electrical Safety Certificate",
+              "raw_value": "Electrical Safety Certificate"
+            },
+            "issuing_organization": null,
+            "credential_id": null,
+            "credential_url": null,
+            "issue_date": null,
+            "expiry_date": null,
+            "does_not_expire": null
+          }
+        ],
+        "projects": null,
+        "languages": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "English",
+              "raw_value": "English"
+            },
+            "proficiency": null,
+            "read": true,
+            "write": true,
+            "speak": true
+          }
+        ],
+        "links": null,
+        "availability": {
+          "notice_period_days": null,
+          "notice_period_raw": null,
+          "available_from": null,
+          "immediate_joiner": null,
+          "currently_serving_notice": null
+        },
+        "compensation": {
+          "current": null,
+          "expected": null
+        },
+        "preferences": {
+          "employment_types": null,
+          "work_modes": [
+            "onsite"
+          ],
+          "willing_to_travel": null,
+          "industries": null,
+          "functions": null
+        },
+        "classification": {
+          "industries": null,
+          "functions": null,
+          "roles": null,
+          "domains": null
+        },
+        "work_authorization": null,
+        "publications": null,
+        "patents": null,
+        "awards": null,
+        "honors": null
+      },
+      "frozen_expected_value": {
+        "identity": {
+          "display_name": "Synthetic Evaluation Candidate 18"
+        },
+        "professional": {
+          "headline": "Electrical Maintenance Technician",
+          "current_designation": {
+            "name": null
+          },
+          "current_company": {
+            "name": "Fictional Employer 18"
+          },
+          "total_experience_months": 57,
+          "seniority": null,
+          "employment_status": "employed"
+        },
+        "skills": [
+          {
+            "entity": {
+              "name": "Electrical maintenance"
+            }
+          },
+          {
+            "entity": {
+              "name": "Troubleshooting"
+            }
+          },
+          {
+            "entity": {
+              "name": "Lockout tagout"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "name": "Fictional Prior Employer 18"
+            },
+            "designation": {
+              "name": "Electrical Maintenance Technician"
+            },
+            "start_date": {
+              "precision": "month",
+              "year": 2021,
+              "month": 1,
+              "day": null,
+              "raw_value": "2021-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "is_current": false,
+            "employment_type": "full_time",
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ]
+          },
+          {
+            "company": {
+              "name": "Fictional Employer 18"
+            },
+            "designation": {
+              "name": null,
+              "raw_value": "Electrical Maintenance Technician / Manager (conflicting source)"
+            },
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "end_date": null,
+            "is_current": true,
+            "employment_type": "full_time",
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ]
+          }
+        ],
+        "education": [
+          {
+            "institution": {
+              "name": "Fictional Institute 18"
+            },
+            "qualification": {
+              "name": "ITI Electrician"
+            },
+            "degree": "ITI Electrician",
+            "graduation_year": 2020
+          }
+        ],
+        "certifications": [
+          {
+            "entity": {
+              "name": "Electrical Safety Certificate"
+            }
+          }
+        ],
+        "location": {
+          "current": {
+            "city": "Vadodara",
+            "country_code": "IN"
+          },
+          "preferred": [],
+          "remote_preference": "onsite"
+        },
+        "languages": [
+          {
+            "entity": {
+              "name": "English"
+            },
+            "read": true,
+            "write": true,
+            "speak": true
+          }
+        ],
+        "availability": {
+          "notice_period_days": null,
+          "immediate_joiner": null
+        },
+        "contact": {
+          "primary_email": null,
+          "primary_phone": null
+        }
+      },
+      "production_pipeline": {
+        "id": "cv-18",
+        "task": "cv.parse",
+        "before_raw": {
+          "cv_skills": {
+            "precision": {
+              "status": "measured",
+              "numerator": 3,
+              "denominator": 3,
+              "value": 1
+            },
+            "recall": {
+              "status": "measured",
+              "numerator": 3,
+              "denominator": 3,
+              "value": 1
+            },
+            "f1": {
+              "status": "measured",
+              "numerator": 6,
+              "denominator": 6,
+              "value": 1
+            }
+          },
+          "id": "cv-18",
+          "task": "cv.parse",
+          "industry": "Blue-collar",
+          "exact_field_correctness": {
+            "status": "measured",
+            "numerator": 47,
+            "denominator": 50,
+            "value": 0.94
+          },
+          "normalized_field_correctness": {
+            "status": "measured",
+            "numerator": 47,
+            "denominator": 50,
+            "value": 0.94
+          },
+          "required_skills": {
+            "precision": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "recall": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "f1": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            }
+          },
+          "preferred_skills": {
+            "precision": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "recall": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "f1": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            }
+          },
+          "taxonomy_resolution": {
+            "status": "measured",
+            "numerator": 3,
+            "denominator": 3,
+            "value": 1
+          },
+          "seniority_accuracy": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "experience_accuracy": {
+            "status": "measured",
+            "numerator": 13,
+            "denominator": 13,
+            "value": 1
+          },
+          "work_mode_accuracy": {
+            "status": "measured",
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "location_accuracy": {
+            "status": "measured",
+            "numerator": 2,
+            "denominator": 4,
+            "value": 0.5
+          },
+          "unsupported_field_rate": {
+            "status": "measured",
+            "numerator": 2,
+            "denominator": 38,
+            "value": 0.05263157894736842
+          },
+          "schema_compliance": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "validation_pass": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "requires_review": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "contract_coverage": {
+            "status": "measured",
+            "numerator": 50,
+            "denominator": 50,
+            "value": 1
+          },
+          "aggregate_quality": 91.32631578947368,
+          "fields": {
+            "/availability/immediate_joiner": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/availability/notice_period_days": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/certifications/0/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/contact/primary_email": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/contact/primary_phone": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/degree": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/graduation_year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/institution/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/qualification/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/company/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/designation/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/employment_type": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/end_date": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/is_current": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/responsibilities/0": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/day": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/month": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/precision": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/company/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/designation/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/employment_type": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/day": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/month": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/precision": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/is_current": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/responsibilities/0": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/day": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/month": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/precision": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/identity/display_name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/read": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/speak": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/write": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/location/current/city": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/location/current/country_code": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/location/preferred": {
+              "status": "measured",
+              "numerator": 0,
+              "denominator": 1,
+              "value": 0
+            },
+            "/location/remote_preference": {
+              "status": "measured",
+              "numerator": 0,
+              "denominator": 1,
+              "value": 0
+            },
+            "/professional/current_company/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/current_designation/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/employment_status": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/headline": {
+              "status": "measured",
+              "numerator": 0,
+              "denominator": 1,
+              "value": 0
+            },
+            "/professional/seniority": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/total_experience_months": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/skills/0/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/skills/1/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/skills/2/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            }
+          },
+          "contract_gaps": [],
+          "error_paths": [
+            "/location/preferred",
+            "/location/remote_preference",
+            "/professional/headline"
+          ],
+          "injection_violation": false,
+          "manual_text_fields": 0
+        },
+        "after_offline": {
+          "cv_skills": {
+            "precision": {
+              "status": "measured",
+              "numerator": 3,
+              "denominator": 3,
+              "value": 1
+            },
+            "recall": {
+              "status": "measured",
+              "numerator": 3,
+              "denominator": 3,
+              "value": 1
+            },
+            "f1": {
+              "status": "measured",
+              "numerator": 6,
+              "denominator": 6,
+              "value": 1
+            }
+          },
+          "id": "cv-18",
+          "task": "cv.parse",
+          "industry": "Blue-collar",
+          "exact_field_correctness": {
+            "status": "measured",
+            "numerator": 48,
+            "denominator": 50,
+            "value": 0.96
+          },
+          "normalized_field_correctness": {
+            "status": "measured",
+            "numerator": 48,
+            "denominator": 50,
+            "value": 0.96
+          },
+          "required_skills": {
+            "precision": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "recall": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "f1": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            }
+          },
+          "preferred_skills": {
+            "precision": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "recall": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            },
+            "f1": {
+              "status": "not_applicable",
+              "numerator": 0,
+              "denominator": 0,
+              "value": null
+            }
+          },
+          "taxonomy_resolution": {
+            "status": "measured",
+            "numerator": 3,
+            "denominator": 3,
+            "value": 1
+          },
+          "seniority_accuracy": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "experience_accuracy": {
+            "status": "measured",
+            "numerator": 13,
+            "denominator": 13,
+            "value": 1
+          },
+          "work_mode_accuracy": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "location_accuracy": {
+            "status": "measured",
+            "numerator": 3,
+            "denominator": 4,
+            "value": 0.75
+          },
+          "unsupported_field_rate": {
+            "status": "measured",
+            "numerator": 2,
+            "denominator": 39,
+            "value": 0.05128205128205128
+          },
+          "schema_compliance": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "validation_pass": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "requires_review": {
+            "status": "measured",
+            "numerator": 1,
+            "denominator": 1,
+            "value": 1
+          },
+          "contract_coverage": {
+            "status": "measured",
+            "numerator": 50,
+            "denominator": 50,
+            "value": 1
+          },
+          "aggregate_quality": 92.59487179487179,
+          "fields": {
+            "/availability/immediate_joiner": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/availability/notice_period_days": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/certifications/0/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/contact/primary_email": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/contact/primary_phone": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/degree": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/graduation_year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/institution/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/education/0/qualification/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/company/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/designation/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/employment_type": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/end_date": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/is_current": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/responsibilities/0": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/day": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/month": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/precision": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/0/start_date/year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/company/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/designation/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/employment_type": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/day": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/month": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/precision": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/end_date/year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/is_current": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/responsibilities/0": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/day": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/month": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/precision": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/employment/1/start_date/year": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/identity/display_name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/read": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/speak": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/languages/0/write": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/location/current/city": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/location/current/country_code": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/location/preferred": {
+              "status": "measured",
+              "numerator": 0,
+              "denominator": 1,
+              "value": 0
+            },
+            "/location/remote_preference": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/current_company/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/current_designation/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/employment_status": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/headline": {
+              "status": "measured",
+              "numerator": 0,
+              "denominator": 1,
+              "value": 0
+            },
+            "/professional/seniority": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/professional/total_experience_months": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/skills/0/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/skills/1/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            },
+            "/skills/2/entity/name": {
+              "status": "measured",
+              "numerator": 1,
+              "denominator": 1,
+              "value": 1
+            }
+          },
+          "contract_gaps": [],
+          "error_paths": [
+            "/location/preferred",
+            "/professional/headline"
+          ],
+          "injection_violation": false,
+          "manual_text_fields": 0
+        },
+        "representation_adjusted_before": {
+          "status": "measured",
+          "numerator": 49,
+          "denominator": 50,
+          "value": 0.98
+        },
+        "representation_adjusted_after": {
+          "status": "measured",
+          "numerator": 49,
+          "denominator": 50,
+          "value": 0.98
+        },
+        "processing": {
+          "provider_value": {
+            "availability": {
+              "available_from": null,
+              "currently_serving_notice": null,
+              "immediate_joiner": null,
+              "notice_period_days": null,
+              "notice_period_raw": null
+            },
+            "awards": null,
+            "certifications": [
+              {
+                "credential_id": null,
+                "credential_url": null,
+                "does_not_expire": null,
+                "entity": {
+                  "id": null,
+                  "name": "Electrical Safety Certificate",
+                  "namespace": null,
+                  "raw_value": "Electrical Safety Certificate"
+                },
+                "expiry_date": null,
+                "issue_date": null,
+                "issuing_organization": null
+              }
+            ],
+            "classification": {
+              "domains": null,
+              "functions": null,
+              "industries": null,
+              "roles": null
+            },
+            "compensation": {
+              "current": null,
+              "expected": null
+            },
+            "contact": {
+              "alternate_email": null,
+              "alternate_phone": null,
+              "country_code": null,
+              "primary_email": null,
+              "primary_phone": null
+            },
+            "education": [
+              {
+                "degree": "ITI Electrician",
+                "education_id": null,
+                "end_date": null,
+                "field_of_study": null,
+                "grade": null,
+                "grade_type": null,
+                "graduation_year": 2020,
+                "institution": {
+                  "id": null,
+                  "name": "Fictional Institute 18",
+                  "namespace": null,
+                  "raw_value": "Fictional Institute 18"
+                },
+                "location": null,
+                "qualification": {
+                  "id": null,
+                  "name": "ITI Electrician",
+                  "namespace": null,
+                  "raw_value": "ITI Electrician"
+                },
+                "specialization": null,
+                "start_date": null
+              }
+            ],
+            "employment": [
+              {
+                "achievements": null,
+                "company": {
+                  "id": null,
+                  "name": "Fictional Prior Employer 18",
+                  "namespace": null,
+                  "raw_value": "Fictional Prior Employer 18"
+                },
+                "description": null,
+                "designation": {
+                  "id": null,
+                  "name": "Electrical Maintenance Technician",
+                  "namespace": null,
+                  "raw_value": "Electrical Maintenance Technician"
+                },
+                "employment_type": "full_time",
+                "end_date": {
+                  "day": null,
+                  "month": 1,
+                  "precision": "month",
+                  "raw_value": "2023-01",
+                  "year": 2023
+                },
+                "engagement": null,
+                "experience_id": null,
+                "is_current": false,
+                "location": null,
+                "responsibilities": [
+                  "Performed the stated professional duties."
+                ],
+                "skills": null,
+                "start_date": {
+                  "day": null,
+                  "month": 1,
+                  "precision": "month",
+                  "raw_value": "2021-01",
+                  "year": 2021
+                }
+              },
+              {
+                "achievements": null,
+                "company": {
+                  "id": null,
+                  "name": "Fictional Employer 18",
+                  "namespace": null,
+                  "raw_value": "Fictional Employer 18"
+                },
+                "description": null,
+                "designation": {
+                  "id": null,
+                  "name": null,
+                  "namespace": null,
+                  "raw_value": null
+                },
+                "employment_type": "full_time",
+                "end_date": null,
+                "engagement": null,
+                "experience_id": null,
+                "is_current": true,
+                "location": null,
+                "responsibilities": [
+                  "Performed the stated professional duties."
+                ],
+                "skills": null,
+                "start_date": {
+                  "day": null,
+                  "month": 1,
+                  "precision": "month",
+                  "raw_value": "2024-01",
+                  "year": 2024
+                }
+              }
+            ],
+            "honors": null,
+            "identity": {
+              "display_name": "Synthetic Evaluation Candidate 18",
+              "first_name": null,
+              "last_name": null,
+              "middle_name": null,
+              "preferred_name": null
+            },
+            "languages": [
+              {
+                "entity": {
+                  "id": null,
+                  "name": "English",
+                  "namespace": null,
+                  "raw_value": "English"
+                },
+                "proficiency": null,
+                "read": true,
+                "speak": true,
+                "write": true
+              }
+            ],
+            "links": null,
+            "location": {
+              "current": {
+                "city": "Vadodara",
+                "country_code": "IN",
+                "id": null,
+                "postal_code": null,
+                "raw_value": "Vadodara, India",
+                "state": null
+              },
+              "preferred": null,
+              "remote_preference": null,
+              "willing_to_relocate": null
+            },
+            "patents": null,
+            "preferences": {
+              "employment_types": null,
+              "functions": null,
+              "industries": null,
+              "willing_to_travel": null,
+              "work_modes": [
+                "onsite"
+              ]
+            },
+            "professional": {
+              "current_company": {
+                "id": null,
+                "name": "Fictional Employer 18",
+                "namespace": null,
+                "raw_value": "Fictional Employer 18"
+              },
+              "current_designation": {
+                "id": null,
+                "name": null,
+                "namespace": null,
+                "raw_value": null
+              },
+              "employment_status": "employed",
+              "headline": "Technician",
+              "relevant_experience_months": null,
+              "seniority": null,
+              "summary": null,
+              "total_experience_months": 57
+            },
+            "projects": null,
+            "publications": null,
+            "skills": [
+              {
+                "category": null,
+                "entity": {
+                  "id": null,
+                  "name": "Electrical maintenance",
+                  "namespace": null,
+                  "raw_value": "Electrical maintenance"
+                },
+                "experience_months": null,
+                "last_used": null,
+                "proficiency": null
+              },
+              {
+                "category": null,
+                "entity": {
+                  "id": null,
+                  "name": "Troubleshooting",
+                  "namespace": null,
+                  "raw_value": "Troubleshooting"
+                },
+                "experience_months": null,
+                "last_used": null,
+                "proficiency": null
+              },
+              {
+                "category": null,
+                "entity": {
+                  "id": null,
+                  "name": "Lockout tagout",
+                  "namespace": null,
+                  "raw_value": "Lockout tagout"
+                },
+                "experience_months": null,
+                "last_used": null,
+                "proficiency": null
+              }
+            ],
+            "work_authorization": null
+          },
+          "normalized_value": {
+            "identity": {
+              "display_name": "Synthetic Evaluation Candidate 18",
+              "first_name": null,
+              "middle_name": null,
+              "last_name": null,
+              "preferred_name": null
+            },
+            "contact": {
+              "primary_email": null,
+              "alternate_email": null,
+              "primary_phone": null,
+              "alternate_phone": null,
+              "country_code": null
+            },
+            "professional": {
+              "headline": "Technician",
+              "summary": null,
+              "current_designation": {
+                "id": null,
+                "namespace": null,
+                "name": null,
+                "raw_value": null
+              },
+              "current_company": {
+                "id": null,
+                "namespace": null,
+                "name": "Fictional Employer 18",
+                "raw_value": "Fictional Employer 18"
+              },
+              "employment_status": "employed",
+              "total_experience_months": 57,
+              "relevant_experience_months": null,
+              "seniority": null
+            },
+            "location": {
+              "current": {
+                "id": null,
+                "city": "Vadodara",
+                "state": null,
+                "country_code": "IN",
+                "postal_code": null,
+                "raw_value": "Vadodara, India"
+              },
+              "preferred": null,
+              "willing_to_relocate": null,
+              "remote_preference": "onsite"
+            },
+            "skills": [
+              {
+                "entity": {
+                  "id": "60000000-0000-4000-8000-000000000024",
+                  "namespace": "intelligence",
+                  "name": "Electrical maintenance",
+                  "raw_value": "Electrical maintenance"
+                },
+                "category": null,
+                "proficiency": null,
+                "experience_months": null,
+                "last_used": null
+              },
+              {
+                "entity": {
+                  "id": "60000000-0000-4000-8000-000000000074",
+                  "namespace": "intelligence",
+                  "name": "Troubleshooting",
+                  "raw_value": "Troubleshooting"
+                },
+                "category": null,
+                "proficiency": null,
+                "experience_months": null,
+                "last_used": null
+              },
+              {
+                "entity": {
+                  "id": "60000000-0000-4000-8000-000000000043",
+                  "namespace": "intelligence",
+                  "name": "Lockout tagout",
+                  "raw_value": "Lockout tagout"
+                },
+                "category": null,
+                "proficiency": null,
+                "experience_months": null,
+                "last_used": null
+              }
+            ],
+            "employment": [
+              {
+                "experience_id": null,
+                "company": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "Fictional Prior Employer 18",
+                  "raw_value": "Fictional Prior Employer 18"
+                },
+                "designation": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "Electrical Maintenance Technician",
+                  "raw_value": "Electrical Maintenance Technician"
+                },
+                "employment_type": "full_time",
+                "engagement": null,
+                "location": null,
+                "start_date": {
+                  "precision": "month",
+                  "year": 2021,
+                  "month": 1,
+                  "day": null,
+                  "raw_value": "2021-01"
+                },
+                "end_date": {
+                  "precision": "month",
+                  "year": 2023,
+                  "month": 1,
+                  "day": null,
+                  "raw_value": "2023-01"
+                },
+                "is_current": false,
+                "description": null,
+                "responsibilities": [
+                  "Performed the stated professional duties."
+                ],
+                "achievements": null,
+                "skills": null
+              },
+              {
+                "experience_id": null,
+                "company": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "Fictional Employer 18",
+                  "raw_value": "Fictional Employer 18"
+                },
+                "designation": {
+                  "id": null,
+                  "namespace": null,
+                  "name": null,
+                  "raw_value": null
+                },
+                "employment_type": "full_time",
+                "engagement": null,
+                "location": null,
+                "start_date": {
+                  "precision": "month",
+                  "year": 2024,
+                  "month": 1,
+                  "day": null,
+                  "raw_value": "2024-01"
+                },
+                "end_date": null,
+                "is_current": true,
+                "description": null,
+                "responsibilities": [
+                  "Performed the stated professional duties."
+                ],
+                "achievements": null,
+                "skills": null
+              }
+            ],
+            "education": [
+              {
+                "education_id": null,
+                "institution": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "Fictional Institute 18",
+                  "raw_value": "Fictional Institute 18"
+                },
+                "qualification": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "ITI Electrician",
+                  "raw_value": "ITI Electrician"
+                },
+                "degree": "ITI Electrician",
+                "specialization": null,
+                "field_of_study": null,
+                "start_date": null,
+                "end_date": null,
+                "graduation_year": 2020,
+                "grade": null,
+                "grade_type": null,
+                "location": null
+              }
+            ],
+            "certifications": [
+              {
+                "entity": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "Electrical Safety Certificate",
+                  "raw_value": "Electrical Safety Certificate"
+                },
+                "issuing_organization": null,
+                "credential_id": null,
+                "credential_url": null,
+                "issue_date": null,
+                "expiry_date": null,
+                "does_not_expire": null
+              }
+            ],
+            "projects": null,
+            "languages": [
+              {
+                "entity": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "English",
+                  "raw_value": "English"
+                },
+                "proficiency": null,
+                "read": true,
+                "write": true,
+                "speak": true
+              }
+            ],
+            "links": null,
+            "availability": {
+              "notice_period_days": null,
+              "notice_period_raw": null,
+              "available_from": null,
+              "immediate_joiner": null,
+              "currently_serving_notice": null
+            },
+            "compensation": {
+              "current": null,
+              "expected": null
+            },
+            "preferences": {
+              "employment_types": null,
+              "work_modes": [
+                "onsite"
+              ],
+              "willing_to_travel": null,
+              "industries": null,
+              "functions": null
+            },
+            "classification": {
+              "industries": null,
+              "functions": null,
+              "roles": null,
+              "domains": null
+            },
+            "work_authorization": null,
+            "publications": null,
+            "patents": null,
+            "awards": null,
+            "honors": null
+          },
+          "field_metadata": {
+            "/certifications/0/entity/name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "certifications",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Electrical Safety Certificate"
+            },
+            "/certifications/0/entity/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "certifications",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Electrical Safety Certificate"
+            },
+            "/education/0/degree": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "education",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "ITI Electrician"
+            },
+            "/education/0/graduation_year": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "education",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 2020
+            },
+            "/education/0/institution/name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "education",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Institute 18"
+            },
+            "/education/0/institution/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "education",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Institute 18"
+            },
+            "/education/0/qualification/name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "education",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "ITI Electrician"
+            },
+            "/education/0/qualification/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "education",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "ITI Electrician"
+            },
+            "/employment/0/company/name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Prior Employer 18"
+            },
+            "/employment/0/company/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Prior Employer 18"
+            },
+            "/employment/0/designation/name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Electrical Maintenance Technician"
+            },
+            "/employment/0/designation/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Electrical Maintenance Technician"
+            },
+            "/employment/0/employment_type": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "full_time"
+            },
+            "/employment/0/end_date/month": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 1
+            },
+            "/employment/0/end_date/precision": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "month"
+            },
+            "/employment/0/end_date/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "2023-01"
+            },
+            "/employment/0/end_date/year": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 2023
+            },
+            "/employment/0/is_current": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": false
+            },
+            "/employment/0/responsibilities/0": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Performed the stated professional duties."
+            },
+            "/employment/0/start_date/month": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 1
+            },
+            "/employment/0/start_date/precision": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "month"
+            },
+            "/employment/0/start_date/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "2021-01"
+            },
+            "/employment/0/start_date/year": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 2021
+            },
+            "/employment/1/company/name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Employer 18"
+            },
+            "/employment/1/company/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Employer 18"
+            },
+            "/employment/1/employment_type": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "full_time"
+            },
+            "/employment/1/is_current": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": true
+            },
+            "/employment/1/responsibilities/0": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Performed the stated professional duties."
+            },
+            "/employment/1/start_date/month": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 1
+            },
+            "/employment/1/start_date/precision": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "month"
+            },
+            "/employment/1/start_date/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "2024-01"
+            },
+            "/employment/1/start_date/year": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "employment",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 2024
+            },
+            "/identity/display_name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "identity",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Synthetic Evaluation Candidate 18"
+            },
+            "/languages/0/entity/name": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "languages",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "English"
+            },
+            "/languages/0/entity/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "languages",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "English"
+            },
+            "/languages/0/read": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "languages",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": true
+            },
+            "/languages/0/speak": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "languages",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": true
+            },
+            "/languages/0/write": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "languages",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": true
+            },
+            "/location/current/city": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "location",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Vadodara"
+            },
+            "/location/current/country_code": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "location",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "IN"
+            },
+            "/location/current/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "location",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Vadodara, India"
+            },
+            "/location/remote_preference": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "location",
+                "reference": "preferences/work_modes/0",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": null
+            },
+            "/preferences/work_modes/0": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "preferences",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "onsite"
+            },
+            "/professional/current_company/name": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "derived",
+                "section": "professional",
+                "reference": "employment",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Employer 18"
+            },
+            "/professional/current_company/raw_value": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "professional",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Fictional Employer 18"
+            },
+            "/professional/employment_status": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "professional",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "employed"
+            },
+            "/professional/headline": {
+              "provenance": {
+                "source": "ai_derived",
+                "kind": "inferred",
+                "section": "professional",
+                "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Technician"
+            },
+            "/professional/total_experience_months": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "derived",
+                "section": "professional",
+                "reference": "employment",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": 57
+            },
+            "/skills/0/entity/id": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": null
+            },
+            "/skills/0/entity/name": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Electrical maintenance"
+            },
+            "/skills/0/entity/namespace": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": null
+            },
+            "/skills/0/entity/raw_value": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Electrical maintenance"
+            },
+            "/skills/1/entity/id": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": null
+            },
+            "/skills/1/entity/name": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Troubleshooting"
+            },
+            "/skills/1/entity/namespace": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": null
+            },
+            "/skills/1/entity/raw_value": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Troubleshooting"
+            },
+            "/skills/2/entity/id": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": null
+            },
+            "/skills/2/entity/name": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Lockout tagout"
+            },
+            "/skills/2/entity/namespace": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": null
+            },
+            "/skills/2/entity/raw_value": {
+              "provenance": {
+                "source": "system_derived",
+                "kind": "normalized",
+                "section": "skills",
+                "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+                "page": null
+              },
+              "confidence": null,
+              "review_status": "unreviewed",
+              "raw_value": "Lockout tagout"
+            }
+          },
+          "issues": [
+            {
+              "severity": "warning",
+              "code": "DUPLICATE_PROJECTION_NORMALIZED",
+              "path": "/location/remote_preference"
+            },
+            {
+              "severity": "warning",
+              "code": "CURRENT_ROLE_CALCULATED",
+              "path": "/professional/current_company/name"
+            },
+            {
+              "severity": "warning",
+              "code": "CURRENT_ROLE_CALCULATED",
+              "path": "/professional/current_designation/name"
+            },
+            {
+              "severity": "warning",
+              "code": "EXPERIENCE_CALCULATED",
+              "path": "/professional/total_experience_months"
+            }
+          ],
+          "taxonomy_resolved": 3,
+          "taxonomy_total": 3
+        },
+        "schema_valid": true,
+        "domain_valid": true,
+        "standalone_profile_valid": true,
+        "regressions": 0,
+        "regression_failures": []
+      },
+      "stage_definition": "Normalization = existing whitespace/phone/case/exact skill-alias helpers. Postprocessing = frozen production NormalizeJobProposal/NormalizeCVProposal, including source-label recovery, duplicate projections and employment derivation. No parser change or provider retry."
+    }
+  },
+  "canonical_candidate_profile": {
+    "schema_version": "v1",
+    "candidate_id": "20000000-0000-4000-8000-000000000001",
+    "updated_at": null,
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Evaluation Candidate 18",
+        "first_name": null,
+        "middle_name": null,
+        "last_name": null,
+        "preferred_name": null
+      },
+      "contact": {
+        "primary_email": null,
+        "alternate_email": null,
+        "primary_phone": null,
+        "alternate_phone": null,
+        "country_code": null
+      },
+      "professional": {
+        "headline": "Technician",
+        "summary": null,
+        "current_designation": {
+          "id": null,
+          "namespace": null,
+          "name": null,
+          "raw_value": null
+        },
+        "current_company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Employer 18",
+          "raw_value": "Fictional Employer 18"
+        },
+        "employment_status": "employed",
+        "total_experience_months": 57,
+        "relevant_experience_months": null,
+        "seniority": null
+      },
+      "location": {
+        "current": {
+          "id": null,
+          "city": "Vadodara",
+          "state": null,
+          "country_code": "IN",
+          "postal_code": null,
+          "raw_value": "Vadodara, India"
+        },
+        "preferred": null,
+        "willing_to_relocate": null,
+        "remote_preference": "onsite"
+      },
+      "skills": [
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000024",
+            "namespace": "intelligence",
+            "name": "Electrical maintenance",
+            "raw_value": "Electrical maintenance"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000074",
+            "namespace": "intelligence",
+            "name": "Troubleshooting",
+            "raw_value": "Troubleshooting"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000043",
+            "namespace": "intelligence",
+            "name": "Lockout tagout",
+            "raw_value": "Lockout tagout"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        }
+      ],
+      "employment": [
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Prior Employer 18",
+            "raw_value": "Fictional Prior Employer 18"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": "Electrical Maintenance Technician",
+            "raw_value": "Electrical Maintenance Technician"
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2021,
+            "month": 1,
+            "day": null,
+            "raw_value": "2021-01"
+          },
+          "end_date": {
+            "precision": "month",
+            "year": 2023,
+            "month": 1,
+            "day": null,
+            "raw_value": "2023-01"
+          },
+          "is_current": false,
+          "description": null,
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        },
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Employer 18",
+            "raw_value": "Fictional Employer 18"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": null,
+            "raw_value": null
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2024,
+            "month": 1,
+            "day": null,
+            "raw_value": "2024-01"
+          },
+          "end_date": null,
+          "is_current": true,
+          "description": null,
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        }
+      ],
+      "education": [
+        {
+          "education_id": null,
+          "institution": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Institute 18",
+            "raw_value": "Fictional Institute 18"
+          },
+          "qualification": {
+            "id": null,
+            "namespace": null,
+            "name": "ITI Electrician",
+            "raw_value": "ITI Electrician"
+          },
+          "degree": "ITI Electrician",
+          "specialization": null,
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "graduation_year": 2020,
+          "grade": null,
+          "grade_type": null,
+          "location": null
+        }
+      ],
+      "certifications": [
+        {
+          "entity": {
+            "id": null,
+            "namespace": null,
+            "name": "Electrical Safety Certificate",
+            "raw_value": "Electrical Safety Certificate"
+          },
+          "issuing_organization": null,
+          "credential_id": null,
+          "credential_url": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "does_not_expire": null
+        }
+      ],
+      "projects": null,
+      "languages": [
+        {
+          "entity": {
+            "id": null,
+            "namespace": null,
+            "name": "English",
+            "raw_value": "English"
+          },
+          "proficiency": null,
+          "read": true,
+          "write": true,
+          "speak": true
+        }
+      ],
+      "links": null,
+      "availability": {
+        "notice_period_days": null,
+        "notice_period_raw": null,
+        "available_from": null,
+        "immediate_joiner": null,
+        "currently_serving_notice": null
+      },
+      "compensation": {
+        "current": null,
+        "expected": null
+      },
+      "preferences": {
+        "employment_types": null,
+        "work_modes": [
+          "onsite"
+        ],
+        "willing_to_travel": null,
+        "industries": null,
+        "functions": null
+      },
+      "classification": {
+        "industries": null,
+        "functions": null,
+        "roles": null,
+        "domains": null
+      },
+      "work_authorization": null,
+      "publications": null,
+      "patents": null,
+      "awards": null,
+      "honors": null
+    },
+    "verification": {
+      "email_verified": false,
+      "phone_verified": false
+    },
+    "resumes": null
+  },
+  "canonical_parser_result": {
+    "contract_version": "v1",
+    "profile_schema_version": "v1",
+    "result_id": "40000000-0000-4000-8000-000000000001",
+    "candidate_id": "20000000-0000-4000-8000-000000000001",
+    "resume": {
+      "resume_id": "50000000-0000-4000-8000-000000000001",
+      "original_filename": null,
+      "mime_type": null,
+      "file_size": null,
+      "uploaded_at": null,
+      "purpose": null,
+      "page_count": null
+    },
+    "parser_provider": "openai",
+    "parser_version": "openai-p2-v1.1",
+    "source_type": "resume",
+    "status": "ready_for_review",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Evaluation Candidate 18",
+        "first_name": null,
+        "middle_name": null,
+        "last_name": null,
+        "preferred_name": null
+      },
+      "contact": {
+        "primary_email": null,
+        "alternate_email": null,
+        "primary_phone": null,
+        "alternate_phone": null,
+        "country_code": null
+      },
+      "professional": {
+        "headline": "Technician",
+        "summary": null,
+        "current_designation": {
+          "id": null,
+          "namespace": null,
+          "name": null,
+          "raw_value": null
+        },
+        "current_company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Employer 18",
+          "raw_value": "Fictional Employer 18"
+        },
+        "employment_status": "employed",
+        "total_experience_months": 57,
+        "relevant_experience_months": null,
+        "seniority": null
+      },
+      "location": {
+        "current": {
+          "id": null,
+          "city": "Vadodara",
+          "state": null,
+          "country_code": "IN",
+          "postal_code": null,
+          "raw_value": "Vadodara, India"
+        },
+        "preferred": null,
+        "willing_to_relocate": null,
+        "remote_preference": "onsite"
+      },
+      "skills": [
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000024",
+            "namespace": "intelligence",
+            "name": "Electrical maintenance",
+            "raw_value": "Electrical maintenance"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000074",
+            "namespace": "intelligence",
+            "name": "Troubleshooting",
+            "raw_value": "Troubleshooting"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000043",
+            "namespace": "intelligence",
+            "name": "Lockout tagout",
+            "raw_value": "Lockout tagout"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        }
+      ],
+      "employment": [
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Prior Employer 18",
+            "raw_value": "Fictional Prior Employer 18"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": "Electrical Maintenance Technician",
+            "raw_value": "Electrical Maintenance Technician"
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2021,
+            "month": 1,
+            "day": null,
+            "raw_value": "2021-01"
+          },
+          "end_date": {
+            "precision": "month",
+            "year": 2023,
+            "month": 1,
+            "day": null,
+            "raw_value": "2023-01"
+          },
+          "is_current": false,
+          "description": null,
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        },
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Employer 18",
+            "raw_value": "Fictional Employer 18"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": null,
+            "raw_value": null
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2024,
+            "month": 1,
+            "day": null,
+            "raw_value": "2024-01"
+          },
+          "end_date": null,
+          "is_current": true,
+          "description": null,
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        }
+      ],
+      "education": [
+        {
+          "education_id": null,
+          "institution": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Institute 18",
+            "raw_value": "Fictional Institute 18"
+          },
+          "qualification": {
+            "id": null,
+            "namespace": null,
+            "name": "ITI Electrician",
+            "raw_value": "ITI Electrician"
+          },
+          "degree": "ITI Electrician",
+          "specialization": null,
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "graduation_year": 2020,
+          "grade": null,
+          "grade_type": null,
+          "location": null
+        }
+      ],
+      "certifications": [
+        {
+          "entity": {
+            "id": null,
+            "namespace": null,
+            "name": "Electrical Safety Certificate",
+            "raw_value": "Electrical Safety Certificate"
+          },
+          "issuing_organization": null,
+          "credential_id": null,
+          "credential_url": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "does_not_expire": null
+        }
+      ],
+      "projects": null,
+      "languages": [
+        {
+          "entity": {
+            "id": null,
+            "namespace": null,
+            "name": "English",
+            "raw_value": "English"
+          },
+          "proficiency": null,
+          "read": true,
+          "write": true,
+          "speak": true
+        }
+      ],
+      "links": null,
+      "availability": {
+        "notice_period_days": null,
+        "notice_period_raw": null,
+        "available_from": null,
+        "immediate_joiner": null,
+        "currently_serving_notice": null
+      },
+      "compensation": {
+        "current": null,
+        "expected": null
+      },
+      "preferences": {
+        "employment_types": null,
+        "work_modes": [
+          "onsite"
+        ],
+        "willing_to_travel": null,
+        "industries": null,
+        "functions": null
+      },
+      "classification": {
+        "industries": null,
+        "functions": null,
+        "roles": null,
+        "domains": null
+      },
+      "work_authorization": null,
+      "publications": null,
+      "patents": null,
+      "awards": null,
+      "honors": null
+    },
+    "parser_generated_summary": null,
+    "field_metadata": {
+      "/certifications/0/entity/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "certifications",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Safety Certificate"
+      },
+      "/certifications/0/entity/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "certifications",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Safety Certificate"
+      },
+      "/education/0/degree": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "ITI Electrician"
+      },
+      "/education/0/graduation_year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2020
+      },
+      "/education/0/institution/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Institute 18"
+      },
+      "/education/0/institution/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Institute 18"
+      },
+      "/education/0/qualification/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "ITI Electrician"
+      },
+      "/education/0/qualification/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "ITI Electrician"
+      },
+      "/employment/0/company/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Prior Employer 18"
+      },
+      "/employment/0/company/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Prior Employer 18"
+      },
+      "/employment/0/designation/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Maintenance Technician"
+      },
+      "/employment/0/designation/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical Maintenance Technician"
+      },
+      "/employment/0/employment_type": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/0/end_date/month": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/end_date/precision": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/end_date/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2023-01"
+      },
+      "/employment/0/end_date/year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2023
+      },
+      "/employment/0/is_current": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": false
+      },
+      "/employment/0/responsibilities/0": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/0/start_date/month": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/start_date/precision": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/start_date/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2021-01"
+      },
+      "/employment/0/start_date/year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2021
+      },
+      "/employment/1/company/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 18"
+      },
+      "/employment/1/company/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 18"
+      },
+      "/employment/1/employment_type": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/1/is_current": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/employment/1/responsibilities/0": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/1/start_date/month": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/1/start_date/precision": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/1/start_date/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2024-01"
+      },
+      "/employment/1/start_date/year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2024
+      },
+      "/identity/display_name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "identity",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Synthetic Evaluation Candidate 18"
+      },
+      "/languages/0/entity/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "English"
+      },
+      "/languages/0/entity/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "English"
+      },
+      "/languages/0/read": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/speak": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/write": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/location/current/city": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "location",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Vadodara"
+      },
+      "/location/current/country_code": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "location",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "IN"
+      },
+      "/location/current/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "location",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Vadodara, India"
+      },
+      "/location/remote_preference": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "location",
+          "reference": "preferences/work_modes/0",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/preferences/work_modes/0": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "preferences",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "onsite"
+      },
+      "/professional/current_company/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "derived",
+          "section": "professional",
+          "reference": "employment",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 18"
+      },
+      "/professional/current_company/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 18"
+      },
+      "/professional/employment_status": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "employed"
+      },
+      "/professional/headline": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Technician"
+      },
+      "/professional/total_experience_months": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "derived",
+          "section": "professional",
+          "reference": "employment",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 57
+      },
+      "/skills/0/entity/id": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/0/entity/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical maintenance"
+      },
+      "/skills/0/entity/namespace": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/0/entity/raw_value": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000024",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Electrical maintenance"
+      },
+      "/skills/1/entity/id": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/1/entity/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Troubleshooting"
+      },
+      "/skills/1/entity/namespace": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/1/entity/raw_value": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000074",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Troubleshooting"
+      },
+      "/skills/2/entity/id": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/2/entity/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Lockout tagout"
+      },
+      "/skills/2/entity/namespace": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/2/entity/raw_value": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000043",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Lockout tagout"
+      }
+    },
+    "issues": [
+      {
+        "severity": "warning",
+        "code": "DUPLICATE_PROJECTION_NORMALIZED",
+        "path": "/location/remote_preference"
+      },
+      {
+        "severity": "warning",
+        "code": "CURRENT_ROLE_CALCULATED",
+        "path": "/professional/current_company/name"
+      },
+      {
+        "severity": "warning",
+        "code": "CURRENT_ROLE_CALCULATED",
+        "path": "/professional/current_designation/name"
+      },
+      {
+        "severity": "warning",
+        "code": "EXPERIENCE_CALCULATED",
+        "path": "/professional/total_experience_months"
+      }
+    ],
+    "created_at": "2026-10-01T00:00:00Z"
+  },
+  "canonical_envelope_note": "Offline materialization of exact envelopes constructed/validated by frozen ReplayCaptured. No application/profile/result was persisted by the live canary. created_at is benchmark AsOf; actual UTC execution is separate.",
+  "employment_status_obtained": "PROVIDER_SUPPLIED_PROPOSAL; no live fallback invocation",
+  "fallback_coverage": "Earlier raw-null cv-18 capture + fresh negative/positive/SQL tests; not a second provider request."
+}

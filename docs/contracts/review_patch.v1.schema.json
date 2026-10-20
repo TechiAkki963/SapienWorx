@@ -1,0 +1,55 @@
+{
+  "$defs": {
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "unreviewed",
+            "confirmed",
+            "edited",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "value": {
+          "maxItems": 30
+        }
+      },
+      "required": [
+        "path",
+        "status"
+      ],
+      "type": "object"
+    },
+    "ReviewPatch": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/Decision"
+          },
+          "maxItems": 8192,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "expected_revision": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "expected_revision",
+        "decisions"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "urn:sapienworx:review_patch:v1",
+  "$ref": "#/$defs/ReviewPatch",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

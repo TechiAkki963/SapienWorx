@@ -1,0 +1,166 @@
+{
+  "generated_utc": "2026-10-19T16:04:21.789803+00:00",
+  "task": "job.generate_description",
+  "readiness": "READY FOR CONTROLLED REAL GENERATION TEST",
+  "provider_requests": 0,
+  "provider_cost_usd": 0,
+  "global_openai_enabled": false,
+  "head": "b00fab7ee80f7eb4791d64e2e85e95657643129e",
+  "protected_files_unchanged": 94,
+  "secret_scan": "PASS",
+  "source_file_count": 27,
+  "source_sha256": {
+    ".github/workflows/intelligence-openai-ci.yml": "fc022fc081a7d555023ab7cd38200d49e9c101e4fbc2923d640cc92c7198f0a5",
+    "backend/cmd/api/main.go": "ff97e42bdf8f4b744bd08d450c32bdc77f352e6d725aa3ce5002828e30df3b5b",
+    "backend/internal/intelligence/parsing/generate.go": "6dc466adeecab977ff390e297fe17d4af6ed23a15494a3bc451aac88553e9d69",
+    "backend/internal/intelligence/parsing/job_generation_v1.go": "afc1be5ca7f60db28ce6f2263c7621cb025c57194e4862c25a83acc8f64a97a1",
+    "backend/internal/intelligence/parsing/job_generation_v1_test.go": "bd866000907367dd97061d430a6b0cbf5aecba3ddb849bd909f6b75963ed2907",
+    "backend/internal/intelligence/parsing/job_generation_database_test.go": "3ace54d3ebe4a3059987aa0b30c30a4003fb01333ff1573163a30e5793eda19a",
+    "backend/internal/intelligence/parsing/service_test.go": "0c7900a07349a8bd01ff9eefd2f448d1655228f132630f8b0a02f50bd5b5ff9c",
+    "backend/internal/intelligence/parsing/store.go": "b139f62e50e710677bd9518bfa59ede9360a6a321cb09d057c6dd7305e0c0d08",
+    "backend/internal/intelligence/parsing/testdata/job-generation-v1/cases.json": "63bb0c9aea4d2fe0d59d95d6115ac940406beb729218271a0baacc375c8dd09d",
+    "backend/internal/intelligence/parsing/testdata/job-generation-v1/README.md": "1f30afd358e5255cc197f9d19a45eceb92e8805da2f9d806f14cc4d72ab7571c",
+    "backend/internal/platform/httpserver/intelligence_parsing.go": "dd5792cd5806a8fad158527c3f2b82716e54843bda848b4996c3aa99c4f025c0",
+    "backend/internal/platform/httpserver/intelligence_parsing_test.go": "c33aef3db193d34e5b2b55b48cf0db5c574c5b56c36a65da23dc74d61e1ad992",
+    "backend/internal/platform/httpserver/recruiter_handlers.go": "48d0907b518ece792dcba67fbb9284f088fd406de3cb7155c8ffadffe96e61f6",
+    "backend/internal/platform/httpserver/server.go": "5565e2157ea4ec242cf670f5cf8c9c8d0af8d428d2ced0e9debe105e941a3e02",
+    "backend/internal/recruiter/job_generation.go": "152732b263bc0fd61681af07c425256544986f685d3f959216fcce56169f073b",
+    "backend/internal/recruiter/job_generation_test.go": "6a0763f097e05b37ccd757a7ce192d835179ece128e643b91ec2d565b6373e08",
+    "backend/internal/recruiter/job_builder.go": "651a3c859bd4927b76934e10320fc75fca0648231184b60c412879a99e5975bb",
+    "backend/internal/recruiter/job_governance.go": "9b347a2d37b6d6ea462fde1e69b7175514823af2c546f1fd9b497dae3f226eb0",
+    "backend/internal/recruiter/job_lifecycle.go": "152650d80d770020ff204ce7628b1995301079bfc90741a40db4f1d5c5093541",
+    "backend/internal/recruiter/service.go": "558bd5303d57465134d9dd8a41453bf0bba7232bb990d37a418b89b8b79f9670",
+    "database/migrations/000069_job_description_generation.up.sql": "c6c9ae638d0bb9319e21fac43f410669d10a6a4860a3dc6ef5ecf55c31f9907b",
+    "database/migrations/000069_job_description_generation.down.sql": "16c63f91fb4a1d0313a02df077e789cb53f8e221284e8108cebc155ea81ca974",
+    "frontend/components/recruiter/jd-generation-assistant.tsx": "c0d0e2dea25e4fcf16da26cc47f5285da8e46773ec0535f375ac8aa4d0f1dddd",
+    "frontend/components/recruiter/job-builder.tsx": "78adeb9947148b5352c031e169e2abae2836d99680fdad468772c2947d11db87",
+    "frontend/lib/recruiter.ts": "db41e83d8c5b26c0ecb7864ff3d3d6ced90a12d6a138276d14f0deb6e73e8fa4",
+    "frontend/tests/e2e/jd-generation.spec.ts": "f075720ef7af67a123344bb5ece203ef116ed8fae69d40ce07830e0bc5b847f0",
+    "docs/ai-jd-generator-v1.md": "3672e50a333e5d289c7621231a7ab1eefd9a856570212fe82ea6b0c46fc76e10"
+  },
+  "go_race_groups": [
+    {
+      "group": "gateway",
+      "exit_code": 0,
+      "top_pass": 56,
+      "top_skip": 1,
+      "top_fail": 0,
+      "test_subtest_pass": 116,
+      "skips": [
+        "TestAIGovernanceIsolatedDatabase"
+      ]
+    },
+    {
+      "group": "evaluation",
+      "exit_code": 0,
+      "top_pass": 14,
+      "top_skip": 0,
+      "top_fail": 0,
+      "test_subtest_pass": 303,
+      "skips": []
+    },
+    {
+      "group": "parsing",
+      "exit_code": 0,
+      "top_pass": 35,
+      "top_skip": 2,
+      "top_fail": 0,
+      "test_subtest_pass": 202,
+      "skips": [
+        "TestPhase1IsolatedDatabase",
+        "TestGenerationV1IsolatedDatabase"
+      ]
+    },
+    {
+      "group": "canonical-contract",
+      "exit_code": 0,
+      "top_pass": 22,
+      "top_skip": 0,
+      "top_fail": 0,
+      "test_subtest_pass": 105,
+      "skips": []
+    },
+    {
+      "group": "runner",
+      "exit_code": 0,
+      "top_pass": 11,
+      "top_skip": 0,
+      "top_fail": 0,
+      "test_subtest_pass": 20,
+      "skips": []
+    },
+    {
+      "group": "recruiter",
+      "exit_code": 0,
+      "top_pass": 39,
+      "top_skip": 8,
+      "top_fail": 0,
+      "test_subtest_pass": 62,
+      "skips": [
+        "TestCandidateReferralPrivacyAttributionAndAbuse",
+        "TestDiscoveryExactProfessionalSkillsAndLegacyShapes",
+        "TestGovernedWorkspaceEvidenceIsolatedDatabase",
+        "TestRecruiterJobWorkspaceScaleIsolatedDatabase",
+        "TestRecruiterJobSecurityIsolatedDatabase",
+        "TestOfferGovernanceIsolatedDatabase",
+        "TestP26RecruiterProductAreasScaleAndIsolation",
+        "TestWorkspaceRefinementsIsolationAndReferralConsent"
+      ]
+    },
+    {
+      "group": "httpserver",
+      "exit_code": 0,
+      "top_pass": 47,
+      "top_skip": 3,
+      "top_fail": 0,
+      "test_subtest_pass": 71,
+      "skips": [
+        "TestAdminSecurityHTTPIsolatedDatabase",
+        "TestCandidateWorkspaceHTTPAuthorizationIsolatedDatabase",
+        "TestCompanyHTTPAndInvitationIsolation"
+      ]
+    }
+  ],
+  "isolated_database_gates": [
+    {
+      "test": "TestAIGovernanceIsolatedDatabase",
+      "status": "PASS",
+      "database": "sapienworx_ai_gateway_test"
+    },
+    {
+      "test": "TestPhase1IsolatedDatabase",
+      "status": "PASS",
+      "database": "sapienworx_ai_phase1_test"
+    },
+    {
+      "test": "TestGenerationV1IsolatedDatabase",
+      "status": "PASS",
+      "database": "sapienworx_jd_generation_test"
+    },
+    {
+      "test": "TestRecruiterJobSecurityIsolatedDatabase",
+      "status": "PASS",
+      "database": "sapienworx_ci"
+    }
+  ],
+  "go_distinct_top_level_or_fuzz_parent_tests_pass": 228,
+  "unrelated_database_gates_skipped": 10,
+  "browser_distinct_tests_pass": 33,
+  "browser_evidence_note": "Full combined run: 32 passed; one failed test-only exact-label selector was corrected and its focused rerun passed. Final 21-case visual refresh passed with no flaky/unexpected cases.",
+  "final_visual_matrix": {
+    "startTime": "2026-10-19T15:52:41.706Z",
+    "duration": 84132.13600000001,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "screenshots": 42,
+  "synthetic_industry_goldens": 14,
+  "frontend_production_build": "PASS",
+  "typescript": "PASS",
+  "go_api_build": "PASS",
+  "go_vet": "PASS",
+  "provider_boundary": "PASS",
+  "commit_push_merge_deploy": false
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "case_id": "cv-01",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "3914a5e4f9bb8b6b94b3ef3ab1467f14dd684abc42b782aeacda578e8ce14b3d"
+  },
+  {
+    "case_id": "cv-02",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1"
+  },
+  {
+    "case_id": "cv-03",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "17c97148205d606a824b37abe8c09c9af1274278e7deb7cd77c77dcb7578b81a"
+  },
+  {
+    "case_id": "cv-04",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "9b3fc1b2827e9dbf86e6bf10548e9b62c9d2894f0a470787ff653e0ab3c18911"
+  },
+  {
+    "case_id": "cv-05",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "f60842293843f0648925b29e703f34e1fcd0b3544ecdcdaddb5c8fa62f751b37"
+  },
+  {
+    "case_id": "cv-06",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "1e53abe07348d0062beb28df050fec7f0c4a4558a71d1a70d0a96c3c1a6d7087"
+  },
+  {
+    "case_id": "cv-07",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "0078773155bc3fd8bd7bf9b4a0876804944db8b5efac532bf898e653648189d2"
+  },
+  {
+    "case_id": "cv-08",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "ee8a1f7d7acf9d19d9f7faf8ea828f77a0b6b345637099997e73e56f359f5fd6"
+  },
+  {
+    "case_id": "cv-09",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "556fa897c52ac9ed413140df539200de7cf49311bb154ea10ceccdbf2551cab6"
+  },
+  {
+    "case_id": "cv-10",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "a83bb32e255bcd14039d30c3c02de98e46d6d4c1b5104e366485ab2713454964"
+  },
+  {
+    "case_id": "cv-11",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "b2811f4040aad4cd92de142d41f111d647e28dc4a7ee618e26b3f74e8c5f3955"
+  },
+  {
+    "case_id": "cv-12",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "4dd82c8ade6c2b98f5074cada8a4973d6ec162c3e0c0de9b66b0b8926fa71e21"
+  },
+  {
+    "case_id": "cv-13",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "8cf8c11e99a67ccdaefcba69f7b7db26a0d0099b676cb7127ccbc6ee3d7f9a85"
+  },
+  {
+    "case_id": "cv-14",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "1a198b7edc17f522acb20e4edf47ad7c0f948883c52ca5e9d805f7d67f93e5a1"
+  },
+  {
+    "case_id": "cv-15",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "04bd159e6a34656ae63e62c9b41f8f9a8bb7081c0625ecb92cb79ab39c578535"
+  },
+  {
+    "case_id": "cv-16",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "6d62fa9d0a30fa0c9796a094b1bfb6eacffa310cdc81c0b8fbbf00c0b05c8e37"
+  },
+  {
+    "case_id": "cv-17",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "bb1a74882444f181410b78b9b1f1f312a5fb7cd0447e87dff272163190658897"
+  },
+  {
+    "case_id": "cv-18",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": true,
+    "source_sha256": "c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc"
+  },
+  {
+    "case_id": "cv-19",
+    "golden_employment_status": "fresher",
+    "evidence": "Explicit career starter/no experience.",
+    "unknown_current_title": false,
+    "source_sha256": "4436b7461c5906cae4ca220854d987c418b09673e8bbc3a4e5fbdb38d31a53b1"
+  },
+  {
+    "case_id": "cv-20",
+    "golden_employment_status": "employed",
+    "evidence": "Explicit full-time current employer to present.",
+    "unknown_current_title": false,
+    "source_sha256": "4e7bba6b59f1d5ef707f4bb6bcd44e2089123eb83f5fd7ddb63acdde93931316"
+  }
+]

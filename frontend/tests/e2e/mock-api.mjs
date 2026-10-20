@@ -300,6 +300,10 @@ function intelligenceDashboard() {
       ["learning_collection", false, "Collect outcome feedback."],
       ["automated_recommendations", false, "Serve intelligence recommendations."],
       ["ai_gateway", false, "Allow governed external AI routing."],
+      ["openai_provider", false, "OpenAI provider kill switch."],
+      ["cv_ai_parse", false, "Candidate CV AI parsing."],
+      ["job_ai_parse", false, "Structured JD AI parsing."],
+      ["jd_ai_generation", false, "Draft JD AI generation."],
       ["model_deployment", false, "Allow approved model promotion."],
       ["embedding_generation", false, "Generate governed embedding documents."],
       ["semantic_search", false, "Use approved embeddings as a retrieval signal."],
@@ -1298,6 +1302,11 @@ const server = http.createServer(async (req, res) => {
     const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
     if (roleFromCookie(req) !== "master_admin" || (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || !permissions.includes("trust_risk.review")))) return json(res, 403, { error: { message: "trust risk review denied" } });
     return json(res, 200, { status: String(payload.status || "reviewing") });
+  }
+  if (url.pathname === "/api/v1/admin/ai/status" && req.method === "GET") {
+    const permissions = adminCatalog[state.adminAccess.admin_role] ?? [];
+    if (roleFromCookie(req) !== "master_admin" || (state.adminAccess.enabled && (!state.adminAccess.assigned || !state.adminAccess.mfa_verified || (!permissions.includes("intelligence.read") && !permissions.includes("intelligence.metrics.read"))))) return json(res, 403, { error: { message: "intelligence access denied" } });
+    return json(res, 200, { health: { state: "disabled" }, budget: { available: true, day_spent_usd: 0, month_spent_usd: 0, day_reserved_usd: 0, month_reserved_usd: 0, day_limit_usd: 1, month_limit_usd: 10, daily_alert: false, monthly_alert: false }, parsing: { external_ai_avoidance_rate: null }, operations: { available: true, gateway_switch: false, provider_switch: false, tasks: [["cv.parse", "CV Parse"], ["job.parse", "JD Parse"], ["job.generate_description", "JD Generation"]].map(([task, label]) => ({ task, label, enabled: false, requests: 0, attempts: 0, success: 0, failures: 0, timeouts: 0, input_tokens: 0, output_tokens: 0, estimated_cost_usd: 0, p50_ms: null, p95_ms: null, proposals: 0, reviewed: 0, corrected: 0, schema_failures: 0, validation_failures: 0 })) } });
   }
   if (url.pathname === "/api/v1/admin/intelligence" && req.method === "GET") {
     if (roleFromCookie(req) !== "master_admin") return json(res, 403, { error: { message: "administrator access denied" } });

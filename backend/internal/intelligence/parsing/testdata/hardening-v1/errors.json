@@ -1,0 +1,3551 @@
+[
+  {
+    "id": "OPENAI-V1-JD-ERR-001",
+    "case_id": "jd-01",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-01",
+    "raw_provider_value": "Software Engineering",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-01/OPENAI-V1-JD-ERR-001",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-002",
+    "case_id": "jd-02",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-02",
+    "raw_provider_value": "Software Engineering",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-02/OPENAI-V1-JD-ERR-002",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-003",
+    "case_id": "jd-03",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-03",
+    "raw_provider_value": "Infrastructure",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-03/OPENAI-V1-JD-ERR-003",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-004",
+    "case_id": "jd-04",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-04",
+    "raw_provider_value": "Nursing",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-04/OPENAI-V1-JD-ERR-004",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-005",
+    "case_id": "jd-05",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-05",
+    "raw_provider_value": "Accounting",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-05/OPENAI-V1-JD-ERR-005",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-006",
+    "case_id": "jd-05",
+    "field": "/education_requirements",
+    "category": "CONTRACT_LIMITATION",
+    "root_cause": "Source credential exists, but JD wire has no typed certification/licence field.",
+    "fix": "Remove dedicated licence/certification from education; preserve raw evidence and explicit typed-credential review warning.",
+    "source_fixture": "cases.json#jd-05",
+    "raw_provider_value": [
+      "BCom",
+      "Chartered Accountant certification"
+    ],
+    "expected_normalized_value": [
+      "BCom"
+    ],
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-05/OPENAI-V1-JD-ERR-006",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-007",
+    "case_id": "jd-05",
+    "field": "/role_category",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Source job family placed as industry/title category; provider schema did not define field ownership.",
+    "fix": "Restore unique explicit job-family label; no taxonomy guessing.",
+    "source_fixture": "cases.json#jd-05",
+    "raw_provider_value": "Finance",
+    "expected_normalized_value": "Accounting",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-05/OPENAI-V1-JD-ERR-007",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-008",
+    "case_id": "jd-06",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-06",
+    "raw_provider_value": "BFSI",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-06/OPENAI-V1-JD-ERR-008",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-009",
+    "case_id": "jd-07",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-07",
+    "raw_provider_value": "Manufacturing",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-07/OPENAI-V1-JD-ERR-009",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-010",
+    "case_id": "jd-08",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-08",
+    "raw_provider_value": "Operations",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-08/OPENAI-V1-JD-ERR-010",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-011",
+    "case_id": "jd-09",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-09",
+    "raw_provider_value": "Sales",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-09/OPENAI-V1-JD-ERR-011",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-012",
+    "case_id": "jd-10",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-10",
+    "raw_provider_value": "Marketing",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-10/OPENAI-V1-JD-ERR-012",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-013",
+    "case_id": "jd-11",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-11",
+    "raw_provider_value": "Talent Acquisition",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-11/OPENAI-V1-JD-ERR-013",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-014",
+    "case_id": "jd-12",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-12",
+    "raw_provider_value": "Site Engineering",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-12/OPENAI-V1-JD-ERR-014",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-015",
+    "case_id": "jd-12",
+    "field": "/role_category",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Source job family placed as industry/title category; provider schema did not define field ownership.",
+    "fix": "Restore unique explicit job-family label; no taxonomy guessing.",
+    "source_fixture": "cases.json#jd-12",
+    "raw_provider_value": "Construction",
+    "expected_normalized_value": "Site Engineering",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-12/OPENAI-V1-JD-ERR-015",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-016",
+    "case_id": "jd-13",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-13",
+    "raw_provider_value": "Teaching",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-13/OPENAI-V1-JD-ERR-016",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-017",
+    "case_id": "jd-13",
+    "field": "/education_requirements",
+    "category": "CONTRACT_LIMITATION",
+    "root_cause": "Source credential exists, but JD wire has no typed certification/licence field.",
+    "fix": "Remove dedicated licence/certification from education; preserve raw evidence and explicit typed-credential review warning.",
+    "source_fixture": "cases.json#jd-13",
+    "raw_provider_value": [
+      "BEd",
+      "Teaching Eligibility Certificate"
+    ],
+    "expected_normalized_value": [
+      "BEd"
+    ],
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-13/OPENAI-V1-JD-ERR-017",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-018",
+    "case_id": "jd-14",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-14",
+    "raw_provider_value": "Hotel Operations",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-14/OPENAI-V1-JD-ERR-018",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-019",
+    "case_id": "jd-15",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-15",
+    "raw_provider_value": "Store Operations",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-15/OPENAI-V1-JD-ERR-019",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-020",
+    "case_id": "jd-15",
+    "field": "/role_category",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Source job family placed as industry/title category; provider schema did not define field ownership.",
+    "fix": "Restore unique explicit job-family label; no taxonomy guessing.",
+    "source_fixture": "cases.json#jd-15",
+    "raw_provider_value": "Retail",
+    "expected_normalized_value": "Store Operations",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-15/OPENAI-V1-JD-ERR-020",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-021",
+    "case_id": "jd-16",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-16",
+    "raw_provider_value": "Legal Services",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-16/OPENAI-V1-JD-ERR-021",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-022",
+    "case_id": "jd-16",
+    "field": "/education_requirements",
+    "category": "CONTRACT_LIMITATION",
+    "root_cause": "Source credential exists, but JD wire has no typed certification/licence field.",
+    "fix": "Remove dedicated licence/certification from education; preserve raw evidence and explicit typed-credential review warning.",
+    "source_fixture": "cases.json#jd-16",
+    "raw_provider_value": [
+      "LLB",
+      "Bar Council Registration"
+    ],
+    "expected_normalized_value": [
+      "LLB"
+    ],
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-16/OPENAI-V1-JD-ERR-022",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-023",
+    "case_id": "jd-17",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-17",
+    "raw_provider_value": "Logistics Operations",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-17/OPENAI-V1-JD-ERR-023",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-024",
+    "case_id": "jd-18",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-18",
+    "raw_provider_value": "Electrical Maintenance",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-18/OPENAI-V1-JD-ERR-024",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-025",
+    "case_id": "jd-18",
+    "field": "/education_requirements",
+    "category": "CONTRACT_LIMITATION",
+    "root_cause": "Source credential exists, but JD wire has no typed certification/licence field.",
+    "fix": "Remove dedicated licence/certification from education; preserve raw evidence and explicit typed-credential review warning.",
+    "source_fixture": "cases.json#jd-18",
+    "raw_provider_value": [
+      "ITI Electrician",
+      "Electrical Safety Certificate"
+    ],
+    "expected_normalized_value": [
+      "ITI Electrician"
+    ],
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-18/OPENAI-V1-JD-ERR-025",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-026",
+    "case_id": "jd-19",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-19",
+    "raw_provider_value": "Customer Service",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-19/OPENAI-V1-JD-ERR-026",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-027",
+    "case_id": "jd-19",
+    "field": "/role_category",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Source job family placed as industry/title category; provider schema did not define field ownership.",
+    "fix": "Restore unique explicit job-family label; no taxonomy guessing.",
+    "source_fixture": "cases.json#jd-19",
+    "raw_provider_value": "Customer Support",
+    "expected_normalized_value": "Customer Service",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-19/OPENAI-V1-JD-ERR-027",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-JD-ERR-028",
+    "case_id": "jd-20",
+    "field": "/department",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Unsupported organizational relationship inferred; schema lacked source-only field ownership.",
+    "fix": "Explicit department/team labels only; remove unsupported department, warn; p2/schema v1.2.",
+    "source_fixture": "cases.json#jd-20",
+    "raw_provider_value": "Healthcare Administration",
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/jd-20/OPENAI-V1-JD-ERR-028",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-001",
+    "case_id": "cv-01",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-001",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-002",
+    "case_id": "cv-01",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-002",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-003",
+    "case_id": "cv-01",
+    "field": "/education/0/degree",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": "BTech",
+    "expected_normalized_value": "BTech",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-003",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-004",
+    "case_id": "cv-01",
+    "field": "/education/0/field_of_study",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": "Computer Science",
+    "expected_normalized_value": "Computer Science",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-004",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-005",
+    "case_id": "cv-01",
+    "field": "/education/0/qualification/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": "BTech",
+    "expected_normalized_value": "BTech",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-005",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-006",
+    "case_id": "cv-01",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-006",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-007",
+    "case_id": "cv-01",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-007",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-008",
+    "case_id": "cv-01",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-008",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-009",
+    "case_id": "cv-01",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-01",
+    "raw_provider_value": "hybrid",
+    "expected_normalized_value": "hybrid",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-01/OPENAI-V1-CV-ERR-009",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-010",
+    "case_id": "cv-02",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-02",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-02/OPENAI-V1-CV-ERR-010",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-011",
+    "case_id": "cv-02",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-02",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-02/OPENAI-V1-CV-ERR-011",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-012",
+    "case_id": "cv-02",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-02",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-02/OPENAI-V1-CV-ERR-012",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-013",
+    "case_id": "cv-02",
+    "field": "/identity/display_name",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Raw provider returned null for a clear header name; optional identity allowed reviewable partial result. No cleanup/privacy filter removed it.",
+    "fix": "Conservative labelled/corroborated CV header recovery plus missing-name review warning.",
+    "source_fixture": "cases.json#cv-02",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Synthetic Evaluation Candidate 02",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "explicit",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-02/OPENAI-V1-CV-ERR-013",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-014",
+    "case_id": "cv-02",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-02",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-02/OPENAI-V1-CV-ERR-014",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-015",
+    "case_id": "cv-02",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-02",
+    "raw_provider_value": "remote",
+    "expected_normalized_value": "remote",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-02/OPENAI-V1-CV-ERR-015",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-016",
+    "case_id": "cv-03",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": "60 days",
+    "expected_normalized_value": "60 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-016",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-017",
+    "case_id": "cv-03",
+    "field": "/classification/roles/0/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": "DevOps Engineer",
+    "expected_normalized_value": "DevOps Engineer",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-017",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-018",
+    "case_id": "cv-03",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-018",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-019",
+    "case_id": "cv-03",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-019",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-020",
+    "case_id": "cv-03",
+    "field": "/employment/2/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-020",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-021",
+    "case_id": "cv-03",
+    "field": "/identity/display_name",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Raw provider returned null for a clear header name; optional identity allowed reviewable partial result. No cleanup/privacy filter removed it.",
+    "fix": "Conservative labelled/corroborated CV header recovery plus missing-name review warning.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Synthetic Evaluation Candidate 03",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "explicit",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-021",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-022",
+    "case_id": "cv-03",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-022",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-023",
+    "case_id": "cv-03",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-03",
+    "raw_provider_value": "hybrid",
+    "expected_normalized_value": "hybrid",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-03/OPENAI-V1-CV-ERR-023",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-024",
+    "case_id": "cv-04",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-024",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-025",
+    "case_id": "cv-04",
+    "field": "/education/0/field_of_study",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": "Nursing",
+    "expected_normalized_value": "Nursing",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-025",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-026",
+    "case_id": "cv-04",
+    "field": "/education/0/qualification/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Degree preserved, duplicate qualification.name absent.",
+    "fix": "Mirror explicit degree to missing qualification name; retain degree/study decomposition.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": null,
+    "expected_normalized_value": "BSc Nursing",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-026",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-027",
+    "case_id": "cv-04",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-027",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-028",
+    "case_id": "cv-04",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-028",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-029",
+    "case_id": "cv-04",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-029",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-030",
+    "case_id": "cv-04",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-030",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-031",
+    "case_id": "cv-04",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-04",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-04/OPENAI-V1-CV-ERR-031",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-032",
+    "case_id": "cv-05",
+    "field": "/identity/display_name",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Raw provider returned null for a clear header name; optional identity allowed reviewable partial result. No cleanup/privacy filter removed it.",
+    "fix": "Conservative labelled/corroborated CV header recovery plus missing-name review warning.",
+    "source_fixture": "cases.json#cv-05",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Synthetic Evaluation Candidate 05",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "explicit",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-05/OPENAI-V1-CV-ERR-032",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-033",
+    "case_id": "cv-05",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-05",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-05/OPENAI-V1-CV-ERR-033",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-034",
+    "case_id": "cv-05",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-05",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-05/OPENAI-V1-CV-ERR-034",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-035",
+    "case_id": "cv-05",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-05",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-05/OPENAI-V1-CV-ERR-035",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-036",
+    "case_id": "cv-06",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-036",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-037",
+    "case_id": "cv-06",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-037",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-038",
+    "case_id": "cv-06",
+    "field": "/education/0/qualification/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Degree preserved, duplicate qualification.name absent.",
+    "fix": "Mirror explicit degree to missing qualification name; retain degree/study decomposition.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Bachelor of Commerce",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-038",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-039",
+    "case_id": "cv-06",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-039",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-040",
+    "case_id": "cv-06",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-040",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-041",
+    "case_id": "cv-06",
+    "field": "/identity/display_name",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Raw provider returned null for a clear header name; optional identity allowed reviewable partial result. No cleanup/privacy filter removed it.",
+    "fix": "Conservative labelled/corroborated CV header recovery plus missing-name review warning.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Synthetic Evaluation Candidate 06",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "explicit",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-041",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-042",
+    "case_id": "cv-06",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-042",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-043",
+    "case_id": "cv-06",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-043",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-044",
+    "case_id": "cv-06",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-06",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-06/OPENAI-V1-CV-ERR-044",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-045",
+    "case_id": "cv-07",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-07",
+    "raw_provider_value": "15 days",
+    "expected_normalized_value": "15 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-07/OPENAI-V1-CV-ERR-045",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-046",
+    "case_id": "cv-07",
+    "field": "/classification/roles/0/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-07",
+    "raw_provider_value": "CNC Machine Operator",
+    "expected_normalized_value": "CNC Machine Operator",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-07/OPENAI-V1-CV-ERR-046",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-047",
+    "case_id": "cv-07",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-07",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-07/OPENAI-V1-CV-ERR-047",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-048",
+    "case_id": "cv-07",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-07",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-07/OPENAI-V1-CV-ERR-048",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-049",
+    "case_id": "cv-07",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-07",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-07/OPENAI-V1-CV-ERR-049",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-050",
+    "case_id": "cv-07",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-07",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-07/OPENAI-V1-CV-ERR-050",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-051",
+    "case_id": "cv-07",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-07",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-07/OPENAI-V1-CV-ERR-051",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-052",
+    "case_id": "cv-08",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-052",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-053",
+    "case_id": "cv-08",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-053",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-054",
+    "case_id": "cv-08",
+    "field": "/education/0/degree",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": "Diploma",
+    "expected_normalized_value": "Diploma",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-054",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-055",
+    "case_id": "cv-08",
+    "field": "/education/0/field_of_study",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": "Logistics",
+    "expected_normalized_value": "Logistics",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-055",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-056",
+    "case_id": "cv-08",
+    "field": "/education/0/qualification/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": "Diploma",
+    "expected_normalized_value": "Diploma",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-056",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-057",
+    "case_id": "cv-08",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-057",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-058",
+    "case_id": "cv-08",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-058",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-059",
+    "case_id": "cv-08",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-059",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-060",
+    "case_id": "cv-08",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-060",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-061",
+    "case_id": "cv-08",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-08",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-08/OPENAI-V1-CV-ERR-061",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-062",
+    "case_id": "cv-09",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": "60 days",
+    "expected_normalized_value": "60 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-062",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-063",
+    "case_id": "cv-09",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-063",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-064",
+    "case_id": "cv-09",
+    "field": "/classification/roles/0/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": "Sales Manager",
+    "expected_normalized_value": "Sales Manager",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-064",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-065",
+    "case_id": "cv-09",
+    "field": "/education/0/end_date/precision",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": "year",
+    "expected_normalized_value": "year",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-065",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-066",
+    "case_id": "cv-09",
+    "field": "/education/0/end_date/year",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": 2020,
+    "expected_normalized_value": 2020,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-066",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-067",
+    "case_id": "cv-09",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-067",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-068",
+    "case_id": "cv-09",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-068",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-069",
+    "case_id": "cv-09",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-069",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-070",
+    "case_id": "cv-09",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-09",
+    "raw_provider_value": "hybrid",
+    "expected_normalized_value": "hybrid",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-09/OPENAI-V1-CV-ERR-070",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-071",
+    "case_id": "cv-10",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-10",
+    "raw_provider_value": "15 days",
+    "expected_normalized_value": "15 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-10/OPENAI-V1-CV-ERR-071",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-072",
+    "case_id": "cv-10",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-10",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-10/OPENAI-V1-CV-ERR-072",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-073",
+    "case_id": "cv-10",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-10",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-10/OPENAI-V1-CV-ERR-073",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-074",
+    "case_id": "cv-10",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-10",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-10/OPENAI-V1-CV-ERR-074",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-075",
+    "case_id": "cv-10",
+    "field": "/identity/display_name",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Raw provider returned null for a clear header name; optional identity allowed reviewable partial result. No cleanup/privacy filter removed it.",
+    "fix": "Conservative labelled/corroborated CV header recovery plus missing-name review warning.",
+    "source_fixture": "cases.json#cv-10",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Synthetic Evaluation Candidate 10",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "explicit",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-10/OPENAI-V1-CV-ERR-075",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-076",
+    "case_id": "cv-10",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-10",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-10/OPENAI-V1-CV-ERR-076",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-077",
+    "case_id": "cv-10",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-10",
+    "raw_provider_value": "remote",
+    "expected_normalized_value": "remote",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-10/OPENAI-V1-CV-ERR-077",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-078",
+    "case_id": "cv-11",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-078",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-079",
+    "case_id": "cv-11",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-079",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-080",
+    "case_id": "cv-11",
+    "field": "/classification/functions/0/name",
+    "category": "PROVIDER_FACTUAL_ERROR",
+    "root_cause": "Education field Human Resources used to infer function without explicit function declaration.",
+    "fix": "Retain only as inferred intelligence with source-reference and owner review; never claim it is an extracted function.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "Human Resources",
+    "expected_normalized_value": "Human Resources",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-080",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-081",
+    "case_id": "cv-11",
+    "field": "/classification/roles/0/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "HR Recruiter",
+    "expected_normalized_value": "HR Recruiter",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-081",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-082",
+    "case_id": "cv-11",
+    "field": "/education/0/degree",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "MBA",
+    "expected_normalized_value": "MBA",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-082",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-083",
+    "case_id": "cv-11",
+    "field": "/education/0/field_of_study",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "Human Resources",
+    "expected_normalized_value": "Human Resources",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-083",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-084",
+    "case_id": "cv-11",
+    "field": "/education/0/qualification/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "MBA",
+    "expected_normalized_value": "MBA",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-084",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-085",
+    "case_id": "cv-11",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-085",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-086",
+    "case_id": "cv-11",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-086",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-087",
+    "case_id": "cv-11",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-087",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-088",
+    "case_id": "cv-11",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-11",
+    "raw_provider_value": "hybrid",
+    "expected_normalized_value": "hybrid",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-11/OPENAI-V1-CV-ERR-088",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-089",
+    "case_id": "cv-12",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-089",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-090",
+    "case_id": "cv-12",
+    "field": "/education/0/degree",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": "BTech",
+    "expected_normalized_value": "BTech",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-090",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-091",
+    "case_id": "cv-12",
+    "field": "/education/0/field_of_study",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": "Civil Engineering",
+    "expected_normalized_value": "Civil Engineering",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-091",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-092",
+    "case_id": "cv-12",
+    "field": "/education/0/qualification/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Degree preserved, duplicate qualification.name absent.",
+    "fix": "Mirror explicit degree to missing qualification name; retain degree/study decomposition.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": null,
+    "expected_normalized_value": "BTech",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-092",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-093",
+    "case_id": "cv-12",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-093",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-094",
+    "case_id": "cv-12",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-094",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-095",
+    "case_id": "cv-12",
+    "field": "/location/current/country_code",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Explicit India omitted despite current location being retained.",
+    "fix": "Normalize explicit current-location India to IN only when existing city/state matches; never infer preferred country.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": null,
+    "expected_normalized_value": "IN",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-095",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-096",
+    "case_id": "cv-12",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-096",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-097",
+    "case_id": "cv-12",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-12",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-12/OPENAI-V1-CV-ERR-097",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-098",
+    "case_id": "cv-13",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-098",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-099",
+    "case_id": "cv-13",
+    "field": "/classification/roles/0/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": "Secondary School Teacher",
+    "expected_normalized_value": "Secondary School Teacher",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-099",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-100",
+    "case_id": "cv-13",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-100",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-101",
+    "case_id": "cv-13",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-101",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-102",
+    "case_id": "cv-13",
+    "field": "/location/current/country_code",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Explicit India omitted despite current location being retained.",
+    "fix": "Normalize explicit current-location India to IN only when existing city/state matches; never infer preferred country.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": null,
+    "expected_normalized_value": "IN",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-102",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-103",
+    "case_id": "cv-13",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-103",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-104",
+    "case_id": "cv-13",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-104",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-105",
+    "case_id": "cv-13",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-13",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-13/OPENAI-V1-CV-ERR-105",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-106",
+    "case_id": "cv-14",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": "60 days",
+    "expected_normalized_value": "60 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-106",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-107",
+    "case_id": "cv-14",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-107",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-108",
+    "case_id": "cv-14",
+    "field": "/education/0/end_date/precision",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": "year",
+    "expected_normalized_value": "year",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-108",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-109",
+    "case_id": "cv-14",
+    "field": "/education/0/end_date/year",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": 2020,
+    "expected_normalized_value": 2020,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-109",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-110",
+    "case_id": "cv-14",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-110",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-111",
+    "case_id": "cv-14",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-111",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-112",
+    "case_id": "cv-14",
+    "field": "/location/current/city",
+    "category": "GOLDEN_DATASET_EXPECTATION_ERROR",
+    "root_cause": "Golden treats Goa as a city; source only states Goa, India, and provider correctly retains Goa as state.",
+    "fix": "Keep state; retain frozen strict failure and separately document proposed golden erratum.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-112",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-113",
+    "case_id": "cv-14",
+    "field": "/location/current/state",
+    "category": "GOLDEN_DATASET_EXPECTATION_ERROR",
+    "root_cause": "Golden treats Goa as a city; source only states Goa, India, and provider correctly retains Goa as state.",
+    "fix": "Keep state; retain frozen strict failure and separately document proposed golden erratum.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": "Goa",
+    "expected_normalized_value": "Goa",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-113",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-114",
+    "case_id": "cv-14",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-114",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-115",
+    "case_id": "cv-14",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-115",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-116",
+    "case_id": "cv-14",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-14",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-14/OPENAI-V1-CV-ERR-116",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-117",
+    "case_id": "cv-15",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-117",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-118",
+    "case_id": "cv-15",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-118",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-119",
+    "case_id": "cv-15",
+    "field": "/classification/roles/0/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": "Retail Store Manager",
+    "expected_normalized_value": "Retail Store Manager",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-119",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-120",
+    "case_id": "cv-15",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-120",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-121",
+    "case_id": "cv-15",
+    "field": "/employment/0/responsibilities/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Duty exists in employment.description rather than responsibilities; field projection differs.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-121",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-122",
+    "case_id": "cv-15",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-122",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-123",
+    "case_id": "cv-15",
+    "field": "/employment/1/responsibilities/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Duty exists in employment.description rather than responsibilities; field projection differs.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-123",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-124",
+    "case_id": "cv-15",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-124",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-125",
+    "case_id": "cv-15",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-125",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-126",
+    "case_id": "cv-15",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-15",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-15/OPENAI-V1-CV-ERR-126",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-127",
+    "case_id": "cv-16",
+    "field": "/classification/roles/0/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-16",
+    "raw_provider_value": "Legal Associate",
+    "expected_normalized_value": "Legal Associate",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-16/OPENAI-V1-CV-ERR-127",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-128",
+    "case_id": "cv-16",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-16",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-16/OPENAI-V1-CV-ERR-128",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-129",
+    "case_id": "cv-16",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-16",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-16/OPENAI-V1-CV-ERR-129",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-130",
+    "case_id": "cv-16",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-16",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-16/OPENAI-V1-CV-ERR-130",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-131",
+    "case_id": "cv-16",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-16",
+    "raw_provider_value": "hybrid",
+    "expected_normalized_value": "hybrid",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-16/OPENAI-V1-CV-ERR-131",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-132",
+    "case_id": "cv-17",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": "15 days",
+    "expected_normalized_value": "15 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-132",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-133",
+    "case_id": "cv-17",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-133",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-134",
+    "case_id": "cv-17",
+    "field": "/education/0/field_of_study",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": "Logistics",
+    "expected_normalized_value": "Logistics",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-134",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-135",
+    "case_id": "cv-17",
+    "field": "/education/0/qualification/name",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Education decomposition or graduation-year projection differs; source information retained across degree/qualification/field_of_study/end_date.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": "Diploma",
+    "expected_normalized_value": "Diploma",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-135",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-136",
+    "case_id": "cv-17",
+    "field": "/location/preferred/0/country_code",
+    "category": "GOLDEN_DATASET_EXPECTATION_ERROR",
+    "root_cause": "Preferred cities do not explicitly state a country; golden inherits IN from current location.",
+    "fix": "No cross-location country inference; keep null and publish proposed golden erratum.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-136",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-137",
+    "case_id": "cv-17",
+    "field": "/location/preferred/1/country_code",
+    "category": "GOLDEN_DATASET_EXPECTATION_ERROR",
+    "root_cause": "Preferred cities do not explicitly state a country; golden inherits IN from current location.",
+    "fix": "No cross-location country inference; keep null and publish proposed golden erratum.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-137",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-138",
+    "case_id": "cv-17",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-138",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-139",
+    "case_id": "cv-17",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-17",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-17/OPENAI-V1-CV-ERR-139",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-140",
+    "case_id": "cv-18",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-18",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-18/OPENAI-V1-CV-ERR-140",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-141",
+    "case_id": "cv-18",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-18",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-18/OPENAI-V1-CV-ERR-141",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-142",
+    "case_id": "cv-18",
+    "field": "/professional/headline",
+    "category": "GOLDEN_DATASET_EXPECTATION_ERROR",
+    "root_cause": "Source contains two explicit headline wordings (header and later Technician); golden accepts only the longer header.",
+    "fix": "Do not overwrite a source-backed headline to satisfy a conflicting golden; preserve ambiguity for review.",
+    "source_fixture": "cases.json#cv-18",
+    "raw_provider_value": "Technician",
+    "expected_normalized_value": "Technician",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-18/OPENAI-V1-CV-ERR-142",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-143",
+    "case_id": "cv-19",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-19",
+    "raw_provider_value": "0 days",
+    "expected_normalized_value": "0 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-19/OPENAI-V1-CV-ERR-143",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-144",
+    "case_id": "cv-19",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-19",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-19/OPENAI-V1-CV-ERR-144",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-145",
+    "case_id": "cv-19",
+    "field": "/education/0/degree",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Higher Secondary preserved in qualification.name, duplicate degree absent.",
+    "fix": "Mirror explicit qualification to missing degree.",
+    "source_fixture": "cases.json#cv-19",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Higher Secondary",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-19/OPENAI-V1-CV-ERR-145",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-146",
+    "case_id": "cv-19",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-19",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-19/OPENAI-V1-CV-ERR-146",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-147",
+    "case_id": "cv-19",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-19",
+    "raw_provider_value": "hybrid",
+    "expected_normalized_value": "hybrid",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-19/OPENAI-V1-CV-ERR-147",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-148",
+    "case_id": "cv-19",
+    "field": "/professional/summary",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-19",
+    "raw_provider_value": "Career starter with no employment experience.",
+    "expected_normalized_value": "Career starter with no employment experience.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-19/OPENAI-V1-CV-ERR-148",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-149",
+    "case_id": "cv-20",
+    "field": "/availability/notice_period_raw",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": "30 days",
+    "expected_normalized_value": "30 days",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-149",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-150",
+    "case_id": "cv-20",
+    "field": "/certifications",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-150",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-151",
+    "case_id": "cv-20",
+    "field": "/employment/0/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-151",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-152",
+    "case_id": "cv-20",
+    "field": "/employment/1/description",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": "Performed the stated professional duties.",
+    "expected_normalized_value": "Performed the stated professional duties.",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-152",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-153",
+    "case_id": "cv-20",
+    "field": "/identity/display_name",
+    "category": "PROVIDER_OMISSION",
+    "root_cause": "Raw provider returned null for a clear header name; optional identity allowed reviewable partial result. No cleanup/privacy filter removed it.",
+    "fix": "Conservative labelled/corroborated CV header recovery plus missing-name review warning.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": null,
+    "expected_normalized_value": "Synthetic Evaluation Candidate 20",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "explicit",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-153",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-154",
+    "case_id": "cv-20",
+    "field": "/location/preferred",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Unknown collection is null; sparse golden uses empty array without evidence of explicitly none.",
+    "fix": "Preserve null vs explicit []; adjust representation metric only for these documented unknown collection comparisons.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": null,
+    "expected_normalized_value": null,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "state": "absent"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-154",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-155",
+    "case_id": "cv-20",
+    "field": "/location/remote_preference",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Single explicit mode exists in preferences.work_modes, duplicate singular projection is null.",
+    "fix": "Mirror a single non-conflicting mode; conflict remains reviewable.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": null,
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "system_derived",
+      "kind": "normalized",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-155",
+    "original_scored_error": true
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-156",
+    "case_id": "cv-20",
+    "field": "/preferences/work_modes/0",
+    "category": "SCHEMA_REPRESENTATION_DIFFERENCE",
+    "root_cause": "Sparse golden omits a supported alternate representation.",
+    "fix": "Preserve source-backed representation; no factual correction. Distinct strict/adjusted scoring.",
+    "source_fixture": "cases.json#cv-20",
+    "raw_provider_value": "onsite",
+    "expected_normalized_value": "onsite",
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-20/OPENAI-V1-CV-ERR-156",
+    "original_scored_error": false
+  },
+  {
+    "id": "OPENAI-V1-CV-ERR-157",
+    "case_id": "cv-19",
+    "field": "/adapter/professional/total_experience_months",
+    "category": "DETERMINISTIC_POSTPROCESSING_BUG",
+    "root_cause": "Unconditional assignment of unknown CalculateExperience(empty employment) replaced valid extracted zero.",
+    "fix": "Only replace with a known derived total; retain explicit source total and unknown confidence.",
+    "source_fixture": "cases.json#cv-19",
+    "raw_provider_value": null,
+    "expected_normalized_value": 0,
+    "expected_validation_status": "requires_review",
+    "expected_provenance": {
+      "source": "ai_derived",
+      "kind": "inferred",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "regression_test": "TestCapturedProviderHardeningReplay/cv-19/OPENAI-V1-CV-ERR-157",
+    "original_scored_error": false
+  }
+]

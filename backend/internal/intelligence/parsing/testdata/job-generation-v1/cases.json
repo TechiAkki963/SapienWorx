@@ -1,0 +1,438 @@
+[
+  {
+    "id": "jdgen-01",
+    "sector": "Technology",
+    "fields": {
+      "title": "Software Engineer",
+      "location": "Bengaluru",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Go",
+        "SQL"
+      ],
+      "responsibilities": "Build and maintain the supplied service specifications."
+    },
+    "must_preserve": [
+      "Software Engineer",
+      "Bengaluru",
+      "Go",
+      "SQL",
+      "Build and maintain the supplied service specifications."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-02",
+    "sector": "Healthcare",
+    "fields": {
+      "title": "Registered Nurse",
+      "location": "Pune",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Patient Assessment"
+      ],
+      "responsibilities": "Maintain clinical documentation for assigned patients."
+    },
+    "must_preserve": [
+      "Registered Nurse",
+      "Pune",
+      "Patient Assessment",
+      "Maintain clinical documentation for assigned patients."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-03",
+    "sector": "BFSI",
+    "fields": {
+      "title": "Relationship Officer",
+      "location": "Mumbai",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Account Management"
+      ],
+      "responsibilities": "Respond to account enquiries and maintain records."
+    },
+    "must_preserve": [
+      "Relationship Officer",
+      "Mumbai",
+      "Account Management",
+      "Respond to account enquiries and maintain records."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-04",
+    "sector": "Manufacturing",
+    "fields": {
+      "title": "CNC Machine Operator",
+      "location": "Ahmedabad",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "CNC Operation"
+      ],
+      "responsibilities": "Operate the assigned CNC equipment using approved instructions."
+    },
+    "must_preserve": [
+      "CNC Machine Operator",
+      "Ahmedabad",
+      "CNC Operation",
+      "Operate the assigned CNC equipment using approved instructions."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-05",
+    "sector": "Sales",
+    "fields": {
+      "title": "Area Sales Manager",
+      "location": "Hyderabad",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Negotiation"
+      ],
+      "responsibilities": "Maintain the assigned sales pipeline and account records."
+    },
+    "must_preserve": [
+      "Area Sales Manager",
+      "Hyderabad",
+      "Negotiation",
+      "Maintain the assigned sales pipeline and account records."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-06",
+    "sector": "Retail",
+    "fields": {
+      "title": "Store Associate",
+      "location": "Jaipur",
+      "min_experience_years": 0,
+      "max_experience_years": 5,
+      "skills": [
+        "Customer Service"
+      ],
+      "responsibilities": "Assist customers and maintain stock records."
+    },
+    "must_preserve": [
+      "Store Associate",
+      "Jaipur",
+      "Customer Service",
+      "Assist customers and maintain stock records."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-07",
+    "sector": "Logistics",
+    "fields": {
+      "title": "Warehouse Supervisor",
+      "location": "Chennai",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Warehouse Operations"
+      ],
+      "responsibilities": "Coordinate goods receipt and dispatch records."
+    },
+    "must_preserve": [
+      "Warehouse Supervisor",
+      "Chennai",
+      "Warehouse Operations",
+      "Coordinate goods receipt and dispatch records."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-08",
+    "sector": "Education",
+    "fields": {
+      "title": "School Teacher",
+      "location": "Kochi",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Classroom Management"
+      ],
+      "responsibilities": "Prepare lessons and record student progress."
+    },
+    "must_preserve": [
+      "School Teacher",
+      "Kochi",
+      "Classroom Management",
+      "Prepare lessons and record student progress."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-09",
+    "sector": "Hospitality",
+    "fields": {
+      "title": "Hotel Operations Manager",
+      "location": "Goa",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Guest Services"
+      ],
+      "responsibilities": "Coordinate guest requests and daily operations."
+    },
+    "must_preserve": [
+      "Hotel Operations Manager",
+      "Goa",
+      "Guest Services",
+      "Coordinate guest requests and daily operations."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-10",
+    "sector": "HR",
+    "fields": {
+      "title": "HR Coordinator",
+      "location": "Delhi",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Employee Relations"
+      ],
+      "responsibilities": "Maintain recruitment schedules and employee records."
+    },
+    "must_preserve": [
+      "HR Coordinator",
+      "Delhi",
+      "Employee Relations",
+      "Maintain recruitment schedules and employee records."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-11",
+    "sector": "Construction",
+    "fields": {
+      "title": "Civil Engineer",
+      "location": "Surat",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Construction Management"
+      ],
+      "responsibilities": "Review site progress against supplied drawings."
+    },
+    "must_preserve": [
+      "Civil Engineer",
+      "Surat",
+      "Construction Management",
+      "Review site progress against supplied drawings."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-12",
+    "sector": "Finance",
+    "fields": {
+      "title": "Finance Analyst",
+      "location": "Gurugram",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Financial Reporting"
+      ],
+      "responsibilities": "Prepare the requested financial reports."
+    },
+    "must_preserve": [
+      "Finance Analyst",
+      "Gurugram",
+      "Financial Reporting",
+      "Prepare the requested financial reports."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-13",
+    "sector": "Legal",
+    "fields": {
+      "title": "Legal Associate",
+      "location": "Kolkata",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Legal Research"
+      ],
+      "responsibilities": "Review the assigned documents and prepare research notes."
+    },
+    "must_preserve": [
+      "Legal Associate",
+      "Kolkata",
+      "Legal Research",
+      "Review the assigned documents and prepare research notes."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  },
+  {
+    "id": "jdgen-14",
+    "sector": "Blue-collar",
+    "fields": {
+      "title": "Electrical Technician",
+      "location": "Vadodara",
+      "min_experience_years": 2,
+      "max_experience_years": 5,
+      "skills": [
+        "Electrical Maintenance"
+      ],
+      "responsibilities": "Inspect the assigned electrical equipment and record findings."
+    },
+    "must_preserve": [
+      "Electrical Technician",
+      "Vadodara",
+      "Electrical Maintenance",
+      "Inspect the assigned electrical equipment and record findings."
+    ],
+    "must_not_invent": [
+      "salary",
+      "benefits",
+      "visa",
+      "Bachelor",
+      "certification",
+      "remote",
+      "travel",
+      "night shift",
+      "diversity"
+    ]
+  }
+]

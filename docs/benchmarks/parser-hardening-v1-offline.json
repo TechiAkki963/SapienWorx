@@ -1,0 +1,173 @@
+{
+  "kind": "OFFLINE_CAPTURED_REPLAY_NOT_REAL_BASELINE",
+  "version": "parser-hardening-v1",
+  "date": "2026-10-19",
+  "model": "gpt-6-luna",
+  "provider_calls": 0,
+  "metrics": {
+    "job.parse": {
+      "before_exact_field_correctness": {
+        "numerator": 212,
+        "denominator": 220
+      },
+      "before_normalized_field_correctness": {
+        "numerator": 212,
+        "denominator": 220
+      },
+      "after_exact_field_correctness": {
+        "numerator": 220,
+        "denominator": 220
+      },
+      "after_normalized_field_correctness": {
+        "numerator": 220,
+        "denominator": 220
+      },
+      "representation_adjusted_before": {
+        "numerator": 212,
+        "denominator": 220
+      },
+      "representation_adjusted_after": {
+        "numerator": 220,
+        "denominator": 220
+      },
+      "cases": 20,
+      "schema_pass": 20,
+      "domain_pass": 20,
+      "canonical_profile_pass": 20,
+      "human_review_rate": 1.0,
+      "regression_failures": 0,
+      "remaining_strict_errors": {}
+    },
+    "cv.parse": {
+      "before_exact_field_correctness": {
+        "numerator": 924,
+        "denominator": 996
+      },
+      "before_normalized_field_correctness": {
+        "numerator": 928,
+        "denominator": 996
+      },
+      "after_exact_field_correctness": {
+        "numerator": 949,
+        "denominator": 996
+      },
+      "after_normalized_field_correctness": {
+        "numerator": 949,
+        "denominator": 996
+      },
+      "representation_adjusted_before": {
+        "numerator": 984,
+        "denominator": 996
+      },
+      "representation_adjusted_after": {
+        "numerator": 992,
+        "denominator": 996
+      },
+      "cases": 20,
+      "schema_pass": 20,
+      "domain_pass": 20,
+      "canonical_profile_pass": 20,
+      "human_review_rate": 1.0,
+      "regression_failures": 0,
+      "remaining_strict_errors": {
+        "/certifications": 13,
+        "/education/0/degree": 4,
+        "/education/0/qualification/name": 5,
+        "/location/preferred": 19,
+        "/location/current/city": 1,
+        "/employment/0/responsibilities/0": 1,
+        "/employment/1/responsibilities/0": 1,
+        "/location/preferred/0/country_code": 1,
+        "/location/preferred/1/country_code": 1,
+        "/professional/headline": 1
+      }
+    }
+  },
+  "error_categories": {
+    "PROVIDER_FACTUAL_ERROR": 21,
+    "CONTRACT_LIMITATION": 4,
+    "SCHEMA_REPRESENTATION_DIFFERENCE": 146,
+    "PROVIDER_OMISSION": 8,
+    "GOLDEN_DATASET_EXPECTATION_ERROR": 5,
+    "DETERMINISTIC_POSTPROCESSING_BUG": 1
+  },
+  "regressions": 185,
+  "regression_failures": 0,
+  "normalization_regression_errors": 0,
+  "postprocessing_regression_errors": 0,
+  "tests": {
+    "full_backend_race_top_level": {
+      "skip": 26,
+      "pass": 308
+    },
+    "full_backend_all_test_events": {
+      "skip": 26,
+      "pass": 985
+    },
+    "final_focused_race_top_level": {
+      "pass": 54,
+      "skip": 1
+    },
+    "database_effective": {
+      "PASS": 26
+    }
+  },
+  "benchmarks_median_ms": {
+    "jd-05/before": 0.005828,
+    "jd-05/after": 0.076744,
+    "jd-05/schema": 0.318227,
+    "cv-01/before": 0.15101,
+    "cv-01/after": 0.227994,
+    "cv-01/schema": 4.138239,
+    "cv-19/before": 0.119135,
+    "cv-19/after": 0.162506,
+    "cv-19/schema": 4.086193
+  },
+  "frozen_hashes_unchanged": {
+    "backend/internal/intelligence/evaluation/testdata/cvs.v1.json": "8de9fcaf8fdab94a96dfff4e0e30bd0f51641310ec34a9b2f87854f138cf8244",
+    "backend/internal/intelligence/evaluation/testdata/jobs.v1.json": "69cb9ec774d41b6c52d06bf6f861da2e76d2d01fa5286871b79689bb4e82de07",
+    "backend/internal/intelligence/evaluation/testdata/taxonomy.v1.json": "8430f294a3acc8d43ce8c55df885da6f9240a95f83ca84f418c93fe6bc0a565d",
+    "docs/benchmarks/openai-parsing-baseline-v1-attempts.csv": "1d725cd7611689efaafff67de6a8a79f879515d601ddab7b07c0099662e3bfd6",
+    "docs/benchmarks/openai-parsing-baseline-v1-errors.csv": "573a3329c413a332c43b90a94d3f8ebd5fa04a4627ddef341b0959f31b241d12",
+    "docs/benchmarks/openai-parsing-baseline-v1.json": "1a2cd4f3f29caf7db429b37fc02b501ec177e013ca6483836909c477ef78b5c1",
+    "docs/openai-parsing-real-provider-report.md": "05e5ff1c14ed0cbbbccd5acc12872e5b405fd912d13dbf18e038b4b145623a48",
+    "tmp/real-evaluation-v1/openai-parsing-baseline-v1.jsonl": "cab5abdaad8b30adf98b4bc6fba48a23527f89618d5199cbe7e94345d50962eb",
+    "docs/openai-parsing-evaluation-plan.v1.json": "b996b3ccea3d7c928181c1d348ba30a2b430688e2e7dd4decd0f2485f3843206",
+    "C:/Users/Admin/Documents/SapienWorx/.env": "fa14c860ca212b9b6fa0076687189fdee77e7969c2107f34344a2fa7f1cee3bb"
+  },
+  "original_source_files_unchanged": 61,
+  "head": "b00fab7ee80f7eb4791d64e2e85e95657643129e",
+  "staged_files": 0,
+  "targeted_retest_proposal": {
+    "approx_input_tokens": 18563,
+    "approx_output_tokens": 5049,
+    "calls": 6,
+    "case_ids": [
+      "jd-05",
+      "jd-19",
+      "cv-02",
+      "cv-12",
+      "cv-19",
+      "cv-18"
+    ],
+    "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+    "estimated_usd": 0.004380800000000001,
+    "hard_cost_cap_usd": 0.03,
+    "hard_request_cap": 6,
+    "input_token_byte_bound": 95750,
+    "manifest_hash_for_planning_only": "a39bfb11dad86383d423f0442731e57b65825d658a7c1e64375c9c653b823651",
+    "maximum_output_tokens": 28672,
+    "model": "gpt-6-luna",
+    "pricing_version": "openai-standard-2026-10-17.v1",
+    "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+    "prompt_version": "p2",
+    "schema_sha256": {
+      "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177",
+      "job.parse": "06c3a8e1dfcb5aae0f69c211e5810b9c6dfd7d60a4c046b3a8dec394bef784e9"
+    },
+    "status": "PROPOSED_NOT_AUTHORIZED_NOT_EXECUTED",
+    "worst_case_usd": 0.026306
+  },
+  "readiness": "READY FOR TARGETED REAL RE-TEST",
+  "beta_ready": false
+}

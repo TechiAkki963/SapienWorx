@@ -1,0 +1,296 @@
+{
+  "title": "OpenAI Provider Reliability Hardening V1 Report",
+  "date": "2026-10-19",
+  "readiness": "READY FOR MINIMAL REAL RETEST",
+  "real_provider_calls": 0,
+  "real_cost_usd": 0,
+  "global_openai_enabled": false,
+  "model": "gpt-6-luna",
+  "historical_failure": {
+    "id": "cv-02",
+    "latency_ms": 15007,
+    "public_code": "AI_PROVIDER_UNAVAILABLE",
+    "source_of_15s_limit": "pre-hardening adapter transport.ResponseHeaderTimeout=15*time.Second",
+    "specific_observed_cause": "UNDETERMINED_FROM_RETAINED_EVIDENCE",
+    "timing_consistency": "consistent with local header deadline; no raw error/status/request ID/usage retained",
+    "local_offline_reproduction": "PASS: real loopback HTTP transport, shortened10ms header deadline, live1s parent context; new classification provider_timeout"
+  },
+  "latency_evidence_original20_each": {
+    "job.parse": {
+      "observations": 20,
+      "p50_ms": 3805.5,
+      "p95_nearest_rank_ms": 5174,
+      "max_ms": 7814,
+      "input_tokens_min": 548,
+      "input_tokens_max": 590,
+      "output_tokens_min": 134,
+      "output_tokens_max": 390
+    },
+    "cv.parse": {
+      "observations": 20,
+      "p50_ms": 9745.0,
+      "p95_nearest_rank_ms": 11414,
+      "max_ms": 11667,
+      "input_tokens_min": 3084,
+      "input_tokens_max": 3214,
+      "output_tokens_min": 1298,
+      "output_tokens_max": 2203
+    }
+  },
+  "task_timeouts_seconds": {
+    "job.parse": {
+      "attempt": 20,
+      "logical_default_one_retry": 45
+    },
+    "cv.parse": {
+      "attempt": 30,
+      "logical_default_one_retry": 65
+    },
+    "job.generate_description": {
+      "fallback_total": 20
+    },
+    "search.parse_query": {
+      "fallback_total": 20
+    }
+  },
+  "retry_policy": {
+    "application_default_retries": 1,
+    "existing_configurable_application_retry_range": "0..3",
+    "evaluation_default_retries": 0,
+    "targeted_evaluation_allowed_retries": "0..1",
+    "sdk_retries": 0,
+    "base_exponential_ms": 250,
+    "jitter": "half to full delay",
+    "max_delay_ms": 5000,
+    "long_retry_after": "stop; do not retry earlier",
+    "per_attempt_budget": true,
+    "unknown_usage_full_reservation": true
+  },
+  "circuit": {
+    "threshold": 3,
+    "cooldown_seconds": 30,
+    "half_open": "one probe",
+    "success_reset": true,
+    "auth_failure_opens_immediately": true,
+    "caller_cancel_does_not_degrade": true
+  },
+  "cv_categories": {
+    "FACTUAL_ERROR": 0,
+    "OMISSION": 0,
+    "EQUIVALENT_REPRESENTATION": 11,
+    "NORMALIZATION_DIFFERENCE": 0,
+    "CONTRACT_AMBIGUITY": 1,
+    "EVALUATOR_OVER_STRICTNESS": 35,
+    "POSTPROCESSING_ERROR": 0
+  },
+  "tests": {
+    "full_backend_top_level": {
+      "skip": 26,
+      "pass": 329
+    },
+    "full_backend_test_subtest_pass_events": 1011,
+    "full_backend_packages_pass": 25,
+    "captured_cases": 40,
+    "captured_regressions": 185,
+    "isolated_affected_database_gates": [
+      {
+        "test": "TestAIGovernanceIsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      },
+      {
+        "test": "TestPhase1IsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      }
+    ],
+    "isolated_test_and_subtest_pass_events": 9,
+    "http_completion_headroom_followup": "PASS",
+    "go_vet": "PASS",
+    "native_loopback_note": "Native Windows loopback reproduction did not pass in the restricted execution environment; identical test passed in the network-isolated Linux race suite."
+  },
+  "integrity": {
+    "pre_task_snapshot_files": 196,
+    "protected_snapshot_files_unchanged": 180,
+    "intentional_changed_existing_snapshot_files": 16,
+    "api_attempt_log_wiring_also_changed": true,
+    "new_go_files": 8,
+    "parser_quality_code_unchanged": true,
+    "canonical_and_wire_schemas_unchanged": true,
+    "prompts_unchanged": true,
+    "goldens_and_scoring_unchanged": true,
+    "v1_and_targeted_retest_reports_unchanged": true,
+    "pricing_unchanged": true,
+    "private_env_hash_unchanged": true,
+    "commit_push_merge_deploy": false
+  },
+  "retest_proposal": {
+    "kind": "PROPOSAL_ONLY_NOT_EXECUTED",
+    "model": "gpt-6-luna",
+    "logical_cases": 4,
+    "maximum_provider_attempts": 8,
+    "cases": [
+      "cv-02",
+      "cv-12",
+      "cv-19",
+      "cv-18"
+    ],
+    "jd_retest_cases": [],
+    "reason_no_jd_repeat": "The two affected JD real cases already passed; prompts, wire schemas, normalization and scoring are unchanged. Shared reliability paths have offline JD regression coverage.",
+    "gate": "Run cv-02 alone. Inspect source name, schema/domain, final profile and private trace. Only after PASS and explicit follow-up authorization may the other three cases be dispatched. No automatic second-phase dispatch.",
+    "maximum_retries_per_case": 1,
+    "concurrency": 1,
+    "attempt_timeout_seconds": 30,
+    "operation_timeout_seconds": 65,
+    "expected_no_retry_usd": 0.003755,
+    "conservative_all_attempts_usd": 0.044226,
+    "hard_total_usd": 0.046,
+    "caps_are_independent_and_additive": true,
+    "no_budget_reallocation": true,
+    "phases": [
+      {
+        "phase": "FIRST_CV02_ONLY",
+        "executed": false,
+        "plan": {
+          "task_timeout_seconds": {
+            "cv.parse": 30
+          },
+          "operation_timeout_seconds": {
+            "cv.parse": 65
+          },
+          "prompt_version": "p2",
+          "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+          "schema_sha256": {
+            "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177"
+          },
+          "dataset_version": "synthetic-parsing-eval-v1",
+          "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+          "model": "gpt-6-luna",
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+          "service_tier": "default",
+          "requests": 1,
+          "tasks": {
+            "cv.parse": {
+              "requests": 1,
+              "approx_input_tokens": 3992,
+              "input_token_byte_bound": 19551,
+              "approx_output_tokens": 1124,
+              "maximum_output_tokens": 12288,
+              "estimated_usd": 0.0009612,
+              "worst_case_usd": 0.011032
+            }
+          },
+          "approx_input_tokens": 3992,
+          "input_token_byte_bound": 19551,
+          "approx_output_tokens": 1124,
+          "maximum_output_tokens": 12288,
+          "estimated_total_usd": 0.0009612,
+          "worst_case_total_usd": 0.011032,
+          "cost_cap_usd": 0.012,
+          "hard_request_cap": 2,
+          "timeout_seconds": 30,
+          "retries": 1,
+          "concurrency": 1,
+          "case_ids": [
+            "cv-02"
+          ],
+          "plan_sha256": "2ac72ff3b0a2385b6b759ef0e3cb231b350180a3dac5a17192ae6b23e1db46c0"
+        },
+        "estimates": [
+          {
+            "case_id": "cv-02",
+            "task": "cv.parse",
+            "estimated_input_tokens": 3992,
+            "estimated_output_tokens": 1124,
+            "max_output_tokens": 6144,
+            "estimated_cost_usd": 0.0009612,
+            "conservative_cost_usd": 0.005516
+          }
+        ]
+      },
+      {
+        "phase": "ONLY_AFTER_CV02_HUMAN_REVIEW_PASS",
+        "executed": false,
+        "plan": {
+          "task_timeout_seconds": {
+            "cv.parse": 30
+          },
+          "operation_timeout_seconds": {
+            "cv.parse": 65
+          },
+          "prompt_version": "p2",
+          "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+          "schema_sha256": {
+            "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177"
+          },
+          "dataset_version": "synthetic-parsing-eval-v1",
+          "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+          "model": "gpt-6-luna",
+          "pricing_version": "openai-standard-2026-10-17.v1",
+          "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+          "service_tier": "default",
+          "requests": 3,
+          "tasks": {
+            "cv.parse": {
+              "requests": 3,
+              "approx_input_tokens": 12073,
+              "input_token_byte_bound": 59041,
+              "approx_output_tokens": 3173,
+              "maximum_output_tokens": 36864,
+              "estimated_usd": 0.0027938,
+              "worst_case_usd": 0.033194
+            }
+          },
+          "approx_input_tokens": 12073,
+          "input_token_byte_bound": 59041,
+          "approx_output_tokens": 3173,
+          "maximum_output_tokens": 36864,
+          "estimated_total_usd": 0.0027938,
+          "worst_case_total_usd": 0.033194,
+          "cost_cap_usd": 0.034,
+          "hard_request_cap": 6,
+          "timeout_seconds": 30,
+          "retries": 1,
+          "concurrency": 1,
+          "case_ids": [
+            "cv-12",
+            "cv-19",
+            "cv-18"
+          ],
+          "plan_sha256": "60ea03509cdde9cadbdf9856abe9f9edd3880dfe0b2559580c0847789624c3d9"
+        },
+        "estimates": [
+          {
+            "case_id": "cv-12",
+            "task": "cv.parse",
+            "estimated_input_tokens": 4041,
+            "estimated_output_tokens": 1125,
+            "max_output_tokens": 6144,
+            "estimated_cost_usd": 0.0009666000000000001,
+            "conservative_cost_usd": 0.005541
+          },
+          {
+            "case_id": "cv-19",
+            "task": "cv.parse",
+            "estimated_input_tokens": 3942,
+            "estimated_output_tokens": 849,
+            "max_output_tokens": 6144,
+            "estimated_cost_usd": 0.0008187,
+            "conservative_cost_usd": 0.005491
+          },
+          {
+            "case_id": "cv-18",
+            "task": "cv.parse",
+            "estimated_input_tokens": 4090,
+            "estimated_output_tokens": 1199,
+            "max_output_tokens": 6144,
+            "estimated_cost_usd": 0.0010085,
+            "conservative_cost_usd": 0.005565
+          }
+        ]
+      }
+    ],
+    "authorization": "No live requests authorized or executed in this task; these are future reviewable manifests only."
+  }
+}

@@ -1,0 +1,4 @@
+case_id,task,requested_model,returned_model,attempt_number,success,status,error_code,input_tokens,cached_input_tokens,cache_write_input_tokens,output_tokens,total_tokens,latency_ms,estimated_cost_usd,conservative_cost_usd,provider_request_id,schema
+jd-05,job.parse,gpt-6-luna,gpt-6-luna,1,True,requires_review,,782,0,0,258,1040,8123,0.0002072,0.0002072,req_c3cbf7a0eab14f54af54556633b5ebc9,PASS
+jd-19,job.parse,gpt-6-luna,gpt-6-luna,1,True,requires_review,,811,0,0,201,1012,3276,0.00018160000000000002,0.00018160000000000002,req_545d36a8256a4917b2e8f0fbb77e042e,PASS
+cv-02,cv.parse,gpt-6-luna,gpt-6-luna,1,False,failed,AI_PROVIDER_UNAVAILABLE,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,15007,UNKNOWN,0.005516,UNAVAILABLE,NOT_EVALUATED_NO_RESPONSE

@@ -1,0 +1,49 @@
+name: Governed AI parsing
+on:
+  pull_request:
+    branches: [main]
+    paths: ["backend/**", "database/migrations/**", "config/**", "deploy/beta/**", "testdata/ai-parsing/**", "scripts/verify-ai-boundary.py", ".github/workflows/intelligence-openai-ci.yml"]
+  push:
+    branches: [main]
+    paths: ["backend/**", "database/migrations/**", "config/**", "deploy/beta/**", "testdata/ai-parsing/**", "scripts/verify-ai-boundary.py", ".github/workflows/intelligence-openai-ci.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: ai-parsing-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  mock-and-governance:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ai_test
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: sapienworx_ai_phase1_test
+        ports: ["5432:5432"]
+        options: --health-cmd="pg_isready -U ai_test -d sapienworx_ai_phase1_test" --health-interval=5s --health-timeout=3s --health-retries=10
+    env:
+      AI_ENABLED: "false"
+      OPENAI_ENABLED: "false"
+      AI_REAL_PROVIDER_SMOKE: "false"
+      AI_PHASE1_TEST_DATABASE_URL: postgres://ai_test:synthetic-ci-only@127.0.0.1:5432/sapienworx_ai_phase1_test?sslmode=disable
+      AI_JD_GENERATION_TEST_DATABASE_URL: postgres://ai_test:synthetic-ci-only@127.0.0.1:5432/sapienworx_jd_generation_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.9"
+          cache-dependency-path: backend/go.sum
+      - name: Provider boundary
+        run: python3 scripts/verify-ai-boundary.py
+      - name: Isolated JD generation database
+        env:
+          PGPASSWORD: synthetic-ci-only
+        run: createdb -h 127.0.0.1 -U ai_test sapienworx_jd_generation_test
+      - name: Mock provider and real isolated budget/privacy database gates
+        working-directory: backend
+        run: go test -race ./internal/intelligence/gateway/... ./internal/intelligence/parsing ./internal/workforce ./cmd/ai-parse-smoke ./internal/candidate/profilecontract ./internal/resume -count=1
+      - name: Contract fuzz smoke (no providers)
+        working-directory: backend
+        run: go test ./internal/candidate/profilecontract -run '^$' -fuzz Fuzz -fuzztime=5s
