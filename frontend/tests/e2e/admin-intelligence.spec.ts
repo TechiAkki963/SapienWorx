@@ -38,7 +38,7 @@ test.describe("Master Admin Intelligence Centre", () => {
     await expect(switches.getByText("embedding_generation", { exact: true })).toBeVisible();
     await expect(switches.getByText("semantic_search", { exact: true })).toBeVisible();
     await expect(switches.getByText("human_review_queue", { exact: true })).toBeVisible();
-    await expect(switches.getByRole("button", { name: "Enable with approval" })).toHaveCount(12);
+    await expect(switches.getByRole("button", { name: "Enable with approval" })).toHaveCount(16);
 
     await expect(page.getByRole("button", { name: "Queue advisory analysis" })).toBeVisible();
     await expect(page.getByText("Register candidate model/version", { exact: true })).toBeVisible();

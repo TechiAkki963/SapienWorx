@@ -14,6 +14,9 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/emaildelivery"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway/openaiadapter"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/parsing"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/database"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/httpserver"
@@ -32,7 +35,7 @@ func main() {
 }
 
 func run(logger *slog.Logger) error {
-	cfg, err := config.Load()
+	cfg, err := config.LoadWithOpenAIEnv(os.Getenv("SAPIENWORX_OPENAI_ENV_FILE"))
 	if err != nil {
 		return err
 	}
@@ -62,6 +65,59 @@ func run(logger *slog.Logger) error {
 	adminService := admin.NewService(db)
 	workforceService := workforce.NewService(db)
 	server := httpserver.New(cfg, db, tokens, authService, candidateService, recruiterService, adminService, workforceService, logger)
+	var aiProvider gateway.Provider
+	if cfg.AI.Enabled && cfg.AI.APIKey != "" {
+		aiProvider, err = openaiadapter.New(cfg.AI.APIKey)
+		if err != nil {
+			return err
+		}
+	}
+	aiProvider, err = gateway.NewProviderRouter("openai", map[string]gateway.Provider{"openai": aiProvider})
+	if err != nil {
+		return err
+	}
+	aiGateway, err := gateway.NewService(cfg.AI, aiProvider, gateway.Options{
+		Gate: gateway.SQLGate{DB: db, Models: cfg.AI.ModelRoutes(), ControlledBeta: cfg.Environment == "beta"},
+		LimiterFactory: func(limit int, window time.Duration) gateway.Limiter {
+			return httpserver.NewIPRateLimiter(limit, window)
+		},
+		Budget:          gateway.SQLBudget{DB: db, Config: cfg.AI},
+		Observer:        gateway.SQLObserver{DB: db, Next: gateway.LogObserver{Logger: logger}},
+		AttemptObserver: gateway.LogObserver{Logger: logger},
+	})
+	if err != nil {
+		return err
+	}
+	server.SetAIGateway(aiGateway)
+	codec, codecErr := parsing.NewCodec(string(cfg.AI.ArtifactKey))
+	parseStore := parsing.SQLStore{DB: db, Codec: codec}
+	if codecErr == nil {
+		validator, validationErr := candidate.CanonicalContractValidator()
+		if validationErr != nil {
+			return validationErr
+		}
+		parsingService := &parsing.Service{Gateway: aiGateway, Store: parseStore, Validator: validator}
+		server.SetAIParsing(parsingService)
+		recruiterService.SetJobGenerationVerifier(parsingService)
+	}
+	// Retention continues when AI is disabled or a proposal key is unavailable.
+	go func() {
+		ticker := time.NewTicker(10 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				pass, cancel := context.WithTimeout(ctx, 5*time.Second)
+				if err := parseStore.PurgeExpired(pass); err != nil {
+					logger.Warn("AI artifact retention pass unavailable")
+				}
+				cancel()
+			}
+		}
+	}()
+	logger.Info("AI Gateway status", "state", aiGateway.Health().State)
 	var emailProvider emaildelivery.Provider
 	if cfg.Email.Enabled {
 		awsCfg, awsErr := awsconfig.LoadDefaultConfig(ctx, awsconfig.WithRegion(cfg.AWS.Region))

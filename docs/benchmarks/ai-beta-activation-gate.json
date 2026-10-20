@@ -1,0 +1,456 @@
+{
+  "date": "2026-10-20",
+  "classification": "AI BETA FOUNDATION READY",
+  "delivery": "disabled code only; no activation",
+  "base_sha": "b00fab7ee80f7eb4791d64e2e85e95657643129e",
+  "real_provider_calls": 0,
+  "secrets_created": 0,
+  "protected_baselines": {
+    "docs/benchmarks/cv-parser-quality-closure-v1-discrepancies.csv": "d7521ce0f5435af1dcfdc10a82ca0e8a4b2672d04c77127dbb5fb059f45c9371",
+    "docs/benchmarks/cv-parser-quality-closure-v1-evidence.json": "46426a37aa440a441038ec9b23e1e89ebffe3a12a0d5f0e307c52b8e8d2eba6b",
+    "docs/benchmarks/cv-parser-quality-closure-v1-final-canary-proposal.json": "f241b426c512d46816e551159cd6196c7d6b090d8db615419ec546955e77c8af",
+    "docs/benchmarks/cv-parser-quality-closure-v1-golden-status-inventory.json": "3fd91a48f2511beb4dca196847d13398ffdafe20918c832111009389aad8eb29",
+    "docs/benchmarks/cv-parser-quality-closure-v1-offline.json": "698ac37c01257eb7a1aa68af5f7523d863a31d061ddf7155706440fd30d31632",
+    "docs/benchmarks/cv-parser-quality-closure-v1-source-audit.csv": "b1f9321dfbdb0ea11d0bbd09b9d65eff983c578f2353520daa89551305f53393",
+    "docs/benchmarks/cv02-real-provider-canary-2026-10-19-attempts.csv": "0786b86ec7d8124e8d6e350f0195b59491409d078fdb4a9f32e30fb3a3d55127",
+    "docs/benchmarks/cv02-real-provider-canary-2026-10-19-evidence.json": "59218ca49678296f81203d225feea91d918c6cd5645f54d10d1f07f0eabd4fd0",
+    "docs/benchmarks/cv02-real-provider-canary-2026-10-19-source-audit.csv": "b04d0e93aa4395fb430313ab6684f255f338c2d3af79d5964faf159d5dd35a16",
+    "docs/benchmarks/cv02-real-provider-canary-2026-10-19.json": "b82d20b744cfdef007ce6c310a0b951d31736d28d74561b325990c4d25a5c454",
+    "docs/benchmarks/cv18-final-real-provider-canary-2026-10-19-attempts.csv": "bfb36a3ed9b6b5e001b2fc36042eadc5550e2af566699da4c8ecabe6e525fac8",
+    "docs/benchmarks/cv18-final-real-provider-canary-2026-10-19-discrepancies.csv": "1409b9d8c52328cee2f5ddef577eea940ae2c5154c35f45c693e43534a44f9b0",
+    "docs/benchmarks/cv18-final-real-provider-canary-2026-10-19-evidence.json": "8b8a2e1e89fa38d2c82026944cc44174126f29537fdbe5e4650b21bbd457d08e",
+    "docs/benchmarks/cv18-final-real-provider-canary-2026-10-19-source-audit.csv": "54f8ec344e0294fffbf3930fdb2d99d52f0f8143f9890291c3a98f7c309be039",
+    "docs/benchmarks/cv18-final-real-provider-canary-2026-10-19.json": "758d246655504c49d79d160bf37cbb7d339871b518ab9299000fda8190dedf72",
+    "docs/benchmarks/jd-generation-baseline-v1.1.json": "b4930f388f7179e8b7b03eb9d075e20694178030d80b6b1aa4c80e442f6c6d2a",
+    "docs/benchmarks/jd-generation-baseline-v1.json": "e8a13737b49a93e28d8bf2cfc061f55800175235ae46774123750d152f2bdf37",
+    "docs/benchmarks/jd-generation-v1-real-provider-evaluation.json": "e8a13737b49a93e28d8bf2cfc061f55800175235ae46774123750d152f2bdf37",
+    "docs/benchmarks/jd-generation-v1.1-offline-validation.json": "8ed581ef2fd209e79b2196fbb781f5cc7068cddc3124d4120bb6fa1867413607",
+    "docs/benchmarks/jd-generation-v1.1-real-retest-proposal.json": "ebf91dc0f388609ffb2695b9c0b5b5147a0d81f56b2ef20e31719f37bf8181a2",
+    "docs/benchmarks/jd-generation-v1.1-source-manifest.json": "e90516698a5c4006f9948f969c116984de05b92753ec4b8d550233da0d2431a9",
+    "docs/benchmarks/jd-generator-v1-offline-validation.json": "769f18f84284ad558f8605145ac94968d38087bde147b57bf2131ff738b78f8f",
+    "docs/benchmarks/jd-generator-v1-real-provider-proposal.json": "b430012821676d2afb937a37313677967ae7ba6326c2f9311c48d8e2f88c0f9f",
+    "docs/benchmarks/openai-parser-remaining-targeted-retest-2026-10-19-attempts.csv": "6bb5c9622ff9d504f7ad3666a5e6f09b129392dcf76d8d31adbac323e73fb213",
+    "docs/benchmarks/openai-parser-remaining-targeted-retest-2026-10-19-budget-admissions.csv": "894a115ac492571a39885b94cdc6bfba336bbfbc92dc760826701b32c5cae63e",
+    "docs/benchmarks/openai-parser-remaining-targeted-retest-2026-10-19-cv-source-audit.csv": "99754df51929eddf83f7c29eb758a55df34c0e41132257af1466516553d14dad",
+    "docs/benchmarks/openai-parser-remaining-targeted-retest-2026-10-19-discrepancies.csv": "0e6623a7dd3505eb74a44e1ba389ced7d9749da563e4935897af4110dba53b29",
+    "docs/benchmarks/openai-parser-remaining-targeted-retest-2026-10-19-evidence.json": "3fce771ca425f9bc78b37066f9bbafdd72b85770e2487b854c577cc496e346da",
+    "docs/benchmarks/openai-parser-remaining-targeted-retest-2026-10-19.json": "66bca2c05fb2bcbdbddaa64f797304309942235c4dc2ab92bc2db5430a4a865c",
+    "docs/benchmarks/openai-parser-targeted-retest-2026-10-19-attempts.csv": "7e637ed9ae69c025604e42aad52a62672a686585476d003c2c20960d153ca596",
+    "docs/benchmarks/openai-parser-targeted-retest-2026-10-19-cv-differences.csv": "744a15814fc026331aebfe4f9fec97f20daf5ec3c7991b85111262d1ebf07c8e",
+    "docs/benchmarks/openai-parser-targeted-retest-2026-10-19-evidence.json": "20029e5caf3de376f6c1fb9554480628268b2e6a587dc0e4e037207c95fe6dc8",
+    "docs/benchmarks/openai-parser-targeted-retest-2026-10-19-jd-source-audit.csv": "22e8e5112265f906ef8a76f946dec7d9ef33b51a21b6656a463a47ba892a5400",
+    "docs/benchmarks/openai-parser-targeted-retest-2026-10-19.json": "74c7a64fa11be223918cd6dcc4ba71e8b8199afb793ad603b37e26782680078b",
+    "docs/benchmarks/openai-parsing-baseline-v1-attempts.csv": "1d725cd7611689efaafff67de6a8a79f879515d601ddab7b07c0099662e3bfd6",
+    "docs/benchmarks/openai-parsing-baseline-v1-errors.csv": "573a3329c413a332c43b90a94d3f8ebd5fa04a4627ddef341b0959f31b241d12",
+    "docs/benchmarks/openai-parsing-baseline-v1.1.json": "1f5cf07162e8b4d2c2059d5334612940a72464088cb56e4b168b5e6d98c73e98",
+    "docs/benchmarks/openai-parsing-baseline-v1.json": "1a2cd4f3f29caf7db429b37fc02b501ec177e013ca6483836909c477ef78b5c1",
+    "docs/benchmarks/parser-hardening-v1-db-gates.json": "69783a9cc64a2172cf95fafbcf6384e417abf66efca97e879533845d4075ab2d",
+    "docs/benchmarks/parser-hardening-v1-errors.csv": "e645ca2091a1b6f774c49ca6afeb6b585f5c2b21928fcf222d13a7924e7d620c",
+    "docs/benchmarks/parser-hardening-v1-offline.json": "ef3d33b0502a2ad5c0e1e0b2d513ebacd57fcb18dc2129459533ad0d8272bcf6",
+    "docs/benchmarks/parser-hardening-v1-retest-proposal.json": "2a305fa8ed4c54974ed90a37b166a20975ade5d066ae3c26a294bfcabacfebc3",
+    "docs/benchmarks/provider-reliability-v1-cv-discrepancy-review.csv": "896a98896664368bef4aa9bd1e37cf8d1d50554867591700338c656838690de0",
+    "docs/benchmarks/provider-reliability-v1-retest-proposal.json": "53ec2bf3f28383469440ca46705e3ff1dde08b0125c4e1c9c01598293c922594",
+    "docs/benchmarks/provider-reliability-v1.json": "558c6fc59fb7cb56e28584ad069ad796cc8723d8da5ccc4d571d35c57b0ec099",
+    "docs/jd-generator-v1-real-provider-quality-report.md": "97fc1bf72f39e2c91a8b95edcf5892455a1da46bd024f3c301fe1e5824ddea1b",
+    "docs/jd-generator-v1.1-real-provider-quality-report.md": "b5c0fbbcc8d2d440e18e93f2fea91aaff73d1f3feea0ac53ac66687c3da6c5d0"
+  },
+  "go": {
+    "unique_parent_passes": 384,
+    "unresolved_skips": [],
+    "groups": [
+      {
+        "group": "all-go",
+        "exit_code": 0,
+        "pass": 357,
+        "fail": [],
+        "skips": [
+          "TestRecoveryOperatorIsolatedDatabase",
+          "TestDashboardIsolatedDatabase",
+          "TestGovernanceIsolatedDatabase",
+          "TestAdminSecurityIsolatedDatabase",
+          "TestCandidatePhoneChangeIsolatedDatabase",
+          "TestRecruitmentIsolatedDatabase",
+          "TestCandidateIdentityIsolatedDatabase",
+          "TestProfileV2IsolatedDatabase",
+          "TestAIGovernanceIsolatedDatabase",
+          "TestP25EmailDeliverySuppressionAndRetryIsolatedDatabase",
+          "TestReferralDeliveryFailureDoesNotSuppressRetriableContent",
+          "TestApplicationJourneyIsolatedDatabase",
+          "TestCandidateWorkspaceIsolatedDatabase",
+          "TestCompanyGovernanceIsolatedDatabase",
+          "TestPhase1IsolatedDatabase",
+          "TestGenerationV1IsolatedDatabase",
+          "TestAdminSecurityHTTPIsolatedDatabase",
+          "TestCandidateReferralPrivacyAttributionAndAbuse",
+          "TestDiscoveryExactProfessionalSkillsAndLegacyShapes",
+          "TestGovernedWorkspaceEvidenceIsolatedDatabase",
+          "TestRecruiterJobWorkspaceScaleIsolatedDatabase",
+          "TestRecruiterJobSecurityIsolatedDatabase",
+          "TestOfferGovernanceIsolatedDatabase",
+          "TestCandidateWorkspaceHTTPAuthorizationIsolatedDatabase",
+          "TestCompanyHTTPAndInvitationIsolation",
+          "TestP26RecruiterProductAreasScaleAndIsolation",
+          "TestWorkspaceRefinementsIsolationAndReferralConsent"
+        ]
+      },
+      {
+        "group": "governance",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "parsing",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "generation",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "job-security",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "governed-workspace",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "job-scale",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "referral",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "discovery",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "offer",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "product-areas",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "workspace",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "admin-security",
+        "exit_code": 0,
+        "pass": 2,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "admin-http",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "candidate-http",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "company-http",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "final-governance",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "profile-contract-regressions",
+        "exit_code": 0,
+        "pass": 2,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "phone-regression",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "company-governance",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "admin-dashboard-recruitment",
+        "exit_code": 0,
+        "pass": 2,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "admin-recovery",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "candidate-workspace",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "candidate-journey",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "final-telemetry",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "email-qa",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      },
+      {
+        "group": "referral-delivery",
+        "exit_code": 0,
+        "pass": 1,
+        "fail": [],
+        "skips": []
+      }
+    ]
+  },
+  "browser": {
+    "suite": {
+      "startTime": "2026-10-20T09:04:28.511Z",
+      "duration": 229261.22999999998,
+      "expected": 88,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "final_panel_repeat": {
+      "startTime": "2026-10-20T09:17:17.952Z",
+      "duration": 40831.081,
+      "expected": 21,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "new_provider_cv_jd_parse_end_to_end": "BLOCKED: dedicated UI integration absent"
+  },
+  "checks": {
+    "go_vet": "PASS",
+    "production_build": "PASS",
+    "secret_helper_tests": 3,
+    "runtime_tests": 3,
+    "beta_routing": "PASS",
+    "source_boundary": "PASS",
+    "credential_pattern_findings": 0,
+    "ai_migrations_up_down_up": "PASS"
+  },
+  "capacity_before": {
+    "memory_kib": {
+      "MemTotal": 3881212,
+      "MemAvailable": 2858668,
+      "SwapTotal": 0,
+      "SwapFree": 0
+    },
+    "disk_bytes": {
+      "total": 21396172800,
+      "free": 14800044032
+    },
+    "loadavg": [
+      "0.08",
+      "0.13",
+      "0.19"
+    ],
+    "containers": [
+      {
+        "name": "sapienworx-beta-frontend",
+        "image": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/frontend:b00fab7ee80f7eb4791d64e2e85e95657643129e",
+        "status": "running",
+        "health": "healthy",
+        "memory_limit_bytes": 1073741824,
+        "nano_cpus": 700000000
+      },
+      {
+        "name": "sapienworx-beta-backend",
+        "image": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/backend:b00fab7ee80f7eb4791d64e2e85e95657643129e",
+        "status": "running",
+        "health": "healthy",
+        "memory_limit_bytes": 805306368,
+        "nano_cpus": 700000000
+      },
+      {
+        "name": "sapienworx-beta-intelligence",
+        "image": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx-beta/intelligence:b00fab7ee80f7eb4791d64e2e85e95657643129e",
+        "status": "running",
+        "health": "healthy",
+        "memory_limit_bytes": 402653184,
+        "nano_cpus": 350000000
+      },
+      {
+        "name": "sapienworx-caddy",
+        "image": "caddy:2.10.2-alpine",
+        "status": "running",
+        "health": "healthy",
+        "memory_limit_bytes": 268435456,
+        "nano_cpus": 250000000
+      },
+      {
+        "name": "sapienworx-frontend",
+        "image": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx/frontend:4e41999fb1bf4ec352da037e7d39e140191ff70c",
+        "status": "running",
+        "health": "healthy",
+        "memory_limit_bytes": 1073741824,
+        "nano_cpus": 700000000
+      },
+      {
+        "name": "sapienworx-backend",
+        "image": "327301848391.dkr.ecr.ap-south-1.amazonaws.com/sapienworx/backend:4e41999fb1bf4ec352da037e7d39e140191ff70c",
+        "status": "running",
+        "health": "healthy",
+        "memory_limit_bytes": 805306368,
+        "nano_cpus": 700000000
+      }
+    ],
+    "stats": [
+      "{\"BlockIO\":\"0B / 0B\",\"CPUPerc\":\"0.00%\",\"Container\":\"2c174bcb4ea6\",\"ID\":\"2c174bcb4ea6\",\"MemPerc\":\"8.62%\",\"MemUsage\":\"88.26MiB / 1GiB\",\"Name\":\"sapienworx-beta-frontend\",\"NetIO\":\"34.9MB / 150MB\",\"PIDs\":\"11\"}",
+      "{\"BlockIO\":\"69.6kB / 0B\",\"CPUPerc\":\"0.00%\",\"Container\":\"318bac81cb29\",\"ID\":\"318bac81cb29\",\"MemPerc\":\"1.61%\",\"MemUsage\":\"12.37MiB / 768MiB\",\"Name\":\"sapienworx-beta-backend\",\"NetIO\":\"72.5MB / 129MB\",\"PIDs\":\"7\"}",
+      "{\"BlockIO\":\"0B / 0B\",\"CPUPerc\":\"0.03%\",\"Container\":\"68cc8ab03f41\",\"ID\":\"68cc8ab03f41\",\"MemPerc\":\"0.97%\",\"MemUsage\":\"3.711MiB / 384MiB\",\"Name\":\"sapienworx-beta-intelligence\",\"NetIO\":\"309MB / 326MB\",\"PIDs\":\"7\"}",
+      "{\"BlockIO\":\"279kB / 8.49MB\",\"CPUPerc\":\"0.00%\",\"Container\":\"e7c33bfbaea1\",\"ID\":\"e7c33bfbaea1\",\"MemPerc\":\"6.42%\",\"MemUsage\":\"16.43MiB / 256MiB\",\"Name\":\"sapienworx-caddy\",\"NetIO\":\"1.28GB / 1.75GB\",\"PIDs\":\"7\"}",
+      "{\"BlockIO\":\"1.72MB / 0B\",\"CPUPerc\":\"0.00%\",\"Container\":\"1b4e8f79026b\",\"ID\":\"1b4e8f79026b\",\"MemPerc\":\"6.11%\",\"MemUsage\":\"62.61MiB / 1GiB\",\"Name\":\"sapienworx-frontend\",\"NetIO\":\"6.76MB / 140MB\",\"PIDs\":\"11\"}",
+      "{\"BlockIO\":\"1.06MB / 0B\",\"CPUPerc\":\"0.00%\",\"Container\":\"36f6f3b1671f\",\"ID\":\"36f6f3b1671f\",\"MemPerc\":\"0.71%\",\"MemUsage\":\"5.426MiB / 768MiB\",\"Name\":\"sapienworx-backend\",\"NetIO\":\"74MB / 107MB\",\"PIDs\":\"7\"}"
+    ],
+    "ai_flags": {},
+    "ai_env_present": false,
+    "ai_controls_present": false
+  },
+  "rds_capacity_before": {
+    "FreeableMemory": {
+      "statistic": "Minimum",
+      "value": 155754496.0
+    },
+    "DatabaseConnections": {
+      "statistic": "Maximum",
+      "value": 4.0
+    },
+    "CPUUtilization": {
+      "statistic": "Maximum",
+      "value": 6.839717069264647
+    },
+    "FreeStorageSpace": {
+      "statistic": "Minimum",
+      "value": 18294935552.0
+    }
+  },
+  "beta_ai_secret_metadata": [],
+  "public_before": {
+    "https://www.sapienworx.com/": {
+      "status": 200,
+      "sha256": "d35c4a69f4858622a5e561b4a38414b22f74f2481a08a2990014a29fb80b8188"
+    },
+    "https://sapienworx.com/": {
+      "status": 200,
+      "sha256": "d35c4a69f4858622a5e561b4a38414b22f74f2481a08a2990014a29fb80b8188"
+    },
+    "https://beta.sapienworx.com/login": {
+      "status": 200,
+      "sha256": "c99645cc28f06f3448a7912b9a78014148f0db271c7b7d1f594c8946baf14998"
+    }
+  },
+  "cost_forecast": {
+    "pricing_version": "openai-standard-2026-10-17.v1",
+    "measurement": "original full40 parser task means + V1.1 generation 8-case mean; not a new provider run",
+    "per_operation_usd": {
+      "job.parse": 0.00020566,
+      "cv.parse": 0.0009502110000000001,
+      "job.generate_description": 0.0005028625
+    },
+    "scenarios": {
+      "100": {
+        "job.parse": 0.020566,
+        "cv.parse": 0.0950211,
+        "job.generate_description": 0.05028625,
+        "total": 0.16587335
+      },
+      "1000": {
+        "job.parse": 0.20566,
+        "cv.parse": 0.950211,
+        "job.generate_description": 0.5028625,
+        "total": 1.6587335
+      },
+      "10000": {
+        "job.parse": 2.0566,
+        "cv.parse": 9.50211,
+        "job.generate_description": 5.028625,
+        "total": 16.587335
+      }
+    }
+  },
+  "activation_blockers": [
+    "beta provider/artifact secrets absent",
+    "model/cohort/budget/output/HTTP deadline approval pending",
+    "CV/JD new-provider browser integration incomplete",
+    "independent human/privacy review pending",
+    "bounded RDS/host activation capacity check pending"
+  ]
+}

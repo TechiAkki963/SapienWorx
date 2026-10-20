@@ -1,0 +1,658 @@
+{
+  "benchmark": "OpenAI Parsing Baseline V1.1",
+  "kind": "TARGETED_VALIDATED_RELEASE_BASELINE_WITH_IMMUTABLE_FULL40_REFERENCE",
+  "created_utc": "2026-10-19T15:25:59.595740+00:00",
+  "measurement_scope": "Not a new 40-case provider run. Original full40 V1 immutable reference; 2 retained p2 JD responses; retained p2 cv02/cv12/cv19 responses replayed under current deterministic code; one fresh cv18 final canary. Prior superseded cv18 and historical failed attempt retained in lineage/cost, not silently erased.",
+  "original_full40_v1": {
+    "path": "docs/benchmarks/openai-parsing-baseline-v1.json",
+    "sha256": "1a2cd4f3f29caf7db429b37fc02b501ec177e013ca6483836909c477ef78b5c1",
+    "execution": {
+      "logical_cases_attempted": 40,
+      "logical_cases_completed": 40,
+      "provider_attempts": 40,
+      "successful_provider_requests": 40,
+      "failed_provider_requests": 0,
+      "retried_requests": 0,
+      "model": "gpt-6-luna",
+      "global_openai_enabled": false,
+      "synthetic_only": true,
+      "started_at": "2026-10-16T20:51:38.2048495Z",
+      "finished_at": "2026-10-16T20:56:59.4234816Z",
+      "maximum_input_tokens": 3214,
+      "maximum_output_tokens": 2203
+    },
+    "tasks": {
+      "job.parse": {
+        "cases": 20,
+        "schema": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1.0
+        },
+        "validation": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1.0
+        },
+        "exact": {
+          "correct": 212,
+          "total": 220,
+          "rate": 0.9636363636363636
+        },
+        "normalized": {
+          "correct": 212,
+          "total": 220,
+          "rate": 0.9636363636363636
+        },
+        "skills": {
+          "true_positive": 60,
+          "actual": 60,
+          "expected": 60,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unsupported_field_proxy": {
+          "correct": 28,
+          "total": 223,
+          "rate": 0.12556053811659193
+        },
+        "human_review_rate": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1.0
+        },
+        "coverage": {
+          "correct": 220,
+          "total": 340,
+          "rate": 0.6470588235294118
+        },
+        "taxonomy": {
+          "correct": 60,
+          "total": 60,
+          "rate": 1.0
+        },
+        "latency": {
+          "mean_ms": 4006.9,
+          "p50_ms": 3805.5,
+          "p95_ms": 5174,
+          "maximum_ms": 7814
+        },
+        "cost_usd": 0.0041132,
+        "average_cost_usd": 0.00020566,
+        "strict_scored_mismatches": 8,
+        "null_empty_mismatches": 0,
+        "non_shape_scored_mismatches": 8,
+        "strict_cases_requiring_alignment": 7,
+        "strict_alignment_edits_per_case": 0.4,
+        "review_candidate_fields": 28,
+        "review_candidate_cases": 20,
+        "review_candidate_edits_per_case": 1.4,
+        "agent_triage_correction_fields": 28,
+        "agent_triage_correction_cases": 20,
+        "agent_triage_corrections_per_case": 1.4,
+        "actual_human_edits": 0,
+        "groups": {
+          "title": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "job_family": {
+            "correct": 16,
+            "total": 20,
+            "rate": 0.8
+          },
+          "experience": {
+            "correct": 40,
+            "total": 40,
+            "rate": 1.0
+          },
+          "location": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "work_mode": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "employment_type": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "salary": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "salary_explicit": {
+            "correct": 3,
+            "total": 3,
+            "rate": 1.0
+          }
+        }
+      },
+      "cv.parse": {
+        "cases": 20,
+        "schema": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1.0
+        },
+        "validation": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1.0
+        },
+        "exact": {
+          "correct": 924,
+          "total": 996,
+          "rate": 0.927710843373494
+        },
+        "normalized": {
+          "correct": 928,
+          "total": 996,
+          "rate": 0.9317269076305221
+        },
+        "skills": {
+          "true_positive": 62,
+          "actual": 62,
+          "expected": 62,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "unsupported_field_proxy": {
+          "correct": 97,
+          "total": 874,
+          "rate": 0.11098398169336385
+        },
+        "human_review_rate": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1.0
+        },
+        "coverage": {
+          "correct": 996,
+          "total": 996,
+          "rate": 1.0
+        },
+        "taxonomy": {
+          "correct": 61,
+          "total": 62,
+          "rate": 0.9838709677419355
+        },
+        "latency": {
+          "mean_ms": 9885.75,
+          "p50_ms": 9745.0,
+          "p95_ms": 11414,
+          "maximum_ms": 11667
+        },
+        "cost_usd": 0.01900422,
+        "average_cost_usd": 0.0009502110000000001,
+        "strict_scored_mismatches": 68,
+        "null_empty_mismatches": 32,
+        "non_shape_scored_mismatches": 36,
+        "strict_cases_requiring_alignment": 20,
+        "strict_alignment_edits_per_case": 3.4,
+        "review_candidate_fields": 125,
+        "review_candidate_cases": 20,
+        "review_candidate_edits_per_case": 6.25,
+        "agent_triage_correction_fields": 10,
+        "agent_triage_correction_cases": 10,
+        "agent_triage_corrections_per_case": 0.5,
+        "actual_human_edits": 0,
+        "groups": {
+          "current_title": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "current_employer": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "all_employers": {
+            "correct": 39,
+            "total": 39,
+            "rate": 1.0
+          },
+          "employment_dates": {
+            "correct": 236,
+            "total": 236,
+            "rate": 1.0
+          },
+          "reported_total_experience": {
+            "correct": 20,
+            "total": 20,
+            "rate": 1.0
+          },
+          "education": {
+            "correct": 68,
+            "total": 80,
+            "rate": 0.85
+          },
+          "certifications": {
+            "correct": 7,
+            "total": 20,
+            "rate": 0.35
+          },
+          "location": {
+            "correct": 49,
+            "total": 83,
+            "rate": 0.5903614457831325
+          },
+          "languages": {
+            "correct": 80,
+            "total": 80,
+            "rate": 1.0
+          },
+          "identity": {
+            "correct": 14,
+            "total": 20,
+            "rate": 0.7
+          },
+          "certifications_explicit": {
+            "correct": 7,
+            "total": 7,
+            "rate": 1.0
+          },
+          "current_location_city": {
+            "correct": 19,
+            "total": 20,
+            "rate": 0.95
+          },
+          "current_location_country": {
+            "correct": 18,
+            "total": 20,
+            "rate": 0.9
+          }
+        }
+      }
+    },
+    "latency": {
+      "mean_ms": 6946.325,
+      "p50_ms": 7851.5,
+      "p95_ms": 11149,
+      "maximum_ms": 11667
+    },
+    "tokens": {
+      "input_tokens": 74665,
+      "cached_input_tokens": 56772,
+      "cache_write_input_tokens": 6536,
+      "output_tokens": 41194,
+      "total_tokens": 115859
+    },
+    "cost": {
+      "usage_based_estimated_usd": 0.02311742,
+      "conservative_plan_usd": 0.146727,
+      "hard_cap_usd": 0.25,
+      "budget_remaining_usd": 0.22688258,
+      "maximum_case_usd": 0.00135055,
+      "components_usd": {
+        "input_usd": 0.0011357000000000001,
+        "cached_input_usd": 0.00056772,
+        "cache_write_input_usd": 0.000817,
+        "output_usd": 0.020597
+      }
+    },
+    "note": "Historical p1 results; not overwritten or presented as new p2/v1.1 performance."
+  },
+  "lineage": [
+    {
+      "path": "docs/benchmarks/openai-parsing-baseline-v1.json",
+      "sha256": "1a2cd4f3f29caf7db429b37fc02b501ec177e013ca6483836909c477ef78b5c1"
+    },
+    {
+      "path": "docs/parser-hardening-v1-report.md",
+      "sha256": "0105e11f4589022e63d77a5e8981facf84e19162b554f2bb707847444d8a8327"
+    },
+    {
+      "path": "docs/openai-parser-targeted-retest-report.md",
+      "sha256": "cfb20736300500fe7748c4337c4d918c07435a68ae7385d8cf5ffa10d8eb23ba"
+    },
+    {
+      "path": "docs/openai-provider-reliability-hardening-v1-report.md",
+      "sha256": "796828688aef26e69233f9ad67b6522a6a97690a155f7dc09518a86b2d52ef96"
+    },
+    {
+      "path": "docs/cv02-real-provider-canary-report.md",
+      "sha256": "ad5ed8d8177014f5fb6584d901c267df253f7a6a597a793130862f188a46eec1"
+    },
+    {
+      "path": "docs/openai-parser-remaining-targeted-retest-report.md",
+      "sha256": "d19aa1a206e183e96ee35c56cbd5079742a6d2b5ad7ba142f93e07a7c035b68f"
+    },
+    {
+      "path": "docs/cv-parser-quality-closure-v1-report.md",
+      "sha256": "9d893418db528f8a16e7a8829b3439a753c2d485efe55be9780bf624339f7c9e"
+    },
+    {
+      "path": "docs/benchmarks/cv-parser-quality-closure-v1-offline.json",
+      "sha256": "698ac37c01257eb7a1aa68af5f7523d863a31d061ddf7155706440fd30d31632"
+    }
+  ],
+  "model": "gpt-6-luna",
+  "versions": {
+    "prompt": "p2",
+    "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+    "cv_wire_schema": "v1.1",
+    "cv_schema_sha256": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177",
+    "jd_wire_schema": "v1.2",
+    "canonical_candidate_profile": "v1",
+    "cv_task": "v1.1",
+    "cv_parser_result": "openai-p2-v1.1",
+    "jd_task": "v1",
+    "pricing": "openai-standard-2026-10-17.v1",
+    "reviewed_binary_sha256": "0f2e9d1bec6af2d6c495d18fe789ff94f1ef160e6d755121935b16de040942e0"
+  },
+  "targeted_cases": [
+    "jd-05",
+    "jd-19",
+    "cv-02",
+    "cv-12",
+    "cv-19",
+    "cv-18"
+  ],
+  "final_canary": {
+    "case": "cv-18",
+    "evidence_path": "cv18-final-real-provider-canary-2026-10-19-evidence.json",
+    "attempts": 1,
+    "retries": 0,
+    "provider_latency_ms": 19838,
+    "execution_utc": "2026-10-19T15:22:13.4601152Z",
+    "raw_employment_status": "employed",
+    "normalized_employment_status": "employed",
+    "final_employment_status": "employed",
+    "status_provenance": {
+      "provenance": {
+        "source": "ai_derived",
+        "kind": "inferred",
+        "section": "professional",
+        "reference": "document:c6a10a84e7e3c221a2d889105e9731b99596a7a9b26e9557b58ef207b54b35dc",
+        "page": null
+      },
+      "confidence": null,
+      "review_status": "unreviewed",
+      "raw_value": "employed"
+    },
+    "status_fallback_triggered_live": false,
+    "fallback_covered_by_offline_capture_and_SQL": true,
+    "strict": {
+      "status": "measured",
+      "numerator": 48,
+      "denominator": 50,
+      "value": 0.96
+    },
+    "representation_adjusted": {
+      "status": "measured",
+      "numerator": 49,
+      "denominator": 50,
+      "value": 0.98
+    },
+    "factual_errors_observed": 0,
+    "material_omissions_observed": 0,
+    "hallucinations_observed": 0,
+    "postprocessing_errors_observed": 0,
+    "usage": {
+      "input_tokens": 3380,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 3377,
+      "output_tokens": 2195,
+      "total_tokens": 5575
+    },
+    "cost_usd": "0.001519925"
+  },
+  "tasks": {
+    "job.parse": {
+      "evidence": "Retained unchanged real jd05/jd19; no new JD calls",
+      "strict": {
+        "numerator": 22,
+        "denominator": 22,
+        "value": 1
+      },
+      "representation_adjusted": {
+        "numerator": 22,
+        "denominator": 22,
+        "value": 1
+      },
+      "schema": {
+        "numerator": 2,
+        "denominator": 2,
+        "value": 1
+      },
+      "factual_error_response_rate": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "supported_contract_omission_response_rate": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "hallucination_response_rate": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "readiness": "BETA READY WITH REVIEW",
+      "limitations": "Supported 11-concept JD contract only. Typed credentials, preferred skills, industry and notice expectations remain deferred and owner-visible."
+    },
+    "cv.parse": {
+      "evidence": "Latest representative 4-case cohort, one fresh v1.1 canary plus 3 retained p2 responses with unchanged deterministic replay results",
+      "strict": {
+        "numerator": 167,
+        "denominator": 178,
+        "value": 0.9382022471910112
+      },
+      "representation_adjusted": {
+        "numerator": 176,
+        "denominator": 178,
+        "value": 0.9887640449438202
+      },
+      "schema": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "canonical_candidate_profile": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "parser_result": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "factual_error_response_rate": {
+        "numerator": 0,
+        "denominator": 4,
+        "value": 0
+      },
+      "material_omission_response_rate_after_processing": {
+        "numerator": 0,
+        "denominator": 4,
+        "value": 0
+      },
+      "hallucination_response_rate": {
+        "numerator": 0,
+        "denominator": 4,
+        "value": 0
+      },
+      "unknown_confidence": true,
+      "mandatory_owner_review": true,
+      "readiness": "BETA READY WITH REVIEW",
+      "limitations": "Selected short synthetic fixtures; rates are descriptive source-aware engineering adjudication, not independent population accuracy or owner signoff. Headline precedence and documented null/empty/education representations remain reviewable."
+    }
+  },
+  "reliability": {
+    "new_final_canary": {
+      "attempts": 1,
+      "retries": 0,
+      "failures": 0,
+      "timeouts": 0,
+      "http429": 0,
+      "http5xx": 0,
+      "connection_failures": 0,
+      "circuit_breaker_events": 0,
+      "provider_ms": 19838,
+      "gateway_ms": 19843,
+      "attempt_deadline_ms": 30000
+    },
+    "all_successful_reliability_cv_attempts": {
+      "n": 5,
+      "p50_ms": 17669,
+      "p95_nearest_rank_ms": 20071,
+      "maximum_ms": 20071
+    },
+    "latest_representative_cv_cohort": {
+      "n": 4,
+      "p50_ms": 18490.5,
+      "p95_nearest_rank_ms": 20071,
+      "maximum_ms": 20071
+    },
+    "historical_pre_hardening_failure": "One failed cv02 with unknown usage retained in original journal. 8 lifetime targeted attempts across 6 cases: 7 successful, 1 historical failed. This is not a current canary retry/failure."
+  },
+  "tokens": {
+    "new_canary": {
+      "input_tokens": 3380,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 3377,
+      "output_tokens": 2195,
+      "total_tokens": 5575
+    },
+    "all_five_successful_reliability_cv_attempts": {
+      "input_tokens": 16683,
+      "cached_input_tokens": 6308,
+      "cache_write_input_tokens": 10360,
+      "output_tokens": 8833,
+      "total_tokens": 25516
+    },
+    "latest_four_case_quality_cohort": {
+      "input_tokens": 13303,
+      "cached_input_tokens": 3154,
+      "cache_write_input_tokens": 10137,
+      "output_tokens": 6977,
+      "total_tokens": 20280
+    },
+    "historical_JD_known": {
+      "input_tokens": 1593,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 459,
+      "total_tokens": 2052
+    },
+    "old_failed_cv02": "UNKNOWN, not zero; reserved separately"
+  },
+  "cost": {
+    "new_canary_usd": "0.001519925",
+    "new_canary_hard_cap_usd": "0.005565",
+    "new_canary_remaining_usd": "0.004045075",
+    "prior_cv_reliability_retest_spend_usd": "0.004256155",
+    "all_five_successful_reliability_cv_attempts_usd": "0.005776080",
+    "combined_hard_cap_usd": "0.046",
+    "combined_remaining_usd": "0.040223920",
+    "latest_four_cv_quality_cohort_usd": "0.004788365",
+    "earlier_two_JD_usd": ".000388800",
+    "all_seven_successful_targeted_attempts_usd": "0.006164880",
+    "old_failed_cv02_unknown_reservation_usd": ".005516",
+    "all_eight_lifetime_targeted_attempts_conservative_usd": "0.011680880",
+    "not_invoice_total": true
+  },
+  "tests": {
+    "groups": [
+      {
+        "group": "gateway",
+        "exit_code": 0,
+        "top_pass": 56,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 116,
+        "skips": [
+          "TestAIGovernanceIsolatedDatabase"
+        ]
+      },
+      {
+        "group": "evaluation",
+        "exit_code": 0,
+        "top_pass": 14,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 303,
+        "skips": []
+      },
+      {
+        "group": "parsing",
+        "exit_code": 0,
+        "top_pass": 26,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 149,
+        "skips": [
+          "TestPhase1IsolatedDatabase"
+        ]
+      },
+      {
+        "group": "canonical-contract",
+        "exit_code": 0,
+        "top_pass": 22,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 105,
+        "skips": []
+      },
+      {
+        "group": "runner",
+        "exit_code": 0,
+        "top_pass": 11,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 20,
+        "skips": []
+      }
+    ],
+    "base_top_pass": 129,
+    "base_top_skip": 2,
+    "base_test_subtest_seed_pass": 693,
+    "isolated_db": [
+      {
+        "test": "TestAIGovernanceIsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      },
+      {
+        "test": "TestPhase1IsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      }
+    ],
+    "effective_distinct_top_pass": 131,
+    "unresolved_affected_skips": 0,
+    "final_failures": 0,
+    "negative_inference_cases": 31,
+    "full_original_replay_cases": 40,
+    "full_original_error_regressions": 185
+  },
+  "readiness": {
+    "job.parse": "BETA READY WITH REVIEW",
+    "cv.parse": "BETA READY WITH REVIEW",
+    "overall": "BETA PARSER CANDIDATE",
+    "human_review_required": true,
+    "global_activation_authorized": false,
+    "production_ready": false
+  },
+  "integrity": {
+    "original_v1_preserved": true,
+    "production_code_prompt_schema_scoring_goldens_changed_during_canary": false,
+    "reviewed_input_hashes_match": 473,
+    "global_openai_enabled": false,
+    "commit_push_merge_deploy": false
+  },
+  "human_review_contract": "All fields remain proposals; no candidate/recruiter data applied. Derived vs provider vs human lineage remains separate. No confidence threshold can auto-confirm."
+}

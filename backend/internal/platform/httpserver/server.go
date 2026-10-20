@@ -12,6 +12,8 @@ import (
 	"github.com/TechiAkki963/SapienWorx/backend/internal/auth"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/candidate"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/company"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/gateway"
+	"github.com/TechiAkki963/SapienWorx/backend/internal/intelligence/parsing"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/platform/config"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/privacy"
 	"github.com/TechiAkki963/SapienWorx/backend/internal/recruiter"
@@ -39,6 +41,8 @@ type Server struct {
 	objectStorage storage.ObjectStore
 	cfg           config.Config
 	company       *company.SQLStore
+	aiGateway     *gateway.Service
+	aiParsing     *parsing.Service
 }
 
 func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authService *auth.Service, candidateService *candidate.Service, recruiterService *recruiter.Service, adminService *admin.Service, workforceService *workforce.Service, logger *slog.Logger) *Server {
@@ -85,6 +89,12 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 		return Chain(next, RequireRoles(auth.RoleRecruiter), s.companyRecruiterGuard)
 	}
 	candidateActivity := CandidateActivity(candidateService, logger)
+	mux.Handle("POST /api/v1/intelligence/jobs/parse", Chain(http.HandlerFunc(s.aiJobParse), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/intelligence/jobs/generate-description", Chain(http.HandlerFunc(s.aiJobGenerate), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/intelligence/jobs/generations/{generationID}/review", Chain(http.HandlerFunc(s.aiJobGenerationReview), protected, RequireRoles(auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/intelligence/cv/parse", Chain(http.HandlerFunc(s.aiCVParse), protected, candidateOnly))
+	mux.Handle("GET /api/v1/intelligence/parses/{parseID}", Chain(http.HandlerFunc(s.aiProposal), protected, RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)))
+	mux.Handle("PATCH /api/v1/intelligence/parses/{parseID}", Chain(http.HandlerFunc(s.aiProposal), protected, RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)))
 	adminOnly := MasterAdminOnly(tokens, cfg.Auth.AccessCookieName, adminService, logger)
 	adminGuard := func(permissions ...admin.Permission) Middleware {
 		return func(next http.Handler) http.Handler {
@@ -96,6 +106,7 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	}
 	mux.Handle("GET /api/v1/admin/access", Chain(http.HandlerFunc(s.adminAccessStatus), adminGuard()))
 	mux.Handle("GET /api/v1/admin/email-health", Chain(http.HandlerFunc(s.adminEmailHealth), adminGuard(admin.SystemRead)))
+	mux.Handle("GET /api/v1/admin/ai/status", Chain(http.HandlerFunc(s.adminAIStatus), adminGuard(admin.IntelligenceRead, admin.IntelligenceMetricsRead)))
 	mux.Handle("POST /api/v1/admin/security/mfa/enroll", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 	mux.Handle("POST /api/v1/admin/security/mfa/verify", Chain(http.HandlerFunc(s.adminMFA), adminGuard(), loginGuard))
 

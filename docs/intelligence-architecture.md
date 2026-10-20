@@ -94,6 +94,11 @@ Promotion retires the previous production version for the same engine type and r
 
 The gateway intentionally returns provider-unavailable until a provider adapter has explicit secret-manager configuration, privacy/legal approval and test coverage. This prevents services from bypassing the gateway with direct provider calls.
 
+Task 1 adds the disabled stateless `gateway.Service` and official OpenAI adapter
+inside this boundary. It does not automatically route legacy Execute requests or
+activate Intelligence. See [AI Gateway foundation](ai-gateway.md) for configuration,
+accounting limits and the separate activation gate.
+
 ## Prompt and model registries
 
 The Intelligence Centre exposes:
@@ -172,3 +177,11 @@ Do not enable production Intelligence until all of the following are independent
 - embedding model/document storage and cosine retrieval primitive;
 - Master Admin human-review queue;
 - Command Centre scorecard for pending age, retry failures, dead letters, review backlog and embedding document count.
+
+
+## Governed OpenAI parsing (disabled by default)
+
+The Phase 1 [Go Gateway integration](intelligence-v2-openai.md) adds private,
+reviewed JD/CV proposals behind existing switches, RBAC and model governance.
+OpenAI does not score matches or change the Brain/Rust runtime. All activation
+and release gates remain separate.

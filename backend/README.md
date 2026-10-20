@@ -1,5 +1,8 @@
 # SapienWorx Go Backend
 
+See the disabled-by-default [AI Gateway foundation](../docs/ai-gateway.md) for the
+server-only Responses API boundary, mock tests and separate activation gates.
+
 Phase 2 establishes the production backend foundation without implementing candidate/recruiter signup or login workflows yet.
 
 ## Runtime

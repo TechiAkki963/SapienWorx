@@ -1,0 +1,3 @@
+case_id,field,expected,actual,category,severity,strict,adjusted,reason
+cv-18,/location/preferred,[],null,EVALUATOR_OVER_STRICTNESS,Low,FAIL,PASS,No preferred location assertion. Unknown null differs from frozen empty; no global null/empty equivalence.
+cv-18,/professional/headline,"""Electrical Maintenance Technician""","""Technician""",CONTRACT_AMBIGUITY,Medium,FAIL,FAIL,Both literal source header and later profile-headline statement exist; actual is source-backed. Precedence remains candidate review; no automatic promotion.

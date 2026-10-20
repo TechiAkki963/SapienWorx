@@ -1,0 +1,30 @@
+source_assertion,source_fact,final_path,actual,expected,result,review_method,reason
+Name,Synthetic Evaluation Candidate 02,/identity/display_name,"""Synthetic Evaluation Candidate 02""","""Synthetic Evaluation Candidate 02""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Headline,Frontend Engineer,/professional/headline,"""Frontend Engineer""","""Frontend Engineer""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Current city,"Current location: Pune, India",/location/current/city,"""Pune""","""Pune""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Current country,"Current location: Pune, India",/location/current/country_code,"""IN""","""IN""",PASS,Manual source-aware review with explicit value assertion,Exact explicit country normalization India → IN.
+Skill JS,JS,/skills/0/entity/name,"""JavaScript""","""JavaScript""",PASS,Manual source-aware review with explicit value assertion,Approved exact taxonomy alias; raw source value retained.
+Skill React,React,/skills/1/entity/name,"""React""","""React""",PASS,Manual source-aware review with explicit value assertion,Literal source skill retained.
+Skill Accessibility,Accessibility,/skills/2/entity/name,"""Accessibility""","""Accessibility""",PASS,Manual source-aware review with explicit value assertion,Literal source skill retained.
+Prior employer,Fictional Prior Employer 02,/employment/0/company/name,"""Fictional Prior Employer 02""","""Fictional Prior Employer 02""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Prior title,title: Frontend Engineer,/employment/0/designation/name,"""Frontend Engineer""","""Frontend Engineer""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Prior start,from 2021-01,/employment/0/start_date,"{""year"": 2021, ""month"": 1}","{""year"": 2021, ""month"": 1}",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Prior end,to 2023-01,/employment/0/end_date,"{""year"": 2023, ""month"": 1}","{""year"": 2023, ""month"": 1}",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Prior employment type,full-time,/employment/0/employment_type,"""full_time""","""full_time""",PASS,Manual source-aware review with explicit value assertion,Exact enum normalization full-time → full_time.
+Prior duties,Duties: Performed the stated professional duties.,/employment/0/responsibilities/0,"""Performed the stated professional duties.""","""Performed the stated professional duties.""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Current employer,Fictional Employer 02,/employment/1/company/name,"""Fictional Employer 02""","""Fictional Employer 02""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Current title,title: Frontend Engineer,/employment/1/designation/name,"""Frontend Engineer""","""Frontend Engineer""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Current start,from 2024-01,/employment/1/start_date,"{""year"": 2024, ""month"": 1}","{""year"": 2024, ""month"": 1}",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Current employment,to present,/employment/1/is_current,true,true,PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Current employment type,full-time,/employment/1/employment_type,"""full_time""","""full_time""",PASS,Manual source-aware review with explicit value assertion,Exact enum normalization full-time → full_time.
+Current duties,Duties: Performed the stated professional duties.,/employment/1/responsibilities/0,"""Performed the stated professional duties.""","""Performed the stated professional duties.""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Total experience,Total non-overlapping experience as of 2026-10-01: 57 months.,/professional/total_experience_months,57,57,PASS,Manual source-aware review with explicit value assertion,Both explicit total and frozen employment-union derivation agree.
+Degree,Education: Bachelor of Engineering,/education/0/degree,"""Bachelor of Engineering""","""Bachelor of Engineering""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Institution,Fictional Institute 02,/education/0/institution/name,"""Fictional Institute 02""","""Fictional Institute 02""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Graduation,graduation year 2020,/education/0/graduation_year,2020,2020,PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Seniority,Seniority: mid,/professional/seniority,"""mid""","""mid""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Language,Language: English,/languages/0/entity/name,"""English""","""English""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Language read,"can read, write and speak",/languages/0/read,true,true,PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Language write,"can read, write and speak",/languages/0/write,true,true,PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Language speak,"can read, write and speak",/languages/0/speak,true,true,PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.
+Work preference,Work preference: remote.,/location/remote_preference,"""remote""","""remote""",PASS,Manual source-aware review with explicit value assertion,Literal source fact retained.

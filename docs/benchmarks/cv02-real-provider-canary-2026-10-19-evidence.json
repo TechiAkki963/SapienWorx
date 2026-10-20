@@ -1,0 +1,4972 @@
+{
+  "kind": "SINGLE_CASE_CANARY_EVIDENCE_NOT_BASELINE",
+  "case": "cv-02",
+  "source_fixture": {
+    "id": "cv-02",
+    "task": "cv.parse",
+    "industry": "Technology",
+    "synthetic": true,
+    "tags": [
+      "synthetic",
+      "employment_gap",
+      "abbreviated_technologies"
+    ],
+    "text": "Synthetic Evaluation Candidate 02\nFrontend Engineer\nCurrent location: Pune, India.\nSkills: JS; React; Accessibility.\nEmployer: Fictional Prior Employer 02; title: Frontend Engineer; from 2021-01 to 2023-01; full-time. Duties: Performed the stated professional duties.\nEmployer: Fictional Employer 02; title: Frontend Engineer; from 2024-01 to present; full-time. Duties: Performed the stated professional duties.\nTotal non-overlapping experience as of 2026-10-01: 57 months.\nEducation: Bachelor of Engineering, Fictional Institute 02; graduation year 2020.\nSeniority: mid.\nLanguage: English; can read, write and speak.\nWork preference: remote.",
+    "expected_profile": {
+      "identity": {
+        "display_name": "Synthetic Evaluation Candidate 02"
+      },
+      "professional": {
+        "headline": "Frontend Engineer",
+        "current_designation": {
+          "name": "Frontend Engineer"
+        },
+        "current_company": {
+          "name": "Fictional Employer 02"
+        },
+        "total_experience_months": 57,
+        "seniority": "mid",
+        "employment_status": "employed"
+      },
+      "skills": [
+        {
+          "entity": {
+            "name": "JavaScript"
+          }
+        },
+        {
+          "entity": {
+            "name": "React"
+          }
+        },
+        {
+          "entity": {
+            "name": "Accessibility"
+          }
+        }
+      ],
+      "employment": [
+        {
+          "company": {
+            "name": "Fictional Prior Employer 02"
+          },
+          "designation": {
+            "name": "Frontend Engineer"
+          },
+          "start_date": {
+            "precision": "month",
+            "year": 2021,
+            "month": 1,
+            "day": null,
+            "raw_value": "2021-01"
+          },
+          "end_date": {
+            "precision": "month",
+            "year": 2023,
+            "month": 1,
+            "day": null,
+            "raw_value": "2023-01"
+          },
+          "is_current": false,
+          "employment_type": "full_time",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ]
+        },
+        {
+          "company": {
+            "name": "Fictional Employer 02"
+          },
+          "designation": {
+            "name": "Frontend Engineer"
+          },
+          "start_date": {
+            "precision": "month",
+            "year": 2024,
+            "month": 1,
+            "day": null,
+            "raw_value": "2024-01"
+          },
+          "end_date": null,
+          "is_current": true,
+          "employment_type": "full_time",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ]
+        }
+      ],
+      "education": [
+        {
+          "institution": {
+            "name": "Fictional Institute 02"
+          },
+          "qualification": {
+            "name": "Bachelor of Engineering"
+          },
+          "degree": "Bachelor of Engineering",
+          "graduation_year": 2020
+        }
+      ],
+      "certifications": [],
+      "location": {
+        "current": {
+          "city": "Pune",
+          "country_code": "IN"
+        },
+        "preferred": [],
+        "remote_preference": "remote"
+      },
+      "languages": [
+        {
+          "entity": {
+            "name": "English"
+          },
+          "read": true,
+          "write": true,
+          "speak": true
+        }
+      ],
+      "availability": {
+        "notice_period_days": null,
+        "immediate_joiner": null
+      },
+      "contact": {
+        "primary_email": null,
+        "primary_phone": null
+      }
+    },
+    "expected": {},
+    "unsupported_claim_sentinels": [],
+    "provenance_policy": {
+      "source": "resume",
+      "reference": "cv-02:authored-source",
+      "confidence": null,
+      "review_status": "unreviewed"
+    },
+    "expected_field_metadata": {
+      "/identity/display_name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "identity",
+          "reference": "cv-02:authored-source:/identity/display_name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Synthetic Evaluation Candidate 02"
+      },
+      "/professional/headline": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-02:authored-source:/professional/headline",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/professional/current_designation/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-02:authored-source:/professional/current_designation/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/professional/current_company/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-02:authored-source:/professional/current_company/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 02"
+      },
+      "/professional/total_experience_months": {
+        "provenance": {
+          "source": "resume",
+          "kind": "derived",
+          "section": "professional",
+          "reference": "cv-02:authored-source:/professional/total_experience_months",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 57
+      },
+      "/professional/seniority": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-02:authored-source:/professional/seniority",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "mid"
+      },
+      "/professional/employment_status": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "professional",
+          "reference": "cv-02:authored-source:/professional/employment_status",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "employed"
+      },
+      "/skills/0/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "cv-02:authored-source:/skills/0/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "JavaScript"
+      },
+      "/skills/1/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "cv-02:authored-source:/skills/1/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "React"
+      },
+      "/skills/2/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "cv-02:authored-source:/skills/2/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Accessibility"
+      },
+      "/employment/0/company/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/company/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Prior Employer 02"
+      },
+      "/employment/0/designation/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/designation/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/employment/0/start_date/precision": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/start_date/precision",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/start_date/year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/start_date/year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2021
+      },
+      "/employment/0/start_date/month": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/start_date/month",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/start_date/raw_value": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/start_date/raw_value",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2021-01"
+      },
+      "/employment/0/end_date/precision": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/end_date/precision",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/end_date/year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/end_date/year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2023
+      },
+      "/employment/0/end_date/month": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/end_date/month",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/end_date/raw_value": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/end_date/raw_value",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2023-01"
+      },
+      "/employment/0/is_current": {
+        "provenance": {
+          "source": "resume",
+          "kind": "derived",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/is_current",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": false
+      },
+      "/employment/0/employment_type": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/employment_type",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/0/responsibilities/0": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/0/responsibilities/0",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/1/company/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/company/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 02"
+      },
+      "/employment/1/designation/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/designation/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/employment/1/start_date/precision": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/start_date/precision",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/1/start_date/year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/start_date/year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2024
+      },
+      "/employment/1/start_date/month": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/start_date/month",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/1/start_date/raw_value": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/start_date/raw_value",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2024-01"
+      },
+      "/employment/1/is_current": {
+        "provenance": {
+          "source": "resume",
+          "kind": "derived",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/is_current",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/employment/1/employment_type": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/employment_type",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/1/responsibilities/0": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "employment",
+          "reference": "cv-02:authored-source:/employment/1/responsibilities/0",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/education/0/institution/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-02:authored-source:/education/0/institution/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Institute 02"
+      },
+      "/education/0/qualification/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-02:authored-source:/education/0/qualification/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Bachelor of Engineering"
+      },
+      "/education/0/degree": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-02:authored-source:/education/0/degree",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Bachelor of Engineering"
+      },
+      "/education/0/graduation_year": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "education",
+          "reference": "cv-02:authored-source:/education/0/graduation_year",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2020
+      },
+      "/location/current/city": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "location",
+          "reference": "cv-02:authored-source:/location/current/city",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Pune"
+      },
+      "/location/current/country_code": {
+        "provenance": {
+          "source": "resume",
+          "kind": "normalized",
+          "section": "location",
+          "reference": "cv-02:authored-source:/location/current/country_code",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "IN"
+      },
+      "/location/remote_preference": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "location",
+          "reference": "cv-02:authored-source:/location/remote_preference",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "remote"
+      },
+      "/languages/0/entity/name": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-02:authored-source:/languages/0/entity/name",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "English"
+      },
+      "/languages/0/read": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-02:authored-source:/languages/0/read",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/write": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-02:authored-source:/languages/0/write",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/speak": {
+        "provenance": {
+          "source": "resume",
+          "kind": "explicit",
+          "section": "languages",
+          "reference": "cv-02:authored-source:/languages/0/speak",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      }
+    }
+  },
+  "raw_structured_provider_result": {
+    "availability": {
+      "available_from": null,
+      "currently_serving_notice": null,
+      "immediate_joiner": null,
+      "notice_period_days": null,
+      "notice_period_raw": null
+    },
+    "awards": null,
+    "certifications": null,
+    "classification": {
+      "domains": null,
+      "functions": null,
+      "industries": null,
+      "roles": null
+    },
+    "compensation": {
+      "current": null,
+      "expected": null
+    },
+    "contact": {
+      "alternate_email": null,
+      "alternate_phone": null,
+      "country_code": null,
+      "primary_email": null,
+      "primary_phone": null
+    },
+    "education": [
+      {
+        "degree": "Bachelor of Engineering",
+        "education_id": null,
+        "end_date": null,
+        "field_of_study": null,
+        "grade": null,
+        "grade_type": null,
+        "graduation_year": 2020,
+        "institution": {
+          "id": null,
+          "name": "Fictional Institute 02",
+          "namespace": null,
+          "raw_value": "Fictional Institute 02"
+        },
+        "location": null,
+        "qualification": {
+          "id": null,
+          "name": null,
+          "namespace": null,
+          "raw_value": null
+        },
+        "specialization": null,
+        "start_date": null
+      }
+    ],
+    "employment": [
+      {
+        "achievements": null,
+        "company": {
+          "id": null,
+          "name": "Fictional Prior Employer 02",
+          "namespace": null,
+          "raw_value": "Fictional Prior Employer 02"
+        },
+        "description": "Performed the stated professional duties.",
+        "designation": {
+          "id": null,
+          "name": "Frontend Engineer",
+          "namespace": null,
+          "raw_value": "Frontend Engineer"
+        },
+        "employment_type": "full_time",
+        "end_date": {
+          "day": null,
+          "month": 1,
+          "precision": "month",
+          "raw_value": "2023-01",
+          "year": 2023
+        },
+        "engagement": null,
+        "experience_id": null,
+        "is_current": false,
+        "location": null,
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ],
+        "skills": null,
+        "start_date": {
+          "day": null,
+          "month": 1,
+          "precision": "month",
+          "raw_value": "2021-01",
+          "year": 2021
+        }
+      },
+      {
+        "achievements": null,
+        "company": {
+          "id": null,
+          "name": "Fictional Employer 02",
+          "namespace": null,
+          "raw_value": "Fictional Employer 02"
+        },
+        "description": "Performed the stated professional duties.",
+        "designation": {
+          "id": null,
+          "name": "Frontend Engineer",
+          "namespace": null,
+          "raw_value": "Frontend Engineer"
+        },
+        "employment_type": "full_time",
+        "end_date": null,
+        "engagement": null,
+        "experience_id": null,
+        "is_current": true,
+        "location": null,
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ],
+        "skills": null,
+        "start_date": {
+          "day": null,
+          "month": 1,
+          "precision": "month",
+          "raw_value": "2024-01",
+          "year": 2024
+        }
+      }
+    ],
+    "honors": null,
+    "identity": {
+      "display_name": "Synthetic Evaluation Candidate 02",
+      "first_name": null,
+      "last_name": null,
+      "middle_name": null,
+      "preferred_name": null
+    },
+    "languages": [
+      {
+        "entity": {
+          "id": null,
+          "name": "English",
+          "namespace": null,
+          "raw_value": "English"
+        },
+        "proficiency": null,
+        "read": true,
+        "speak": true,
+        "write": true
+      }
+    ],
+    "links": null,
+    "location": {
+      "current": {
+        "city": "Pune",
+        "country_code": "IN",
+        "id": null,
+        "postal_code": null,
+        "raw_value": "Pune, India",
+        "state": null
+      },
+      "preferred": null,
+      "remote_preference": "remote",
+      "willing_to_relocate": null
+    },
+    "patents": null,
+    "preferences": {
+      "employment_types": null,
+      "functions": null,
+      "industries": null,
+      "willing_to_travel": null,
+      "work_modes": [
+        "remote"
+      ]
+    },
+    "professional": {
+      "current_company": {
+        "id": null,
+        "name": "Fictional Employer 02",
+        "namespace": null,
+        "raw_value": "Fictional Employer 02"
+      },
+      "current_designation": {
+        "id": null,
+        "name": "Frontend Engineer",
+        "namespace": null,
+        "raw_value": "Frontend Engineer"
+      },
+      "employment_status": "employed",
+      "headline": "Frontend Engineer",
+      "relevant_experience_months": null,
+      "seniority": "mid",
+      "summary": null,
+      "total_experience_months": 57
+    },
+    "projects": null,
+    "publications": null,
+    "skills": [
+      {
+        "category": null,
+        "entity": {
+          "id": null,
+          "name": "JS",
+          "namespace": null,
+          "raw_value": "JS"
+        },
+        "experience_months": null,
+        "last_used": null,
+        "proficiency": null
+      },
+      {
+        "category": null,
+        "entity": {
+          "id": null,
+          "name": "React",
+          "namespace": null,
+          "raw_value": "React"
+        },
+        "experience_months": null,
+        "last_used": null,
+        "proficiency": null
+      },
+      {
+        "category": null,
+        "entity": {
+          "id": null,
+          "name": "Accessibility",
+          "namespace": null,
+          "raw_value": "Accessibility"
+        },
+        "experience_months": null,
+        "last_used": null,
+        "proficiency": null
+      }
+    ],
+    "work_authorization": null
+  },
+  "schema_valid": true,
+  "raw_domain_valid": true,
+  "normalized": {
+    "identity": {
+      "display_name": "Synthetic Evaluation Candidate 02",
+      "first_name": null,
+      "middle_name": null,
+      "last_name": null,
+      "preferred_name": null
+    },
+    "contact": {
+      "primary_email": null,
+      "alternate_email": null,
+      "primary_phone": null,
+      "alternate_phone": null,
+      "country_code": null
+    },
+    "professional": {
+      "headline": "Frontend Engineer",
+      "summary": null,
+      "current_designation": {
+        "id": null,
+        "namespace": null,
+        "name": "Frontend Engineer",
+        "raw_value": "Frontend Engineer"
+      },
+      "current_company": {
+        "id": null,
+        "namespace": null,
+        "name": "Fictional Employer 02",
+        "raw_value": "Fictional Employer 02"
+      },
+      "employment_status": "employed",
+      "total_experience_months": 57,
+      "relevant_experience_months": null,
+      "seniority": "mid"
+    },
+    "location": {
+      "current": {
+        "id": null,
+        "city": "Pune",
+        "state": null,
+        "country_code": "IN",
+        "postal_code": null,
+        "raw_value": "Pune, India"
+      },
+      "preferred": null,
+      "willing_to_relocate": null,
+      "remote_preference": "remote"
+    },
+    "skills": [
+      {
+        "entity": {
+          "id": "60000000-0000-4000-8000-000000000038",
+          "namespace": "intelligence",
+          "name": "JavaScript",
+          "raw_value": "JS"
+        },
+        "category": null,
+        "proficiency": null,
+        "experience_months": null,
+        "last_used": null
+      },
+      {
+        "entity": {
+          "id": "60000000-0000-4000-8000-000000000058",
+          "namespace": "intelligence",
+          "name": "React",
+          "raw_value": "React"
+        },
+        "category": null,
+        "proficiency": null,
+        "experience_months": null,
+        "last_used": null
+      },
+      {
+        "entity": {
+          "id": "60000000-0000-4000-8000-000000000003",
+          "namespace": "intelligence",
+          "name": "Accessibility",
+          "raw_value": "Accessibility"
+        },
+        "category": null,
+        "proficiency": null,
+        "experience_months": null,
+        "last_used": null
+      }
+    ],
+    "employment": [
+      {
+        "experience_id": null,
+        "company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Prior Employer 02",
+          "raw_value": "Fictional Prior Employer 02"
+        },
+        "designation": {
+          "id": null,
+          "namespace": null,
+          "name": "Frontend Engineer",
+          "raw_value": "Frontend Engineer"
+        },
+        "employment_type": "full_time",
+        "engagement": null,
+        "location": null,
+        "start_date": {
+          "precision": "month",
+          "year": 2021,
+          "month": 1,
+          "day": null,
+          "raw_value": "2021-01"
+        },
+        "end_date": {
+          "precision": "month",
+          "year": 2023,
+          "month": 1,
+          "day": null,
+          "raw_value": "2023-01"
+        },
+        "is_current": false,
+        "description": "Performed the stated professional duties.",
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ],
+        "achievements": null,
+        "skills": null
+      },
+      {
+        "experience_id": null,
+        "company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Employer 02",
+          "raw_value": "Fictional Employer 02"
+        },
+        "designation": {
+          "id": null,
+          "namespace": null,
+          "name": "Frontend Engineer",
+          "raw_value": "Frontend Engineer"
+        },
+        "employment_type": "full_time",
+        "engagement": null,
+        "location": null,
+        "start_date": {
+          "precision": "month",
+          "year": 2024,
+          "month": 1,
+          "day": null,
+          "raw_value": "2024-01"
+        },
+        "end_date": null,
+        "is_current": true,
+        "description": "Performed the stated professional duties.",
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ],
+        "achievements": null,
+        "skills": null
+      }
+    ],
+    "education": [
+      {
+        "education_id": null,
+        "institution": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Institute 02",
+          "raw_value": "Fictional Institute 02"
+        },
+        "qualification": {
+          "id": null,
+          "namespace": null,
+          "name": null,
+          "raw_value": null
+        },
+        "degree": "Bachelor of Engineering",
+        "specialization": null,
+        "field_of_study": null,
+        "start_date": null,
+        "end_date": null,
+        "graduation_year": 2020,
+        "grade": null,
+        "grade_type": null,
+        "location": null
+      }
+    ],
+    "certifications": null,
+    "projects": null,
+    "languages": [
+      {
+        "entity": {
+          "id": null,
+          "namespace": null,
+          "name": "English",
+          "raw_value": "English"
+        },
+        "proficiency": null,
+        "read": true,
+        "write": true,
+        "speak": true
+      }
+    ],
+    "links": null,
+    "availability": {
+      "notice_period_days": null,
+      "notice_period_raw": null,
+      "available_from": null,
+      "immediate_joiner": null,
+      "currently_serving_notice": null
+    },
+    "compensation": {
+      "current": null,
+      "expected": null
+    },
+    "preferences": {
+      "employment_types": null,
+      "work_modes": [
+        "remote"
+      ],
+      "willing_to_travel": null,
+      "industries": null,
+      "functions": null
+    },
+    "classification": {
+      "industries": null,
+      "functions": null,
+      "roles": null,
+      "domains": null
+    },
+    "work_authorization": null,
+    "publications": null,
+    "patents": null,
+    "awards": null,
+    "honors": null
+  },
+  "postprocessed": {
+    "identity": {
+      "display_name": "Synthetic Evaluation Candidate 02",
+      "first_name": null,
+      "middle_name": null,
+      "last_name": null,
+      "preferred_name": null
+    },
+    "contact": {
+      "primary_email": null,
+      "alternate_email": null,
+      "primary_phone": null,
+      "alternate_phone": null,
+      "country_code": null
+    },
+    "professional": {
+      "headline": "Frontend Engineer",
+      "summary": null,
+      "current_designation": {
+        "id": null,
+        "namespace": null,
+        "name": "Frontend Engineer",
+        "raw_value": "Frontend Engineer"
+      },
+      "current_company": {
+        "id": null,
+        "namespace": null,
+        "name": "Fictional Employer 02",
+        "raw_value": "Fictional Employer 02"
+      },
+      "employment_status": "employed",
+      "total_experience_months": 57,
+      "relevant_experience_months": null,
+      "seniority": "mid"
+    },
+    "location": {
+      "current": {
+        "id": null,
+        "city": "Pune",
+        "state": null,
+        "country_code": "IN",
+        "postal_code": null,
+        "raw_value": "Pune, India"
+      },
+      "preferred": null,
+      "willing_to_relocate": null,
+      "remote_preference": "remote"
+    },
+    "skills": [
+      {
+        "entity": {
+          "id": "60000000-0000-4000-8000-000000000038",
+          "namespace": "intelligence",
+          "name": "JavaScript",
+          "raw_value": "JS"
+        },
+        "category": null,
+        "proficiency": null,
+        "experience_months": null,
+        "last_used": null
+      },
+      {
+        "entity": {
+          "id": "60000000-0000-4000-8000-000000000058",
+          "namespace": "intelligence",
+          "name": "React",
+          "raw_value": "React"
+        },
+        "category": null,
+        "proficiency": null,
+        "experience_months": null,
+        "last_used": null
+      },
+      {
+        "entity": {
+          "id": "60000000-0000-4000-8000-000000000003",
+          "namespace": "intelligence",
+          "name": "Accessibility",
+          "raw_value": "Accessibility"
+        },
+        "category": null,
+        "proficiency": null,
+        "experience_months": null,
+        "last_used": null
+      }
+    ],
+    "employment": [
+      {
+        "experience_id": null,
+        "company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Prior Employer 02",
+          "raw_value": "Fictional Prior Employer 02"
+        },
+        "designation": {
+          "id": null,
+          "namespace": null,
+          "name": "Frontend Engineer",
+          "raw_value": "Frontend Engineer"
+        },
+        "employment_type": "full_time",
+        "engagement": null,
+        "location": null,
+        "start_date": {
+          "precision": "month",
+          "year": 2021,
+          "month": 1,
+          "day": null,
+          "raw_value": "2021-01"
+        },
+        "end_date": {
+          "precision": "month",
+          "year": 2023,
+          "month": 1,
+          "day": null,
+          "raw_value": "2023-01"
+        },
+        "is_current": false,
+        "description": "Performed the stated professional duties.",
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ],
+        "achievements": null,
+        "skills": null
+      },
+      {
+        "experience_id": null,
+        "company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Employer 02",
+          "raw_value": "Fictional Employer 02"
+        },
+        "designation": {
+          "id": null,
+          "namespace": null,
+          "name": "Frontend Engineer",
+          "raw_value": "Frontend Engineer"
+        },
+        "employment_type": "full_time",
+        "engagement": null,
+        "location": null,
+        "start_date": {
+          "precision": "month",
+          "year": 2024,
+          "month": 1,
+          "day": null,
+          "raw_value": "2024-01"
+        },
+        "end_date": null,
+        "is_current": true,
+        "description": "Performed the stated professional duties.",
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ],
+        "achievements": null,
+        "skills": null
+      }
+    ],
+    "education": [
+      {
+        "education_id": null,
+        "institution": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Institute 02",
+          "raw_value": "Fictional Institute 02"
+        },
+        "qualification": {
+          "id": null,
+          "namespace": null,
+          "name": "Bachelor of Engineering",
+          "raw_value": null
+        },
+        "degree": "Bachelor of Engineering",
+        "specialization": null,
+        "field_of_study": null,
+        "start_date": null,
+        "end_date": null,
+        "graduation_year": 2020,
+        "grade": null,
+        "grade_type": null,
+        "location": null
+      }
+    ],
+    "certifications": null,
+    "projects": null,
+    "languages": [
+      {
+        "entity": {
+          "id": null,
+          "namespace": null,
+          "name": "English",
+          "raw_value": "English"
+        },
+        "proficiency": null,
+        "read": true,
+        "write": true,
+        "speak": true
+      }
+    ],
+    "links": null,
+    "availability": {
+      "notice_period_days": null,
+      "notice_period_raw": null,
+      "available_from": null,
+      "immediate_joiner": null,
+      "currently_serving_notice": null
+    },
+    "compensation": {
+      "current": null,
+      "expected": null
+    },
+    "preferences": {
+      "employment_types": null,
+      "work_modes": [
+        "remote"
+      ],
+      "willing_to_travel": null,
+      "industries": null,
+      "functions": null
+    },
+    "classification": {
+      "industries": null,
+      "functions": null,
+      "roles": null,
+      "domains": null
+    },
+    "work_authorization": null,
+    "publications": null,
+    "patents": null,
+    "awards": null,
+    "honors": null
+  },
+  "frozen_expected": {
+    "identity": {
+      "display_name": "Synthetic Evaluation Candidate 02"
+    },
+    "professional": {
+      "headline": "Frontend Engineer",
+      "current_designation": {
+        "name": "Frontend Engineer"
+      },
+      "current_company": {
+        "name": "Fictional Employer 02"
+      },
+      "total_experience_months": 57,
+      "seniority": "mid",
+      "employment_status": "employed"
+    },
+    "skills": [
+      {
+        "entity": {
+          "name": "JavaScript"
+        }
+      },
+      {
+        "entity": {
+          "name": "React"
+        }
+      },
+      {
+        "entity": {
+          "name": "Accessibility"
+        }
+      }
+    ],
+    "employment": [
+      {
+        "company": {
+          "name": "Fictional Prior Employer 02"
+        },
+        "designation": {
+          "name": "Frontend Engineer"
+        },
+        "start_date": {
+          "precision": "month",
+          "year": 2021,
+          "month": 1,
+          "day": null,
+          "raw_value": "2021-01"
+        },
+        "end_date": {
+          "precision": "month",
+          "year": 2023,
+          "month": 1,
+          "day": null,
+          "raw_value": "2023-01"
+        },
+        "is_current": false,
+        "employment_type": "full_time",
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ]
+      },
+      {
+        "company": {
+          "name": "Fictional Employer 02"
+        },
+        "designation": {
+          "name": "Frontend Engineer"
+        },
+        "start_date": {
+          "precision": "month",
+          "year": 2024,
+          "month": 1,
+          "day": null,
+          "raw_value": "2024-01"
+        },
+        "end_date": null,
+        "is_current": true,
+        "employment_type": "full_time",
+        "responsibilities": [
+          "Performed the stated professional duties."
+        ]
+      }
+    ],
+    "education": [
+      {
+        "institution": {
+          "name": "Fictional Institute 02"
+        },
+        "qualification": {
+          "name": "Bachelor of Engineering"
+        },
+        "degree": "Bachelor of Engineering",
+        "graduation_year": 2020
+      }
+    ],
+    "certifications": [],
+    "location": {
+      "current": {
+        "city": "Pune",
+        "country_code": "IN"
+      },
+      "preferred": [],
+      "remote_preference": "remote"
+    },
+    "languages": [
+      {
+        "entity": {
+          "name": "English"
+        },
+        "read": true,
+        "write": true,
+        "speak": true
+      }
+    ],
+    "availability": {
+      "notice_period_days": null,
+      "immediate_joiner": null
+    },
+    "contact": {
+      "primary_email": null,
+      "primary_phone": null
+    }
+  },
+  "frozen_pipeline_replay": {
+    "id": "cv-02",
+    "task": "cv.parse",
+    "before_raw": {
+      "cv_skills": {
+        "precision": {
+          "status": "measured",
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1
+        },
+        "recall": {
+          "status": "measured",
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1
+        },
+        "f1": {
+          "status": "measured",
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        }
+      },
+      "id": "cv-02",
+      "task": "cv.parse",
+      "industry": "Technology",
+      "exact_field_correctness": {
+        "status": "measured",
+        "numerator": 46,
+        "denominator": 50,
+        "value": 0.92
+      },
+      "normalized_field_correctness": {
+        "status": "measured",
+        "numerator": 47,
+        "denominator": 50,
+        "value": 0.94
+      },
+      "required_skills": {
+        "precision": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "recall": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "f1": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "preferred_skills": {
+        "precision": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "recall": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "f1": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "taxonomy_resolution": {
+        "status": "measured",
+        "numerator": 3,
+        "denominator": 3,
+        "value": 1
+      },
+      "seniority_accuracy": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "experience_accuracy": {
+        "status": "measured",
+        "numerator": 13,
+        "denominator": 13,
+        "value": 1
+      },
+      "work_mode_accuracy": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "location_accuracy": {
+        "status": "measured",
+        "numerator": 3,
+        "denominator": 4,
+        "value": 0.75
+      },
+      "unsupported_field_rate": {
+        "status": "measured",
+        "numerator": 3,
+        "denominator": 42,
+        "value": 0.07142857142857142
+      },
+      "schema_compliance": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "validation_pass": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "requires_review": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "contract_coverage": {
+        "status": "measured",
+        "numerator": 50,
+        "denominator": 50,
+        "value": 1
+      },
+      "aggregate_quality": 89.51428571428572,
+      "fields": {
+        "/availability/immediate_joiner": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/availability/notice_period_days": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/certifications": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/contact/primary_email": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/contact/primary_phone": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/degree": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/graduation_year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/institution/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/qualification/name": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/employment/0/company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/employment_type": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/end_date": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/is_current": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/responsibilities/0": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/employment_type": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/is_current": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/responsibilities/0": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/identity/display_name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/read": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/speak": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/write": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/current/city": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/current/country_code": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/preferred": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/location/remote_preference": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/current_company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/current_designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/employment_status": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/headline": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/seniority": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/total_experience_months": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/0/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/1/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/2/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        }
+      },
+      "contract_gaps": [],
+      "error_paths": [
+        "/certifications",
+        "/education/0/qualification/name",
+        "/location/preferred"
+      ],
+      "injection_violation": false,
+      "manual_text_fields": 0
+    },
+    "after_offline": {
+      "cv_skills": {
+        "precision": {
+          "status": "measured",
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1
+        },
+        "recall": {
+          "status": "measured",
+          "numerator": 3,
+          "denominator": 3,
+          "value": 1
+        },
+        "f1": {
+          "status": "measured",
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        }
+      },
+      "id": "cv-02",
+      "task": "cv.parse",
+      "industry": "Technology",
+      "exact_field_correctness": {
+        "status": "measured",
+        "numerator": 48,
+        "denominator": 50,
+        "value": 0.96
+      },
+      "normalized_field_correctness": {
+        "status": "measured",
+        "numerator": 48,
+        "denominator": 50,
+        "value": 0.96
+      },
+      "required_skills": {
+        "precision": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "recall": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "f1": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "preferred_skills": {
+        "precision": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "recall": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "f1": {
+          "status": "not_applicable",
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "taxonomy_resolution": {
+        "status": "measured",
+        "numerator": 3,
+        "denominator": 3,
+        "value": 1
+      },
+      "seniority_accuracy": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "experience_accuracy": {
+        "status": "measured",
+        "numerator": 13,
+        "denominator": 13,
+        "value": 1
+      },
+      "work_mode_accuracy": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "location_accuracy": {
+        "status": "measured",
+        "numerator": 3,
+        "denominator": 4,
+        "value": 0.75
+      },
+      "unsupported_field_rate": {
+        "status": "measured",
+        "numerator": 3,
+        "denominator": 43,
+        "value": 0.06976744186046512
+      },
+      "schema_compliance": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "validation_pass": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "requires_review": {
+        "status": "measured",
+        "numerator": 1,
+        "denominator": 1,
+        "value": 1
+      },
+      "contract_coverage": {
+        "status": "measured",
+        "numerator": 50,
+        "denominator": 50,
+        "value": 1
+      },
+      "aggregate_quality": 90.7906976744186,
+      "fields": {
+        "/availability/immediate_joiner": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/availability/notice_period_days": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/certifications": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/contact/primary_email": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/contact/primary_phone": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/degree": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/graduation_year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/institution/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/education/0/qualification/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/employment_type": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/end_date": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/is_current": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/responsibilities/0": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/0/start_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/employment_type": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/end_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/is_current": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/responsibilities/0": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/day": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/month": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/precision": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/employment/1/start_date/year": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/identity/display_name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/read": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/speak": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/languages/0/write": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/current/city": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/current/country_code": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/location/preferred": {
+          "status": "measured",
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "/location/remote_preference": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/current_company/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/current_designation/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/employment_status": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/headline": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/seniority": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/professional/total_experience_months": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/0/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/1/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "/skills/2/entity/name": {
+          "status": "measured",
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        }
+      },
+      "contract_gaps": [],
+      "error_paths": [
+        "/certifications",
+        "/location/preferred"
+      ],
+      "injection_violation": false,
+      "manual_text_fields": 0
+    },
+    "representation_adjusted_before": {
+      "status": "measured",
+      "numerator": 50,
+      "denominator": 50,
+      "value": 1
+    },
+    "representation_adjusted_after": {
+      "status": "measured",
+      "numerator": 50,
+      "denominator": 50,
+      "value": 1
+    },
+    "processing": {
+      "provider_value": {
+        "availability": {
+          "available_from": null,
+          "currently_serving_notice": null,
+          "immediate_joiner": null,
+          "notice_period_days": null,
+          "notice_period_raw": null
+        },
+        "awards": null,
+        "certifications": null,
+        "classification": {
+          "domains": null,
+          "functions": null,
+          "industries": null,
+          "roles": null
+        },
+        "compensation": {
+          "current": null,
+          "expected": null
+        },
+        "contact": {
+          "alternate_email": null,
+          "alternate_phone": null,
+          "country_code": null,
+          "primary_email": null,
+          "primary_phone": null
+        },
+        "education": [
+          {
+            "degree": "Bachelor of Engineering",
+            "education_id": null,
+            "end_date": null,
+            "field_of_study": null,
+            "grade": null,
+            "grade_type": null,
+            "graduation_year": 2020,
+            "institution": {
+              "id": null,
+              "name": "Fictional Institute 02",
+              "namespace": null,
+              "raw_value": "Fictional Institute 02"
+            },
+            "location": null,
+            "qualification": {
+              "id": null,
+              "name": null,
+              "namespace": null,
+              "raw_value": null
+            },
+            "specialization": null,
+            "start_date": null
+          }
+        ],
+        "employment": [
+          {
+            "achievements": null,
+            "company": {
+              "id": null,
+              "name": "Fictional Prior Employer 02",
+              "namespace": null,
+              "raw_value": "Fictional Prior Employer 02"
+            },
+            "description": "Performed the stated professional duties.",
+            "designation": {
+              "id": null,
+              "name": "Frontend Engineer",
+              "namespace": null,
+              "raw_value": "Frontend Engineer"
+            },
+            "employment_type": "full_time",
+            "end_date": {
+              "day": null,
+              "month": 1,
+              "precision": "month",
+              "raw_value": "2023-01",
+              "year": 2023
+            },
+            "engagement": null,
+            "experience_id": null,
+            "is_current": false,
+            "location": null,
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "skills": null,
+            "start_date": {
+              "day": null,
+              "month": 1,
+              "precision": "month",
+              "raw_value": "2021-01",
+              "year": 2021
+            }
+          },
+          {
+            "achievements": null,
+            "company": {
+              "id": null,
+              "name": "Fictional Employer 02",
+              "namespace": null,
+              "raw_value": "Fictional Employer 02"
+            },
+            "description": "Performed the stated professional duties.",
+            "designation": {
+              "id": null,
+              "name": "Frontend Engineer",
+              "namespace": null,
+              "raw_value": "Frontend Engineer"
+            },
+            "employment_type": "full_time",
+            "end_date": null,
+            "engagement": null,
+            "experience_id": null,
+            "is_current": true,
+            "location": null,
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "skills": null,
+            "start_date": {
+              "day": null,
+              "month": 1,
+              "precision": "month",
+              "raw_value": "2024-01",
+              "year": 2024
+            }
+          }
+        ],
+        "honors": null,
+        "identity": {
+          "display_name": "Synthetic Evaluation Candidate 02",
+          "first_name": null,
+          "last_name": null,
+          "middle_name": null,
+          "preferred_name": null
+        },
+        "languages": [
+          {
+            "entity": {
+              "id": null,
+              "name": "English",
+              "namespace": null,
+              "raw_value": "English"
+            },
+            "proficiency": null,
+            "read": true,
+            "speak": true,
+            "write": true
+          }
+        ],
+        "links": null,
+        "location": {
+          "current": {
+            "city": "Pune",
+            "country_code": "IN",
+            "id": null,
+            "postal_code": null,
+            "raw_value": "Pune, India",
+            "state": null
+          },
+          "preferred": null,
+          "remote_preference": "remote",
+          "willing_to_relocate": null
+        },
+        "patents": null,
+        "preferences": {
+          "employment_types": null,
+          "functions": null,
+          "industries": null,
+          "willing_to_travel": null,
+          "work_modes": [
+            "remote"
+          ]
+        },
+        "professional": {
+          "current_company": {
+            "id": null,
+            "name": "Fictional Employer 02",
+            "namespace": null,
+            "raw_value": "Fictional Employer 02"
+          },
+          "current_designation": {
+            "id": null,
+            "name": "Frontend Engineer",
+            "namespace": null,
+            "raw_value": "Frontend Engineer"
+          },
+          "employment_status": "employed",
+          "headline": "Frontend Engineer",
+          "relevant_experience_months": null,
+          "seniority": "mid",
+          "summary": null,
+          "total_experience_months": 57
+        },
+        "projects": null,
+        "publications": null,
+        "skills": [
+          {
+            "category": null,
+            "entity": {
+              "id": null,
+              "name": "JS",
+              "namespace": null,
+              "raw_value": "JS"
+            },
+            "experience_months": null,
+            "last_used": null,
+            "proficiency": null
+          },
+          {
+            "category": null,
+            "entity": {
+              "id": null,
+              "name": "React",
+              "namespace": null,
+              "raw_value": "React"
+            },
+            "experience_months": null,
+            "last_used": null,
+            "proficiency": null
+          },
+          {
+            "category": null,
+            "entity": {
+              "id": null,
+              "name": "Accessibility",
+              "namespace": null,
+              "raw_value": "Accessibility"
+            },
+            "experience_months": null,
+            "last_used": null,
+            "proficiency": null
+          }
+        ],
+        "work_authorization": null
+      },
+      "normalized_value": {
+        "identity": {
+          "display_name": "Synthetic Evaluation Candidate 02",
+          "first_name": null,
+          "middle_name": null,
+          "last_name": null,
+          "preferred_name": null
+        },
+        "contact": {
+          "primary_email": null,
+          "alternate_email": null,
+          "primary_phone": null,
+          "alternate_phone": null,
+          "country_code": null
+        },
+        "professional": {
+          "headline": "Frontend Engineer",
+          "summary": null,
+          "current_designation": {
+            "id": null,
+            "namespace": null,
+            "name": "Frontend Engineer",
+            "raw_value": "Frontend Engineer"
+          },
+          "current_company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Employer 02",
+            "raw_value": "Fictional Employer 02"
+          },
+          "employment_status": "employed",
+          "total_experience_months": 57,
+          "relevant_experience_months": null,
+          "seniority": "mid"
+        },
+        "location": {
+          "current": {
+            "id": null,
+            "city": "Pune",
+            "state": null,
+            "country_code": "IN",
+            "postal_code": null,
+            "raw_value": "Pune, India"
+          },
+          "preferred": null,
+          "willing_to_relocate": null,
+          "remote_preference": "remote"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000038",
+              "namespace": "intelligence",
+              "name": "JavaScript",
+              "raw_value": "JS"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          },
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000058",
+              "namespace": "intelligence",
+              "name": "React",
+              "raw_value": "React"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          },
+          {
+            "entity": {
+              "id": "60000000-0000-4000-8000-000000000003",
+              "namespace": "intelligence",
+              "name": "Accessibility",
+              "raw_value": "Accessibility"
+            },
+            "category": null,
+            "proficiency": null,
+            "experience_months": null,
+            "last_used": null
+          }
+        ],
+        "employment": [
+          {
+            "experience_id": null,
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Prior Employer 02",
+              "raw_value": "Fictional Prior Employer 02"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Frontend Engineer",
+              "raw_value": "Frontend Engineer"
+            },
+            "employment_type": "full_time",
+            "engagement": null,
+            "location": null,
+            "start_date": {
+              "precision": "month",
+              "year": 2021,
+              "month": 1,
+              "day": null,
+              "raw_value": "2021-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "is_current": false,
+            "description": "Performed the stated professional duties.",
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "achievements": null,
+            "skills": null
+          },
+          {
+            "experience_id": null,
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Employer 02",
+              "raw_value": "Fictional Employer 02"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Frontend Engineer",
+              "raw_value": "Frontend Engineer"
+            },
+            "employment_type": "full_time",
+            "engagement": null,
+            "location": null,
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "end_date": null,
+            "is_current": true,
+            "description": "Performed the stated professional duties.",
+            "responsibilities": [
+              "Performed the stated professional duties."
+            ],
+            "achievements": null,
+            "skills": null
+          }
+        ],
+        "education": [
+          {
+            "education_id": null,
+            "institution": {
+              "id": null,
+              "namespace": null,
+              "name": "Fictional Institute 02",
+              "raw_value": "Fictional Institute 02"
+            },
+            "qualification": {
+              "id": null,
+              "namespace": null,
+              "name": "Bachelor of Engineering",
+              "raw_value": null
+            },
+            "degree": "Bachelor of Engineering",
+            "specialization": null,
+            "field_of_study": null,
+            "start_date": null,
+            "end_date": null,
+            "graduation_year": 2020,
+            "grade": null,
+            "grade_type": null,
+            "location": null
+          }
+        ],
+        "certifications": null,
+        "projects": null,
+        "languages": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "English",
+              "raw_value": "English"
+            },
+            "proficiency": null,
+            "read": true,
+            "write": true,
+            "speak": true
+          }
+        ],
+        "links": null,
+        "availability": {
+          "notice_period_days": null,
+          "notice_period_raw": null,
+          "available_from": null,
+          "immediate_joiner": null,
+          "currently_serving_notice": null
+        },
+        "compensation": {
+          "current": null,
+          "expected": null
+        },
+        "preferences": {
+          "employment_types": null,
+          "work_modes": [
+            "remote"
+          ],
+          "willing_to_travel": null,
+          "industries": null,
+          "functions": null
+        },
+        "classification": {
+          "industries": null,
+          "functions": null,
+          "roles": null,
+          "domains": null
+        },
+        "work_authorization": null,
+        "publications": null,
+        "patents": null,
+        "awards": null,
+        "honors": null
+      },
+      "field_metadata": {
+        "/education/0/degree": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "education",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Bachelor of Engineering"
+        },
+        "/education/0/graduation_year": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "education",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 2020
+        },
+        "/education/0/institution/name": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "education",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Institute 02"
+        },
+        "/education/0/institution/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "education",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Institute 02"
+        },
+        "/education/0/qualification/name": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "education",
+            "reference": "/education/0/degree",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": null
+        },
+        "/employment/0/company/name": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Prior Employer 02"
+        },
+        "/employment/0/company/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Prior Employer 02"
+        },
+        "/employment/0/description": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Performed the stated professional duties."
+        },
+        "/employment/0/designation/name": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Frontend Engineer"
+        },
+        "/employment/0/designation/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Frontend Engineer"
+        },
+        "/employment/0/employment_type": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "full_time"
+        },
+        "/employment/0/end_date/month": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 1
+        },
+        "/employment/0/end_date/precision": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "month"
+        },
+        "/employment/0/end_date/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "2023-01"
+        },
+        "/employment/0/end_date/year": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 2023
+        },
+        "/employment/0/is_current": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": false
+        },
+        "/employment/0/responsibilities/0": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Performed the stated professional duties."
+        },
+        "/employment/0/start_date/month": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 1
+        },
+        "/employment/0/start_date/precision": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "month"
+        },
+        "/employment/0/start_date/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "2021-01"
+        },
+        "/employment/0/start_date/year": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 2021
+        },
+        "/employment/1/company/name": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Employer 02"
+        },
+        "/employment/1/company/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Employer 02"
+        },
+        "/employment/1/description": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Performed the stated professional duties."
+        },
+        "/employment/1/designation/name": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Frontend Engineer"
+        },
+        "/employment/1/designation/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Frontend Engineer"
+        },
+        "/employment/1/employment_type": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "full_time"
+        },
+        "/employment/1/is_current": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": true
+        },
+        "/employment/1/responsibilities/0": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Performed the stated professional duties."
+        },
+        "/employment/1/start_date/month": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 1
+        },
+        "/employment/1/start_date/precision": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "month"
+        },
+        "/employment/1/start_date/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "2024-01"
+        },
+        "/employment/1/start_date/year": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "employment",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 2024
+        },
+        "/identity/display_name": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "identity",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Synthetic Evaluation Candidate 02"
+        },
+        "/languages/0/entity/name": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "languages",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "English"
+        },
+        "/languages/0/entity/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "languages",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "English"
+        },
+        "/languages/0/read": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "languages",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": true
+        },
+        "/languages/0/speak": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "languages",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": true
+        },
+        "/languages/0/write": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "languages",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": true
+        },
+        "/location/current/city": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "location",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Pune"
+        },
+        "/location/current/country_code": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "location",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "IN"
+        },
+        "/location/current/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "location",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Pune, India"
+        },
+        "/location/remote_preference": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "location",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "remote"
+        },
+        "/preferences/work_modes/0": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "preferences",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "remote"
+        },
+        "/professional/current_company/name": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "derived",
+            "section": "professional",
+            "reference": "employment",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Employer 02"
+        },
+        "/professional/current_company/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "professional",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Fictional Employer 02"
+        },
+        "/professional/current_designation/name": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "derived",
+            "section": "professional",
+            "reference": "employment",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Frontend Engineer"
+        },
+        "/professional/current_designation/raw_value": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "professional",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Frontend Engineer"
+        },
+        "/professional/employment_status": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "professional",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "employed"
+        },
+        "/professional/headline": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "professional",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Frontend Engineer"
+        },
+        "/professional/seniority": {
+          "provenance": {
+            "source": "ai_derived",
+            "kind": "inferred",
+            "section": "professional",
+            "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "mid"
+        },
+        "/professional/total_experience_months": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "derived",
+            "section": "professional",
+            "reference": "employment",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": 57
+        },
+        "/skills/0/entity/id": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": null
+        },
+        "/skills/0/entity/name": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "JS"
+        },
+        "/skills/0/entity/namespace": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": null
+        },
+        "/skills/0/entity/raw_value": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "JS"
+        },
+        "/skills/1/entity/id": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": null
+        },
+        "/skills/1/entity/name": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "React"
+        },
+        "/skills/1/entity/namespace": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": null
+        },
+        "/skills/1/entity/raw_value": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "React"
+        },
+        "/skills/2/entity/id": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": null
+        },
+        "/skills/2/entity/name": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Accessibility"
+        },
+        "/skills/2/entity/namespace": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": null
+        },
+        "/skills/2/entity/raw_value": {
+          "provenance": {
+            "source": "system_derived",
+            "kind": "normalized",
+            "section": "skills",
+            "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+            "page": null
+          },
+          "confidence": null,
+          "review_status": "unreviewed",
+          "raw_value": "Accessibility"
+        }
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "DUPLICATE_PROJECTION_NORMALIZED",
+          "path": "/education/0/qualification/name"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_company/name"
+        },
+        {
+          "severity": "warning",
+          "code": "CURRENT_ROLE_CALCULATED",
+          "path": "/professional/current_designation/name"
+        },
+        {
+          "severity": "warning",
+          "code": "EXPERIENCE_CALCULATED",
+          "path": "/professional/total_experience_months"
+        }
+      ],
+      "taxonomy_resolved": 3,
+      "taxonomy_total": 3
+    },
+    "schema_valid": true,
+    "domain_valid": true,
+    "standalone_profile_valid": true,
+    "regressions": 0,
+    "regression_failures": []
+  },
+  "canonical_envelope_note": "These exact synthetic envelope shapes are constructed/validated by frozen ReplayCaptured; serialized here offline from its checked profile and metadata. No candidate/profile record was persisted. CreatedAt is the fixed benchmark AsOf, not the real execution timestamp.",
+  "final_parser_result": {
+    "contract_version": "v1",
+    "profile_schema_version": "v1",
+    "result_id": "40000000-0000-4000-8000-000000000001",
+    "candidate_id": "20000000-0000-4000-8000-000000000001",
+    "resume": {
+      "resume_id": "50000000-0000-4000-8000-000000000001",
+      "original_filename": null,
+      "mime_type": null,
+      "file_size": null,
+      "uploaded_at": null,
+      "purpose": null,
+      "page_count": null
+    },
+    "parser_provider": "openai",
+    "parser_version": "openai-p2-v1",
+    "source_type": "resume",
+    "status": "ready_for_review",
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Evaluation Candidate 02",
+        "first_name": null,
+        "middle_name": null,
+        "last_name": null,
+        "preferred_name": null
+      },
+      "contact": {
+        "primary_email": null,
+        "alternate_email": null,
+        "primary_phone": null,
+        "alternate_phone": null,
+        "country_code": null
+      },
+      "professional": {
+        "headline": "Frontend Engineer",
+        "summary": null,
+        "current_designation": {
+          "id": null,
+          "namespace": null,
+          "name": "Frontend Engineer",
+          "raw_value": "Frontend Engineer"
+        },
+        "current_company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Employer 02",
+          "raw_value": "Fictional Employer 02"
+        },
+        "employment_status": "employed",
+        "total_experience_months": 57,
+        "relevant_experience_months": null,
+        "seniority": "mid"
+      },
+      "location": {
+        "current": {
+          "id": null,
+          "city": "Pune",
+          "state": null,
+          "country_code": "IN",
+          "postal_code": null,
+          "raw_value": "Pune, India"
+        },
+        "preferred": null,
+        "willing_to_relocate": null,
+        "remote_preference": "remote"
+      },
+      "skills": [
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000038",
+            "namespace": "intelligence",
+            "name": "JavaScript",
+            "raw_value": "JS"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000058",
+            "namespace": "intelligence",
+            "name": "React",
+            "raw_value": "React"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000003",
+            "namespace": "intelligence",
+            "name": "Accessibility",
+            "raw_value": "Accessibility"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        }
+      ],
+      "employment": [
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Prior Employer 02",
+            "raw_value": "Fictional Prior Employer 02"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": "Frontend Engineer",
+            "raw_value": "Frontend Engineer"
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2021,
+            "month": 1,
+            "day": null,
+            "raw_value": "2021-01"
+          },
+          "end_date": {
+            "precision": "month",
+            "year": 2023,
+            "month": 1,
+            "day": null,
+            "raw_value": "2023-01"
+          },
+          "is_current": false,
+          "description": "Performed the stated professional duties.",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        },
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Employer 02",
+            "raw_value": "Fictional Employer 02"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": "Frontend Engineer",
+            "raw_value": "Frontend Engineer"
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2024,
+            "month": 1,
+            "day": null,
+            "raw_value": "2024-01"
+          },
+          "end_date": null,
+          "is_current": true,
+          "description": "Performed the stated professional duties.",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        }
+      ],
+      "education": [
+        {
+          "education_id": null,
+          "institution": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Institute 02",
+            "raw_value": "Fictional Institute 02"
+          },
+          "qualification": {
+            "id": null,
+            "namespace": null,
+            "name": "Bachelor of Engineering",
+            "raw_value": null
+          },
+          "degree": "Bachelor of Engineering",
+          "specialization": null,
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "graduation_year": 2020,
+          "grade": null,
+          "grade_type": null,
+          "location": null
+        }
+      ],
+      "certifications": null,
+      "projects": null,
+      "languages": [
+        {
+          "entity": {
+            "id": null,
+            "namespace": null,
+            "name": "English",
+            "raw_value": "English"
+          },
+          "proficiency": null,
+          "read": true,
+          "write": true,
+          "speak": true
+        }
+      ],
+      "links": null,
+      "availability": {
+        "notice_period_days": null,
+        "notice_period_raw": null,
+        "available_from": null,
+        "immediate_joiner": null,
+        "currently_serving_notice": null
+      },
+      "compensation": {
+        "current": null,
+        "expected": null
+      },
+      "preferences": {
+        "employment_types": null,
+        "work_modes": [
+          "remote"
+        ],
+        "willing_to_travel": null,
+        "industries": null,
+        "functions": null
+      },
+      "classification": {
+        "industries": null,
+        "functions": null,
+        "roles": null,
+        "domains": null
+      },
+      "work_authorization": null,
+      "publications": null,
+      "patents": null,
+      "awards": null,
+      "honors": null
+    },
+    "parser_generated_summary": null,
+    "field_metadata": {
+      "/education/0/degree": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Bachelor of Engineering"
+      },
+      "/education/0/graduation_year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2020
+      },
+      "/education/0/institution/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Institute 02"
+      },
+      "/education/0/institution/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "education",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Institute 02"
+      },
+      "/education/0/qualification/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "education",
+          "reference": "/education/0/degree",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/employment/0/company/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Prior Employer 02"
+      },
+      "/employment/0/company/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Prior Employer 02"
+      },
+      "/employment/0/description": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/0/designation/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/employment/0/designation/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/employment/0/employment_type": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/0/end_date/month": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/end_date/precision": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/end_date/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2023-01"
+      },
+      "/employment/0/end_date/year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2023
+      },
+      "/employment/0/is_current": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": false
+      },
+      "/employment/0/responsibilities/0": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/0/start_date/month": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/0/start_date/precision": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/0/start_date/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2021-01"
+      },
+      "/employment/0/start_date/year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2021
+      },
+      "/employment/1/company/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 02"
+      },
+      "/employment/1/company/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 02"
+      },
+      "/employment/1/description": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/1/designation/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/employment/1/designation/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/employment/1/employment_type": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "full_time"
+      },
+      "/employment/1/is_current": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/employment/1/responsibilities/0": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Performed the stated professional duties."
+      },
+      "/employment/1/start_date/month": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 1
+      },
+      "/employment/1/start_date/precision": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "month"
+      },
+      "/employment/1/start_date/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "2024-01"
+      },
+      "/employment/1/start_date/year": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "employment",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 2024
+      },
+      "/identity/display_name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "identity",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Synthetic Evaluation Candidate 02"
+      },
+      "/languages/0/entity/name": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "English"
+      },
+      "/languages/0/entity/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "English"
+      },
+      "/languages/0/read": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/speak": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/languages/0/write": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "languages",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": true
+      },
+      "/location/current/city": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "location",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Pune"
+      },
+      "/location/current/country_code": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "location",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "IN"
+      },
+      "/location/current/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "location",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Pune, India"
+      },
+      "/location/remote_preference": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "location",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "remote"
+      },
+      "/preferences/work_modes/0": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "preferences",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "remote"
+      },
+      "/professional/current_company/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "derived",
+          "section": "professional",
+          "reference": "employment",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 02"
+      },
+      "/professional/current_company/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Fictional Employer 02"
+      },
+      "/professional/current_designation/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "derived",
+          "section": "professional",
+          "reference": "employment",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/professional/current_designation/raw_value": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/professional/employment_status": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "employed"
+      },
+      "/professional/headline": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Frontend Engineer"
+      },
+      "/professional/seniority": {
+        "provenance": {
+          "source": "ai_derived",
+          "kind": "inferred",
+          "section": "professional",
+          "reference": "document:c156e6f44d0d38cb5f3ada473fdde3ad7db54bd1825f91debfa8a034304b8aa1",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "mid"
+      },
+      "/professional/total_experience_months": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "derived",
+          "section": "professional",
+          "reference": "employment",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": 57
+      },
+      "/skills/0/entity/id": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/0/entity/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "JS"
+      },
+      "/skills/0/entity/namespace": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/0/entity/raw_value": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000038",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "JS"
+      },
+      "/skills/1/entity/id": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/1/entity/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "React"
+      },
+      "/skills/1/entity/namespace": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/1/entity/raw_value": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000058",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "React"
+      },
+      "/skills/2/entity/id": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/2/entity/name": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Accessibility"
+      },
+      "/skills/2/entity/namespace": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": null
+      },
+      "/skills/2/entity/raw_value": {
+        "provenance": {
+          "source": "system_derived",
+          "kind": "normalized",
+          "section": "skills",
+          "reference": "intelligence:60000000-0000-4000-8000-000000000003",
+          "page": null
+        },
+        "confidence": null,
+        "review_status": "unreviewed",
+        "raw_value": "Accessibility"
+      }
+    },
+    "issues": [
+      {
+        "severity": "warning",
+        "code": "DUPLICATE_PROJECTION_NORMALIZED",
+        "path": "/education/0/qualification/name"
+      },
+      {
+        "severity": "warning",
+        "code": "CURRENT_ROLE_CALCULATED",
+        "path": "/professional/current_company/name"
+      },
+      {
+        "severity": "warning",
+        "code": "CURRENT_ROLE_CALCULATED",
+        "path": "/professional/current_designation/name"
+      },
+      {
+        "severity": "warning",
+        "code": "EXPERIENCE_CALCULATED",
+        "path": "/professional/total_experience_months"
+      }
+    ],
+    "created_at": "2026-10-01T00:00:00Z"
+  },
+  "final_candidate_profile": {
+    "schema_version": "v1",
+    "candidate_id": "20000000-0000-4000-8000-000000000001",
+    "updated_at": null,
+    "profile": {
+      "identity": {
+        "display_name": "Synthetic Evaluation Candidate 02",
+        "first_name": null,
+        "middle_name": null,
+        "last_name": null,
+        "preferred_name": null
+      },
+      "contact": {
+        "primary_email": null,
+        "alternate_email": null,
+        "primary_phone": null,
+        "alternate_phone": null,
+        "country_code": null
+      },
+      "professional": {
+        "headline": "Frontend Engineer",
+        "summary": null,
+        "current_designation": {
+          "id": null,
+          "namespace": null,
+          "name": "Frontend Engineer",
+          "raw_value": "Frontend Engineer"
+        },
+        "current_company": {
+          "id": null,
+          "namespace": null,
+          "name": "Fictional Employer 02",
+          "raw_value": "Fictional Employer 02"
+        },
+        "employment_status": "employed",
+        "total_experience_months": 57,
+        "relevant_experience_months": null,
+        "seniority": "mid"
+      },
+      "location": {
+        "current": {
+          "id": null,
+          "city": "Pune",
+          "state": null,
+          "country_code": "IN",
+          "postal_code": null,
+          "raw_value": "Pune, India"
+        },
+        "preferred": null,
+        "willing_to_relocate": null,
+        "remote_preference": "remote"
+      },
+      "skills": [
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000038",
+            "namespace": "intelligence",
+            "name": "JavaScript",
+            "raw_value": "JS"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000058",
+            "namespace": "intelligence",
+            "name": "React",
+            "raw_value": "React"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        },
+        {
+          "entity": {
+            "id": "60000000-0000-4000-8000-000000000003",
+            "namespace": "intelligence",
+            "name": "Accessibility",
+            "raw_value": "Accessibility"
+          },
+          "category": null,
+          "proficiency": null,
+          "experience_months": null,
+          "last_used": null
+        }
+      ],
+      "employment": [
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Prior Employer 02",
+            "raw_value": "Fictional Prior Employer 02"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": "Frontend Engineer",
+            "raw_value": "Frontend Engineer"
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2021,
+            "month": 1,
+            "day": null,
+            "raw_value": "2021-01"
+          },
+          "end_date": {
+            "precision": "month",
+            "year": 2023,
+            "month": 1,
+            "day": null,
+            "raw_value": "2023-01"
+          },
+          "is_current": false,
+          "description": "Performed the stated professional duties.",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        },
+        {
+          "experience_id": null,
+          "company": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Employer 02",
+            "raw_value": "Fictional Employer 02"
+          },
+          "designation": {
+            "id": null,
+            "namespace": null,
+            "name": "Frontend Engineer",
+            "raw_value": "Frontend Engineer"
+          },
+          "employment_type": "full_time",
+          "engagement": null,
+          "location": null,
+          "start_date": {
+            "precision": "month",
+            "year": 2024,
+            "month": 1,
+            "day": null,
+            "raw_value": "2024-01"
+          },
+          "end_date": null,
+          "is_current": true,
+          "description": "Performed the stated professional duties.",
+          "responsibilities": [
+            "Performed the stated professional duties."
+          ],
+          "achievements": null,
+          "skills": null
+        }
+      ],
+      "education": [
+        {
+          "education_id": null,
+          "institution": {
+            "id": null,
+            "namespace": null,
+            "name": "Fictional Institute 02",
+            "raw_value": "Fictional Institute 02"
+          },
+          "qualification": {
+            "id": null,
+            "namespace": null,
+            "name": "Bachelor of Engineering",
+            "raw_value": null
+          },
+          "degree": "Bachelor of Engineering",
+          "specialization": null,
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "graduation_year": 2020,
+          "grade": null,
+          "grade_type": null,
+          "location": null
+        }
+      ],
+      "certifications": null,
+      "projects": null,
+      "languages": [
+        {
+          "entity": {
+            "id": null,
+            "namespace": null,
+            "name": "English",
+            "raw_value": "English"
+          },
+          "proficiency": null,
+          "read": true,
+          "write": true,
+          "speak": true
+        }
+      ],
+      "links": null,
+      "availability": {
+        "notice_period_days": null,
+        "notice_period_raw": null,
+        "available_from": null,
+        "immediate_joiner": null,
+        "currently_serving_notice": null
+      },
+      "compensation": {
+        "current": null,
+        "expected": null
+      },
+      "preferences": {
+        "employment_types": null,
+        "work_modes": [
+          "remote"
+        ],
+        "willing_to_travel": null,
+        "industries": null,
+        "functions": null
+      },
+      "classification": {
+        "industries": null,
+        "functions": null,
+        "roles": null,
+        "domains": null
+      },
+      "work_authorization": null,
+      "publications": null,
+      "patents": null,
+      "awards": null,
+      "honors": null
+    },
+    "verification": {
+      "email_verified": false,
+      "phone_verified": false
+    },
+    "resumes": null
+  },
+  "actual_execution_utc": "2026-10-19T10:35:43.024687Z"
+}

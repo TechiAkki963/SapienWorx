@@ -1,0 +1,339 @@
+{
+  "title": "SapienWorx CV Parser Quality Closure V1 Report",
+  "date": "2026-10-19",
+  "kind": "OFFLINE_QUALITY_CLOSURE_NOT_LIVE_BASELINE",
+  "classification": "READY FOR FINAL CV CANARY",
+  "root_cause": {
+    "selected_category": "A. PROVIDER_OMISSION",
+    "source": "Unambiguous current full-time employment to present; current title and notice conflict separately.",
+    "raw_provider": "employment_status=null",
+    "schema": "PASS; nullable existing enum correct for unknowns",
+    "normalization": "null retained; no non-null value lost",
+    "previous_postprocessing": "No status projection; null retained",
+    "new_postprocessing": "Only unique validated current employee record plus independently matching source employer/date/type can fill employed. Raw null/derived provenance/unknown confidence/mandatory review retained.",
+    "prompt_causality": "Not proven. Provider internal cause cannot be recovered; no speculative prompt/schema fix."
+  },
+  "contract": {
+    "supported_values": [
+      "employed",
+      "unemployed",
+      "self_employed",
+      "student",
+      "fresher",
+      "on_career_break"
+    ],
+    "unknown": null,
+    "new_values_added": false,
+    "availability_independent": true,
+    "existing_values_preserved": true,
+    "recovery_scope": "Only missing employed with corroborated current full-time source; not other status extraction/general NLP."
+  },
+  "quality": {
+    "targeted_cv_cases": 4,
+    "before_strict": {
+      "numerator": 166,
+      "denominator": 178,
+      "value": 0.9325842696629213
+    },
+    "after_offline_strict": {
+      "numerator": 167,
+      "denominator": 178,
+      "value": 0.9382022471910112
+    },
+    "before_adjusted": {
+      "numerator": 175,
+      "denominator": 178,
+      "value": 0.9831460674157303
+    },
+    "after_offline_adjusted": {
+      "numerator": 176,
+      "denominator": 178,
+      "value": 0.9887640449438202
+    },
+    "adjudicable_source_checks_pass": 136,
+    "adjudicable_source_checks_total": 136,
+    "unadjudicated_source_checks": 1,
+    "factual_accuracy_observed": {
+      "numerator": 136,
+      "denominator": 136,
+      "value": 1,
+      "method": "Adjudicable engineering source-check agreement; one source-backed ambiguous headline remains separately unresolved. Not a new live or population accuracy estimate."
+    },
+    "factual_contradiction_responses": {
+      "numerator": 0,
+      "denominator": 4,
+      "value": 0
+    },
+    "material_omission_responses_after_processing": {
+      "numerator": 0,
+      "denominator": 4,
+      "value": 0
+    },
+    "hallucination_responses": {
+      "numerator": 0,
+      "denominator": 4,
+      "value": 0
+    },
+    "normalization_only_discrepancies": {
+      "numerator": 0,
+      "denominator": 178,
+      "value": 0
+    },
+    "raw_provider_omission_not_rewritten": true,
+    "historical_full20_cv_offline_strict": {
+      "numerator": 949,
+      "denominator": 996,
+      "value": 0.9528112449799196
+    },
+    "historical_full20_cv_offline_adjusted": {
+      "numerator": 992,
+      "denominator": 996,
+      "value": 0.9959839357429718
+    },
+    "remaining_strict_only_discrepancies_accepted_by_existing_adjusted": 9,
+    "remaining_strict_and_adjusted_discrepancies": 2,
+    "remaining_categories": {
+      "EVALUATOR_OVER_STRICTNESS": 7,
+      "EQUIVALENT_REPRESENTATION": 3,
+      "CONTRACT_AMBIGUITY": 1
+    },
+    "zero_count_categories": [
+      "NORMALIZATION_DIFFERENCE",
+      "REAL_EXTRACTION_ERROR",
+      "OMISSION",
+      "POSTPROCESSING_ERROR"
+    ]
+  },
+  "regressions": {
+    "captured_latest_cases": 4,
+    "original_captured_cases": 40,
+    "original_error_regressions": 185,
+    "original_cv_goldens": 20,
+    "negative_status_inference_cases": 31,
+    "supported_existing_statuses_preserved": 6,
+    "invalid_status_enums_rejected": 3,
+    "positive_source_styles": 2,
+    "cv_cache_and_metadata_version_test": "PASS",
+    "expected_red_test": "New cv-18 regression failed before fix with source-backed employment status missing; final focused/race replay passes."
+  },
+  "tests": {
+    "groups": [
+      {
+        "group": "gateway",
+        "exit_code": 0,
+        "top_pass": 56,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 116,
+        "skips": [
+          "TestAIGovernanceIsolatedDatabase"
+        ]
+      },
+      {
+        "group": "evaluation",
+        "exit_code": 0,
+        "top_pass": 14,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 303,
+        "skips": []
+      },
+      {
+        "group": "parsing",
+        "exit_code": 0,
+        "top_pass": 26,
+        "top_skip": 1,
+        "top_fail": 0,
+        "test_subtest_pass": 144,
+        "skips": [
+          "TestPhase1IsolatedDatabase"
+        ]
+      },
+      {
+        "group": "canonical-contract",
+        "exit_code": 0,
+        "top_pass": 22,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 105,
+        "skips": []
+      },
+      {
+        "group": "runner",
+        "exit_code": 0,
+        "top_pass": 11,
+        "top_skip": 0,
+        "top_fail": 0,
+        "test_subtest_pass": 20,
+        "skips": []
+      }
+    ],
+    "base_top_pass": 129,
+    "base_top_skip": 2,
+    "base_passing_test_subtest_events": 688,
+    "focused_final": {
+      "focused_exit_code": 0,
+      "fuzz_exit_code": 0,
+      "vet_exit_code": 0
+    },
+    "isolated_database": [
+      {
+        "test": "TestAIGovernanceIsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      },
+      {
+        "test": "TestPhase1IsolatedDatabase",
+        "result": "pass",
+        "exit_code": 0
+      }
+    ],
+    "effective_distinct_top_pass": 131,
+    "final_automated_failures": 0,
+    "unresolved_affected_skips": 0,
+    "fuzz_campaigns": [
+      {
+        "fuzz": "FuzzEmploymentStatusRequiresRecordEvidence",
+        "exit_code": 0,
+        "seconds_requested": 5
+      },
+      {
+        "fuzz": "FuzzHardeningNeverInventsZeroOrConfirms",
+        "exit_code": 0,
+        "seconds_requested": 5
+      },
+      {
+        "fuzz": "FuzzDecodeResultNeverPromotesUnknownFields",
+        "exit_code": 0,
+        "seconds_requested": 5
+      }
+    ],
+    "source_review_followup": "After complete suite passed, conservative empty-company/explicit-unemployment rejection guards gained extra negatives. Final focused race, fuzz and vet reran affected paths; unrelated suites were not repeated."
+  },
+  "database": {
+    "affected_gates": [
+      "TestAIGovernanceIsolatedDatabase",
+      "TestPhase1IsolatedDatabase"
+    ],
+    "result": "PASS",
+    "new_coverage": "Encrypted recovered status, original raw null, system_derived metadata, unreviewed/null confidence, CV task version in SQL/learning metadata/Outcome/ParserResult.",
+    "environment": "Fresh disposable PostgreSQL17, no host ports or external network; no beta/RDS/customer DB access."
+  },
+  "versions": {
+    "model": "gpt-6-luna",
+    "prompt": "p2 unchanged",
+    "wire_schema": "v1.1 unchanged",
+    "canonical_profile": "v1 unchanged",
+    "jd_task_version": "v1 unchanged",
+    "cv_task_version": "v1.1",
+    "cv_parser_result": "openai-p2-v1.1",
+    "purpose": "Invalidate stale CV cache and align persisted/result lineage; no extraction-prompt or benchmark version change."
+  },
+  "integrity": {
+    "preexisting_files_snapshotted": 477,
+    "intentional_existing_files_changed": [
+      "backend/internal/intelligence/evaluation/replay.go",
+      "backend/internal/intelligence/parsing/database_test.go",
+      "backend/internal/intelligence/parsing/hardening.go",
+      "backend/internal/intelligence/parsing/service.go",
+      "backend/internal/intelligence/parsing/store.go",
+      "docs/candidate-profile-contract.md"
+    ],
+    "all_other_snapshot_files_unchanged": true,
+    "scoring_change_only_parser_result_version_tag_proven": true,
+    "expected_values_taxonomy_schemas_prompts_baselines_unchanged": true,
+    "root_private_environment_unchanged": true,
+    "openai_enabled": false,
+    "real_provider_calls": 0,
+    "provider_cost_usd": 0,
+    "baseline_v1_preserved": true,
+    "baseline_v1_1_created": false,
+    "commit_push_merge_deploy": false
+  },
+  "next_step": {
+    "kind": "PROPOSAL_ONLY_NOT_AUTHORIZED_NOT_EXECUTED",
+    "case_ids": [
+      "cv-18"
+    ],
+    "reason": "Validate recovered employment-status projection and source/raw/derived/review lineage on a fresh response while conflicting title/notice remain unknown. Prompt/schema/model did not change; other cases have complete offline original/new-capture regression coverage.",
+    "model": "gpt-6-luna",
+    "cv_processing_task_version": "v1.1",
+    "parser_version": "openai-p2-v1.1",
+    "prompt_version": "p2",
+    "cv_wire_schema_version": "v1.1",
+    "canonical_profile_version": "v1",
+    "maximum_provider_attempts": 1,
+    "retries": 0,
+    "concurrency": 1,
+    "attempt_deadline_seconds": 30,
+    "logical_deadline_seconds": 30,
+    "command_deadline_seconds": 50,
+    "estimated_input_tokens": 4090,
+    "estimated_output_tokens": 1199,
+    "input_byte_token_upper_bound": 19944,
+    "maximum_output_tokens": 6144,
+    "estimated_cost_usd": 0.0010085,
+    "conservative_cost_usd": 0.005565,
+    "hard_cap_usd": 0.005565,
+    "previous_reliability_retest_spend_usd": 0.004256155,
+    "shared_original_hard_cap_usd": 0.046,
+    "maximum_combined_if_authorized_usd": "0.009821155",
+    "pricing_must_be_revalidated_before_live_execution": true,
+    "dry_plan": {
+      "task_timeout_seconds": {
+        "cv.parse": 30
+      },
+      "operation_timeout_seconds": {
+        "cv.parse": 30
+      },
+      "prompt_version": "p2",
+      "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+      "schema_sha256": {
+        "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177"
+      },
+      "dataset_version": "synthetic-parsing-eval-v1",
+      "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+      "model": "gpt-6-luna",
+      "pricing_version": "openai-standard-2026-10-17.v1",
+      "pricing_sha256": "d93f6c8c5b34b50db477206ef07967290e9372d0c99e2a2f0991a96b38b43de2",
+      "service_tier": "default",
+      "requests": 1,
+      "tasks": {
+        "cv.parse": {
+          "requests": 1,
+          "approx_input_tokens": 4090,
+          "input_token_byte_bound": 19944,
+          "approx_output_tokens": 1199,
+          "maximum_output_tokens": 6144,
+          "estimated_usd": 0.0010085,
+          "worst_case_usd": 0.005565
+        }
+      },
+      "approx_input_tokens": 4090,
+      "input_token_byte_bound": 19944,
+      "approx_output_tokens": 1199,
+      "maximum_output_tokens": 6144,
+      "estimated_total_usd": 0.0010085,
+      "worst_case_total_usd": 0.005565,
+      "cost_cap_usd": 0.005565,
+      "hard_request_cap": 1,
+      "timeout_seconds": 30,
+      "retries": 0,
+      "concurrency": 1,
+      "case_ids": [
+        "cv-18"
+      ],
+      "plan_sha256": "3272d4feb29f4a3f8894c7f792a9351b54bef7c1834a7f7547128774a7e10740"
+    },
+    "binary_sha256": "0f2e9d1bec6af2d6c495d18fe789ff94f1ef160e6d755121935b16de040942e0",
+    "employment_status_source_sha256": "b7780f60a98c8c63fe25386ad147e13b21d1c1822ad2218996a4d3c135b1290f",
+    "authorization": "Separate explicit approval required; do not issue a paid call from this task. No secret included or loaded by dry run."
+  },
+  "artifacts": {
+    "pipeline": "cv-parser-quality-closure-v1-evidence.json",
+    "discrepancies": "cv-parser-quality-closure-v1-discrepancies.csv",
+    "source_audit": "cv-parser-quality-closure-v1-source-audit.csv",
+    "inventory": "cv-parser-quality-closure-v1-golden-status-inventory.json",
+    "proposal": "cv-parser-quality-closure-v1-final-canary-proposal.json"
+  }
+}

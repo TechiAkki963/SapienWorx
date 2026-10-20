@@ -1,0 +1,30 @@
+{
+  "approx_input_tokens": 18563,
+  "approx_output_tokens": 5049,
+  "calls": 6,
+  "case_ids": [
+    "jd-05",
+    "jd-19",
+    "cv-02",
+    "cv-12",
+    "cv-19",
+    "cv-18"
+  ],
+  "dataset_sha256": "d905af38c46d10a3f145d4823a678ed6dbe228fdd82308974f7d72514694a75b",
+  "estimated_usd": 0.004380800000000001,
+  "hard_cost_cap_usd": 0.03,
+  "hard_request_cap": 6,
+  "input_token_byte_bound": 95750,
+  "manifest_hash_for_planning_only": "a39bfb11dad86383d423f0442731e57b65825d658a7c1e64375c9c653b823651",
+  "maximum_output_tokens": 28672,
+  "model": "gpt-6-luna",
+  "pricing_version": "openai-standard-2026-10-17.v1",
+  "prompt_sha256": "f915bcf0dac2b6f306100698b6768cf861df349520898831b0c71cd367941954",
+  "prompt_version": "p2",
+  "schema_sha256": {
+    "cv.parse": "ffc3a899176e34d942868b6f883a288d997e11b4883e8513e6fdcb60b1a84177",
+    "job.parse": "06c3a8e1dfcb5aae0f69c211e5810b9c6dfd7d60a4c046b3a8dec394bef784e9"
+  },
+  "status": "PROPOSED_NOT_AUTHORIZED_NOT_EXECUTED",
+  "worst_case_usd": 0.026306
+}

@@ -1,0 +1,18 @@
+{
+  "version": "openai-standard-2026-10-17.v1",
+  "currency": "USD",
+  "provider": "openai",
+  "service_tier": "default",
+  "verified_on": "2026-10-17",
+  "review_by": "2026-11-16",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "max_input_tokens": 272000,
+  "models": {
+    "gpt-6-luna": {
+      "input_usd_per_million": 0.10,
+      "cached_input_usd_per_million": 0.01,
+      "cache_write_input_usd_per_million": 0.125,
+      "output_usd_per_million": 0.50
+    }
+  }
+}

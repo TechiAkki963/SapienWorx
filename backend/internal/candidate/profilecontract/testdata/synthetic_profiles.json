@@ -1,0 +1,2325 @@
+[
+  {
+    "name": "fresher",
+    "tags": [
+      "fresher",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Aster"
+        },
+        "professional": {
+          "headline": "Graduate",
+          "employment_status": "fresher",
+          "total_experience_months": 0
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Communication",
+              "raw_value": "Communication"
+            }
+          }
+        ],
+        "employment": []
+      }
+    }
+  },
+  {
+    "name": "software_engineer",
+    "tags": [
+      "software_engineer",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Dev"
+        },
+        "professional": {
+          "headline": "Software Engineer"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Java",
+              "raw_value": "Java"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "AWS",
+              "raw_value": "AWS"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Software Engineer",
+              "raw_value": "Example Software Engineer"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Software Engineer",
+              "raw_value": "Software Engineer"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "senior_engineer",
+    "tags": [
+      "senior_engineer",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Lead"
+        },
+        "professional": {
+          "headline": "Senior Engineer"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Systems Design",
+              "raw_value": "Systems Design"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Go",
+              "raw_value": "Go"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Senior Engineer",
+              "raw_value": "Example Senior Engineer"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Senior Engineer",
+              "raw_value": "Senior Engineer"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "sales",
+    "tags": [
+      "sales",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Seller"
+        },
+        "professional": {
+          "headline": "Sales Professional"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Salesforce",
+              "raw_value": "Salesforce"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Negotiation",
+              "raw_value": "Negotiation"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Sales",
+              "raw_value": "Example Sales"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Sales Professional",
+              "raw_value": "Sales Professional"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "hr",
+    "tags": [
+      "hr",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Partner"
+        },
+        "professional": {
+          "headline": "HR Professional"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Talent Acquisition",
+              "raw_value": "Talent Acquisition"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Employee Relations",
+              "raw_value": "Employee Relations"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Hr",
+              "raw_value": "Example Hr"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "HR Professional",
+              "raw_value": "HR Professional"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "finance",
+    "tags": [
+      "finance",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Analyst"
+        },
+        "professional": {
+          "headline": "Finance Analyst"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Financial Reporting",
+              "raw_value": "Financial Reporting"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Excel",
+              "raw_value": "Excel"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Finance",
+              "raw_value": "Example Finance"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Finance Analyst",
+              "raw_value": "Finance Analyst"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ],
+        "compensation": {
+          "current": {
+            "amount": "4250.50",
+            "currency": "EUR",
+            "period": "monthly",
+            "raw_value": "EUR 4,250.50 per month"
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "operations",
+    "tags": [
+      "operations",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Planner"
+        },
+        "professional": {
+          "headline": "Operations Coordinator"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Logistics",
+              "raw_value": "Logistics"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Planning",
+              "raw_value": "Planning"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Operations",
+              "raw_value": "Example Operations"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Operations Coordinator",
+              "raw_value": "Operations Coordinator"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "manufacturing",
+    "tags": [
+      "manufacturing",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Operator"
+        },
+        "professional": {
+          "headline": "Machine Operator"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "CNC",
+              "raw_value": "CNC"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Safety",
+              "raw_value": "Safety"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Manufacturing",
+              "raw_value": "Example Manufacturing"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Machine Operator",
+              "raw_value": "Machine Operator"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "healthcare",
+    "tags": [
+      "healthcare",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Clinician"
+        },
+        "professional": {
+          "headline": "Registered Nurse"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Patient Care",
+              "raw_value": "Patient Care"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "First Aid",
+              "raw_value": "First Aid"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Healthcare",
+              "raw_value": "Example Healthcare"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Registered Nurse",
+              "raw_value": "Registered Nurse"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "hospitality",
+    "tags": [
+      "hospitality",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Host"
+        },
+        "professional": {
+          "headline": "Hotel Supervisor"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Guest Services",
+              "raw_value": "Guest Services"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "French",
+              "raw_value": "French"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Hospitality",
+              "raw_value": "Example Hospitality"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Hotel Supervisor",
+              "raw_value": "Hotel Supervisor"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ],
+        "languages": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "French",
+              "raw_value": "French"
+            },
+            "proficiency": null
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "construction",
+    "tags": [
+      "construction",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Builder"
+        },
+        "professional": {
+          "headline": "Site Supervisor"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Site Safety",
+              "raw_value": "Site Safety"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Scheduling",
+              "raw_value": "Scheduling"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Construction",
+              "raw_value": "Example Construction"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Site Supervisor",
+              "raw_value": "Site Supervisor"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "blue_collar",
+    "tags": [
+      "blue_collar",
+      "synthetic",
+      "valid"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Electrician"
+        },
+        "professional": {
+          "headline": "Electrician"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Electrical Installation",
+              "raw_value": "Electrical Installation"
+            }
+          }
+        ],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Blue Collar",
+              "raw_value": "Example Blue Collar"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Electrician",
+              "raw_value": "Electrician"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2023,
+              "month": 1,
+              "day": null,
+              "raw_value": "2023-01"
+            },
+            "end_date": null,
+            "is_current": true
+          }
+        ],
+        "compensation": {
+          "expected": {
+            "amount": "18.75",
+            "currency": "USD",
+            "period": "hourly",
+            "raw_value": "USD 18.75 per hour"
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "concurrent_consultant",
+    "tags": [
+      "concurrent_jobs",
+      "consultant",
+      "contractor",
+      "freelancer"
+    ],
+    "valid": true,
+    "expected_months": 17,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Ravi"
+        },
+        "professional": {
+          "headline": "Consultant"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example North",
+              "raw_value": "Example North"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Consultant",
+              "raw_value": "Consultant"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2025,
+              "month": 1,
+              "day": null,
+              "raw_value": "2025-01"
+            },
+            "is_current": false
+          },
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example South",
+              "raw_value": "Example South"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Contractor",
+              "raw_value": "Contractor"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 6,
+              "day": null,
+              "raw_value": "2024-06"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2025,
+              "month": 6,
+              "day": null,
+              "raw_value": "2025-06"
+            },
+            "is_current": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "uncertain_single_name",
+    "tags": [
+      "year_only_dates",
+      "single_word_name",
+      "missing_email",
+      "missing_phone",
+      "no_skills_section"
+    ],
+    "valid": true,
+    "expected_months": null,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "एकांश"
+        },
+        "professional": {
+          "headline": "Independent Professional"
+        },
+        "contact": {},
+        "skills": [],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Year Only",
+              "raw_value": "Example Year Only"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Contractor",
+              "raw_value": "Contractor"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "year",
+              "year": 2021,
+              "month": null,
+              "day": null,
+              "raw_value": "2021"
+            },
+            "end_date": {
+              "precision": "year",
+              "year": 2023,
+              "month": null,
+              "day": null,
+              "raw_value": "2023"
+            },
+            "is_current": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "career_break",
+    "tags": [
+      "career_break",
+      "non_standard_headings"
+    ],
+    "valid": true,
+    "expected_months": 48,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Returner"
+        },
+        "professional": {
+          "headline": "Operations",
+          "employment_status": "on_career_break"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [],
+        "employment": [
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Past",
+              "raw_value": "Example Past"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Coordinator",
+              "raw_value": "Coordinator"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2018,
+              "month": 1,
+              "day": null,
+              "raw_value": "2018-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2021,
+              "month": 1,
+              "day": null,
+              "raw_value": "2021-01"
+            },
+            "is_current": false
+          },
+          {
+            "company": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Recent",
+              "raw_value": "Example Recent"
+            },
+            "designation": {
+              "id": null,
+              "namespace": null,
+              "name": "Coordinator",
+              "raw_value": "Coordinator"
+            },
+            "employment_type": "full_time",
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2025,
+              "month": 1,
+              "day": null,
+              "raw_value": "2025-01"
+            },
+            "is_current": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "international_multiple_degrees",
+    "tags": [
+      "international_phone",
+      "international_address",
+      "multiple_degrees",
+      "multiple_pages"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic International"
+        },
+        "professional": {
+          "headline": "Engineer"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+442079460123",
+          "country_code": "GB"
+        },
+        "skills": [],
+        "employment": [],
+        "location": {
+          "current": {
+            "city": "London",
+            "state": null,
+            "country_code": "GB",
+            "postal_code": "SW1A 1AA",
+            "raw_value": "London, UK"
+          },
+          "preferred": [
+            {
+              "city": "Dubai",
+              "country_code": "AE",
+              "raw_value": "Dubai"
+            }
+          ]
+        },
+        "education": [
+          {
+            "institution": {
+              "id": null,
+              "namespace": null,
+              "name": "Example University",
+              "raw_value": "Example University"
+            },
+            "qualification": {
+              "id": null,
+              "namespace": null,
+              "name": "BEng",
+              "raw_value": "BEng"
+            },
+            "start_date": {
+              "precision": "year",
+              "year": 2018,
+              "month": null,
+              "day": null,
+              "raw_value": "2018"
+            },
+            "end_date": {
+              "precision": "year",
+              "year": 2022,
+              "month": null,
+              "day": null,
+              "raw_value": "2022"
+            },
+            "grade": "3.8",
+            "grade_type": "gpa_4"
+          },
+          {
+            "institution": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Graduate School",
+              "raw_value": "Example Graduate School"
+            },
+            "qualification": {
+              "id": null,
+              "namespace": null,
+              "name": "MSc",
+              "raw_value": "MSc"
+            },
+            "start_date": {
+              "precision": "year",
+              "year": 2023,
+              "month": null,
+              "day": null,
+              "raw_value": "2023"
+            },
+            "end_date": {
+              "precision": "year",
+              "year": 2024,
+              "month": null,
+              "day": null,
+              "raw_value": "2024"
+            },
+            "grade": "Distinction",
+            "grade_type": "class_division"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "long_skill_list",
+    "tags": [
+      "extremely_long_skill_list"
+    ],
+    "valid": false,
+    "expected_code": "COLLECTION_LIMIT",
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Long Skills"
+        },
+        "professional": {
+          "headline": "Engineer"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 0",
+              "raw_value": "Synthetic Skill 0"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 1",
+              "raw_value": "Synthetic Skill 1"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 2",
+              "raw_value": "Synthetic Skill 2"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 3",
+              "raw_value": "Synthetic Skill 3"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 4",
+              "raw_value": "Synthetic Skill 4"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 5",
+              "raw_value": "Synthetic Skill 5"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 6",
+              "raw_value": "Synthetic Skill 6"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 7",
+              "raw_value": "Synthetic Skill 7"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 8",
+              "raw_value": "Synthetic Skill 8"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 9",
+              "raw_value": "Synthetic Skill 9"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 10",
+              "raw_value": "Synthetic Skill 10"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 11",
+              "raw_value": "Synthetic Skill 11"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 12",
+              "raw_value": "Synthetic Skill 12"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 13",
+              "raw_value": "Synthetic Skill 13"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 14",
+              "raw_value": "Synthetic Skill 14"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 15",
+              "raw_value": "Synthetic Skill 15"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 16",
+              "raw_value": "Synthetic Skill 16"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 17",
+              "raw_value": "Synthetic Skill 17"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 18",
+              "raw_value": "Synthetic Skill 18"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 19",
+              "raw_value": "Synthetic Skill 19"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 20",
+              "raw_value": "Synthetic Skill 20"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 21",
+              "raw_value": "Synthetic Skill 21"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 22",
+              "raw_value": "Synthetic Skill 22"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 23",
+              "raw_value": "Synthetic Skill 23"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 24",
+              "raw_value": "Synthetic Skill 24"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 25",
+              "raw_value": "Synthetic Skill 25"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 26",
+              "raw_value": "Synthetic Skill 26"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 27",
+              "raw_value": "Synthetic Skill 27"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 28",
+              "raw_value": "Synthetic Skill 28"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 29",
+              "raw_value": "Synthetic Skill 29"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 30",
+              "raw_value": "Synthetic Skill 30"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 31",
+              "raw_value": "Synthetic Skill 31"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 32",
+              "raw_value": "Synthetic Skill 32"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 33",
+              "raw_value": "Synthetic Skill 33"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 34",
+              "raw_value": "Synthetic Skill 34"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 35",
+              "raw_value": "Synthetic Skill 35"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 36",
+              "raw_value": "Synthetic Skill 36"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 37",
+              "raw_value": "Synthetic Skill 37"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 38",
+              "raw_value": "Synthetic Skill 38"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 39",
+              "raw_value": "Synthetic Skill 39"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 40",
+              "raw_value": "Synthetic Skill 40"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 41",
+              "raw_value": "Synthetic Skill 41"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 42",
+              "raw_value": "Synthetic Skill 42"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 43",
+              "raw_value": "Synthetic Skill 43"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 44",
+              "raw_value": "Synthetic Skill 44"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 45",
+              "raw_value": "Synthetic Skill 45"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 46",
+              "raw_value": "Synthetic Skill 46"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 47",
+              "raw_value": "Synthetic Skill 47"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 48",
+              "raw_value": "Synthetic Skill 48"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 49",
+              "raw_value": "Synthetic Skill 49"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 50",
+              "raw_value": "Synthetic Skill 50"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 51",
+              "raw_value": "Synthetic Skill 51"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 52",
+              "raw_value": "Synthetic Skill 52"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 53",
+              "raw_value": "Synthetic Skill 53"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 54",
+              "raw_value": "Synthetic Skill 54"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 55",
+              "raw_value": "Synthetic Skill 55"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 56",
+              "raw_value": "Synthetic Skill 56"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 57",
+              "raw_value": "Synthetic Skill 57"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 58",
+              "raw_value": "Synthetic Skill 58"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 59",
+              "raw_value": "Synthetic Skill 59"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 60",
+              "raw_value": "Synthetic Skill 60"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 61",
+              "raw_value": "Synthetic Skill 61"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 62",
+              "raw_value": "Synthetic Skill 62"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 63",
+              "raw_value": "Synthetic Skill 63"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 64",
+              "raw_value": "Synthetic Skill 64"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 65",
+              "raw_value": "Synthetic Skill 65"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 66",
+              "raw_value": "Synthetic Skill 66"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 67",
+              "raw_value": "Synthetic Skill 67"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 68",
+              "raw_value": "Synthetic Skill 68"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 69",
+              "raw_value": "Synthetic Skill 69"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 70",
+              "raw_value": "Synthetic Skill 70"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 71",
+              "raw_value": "Synthetic Skill 71"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 72",
+              "raw_value": "Synthetic Skill 72"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 73",
+              "raw_value": "Synthetic Skill 73"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 74",
+              "raw_value": "Synthetic Skill 74"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 75",
+              "raw_value": "Synthetic Skill 75"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 76",
+              "raw_value": "Synthetic Skill 76"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 77",
+              "raw_value": "Synthetic Skill 77"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 78",
+              "raw_value": "Synthetic Skill 78"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 79",
+              "raw_value": "Synthetic Skill 79"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 80",
+              "raw_value": "Synthetic Skill 80"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 81",
+              "raw_value": "Synthetic Skill 81"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 82",
+              "raw_value": "Synthetic Skill 82"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 83",
+              "raw_value": "Synthetic Skill 83"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 84",
+              "raw_value": "Synthetic Skill 84"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 85",
+              "raw_value": "Synthetic Skill 85"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 86",
+              "raw_value": "Synthetic Skill 86"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 87",
+              "raw_value": "Synthetic Skill 87"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 88",
+              "raw_value": "Synthetic Skill 88"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 89",
+              "raw_value": "Synthetic Skill 89"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 90",
+              "raw_value": "Synthetic Skill 90"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 91",
+              "raw_value": "Synthetic Skill 91"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 92",
+              "raw_value": "Synthetic Skill 92"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 93",
+              "raw_value": "Synthetic Skill 93"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 94",
+              "raw_value": "Synthetic Skill 94"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 95",
+              "raw_value": "Synthetic Skill 95"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 96",
+              "raw_value": "Synthetic Skill 96"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 97",
+              "raw_value": "Synthetic Skill 97"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 98",
+              "raw_value": "Synthetic Skill 98"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 99",
+              "raw_value": "Synthetic Skill 99"
+            }
+          },
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Synthetic Skill 100",
+              "raw_value": "Synthetic Skill 100"
+            }
+          }
+        ],
+        "employment": []
+      }
+    }
+  },
+  {
+    "name": "all_optional_domains",
+    "tags": [
+      "certifications",
+      "projects",
+      "links",
+      "notice_period",
+      "work_authorization",
+      "publications",
+      "patents",
+      "awards",
+      "honors"
+    ],
+    "valid": true,
+    "candidate_profile": {
+      "schema_version": "v1",
+      "candidate_id": "10000000-0000-4000-8000-000000000001",
+      "updated_at": null,
+      "verification": {
+        "email_verified": false,
+        "phone_verified": false
+      },
+      "resumes": [],
+      "profile": {
+        "identity": {
+          "display_name": "Synthetic Rich Profile"
+        },
+        "professional": {
+          "headline": "Engineer"
+        },
+        "contact": {
+          "primary_email": "synthetic@example.test",
+          "primary_phone": "+15550101234",
+          "country_code": "US"
+        },
+        "skills": [],
+        "employment": [],
+        "certifications": [
+          {
+            "entity": {
+              "id": null,
+              "namespace": null,
+              "name": "Example Safety Certificate",
+              "raw_value": "Example Safety Certificate"
+            },
+            "issuing_organization": "Example Board",
+            "credential_id": "SYNTHETIC-001",
+            "credential_url": "https://example.test/certificate",
+            "issue_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "does_not_expire": true
+          }
+        ],
+        "projects": [
+          {
+            "name": "Synthetic Community Tool",
+            "role": "Developer",
+            "organization": "Example Community",
+            "description": "Synthetic project data.",
+            "start_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 1,
+              "day": null,
+              "raw_value": "2024-01"
+            },
+            "end_date": {
+              "precision": "month",
+              "year": 2024,
+              "month": 5,
+              "day": null,
+              "raw_value": "2024-05"
+            },
+            "skills": [
+              {
+                "entity": {
+                  "id": null,
+                  "namespace": null,
+                  "name": "Go",
+                  "raw_value": "Go"
+                }
+              }
+            ],
+            "technologies": [
+              {
+                "id": null,
+                "namespace": null,
+                "name": "PostgreSQL",
+                "raw_value": "PostgreSQL"
+              }
+            ],
+            "url": "https://example.test/project"
+          }
+        ],
+        "links": [
+          {
+            "type": "portfolio",
+            "label": "Portfolio",
+            "url": "https://example.test/portfolio"
+          }
+        ],
+        "availability": {
+          "notice_period_days": 15,
+          "notice_period_raw": "15 days",
+          "immediate_joiner": false,
+          "currently_serving_notice": true
+        },
+        "preferences": {
+          "employment_types": [
+            "full_time"
+          ],
+          "work_modes": [
+            "hybrid"
+          ],
+          "willing_to_travel": true,
+          "industries": [
+            {
+              "id": null,
+              "namespace": null,
+              "name": "Technology",
+              "raw_value": "Technology"
+            }
+          ],
+          "functions": [
+            {
+              "id": null,
+              "namespace": null,
+              "name": "Engineering",
+              "raw_value": "Engineering"
+            }
+          ]
+        },
+        "classification": {
+          "industries": [
+            {
+              "id": null,
+              "namespace": null,
+              "name": "Technology",
+              "raw_value": "Technology"
+            }
+          ],
+          "functions": [
+            {
+              "id": null,
+              "namespace": null,
+              "name": "Engineering",
+              "raw_value": "Engineering"
+            }
+          ],
+          "roles": [
+            {
+              "id": null,
+              "namespace": null,
+              "name": "Engineer",
+              "raw_value": "Engineer"
+            }
+          ],
+          "domains": [
+            {
+              "id": null,
+              "namespace": null,
+              "name": "Data Platforms",
+              "raw_value": "Data Platforms"
+            }
+          ]
+        },
+        "work_authorization": [
+          {
+            "country_code": "US",
+            "status": "authorized",
+            "raw_value": "Authorized to work in US"
+          }
+        ],
+        "publications": [
+          {
+            "title": "Synthetic Article",
+            "organization": "Example Journal",
+            "date": {
+              "precision": "year",
+              "year": 2024,
+              "month": null,
+              "day": null,
+              "raw_value": "2024"
+            },
+            "url": "https://example.test/article"
+          }
+        ],
+        "patents": [
+          {
+            "title": "Synthetic Invention",
+            "description": "Synthetic patent example."
+          }
+        ],
+        "awards": [
+          {
+            "title": "Synthetic Community Award"
+          }
+        ],
+        "honors": [
+          {
+            "title": "Synthetic Honours"
+          }
+        ]
+      }
+    }
+  }
+]

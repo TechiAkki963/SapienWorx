@@ -38,6 +38,10 @@ services:
       - ./runtime/aws-credentials:/run/aws/credentials:ro
     env_file:
       - ./runtime/beta.env
+      - path: ./runtime/ai.env
+        required: false
+      - path: ./runtime/ai-controls.env
+        required: false
     environment:
       APP_ENV: beta
       API_PORT: "8080"

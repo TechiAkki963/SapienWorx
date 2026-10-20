@@ -46,6 +46,12 @@ fi
 exec 9>"$LOCK_FILE"
 flock -n 9 || { echo "Another deployment is already running." >&2; exit 1; }
 
+# New AI delivery stays OFF. Preserve an existing separately approved controls
+# file; never provision provider/encryption secrets as part of code deployment.
+if [ ! -e "$RUNTIME_DIR/ai-controls.env" ]; then
+  install -m 0600 "$ROOT_DIR/ai-controls.disabled.env" "$RUNTIME_DIR/ai-controls.env"
+fi
+
 parameters="$(aws ssm get-parameters \
   --region "$REGION" \
   --with-decryption \

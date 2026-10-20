@@ -353,6 +353,8 @@ func (s *Server) writeRecruiterError(w http.ResponseWriter, r *http.Request, err
 		return
 	}
 	switch {
+	case errors.Is(err, recruiter.ErrAIReviewRequired):
+		writeError(w, r, http.StatusConflict, "ai_review_required", "Review the AI description and structured requirements before preview or publishing.")
 	case errors.Is(err, recruiter.ErrJobStatusStale):
 		writeError(w, r, http.StatusConflict, "job_status_changed", "This job status changed. Reload before trying again.")
 	case errors.Is(err, recruiter.ErrStageStale):

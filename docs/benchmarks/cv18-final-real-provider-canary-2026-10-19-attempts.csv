@@ -1,0 +1,2 @@
+case_id,task,model,attempt_number,provider_latency_ms,gateway_latency_ms,configured_timeout_ms,deadline_headroom_ms,input_tokens,cached_input_tokens,cache_write_input_tokens,output_tokens,total_tokens,estimated_cost_usd,provider_request_id,status,internal_classification,retryable,retry_delay_ms
+cv-18,cv.parse,gpt-6-luna,1,19838,19843,30000,10162,3380,0,3377,2195,5575,0.001519925,req_a0c224ae0a59444b9315e9dcef3933bc,completed,NONE,False,0

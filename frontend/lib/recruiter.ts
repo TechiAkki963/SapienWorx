@@ -117,6 +117,8 @@ export type PipelineRow = {
   profile_updated_at: string;
 };
 export type EditableRecruiterJob = {
+  ai_generation?: { generation_id?: string; generated_by_ai: boolean; requires_review: boolean; reviewed_by?: string; reviewed_at?: string };
+  ai_generation_id?: string;
   id: string;
   job_reference: string;
   status: string;

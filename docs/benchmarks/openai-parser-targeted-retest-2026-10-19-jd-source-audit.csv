@@ -1,0 +1,25 @@
+case_id,field,claim,literal_source_supported,factual_contradiction,hallucinated,review_method
+jd-05,education_requirements,"""BCom""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,employment_type,"""full_time""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,location,"""Mumbai""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,max_experience_years,5,True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,min_experience_years,3,True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,openings,1,True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,role_category,"""Accounting""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,skills,"""Financial reporting""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,skills,"""Reconciliation""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,skills,"""Excel""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,title,"""Financial Accountant""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-05,work_mode,"""onsite""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,education_requirements,"""Higher Secondary""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,employment_type,"""full_time""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,location,"""Noida""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,max_experience_years,2,True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,min_experience_years,0,True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,openings,1,True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,role_category,"""Customer Service""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,skills,"""Customer service""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,skills,"""Ticket management""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,skills,"""Written communication""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,title,"""Customer Support Associate""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.
+jd-19,work_mode,"""hybrid""",True,False,False,Manual source-aware audit with literal-source assertion; no model judge.

@@ -1,6 +1,7 @@
 import { HumanReviewActions, IntelligenceSwitchControl, InsightReviewActions, ModelActions, ModelRegistrationForm, PromptActions, PromptRegistrationForm, RunIntelligenceButton } from "@/components/admin/intelligence-actions";
 import { requireAdminWorkspace } from "@/lib/admin-access-server";
 import { adminAPI } from "@/lib/admin-server";
+import { AIOperations } from "@/components/admin/ai-operations";
 
 type Run={id:string;engine_version:string;status:string;metrics:Record<string,number>;requested_by:string;completed_at:string};
 type Insight={id:string;domain:string;severity:string;title:string;rationale:string;evidence:Record<string,unknown>;recommendation:string;confidence:number;status:string};
@@ -29,6 +30,7 @@ export default async function IntelligencePage(){
       <div className="mt-5"><RunIntelligenceButton/></div>
     </header>
 
+    <AIOperations />
     <section aria-label="Intelligence runtime scorecard" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <Metric label="Pending events" value={data.store.pending_events}/>
       <Metric label="Retrying failures" value={data.store.failed_events}/>

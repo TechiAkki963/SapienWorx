@@ -1,0 +1,290 @@
+[
+  {
+    "id": "synthetic-jd-01",
+    "industry": "Technology",
+    "text": "Platform Engineer. Full-time role in Bengaluru. Work mode: hybrid. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Go, PostgreSQL. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Platform Engineer",
+      "employment_type": "full_time",
+      "work_mode": "hybrid",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Go",
+        "PostgreSQL"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-02",
+    "industry": "Healthcare",
+    "text": "Staff Nurse. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Patient care, Nursing. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Staff Nurse",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Patient care",
+        "Nursing"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-03",
+    "industry": "BFSI",
+    "text": "Credit Analyst. Full-time role in Bengaluru. Work mode: hybrid. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Credit analysis, Risk assessment. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Credit Analyst",
+      "employment_type": "full_time",
+      "work_mode": "hybrid",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Credit analysis",
+        "Risk assessment"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-04",
+    "industry": "Manufacturing",
+    "text": "Production Supervisor. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Lean manufacturing, Quality control. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Production Supervisor",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Lean manufacturing",
+        "Quality control"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-05",
+    "industry": "Retail",
+    "text": "Store Manager. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Inventory management, Customer service. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Store Manager",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Inventory management",
+        "Customer service"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-06",
+    "industry": "Sales",
+    "text": "Account Executive. Full-time role in Bengaluru. Work mode: remote. Minimum experience: 3 years; maximum experience: 5 years. Required skills: B2B sales, Negotiation. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Account Executive",
+      "employment_type": "full_time",
+      "work_mode": "remote",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "B2B sales",
+        "Negotiation"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-07",
+    "industry": "Marketing",
+    "text": "Marketing Analyst. Full-time role in Bengaluru. Work mode: hybrid. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Campaign analytics, SEO. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Marketing Analyst",
+      "employment_type": "full_time",
+      "work_mode": "hybrid",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Campaign analytics",
+        "SEO"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-08",
+    "industry": "Operations",
+    "text": "Operations Coordinator. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Process improvement, Scheduling. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Operations Coordinator",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Process improvement",
+        "Scheduling"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-09",
+    "industry": "Logistics",
+    "text": "Warehouse Supervisor. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Warehouse operations, Supply chain. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Warehouse Supervisor",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Warehouse operations",
+        "Supply chain"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-10",
+    "industry": "Hospitality",
+    "text": "Guest Relations Manager. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Guest services, Hospitality. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Guest Relations Manager",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Guest services",
+        "Hospitality"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-11",
+    "industry": "Education",
+    "text": "Mathematics Teacher. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Mathematics, Teaching. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Mathematics Teacher",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Mathematics",
+        "Teaching"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-12",
+    "industry": "Construction",
+    "text": "Site Engineer. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Site supervision, Safety compliance. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Site Engineer",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Site supervision",
+        "Safety compliance"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-13",
+    "industry": "Finance",
+    "text": "Financial Accountant. Full-time role in Bengaluru. Work mode: hybrid. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Accounting, Financial reporting. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Financial Accountant",
+      "employment_type": "full_time",
+      "work_mode": "hybrid",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Accounting",
+        "Financial reporting"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-14",
+    "industry": "Legal",
+    "text": "Legal Associate. Full-time role in Bengaluru. Work mode: hybrid. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Legal research, Contract review. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Legal Associate",
+      "employment_type": "full_time",
+      "work_mode": "hybrid",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Legal research",
+        "Contract review"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-15",
+    "industry": "HR",
+    "text": "HR Generalist. Full-time role in Bengaluru. Work mode: hybrid. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Employee relations, Recruitment. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "HR Generalist",
+      "employment_type": "full_time",
+      "work_mode": "hybrid",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Employee relations",
+        "Recruitment"
+      ],
+      "openings": 1
+    }
+  },
+  {
+    "id": "synthetic-jd-16",
+    "industry": "Blue-collar",
+    "text": "Maintenance Electrician. Full-time role in Bengaluru. Work mode: onsite. Minimum experience: 3 years; maximum experience: 5 years. Required skills: Electrical maintenance, Troubleshooting. One opening. This is a synthetic evaluation job, not a live vacancy.",
+    "expected": {
+      "title": "Maintenance Electrician",
+      "employment_type": "full_time",
+      "work_mode": "onsite",
+      "location": "Bengaluru",
+      "min_experience_years": 3,
+      "max_experience_years": 5,
+      "skills": [
+        "Electrical maintenance",
+        "Troubleshooting"
+      ],
+      "openings": 1
+    }
+  }
+]

@@ -75,8 +75,33 @@ func Parse(ctx context.Context, filename string, data []byte) (Preview, error) {
 type OCRFunc func(context.Context, []byte, int) (string, error)
 
 func ParseWithOCR(ctx context.Context, filename string, data []byte, ocr OCRFunc) (Preview, error) {
+	document, err := ExtractText(ctx, filename, data, ocr)
+	if err != nil {
+		return Preview{}, err
+	}
+	result := understand(document.Text, time.Now())
+	result.Format = document.Format
+	if document.UsedOCR {
+		result.Warnings = append(result.Warnings, "Scanned text was recognized with OCR; verify every suggested detail.")
+	}
+	return result, nil
+}
+
+// ExtractedText is in-memory only. Callers must scan file bytes before extraction.
+type ExtractedText struct {
+	Text    string
+	Format  string
+	UsedOCR bool
+}
+
+func (ExtractedText) String() string     { return "ExtractedText [private text withheld]" }
+func (d ExtractedText) GoString() string { return d.String() }
+
+// ExtractText reuses the existing bounded PDF/DOCX/OCR pipeline without running
+// heuristic field interpretation. It neither persists nor sends text externally.
+func ExtractText(ctx context.Context, filename string, data []byte, ocr OCRFunc) (ExtractedText, error) {
 	if len(data) == 0 || len(data) > MaxFileBytes {
-		return Preview{}, ErrTooLarge
+		return ExtractedText{}, ErrTooLarge
 	}
 	name := strings.ToLower(strings.TrimSpace(filename))
 	var format, text string
@@ -95,24 +120,21 @@ func ParseWithOCR(ctx context.Context, filename string, data []byte, ocr OCRFunc
 		format = "DOCX"
 		text, err = extractDOCX(data)
 	default:
-		return Preview{}, ErrUnsupported
+		return ExtractedText{}, ErrUnsupported
 	}
 	if err != nil {
-		return Preview{}, err
+		return ExtractedText{}, err
 	}
 	if len(strings.TrimSpace(text)) < 30 {
-		return Preview{}, ErrUnreadable
+		return ExtractedText{}, ErrUnreadable
 	}
 	if len(text) > maxDocumentText {
-		return Preview{}, ErrTooLarge
+		return ExtractedText{}, ErrTooLarge
 	}
-	result := understand(text, time.Now())
-	result.Format = format
 	if usedOCR {
-		result.Format = "PDF (OCR)"
-		result.Warnings = append(result.Warnings, "Scanned text was recognized with OCR; verify every suggested detail.")
+		format = "PDF (OCR)"
 	}
-	return result, nil
+	return ExtractedText{Text: text, Format: format, UsedOCR: usedOCR}, nil
 }
 
 func extractPDF(ctx context.Context, data []byte) (string, int, error) {

@@ -19,9 +19,10 @@ var (
 )
 
 type Service struct {
-	db             *pgxpool.Pool
-	referralKey    []byte
-	referralOrigin string
+	jobGenerationVerifier JobGenerationVerifier
+	db                    *pgxpool.Pool
+	referralKey           []byte
+	referralOrigin        string
 }
 
 func NewService(db *pgxpool.Pool) *Service { return &Service{db: db} }

@@ -11,6 +11,8 @@ import (
 )
 
 type DetailedJobInput struct {
+	AIGenerationID        string   `json:"ai_generation_id,omitempty"`
+	AIGenerationReviewed  bool     `json:"ai_generation_reviewed,omitempty"`
 	Title                 string   `json:"title"`
 	Department            string   `json:"department"`
 	EmploymentType        string   `json:"employment_type"`
@@ -43,6 +45,7 @@ type DetailedJobInput struct {
 }
 
 type EditableJob struct {
+	AIGeneration JobGenerationMetadata `json:"ai_generation"`
 	DetailedJobInput
 	ID           string `json:"id"`
 	JobReference string `json:"job_reference"`
@@ -184,6 +187,14 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 		return Job{}, ErrInvalid
 	}
 
+	generation, err := s.generationForSave(ctx, userID, companyID, in, JobGenerationMetadata{})
+	if err != nil {
+		return Job{}, err
+	}
+	if in.Publish && !generationAllowsPublish(generation) {
+		return Job{}, ErrAIReviewRequired
+	}
+
 	status := "draft"
 	if in.Publish {
 		status = "active"
@@ -247,6 +258,9 @@ func (s *Service) CreateDetailedJob(ctx context.Context, userID string, in Detai
 		return Job{}, err
 	}
 
+	if err := saveGenerationMetadataTx(ctx, tx, id, companyID, generation); err != nil {
+		return Job{}, err
+	}
 	snapshot, err := jobSnapshotTx(ctx, tx, id, companyID, false)
 	if err != nil {
 		return Job{}, err
@@ -324,6 +338,10 @@ func (s *Service) EditableJob(ctx context.Context, userID, jobID string) (Editab
 		value := deadline.Format("2006-01-02")
 		item.ApplicationDeadline = &value
 	}
+	if err := s.db.QueryRow(ctx, `SELECT ai_generation FROM jobs WHERE id=$1 AND company_id=$2`, jobID, companyID).Scan(&item.AIGeneration); err != nil {
+		return EditableJob{}, err
+	}
+	item.AIGenerationID = item.AIGeneration.GenerationID
 	return item, nil
 }
 
@@ -364,6 +382,17 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 		return err
 	}
 
+	var oldGeneration JobGenerationMetadata
+	if err = tx.QueryRow(ctx, `SELECT ai_generation FROM jobs WHERE id=$1 AND company_id=$2`, jobID, companyID).Scan(&oldGeneration); err != nil {
+		return err
+	}
+	generation, err := s.generationForSave(ctx, userID, companyID, in, oldGeneration)
+	if err != nil {
+		return err
+	}
+	if (in.Publish || currentStatus == "active") && !generationAllowsPublish(generation) {
+		return ErrAIReviewRequired
+	}
 	if in.Publish && (!publishableDetailedJob(in) || !publishDeadlineValid(in)) {
 		return ErrInvalid
 	}
@@ -455,6 +484,9 @@ func (s *Service) UpdateDetailedJob(ctx context.Context, userID, jobID string, i
 		return err
 	}
 
+	if err := saveGenerationMetadataTx(ctx, tx, jobID, companyID, generation); err != nil {
+		return err
+	}
 	nextSnapshot, err := jobSnapshotTx(ctx, tx, jobID, companyID, false)
 	if err != nil {
 		return err
