@@ -1,0 +1,22 @@
+{
+  "baseline_ref": "jd-generation-v1.1",
+  "source_file": "docs/benchmarks/jd-generation-baseline-v1.1.json",
+  "source_sha256": "b4930f388f7179e8b7b03eb9d075e20694178030d80b6b1aa4c80e442f6c6d2a",
+  "model": "gpt-6-luna",
+  "task": "job.generate_description",
+  "task_version": "v1.2",
+  "prompt_version": "jd-p2",
+  "schema_version": "jd-generation-v1.1",
+  "blueprint_version": "rb-1.1",
+  "cases_completed": 8,
+  "provider_attempts": 8,
+  "retries": 0,
+  "provider_successes": 8,
+  "provider_failures": 0,
+  "automated_passes": 8,
+  "usable_cases": 8,
+  "material_failures": 0,
+  "beta_quality_gate_pass": true,
+  "raw_result_sha256": "25a0e403caa6d26ab35e69fcdf9d15526f9ee20ab52eb9c8a0224b34a37e8858",
+  "frozen_source_manifest_sha256": "f0e1b2026fcacb936f609b77f8f0ee81ca7c4d79e4d41c1ebc324e4415cf67d5"
+}

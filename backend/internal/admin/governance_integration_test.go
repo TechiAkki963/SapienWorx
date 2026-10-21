@@ -74,6 +74,51 @@ func TestGovernanceIsolatedDatabase(t *testing.T) {
 		return id
 	}
 	actor := user("master_admin", "active", true, true)
+	t.Run("JD_baseline_is_evaluation_only_and_exact_policy_bound", func(t *testing.T) {
+		config := map[string]any{"evaluation_baseline": "jd-generation-v1.1", "approved_tasks": []string{"job.generate_description"}, "model_routes": map[string]string{"job.generate_description": "gpt-6-luna"}, "beta_rollout": map[string]any{"stage": "internal", "actor_ids": []string{"20000000-0000-4000-8000-000000000001"}}}
+		model, e := svc.RegisterIntelligenceModel(ctx, actor, "ai_gateway", "synthetic-baseline-review", "openai", "gpt-6-luna", config, "", "baseline-test")
+		if e != nil {
+			t.Fatal(e)
+		}
+		if e = svc.RequestModelEvaluation(ctx, model.ID, actor, "", "baseline-test"); e != nil {
+			t.Fatal(e)
+		}
+		var status string
+		if db.QueryRow(ctx, `SELECT status FROM intelligence.model_versions WHERE id=$1`, model.ID).Scan(&status) != nil || status != "approved" {
+			t.Fatal("baseline should approve evaluation only")
+		}
+		approval, e := svc.CreateApproval(ctx, actor, CreateApprovalInput{ActionType: "intelligence.model.promote", TargetType: "intelligence_model", TargetID: model.ID, Reason: "Review pinned synthetic baseline for internal cohort", ApprovalReference: "synthetic-baseline-test"}, "", "baseline-test")
+		if e != nil {
+			t.Fatal(e)
+		}
+		exec(`UPDATE intelligence.engine_switches SET enabled=true WHERE switch_key='model_deployment'`)
+		defer exec(`UPDATE intelligence.engine_switches SET enabled=false WHERE switch_key='model_deployment'`)
+		if e = svc.PromoteIntelligenceModel(ctx, model.ID, actor, approval.ID, "", "baseline-test"); e != ErrConflict {
+			t.Fatal("missing two reviewers bypassed", e)
+		}
+		if _, e = svc.DecideApproval(ctx, approval.ID, actor, "approve", "", "", "baseline-test"); e != ErrForbidden {
+			t.Fatal("requester reviewed own promotion")
+		}
+		for i := 0; i < 2; i++ {
+			reviewer := user("master_admin", "active", true, true)
+			if _, e = svc.DecideApproval(ctx, approval.ID, reviewer, "approve", "Synthetic review only", "", "baseline-test"); e != nil {
+				t.Fatal(e)
+			}
+		}
+		exec(`UPDATE intelligence.model_versions SET config=jsonb_set(config,'{beta_rollout,actor_ids}','["20000000-0000-4000-8000-000000000002"]') WHERE id=$1`, model.ID)
+		if e = svc.PromoteIntelligenceModel(ctx, model.ID, actor, approval.ID, "", "baseline-test"); e != ErrConflict {
+			t.Fatal("evaluation reused after cohort change", e)
+		}
+		raw, _ := json.Marshal(config)
+		exec(`UPDATE intelligence.model_versions SET config=$2 WHERE id=$1`, model.ID, raw)
+		if e = svc.PromoteIntelligenceModel(ctx, model.ID, actor, approval.ID, "", "baseline-test"); e != nil {
+			t.Fatal("reviewed exact policy not promoted", e)
+		}
+		var enabled bool
+		if db.QueryRow(ctx, `SELECT enabled FROM intelligence.engine_switches WHERE switch_key='openai_provider'`).Scan(&enabled) != nil || enabled {
+			t.Fatal("evaluation enabled provider")
+		}
+	})
 	sessions := func(id string) {
 		exec(`INSERT INTO refresh_sessions(user_id,token_hash,expires_at) VALUES($1,digest(gen_random_uuid()::text,'sha256'),now()+interval '1 hour'),($1,digest(gen_random_uuid()::text,'sha256'),now()+interval '1 hour')`, id)
 	}

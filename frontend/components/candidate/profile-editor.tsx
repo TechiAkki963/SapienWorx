@@ -28,6 +28,7 @@ import { ProfileDrawer } from "./profile-drawer";
 import { CVManager } from "./cv-manager";
 
 import { CVParsePreview } from "./cv-parse-preview";
+import { CVAIParseAssistant } from "./cv-ai-parse-assistant";
 import { useCandidateWorkspace } from "./candidate-workspace-state";
 import { ProfileCompletionChecklist } from "./profile-completion-checklist";
 
@@ -179,6 +180,7 @@ export function ProfileEditor({
   const resume = (
     <div className="profile-v2-resume">
       <CVManager currentFilename={details.cv_original_filename} />
+      <CVAIParseAssistant profileUpdatedAt={details.profile_updated_at || ""} editing={!!target} />
       {process.env.NEXT_PUBLIC_CV_PARSE_PREVIEW_ENABLED === "true" && (
         <details className="profile-v2-cv-review">
           <summary>Suggest profile updates from a CV</summary>

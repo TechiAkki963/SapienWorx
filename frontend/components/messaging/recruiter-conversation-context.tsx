@@ -17,8 +17,21 @@ export function RecruiterConversationContext({ thread }: { thread: MessagingThre
     ]).then(([profile,applications]) => { if(!abort.signal.aborted)setContext({profile,applications}); }).catch(() => { if(!abort.signal.aborted)setError("Candidate context is unavailable. You can continue this authorized conversation."); });
     return () => abort.abort();
   }, [thread.candidate_id,thread.job_id]);
-  return <section aria-label="Candidate conversation context" className="grid content-start gap-4 p-4">
-    <div><h2 className="text-sm font-semibold text-navy">Candidate context</h2><p className="mt-3 break-words text-base font-semibold text-ink">{thread.counterparty_name}</p><p className="mt-1 text-xs leading-6 text-ink-muted">{thread.job_title || "Direct conversation"}</p></div>
-    {error ? <p role="status" className="text-xs leading-6 text-ink-muted">{error}</p> : !context ? <p role="status" className="text-xs text-ink-muted">Loading authorized profile…</p> : <><p className="text-sm leading-6 text-ink-muted">{context.profile.headline}</p><p className="text-xs leading-6 text-ink-muted">{experience(context.profile.total_experience_months)} · {context.profile.current_city || "Location not provided"}</p><Link href={`/recruiter/candidates/${encodeURIComponent(thread.candidate_id)}${thread.job_id ? `?job_id=${encodeURIComponent(thread.job_id)}` : ""}`} className="min-h-11 content-center text-sm font-semibold text-indigo">View profile</Link><dl className="grid gap-3">{context.applications.items.map(application => <div key={application.application_id}><dt className="text-xs text-ink-muted">{application.job_title}</dt><dd className="mt-1 text-sm font-semibold text-ink">{label(application.stage)}</dd></div>)}</dl>{thread.job_id && <Link href={`/recruiter/interviews?job_id=${encodeURIComponent(thread.job_id)}`} className="min-h-11 content-center text-xs font-semibold text-indigo">View interviews for this job</Link>}</>}
+  return <section aria-label="Candidate conversation context" className="grid content-start gap-5 p-4">
+    <div>
+      <h2 className="text-xs font-semibold text-ink-muted">Candidate</h2>
+      <p className="mt-2 break-words text-base font-semibold text-ink">{thread.counterparty_name}</p>
+      {context && <><p className="mt-1 text-sm leading-6 text-ink-muted">{context.profile.headline || "Professional headline not provided"}</p><p className="mt-2 text-xs leading-6 text-ink-muted">{experience(context.profile.total_experience_months)} · {context.profile.current_city || "Location not provided"}</p></>}
+    </div>
+    {error ? <p role="status" className="text-xs leading-6 text-ink-muted">{error}</p> : !context ? <p role="status" className="text-xs text-ink-muted">Loading authorized profile…</p> : <>
+      <div className="border-t border-line pt-4">
+        <h3 className="text-xs font-semibold text-ink-muted">Hiring for</h3>
+        {context.applications.items.length ? <dl className="mt-2 grid gap-3">{context.applications.items.map(application => <div key={application.application_id}><dt className="break-words text-sm font-semibold text-ink">{application.job_title}</dt><dd className="mt-1 text-xs text-ink-muted">{label(application.stage)}</dd></div>)}</dl> : <p className="mt-2 text-sm text-ink">{thread.job_title || "Direct conversation"}</p>}
+      </div>
+      <nav aria-label="Candidate context actions" className="grid border-t border-line pt-2">
+        <Link href={`/recruiter/candidates/${encodeURIComponent(thread.candidate_id)}${thread.job_id ? `?job_id=${encodeURIComponent(thread.job_id)}` : ""}`} className="min-h-11 content-center text-sm font-semibold text-indigo">View profile</Link>
+        {thread.job_id && <Link href={`/recruiter/interviews?job_id=${encodeURIComponent(thread.job_id)}`} className="min-h-11 content-center text-sm font-semibold text-indigo">View interviews for this job</Link>}
+      </nav>
+    </>}
   </section>;
 }

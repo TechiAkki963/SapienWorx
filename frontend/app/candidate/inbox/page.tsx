@@ -8,12 +8,11 @@ export default async function CandidateInboxPage() {
   const threads = await messagingAPI<ThreadListResponse>("/api/v1/messaging/threads");
 
   return (
-    <div className="grid gap-4">
-      <div>
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-indigo">Recruiter conversations</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-[-0.035em] text-navy">Messages</h1>
-        <p className="mt-1 text-sm text-ink-muted">Private conversations started by recruiters about roles and opportunities.</p>
-      </div>
+    <div className="swx-messages-page">
+      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <h1 className="text-xl font-bold text-navy">Messages</h1>
+        <p className="text-sm text-ink-muted">Your private conversations with recruiters.</p>
+      </header>
       <MessagingWorkspace initialThreads={threads.items ?? []} role="candidate" />
     </div>
   );

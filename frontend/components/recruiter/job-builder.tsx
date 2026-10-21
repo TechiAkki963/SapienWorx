@@ -4,6 +4,8 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { JDGenerationAssistant, JDGenerationFields, JDGenerationState } from "@/components/recruiter/jd-generation-assistant";
+import { JDParseAssistant } from "@/components/recruiter/jd-parse-assistant";
+import { JobParseFields, JobParseKey } from "@/lib/ai-parsing";
 import { TaxonomyInput } from "@/components/workforce/taxonomy-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -406,6 +408,20 @@ export function JobBuilder({
           <div className="border-b border-line/60 px-5 py-4 sm:px-6"><p className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-indigo">Step {step} of 5</p><h2 ref={stepRef} tabIndex={-1} className="mt-1 text-xl font-bold tracking-[-0.03em] text-navy">{steps[step - 1].title}</h2></div>
           <div className="flex flex-col gap-5 p-5 sm:p-6">
       <div hidden={step !== 1 && step !== 2} className={step === 1 ? "order-last" : undefined}>
+        <JDParseAssistant currentFields={{ ...generationFields, employment_type: state.employment_type, work_mode: state.work_mode, description: state.description, openings: Number(state.openings || 1), hiring_process: lines(state.hiring_process), min_salary_lakhs: optionalNumber(state.min_salary_lakhs), max_salary_lakhs: optionalNumber(state.max_salary_lakhs) }} onApply={(changes: JobParseFields) => {
+          setState(current => {
+            const next = { ...current };
+            for (const [rawKey, value] of Object.entries(changes)) {
+              const key = rawKey as JobParseKey;
+              if (key === "skills" || value == null) continue;
+              next[key] = Array.isArray(value) ? value.join("\n") : String(value);
+            }
+            return next;
+          });
+          if (Array.isArray(changes.skills)) setSkills([...new Set(changes.skills)]);
+          setGenerationConditions(current => ({ employment_type: current.employment_type || changes.employment_type != null, work_mode: current.work_mode || changes.work_mode != null }));
+          setGeneration(current => ({ ...current, reviewed: false }));
+        }} />
         <JDGenerationAssistant fields={generationFields} generation={generation} reviewFields={{ ...generationFields, employment_type:state.employment_type, work_mode:state.work_mode, min_experience_years: Number(state.min_experience_years || 0), description: state.description, openings: Number(state.openings || 1) }}
           onUseDraft={(description, next) => { setState(current => ({ ...current, description })); setGeneration(next); setStep(2); }}
           onReviewed={(revision, reviewed = true) => setGeneration(current => ({ ...current, revision, reviewed }))}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { apiRequest, APIRequestError } from "@/lib/api";
 import { JobDescriptionDraft, JDSourcedValue, JDSuggestionKind, renderJDGenerationDraft } from "@/lib/jd-generation";
+import { useAICapabilities } from "@/hooks/use-ai-capabilities";
 
 export type JDGenerationFields = {
   title: string; location: string;
@@ -29,6 +30,7 @@ export function JDGenerationAssistant({ fields, generation, reviewFields, onUseD
   onAcceptSkill: (skill: string) => void;
   onAcceptSuggestion: (kind: JDSuggestionKind, value: string, receipt: JDGenerationState) => void;
 }) {
+  const capability = useAICapabilities("job.generate_description");
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState<"generate" | "review" | "">("");
   const [message, setMessage] = useState("");
@@ -45,6 +47,7 @@ export function JDGenerationAssistant({ fields, generation, reviewFields, onUseD
 
   async function generate(regenerate = false) {
     setMessage("");
+    if (!capability.available) { setMessage("AI assistance is not enabled for your account. You can continue writing manually."); return; }
     if (!valid) { setMessage("Add a title, location and a valid minimum/maximum experience range (0–60 years) in Basics."); return; }
     if (!consent) { setMessage("Allow AI processing of the visible role details, or continue writing manually."); return; }
     const requestController = new AbortController();
@@ -65,7 +68,9 @@ export function JDGenerationAssistant({ fields, generation, reviewFields, onUseD
       if (requestController.signal.aborted) return;
       setMessage(error instanceof APIRequestError && error.status === 429
         ? "The AI usage limit has been reached. Continue writing manually and try again later."
-        : "AI generation is temporarily unavailable. You can continue writing the description manually.");
+        : error instanceof APIRequestError && ["ai_disabled", "ai_unavailable"].includes(error.code)
+          ? "AI assistance is unavailable for your account right now. Your writing is preserved; continue manually."
+          : "AI generation could not finish. Your writing is preserved; continue manually or try again later.");
     } finally { if (controller.current === requestController) setBusy(""); }
   }
 
@@ -105,12 +110,13 @@ export function JDGenerationAssistant({ fields, generation, reviewFields, onUseD
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h3 className="text-sm font-bold text-navy">A starting point for your description</h3><p className="mt-1 text-xs leading-5 text-ink-muted">Start with a title, location and experience range. Writing manually is always available.</p></div>
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="secondary" disabled={Boolean(busy)} onClick={() => generate()}>{busy === "generate" ? "Generating job description…" : "Generate with AI"}</Button>
+        <Button type="button" variant="secondary" disabled={Boolean(busy) || !capability.available} onClick={() => generate()}>{busy === "generate" ? "Generating job description…" : "Generate with AI"}</Button>
         {busy === "generate" && <Button type="button" variant="ghost" onClick={() => { controller.current?.abort(); setBusy(""); setMessage("Generation cancelled. Continue writing manually. A request already sent may still count toward usage."); }}>Cancel generation</Button>}
       </div>
     </div>
     <label className="mt-3 flex min-h-11 items-center gap-2 text-xs leading-5 text-ink"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} className="h-4 w-4 shrink-0 accent-blue-600" />Allow these role details to be sent to the AI provider.</label>
     <p className="text-xs leading-5 text-ink-muted">Private compensation and internal notes are excluded. AI never publishes or changes matching requirements automatically.</p>
+    {!capability.available && <p className="mt-2 text-sm leading-6 text-ink">{capability.loading ? "Checking AI availability…" : "AI assistance is not enabled for your account. You can continue writing manually."}</p>}
     <p role="status" aria-live="polite" className="mt-2 text-sm leading-6 text-ink">{message}</p>
     {draft?.result.value && <div className="mt-4 grid min-w-0 gap-3 rounded-xl border border-line bg-slate-50 p-2.5 sm:p-4">
       <div className="flex flex-wrap justify-between gap-2"><h4 className="text-sm font-bold text-navy">Generated draft · not yet applied</h4><span className="text-xs font-semibold text-ink-muted">Review required</span></div>

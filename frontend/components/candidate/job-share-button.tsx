@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
-import { humanize, jobLocation, type CandidateJob } from "@/lib/candidate";
-import { apiRequest, APIRequestError } from "@/lib/api";
-import { canonicalJobPath, safeCanonicalJobURL } from "@/lib/job-public-path";
+import { useId, useState } from "react";
+import { humanize, jobLocation } from "@/lib/candidate";
+import { publicJobShareLinks, usePublicJobShare } from "@/lib/use-public-job-share";
 import { WorkspaceDialog } from "./workspace-dialog";
 import { CareerIcon, SocialIcon } from "./career-icon";
 import "./candidate-workspace.css";
@@ -17,47 +16,11 @@ export function JobShareButton({ jobId, jobTitle, companyName, canonicalUrl }: {
 function JobShareModal({ jobId, jobTitle, companyName, canonicalUrl, onClose }: {
   jobId: string; jobTitle: string; companyName: string; canonicalUrl?: string; onClose: () => void;
 }) {
-  const [url, setUrl] = useState(""), [state, setState] = useState<"loading" | "ready" | "unavailable" | "error">("loading");
-  const [job, setJob] = useState<CandidateJob | null>(null), [logoFailed, setLogoFailed] = useState(false);
-  const [copied, setCopied] = useState(false), [error, setError] = useState(""), [learn, setLearn] = useState(false);
-  const input = useRef<HTMLInputElement>(null), timer = useRef<ReturnType<typeof setTimeout> | null>(null), alive = useRef(true);
+  const { url, job, state, copied, error, input, copy } = usePublicJobShare(jobId, canonicalUrl);
+  const [logoFailed, setLogoFailed] = useState(false), [learn, setLearn] = useState(false);
   const inputID = useId(), learnID = useId();
-  useEffect(() => {
-    const controller = new AbortController(); alive.current = true;
-    void apiRequest<CandidateJob>("/api/v1/jobs/" + encodeURIComponent(jobId), { signal: controller.signal }).then(publicJob => {
-      if (controller.signal.aborted) return;
-      const path = canonicalJobPath(publicJob.job_reference);
-      const origin = ["beta.sapienworx.com", "www.sapienworx.com", "sapienworx.com", "localhost", "127.0.0.1"].includes(location.hostname) ? location.origin : "https://beta.sapienworx.com";
-      // Use the current public host, never a different environment supplied by a caller.
-      const provided = canonicalUrl && safeCanonicalJobURL(canonicalUrl);
-      const resolved = path && (provided && new URL(provided).origin === origin && new URL(provided).pathname === path ? provided : safeCanonicalJobURL(origin + path));
-      if (!resolved) { setState("unavailable"); return; }
-      setJob(publicJob); setUrl(resolved); setState("ready");
-    }).catch(cause => {
-      if (!controller.signal.aborted) setState(cause instanceof APIRequestError && [403, 404, 410].includes(cause.status) ? "unavailable" : "error");
-    });
-    return () => { alive.current = false; controller.abort(); if (timer.current) clearTimeout(timer.current); };
-  }, [jobId, canonicalUrl]);
-  async function copy() {
-    setError("");
-    try {
-      await navigator.clipboard.writeText(url);
-      if (!alive.current) return;
-      setCopied(true);
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => setCopied(false), 1800);
-    } catch {
-      if (!alive.current) return;
-      setError("Clipboard access was denied or unavailable. Select the job link and copy it manually.");
-      input.current?.focus(); input.current?.select();
-    }
-  }
   const title = job?.title || jobTitle, company = job?.company_name || companyName;
-  const socials = [
-    {provider:"linkedin" as const,label:"LinkedIn",href:"https://www.linkedin.com/sharing/share-offsite/?" + new URLSearchParams({url})},
-    {provider:"x" as const,label:"X / Twitter",href:"https://twitter.com/intent/tweet?" + new URLSearchParams({text:title + " at " + company,url})},
-    {provider:"facebook" as const,label:"Facebook",href:"https://www.facebook.com/sharer/sharer.php?" + new URLSearchParams({u:url})},
-  ];
+  const socials = publicJobShareLinks(url, title, company).filter(social => social.provider !== "whatsapp" && social.provider !== "email");
   return <WorkspaceDialog title="Share this job" onClose={onClose} className="candidate-share-dialog" headerIcon={<CareerIcon name="share" size={24}/>} description="Share with your network or copy the public job link.">
     <div className="candidate-share-job">
       <div className="candidate-share-company-logo" aria-hidden="true">{job?.company_logo_url&&!logoFailed?<img src={job.company_logo_url} alt="" width="56" height="56" onError={()=>setLogoFailed(true)}/>:company.split(/\s+/).slice(0,2).map(word=>word[0]).join("").toUpperCase()}</div>

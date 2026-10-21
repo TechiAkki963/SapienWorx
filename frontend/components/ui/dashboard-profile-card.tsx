@@ -16,6 +16,8 @@ export interface DashboardProfileCardProps {
   statValue: string | number;
   className?: string;
   compact?: boolean;
+  avatarOnly?: boolean;
+  onBusyChange?: (busy: boolean) => void;
 }
 
 type UploadResponse = { profile_image_url: string; size_bytes: number; content_type: "image/webp" };
@@ -28,7 +30,7 @@ function trustedImagePath(value?: string | null) {
   return value?.startsWith("/api/v1/users/profile-image?version=") ? value : "";
 }
 
-export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, statLabel, statValue, className, compact = false }: DashboardProfileCardProps) {
+export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, statLabel, statValue, className, compact = false, avatarOnly = false, onBusyChange }: DashboardProfileCardProps) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const localPreview = useRef<string | null>(null);
@@ -51,6 +53,7 @@ export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, 
       return;
     }
     setBusy(true);
+    onBusyChange?.(true);
     setMessage("");
     try {
       const form = new FormData();
@@ -77,9 +80,21 @@ export function DashboardProfileCard({ firstName, lastName, headline, imageUrl, 
       }
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
       if (fileInput.current) fileInput.current.value = "";
     }
   }
+
+  if (avatarOnly) return <div className={cn("flex shrink-0 flex-col items-center",className)}>
+    <div className="relative grid h-24 w-24 place-items-center overflow-hidden rounded-full border border-line bg-indigo-soft text-indigo">
+      {preview&&!imageFailed?<Image src={preview} alt={`${name} profile photo`} fill unoptimized sizes="96px" className="object-cover" onError={()=>setImageFailed(true)}/>:<span aria-hidden="true" className="text-3xl font-semibold">{[firstName,lastName].flatMap(part=>part.split(/\s+/)).filter(part=>/[\p{L}\p{N}]/u.test(part)).slice(0,2).map(part=>Array.from(part)[0]).join("").toUpperCase()||"R"}</span>}
+    </div>
+    <button type="button" aria-label="Change profile photo" onClick={()=>fileInput.current?.click()} disabled={busy} className="mt-1 inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-indigo hover:bg-indigo-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo disabled:opacity-50">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 7h4l2-3h4l2 3h4v13H4Z"/><circle cx="12" cy="13" r="4"/></svg>{busy?"Uploading…":"Edit photo"}
+    </button>
+    <input ref={fileInput} hidden type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadImage} tabIndex={-1} aria-label="Profile photo file"/>
+    {message&&<p role="status" className="mt-1 max-w-56 text-center text-xs leading-5 text-ink-muted">{message}</p>}
+  </div>;
 
   return (
     <section className={cn("h-full w-full", className)} aria-label="Your dashboard profile">

@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { login, resetE2E } from "./helpers";
+import { mockAICapabilities } from "./ai-capabilities";
 
 type Blueprint = { title: string; about_role: string; core_responsibilities: string[]; core_skills: string[]; optional_skills: string[]; review_notes: string[] };
 const blueprints: Blueprint[] = JSON.parse(readFileSync(path.resolve(__dirname, "../../../backend/internal/workforce/testdata/role-blueprints-v1.1.json"), "utf8"));
@@ -10,6 +11,7 @@ const artifactRoot = "visual-artifacts/jd-generation-v11";
 const id = "97000000-0000-4000-8000-000000000001";
 
 async function mockV11(page: Page) {
+ await mockAICapabilities(page);
  const calls: { path: string; body: Record<string, any> }[] = [];
  await page.route("**/api/v1/intelligence/jobs/**", async route => {
   const headers = { "Access-Control-Allow-Origin": new URL(page.url()).origin, "Access-Control-Allow-Credentials":"true", "Access-Control-Allow-Headers":"content-type,x-csrf-token", "Access-Control-Allow-Methods":"POST,OPTIONS" };

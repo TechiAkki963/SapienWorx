@@ -51,8 +51,9 @@ type reviewEvent struct {
 	At      time.Time            `json:"at"`
 }
 type cvHistory struct {
-	Events   []reviewEvent              `json:"events"`
-	Accepted *contract.ConfirmationPlan `json:"accepted,omitempty"`
+	Events    []reviewEvent              `json:"events"`
+	Accepted  *contract.ConfirmationPlan `json:"accepted,omitempty"`
+	AppliedAt *time.Time                 `json:"applied_at,omitempty"`
 }
 type profileStampStore interface {
 	ProfileStamp(context.Context, gateway.Scope) (time.Time, error)
@@ -105,6 +106,9 @@ func (s *Service) loadCVDraft(ctx context.Context, id string) (Artifact, *contra
 	if len(history.Events) > 64 {
 		return a, nil, history, ErrInvalid
 	}
+	if history.AppliedAt != nil {
+		return a, nil, history, ErrConflict
+	}
 	for _, event := range history.Events {
 		for i := range event.Patch.Decisions {
 			decision := &event.Patch.Decisions[i]
@@ -132,7 +136,7 @@ func (s *Service) CVReview(ctx context.Context, id string) (contract.ReviewView,
 }
 
 // ReviewCV persists owner decisions and a validated confirmation plan. Applying
-// that plan to authoritative sections still uses the existing profile APIs.
+// it requires the separate owner-confirmed, revision-checked profile transaction.
 func (s *Service) ReviewCV(ctx context.Context, id string, expected uint64, patch contract.ReviewPatch, confirm bool) (contract.ReviewView, error) {
 	a, draft, history, err := s.loadCVDraft(ctx, id)
 	if err != nil {

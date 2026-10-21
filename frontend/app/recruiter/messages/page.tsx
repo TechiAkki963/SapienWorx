@@ -1,6 +1,5 @@
 import { MessagingWorkspace } from "@/components/messaging/messaging-workspace";
 import { RecruiterShell } from "@/components/recruiter/recruiter-shell";
-import { RecruiterProductHeader } from "@/components/recruiter/recruiter-product-header";
 import { requireRole } from "@/lib/auth-server";
 import type { ThreadListResponse } from "@/lib/messaging";
 import { messagingAPI } from "@/lib/messaging-server";
@@ -14,8 +13,8 @@ export default async function RecruiterMessagesPage({ searchParams }: { searchPa
 
   return (
     <RecruiterShell>
-      <div className="grid gap-4">
-        <RecruiterProductHeader eyebrow="Candidate conversations" title="Messages" description="Communicate securely with candidates and keep hiring conversations organized." />
+      <div className="swx-messages-page">
+        <header className="flex items-baseline gap-3"><h1 className="text-xl font-bold text-navy">Messages</h1><p className="text-sm text-ink-muted">Keep your hiring conversations moving.</p></header>
         <MessagingWorkspace initialThreads={threads.items ?? []} initialUnreadOnly={unread === "1"} role="recruiter" />
       </div>
     </RecruiterShell>

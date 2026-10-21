@@ -1,12 +1,14 @@
 import { expect, test, Page } from "@playwright/test";
 import fs from "node:fs/promises";
 import { login, resetE2E } from "./helpers";
+import { mockAICapabilities } from "./ai-capabilities";
 
 const generationID = "95000000-0000-4000-8000-000000000001";
 const artifactRoot = "visual-artifacts/jd-generation-v1";
 type MockMode = "success" | "unavailable" | "rate" | "slow" | "review-failure";
 
 async function mockGeneration(page: Page, mode: MockMode = "success") {
+  await mockAICapabilities(page);
   const calls: Record<string, unknown>[] = [];
   let revision = 0;
   await page.route("**/api/v1/intelligence/jobs/**", async route => {
@@ -141,7 +143,7 @@ for (const mode of ["unavailable", "rate", "review-failure"] as const) test(`${m
     await expect(page.getByRole("status")).toContainText("Review could not be recorded");
     await expect(page.getByRole("complementary", { name: "Candidate preview locked" })).toBeVisible();
   } else {
-    await expect(page.getByRole("status")).toContainText(mode === "rate" ? "usage limit" : "temporarily unavailable");
+    await expect(page.getByRole("status")).toContainText(mode === "rate" ? "usage limit" : "unavailable for your account");
     await expect(summary).toHaveValue("Keep my manual draft.");
   }
   await summary.fill("Manual writing still works.");

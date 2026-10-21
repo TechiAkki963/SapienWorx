@@ -19,6 +19,7 @@ export class APIRequestError extends Error {
     readonly code: string,
     readonly status: number,
     readonly fields: Record<string, string> = {},
+    readonly requestId: string = "",
   ) {
     super(message);
     this.name = "APIRequestError";
@@ -96,13 +97,16 @@ export async function apiRequest<T>(
     let message = "Request could not be completed.";
     let code = "unknown_error";
     let fields: Record<string, string> = {};
+    let requestId = "";
     try {
       const body = (await response.json()) as APIError;
       message = body.error?.message ?? message;
       code = body.error?.code ?? code;
       fields = body.error?.fields ?? {};
+      const reference = body.error?.request_id;
+      if (typeof reference === "string" && /^[a-zA-Z0-9._:-]{1,128}$/.test(reference)) requestId = reference;
     } catch {}
-    throw new APIRequestError(message, code, response.status, fields);
+    throw new APIRequestError(message, code, response.status, fields, requestId);
   }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;

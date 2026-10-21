@@ -85,7 +85,11 @@ func TestCompanyHTTPAndInvitationIsolation(t *testing.T) {
 		r.Header.Set("Content-Type", "application/json")
 		r.Header.Set("Origin", "http://localhost:3000")
 		sessionID := id(`INSERT INTO refresh_sessions(user_id,token_hash,expires_at) VALUES($1,convert_to(gen_random_uuid()::text,'UTF8'),now()+interval '1 hour') RETURNING id`, user)
-		token, err := tokens.Issue(user, auth.RoleRecruiter, sessionID)
+		role := auth.RoleRecruiter
+		if user == candidate {
+			role = auth.RoleCandidate
+		}
+		token, err := tokens.Issue(user, role, sessionID)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -119,6 +123,75 @@ func TestCompanyHTTPAndInvitationIsolation(t *testing.T) {
 			t.Fatalf("%s %s: %d expected %d", c.method, c.path, w.Code, c.status)
 		}
 	}
+	t.Run("job visibility uses scoped permission confirmation and atomic audit", func(t *testing.T) {
+		private := id(`INSERT INTO jobs(company_id,created_by_recruiter_id,title,slug,description,department,status,employment_type,work_mode,visibility) VALUES($1,$2,'Private sharing QA',gen_random_uuid()::text,'Synthetic job description','Engineering','active','full_time','remote','private') RETURNING id`, tenant, owner)
+		path := "/api/v1/recruiter/jobs/" + private + "/visibility"
+		read := request(owner, "GET", path, nil)
+		if read.Code != 200 {
+			t.Fatalf("sharing read: %d %s", read.Code, read.Body.String())
+		}
+		var state recruiter.JobSharingState
+		if json.Unmarshal(read.Body.Bytes(), &state) != nil || !state.CanChangeVisibility || state.Visibility != "private" {
+			t.Fatal("incorrect sharing capability")
+		}
+		body := recruiter.JobVisibilityChange{Visibility: "public", ExpectedVisibility: "private", ExpectedStatus: "active", ExpectedUpdatedAt: state.UpdatedAt}
+		for _, check := range []struct {
+			user, path string
+			want       int
+		}{{candidate, path, 403}, {collaborator, path, 403}, {sales, path, 403}, {owner, "/api/v1/recruiter/jobs/" + outside + "/visibility", 404}} {
+			w := request(check.user, "PATCH", check.path, body)
+			if w.Code != check.want {
+				t.Fatalf("unauthorized visibility change: %d want %d", w.Code, check.want)
+			}
+		}
+		unauth := httptest.NewRecorder()
+		server.http.Handler.ServeHTTP(unauth, httptest.NewRequest("PATCH", path, strings.NewReader(`{}`)))
+		if unauth.Code != 401 {
+			t.Fatalf("anonymous write: %d", unauth.Code)
+		}
+		read = request(collaborator, "GET", path, nil)
+		if read.Code != 200 || json.Unmarshal(read.Body.Bytes(), &state) != nil || state.CanChangeVisibility {
+			t.Fatal("collaborator received write capability")
+		}
+		w := request(engineer, "PATCH", path, body)
+		if w.Code != 200 {
+			t.Fatalf("authorized visibility update: %d %s", w.Code, w.Body.String())
+		}
+		var status, visibility, action, previous, next, actor string
+		var count int
+		db.QueryRow(ctx, `SELECT status::text,visibility FROM jobs WHERE id=$1`, private).Scan(&status, &visibility)
+		if status != "active" || visibility != "public" {
+			t.Fatal("visibility changed job lifecycle")
+		}
+		db.QueryRow(ctx, `SELECT count(*) FROM job_change_audit WHERE job_id=$1`, private).Scan(&count)
+		db.QueryRow(ctx, `SELECT action,previous_state->>'visibility',new_state->>'visibility',actor_recruiter_id::text FROM job_change_audit WHERE job_id=$1`, private).Scan(&action, &previous, &next, &actor)
+		if count != 1 || action != "visibility_changed" || previous != "private" || next != "public" || actor != engineer {
+			t.Fatal("visibility change not audited exactly once")
+		}
+		if w = request(owner, "PATCH", path, body); w.Code != 409 {
+			t.Fatalf("stale confirmation accepted: %d", w.Code)
+		}
+		for _, jobState := range []string{"draft", "closed", "archived"} {
+			exec(`UPDATE jobs SET visibility='private',status=$2::job_status WHERE id=$1`, private, jobState)
+			if w = request(owner, "PATCH", path, body); w.Code != 409 {
+				t.Fatalf("changed status %s was published: %d", jobState, w.Code)
+			}
+		}
+		exec(`UPDATE jobs SET status='active',visibility='private',application_deadline=CURRENT_DATE-1 WHERE id=$1`, private)
+		if err := db.QueryRow(ctx, `SELECT updated_at FROM jobs WHERE id=$1`, private).Scan(&body.ExpectedUpdatedAt); err != nil {
+			t.Fatal(err)
+		}
+		if w = request(owner, "PATCH", path, body); w.Code != 409 || !strings.Contains(w.Body.String(), "job_sharing_unavailable") {
+			t.Fatalf("past deadline exposed for sharing: %d %s", w.Code, w.Body.String())
+		}
+		if w = request(owner, "PATCH", path, map[string]string{"visibility": "public"}); w.Code != 400 {
+			t.Fatalf("missing confirmation preconditions accepted: %d", w.Code)
+		}
+		db.QueryRow(ctx, `SELECT count(*) FROM job_change_audit WHERE job_id=$1`, private).Scan(&count)
+		if count != 1 {
+			t.Fatal("rejected changes produced audit writes")
+		}
+	})
 	store := company.NewSQLStore(db)
 	if w := request(owner, "PATCH", "/api/v1/company/team/"+legacy, company.MemberChange{Action: "deactivate", Reason: "Synthetic owner explicitly deactivated an existing recruiter"}); w.Code != 204 {
 		t.Fatalf("legacy deactivation: %d", w.Code)

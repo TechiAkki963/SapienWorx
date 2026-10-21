@@ -72,7 +72,7 @@ func TestPhase1IsolatedDatabase(t *testing.T) {
 	}
 	// Existing runtime public-table grants are normally established by role
 	// bootstrap. This fixture grants only the five reads required by the gate.
-	exec(`GRANT SELECT ON users,recruiter_profiles,companies,company_memberships,candidate_profiles TO sapienworx_app; GRANT UPDATE(is_active) ON users TO sapienworx_app`)
+	exec(`GRANT SELECT ON users,recruiter_profiles,companies,company_memberships,candidate_profiles TO sapienworx_app; GRANT UPDATE(is_active) ON users TO sapienworx_app; GRANT UPDATE ON candidate_profiles TO sapienworx_app; GRANT INSERT ON privacy_audit_events TO sapienworx_app`)
 	hash, err := auth.HashPassword("Synthetic-phase1-only-123!")
 	if err != nil {
 		t.Fatal(err)
@@ -335,6 +335,85 @@ func TestPhase1IsolatedDatabase(t *testing.T) {
 		if _, e = service.ReviewCV(ctxC, cv.ID, 0, contract.ReviewPatch{Decisions: decisions}, true); e != nil {
 			t.Fatal("CV owner confirmation", e)
 		}
+		t.Run("atomic_owner_profile_apply_revision_audit_and_idempotence", func(t *testing.T) {
+			stamp, e := store.ProfileStamp(ctx, scopeC)
+			if e != nil {
+				t.Fatal(e)
+			}
+			input := CVApplyInput{ExpectedRevision: 1, ExpectedProfileUpdatedAt: stamp, Confirm: false}
+			if _, e = service.ApplyCV(ctxB, cv.ID, input); e != ErrForbidden {
+				t.Fatal("recruiter apply allowed")
+			}
+			foreign := scopeC
+			foreign.UserID = recB
+			if _, e = service.ApplyCV(gateway.WithScope(ctx, foreign), cv.ID, input); e != ErrForbidden {
+				t.Fatal("foreign proposal exposed")
+			}
+			stale := input
+			stale.ExpectedRevision = 0
+			if _, e = service.ApplyCV(ctxC, cv.ID, stale); e != ErrConflict {
+				t.Fatal("stale revision allowed", e)
+			}
+			stale = input
+			stale.ExpectedProfileUpdatedAt = stamp.Add(-time.Second)
+			if _, e = service.ApplyCV(ctxC, cv.ID, stale); e != ErrConflict {
+				t.Fatal("stale profile allowed", e)
+			}
+			beforeCalls := calls
+			preview, e := service.ApplyCV(ctxC, cv.ID, input)
+			if e != nil || len(preview.AppliedPaths) == 0 || preview.Saved {
+				t.Fatal("private apply preview", e)
+			}
+			after, _ := store.ProfileStamp(ctx, scopeC)
+			if !stamp.Equal(after) {
+				t.Fatal("preview wrote profile")
+			}
+			// Audit failure must roll back both profile and applied marker.
+			exec(`REVOKE INSERT ON privacy_audit_events FROM sapienworx_app`)
+			input.Confirm = true
+			if _, e = service.ApplyCV(ctxC, cv.ID, input); e == nil {
+				t.Fatal("unaudited profile committed")
+			}
+			exec(`GRANT INSERT ON privacy_audit_events TO sapienworx_app`)
+			after, _ = store.ProfileStamp(ctx, scopeC)
+			if !stamp.Equal(after) {
+				t.Fatal("audit error changed profile")
+			}
+			var wg sync.WaitGroup
+			results := make(chan candidate.CVProfilePreview, 2)
+			failures := make(chan error, 2)
+			for i := 0; i < 2; i++ {
+				wg.Add(1)
+				go func() { defer wg.Done(); out, e := service.ApplyCV(ctxC, cv.ID, input); results <- out; failures <- e }()
+			}
+			wg.Wait()
+			close(results)
+			close(failures)
+			for e := range failures {
+				if e != nil {
+					t.Fatal("concurrent apply", e)
+				}
+			}
+			saved, already := 0, 0
+			for out := range results {
+				if out.Saved {
+					saved++
+				}
+				if out.AlreadyApplied {
+					already++
+				}
+			}
+			if saved != 1 || already != 1 || calls != beforeCalls {
+				t.Fatal("apply duplicated writes or provider calls", saved, already)
+			}
+			var n int
+			if db.QueryRow(ctx, `SELECT count(*) FROM privacy_audit_events WHERE subject_user_id=$1 AND event_type='candidate.cv.review_applied'`, candidateID).Scan(&n) != nil || n != 1 {
+				t.Fatal("atomic audit missing/duplicated")
+			}
+			if _, e = service.CVReview(ctxC, cv.ID); e != ErrConflict {
+				t.Fatal("applied proposal can be changed")
+			}
+		})
 		exec(`UPDATE users SET is_active=false,status='disabled',email_verified_at=NULL WHERE id=$1`, candidateID)
 		exec(`UPDATE users SET email='deleted+'||id::text||'@erased.invalid' WHERE id=$1`, candidateID)
 		if _, e = store.Get(ctx, scopeC, cv.ID); e == nil {

@@ -25,7 +25,7 @@ test("candidate inbox stays readable from laptop to mobile conversation view", a
 
   await expect(page.getByRole("heading", { name: "Messages" }).first()).toBeVisible();
   await expect(page.getByText("Riya Recruiter").first()).toBeVisible();
-  await expect(page.getByText("Senior Go Platform Engineer opportunity").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Senior Go Platform Engineer opportunity/ })).toBeVisible();
   await noOverflow(page, "candidate inbox 1440");
   await page.screenshot({ path: "../output/p2.2-candidate-inbox-1440.png", fullPage: true });
 
@@ -34,7 +34,7 @@ test("candidate inbox stays readable from laptop to mobile conversation view", a
   await noOverflow(page, "candidate inbox list 390");
   await page.screenshot({ path: "../output/p2.2-candidate-inbox-list-390.png", fullPage: true });
 
-  await page.getByText("Senior Go Platform Engineer opportunity").first().click();
+  await page.getByRole("button", { name: /Senior Go Platform Engineer opportunity/ }).click();
   await expect(page.getByPlaceholder("Write a reply…")).toBeVisible();
   await expect(page.getByText(/45-minute technical discussion/)).toBeVisible();
   await noOverflow(page, "candidate conversation 390");
@@ -42,7 +42,7 @@ test("candidate inbox stays readable from laptop to mobile conversation view", a
 
   await page.setViewportSize({ width: 320, height: 800 });
   await expect(page.getByRole("button", { name: "Send" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "← Back" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Back to conversations" })).toBeVisible();
   await noOverflow(page, "candidate conversation 320");
   await page.screenshot({ path: "../output/p2.2-candidate-conversation-320.png", fullPage: true });
 });
@@ -68,7 +68,7 @@ test("recruiter messages keep unread controls and reply composer usable", async 
   await expect(page.getByRole("heading", { name: "Messages" }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Unread only" })).toBeVisible();
   await expect(page.getByText("Aarav Candidate").first()).toBeVisible();
-  await page.getByText("Senior Go Platform Engineer opportunity").first().click();
+  await page.getByRole("button", { name: /Senior Go Platform Engineer opportunity/ }).click();
   await expect(page.getByPlaceholder("Write a reply…")).toBeVisible();
   await noOverflow(page, "recruiter messages 1440");
   await page.screenshot({ path: "../output/p2.2-recruiter-messages-1440.png", fullPage: true });
@@ -85,7 +85,7 @@ test("candidate notification links open the exact InMail thread", async ({ page 
   await expect(page.getByText("New message from a recruiter")).toBeVisible();
   await page.getByRole("link", { name: "Open →" }).click();
   await expect(page).toHaveURL(/\/candidate\/inbox\?thread=73000000-0000-4000-8000-000000000001/);
-  await expect(page.getByText("Senior Go Platform Engineer opportunity").first()).toBeVisible();
+  await expect(page.locator(".swx-messaging-header").getByText("Senior Go Platform Engineer", { exact: true })).toBeVisible();
   await expect(page.getByPlaceholder("Write a reply…")).toBeVisible();
 });
 

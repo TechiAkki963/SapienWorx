@@ -123,11 +123,11 @@ test.describe("job applicant workspace", () => {
 
     await expect(page.getByRole("link",{name:"Private Operations Lead",exact:true})).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview ↗" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Share" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Share job", exact: true })).toHaveCount(0);
     await page.getByRole("button",{name:"More actions for Private Operations Lead"}).click();
-    await expect(page.getByRole("dialog", { name: "Private Operations Lead", exact: true }).getByText("Public sharing is available after publishing a public job.")).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Private Operations Lead", exact: true }).getByText("This job is private. Make it public to share it externally.")).toBeVisible();
     await expect(page.getByRole("link", { name: "Preview public listing" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Share", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Share job", exact: true })).toBeDisabled();
   });
 
   test("requires confirmation before governed bulk job actions", async ({ page }) => {

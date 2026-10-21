@@ -26,6 +26,12 @@ func (s *Server) companyRecruiterGuard(next http.Handler) http.Handler {
 			return
 		}
 		path := r.URL.Path
+		// Personal identity is available to every active recruiter, including
+		// scoped collaborators. The profile store only accepts the session owner.
+		if path == "/api/v1/recruiter/profile" {
+			next.ServeHTTP(w, r)
+			return
+		}
 		read := r.Method == "GET"
 		if m.Role != "legacy_recruiter" {
 			if strings.Contains(path, "/company/branding") && !read && !m.Owner() {
