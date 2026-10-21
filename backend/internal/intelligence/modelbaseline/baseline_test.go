@@ -1,8 +1,6 @@
 package modelbaseline
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"os"
 	"testing"
@@ -17,8 +15,7 @@ func TestPinnedBaselineAndInternalScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := sha256.Sum256(raw)
-	if hex.EncodeToString(hash[:]) != e.SourceSHA256 {
+	if evidenceSHA256(raw) != e.SourceSHA256 {
 		t.Fatal("historical baseline changed")
 	}
 	if e.TaskVersion != "v1.2" || e.PromptVersion != "jd-p2" || e.SchemaVersion != "jd-generation-v1.1" || e.BlueprintVersion != "rb-1.1" {
@@ -52,5 +49,18 @@ func TestPinnedBaselineAndInternalScope(t *testing.T) {
 	}
 	if _, err := Evaluate("ai_gateway", "openai", "other", policy()); err == nil {
 		t.Fatal("unreviewed model accepted")
+	}
+}
+
+func TestEvidenceDigestNormalizesOnlyLineEndings(t *testing.T) {
+	lf := []byte("{\n  \"cases\": 8\n}\n")
+	crlf := []byte("{\r\n  \"cases\": 8\r\n}\r\n")
+	if evidenceSHA256(lf) != evidenceSHA256(crlf) {
+		t.Fatal("checkout line endings changed the evidence digest")
+	}
+	for _, changed := range []string{"{\n  \"cases\": 9\n}\n", "{\n \"cases\": 8\n}\n", "{\n  \"cases\": 8\n}"} {
+		if evidenceSHA256(lf) == evidenceSHA256([]byte(changed)) {
+			t.Fatal("content or non-line-ending whitespace change was ignored")
+		}
 	}
 }

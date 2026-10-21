@@ -33,6 +33,11 @@ POST back to the login page without authenticating. Operational Go pins are now
 The sign-in submit control stays disabled until its client handler is ready;
 regressions hold hydration scripts, preserve autofill and verify the API flow.
 
+The clean Linux CI gate also caught the preserved evaluation source hash using
+Windows CRLF bytes. Its hash now uses the exact LF bytes stored in Git; only
+CRLF line endings are normalized, and regressions reject content/other whitespace
+changes. Historical baseline content and provider results are unchanged.
+
 All existing migration pairs 1–71 are unchanged.
 
 - `000072_recruiter_professional_profile` adds optional recruiter identity fields.

@@ -1,7 +1,7 @@
 {
   "baseline_ref": "jd-generation-v1.1",
   "source_file": "docs/benchmarks/jd-generation-baseline-v1.1.json",
-  "source_sha256": "b4930f388f7179e8b7b03eb9d075e20694178030d80b6b1aa4c80e442f6c6d2a",
+  "source_sha256": "003b1bca48591d197f35601a1e300dfd629a3b152c64230ccc33ff9533db3a07",
   "model": "gpt-6-luna",
   "task": "job.generate_description",
   "task_version": "v1.2",

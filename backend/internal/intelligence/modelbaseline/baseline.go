@@ -3,6 +3,7 @@
 package modelbaseline
 
 import (
+	"bytes"
 	"crypto/sha256"
 	_ "embed"
 	"encoding/hex"
@@ -78,10 +79,9 @@ func Evaluate(engine, provider, model string, config map[string]any) (Evaluation
 		}
 		seen[actor] = true
 	}
-	h := sha256.Sum256(evidence)
 	return Evaluation{DatasetRef: "bundled:" + e.BaselineRef + ":" + e.SourceSHA256, Metrics: map[string]any{
 		"quality_metric": "preserved_synthetic_jd_generation_baseline", "baseline_ref": e.BaselineRef,
-		"source_sha256": e.SourceSHA256, "evidence_sha256": hex.EncodeToString(h[:]), "model": e.Model,
+		"source_sha256": e.SourceSHA256, "evidence_sha256": evidenceSHA256(evidence), "model": e.Model,
 		"task": e.Task, "task_version": e.TaskVersion, "prompt_version": e.PromptVersion, "schema_version": e.SchemaVersion,
 		"blueprint_version": e.BlueprintVersion, "cases": e.Cases, "usable_cases": e.Usable,
 		"provider_failures": e.Failures, "material_failures": e.MaterialFailures,
@@ -89,4 +89,11 @@ func Evaluate(engine, provider, model string, config map[string]any) (Evaluation
 		"independent_human_acceptance": "required_separately", "autonomous_promotion": false,
 		"limitation": "Eight synthetic role cases only; no real-tenant or production-readiness claim.",
 	}}, nil
+}
+
+// Git stores the reviewed text with LF. Windows checkouts may use CRLF; no
+// other whitespace or content is normalized for evidence integrity.
+func evidenceSHA256(raw []byte) string {
+	h := sha256.Sum256(bytes.ReplaceAll(raw, []byte("\r\n"), []byte("\n")))
+	return hex.EncodeToString(h[:])
 }
