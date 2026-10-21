@@ -26,6 +26,13 @@ another redesign.
 
 ## Database compatibility
 
+The release gate also identified two baseline issues: the Go 1.26.9 toolchain
+was affected by GO-2026-6809, and a fast sign-in before hydration could natively
+POST back to the login page without authenticating. Operational Go pins are now
+1.26.10 ([official release history](https://go.dev/doc/devel/release#go1.26.10)).
+The sign-in submit control stays disabled until its client handler is ready;
+regressions hold hydration scripts, preserve autofill and verify the API flow.
+
 All existing migration pairs 1–71 are unchanged.
 
 - `000072_recruiter_professional_profile` adds optional recruiter identity fields.
