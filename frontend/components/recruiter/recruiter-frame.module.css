@@ -1,0 +1,53 @@
+.frame :global(#recruiter-desktop-nav) {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.frame :global(.swx-sidebar-brand-link) {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  padding-inline: 1.25rem;
+}
+
+.frame :global(.swx-recruiter-sidebar-brand) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.frame :global(.swx-recruiter-sidebar-brand .swx-recruiter-brand-wordmark) {
+  width: min(164px, 100%);
+}
+
+.frame :global(.swx-sidebar-sections),
+.frame :global(.swx-sidebar-sections > section),
+.frame :global(.swx-sidebar-sections nav) {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.frame :global(.swx-sidebar-sections) {
+  overflow-x: clip;
+}
+
+.frame :global(.swx-sidebar-item) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.frame :global(#recruiter-desktop-nav > div:last-child),
+.frame :global(#recruiter-desktop-nav details),
+.frame :global(#recruiter-desktop-nav summary) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.frame :global(#recruiter-desktop-nav summary) {
+  overflow: hidden;
+}
+
+.frame :global(#recruiter-desktop-nav summary > span:nth-child(2)) {
+  min-width: 0;
+}
