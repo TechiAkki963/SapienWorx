@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -26,7 +27,6 @@ const sections:{title:string;items:Item[]}[]=[
   {label:"Offers",href:"/recruiter/offers",icon:"offers",premium:true},
   {label:"Analytics",href:"/recruiter/analytics",icon:"insights",premium:true},
  ]},
- {title:"Profile",items:[{label:"My profile",href:"#my-profile",icon:"candidates"}]},
 ];
 const talentTools:Item[]=[
  {label:"Discover Talent",href:"/recruiter/discover",icon:"discover"},
@@ -36,7 +36,10 @@ const talentTools:Item[]=[
 ];
 const items=sections.flatMap(s=>s.items);
 const primary=["/recruiter","/recruiter/pipeline","/recruiter/jobs","/recruiter/messages"].map(href=>items.find(i=>i.href===href)!);
-export function RecruiterNav({unreadCount=0,collapsed=false,onToggle,access}:{unreadCount?:number;collapsed?:boolean;onToggle:()=>void;access:RecruiterNavigationAccess|null}) {
+
+function initials(name:string){return name.split(/\s+/).filter(Boolean).slice(0,2).map(part=>part[0]).join("").toUpperCase()||"R";}
+
+export function RecruiterNav({unreadCount=0,collapsed=false,onToggle,access,recruiterName,companyName,profileImageUrl}:{unreadCount?:number;collapsed?:boolean;onToggle:()=>void;access:RecruiterNavigationAccess|null;recruiterName:string;companyName:string;profileImageUrl?:string}) {
  const path=usePathname(),params=useSearchParams();
  const {setOpen:setProfileOpen}=useRecruiterProfile();
  const jobContext=Boolean(params.get("job_id"))&&(path==="/recruiter/interviews"||path.startsWith("/recruiter/offers"));
@@ -71,8 +74,6 @@ export function RecruiterNav({unreadCount=0,collapsed=false,onToggle,access}:{un
    if(!access.entitlements.features["talent.discovery"])return "Your company subscription does not include active Talent access. Existing applicants and conversations remain available.";
    if(!access.member.talent_seat&&access.member.role!=="legacy_recruiter")return "Your company has Talent access, but a Talent seat has not been assigned to you. Ask your Company Admin.";
   }
-  // Offers history stays reachable when a subscription lapses. Individual new
-  // actions are checked by the server rather than hiding preserved records.
   return "";
  }
  function profile(){setMoreOpen(false);setProfileOpen(true)}
@@ -82,11 +83,10 @@ export function RecruiterNav({unreadCount=0,collapsed=false,onToggle,access}:{un
   const showTooltip=(element:HTMLElement)=>{if(!collapsed||mobile)return;const rect=element.getBoundingClientRect();setNavigationTooltip({href:item.href,label:item.label,left:rect.right+16,top:rect.top+rect.height/2})};
   const tooltipEvents={onMouseEnter:(event:React.MouseEvent<HTMLElement>)=>showTooltip(event.currentTarget),onMouseLeave:()=>setNavigationTooltip(null),onFocus:(event:React.FocusEvent<HTMLElement>)=>showTooltip(event.currentTarget),onBlur:()=>setNavigationTooltip(null),onKeyDown:(event:React.KeyboardEvent<HTMLElement>)=>{if(event.key==="Escape")setNavigationTooltip(null)},"aria-describedby":navigationTooltip?.href===item.href?"recruiter-navigation-tooltip":undefined};
   const content=<><NavigationIcon name={item.icon}/><span className={collapsed&&!mobile?"sr-only":"swx-sidebar-label"}>{item.label}</span>{item.icon==="messages"&&unread>0&&<span aria-label={unread+" unread messages"} className="swx-sidebar-count">{Math.min(unread,99)}</span>}{reason&&<span aria-label="Access restricted" className="swx-sidebar-restriction ml-auto text-xs">⌑</span>}</>;
-  if(item.href==="#my-profile")return <button key={item.href} {...tooltipEvents} type="button" disabled={!toggleReady} className={cls} aria-label={item.label} onClick={()=>{setNavigationTooltip(null);profile()}}>{content}</button>;
   if(reason)return <button key={item.href} {...tooltipEvents} type="button" className={cls} aria-label={item.label+" — access information"} onClick={()=>{setNavigationTooltip(null);setMoreOpen(false);setLocked(reason)}}>{content}</button>;
-  // Fetch authenticated workspace data on navigation, rather than for every visible tool.
   return <Link key={item.href} {...tooltipEvents} href={item.href} prefetch={false} className={cls} aria-label={item.label} aria-current={active?"page":undefined} onClick={()=>setNavigationTooltip(null)}>{content}</Link>;
  }
+ const avatar=<span className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full border border-white/20 bg-white/10 text-xs font-bold text-white">{profileImageUrl?<Image src={profileImageUrl} alt="" fill sizes="36px" unoptimized className="object-cover"/>:<span aria-hidden="true">{initials(recruiterName)}</span>}</span>;
  return <>
   <div id="recruiter-desktop-nav" className="swx-recruiter-nav swx-navy-sidebar hidden lg:grid">
    <Link href="/recruiter" prefetch={false} aria-label="SapienWorx recruiter home" className="swx-sidebar-brand-link"><RecruiterBrand collapsed={collapsed}/></Link>
@@ -95,10 +95,17 @@ export function RecruiterNav({unreadCount=0,collapsed=false,onToggle,access}:{un
     {toggleTooltip&&<span id="recruiter-sidebar-toggle-tooltip" role="tooltip" className="swx-sidebar-tooltip swx-sidebar-toggle-tooltip">{collapsed?"Expand sidebar":"Collapse sidebar"}</span>}
    </button>
    <div className="swx-sidebar-sections" onScroll={()=>setNavigationTooltip(null)}>{sections.map(section=><section key={section.title}><h2 className={collapsed?"sr-only":"swx-sidebar-heading"}>{section.title}{section.title==="Recruit Plus+"&&<svg aria-hidden="true" viewBox="0 0 24 24" className="ml-2 inline-block h-4 w-4 fill-none stroke-current stroke-[1.6]"><path d="m3 7 4 4 5-7 5 7 4-4-2 12H5Z"/><path d="M6 16h12"/></svg>}</h2><nav aria-label={section.title} className="grid gap-1">{section.items.map(i=>entry(i))}</nav></section>)}</div>
+   <div className={`mt-auto border-t border-white/15 px-2 pb-3 pt-3 ${collapsed?"flex justify-center":""}`}>
+    <button type="button" disabled={!toggleReady} onClick={profile} aria-label={`Open recruiter profile for ${recruiterName}`} title={collapsed?`${recruiterName} — Profile`:undefined} className={`flex min-h-12 w-full items-center rounded-xl text-left text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${collapsed?"justify-center px-1":"gap-3 px-2"}`}>
+     {avatar}
+     {!collapsed&&<span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{recruiterName}</span><span className="mt-0.5 block truncate text-xs text-white/65">{companyName}</span></span>}
+     {!collapsed&&<svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3 shrink-0 fill-none stroke-current stroke-[1.7] text-white/70"><path d="m6 4 4 4-4 4"/></svg>}
+    </button>
+   </div>
   </div>
   {navigationTooltip&&createPortal(<span id="recruiter-navigation-tooltip" role="tooltip" className="swx-sidebar-floating-tooltip" style={{left:navigationTooltip.left,top:navigationTooltip.top}}>{navigationTooltip.label}</span>,document.body)}
   <RecruiterModal open={moreOpen} onClose={()=>setMoreOpen(false)} title="More recruiter tools" size="small">
-   <div id="recruiter-more-menu" data-testid="recruiter-more-menu" className="swx-navy-sidebar"><RecruiterBrand/>{sections.map(section=><section key={section.title}><h2 className="swx-sidebar-heading">{section.title}{section.title==="Recruit Plus+"&&<svg aria-hidden="true" viewBox="0 0 24 24" className="ml-2 inline-block h-4 w-4 fill-none stroke-current stroke-[1.6]"><path d="m3 7 4 4 5-7 5 7 4-4-2 12H5Z"/><path d="M6 16h12"/></svg>}</h2><nav aria-label={section.title+" mobile"}>{section.items.filter(i=>!primary.includes(i)).map(i=>entry(i,true))}</nav></section>)}<nav aria-label="Talent tools">{talentTools.map(i=>entry(i,true))}</nav></div>
+   <div id="recruiter-more-menu" data-testid="recruiter-more-menu" className="swx-navy-sidebar"><RecruiterBrand/>{sections.map(section=><section key={section.title}><h2 className="swx-sidebar-heading">{section.title}{section.title==="Recruit Plus+"&&<svg aria-hidden="true" viewBox="0 0 24 24" className="ml-2 inline-block h-4 w-4 fill-none stroke-current stroke-[1.6]"><path d="m3 7 4 4 5-7 5 7 4-4-2 12H5Z"/><path d="M6 16h12"/></svg>}</h2><nav aria-label={section.title+" mobile"}>{section.items.filter(i=>!primary.includes(i)).map(i=>entry(i,true))}</nav></section>)}<nav aria-label="Talent tools">{talentTools.map(i=>entry(i,true))}</nav><div className="mt-3 border-t border-white/15 pt-3"><button type="button" onClick={profile} className="swx-sidebar-item w-full" aria-label="My recruiter profile"><span className="grid h-7 w-7 place-items-center rounded-full bg-white/10 text-[10px] font-bold">{initials(recruiterName)}</span><span className="swx-sidebar-label">My profile</span></button></div></div>
   </RecruiterModal>
   <RecruiterModal open={Boolean(locked)} onClose={()=>setLocked("")} title="Workspace access" size="small"><p className="text-sm leading-7 text-ink">{locked}</p>{access?.member.role==="primary_admin"&&<Link href="/company/plan" className="mt-4 inline-flex min-h-11 items-center font-semibold text-indigo">Review company plan & permissions</Link>}</RecruiterModal>
   <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 lg:hidden" data-testid="recruiter-bottom-nav"><nav aria-label="Recruiter mobile navigation" className="mx-auto grid max-w-2xl grid-cols-5">{primary.map(item=><Link key={item.href} href={item.href} prefetch={false} aria-label={item.label} aria-current={current(item.href)?"page":undefined} className={`flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-lg text-[12px] font-semibold ${current(item.href)?"text-indigo":"text-ink-muted"}`}><NavigationIcon name={item.icon}/><span>{item.label==="Applications"?"Apps":item.label}</span></Link>)}<button type="button" disabled={!toggleReady} aria-expanded={moreOpen} aria-controls="recruiter-more-menu" onClick={()=>setMoreOpen(true)} className="flex min-h-14 flex-col items-center justify-center gap-1 text-xs font-semibold text-ink-muted"><span aria-hidden="true" className="text-xl leading-5">⋯</span>More</button></nav></div>
