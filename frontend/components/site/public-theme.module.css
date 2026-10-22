@@ -111,6 +111,7 @@
   color: #e5edf8;
 }
 
+:global(.swx-dark) .publicSurface :global(.swx-cta-section),
 :global(.swx-dark) .publicSurface :global(.swx-footer) {
   border-color: #26364d;
   background: #0b1220;
