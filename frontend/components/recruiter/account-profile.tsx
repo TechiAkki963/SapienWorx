@@ -90,7 +90,7 @@ export function RecruiterAccountProfile({session,company,activeJobs,showTrigger=
           <dl className="grid gap-4 border-t border-line pt-4 sm:grid-cols-2"><Detail label="Work email">{profile.work_email}</Detail><Detail label="Company">{profile.company_name}</Detail></dl>
           <p className="text-xs leading-5 text-ink-muted">Work email and company are managed through your account and organization.</p>
         </form>:<dl className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
-          <Detail label="Work email"><span className="inline-flex max-w-full items-start gap-1.5"><span className="min-w-0 break-all">{profile.work_email}</span>{profile.work_email_verified&&<svg role="img" aria-label="Verified work email" viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 fill-none stroke-current text-indigo" strokeWidth="1.8"><path d="m12 2 3 2 4 1 1 4 2 3-2 3-1 4-4 1-3 2-3-2-4-1-1-4 4-1Z"/><path d="m8 12 3 3 5-6"/></svg>}</span></Detail>
+          <Detail label="Work email"><span className="inline-flex max-w-full items-start gap-1.5"><span className="min-w-0 break-all">{profile.work_email}</span>{profile.work_email_verified&&<svg role="img" aria-label="Verified work email" viewBox="0 0 24 24" className="mt-0.5 h-5 w-5 shrink-0 fill-none stroke-current text-indigo" strokeWidth="1.8"><path d="m12 2 3 2 4 1 1 4 2 3-2 3-1 4-4 1-3 2-3-2-4-1-1-4-2-3 2-3 1-4 4-1Z"/><path d="m8 12 3 3 5-6"/></svg>}</span></Detail>
           <Detail label="Work phone">{profile.work_phone}</Detail>
           <Detail label="Designation">{profile.designation}</Detail>
           <Detail label="Company">{profile.company_name}</Detail>
