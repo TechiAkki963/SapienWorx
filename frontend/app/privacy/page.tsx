@@ -22,22 +22,23 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#f8fbff] text-ink">
+    <main className="theme-surface min-h-screen bg-canvas text-ink">
       <PublicHeader />
       <Container>
         <article className="mx-auto max-w-4xl py-14 sm:py-20">
           <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-indigo">Privacy at SapienWorx</p>
-          <h1 className="mt-4 font-serif text-5xl font-semibold tracking-[-0.05em] text-navy sm:text-6xl">Clear controls for your recruitment data.</h1>
+          <h1 className="mt-4 font-serif text-5xl font-semibold tracking-[-0.05em] text-ink sm:text-6xl">Clear controls for your recruitment data.</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-ink-muted">This product notice explains the privacy controls built into SapienWorx. It is designed to support DPDP/GDPR readiness and should be reviewed with final legal and deployment-specific information before production launch.</p>
 
           <div className="mt-10 grid gap-4">
-            {sections.map(([title, body]) => <section key={title} className="rounded-2xl border border-line/80 bg-white p-6 shadow-sm"><h2 className="text-lg font-bold text-navy">{title}</h2><p className="mt-2 text-sm leading-7 text-ink-muted">{body}</p></section>)}
+            {sections.map(([title, body]) => <section key={title} className="rounded-2xl border border-line/80 bg-surface p-6 shadow-sm"><h2 className="text-lg font-bold text-ink">{title}</h2><p className="mt-2 text-sm leading-7 text-ink-muted">{body}</p></section>)}
           </div>
 
           <div className="mt-8 rounded-2xl border border-indigo/15 bg-indigo-soft/35 p-6">
-            <h2 className="text-lg font-bold text-navy">Subprocessors</h2>
+            <h2 className="text-lg font-bold text-ink">Subprocessors</h2>
             <p className="mt-2 text-sm leading-7 text-ink-muted">Service providers that process personal data on behalf of SapienWorx are maintained in a dedicated transparency register.</p>
-            <Link href="/subprocessors" className="mt-4 inline-flex font-semibold text-indigo hover:underline">View the subprocessor register →</Link>\n            <Link href="/cookies" className="ml-4 mt-4 inline-flex font-semibold text-indigo hover:underline">Cookie information →</Link>
+            <Link href="/subprocessors" className="mt-4 inline-flex font-semibold text-indigo hover:underline">View the subprocessor register →</Link>
+            <Link href="/cookies" className="ml-4 mt-4 inline-flex font-semibold text-indigo hover:underline">Cookie information →</Link>
           </div>
         </article>
       </Container>

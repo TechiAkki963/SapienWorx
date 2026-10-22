@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Wordmark } from "@/components/brand/wordmark";
+import { ThemeModeControl } from "@/components/theme/theme-mode-control";
 
 export function LandingHeader() {
   return (
@@ -11,6 +12,7 @@ export function LandingHeader() {
         <div className="swx-header-actions">
           <Link className="swx-recruiter-link" href="/recruiter/login">For Recruiters <span aria-hidden="true">→</span></Link>
           <Link className="swx-login-link" href="/login">Log in</Link><Link className="swx-create-link" href="/signup">Create Account <span aria-hidden="true">→</span></Link>
+          <ThemeModeControl compact />
           <details className="swx-mobile-menu"><summary aria-label="Open navigation">☰</summary><nav aria-label="Mobile navigation"><Link href="/jobs">Find Jobs</Link><Link href="/#knowledge-hub">Knowledge Hub</Link><Link href="/#about">About</Link><Link href="/login">Log in</Link><Link href="/recruiter/login">For Recruiters</Link><Link href="/signup">Create Account</Link></nav></details>
         </div>
       </Container>

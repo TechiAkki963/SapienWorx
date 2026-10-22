@@ -17,6 +17,8 @@ export function applyTheme(mode: ThemeMode) {
   const dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.dataset.theme = mode;
   document.documentElement.classList.toggle("swx-dark", dark);
+  const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (themeColor) themeColor.content = dark ? "#0b1220" : "#fbfaf7";
 }
 
 export function ThemeRuntime() {

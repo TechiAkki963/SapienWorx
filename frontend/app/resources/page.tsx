@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { LandingFooter } from "@/components/site/landing-footer";
 import { LandingHeader } from "@/components/site/landing-header";
+import styles from "@/components/site/public-theme.module.css";
 import { guides } from "@/lib/knowledge-hub";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default async function KnowledgeHubPage() {
   const browsingSession=await candidateBrowsingSession();
   const Main=browsingSession?.role==="candidate"?"div":"main";
   return (
-    <Main id={browsingSession?.role==="candidate"?undefined:"main-content"} className="swx-landing min-h-screen bg-[#f4f9ff]">
+    <Main id={browsingSession?.role==="candidate"?undefined:"main-content"} className={`${styles.publicSurface} swx-landing min-h-screen bg-canvas`}>
       {browsingSession?.role!=="candidate"&&<LandingHeader/>}
       <Container className="py-12 sm:py-20">
         <Link href="/" className="text-sm font-semibold text-indigo hover:underline">← Back to SapienWorx</Link>
@@ -28,7 +29,7 @@ export default async function KnowledgeHubPage() {
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {guides.map((guide) => (
-            <article className="flex flex-col overflow-hidden rounded-[1.2rem] border border-line bg-white shadow-soft" key={guide.slug}>
+            <article className="flex flex-col overflow-hidden rounded-[1.2rem] border border-line bg-surface shadow-soft" key={guide.slug}>
               <Link href={`/resources/${guide.slug}`} aria-label={`Read ${guide.title}`} className="relative block aspect-[1.4] overflow-hidden bg-indigo-soft">
                 <Image src={`/images/people/${encodeURIComponent(guide.image)}`} alt={guide.alt} fill sizes="(max-width:640px) 90vw,(max-width:1024px) 45vw,22vw" className="object-cover" />
               </Link>

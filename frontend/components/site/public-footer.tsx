@@ -36,7 +36,7 @@ const groups = [
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-line/70 bg-white">
+    <footer className="border-t border-line/70 bg-surface">
       <Container className="py-12 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr_1fr]">
           <div>
@@ -48,7 +48,7 @@ export function PublicFooter() {
           <div className="grid gap-8 sm:grid-cols-3">
             {groups.map((group) => (
               <div key={group.title}>
-                <h2 className="text-xs font-extrabold uppercase tracking-[0.13em] text-navy">{group.title}</h2>
+                <h2 className="text-xs font-extrabold uppercase tracking-[0.13em] text-ink">{group.title}</h2>
                 <ul className="mt-4 grid gap-2.5 text-sm text-ink-muted">
                   {group.links.map(([label, href]) => (
                     <li key={label}><Link href={href} className="transition hover:text-indigo">{label}</Link></li>
@@ -59,7 +59,7 @@ export function PublicFooter() {
           </div>
 
           <div>
-            <h2 className="text-xs font-extrabold uppercase tracking-[0.13em] text-navy">Stay in the loop</h2>
+            <h2 className="text-xs font-extrabold uppercase tracking-[0.13em] text-ink">Stay in the loop</h2>
             <p className="mt-3 text-sm leading-6 text-ink-muted">Product updates and career resources will live here as SapienWorx grows.</p>
             <Link href="/signup" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-indigo px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-navy">Create account →</Link>
           </div>
