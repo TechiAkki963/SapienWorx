@@ -1,9 +1,26 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { login, resetE2E } from "./helpers";
 
 test.beforeEach(async ({ request }) => {
   await resetE2E(request);
 });
+
+async function openRecruiterProfile(page: Page) {
+  if ((page.viewportSize()?.width ?? 1440) >= 1024) {
+    const nav = page.locator("#recruiter-desktop-nav");
+    await nav.getByLabel(/Account menu for/).click();
+    await nav.getByRole("button", { name: "View profile", exact: true }).click();
+  } else {
+    await page.getByRole("button", { name: "More", exact: true }).click();
+    await page
+      .getByRole("dialog", { name: "More recruiter tools", exact: true })
+      .getByRole("button", { name: "My profile", exact: true })
+      .click();
+  }
+  await expect(
+    page.getByRole("dialog", { name: "Your recruiter profile", exact: true }),
+  ).toBeVisible();
+}
 
 for (const [width, height] of [
   [1920, 1080],
@@ -37,12 +54,13 @@ for (const [width, height] of [
   }) => {
     await page.setViewportSize({ width, height });
     await login(page, "recruiter");
-    await page.getByLabel(/Account menu for/).click();
-    await page.getByRole("button", { name: "My profile & photo" }).click();
+    await openRecruiterProfile(page);
     const profile = page.getByRole("region", {
       name: "Recruiter identity",
     });
-    await expect(profile.getByRole("heading", { name: "Riya Recruiter", exact: true })).toBeVisible();
+    await expect(
+      profile.getByRole("heading", { name: "Riya Recruiter", exact: true }),
+    ).toBeVisible();
     const initials = await profile
       .locator('span[aria-hidden="true"]')
       .boundingBox();
@@ -57,6 +75,8 @@ for (const [width, height] of [
       initials!.y < edit!.y + edit!.height &&
       initials!.y + initials!.height > edit!.y;
     expect(overlap).toBe(false);
-    await page.screenshot({ path: `visual-artifacts/recruiter-account/profile-${width}x${height}.png` });
+    await page.screenshot({
+      path: `visual-artifacts/recruiter-account/profile-${width}x${height}.png`,
+    });
   });
 }

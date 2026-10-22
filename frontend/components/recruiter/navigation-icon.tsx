@@ -1,6 +1,6 @@
 import {cn} from "@/lib/cn";
 import {SettingsIcon} from "@/components/ui/settings-icon";
-export type NavigationIconName="overview"|"discover"|"applications"|"pools"|"saved"|"outreach"|"insights"|"jobs"|"interviews"|"offers"|"referrals"|"settings"|"messages"|"candidates"|"talent"|"notifications";
+export type NavigationIconName="overview"|"discover"|"applications"|"pools"|"saved"|"outreach"|"insights"|"jobs"|"interviews"|"offers"|"referrals"|"settings"|"messages"|"candidates"|"talent"|"notifications"|"company";
 /** One outline vocabulary for Recruit and Talent. The link owns the accessible name. */
 export function NavigationIcon({name,className}:{name:NavigationIconName;className?:string}){
  if(name==="settings")return <SettingsIcon className={className}/>;
@@ -21,6 +21,7 @@ export function NavigationIcon({name,className}:{name:NavigationIconName;classNa
  candidates:<><circle cx="8" cy="7" r="4"/><path d="M2 21v-2a6 6 0 0 1 9-5m7 4 4 4"/><circle cx="16" cy="15" r="4"/></>,
  talent:<><circle cx="12" cy="12" r="10"/><path d="m16 8-2 6-6 2 2-6Z"/></>,
  notifications:<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8M10 20h4"/>,
+ company:<><path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16"/><path d="M2 21h20M8 7h5M8 11h5M8 15h3M17 9h3a1 1 0 0 1 1 1v11"/></>,
  };
  return <svg aria-hidden="true" data-icon={name} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className={cn("h-5 w-5 shrink-0 fill-none stroke-current stroke-[1.8]",className)}>{paths[name]}</svg>;
 }

@@ -46,12 +46,17 @@ test("edge chevron supports keyboard, server-rendered persistence, tooltips and 
   await expect(toggle).toBeFocused();
 });
 
-test("Preferences lives in navbar Settings while Profile and existing recovery remain available", async ({ page }) => {
+test("Preferences lives in navbar Settings while profile is owned by the sidebar account", async ({ page }) => {
   await login(page, "recruiter");
   const nav = page.locator("#recruiter-desktop-nav");
   await expect(nav.getByRole("link", { name: "Preferences", exact: true })).toHaveCount(0);
-  await expect(nav.getByRole("button", { name: "My profile", exact: true })).toBeVisible();
-  await nav.getByRole("button", { name: "My profile", exact: true }).click();
+  await expect(nav.getByText("PROFILE", { exact: true })).toHaveCount(0);
+  const account = nav.getByLabel(/Account menu for/);
+  await expect(account).toBeVisible();
+  await account.click();
+  await expect(nav.getByRole("button", { name: "View profile", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Settings & preferences", exact: true })).toBeVisible();
+  await nav.getByRole("button", { name: "View profile", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Your recruiter profile", exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   const settings = page.getByRole("banner").getByRole("link", { name: "Settings", exact: true });
@@ -77,6 +82,7 @@ test("Preferences lives in navbar Settings while Profile and existing recovery r
   const more = page.getByRole("dialog", { name: "More recruiter tools", exact: true });
   await expect(more.getByRole("link", { name: "Preferences", exact: true })).toHaveCount(0);
   await expect(more.getByRole("button", { name: "My profile", exact: true })).toBeVisible();
+  await expect(more.getByRole("link", { name: "Settings", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /^(Collapse|Expand) sidebar$/ })).toBeHidden();
 });
 
@@ -127,11 +133,15 @@ test("full-height sidebar owns branding and navbar/content reclaim collapsed wid
   await search.fill("Approved candidate query");await search.press("Enter");await expect(page).toHaveURL(/\/recruiter\/pipeline\?q=Approved(?:\+|%20)candidate(?:\+|%20)query/);
 });
 
-test("short desktop keeps brand fixed while navigation scrolls and tooltips escape the scroll region", async ({ page }) => {
+test("short desktop keeps brand and account fixed while navigation scrolls and tooltips escape", async ({ page }) => {
   await login(page,"recruiter");await page.setViewportSize({width:1366,height:460});await page.goto("/recruiter/jobs");
-  const nav=page.locator("#recruiter-desktop-nav"), body=nav.locator(".swx-sidebar-sections"), brand=nav.getByRole("link",{name:"SapienWorx recruiter home",exact:true}), profile=nav.getByRole("button",{name:"My profile",exact:true});
-  const initial=(await brand.boundingBox())!;await profile.scrollIntoViewIfNeeded();expect(await body.evaluate(node=>node.scrollTop)).toBeGreaterThan(0);expect((await brand.boundingBox())!.y).toBe(initial.y);
-  await profile.click();await expect(page.getByRole("dialog",{name:"Your recruiter profile",exact:true})).toBeVisible();await page.keyboard.press("Escape");
+  const nav=page.locator("#recruiter-desktop-nav"), body=nav.locator(".swx-sidebar-sections"), brand=nav.getByRole("link",{name:"SapienWorx recruiter home",exact:true}), account=nav.getByLabel(/Account menu for/);
+  const brandInitial=(await brand.boundingBox())!, accountInitial=(await account.boundingBox())!;
+  await body.evaluate(node=>{node.scrollTop=node.scrollHeight});
+  expect(await body.evaluate(node=>node.scrollTop)).toBeGreaterThan(0);
+  expect((await brand.boundingBox())!.y).toBe(brandInitial.y);
+  expect((await account.boundingBox())!.y).toBe(accountInitial.y);
+  await account.click();await nav.getByRole("button",{name:"View profile",exact:true}).click();await expect(page.getByRole("dialog",{name:"Your recruiter profile",exact:true})).toBeVisible();await page.keyboard.press("Escape");
   await page.getByRole("button",{name:"Collapse sidebar",exact:true}).click();await expect.poll(async()=>Math.round((await nav.boundingBox())!.width)).toBe(68);
   const jobs=nav.getByRole("link",{name:"Jobs",exact:true});await jobs.scrollIntoViewIfNeeded();await jobs.hover();const tip=page.getByRole("tooltip",{name:"Jobs",exact:true});await expect(tip).toBeVisible();expect((await tip.boundingBox())!.x).toBeGreaterThan((await body.boundingBox())!.x+(await body.boundingBox())!.width);
   await jobs.focus();await page.keyboard.press("Escape");await expect(tip).toHaveCount(0);await expect(jobs).toBeFocused();

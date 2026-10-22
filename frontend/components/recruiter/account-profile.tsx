@@ -14,7 +14,7 @@ function Detail({label,children,className=""}:{label:string;children:React.React
   return <div className={`min-w-0 ${className}`}><dt className="text-xs font-medium text-ink-muted">{label}</dt><dd className="mt-1 break-words text-sm leading-6 text-ink">{children||<span className="text-ink-muted">Not added</span>}</dd></div>;
 }
 
-export function RecruiterAccountProfile({session,company,activeJobs}:{session:SessionUser;company:string;activeJobs:number}) {
+export function RecruiterAccountProfile({session,company,activeJobs,showTrigger=true}:{session:SessionUser;company:string;activeJobs:number;showTrigger?:boolean}) {
   const router=useRouter();
   const {open,setOpen}=useRecruiterProfile();
   const [ready,setReady]=useState(false),[profile,setProfile]=useState<RecruiterProfile|null>(null);
@@ -58,8 +58,7 @@ export function RecruiterAccountProfile({session,company,activeJobs}:{session:Se
   const nameParts=name.split(/\s+/);
 
   return <>
-    <button type="button" disabled={!ready} onClick={()=>setOpen(true)} className="mt-1 flex min-h-11 w-full rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink">My profile & photo</button>
-    <Link href="/recruiter/settings" onClick={event=>event.currentTarget.closest("details")?.removeAttribute("open")} className="mt-1 flex min-h-11 items-center rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo">Settings</Link>
+    {showTrigger&&<><button type="button" disabled={!ready} onClick={()=>setOpen(true)} className="mt-1 flex min-h-11 w-full rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink">My profile & photo</button><Link href="/recruiter/settings" onClick={event=>event.currentTarget.closest("details")?.removeAttribute("open")} className="mt-1 flex min-h-11 items-center rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo">Settings</Link></>}
     <RecruiterModal open={open} onClose={()=>setOpen(false)} title="Your recruiter profile" size="medium" initialFocus="[data-modal-close]" busy={busy} protectChanges={editing} resetKey={resetKey} footer={editing?<><button type="button" disabled={busy} onClick={cancelEdit} className={recruiterSecondary}>Cancel</button><button type="submit" form="recruiter-profile-form" disabled={busy||conflict} className={recruiterPrimary}>{saving?"Saving…":"Save changes"}</button></>:<RecruiterModalClose disabled={busy}>Close</RecruiterModalClose>}>
       {loading?<p role="status" className="py-10 text-center text-sm text-ink-muted">Loading your profile…</p>:!profile?<div role="alert" className="py-6"><p className="text-sm text-ink">{error||"Your profile is unavailable."}</p><button type="button" onClick={()=>setRetry(value=>value+1)} className={`${recruiterSecondary} mt-4`}>Try again</button></div>:<>
         <section aria-label="Recruiter identity" className="flex min-w-0 flex-col items-center gap-3 border-b border-line pb-5 sm:flex-row sm:items-start sm:gap-5">
