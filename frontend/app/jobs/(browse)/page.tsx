@@ -34,7 +34,7 @@ export default async function JobsPage({ searchParams }: Props) {
   const pageHref = (next: number) => { const nextQuery = new URLSearchParams(query); nextQuery.set("page", String(next)); return `/jobs?${nextQuery.toString()}`; };
 
   return (
-    <Main id={browsingSession?.role==="candidate"?undefined:"main-content"} className="min-h-screen">
+    <Main id={browsingSession?.role==="candidate"?undefined:"main-content"} className="theme-surface min-h-screen bg-canvas text-ink">
       {browsingSession?.role!=="candidate"&&<PublicHeader sessionRole={browsingSession?.role}/>}
       <Container className="py-8 sm:py-12">
         <div className="grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
@@ -42,10 +42,10 @@ export default async function JobsPage({ searchParams }: Props) {
             <Surface className="p-5">
               <p className="text-xs font-bold uppercase tracking-[0.15em] text-indigo">Refine search</p>
               <form className="mt-5 grid gap-4" action="/jobs">
-                <label className="grid gap-1.5 text-sm font-semibold text-ink">Keyword<input name="q" defaultValue={q} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15" placeholder="Role, skill, company" /></label>
-                <label className="grid gap-1.5 text-sm font-semibold text-ink">Location<input name="location" defaultValue={location} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15" placeholder="Mumbai, Pune…" /></label>
-                <label className="grid gap-1.5 text-sm font-semibold text-ink">Experience<select name="experience" defaultValue={experience} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any experience</option><option value="0">Fresher / 0 years</option><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="5">5 years</option><option value="8">8 years</option><option value="10">10+ years</option></select></label>
-                <label className="grid gap-1.5 text-sm font-semibold text-ink">Work mode<select name="work_mode" defaultValue={workMode} className="min-h-11 rounded-xl border border-line bg-white px-3 font-normal outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="onsite">On-site</option></select></label>
+                <label className="grid gap-1.5 text-sm font-semibold text-ink">Keyword<input name="q" defaultValue={q} className="min-h-11 rounded-xl border border-line bg-surface px-3 font-normal text-ink outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15" placeholder="Role, skill, company" /></label>
+                <label className="grid gap-1.5 text-sm font-semibold text-ink">Location<input name="location" defaultValue={location} className="min-h-11 rounded-xl border border-line bg-surface px-3 font-normal text-ink outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15" placeholder="Mumbai, Pune…" /></label>
+                <label className="grid gap-1.5 text-sm font-semibold text-ink">Experience<select name="experience" defaultValue={experience} className="min-h-11 rounded-xl border border-line bg-surface px-3 font-normal text-ink outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any experience</option><option value="0">Fresher / 0 years</option><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="5">5 years</option><option value="8">8 years</option><option value="10">10+ years</option></select></label>
+                <label className="grid gap-1.5 text-sm font-semibold text-ink">Work mode<select name="work_mode" defaultValue={workMode} className="min-h-11 rounded-xl border border-line bg-surface px-3 font-normal text-ink outline-none focus:border-indigo/40 focus:ring-2 focus:ring-indigo/15"><option value="">Any</option><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="onsite">On-site</option></select></label>
                 <Button type="submit">Search jobs</Button>
                 {(q || location || workMode || experience) && <Button href="/jobs" variant="ghost">Clear filters</Button>}
               </form>
@@ -54,7 +54,7 @@ export default async function JobsPage({ searchParams }: Props) {
 
           <section aria-labelledby="jobs-title">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-              <div><p className="text-xs font-bold uppercase tracking-[0.15em] text-indigo">Live opportunities</p><h1 id="jobs-title" className="mt-2 text-4xl font-bold tracking-[-0.045em] text-navy">Find your next role.</h1></div>
+              <div><p className="text-xs font-bold uppercase tracking-[0.15em] text-indigo">Live opportunities</p><h1 id="jobs-title" className="mt-2 text-4xl font-bold tracking-[-0.045em] text-ink">Find your next role.</h1></div>
               {result && <p className="text-sm font-semibold text-ink-muted">{result.total} active {result.total === 1 ? "role" : "roles"}</p>}
             </div>
 
