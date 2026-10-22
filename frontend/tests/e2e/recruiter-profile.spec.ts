@@ -10,6 +10,20 @@ async function openProfile(page:Page) {
 }
 test.beforeEach(async({request,page})=>{await resetE2E(request);await page.emulateMedia({reducedMotion:"reduce",colorScheme:"light"});});
 
+for(const width of [1366,390]) {
+  test(`profile trigger waits for hydration and retains the open request ${width}`,async({page})=>{
+    await page.setViewportSize({width,height:800});await login(page,"recruiter");
+    let release!:()=>void;const ready=new Promise<void>(resolve=>{release=resolve});
+    await page.route("**/_next/static/**",async route=>{if(route.request().resourceType()==="script")await ready;await route.continue()});
+    const trigger=width>=1024?page.locator("#recruiter-desktop-nav").getByRole("button",{name:"My profile",exact:true}):page.getByRole("button",{name:"More",exact:true});
+    try{await page.reload({waitUntil:"commit"});await expect(trigger).toBeVisible();await expect(trigger).toBeDisabled()}finally{release()}
+    await expect(trigger).toBeEnabled();await trigger.click();
+    if(width<1024)await page.getByRole("dialog",{name:"More recruiter tools",exact:true}).getByRole("button",{name:"My profile",exact:true}).click();
+    await expect(dialog(page)).toBeVisible();await expect(dialog(page).getByRole("heading",{name:"Riya Recruiter",exact:true})).toBeVisible();
+    await page.keyboard.press("Escape");await expect(dialog(page)).toBeHidden();await expect(trigger).toBeFocused();
+  });
+}
+
 test("professional identity, account fields and keyboard dismissal",async({page,request})=>{
   await login(page,"recruiter");await openProfile(page);const panel=dialog(page);
   await expect(panel.getByRole("heading",{name:"Riya Recruiter",exact:true})).toBeVisible();

@@ -38,6 +38,15 @@ Windows CRLF bytes. Its hash now uses the exact LF bytes stored in Git; only
 CRLF line endings are normalized, and regressions reject content/other whitespace
 changes. Historical baseline content and provider results are unchanged.
 
+Full hosted browser CI additionally identified a missing disabled-capabilities
+mock, the Messages heading missing the shared typography class, and profile
+triggers racing hydration/listener registration. The shared mock now models the
+real authenticated OFF response; Messages uses the common heading; recruiter
+profile actions use durable workspace context and wait for their handlers. The
+sign-in hydration guard preserves a native POST-only no-JavaScript fallback.
+The offer cancellation test now waits for its held request to start before
+requiring a network-cancellation event; its late-response assertions remain.
+
 All existing migration pairs 1–71 are unchanged.
 
 - `000072_recruiter_professional_profile` adds optional recruiter identity fields.

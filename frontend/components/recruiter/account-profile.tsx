@@ -8,6 +8,7 @@ import type {RecruiterProfile} from "@/lib/recruiter-profile";
 import {APIRequestError,apiRequest} from "@/lib/api";
 import {DashboardProfileCard} from "@/components/ui/dashboard-profile-card";
 import {RecruiterModal,RecruiterModalClose,recruiterInput,recruiterPrimary,recruiterSecondary} from "./workspace-ui";
+import {useRecruiterProfile} from "./profile-context";
 
 function Detail({label,children,className=""}:{label:string;children:React.ReactNode;className?:string}) {
   return <div className={`min-w-0 ${className}`}><dt className="text-xs font-medium text-ink-muted">{label}</dt><dd className="mt-1 break-words text-sm leading-6 text-ink">{children||<span className="text-ink-muted">Not added</span>}</dd></div>;
@@ -15,7 +16,8 @@ function Detail({label,children,className=""}:{label:string;children:React.React
 
 export function RecruiterAccountProfile({session,company,activeJobs}:{session:SessionUser;company:string;activeJobs:number}) {
   const router=useRouter();
-  const [open,setOpen]=useState(false),[profile,setProfile]=useState<RecruiterProfile|null>(null);
+  const {open,setOpen}=useRecruiterProfile();
+  const [ready,setReady]=useState(false),[profile,setProfile]=useState<RecruiterProfile|null>(null);
   const [draft,setDraft]=useState<RecruiterProfile|null>(null),[expertise,setExpertise]=useState("");
   const [loading,setLoading]=useState(false),[error,setError]=useState(""),[editing,setEditing]=useState(false);
   const [saving,setSaving]=useState(false),[photoBusy,setPhotoBusy]=useState(false),[status,setStatus]=useState("");
@@ -23,10 +25,7 @@ export function RecruiterAccountProfile({session,company,activeJobs}:{session:Se
   const nameInput=useRef<HTMLInputElement>(null),errorBox=useRef<HTMLDivElement>(null),editTrigger=useRef<HTMLButtonElement>(null);
   const busy=saving||photoBusy;
 
-  useEffect(()=>{
-    const show=()=>setOpen(true);window.addEventListener("sapienworx:recruiter-profile",show);
-    return()=>window.removeEventListener("sapienworx:recruiter-profile",show);
-  },[]);
+  useEffect(()=>setReady(true),[]);
   useEffect(()=>{
     if(!open)return;
     const controller=new AbortController();setLoading(true);setError("");setStatus("");setEditing(false);setConflict(false);setProfile(null);
@@ -59,7 +58,7 @@ export function RecruiterAccountProfile({session,company,activeJobs}:{session:Se
   const nameParts=name.split(/\s+/);
 
   return <>
-    <button type="button" onClick={()=>setOpen(true)} className="mt-1 flex min-h-11 w-full rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink">My profile & photo</button>
+    <button type="button" disabled={!ready} onClick={()=>setOpen(true)} className="mt-1 flex min-h-11 w-full rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink">My profile & photo</button>
     <Link href="/recruiter/settings" onClick={event=>event.currentTarget.closest("details")?.removeAttribute("open")} className="mt-1 flex min-h-11 items-center rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-muted hover:bg-slate-50 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo">Settings</Link>
     <RecruiterModal open={open} onClose={()=>setOpen(false)} title="Your recruiter profile" size="medium" initialFocus="[data-modal-close]" busy={busy} protectChanges={editing} resetKey={resetKey} footer={editing?<><button type="button" disabled={busy} onClick={cancelEdit} className={recruiterSecondary}>Cancel</button><button type="submit" form="recruiter-profile-form" disabled={busy||conflict} className={recruiterPrimary}>{saving?"Saving…":"Save changes"}</button></>:<RecruiterModalClose disabled={busy}>Close</RecruiterModalClose>}>
       {loading?<p role="status" className="py-10 text-center text-sm text-ink-muted">Loading your profile…</p>:!profile?<div role="alert" className="py-6"><p className="text-sm text-ink">{error||"Your profile is unavailable."}</p><button type="button" onClick={()=>setRetry(value=>value+1)} className={`${recruiterSecondary} mt-4`}>Try again</button></div>:<>

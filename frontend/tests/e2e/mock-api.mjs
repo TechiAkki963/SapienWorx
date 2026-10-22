@@ -420,6 +420,10 @@ function profileSummary() {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${host}:${port}`);
   if (req.method === "OPTIONS") return noContent(res);
+  if (url.pathname === "/api/v1/intelligence/capabilities" && req.method === "GET") {
+    if (!["candidate","recruiter"].includes(roleFromCookie(req))) return json(res,401,{error:{message:"Authentication required"}});
+    return json(res,200,{features:{"cv.parse":{available:false},"job.parse":{available:false},"job.generate_description":{available:false}}});
+  }
   if (url.pathname === "/healthz") return json(res, 200, { ok: true });
   if (url.pathname === "/__e2e/reset" && req.method === "POST") { state = initialState(); return json(res, 200, { reset: true }); }
   if (url.pathname === "/__e2e/requests" && req.method === "GET") return json(res, 200, { items: state.requests });
