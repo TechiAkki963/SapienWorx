@@ -3,7 +3,8 @@
 .candidate-workspace:has(.swx-messaging-workspace) { min-height: 0; }
 .swx-recruiter-frame:has(.swx-messaging-workspace),
 .candidate-frame:has(.swx-messaging-workspace) {
-  height: var(--swx-messages-viewport-height, 100dvh);
+  /* The layout viewport can shrink before visualViewport dispatches resize. */
+  height: min(100dvh, var(--swx-messages-viewport-height, 100dvh));
   min-height: 0;
   overflow: hidden;
 }

@@ -46,6 +46,8 @@ profile actions use durable workspace context and wait for their handlers. The
 sign-in hydration guard preserves a native POST-only no-JavaScript fallback.
 The offer cancellation test now waits for its held request to start before
 requiring a network-cancellation event; its late-response assertions remain.
+The chat frame also caps its visual-viewport height at `100dvh`, so a browser
+resize cannot retain the old taller frame while the resize event is pending.
 
 All existing migration pairs 1–71 are unchanged.
 

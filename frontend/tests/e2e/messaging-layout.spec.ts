@@ -30,9 +30,11 @@ async function bounded(page: Page) {
     return { pageHeight: document.documentElement.scrollHeight, height: innerHeight, width: innerWidth,
       pageWidth: document.documentElement.scrollWidth, y: scrollY, composerBottom: composer.bottom,
       paneBottom: pane.bottom, composerTop: composer.top, historyBottom: history.bottom,
-      historyHeight: history.height, position: getComputedStyle(document.querySelector(".swx-messaging-composer")!).position };
+      historyHeight: history.height, position: getComputedStyle(document.querySelector(".swx-messaging-composer")!).position,
+      viewportHeight:visualViewport?.height,bodyMinHeight:getComputedStyle(document.body).minHeight,
+      frameHeight:document.querySelector(".swx-recruiter-frame,.candidate-frame")?.getBoundingClientRect().height };
   });
-  expect(bounds.pageHeight).toBeLessThanOrEqual(bounds.height + 1);
+  expect(bounds.pageHeight, JSON.stringify(bounds)).toBeLessThanOrEqual(bounds.height + 1);
   expect(bounds.pageWidth).toBeLessThanOrEqual(bounds.width + 1);
   expect(bounds.y).toBe(0);
   expect(bounds.composerBottom).toBeLessThanOrEqual(bounds.height);
@@ -141,11 +143,18 @@ test("candidate context stays reachable with keyboard, without moving the compos
   expect(await page.locator(".swx-messaging-composer").boundingBox()).toEqual(initial);await bounded(page);
 });
 
-test("mobile keyboard-sized viewport keeps reply and Send visible",async({page})=>{
-  await page.setViewportSize({width:390,height:844});await login(page,"recruiter");await openConversation(page,"recruiter");
+for(const role of ["candidate","recruiter"] as const) test(`${role}: mobile keyboard-sized viewport keeps reply and Send visible`,async({page})=>{
+  await page.setViewportSize({width:390,height:844});await login(page,role);await openConversation(page,role);
   await page.getByRole("textbox",{name:"Write a reply"}).focus();await page.setViewportSize({width:390,height:480});
+  // CDP can report innerHeight before Chromium updates viewport units/layout.
+  // Wait for that browser recalculation, then retain every strict bounds check.
+  const frame=page.locator(".swx-recruiter-frame,.candidate-frame");
+  await expect.poll(()=>frame.evaluate(n=>n.getBoundingClientRect().height)).toBeLessThanOrEqual(480);
   await bounded(page);await page.getByRole("textbox",{name:"Write a reply"}).fill("Keyboard remains usable");
   await page.getByRole("button",{name:"Send",exact:true}).click();await expect(page.getByRole("textbox",{name:"Write a reply"})).toHaveValue("");await bounded(page);
+  await page.setViewportSize({width:390,height:844});
+  await expect.poll(()=>frame.evaluate(n=>n.getBoundingClientRect().height)).toBe(844);
+  await bounded(page);
 });
 
 test("desktop context can collapse and re-open without covering the composer",async({page})=>{
