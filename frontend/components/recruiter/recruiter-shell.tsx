@@ -38,7 +38,7 @@ export async function RecruiterShell({ children }: { children: React.ReactNode }
         access={companyAccess}
         recruiterName={recruiterName}
         companyName={companyName}
-        profileImageUrl={session?.profile_image_url}
+        profileImageUrl={session?.profile_image_url || undefined}
         header={<header className="swx-recruiter-navbar sticky top-0 z-40 border-b border-line/70 bg-white/95">
           <div className="flex min-h-[63px] items-center gap-4 px-4 sm:px-6">
             <form action="/recruiter/pipeline" className="swx-recruiter-navbar-search min-w-0 flex-1">
