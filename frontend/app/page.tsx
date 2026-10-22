@@ -6,6 +6,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { LandingFooter } from "@/components/site/landing-footer";
 import { LandingGuideCarousel } from "@/components/site/landing-guide-carousel";
 import { LandingHeader } from "@/components/site/landing-header";
+import styles from "@/components/site/public-theme.module.css";
 import { Button } from "@/components/ui/button";
 import { guides } from "@/lib/knowledge-hub";
 
@@ -39,7 +40,7 @@ const dashboardRows = [
 
 export default function HomePage() {
   return (
-    <main id="main-content" className="swx-landing min-h-screen overflow-x-clip bg-white">
+    <main id="main-content" className={`${styles.publicSurface} swx-landing min-h-screen overflow-x-clip bg-white`}>
       <LandingHeader />
 
       <section className="swx-hero" aria-labelledby="home-title">
@@ -113,7 +114,7 @@ export default function HomePage() {
               <p className="swx-eyebrow">Your journey, simplified</p>
               <h2 id="product-title" className="swx-display">Your career journey,<br />all in one place.</h2>
               <p>Track your applications, save jobs, build new skills, and discover suggested opportunities — everything you need to create the career you want.</p>
-              <div className="swx-actions"><Button href="/signup">Create Account <span aria-hidden="true">→</span></Button><Button href="/jobs" variant="secondary">Explore Jobs</Button></div>
+              <div className="swx-actions"><Button href="/signup">Create Account <span aria-hidden="true">→</span></Button></div>
             </Reveal>
             <Reveal className="swx-dashboard-wrap" delay={0.06}>
               <div className="swx-dashboard" aria-label="Illustrative candidate workspace with sample data">
@@ -139,7 +140,7 @@ export default function HomePage() {
           <Reveal>
             <div className="swx-final-cta">
               <div className="swx-cta-copy"><p className="swx-eyebrow">Ready for what’s next?</p><h2 id="final-title" className="swx-display">Your next chapter starts here.</h2><p>A more human, more meaningful future of work is possible — and it starts with you.</p></div>
-              <div className="swx-cta-actions"><Button href="/signup" className="swx-white-button">Create Account <span aria-hidden="true">→</span></Button><Button href="/jobs" className="swx-ghost-button">Explore Jobs</Button></div>
+              <div className="swx-cta-actions"><Button href="/jobs" className="swx-ghost-button">Explore Jobs <span aria-hidden="true">→</span></Button></div>
               <div className="swx-cta-person" style={{ backgroundImage: `linear-gradient(90deg,rgba(7,29,73,.25),transparent),url("${people.hero}")` }} aria-hidden="true"><span className="swx-hand">Brighter<br />together.</span></div>
             </div>
           </Reveal>
