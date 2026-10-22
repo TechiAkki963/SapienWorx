@@ -1,0 +1,149 @@
+.publicSurface {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+:global(.swx-dark) .publicSurface:global(.swx-landing) {
+  --swx-blue: #60a5fa;
+  --swx-navy: #e8f0ff;
+  --swx-text: #a8b7cf;
+  --swx-line: #26364d;
+  background: #0b1220 !important;
+  color: #e5edf8;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-header) {
+  border-color: rgba(51, 65, 85, 0.86);
+  background: rgba(11, 18, 32, 0.94);
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-desktop-nav a),
+:global(.swx-dark) .publicSurface :global(.swx-login-link) {
+  color: #cbd5e1;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-recruiter-link),
+:global(.swx-dark) .publicSurface :global(.swx-mobile-menu summary),
+:global(.swx-dark) .publicSurface :global(.swx-mobile-menu nav) {
+  border-color: #334155;
+  background: #111827;
+  color: #e5edf8;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-mobile-menu nav a) {
+  color: #cbd5e1;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-mobile-menu nav a:hover) {
+  background: #172554;
+  color: #bfdbfe;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-hero) {
+  background:
+    radial-gradient(circle at 74% 10%, rgba(30, 64, 175, 0.28), transparent 28rem),
+    radial-gradient(circle at 7% 83%, rgba(14, 116, 144, 0.16), transparent 22rem),
+    linear-gradient(135deg, #0b1220 0%, #0e1728 58%, #101d33 100%);
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-opportunity-card),
+:global(.swx-dark) .publicSurface :global(.swx-search),
+:global(.swx-dark) .publicSurface :global(.swx-journey-card),
+:global(.swx-dark) .publicSurface :global(.swx-guide-card),
+:global(.swx-dark) .publicSurface :global(.swx-dashboard) {
+  border-color: #2b3a50;
+  background: rgba(17, 24, 39, 0.96);
+  color: #e5edf8;
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.28);
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-field),
+:global(.swx-dark) .publicSurface :global(.swx-search input),
+:global(.swx-dark) .publicSurface :global(.swx-search select) {
+  border-color: #334155;
+  background: #0f172a;
+  color: #e5edf8;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-search input::placeholder) {
+  color: #7c8da6;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-search label > span:first-child),
+:global(.swx-dark) .publicSurface :global(.swx-popular),
+:global(.swx-dark) .publicSurface :global(.swx-section-heading > p:last-child),
+:global(.swx-dark) .publicSurface :global(.swx-knowledge-head p),
+:global(.swx-dark) .publicSurface :global(.swx-product-copy > p:last-of-type),
+:global(.swx-dark) .publicSurface :global(.swx-journey-body p),
+:global(.swx-dark) .publicSurface :global(.swx-guide-body p),
+:global(.swx-dark) .publicSurface :global(.swx-footer),
+:global(.swx-dark) .publicSurface :global(.swx-footer a) {
+  color: #a8b7cf;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-journey),
+:global(.swx-dark) .publicSurface :global(.swx-product) {
+  background: linear-gradient(135deg, #0b1220, #0f1a2d);
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-knowledge) {
+  background: linear-gradient(135deg, #0f1a2d 0%, #102038 54%, #0f2424 100%);
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-round-icon),
+:global(.swx-dark) .publicSurface :global(.swx-outline-link) {
+  border-color: #365275;
+  background: #111c33;
+  color: #bfdbfe;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-dashboard-top),
+:global(.swx-dark) .publicSurface :global(.swx-dashboard-grid aside) {
+  border-color: #2b3a50;
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-dashboard-stats > div),
+:global(.swx-dark) .publicSurface :global(.swx-dashboard-rows > div) {
+  border-color: #2b3a50;
+  background: #111c2f;
+  color: #e5edf8;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-footer) {
+  border-color: #26364d;
+  background: #0b1220;
+}
+
+:global(.swx-dark) .publicSurface :global(article.bg-white),
+:global(.swx-dark) .publicSurface :global(.bg-white) {
+  background-color: #111827 !important;
+}
+
+:global(.swx-dark) .publicSurface :global(.text-navy),
+:global(.swx-dark) .publicSurface :global(.swx-display) {
+  color: #e8f0ff !important;
+}
+
+:global(.swx-dark) .publicSurface :global(.text-ink-muted) {
+  color: #a8b7cf !important;
+}
+
+:global(.swx-dark) .publicSurface :global(.border-line) {
+  border-color: #2b3a50 !important;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-final-cta) {
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.32);
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-white-button) {
+  background: #f8fafc;
+  color: #075ee7;
+}
+
+:global(.swx-dark) .publicSurface :global(.swx-ghost-button) {
+  border-color: rgba(255, 255, 255, 0.55);
+  color: white;
+}
