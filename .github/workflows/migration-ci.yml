@@ -81,8 +81,17 @@ jobs:
           SET ROLE sapienworx_app;
           SELECT count(*) FROM intelligence.model_versions;
           SELECT intelligence.enqueue_event('platform.analysis.requested','platform',NULL,'{}'::jsonb);
+          -- Reproduce the governed switch's SQL under the restricted API role.
+          UPDATE intelligence.events SET available_at=now() WHERE status IN ('pending','failed');
           RESET ROLE;
           SQL
+
+          for sql in "UPDATE intelligence.events SET status='pending'" "UPDATE intelligence.events SET payload='{}'::jsonb" "UPDATE intelligence.events SET attempts=0" "DELETE FROM intelligence.events"; do
+            if psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SET ROLE sapienworx_app; $sql;" >/dev/null 2>&1; then
+              echo "API role unexpectedly acquired worker event privileges: $sql" >&2
+              exit 1
+            fi
+          done
 
           if psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U sapienworx -d sapienworx_ci -c "SET ROLE sapienworx_intelligence; SELECT count(*) FROM candidate_profiles;" >/dev/null 2>&1; then
             echo "Intelligence role unexpectedly read candidate_profiles directly." >&2

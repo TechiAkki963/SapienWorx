@@ -29,11 +29,11 @@ test("Phase 3.8 keyboard and assistive-technology acceptance", async ({ page }) 
   await expect(reviewButton).toBeFocused();
 
   await page.getByRole("button",{name:"More actions for Senior Go Platform Engineer"}).first().click();
-  const shareButton = page.getByRole("button", { name: "Share" }).first();
+  const shareButton = page.getByRole("button", { name: "Share job", exact:true }).first();
   await shareButton.focus();
   await shareButton.press("Enter");
   await expect(shareButton).toHaveAttribute("aria-expanded", "true");
-  await expect(page.getByRole("button", { name: "Share / copy link" })).toBeFocused();
+  await expect(page.getByRole("dialog",{name:"Share job",exact:true}).getByRole("button", { name: "Close Share job",exact:true })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(shareButton).toHaveAttribute("aria-expanded", "false");
   await expect(shareButton).toBeFocused();

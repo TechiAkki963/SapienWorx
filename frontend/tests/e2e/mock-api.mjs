@@ -40,7 +40,9 @@ function adminPage(items,url) {
 
 function initialState() {
   return {
+    recruiterProfile: {full_name:"Riya Recruiter",designation:"Recruitment Specialist",work_email:"recruiter@example.com",work_email_verified:true,company_name:"Sapien Labs India",work_phone:"+919876543210",location:"Bengaluru, India",expertise:["Engineering","Technology","Hiring"],bio:"Connecting people with meaningful engineering opportunities.",updated_at:"2026-10-15T09:00:00Z"},
     publicJobFixture: {},
+    jobSharing: {},
     applicationDrafts:{},
     candidatePreferences:{notifications:{applications:true,interviews:true,offers:true,messages:true,job_alerts:true},product_analytics:false},
     publicJobStatus: 200,
@@ -418,12 +420,21 @@ function profileSummary() {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${host}:${port}`);
   if (req.method === "OPTIONS") return noContent(res);
+  if (url.pathname === "/api/v1/intelligence/capabilities" && req.method === "GET") {
+    if (!["candidate","recruiter"].includes(roleFromCookie(req))) return json(res,401,{error:{message:"Authentication required"}});
+    return json(res,200,{features:{"cv.parse":{available:false},"job.parse":{available:false},"job.generate_description":{available:false}}});
+  }
   if (url.pathname === "/healthz") return json(res, 200, { ok: true });
   if (url.pathname === "/__e2e/reset" && req.method === "POST") { state = initialState(); return json(res, 200, { reset: true }); }
   if (url.pathname === "/__e2e/requests" && req.method === "GET") return json(res, 200, { items: state.requests });
   if (url.pathname === "/__e2e/state" && req.method === "GET") return json(res, 200, { ...state, stages: Object.fromEntries(state.stages) });
 
   const payload = ["POST", "PATCH", "PUT"].includes(req.method ?? "") ? await body(req) : {};
+  if (url.pathname === "/__e2e/messaging" && req.method === "POST") {
+    if (payload.threads) state.messagingThreads = payload.threads;
+    if (payload.messages) state.messagingMessages = payload.messages;
+    return json(res, 200, { seeded: true });
+  }
   if(handleOfferStudioMock(req,res,url,payload,{state,json,logRequest,pipelineRows,role:roleFromCookie(req)})!==false)return;
   if(handleCompanyMock(req,res,url,payload,{state,json,noContent,logRequest})!==false)return;
   if (["/api/v1/auth/password/forgot","/api/v1/auth/password/reset"].includes(url.pathname) && req.method==="POST") { state.requests.push({method:req.method,path:url.pathname,search:url.search,query:Object.fromEntries(url.searchParams),body:payload}); return json(res,200,{status:"accepted"}); }
@@ -450,6 +461,23 @@ const server = http.createServer(async (req, res) => {
   }
   if(url.pathname==="/__e2e/interviews" && req.method==="POST"){ state.recruiterInterviews=payload.items; return json(res,200,{seeded:true}); }
   logRequest(req, url, payload);
+  if(url.pathname === "/__e2e/recruiter-job-sharing" && req.method === "POST") {
+    state.jobSharing[payload.id || jobID] = {status:"active",visibility:"public",updated_at:"2026-10-15T10:00:00Z",can_change_visibility:true,...payload};
+    return json(res,200,{configured:true});
+  }
+  const sharingMatch=url.pathname.match(/^\/api\/v1\/recruiter\/jobs\/([^/]+)\/visibility$/);
+  if(sharingMatch){
+    const id=sharingMatch[1];
+    const current=state.jobSharing[id]||{status:state.jobStatus??"active",visibility:id.endsWith("88")?"private":"public",updated_at:"2026-10-15T10:00:00Z",can_change_visibility:true};
+    if(req.method==="GET")return json(res,current.read_status||200,current.read_status?{error:{message:"Sharing permissions unavailable"}}:current);
+    if(req.method==="PATCH"){
+      if(!current.can_change_visibility)return json(res,403,{error:{message:"Visibility permission denied"}});
+      if(current.failure)return json(res,current.failure,{error:{message:"Unable to change job visibility. Try again."}});
+      if(payload.visibility!=="public"||payload.expected_visibility!==current.visibility||payload.expected_status!==current.status||payload.expected_updated_at!==current.updated_at)return json(res,409,{error:{message:"This job changed. Close and reopen job actions before trying again."}});
+      state.jobSharing[id]={...current,visibility:"public",updated_at:now()};
+      return json(res,200,state.jobSharing[id]);
+    }
+  }
   if(url.pathname === "/api/v1/recruiter/talent/usage" && req.method === "GET") return json(res,200,{owner:true,entitlements:{company_id:companyID,managed:true,state:"active",plan_name:"Recruit Plus",features:{},capacity:{},usage:{talent_profile_unlock:100,outreach_message:500},limits_approved:true,data_preserved:true},usage:{talent_profile_unlock:12,outreach_message:48}});
   if (url.pathname === "/__e2e/public-job" && req.method === "POST") {
     state.publicJobFixture = payload.job || {};
@@ -459,6 +487,7 @@ const server = http.createServer(async (req, res) => {
   if(req.method==="GET"&&url.pathname==="/api/v1/recruiter/outreach/campaigns"&&state.workspaceFail.outreach_get) return json(res,503,{error:{message:"Synthetic outreach outage"}});
   // Local controller and fixtures only; these endpoints do not exist in production.
   if(url.pathname==="/__e2e/workspace"&&req.method==="POST"){
+    if(payload.recruiter_profile)state.recruiterProfile={...state.recruiterProfile,...payload.recruiter_profile};
     if(payload.fail)state.workspaceFail={...state.workspaceFail,...payload.fail};
     if(payload.saved_job_ids)state.savedJobIDs=payload.saved_job_ids;
     if(payload.applications)state.candidateApplications=payload.applications;
@@ -584,7 +613,7 @@ const server = http.createServer(async (req, res) => {
     if(state.workspaceFail.session_get)return json(res,503,{error:{message:"Account service unavailable"}});
     if (!role||state.expireAccess) return json(res, 401, { error: { message: "authentication required" } });
     const id = role === "candidate" ? candidateID : role === "recruiter" ? recruiterID : adminID;
-    return json(res, 200, { id, role, first_name: role === "candidate" ? state.profile.full_name.split(" ")[0] : "", last_name: "", headline: "",profile_image_url:role==='candidate'?state.candidatePhoto:undefined });
+    return json(res, 200, { id, role, first_name: role === "candidate" ? state.profile.full_name.split(" ")[0] : role==='recruiter'?state.recruiterProfile.full_name.split(' ')[0]:"", last_name: role==='recruiter'?state.recruiterProfile.full_name.split(' ').slice(1).join(' '):"", headline: role==='recruiter'?state.recruiterProfile.designation:"",profile_image_url:role==='candidate'?state.candidatePhoto:undefined });
   }
 
   if (url.pathname === "/api/v1/candidate/dashboard" && req.method === "GET") return json(res, 200, {
@@ -764,6 +793,11 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  if(url.pathname==="/api/v1/jobs/60000000-0000-4000-8000-000000000088"&&req.method==="GET"){
+    const current=state.jobSharing["60000000-0000-4000-8000-000000000088"];
+    if(current?.visibility!=="public"||current.status!=="active")return json(res,404,{error:{message:"Unavailable"}});
+    return json(res,200,job({id:"60000000-0000-4000-8000-000000000088",job_reference:"SWX-JOB-2026-00088",title:"Private Operations Lead",company_name:"Sapien Labs India"}));
+  }
   if ([ `/api/v1/jobs/${jobID}`, "/api/v1/jobs/SWX-JOB-2026-00001" ].includes(url.pathname) && req.method === "GET" && state.publicJobStatus !== 200) return json(res, state.publicJobStatus, { error: { message: "Synthetic public job unavailable" } });
   if ([ `/api/v1/jobs/${jobID}`, "/api/v1/jobs/SWX-JOB-2026-00001" ].includes(url.pathname) && req.method === "GET") return json(res, 200, job({
     id: jobID,
@@ -810,8 +844,21 @@ const server = http.createServer(async (req, res) => {
       items: ids.map((id) => ({ job_id: id, outcome: "succeeded" })),
     });
   }
+  if(url.pathname==="/api/v1/recruiter/profile"){
+    if(roleFromCookie(req)!=="recruiter")return json(res,403,{error:{message:"Recruiter access required"}});
+    if(req.method==="GET")return state.workspaceFail.recruiter_profile_get?json(res,503,{error:{message:"Profile service unavailable"}}):json(res,200,state.recruiterProfile);
+    if(req.method==="PATCH"){
+      if(state.workspaceFail.recruiter_profile_patch)return json(res,503,{error:{message:"Profile could not be saved. Try again."}});
+      if(payload.expected_updated_at!==state.recruiterProfile.updated_at)return json(res,409,{error:{message:"Your profile changed in another session. Reload the latest details before saving."}});
+      const allowed=['full_name','designation','work_phone','location','expertise','bio','expected_updated_at'];
+      if(Object.keys(payload).some(key=>!allowed.includes(key)))return json(res,400,{error:{message:"Invalid profile fields"}});
+      const {expected_updated_at,...changes}=payload;
+      if(changes.expertise)changes.expertise=[...new Map(changes.expertise.map(value=>[value.toLowerCase(),value])).values()];
+      state.recruiterProfile={...state.recruiterProfile,...changes,updated_at:now()};return json(res,200,state.recruiterProfile);
+    }
+  }
   if (url.pathname === "/api/v1/recruiter/dashboard" && req.method === "GET") return json(res, 200, {
-    recruiter_name: "Riya Recruiter",
+    recruiter_name: state.recruiterProfile.full_name,
     company_name: "Sapien Labs India",
     active_jobs: 12,
     applications: 1000,
@@ -863,6 +910,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
     const status = url.searchParams.get("status") ?? "";
+    for(const item of source){const sharing=state.jobSharing[item.id];if(sharing)Object.assign(item,{status:sharing.status,visibility:sharing.visibility,updated_at:sharing.updated_at});}
     const roleCategory = url.searchParams.get("role_category") ?? "";
     const workMode = url.searchParams.get("work_mode") ?? "";
     const employmentType = url.searchParams.get("employment_type") ?? "";
@@ -1183,7 +1231,7 @@ const server = http.createServer(async (req, res) => {
       is_read: false,
       created_at: now(),
     };
-    if (!message.content) return json(res, 400, { error: { message: "messaging input is invalid" } });
+    if (!message.content || Buffer.byteLength(message.content,"utf8")>5000) return json(res, 400, { error: { message: "messaging input is invalid" } });
     state.messagingMessages[threadID] = [...(state.messagingMessages[threadID] ?? []), message];
     const thread = state.messagingThreads.find((item) => item.id === threadID);
     if (thread) {

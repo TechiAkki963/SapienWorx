@@ -488,6 +488,15 @@ func (s *Service) RequestModelEvaluation(ctx context.Context, modelID, actor, ip
 	if !validResourceID(modelID) || !validResourceID(actor) {
 		return ErrInvalid
 	}
+	var engine, provider string
+	if err := s.db.QueryRow(ctx, `SELECT engine_type,provider FROM intelligence.model_versions WHERE id=$1`, modelID).Scan(&engine, &provider); errors.Is(err, pgx.ErrNoRows) {
+		return ErrNotFound
+	} else if err != nil {
+		return err
+	}
+	if engine == "ai_gateway" && provider == "openai" {
+		return s.requestAIBaselineEvaluation(ctx, modelID, actor, requestID)
+	}
 	tag, err := s.db.Exec(ctx, `UPDATE intelligence.model_versions SET status='evaluating' WHERE id=$1 AND status IN ('candidate','evaluating')`, modelID)
 	if err != nil {
 		return err
@@ -507,8 +516,9 @@ func (s *Service) PromoteIntelligenceModel(ctx context.Context, modelID, actor, 
 		return err
 	}
 	defer tx.Rollback(ctx)
-	var engineType, status string
-	if err = tx.QueryRow(ctx, `SELECT engine_type,status FROM intelligence.model_versions WHERE id=$1 FOR UPDATE`, modelID).Scan(&engineType, &status); errors.Is(err, pgx.ErrNoRows) {
+	var engineType, status, provider, model string
+	var config []byte
+	if err = tx.QueryRow(ctx, `SELECT engine_type,status,provider,model_ref,config FROM intelligence.model_versions WHERE id=$1 FOR UPDATE`, modelID).Scan(&engineType, &status, &provider, &model, &config); errors.Is(err, pgx.ErrNoRows) {
 		return ErrNotFound
 	} else if err != nil {
 		return err
@@ -524,7 +534,12 @@ func (s *Service) PromoteIntelligenceModel(ctx context.Context, modelID, actor, 
 		return ErrConflict
 	}
 	var passed bool
-	if err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM intelligence.evaluations WHERE model_version_id=$1 AND quality_gate_status='passed')`, modelID).Scan(&passed); err != nil {
+	if engineType == "ai_gateway" && provider == "openai" {
+		passed, err = hasMatchingAIBaseline(ctx, tx, modelID, engineType, provider, model, config)
+	} else {
+		err = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM intelligence.evaluations WHERE model_version_id=$1 AND quality_gate_status='passed')`, modelID).Scan(&passed)
+	}
+	if err != nil {
 		return err
 	}
 	if !passed {

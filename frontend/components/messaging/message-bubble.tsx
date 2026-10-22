@@ -40,10 +40,10 @@ export function MessageBubble({ message, currentSenderType, observe }: MessageBu
           initial={{ opacity: 0, y: 8, scale: 0.985 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: "spring", stiffness: 280, damping: 26, mass: 0.78 }}
-          className={`flex ${mine ? "justify-end" : "justify-start"}`}
+          className={`relative flex ${mine ? "justify-end" : "justify-start"}`}
         >
           <div
-            className={`max-w-[82%] rounded-[1.35rem] px-4 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.05)] sm:max-w-[72%] ${
+            className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 shadow-sm sm:max-w-[65%] ${
               candidateMessage
                 ? "swx-message-candidate rounded-br-md border border-emerald-100 bg-emerald-50 text-emerald-950"
                 : "swx-message-recruiter rounded-bl-md border border-violet-100 bg-violet-50 text-violet-950"
@@ -52,7 +52,7 @@ export function MessageBubble({ message, currentSenderType, observe }: MessageBu
             <p className="whitespace-pre-wrap break-words text-sm leading-6">{message.content}</p>
 
             <div className="mt-1 flex min-h-4 items-center justify-end gap-1.5">
-              <span className={`text-[10px] font-semibold ${candidateMessage ? "text-emerald-700/70" : "text-violet-700/70"}`}>
+              <span className="swx-message-timestamp text-[11px]">
                 {formatTime(message.created_at)}
               </span>
 
@@ -65,7 +65,7 @@ export function MessageBubble({ message, currentSenderType, observe }: MessageBu
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ type: "spring", stiffness: 320, damping: 24, mass: 0.65 }}
-                      className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#526B63]"
+                      className="swx-message-read-status inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#526B63]"
                       title="Read"
                       aria-label="Read"
                     >

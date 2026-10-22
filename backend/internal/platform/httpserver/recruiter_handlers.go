@@ -164,6 +164,29 @@ func (s *Server) recruiterJobDetail(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Server) recruiterJobVisibility(w http.ResponseWriter, r *http.Request) {
+	id, ok := recruiterID(r)
+	if !ok {
+		return
+	}
+	var state recruiter.JobSharingState
+	var err error
+	if r.Method == http.MethodGet {
+		state, err = s.recruiter.JobSharing(r.Context(), id, r.PathValue("jobID"))
+	} else {
+		var input recruiter.JobVisibilityChange
+		if !decodeJSON(w, r, &input) {
+			return
+		}
+		state, err = s.recruiter.MakeJobPublic(r.Context(), id, r.PathValue("jobID"), input)
+	}
+	if err != nil {
+		s.writeRecruiterError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, state)
+}
+
 func (s *Server) recruiterJobStatus(w http.ResponseWriter, r *http.Request) {
 	id, ok := recruiterID(r)
 	if !ok {
@@ -355,6 +378,10 @@ func (s *Server) writeRecruiterError(w http.ResponseWriter, r *http.Request, err
 	switch {
 	case errors.Is(err, recruiter.ErrAIReviewRequired):
 		writeError(w, r, http.StatusConflict, "ai_review_required", "Review the AI description and structured requirements before preview or publishing.")
+	case errors.Is(err, recruiter.ErrJobSharingStale):
+		writeError(w, r, http.StatusConflict, "job_sharing_changed", "This job changed. Close and reopen job actions before trying again.")
+	case errors.Is(err, recruiter.ErrJobSharingUnavailable):
+		writeError(w, r, http.StatusConflict, "job_sharing_unavailable", "This job is no longer open for applications. Review its status and deadline before sharing.")
 	case errors.Is(err, recruiter.ErrJobStatusStale):
 		writeError(w, r, http.StatusConflict, "job_status_changed", "This job status changed. Reload before trying again.")
 	case errors.Is(err, recruiter.ErrStageStale):

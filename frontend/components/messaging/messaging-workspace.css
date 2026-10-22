@@ -1,0 +1,80 @@
+/* A bounded application workspace: only the list, history and context scroll. */
+.swx-recruiter-workspace:has(.swx-messaging-workspace),
+.candidate-workspace:has(.swx-messaging-workspace) { min-height: 0; }
+.swx-recruiter-frame:has(.swx-messaging-workspace),
+.candidate-frame:has(.swx-messaging-workspace) {
+  /* The layout viewport can shrink before visualViewport dispatches resize. */
+  height: min(100dvh, var(--swx-messages-viewport-height, 100dvh));
+  min-height: 0;
+  overflow: hidden;
+}
+.swx-recruiter-main-shell:has(.swx-messaging-workspace),
+.candidate-main-shell:has(.swx-messaging-workspace) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.swx-recruiter-main-shell:has(.swx-messaging-workspace) > header,
+.candidate-main-shell:has(.swx-messaging-workspace) > header { flex-shrink: 0; }
+.swx-recruiter-main-shell > main:has(> .swx-messages-page),
+.candidate-frame .candidate-workspace-main:has(> .swx-messages-page) {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 16px 20px;
+}
+.swx-messages-page { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; }
+.swx-messages-page > header { flex-shrink: 0; }
+.swx-messaging-workspace { flex: 1; min-height: 0; }
+.swx-messaging-columns { height: 100%; min-height: 0; }
+.swx-message-history { position: relative; scrollbar-gutter: stable; overflow-anchor: none; }
+.swx-message-input { min-height: 44px; max-height: min(144px, 25dvh); }
+.swx-messaging-composer [role="alert"] { max-height: 64px; overflow-y: auto; }
+.swx-messaging-workspace .swx-message-timestamp { color: #64748b; font-weight: 400; }
+.swx-dark .theme-surface .swx-messaging-workspace .swx-message-timestamp,
+.swx-dark .theme-surface .swx-messaging-workspace .swx-message-read-status { color: #b6c3d5 !important; }
+
+@media (max-width: 1023px) {
+  .swx-recruiter-main-shell > main:has(> .swx-messages-page) {
+    padding: 12px 12px calc(84px + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 767px) {
+  .candidate-frame .candidate-workspace-main:has(> .swx-messages-page) {
+    padding: 12px 12px calc(76px + env(safe-area-inset-bottom));
+  }
+  .swx-messages-page { gap: 8px; }
+  .swx-messages-page > header p { display: none; }
+  .swx-messaging-composer { padding: 8px 8px max(8px, env(safe-area-inset-bottom)); }
+}
+@media (max-height: 540px) {
+  .swx-messages-page > header { display: none; }
+  .swx-messaging-header { padding-block: 4px; }
+}
+
+.swx-emoji-trigger { display: inline-grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 8px; color: #51627a; background: transparent; }
+.swx-emoji-trigger:hover,.swx-emoji-trigger[aria-expanded="true"] { background: #eaf3ff; color: #114fba; }
+.swx-emoji-trigger:disabled { opacity: .5; cursor: wait; }
+.swx-emoji-trigger:focus-visible,.swx-emoji-picker button:focus-visible { outline: 2px solid #0866ff; outline-offset: -2px; }
+.swx-emoji-picker { overflow-y: auto; overscroll-behavior: contain; padding: 8px; border: 1px solid #dce6f2; border-radius: 14px; background: #fff; color: #10213f; box-shadow: 0 12px 36px #10213f26; }
+.swx-emoji-picker header { display: flex; align-items: center; justify-content: space-between; padding-left: 8px; }
+.swx-emoji-picker h2 { font-size: 14px; font-weight: 700; }
+.swx-emoji-picker header button { width: 40px; height: 40px; border-radius: 8px; font-size: 24px; }
+.swx-emoji-categories { display: flex; gap: 2px; overflow-x: auto; border-block: 1px solid #dce6f2; padding-block: 3px; }
+.swx-emoji-categories button { flex: 1 0 auto; min-height: 40px; padding: 4px 6px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.swx-emoji-categories button[aria-pressed="true"] { color: #114fba; background: #eaf3ff; }
+.swx-emoji-grid { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 2px; padding-top: 6px; }
+.swx-emoji-grid button { display: grid; place-items: center; min-width: 0; min-height: 44px; border-radius: 8px; font-size: 22px; line-height: 1; }
+.swx-emoji-picker button:hover { background: #eaf3ff; }
+.swx-emoji-help,.swx-emoji-notice { padding: 6px 8px 2px; font-size: 12px; color: #51627a; }
+.swx-dark .swx-emoji-trigger { color: #b6c3d5; }
+.swx-dark .swx-emoji-trigger:hover,.swx-dark .swx-emoji-trigger[aria-expanded="true"] { background: #172554; color: #c3d9ff; }
+.swx-dark .swx-emoji-picker { background: #111c30; color: #edf3ff; border-color: #354560; box-shadow: 0 12px 36px #0006; }
+.swx-dark .swx-emoji-categories { border-color: #354560; }
+.swx-dark .swx-emoji-picker button:hover,.swx-dark .swx-emoji-categories button[aria-pressed="true"] { background: #20395d; color: #e2eeff; }
+.swx-dark .swx-emoji-help,.swx-dark .swx-emoji-notice { color: #b6c3d5; }
+.swx-dark .swx-emoji-trigger:focus-visible,.swx-dark .swx-emoji-picker button:focus-visible { outline-color: #a5c8ff; }

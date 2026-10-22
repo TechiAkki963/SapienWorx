@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,14 +13,18 @@ type Role = "candidate" | "recruiter" | "master_admin";
 
 export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string }) {
   const router = useRouter();
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [attemptedEmail, setAttemptedEmail] = useState("");
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const destination = role === "candidate" ? nextPath ?? "/candidate" : role === "recruiter" ? "/recruiter" : "/swx-command-centre/overview";
 
+  useEffect(() => setReady(true), []);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!ready || pending) return;
     setError("");
     setVerificationNeeded(false);
     setPending(true);
@@ -78,7 +82,7 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
   const verificationHref = `/verify-email?${new URLSearchParams({ email: attemptedEmail, role, ...(role === "candidate" && nextPath ? {next:nextPath} : {}) }).toString()}`;
 
   return (
-    <form method="post" className="grid gap-5" onSubmit={submit}>
+    <form method="post" className="grid gap-5" onSubmit={submit} aria-busy={pending}>
       <div>
         <p className="text-sm font-semibold text-indigo">{role === "master_admin" ? "Restricted session" : "Welcome back"}</p>
         <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-ink">{role === "master_admin" ? "Enter the command centre" : "Sign in to SapienWorx"}</h2>
@@ -96,7 +100,12 @@ export function LoginForm({ role, nextPath }: { role: Role; nextPath?: string })
         {role === "master_admin" ? <span className="text-xs text-ink-muted">No self-registration is available.</span> : <Link className="font-semibold text-indigo hover:underline" href={`/forgot-password?returnTo=${encodeURIComponent(role === "recruiter" ? "/recruiter/login" : "/login")}`}>Forgot password?</Link>}
         {role !== "master_admin" && <Link className="text-ink-muted hover:text-ink" href={role === "recruiter" ? "/recruiter/signup" : nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"}>Create account</Link>}
       </div>
-      <Button type="submit" size="lg" disabled={pending}>{pending ? "Signing in…" : role === "master_admin" ? "Enter command centre" : "Sign in"}</Button>
+      <Button className="swx-js-login-submit" type="submit" size="lg" disabled={!ready || pending}>{pending ? "Signing in…" : role === "master_admin" ? "Enter command centre" : "Sign in"}</Button>
+      <noscript>
+        <style>{".swx-js-login-submit{display:none!important}"}</style>
+        <p className="text-sm text-ink-muted">Enable JavaScript to sign in. Your credentials are only submitted in the request body.</p>
+        <Button type="submit" size="lg">{role === "master_admin" ? "Enter command centre" : "Sign in"}</Button>
+      </noscript>
     </form>
   );
 }

@@ -89,12 +89,14 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 		return Chain(next, RequireRoles(auth.RoleRecruiter), s.companyRecruiterGuard)
 	}
 	candidateActivity := CandidateActivity(candidateService, logger)
+	mux.Handle("GET /api/v1/intelligence/capabilities", Chain(http.HandlerFunc(s.aiCapabilities), protected, RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)))
 	mux.Handle("POST /api/v1/intelligence/jobs/parse", Chain(http.HandlerFunc(s.aiJobParse), protected, RequireRoles(auth.RoleRecruiter)))
 	mux.Handle("POST /api/v1/intelligence/jobs/generate-description", Chain(http.HandlerFunc(s.aiJobGenerate), protected, RequireRoles(auth.RoleRecruiter)))
 	mux.Handle("POST /api/v1/intelligence/jobs/generations/{generationID}/review", Chain(http.HandlerFunc(s.aiJobGenerationReview), protected, RequireRoles(auth.RoleRecruiter)))
 	mux.Handle("POST /api/v1/intelligence/cv/parse", Chain(http.HandlerFunc(s.aiCVParse), protected, candidateOnly))
 	mux.Handle("GET /api/v1/intelligence/parses/{parseID}", Chain(http.HandlerFunc(s.aiProposal), protected, RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)))
 	mux.Handle("PATCH /api/v1/intelligence/parses/{parseID}", Chain(http.HandlerFunc(s.aiProposal), protected, RequireRoles(auth.RoleCandidate, auth.RoleRecruiter)))
+	mux.Handle("POST /api/v1/intelligence/parses/{parseID}/apply", Chain(http.HandlerFunc(s.aiCVApply), protected, RequireRoles(auth.RoleCandidate)))
 	adminOnly := MasterAdminOnly(tokens, cfg.Auth.AccessCookieName, adminService, logger)
 	adminGuard := func(permissions ...admin.Permission) Middleware {
 		return func(next http.Handler) http.Handler {
@@ -195,6 +197,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("PATCH /api/v1/candidate/notifications/{notificationID}/read", Chain(http.HandlerFunc(s.candidateNotificationRead), protected, candidateOnly, candidateActivity))
 
 	mux.Handle("GET /api/v1/recruiter/dashboard", Chain(http.HandlerFunc(s.recruiterDashboard), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/profile", Chain(http.HandlerFunc(s.recruiterAccountProfile), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/profile", Chain(http.HandlerFunc(s.recruiterAccountProfile), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/discover", Chain(http.HandlerFunc(s.recruiterDiscover), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/discover", Chain(http.HandlerFunc(s.recruiterDiscover), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/saved-searches", Chain(http.HandlerFunc(s.recruiterSavedSearches), protected, recruiterOnly))
@@ -214,6 +218,8 @@ func New(cfg config.Config, db DatabaseHealth, tokens *auth.TokenManager, authSe
 	mux.Handle("GET /api/v1/recruiter/jobs/{jobID}", Chain(http.HandlerFunc(s.recruiterJobDetail), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}", Chain(http.HandlerFunc(s.recruiterJobDetail), protected, recruiterOnly))
 	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/status", Chain(http.HandlerFunc(s.recruiterJobStatus), protected, recruiterOnly))
+	mux.Handle("GET /api/v1/recruiter/jobs/{jobID}/visibility", Chain(http.HandlerFunc(s.recruiterJobVisibility), protected, recruiterOnly))
+	mux.Handle("PATCH /api/v1/recruiter/jobs/{jobID}/visibility", Chain(http.HandlerFunc(s.recruiterJobVisibility), protected, recruiterOnly))
 	mux.Handle("POST /api/v1/recruiter/jobs/{jobID}/duplicate", Chain(http.HandlerFunc(s.recruiterDuplicateJob), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/jobs/{jobID}/history", Chain(http.HandlerFunc(s.recruiterJobHistory), protected, recruiterOnly))
 	mux.Handle("GET /api/v1/recruiter/jobs/{jobID}/analytics", Chain(http.HandlerFunc(s.recruiterJobAnalytics), protected, recruiterOnly))

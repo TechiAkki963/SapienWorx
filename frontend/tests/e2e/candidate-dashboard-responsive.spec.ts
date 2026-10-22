@@ -40,11 +40,11 @@ for (const [width, height] of [
     await page.getByLabel(/Account menu for/).click();
     await page.getByRole("button", { name: "My profile & photo" }).click();
     const profile = page.getByRole("region", {
-      name: "Your dashboard profile",
+      name: "Recruiter identity",
     });
     await expect(profile.getByRole("heading", { name: "Riya Recruiter", exact: true })).toBeVisible();
     const initials = await profile
-      .locator('div[aria-hidden="true"] > span')
+      .locator('span[aria-hidden="true"]')
       .boundingBox();
     const edit = await profile
       .getByRole("button", { name: "Change profile photo" })

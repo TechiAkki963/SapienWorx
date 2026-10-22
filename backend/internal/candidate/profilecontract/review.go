@@ -206,7 +206,7 @@ func (d *ReviewDraft) Apply(a Actor, patch ReviewPatch, at time.Time) error {
 	return nil
 }
 
-// Confirmation returns a proposal for a future transaction adapter. It performs
+// Confirmation returns a proposal for the reviewed transaction adapter. It performs
 // no persistence, verification, discovery/consent toggle or automatic merge.
 // The adapter must recheck owner/session and updated_at, apply existing section
 // validation, and commit profile/audit/outbox together through current stores.

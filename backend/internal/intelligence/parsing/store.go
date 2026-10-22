@@ -1,5 +1,7 @@
 // Package parsing orchestrates reviewed parsing proposals behind the AI Gateway.
-// It cannot publish a job, update a profile, train a model or call a provider.
+// It cannot publish a job, train a model or call a provider directly. Reviewed
+// CV changes reach the existing profile validators only through an explicit,
+// owner-confirmed transaction with profile freshness and audit checks.
 package parsing
 
 import (

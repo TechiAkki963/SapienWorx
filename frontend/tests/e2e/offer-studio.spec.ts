@@ -65,7 +65,12 @@ test("Company template review is separate from publication and cannot enter an o
 test("PDF preview opens immediately and cancel prevents a late response reopening it",async({page})=>{
  let finish:()=>void=()=>{},handled:()=>void=()=>{};const pending=new Promise<void>(r=>{finish=r}),complete=new Promise<void>(r=>{handled=r});
  await page.route("**/api/v1/recruiter/offers/*/documents/1?mode=view",async route=>{await pending;try{await route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({download:{url:"https://example.test/private-synthetic-offer.pdf"}})})}finally{handled()}});
- await login(page,"recruiter");await page.goto("/recruiter/offers/93000000-0000-4000-8000-000000000001");const trigger=page.getByRole("button",{name:"View letter",exact:true});await trigger.click();const modal=page.getByRole("dialog",{name:"Offer PDF · version 1",exact:true});await expect(modal).toContainText("Opening PDF…");await expect(modal.locator("iframe")).toHaveCount(0);
+ await login(page,"recruiter");await page.goto("/recruiter/offers/93000000-0000-4000-8000-000000000001");const trigger=page.getByRole("button",{name:"View letter",exact:true});
+ const started=page.waitForRequest(request=>request.url().includes("/documents/1?mode=view"));
+ await trigger.click();const modal=page.getByRole("dialog",{name:"Offer PDF · version 1",exact:true});await expect(modal).toContainText("Opening PDF…");await expect(modal.locator("iframe")).toHaveCount(0);
+ // Assert network cancellation only once the deliberately held request exists.
+ // Closing before dispatch is valid too, but need not emit requestfailed.
+ await started;
  const cancelled=page.waitForEvent("requestfailed",request=>request.url().includes("/documents/1?mode=view"));await page.keyboard.press("Escape");await cancelled;await expect(modal).not.toBeVisible();await expect(trigger).toBeEnabled();await expect(trigger).toBeFocused();finish();await complete;await expect(modal).not.toBeVisible();await expect(page.locator("iframe")).toHaveCount(0);
 });
 

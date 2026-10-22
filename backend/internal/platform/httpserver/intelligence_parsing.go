@@ -20,9 +20,13 @@ import (
 
 func (s *Server) SetAIParsing(service *parsing.Service) { s.aiParsing = service }
 func (s *Server) aiContext(w http.ResponseWriter, r *http.Request) (context.Context, bool) {
+	return s.aiRequestContext(w, r, true)
+}
+
+func (s *Server) aiRequestContext(w http.ResponseWriter, r *http.Request, requireParsing bool) (context.Context, bool) {
 	w.Header().Set("Cache-Control", "no-store")
 	claims, ok := ClaimsFromContext(r.Context())
-	if !ok || s.aiParsing == nil {
+	if !ok || requireParsing && s.aiParsing == nil {
 		writeError(w, r, 503, "ai_unavailable", "AI parsing is unavailable; use manual entry.")
 		return nil, false
 	}
@@ -52,6 +56,36 @@ func (s *Server) aiContext(w http.ResponseWriter, r *http.Request) (context.Cont
 		return nil, false
 	}
 	return gateway.WithScope(r.Context(), scope), true
+}
+
+// aiCapabilities checks the same trusted role/company/model/cohort gates as
+// generation, without reserving budget, reading private proposals or calling a
+// provider. Ordinary users receive no secret/configuration or cohort metadata.
+func (s *Server) aiCapabilities(w http.ResponseWriter, r *http.Request) {
+	ctx, ok := s.aiRequestContext(w, r, false)
+	if !ok {
+		return
+	}
+	type capability struct {
+		Available bool `json:"available"`
+	}
+	features := map[string]capability{}
+	for name, feature := range map[string]gateway.Feature{
+		"cv.parse": gateway.CVParser, "job.parse": gateway.JDParser,
+		"job.generate_description": gateway.JDGenerator,
+	} {
+		available := s.aiGateway != nil && s.aiParsing != nil
+		if feature == gateway.CVParser && os.Getenv("CV_CLAMD_ADDRESS") == "" {
+			available = false
+		}
+		if available {
+			available = s.aiGateway.Authorize(ctx, feature) == nil
+		}
+		features[name] = capability{Available: available}
+	}
+	writeJSON(w, http.StatusOK, struct {
+		Features map[string]capability `json:"features"`
+	}{features})
 }
 func (s *Server) writeAIError(w http.ResponseWriter, r *http.Request, err error) {
 	status, code := 503, "ai_unavailable"
@@ -261,4 +295,21 @@ func (s *Server) aiProposal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.writeAIArtifact(w, r, updated)
+}
+
+func (s *Server) aiCVApply(w http.ResponseWriter, r *http.Request) {
+	ctx, ok := s.aiContext(w, r)
+	if !ok {
+		return
+	}
+	var input parsing.CVApplyInput
+	if !decodeJSON(w, r, &input) {
+		return
+	}
+	result, err := s.aiParsing.ApplyCV(ctx, r.PathValue("parseID"), input)
+	if err != nil {
+		s.writeAIError(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, result)
 }
