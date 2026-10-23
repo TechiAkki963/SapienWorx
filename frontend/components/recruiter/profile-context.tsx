@@ -2,11 +2,12 @@
 
 import {createContext,useContext,useState,type ReactNode} from "react";
 
-const ProfileContext=createContext<{open:boolean;setOpen:(open:boolean)=>void}|null>(null);
+const ProfileContext=createContext<{open:boolean;setOpen:(open:boolean)=>void;profileImageUrl:string;setProfileImageUrl:(url:string)=>void}|null>(null);
 
-export function RecruiterProfileProvider({children}:{children:ReactNode}) {
+export function RecruiterProfileProvider({children,initialProfileImageUrl=""}:{children:ReactNode;initialProfileImageUrl?:string}) {
   const [open,setOpen]=useState(false);
-  return <ProfileContext.Provider value={{open,setOpen}}>{children}</ProfileContext.Provider>;
+  const [profileImageUrl,setProfileImageUrl]=useState(initialProfileImageUrl);
+  return <ProfileContext.Provider value={{open,setOpen,profileImageUrl,setProfileImageUrl}}>{children}</ProfileContext.Provider>;
 }
 
 export function useRecruiterProfile() {
