@@ -1,3 +1,11 @@
+.frame:global(.swx-recruiter-frame) {
+  --recruiter-sidebar-width: 256px;
+}
+
+.frame:global(.swx-recruiter-frame)[data-sidebar-collapsed="true"] {
+  --recruiter-sidebar-width: 72px;
+}
+
 .frame :global(#recruiter-desktop-nav) {
   min-width: 0;
   width: 100%;
@@ -7,8 +15,9 @@
 .frame :global(.swx-sidebar-brand-link) {
   min-width: 0;
   max-width: 100%;
+  min-height: 64px;
   overflow: hidden;
-  padding-inline: 1.25rem;
+  padding-inline: 0.75rem;
 }
 
 .frame[data-sidebar-collapsed="true"] :global(.swx-sidebar-brand-link) {
@@ -18,10 +27,11 @@
 .frame :global(.swx-recruiter-sidebar-brand) {
   min-width: 0;
   max-width: 100%;
+  height: 64px;
 }
 
 .frame :global(.swx-recruiter-sidebar-brand .swx-recruiter-brand-wordmark) {
-  width: min(164px, 100%);
+  width: min(172px, 100%);
 }
 
 .frame :global(.swx-recruiter-sidebar-brand .swx-recruiter-brand-icon) {
@@ -30,9 +40,15 @@
 }
 
 .frame :global(.swx-sidebar-toggle) {
-  width: 40px;
-  height: 40px;
-  right: -20px;
+  top: 18px;
+  right: -15px;
+  width: 30px;
+  height: 30px;
+}
+
+.frame :global(.swx-sidebar-toggle svg) {
+  width: 16px;
+  height: 16px;
 }
 
 .frame :global(.swx-sidebar-sections),
@@ -59,17 +75,46 @@
   right: 2px;
 }
 
-.frame :global(#recruiter-desktop-nav > div:last-child),
-.frame :global(#recruiter-desktop-nav details),
-.frame :global(#recruiter-desktop-nav summary) {
+.frame :global(#recruiter-desktop-nav > div:last-child) {
   min-width: 0;
   max-width: 100%;
+  margin-top: auto;
+  border-top: 0;
+  padding: 0;
+}
+
+.frame :global(#recruiter-desktop-nav details) {
+  min-width: 0;
+  max-width: 100%;
+  margin: 8px 12px 12px;
+}
+
+.frame[data-sidebar-collapsed="true"] :global(#recruiter-desktop-nav details) {
+  margin-inline: 8px;
 }
 
 .frame :global(#recruiter-desktop-nav summary) {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 72px;
   overflow: hidden;
+  border-top: 1px solid #29466f;
+  border-radius: 8px;
+  padding: 10px 8px;
+}
+
+.frame :global(#recruiter-desktop-nav summary > span:first-child) {
+  width: 40px;
+  height: 40px;
 }
 
 .frame :global(#recruiter-desktop-nav summary > span:nth-child(2)) {
   min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .frame :global(.swx-recruiter-nav.swx-navy-sidebar) {
+    grid-template-rows: 64px minmax(0, 1fr);
+    padding-top: 0;
+  }
 }
