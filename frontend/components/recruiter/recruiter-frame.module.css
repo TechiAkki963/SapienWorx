@@ -1,8 +1,8 @@
-.frame {
+.frame:global(.swx-recruiter-frame) {
   --recruiter-sidebar-width: 256px;
 }
 
-.frame[data-sidebar-collapsed="true"] {
+.frame:global(.swx-recruiter-frame)[data-sidebar-collapsed="true"] {
   --recruiter-sidebar-width: 72px;
 }
 
